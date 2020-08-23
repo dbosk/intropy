@@ -1,4 +1,4 @@
-HTML_FILES= 	instruktion.html
+HTML_FILES= 	instruction.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos --mathml
 
@@ -6,7 +6,7 @@ PANDOCFLAGS= 	--filter pandoc-xnos --mathml
 .PHONY: all
 all: ${HTML_FILES} ${PDF_FILES}
 
-instruktion.html: instruktion.md
+instruction.html: instruction.md
 
 
 .PHONY: clean

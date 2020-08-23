@@ -1,7 +1,9 @@
 # Laboration: Variabler och utskrifter
 
 Vi ska nu börja med att använda datorn som den räknemaskin den är. Vi ska 
-arbeta med [aritmetiska][aritmetiska] och [geometriska][geometriska] följder.
+arbeta med [aritmetiska][aritmetiska] och [geometriska][geometriska] följder. 
+Denna typ av följder är tämligen användbara, exempelvis kan geometriska följder 
+användas för att räkna på ränteutveckling (bl.a. lån och sparande).
 
 [aritmetiska]: https://sv.wikipedia.org/wiki/Aritmetisk_f%C3%B6ljd
 [geometriska]: https://sv.wikipedia.org/wiki/Geometrisk_f%C3%B6ljd
