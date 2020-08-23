@@ -16,8 +16,8 @@ Låt $d$ och $q$ variera över tid. Tidigare hade vi endast ett värde i $d$ och
 $q$ och använde samma värde alla $n$ gånger. Låt $d$ och $q$ innehålla listor 
 med $n$ värden istället.
 
-Observera att om $d$ och $q$ innehåller $n$ värden som är lika, då ska 
-resultaten bli desamma som i programmet i föregående laboration.
+Observera att nu kan vi inte längre använda formlerna, då de förutsätter att 
+$d$ och $q$ är konstanta. Vi måste då iterera igenom alla termer i summan.
 
 Tips: Låt användaren mata in $n$ först, sedan läser du in $n$ värden för $d$ 
 och $q$ från användaren.
