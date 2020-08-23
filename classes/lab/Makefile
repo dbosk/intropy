@@ -1,6 +1,6 @@
 HTML_FILES= 	instruction.html
 
-PANDOCFLAGS= 	--filter pandoc-xnos --mathml
+PANDOCFLAGS= 	--no-highlight --filter pandoc-xnos --mathml
 
 
 .PHONY: all
