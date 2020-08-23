@@ -17,7 +17,10 @@ $q$ och använde samma värde alla $n$ gånger. Låt $d$ och $q$ innehålla list
 med $n$ värden istället.
 
 Observera att nu kan vi inte längre använda formlerna, då de förutsätter att 
-$d$ och $q$ är konstanta. Vi måste då iterera igenom alla termer i summan.
+$d$ och $q$ är konstanta. (Rent terminologiskt betyder detta också att dessa 
+inte längre är aritmetiska eller geometriska talföljder, då definitionen av 
+dessa förutsätter konstanta $d$ och $q$.) Vi måste då iterera igenom alla 
+termer i summan.
 
 Tips: Låt användaren mata in $n$ först, sedan läser du in $n$ värden för $d$ 
 och $q$ från användaren.
