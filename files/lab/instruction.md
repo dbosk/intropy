@@ -16,6 +16,6 @@ I denna laboration ska du låta användaren mata in namnet på en fil som
 innehåller värdena för $q$. Därefter läser du in värdena och beräknar den 
 geometriska summan.
 
-Du kan låta användaren mata in $g_1$. $n$ får du genom antalet värden för $q$ 
-som finns i filen.
+Du kan låta användaren mata in $g_1$, värdet för $n$ får du genom antalet 
+värden för $q$ som finns i filen.
 
