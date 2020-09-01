@@ -1,0 +1,5 @@
+print("Vad vill addera?")
+x = int(input())
+print(f"Vad vill du addera {x} med?")
+y = int(input())
+print(f"Då blir summan {x+y}.")
