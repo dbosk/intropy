@@ -22,6 +22,17 @@ inte längre är aritmetiska eller geometriska talföljder, då definitionen av
 dessa förutsätter konstanta $d$ och $q$.) Vi måste då iterera igenom alla 
 termer i summan.
 
-Tips: Låt användaren mata in $n$ först, sedan läser du in $n$ värden för $d$ 
-och $q$ från användaren.
+**Tips**: Låt användaren mata in $n$ först, sedan läser du in $n$ värden för 
+$d$ och $q$ från användaren.
+
+**Test**: Vi kan testa koden med korta exempel som vi kan beräkna för hand. Vi 
+kan även testa koden genom att mata in samma värden för $q$ och $d$, d.v.s. att 
+$q_1 = q_2 = \cdots = q_n$ och $d_1 = d_2 = \cdots = d_n$, för då kan vi 
+använda formlerna för att beräkna summan.
+
+**Exempeltillämpning**: Säg att vi har ett sparkonto där räntan varierar och vi 
+vill uppskatta inkomsten från räntan för ett år framåt. Då låter vi $g_1$ vara 
+vårt ursprungliga sparkapital, medan $q_1, \ldots, q_{12}$ är räntan för varje 
+månad.  Då ger räntan en avkastning på $g_1\cdot q_1\cdot q_2\cdots q_{12} 
+- g_1$.
 
