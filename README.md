@@ -21,7 +21,7 @@ Vi har följande moduler:
 - `overview`
 - `variables`
 - `conditionals`
-- `iterations`
+- `containers`
 - `functions`
 - `files`
 - `classes`
