@@ -23,7 +23,9 @@ dessa förutsätter konstanta $d$ och $q$.) Vi måste då iterera igenom alla
 termer i summan.
 
 **Inlämning**: Låt användaren mata in $n$ först, sedan läser du in $n$ värden 
-för $d$ och $q$ från användaren. Skriv ut talföljderna och deras summor.
+för $d$ och $q$ från användaren. Slutligen måste du även läsa in $a_1$ och 
+$g_1$ för att kunna beräkna talföljderna. Skriv ut talföljderna och deras 
+summor.
 
 **Test**: Vi kan testa koden med korta exempel som vi kan beräkna för hand. Vi 
 kan även testa koden genom att mata in samma värden för $q$ och $d$, d.v.s. att 
