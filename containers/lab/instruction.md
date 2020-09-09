@@ -24,9 +24,6 @@ Observera att nu kan vi inte längre använda formeln, då de förutsätter att 
 längre är en geometrisk talföljd, då definitionen förutsätter ett konstant 
 $q$.) Vi måste då iterera igenom alla $q$:n.
 
-**Tips**: Låt användaren mata in $n$ först, sedan läser du in $n$ värden för 
-$q$ från användaren.
-
 **Test**: Vi kan testa koden med korta exempel som vi kan beräkna för hand. Vi 
 kan även testa koden genom att mata in samma värde för $q$ hela tiden, d.v.s. 
 att $q_1 = q_2 = \cdots = q_n$, för då kan vi använda formeln för att beräkna 
