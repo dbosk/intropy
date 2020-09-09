@@ -38,9 +38,9 @@ vårt ursprungliga sparkapital, medan $q_1, \ldots, q_{12}$ är räntan för var
 månad.  Då ger räntan en avkastning på $g_1\cdot q_1\cdot q_2\cdots q_{12} 
 - g_1$.
 
-*Inlämning*: Låt ditt program fråga användaren efter antalet månader ($n$) och 
-det ursprungliga sparkapitalet ($g_1$). Skriv ut sparkapitalets totala värde 
-och värdeökning månad för månad. Exempelvis:
+**Inlämning**: Låt ditt program fråga användaren efter antalet månader ($n$) 
+och det ursprungliga sparkapitalet ($g_1$). Skriv ut sparkapitalets totala 
+värde och värdeökning månad för månad. Exempelvis:
 ```
 Hur mycket sparkapital har du (ange i kr)? 1000
 Hur många månader avser du spara? 2
