@@ -7,7 +7,9 @@ lyckats lösa det. Hjälp varandra!
 
 ## Under labbtillfällen
 
-Det är primärt här du får hjälp från lärare på kursen!
+Det är primärt här du får hjälp från lärare på kursen! Kom då ihåg att dessa 
+tillfällen inte är avsatta för att genomföra labben, utan för att få hjälp. Läs 
+därför igenom labben och **börja arbeta redan innan labbpasset**.
 
 För att få hjälp under labbtillfällen (se [ditt schema][schedule] för när de 
 är), gör följande.
