@@ -16,11 +16,9 @@ MAX_NAME_WIDTH = len(max(names, key=len)) + 2
 WORDS_PER_ROW = MAX_ROW_WIDTH // MAX_NAME_WIDTH
 
 # print the words nicely aligned
-i = 0
-for name in names:
+for i, name in enumerate(names):
     if i % WORDS_PER_ROW == 0:
         print("")
     print(f"{name:{MAX_NAME_WIDTH}s}", end="")
-    i += 1
 print("")
 

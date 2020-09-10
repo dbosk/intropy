@@ -7,9 +7,10 @@ SPACE = 1
 print("* |", end="")
 for y in range(1, 10):
   print(f"{y:{SPACE+2}d}", end="")
+print("")
 
 # print a separating line
-print("\n--+"+"-"*(10*(SPACE+2)-3))
+print("--+" + "-"*(10*(SPACE+2)-3))
 
 # everything below the line
 for x in range(1, 10):

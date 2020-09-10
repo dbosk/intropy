@@ -11,6 +11,7 @@ while True:
     x = int(table)
   except ValueError as err:
     print(f"Please enter a number: {err}")
+    continue
 
   # check that it's not a huge integer
   if x > 9:

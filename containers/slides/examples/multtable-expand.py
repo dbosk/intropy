@@ -4,7 +4,7 @@ import math
 
 # the number of spaces between columns
 SPACE = 1
-MAX_TABLE = 8
+MAX_TABLE = 15
 MAX_WIDTH = math.ceil(2*math.log(MAX_TABLE, 10))
 
 # print the top bar
