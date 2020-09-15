@@ -1,7 +1,7 @@
 """Take input more easily."""
 
 def input_int(prompten):
-    """Take input and convert to int, repeat until success."""
+    """Take input and convert to int, repeat if fail."""
     while True:
         try:
             return int(input(prompten))

@@ -1,15 +1,15 @@
 """Take input more easily."""
 
 def input_type(t, prompt=""):
-    """Take input and convert to type t, repeat if error."""
+    """Take input, convert to type t; repeat if error."""
     while True:
         try:
             return t(input(prompt))
         except ValueError:
             if t == int:
-                print(f"Sorry, that can't be converted to integer.")
+                print(f"Sorry, can't convert to integer.")
             else:
-                print(f"Sorry, that can't be converted to {t}.")
+                print(f"Sorry, can't convert to {t}.")
 
 x = input_type(int, "x = ")
 y = input_type(int, "y = ")
