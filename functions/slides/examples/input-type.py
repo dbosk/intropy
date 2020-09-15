@@ -6,9 +6,16 @@ def input_type(t, prompt=""):
         try:
             return t(input(prompt))
         except ValueError:
-            print(f"Sorry, that can't be converted to {t}")
+            if t == int:
+                print(f"Sorry, that can't be converted to integer.")
+            else:
+                print(f"Sorry, that can't be converted to {t}.")
 
 x = input_type(int, "x = ")
 y = input_type(int, "y = ")
+z = input_type(float, "z = ")
+name = input_type(str, "Your name: ")
 
 print(f"{x} + {y} = {x+y}")
+print(f"z = {z}")
+print(f"Your name is {name}")
