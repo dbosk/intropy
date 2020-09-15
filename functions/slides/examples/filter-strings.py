@@ -1,8 +1,8 @@
 """Filtering experiments"""
 
-def gt_two(x):
-    """Return true if x > 2"""
-    return x > 2
+def gt_two(s):
+    """Return true if length > 2"""
+    return len(s) > 2
 
 def own_filter(f, lst):
     result = []
@@ -11,15 +11,9 @@ def own_filter(f, lst):
             result.append(i)
     return result
 
-ns = ["adam", "bertil", "ce"]
+ns = ["adam", "bertil", "ce", "ded"]
 ms = own_filter(gt_two, ns)
 
 for i in ms:
     print(i, end=" ")
-print()
-
-ks = filter(gt_two, ns)
-
-for i in ks:
-    print(i, end=" ")
-print()
+print("\n")
