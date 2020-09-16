@@ -25,7 +25,7 @@ g_1: 1000
 q_1: 1.01
 q_2: 1.04
 
-Det sista talet i den första är 1050.60, vilket är större än 1050.50.
+Det sista talet i den första är 1050.60, vilket är större än 1050.40.
 ```
 
 **Krav**: Använd lämplig uppdelning i funktioner, minimera kodupprepning!
