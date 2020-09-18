@@ -11,9 +11,11 @@ def own_filter(f, lst):
             result.append(i)
     return result
 
-ns = ["adam", "bertil", "ce", "ded"]
-ms = own_filter(gt_two, ns)
+def main():
+    ns = ["adam", "bertil", "ce", "ded"]
+    ms = own_filter(gt_two, ns)
 
-for i in ms:
-    print(i, end=" ")
-print("\n")
+    for i in ms:
+        print(i, end=" ")
+    print("\n")
+
