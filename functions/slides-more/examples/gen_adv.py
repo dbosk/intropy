@@ -17,10 +17,8 @@ def main():
     f = lambda x: 2*x
     for i in map_nogen(f, l):
         print(i)
-        break
     for i in map_gen(f, l):
         print(i)
-        break
 
 if __name__ == "__main__":
     main()
