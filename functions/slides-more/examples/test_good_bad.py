@@ -1,5 +1,7 @@
 """Tests good and bad modules"""
 
-import bad_module
+import good_module
+import testarmodul
 
-bad_module.hello_world()
+good_module.hello_world()
+testarmodul.testfunktion("hej")
