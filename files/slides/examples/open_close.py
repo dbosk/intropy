@@ -8,12 +8,11 @@ def without_with():
         number = int(file.read())
         print(f"The number is {number}")
     except EnvironmentError as err:
-        print("Error related to file: {err}")
+        print(f"Error related to file: {err}")
     except ValueError as err:
         print(f"Error related to type conversion: {err}")
-    finally:
-        if file:
-            file.close()
+    if file:
+        file.close()
 
 def with_with():
     """ Read a file with the with statement """
@@ -23,7 +22,7 @@ def with_with():
             number = int(file.read())
         print(f"The number is {number}")
     except EnvironmentError as err:
-        print("Error related to file: {err}")
+        print(f"Error related to file: {err}")
     except ValueError as err:
         print(f"Error related to type conversion: {err}")
 

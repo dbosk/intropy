@@ -3,9 +3,9 @@
 def main1():
     """ One way to print to a file """
     try:
-        with open("test1.txt", "w") as file:
+        with open("test1.txt", "a") as file:
             for i in range(10):
-                file.write(f"i = {i}")
+                file.write(f"i = {i}\n")
     except EnvironmentError as err:
         print(f"We encountered an error: {err}")
 
@@ -21,7 +21,7 @@ def main3():
     """ Yet another way to write to a file """
     try:
         with open("test3.txt", "w") as file:
-            file.writelines([f"i = {i}" for i in range(10)])
+            file.writelines([f"i = {i}\n" for i in range(10)])
     except EnvironmentError as err:
         print(f"We encountered an error: {err}")
 
