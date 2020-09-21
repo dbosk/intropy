@@ -18,7 +18,7 @@ def main_read():
     for line in lines:
         x_val, y_val = line.split(" -> ")
         if 2*int(x_val)+3 != int(y_val):
-            print(f"{x_val} /-> {y_val}")
+            print(f"{x_val} -/> {y_val}")
             any_bad = True
 
     if not any_bad:
