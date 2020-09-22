@@ -1,0 +1,77 @@
+\paragraph{What the program does}
+
+We want to have a short program in C++ for the purpose of showing debugging 
+using gdb(1).
+
+The program should ask the user for a nominator and denominator.
+Then the program will compute the fraction and print the value to standard out.
+
+
+\paragraph{Source code structure}
+
+A C++ program is structured as follows.
+We only depend on [[<iostream>]] since we want to read from standard in and 
+write to standard out.
+<<divider.cpp>>=
+// The divider program
+
+#include <iostream>
+using namespace std;
+
+<<functions>>
+
+int main(void) {
+  <<main body>>
+}
+@
+
+The program execution starts in the [[main]] function.
+The bulk of out program will go into [[<<main body>>]].
+Then we can have helper functions in [[<<functions>>]].
+
+In out case, we need to do the following in the [[<<main body>>]].
+<<main body>>=
+<<ask the user for a nominator and a denominator>>
+<<compute and print the result>>
+@
+
+
+\paragraph{Communicating with the user}
+
+We should ask the user for the two numbers and store them in variables so that 
+we can use them later.
+We choose the type [[float]] since we don't need the precision and want to 
+reduce our memory footprint.
+Otherwise the [[double]] type would have done a fine job too.
+<<ask the user for a nominator and a denominator>>=
+float nominator, denominator;
+
+cout << "Nominator: ";
+cin >> nominator;
+
+cout << "Denominator: ";
+cin >> denominator;
+@
+
+
+\paragraph{Compute and print the result}
+
+Now we want to compute the result from our input in
+[[<<ask the user for a nominator and a denominator>>]].
+We will do this with a function.
+This is to introduce a call stack for our debugging purposes.
+<<compute and print the result>>=
+cout << nominator << " / " << denominator
+  << " = " << divide(nominator, denominator) << endl;
+@
+
+The function [[divide]] will be templated since we don't want to rewrite 
+anything in case we change types of the nominator and denominator.
+We also have a type for the return value, we default to [[float]].
+(This way the compiler can infer all types automatically.)
+<<functions>>=
+template <class nominator_t, class denominator_t, class ret_t=float>
+ret_t divide(nominator_t nominator, denominator_t denominator) {
+  return nominator / denominator;
+}
+@
