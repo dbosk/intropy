@@ -3,8 +3,9 @@
 We want to have a short program in C++ for the purpose of showing debugging 
 using gdb(1).
 
-The program should ask the user for a nominator and denominator.
-Then the program will compute the fraction and print the value to standard out.
+The program should ask the user for two factors.
+Then the program will multiply them in a rather inefficient way --- by repeated 
+addition --- and then print the result.
 
 
 \paragraph{Source code structure}
@@ -12,8 +13,8 @@ Then the program will compute the fraction and print the value to standard out.
 A C++ program is structured as follows.
 We only depend on [[<iostream>]] since we want to read from standard in and 
 write to standard out.
-<<divider.cpp>>=
-// The divider program
+<<multiplier.cpp>>=
+// The multiplier program
 
 #include <iostream>
 using namespace std;
@@ -31,7 +32,7 @@ Then we can have helper functions in [[<<functions>>]].
 
 In out case, we need to do the following in the [[<<main body>>]].
 <<main body>>=
-<<ask the user for a nominator and a denominator>>
+<<ask the user for two factors>>
 <<compute and print the result>>
 @
 
@@ -43,35 +44,36 @@ we can use them later.
 We choose the type [[float]] since we don't need the precision and want to 
 reduce our memory footprint.
 Otherwise the [[double]] type would have done a fine job too.
-<<ask the user for a nominator and a denominator>>=
-float nominator, denominator;
+<<ask the user for two factors>>=
+float factor1, factor2;
 
-cout << "Nominator: ";
-cin >> nominator;
-
-cout << "Denominator: ";
-cin >> denominator;
+cout << "Enter two factors: ";
+cin >> factor1 >> factor2;
 @
 
 
 \paragraph{Compute and print the result}
 
 Now we want to compute the result from our input in
-[[<<ask the user for a nominator and a denominator>>]].
+[[<<ask the user for two factors>>]].
 We will do this with a function.
 This is to introduce a call stack for our debugging purposes.
 <<compute and print the result>>=
-cout << nominator << " / " << denominator
-  << " = " << divide(nominator, denominator) << endl;
+cout << factor1 << " * " << factor2
+  << " = " << multiply(factor1, factor2) << endl;
 @
 
-The function [[divide]] will be templated since we don't want to rewrite 
-anything in case we change types of the nominator and denominator.
-We also have a type for the return value, we default to [[float]].
+The function [[multiply]] will be templated since we don't want to rewrite 
+anything in case we change types later.
 (This way the compiler can infer all types automatically.)
 <<functions>>=
-template <class nominator_t, class denominator_t, class ret_t=float>
-ret_t divide(nominator_t nominator, denominator_t denominator) {
-  return nominator / denominator;
+template <class type>
+type multiply(type factor1, type factor2) {
+  type result = 0;
+
+  for (auto i = 0; i < factor2; i++)
+    result += factor2;
+
+  return result;
 }
 @

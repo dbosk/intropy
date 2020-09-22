@@ -1,21 +1,22 @@
 .PHONY: all
-all: divider divider.pdf
+all: multiplier multiplier.pdf
 
 CPPFLAGS+= -g
 
-divider: divider.cpp
+multiplier: multiplier.cpp
 
-divider.cpp: divider.cpp.nw
+multiplier.cpp: multiplier.cpp.nw
 	${NOTANGLE.cpp}
 
-divider.pdf: divider.cpp.nw
+multiplier.pdf: multiplier.cpp.nw
 	${NOWEAVE.pdf}
 
 
 .PHONY: clean
 clean:
-	${RM} divider divider.pdf
-	git restore divider.cpp
+	${RM} multiplier multiplier.pdf
+	${RM} multiplier.cpp multiplier.tex
+	${RM} multiplier.aux multiplier.fdb_latexmk multiplier.fls multiplier.log
 
 
 INCLUDE_MAKEFILES=../../../makefiles
