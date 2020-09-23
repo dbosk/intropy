@@ -4,8 +4,8 @@ This is a simple guessing game.
 
 import random
 
-NUM_OF_ROUNDS = 3
-NUM_OF_ATTEMPTS = 3
+NUM_OF_ROUNDS = 2
+NUM_OF_ATTEMPTS = 5
 results = []
 
 for q in range(NUM_OF_ROUNDS):
@@ -16,6 +16,7 @@ for q in range(NUM_OF_ROUNDS):
         guess = int(input(f"Guess the number between 0--10 (attempt {i+1}): "))
       except:
         print("Sorry, that didn't work.")
+        continue
       if 0 <= guess and guess <= 10:
         break
       else:
