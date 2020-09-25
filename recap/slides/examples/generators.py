@@ -1,7 +1,7 @@
 """Experiment: advantage of generators"""
 
 def map_nogen(func, lst):
-    """ Computes map function without generator """
+    """ Computes [f(x)] from [x] without generator """
     result = []
     for i in lst:
         print(f"nogen {i} -> {func(i)}")
@@ -9,7 +9,7 @@ def map_nogen(func, lst):
     return result
 
 def map_gen(func, lst):
-    """ Computes map function as generator """
+    """ Computes [f(x)] from [x] with generator """
     for i in lst:
         print(f"gen {i} -> {func(i)}")
         yield func(i)
