@@ -35,6 +35,10 @@ def main():
   # Skriv ut summan av de första 20 elementen
   print(f"sum(a) = {sum(a[:20])}")
 
+  g1 = 1000
+  g = myseq.MultiplicativeSequenceFromFile("q-vals.txt")
+  print(f"g[12] = {g[12]}")
+
 if __name__ == "__main__":
   main()
 ```
