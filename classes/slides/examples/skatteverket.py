@@ -6,7 +6,8 @@ from address import Address
 class Person(PersonStr):
     """ Represents a real/physical person """
     def __init__(self, person_id, full_name, parents, address):
-        super().__init__(full_name[:-1], full_name[-1], person_id)
+        names = full_name.split()
+        super().__init__(" ".join(names[:-1]), names[-1], person_id)
         self.__parents = parents
         self.__address = address
         self.__old_addresses = []
@@ -19,10 +20,10 @@ class Person(PersonStr):
         """ Returns the address """
         return self.__address
 
-    def change_address(self, address):
+    def change_address(self, new_address):
         """ Changes the address (registers a move) """
         self.__old_addresses.append(self.__address)
-        self.__address = address
+        self.__address = new_address
 
 
 def main():
@@ -37,6 +38,7 @@ def main():
     print(f"{cecilia} bor på {cecilia.get_address()}")
     cecilia.change_address(Address("Vägen 2", "Orten"))
     print(f"{cecilia} bor på {cecilia.get_address()}")
+    print(f"{alice} och {bob} bor fortfarande på {alice.get_address()}")
 
 if __name__ == "__main__":
     main()
