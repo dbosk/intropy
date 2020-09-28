@@ -1,6 +1,7 @@
 .PHONY: all
 all: multiplier multiplier.pdf
 
+# must add debug flag to compiler
 CPPFLAGS+= -g
 
 multiplier: multiplier.cpp
@@ -10,6 +11,9 @@ multiplier.cpp: multiplier.cpp.nw
 
 multiplier.pdf: multiplier.cpp.nw
 	${NOWEAVE.pdf}
+	${RM} multiplier.tex
+
+multiplier.tex: multiplier.cpp.nw
 
 
 .PHONY: clean
