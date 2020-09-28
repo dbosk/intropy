@@ -19,7 +19,7 @@ följande:
 
 ```python
 import my_sequence_library as myseq
-import input_type as it # from the lectures examples
+import input_type as it # https://github.com/dbosk/intropy/raw/master/classes/lab/input_type.py
 
 def main():
   a1 = it.input_type(int, "a1 = ")
