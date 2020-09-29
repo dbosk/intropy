@@ -43,13 +43,38 @@ if __name__ == "__main__":
   main()
 ```
 
-Ovan nämnda egenskap är sann för alla talföljder, vare sig de är aritmetiska, 
-geometriska eller något annat. Då kan vi ha en generell klass för talföljder 
-och sedan specialiserade klasser för aritmetiska och geometriska talföljder. Så 
-vi skulle kunna byta ut `a = myseq.ArithmeticSequence(a1=1, d=2)` mot `a = 
+Ovan nämnda egenskap (indexering, `__getitem___`) är sann för alla talföljder, 
+vare sig de är aritmetiska, geometriska eller något annat. Då kan vi ha en 
+generell klass för talföljder och sedan specialiserade klasser för aritmetiska 
+och geometriska talföljder. Så vi skulle kunna byta ut `a = 
+myseq.ArithmeticSequence(a1=1, d=2)` mot `a = 
 myseq.MultiplicativeSequenceFromFile("file.txt")` (som läser in en sekvens från 
 fil, likt föregående laboration) och resten av koden i exemplet ovan kommer att 
 fortsätta att fungera.
+
+För raden `sum(a[:20])` (se [här][slice-notation] för förklaring av notationen) 
+krävs att din kod hanterar [sliceobjekt][slice-docs]. Följande exempelkod är 
+bra att experimentera med:
+
+```python
+class Test:
+  def __getitem__(self, key):
+    return key
+
+t = Test()
+print(t[0])
+print(t[:10])
+print(t[4:7])
+slice_object = t[4:7]
+print(slice_object.start)
+print(slice_object.stop)
+print(slice_object.step)
+print(isinstance(t[4:8], slice))
+print(isinstance(t[4], slice))
+```
+
+[slice-notation]: https://docs.python.org/3/tutorial/introduction.html#strings
+[slice-docs]: https://docs.python.org/3/library/functions.html#slice
 
 **Inlämning**: Lämna in en modul (`my_sequence_library.py`) som fungerar med 
 testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`, 
