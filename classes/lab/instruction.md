@@ -99,3 +99,15 @@ testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`,
 talföljden (från fil) inte har tillräckligt många element. Exempelvis om den 
 innehållet data för 12 månader, då finns inte `a[20]`.
 
+
+## Extrauppgift
+
+Denna uppgift är för extra utmaning och behöver inte lämnas in.
+
+Implementera [`__setitem__`][setitem] för `MultiplicativeSequenceFromFile` för 
+att sätta värden. När värdena sätts ska respektive $q$-värde beräknas från 
+föregående värde. Lägg till en metod `.save(filename)` som sparar alla 
+$q$-värden till en fil som kan läsas in med `MultiplicativeSequenceFromFile` 
+nästa körning.
+
+[setitem]: https://docs.python.org/3/reference/datamodel.html#object.__setitem__
