@@ -35,9 +35,24 @@ def main():
   # Skriv ut summan av de första 20 elementen
   print(f"sum(a) = {sum(a[:20])}")
 
-  g1 = 1000
-  g = myseq.MultiplicativeSequenceFromFile("q-vals.txt")
+  g1 = it.input_type(float, "g1 = ")
+  q = it.input_type(float, "q = ")
+  g = myseq.GeometricSequence(g1, q)
   print(f"g[12] = {g[12]}")
+  
+  try:
+    print(f"g[-1] = {g[-1]}")
+  except IndexError:
+    print("Finns inget sista tal i en oändlig talföljd")
+
+  filename = it.input_type(str, "filename = ")
+  gf = myseq.MultiplicativeSequenceFromFile(filename)
+  print(f"gf[12] = {gf[12]}")
+
+  try:
+    print(f"gf[1000] = {gf[1000]}")
+  except IndexError:
+    print("På tok för stort index.")
 
 if __name__ == "__main__":
   main()
@@ -84,3 +99,15 @@ testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`,
 talföljden (från fil) inte har tillräckligt många element. Exempelvis om den 
 innehållet data för 12 månader, då finns inte `a[20]`.
 
+
+## Extrauppgift
+
+Denna uppgift är för extra utmaning och behöver inte lämnas in.
+
+Implementera [`__setitem__`][setitem] för `MultiplicativeSequenceFromFile` för 
+att sätta värden. När värdena sätts ska respektive $q$-värde beräknas från 
+föregående värde. Lägg till en metod `.save(filename)` som sparar alla 
+$q$-värden till en fil som kan läsas in med `MultiplicativeSequenceFromFile` 
+nästa körning.
+
+[setitem]: https://docs.python.org/3/reference/datamodel.html#object.__setitem__
