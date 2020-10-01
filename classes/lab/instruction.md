@@ -8,9 +8,10 @@ I den här laborationen ska vi förenkla hanteringen av olika geometriska summor
 
 ## Uppgift
 
-Skriv en klass som hanterar en talföljd. Låt klassen vara en del av en modul 
-för talföljder. Den ska hantera den karakteristiska egenskapen för en talföljd: 
-det ska gå att få ut det $n$:te elementet (använd [`__getitem__`][getitem]).
+Nu ska vi skriva klasser som hanterar talföljder. Låt klasserna vara en del av 
+en modul för talföljder. De ska hantera den karakteristiska egenskapen för en 
+talföljd: det ska gå att få ut det $n$:te elementet (använd 
+[`__getitem__`][getitem]).
 
 [getitem]: https://docs.python.org/3/reference/datamodel.html#object.__getitem__
 
