@@ -38,23 +38,18 @@ class Fraction:
                             self.denominator * other.denominator)
         raise TypeError(f"can't add with type {type(other)}")
 
-    def __radd__(self, other):
-        return self + other
-
-    def __neg__(self):
-        return Fraction(-self.nominator, self.denominator)
-
-    def __sub__(self, other):
-        return self + (-other)
-
-    def __rsub__(self, other):
-        return Fraction(other) - self
-
 
 def main():
     """Test program"""
     frac_a = Fraction(1, 2)
-    print(1 - frac_a)
+    print(frac_a)
+    frac_b = Fraction(2, 3)
+    print(frac_b)
+    print(frac_a + frac_b)
+    frac_c = frac_a + frac_b
+    frac_c += Fraction(1, 7)
+    print(frac_c)
+    print(1+frac_c)
 
 if __name__ == "__main__":
     main()

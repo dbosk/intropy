@@ -50,11 +50,46 @@ class Fraction:
     def __rsub__(self, other):
         return Fraction(other) - self
 
+    def __mul__(self, other):
+        if isinstance(other, int):
+            return Fraction(self.nominator * other, self.denominator)
+        elif isinstance(other, Fraction):
+            return Fraction(self.nominator * other.nominator,
+                            self.denominator * other.denominator)
+        raise TypeError(f"can't multiply type {type(other)}")
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __lt__(self, other):
+        nom1 = self.nominator * other.denominator
+        nom2 = other.nominator * self.denominator
+        return nom1 < nom2
+
+    def __eq__(self, other):
+        nom1 = self.nominator * other.denominator
+        nom2 = other.nominator * self.denominator
+        return nom1 == nom2
+
 
 def main():
     """Test program"""
     frac_a = Fraction(1, 2)
-    print(1 - frac_a)
+    frac_b = Fraction(2, 4)
+    if frac_a == frac_b: # frac_a.__eq__(frac_b)
+        print(f"{frac_a} = {frac_b}")
+    elif frac_a > frac_b: # frac_a.__gt__(frac_b) --> not (a <= b)
+        print(f"{frac_a} > {frac_b}")
+    elif frac_a < frac_b: # frac_a.__lt__(frac_b)
+        print(f"{frac_a} <= {frac_b}")
+
+    fracs = sorted([Fraction(1, 2), Fraction(1, 3), Fraction(1, 4)])
+    #fracs = [Fraction(1, 2), Fraction(1, 3), Fraction(1, 4)]
+    #fracs.sort()
+    for frac in fracs:
+        print(frac)
+
+    print(f"Summan är {sum(fracs)}")
 
 if __name__ == "__main__":
     main()
