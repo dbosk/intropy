@@ -1,4 +1,4 @@
-"""Super ugly program"""
+"""A drawing program"""
 
 import tkinter as tk
 
@@ -23,9 +23,6 @@ class DrawGUI(tk.Tk):
 
     def paint(self, event):
         """ Draw a line between two points """
-        # To see just how many events we get
-        print(f"x: {event.x}, y: {event.y}")
-
         # If we don't have old coordinates, we must wait for new
         if self.x_old is None:
             self.x_old = event.x
@@ -40,7 +37,6 @@ class DrawGUI(tk.Tk):
 
     def reset_old_coord(self, _):
         """Reset x_old and y_old to None"""
-        print("button released")
         self.x_old = self.y_old = None
 
 

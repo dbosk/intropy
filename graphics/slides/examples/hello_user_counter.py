@@ -1,4 +1,4 @@
-"""Super ugly program"""
+"""Program which illustrates state"""
 
 import tkinter as tk
 

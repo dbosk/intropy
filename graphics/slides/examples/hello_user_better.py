@@ -1,4 +1,4 @@
-"""Super ugly program"""
+"""tkinter by inheritance"""
 
 import tkinter as tk
 
