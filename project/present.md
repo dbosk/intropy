@@ -24,5 +24,8 @@ men väljer redovisning istället för hjälp. Kom i tid!
 att redovisa efter kursens slut via [allmänhandledningen][allmänhandledningen] 
 respektive [restlabbsredovisningen][restlabbar].
 
+Om ni redovisar efter kursens slut måste ni även ta med er specifikation och 
+ert granskningsprotokoll till redovisningen.
+
 [allmänhandledningen]: https://www.kth.se/social/group/allmanhandledning/
 [restlabbar]: https://www.kth.se/social/group/labbvecka/page/restlabbar-7/
