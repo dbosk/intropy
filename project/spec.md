@@ -18,5 +18,7 @@ Specifikationen ska innehålla följande:
   - Funktioner. Du kan dela upp din algoritm i funktioner som med hjälp av de 
     argument de får löser de olika delarna av algoritmen.
 
+Den ska ge en översikt över projektet, så kvalitet är viktigare än kvantitet.
+
 **Redovisning**: Specifikationen redovisas muntligen under ett labbtillfälle. 
 Välj redovisning istället för hjälp i labbkön.
