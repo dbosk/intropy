@@ -11,9 +11,8 @@ Specifikationen ska innehålla följande:
   - Datastruktur. Vilken eller vilka datastrukturer behöver du? Oftast behöver 
     data lagras på något sätt; i minnet (objektinstans av en klass) eller i 
     filer (serialiserade med CSV, JSON eller annat lämpligt format). Hur ser 
-    eventuella klasser ut (attribut och metoder), eller behöver du ingen egen 
-    klass? Klarar du dig med Pythons inbyggda strukturer? Eller behöver du 
-    båda?
+    din klass (dina klasser) ut (attribut och metoder)? Vilka av Pythons 
+    inbyggda strukturer behöver du?
 
   - Funktioner. Du kan dela upp din algoritm i funktioner som med hjälp av de 
     argument de får löser de olika delarna av algoritmen.
