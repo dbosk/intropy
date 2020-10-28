@@ -7,6 +7,8 @@ import numpy
 def main():
     f = math.sin
 
+    # using pi/4 gives an unsmooth result,
+    # pi/8 or pi/12 yields a smoother curve
     x_vals = numpy.arange(-2*math.pi, 2*math.pi, math.pi / 4)
     y_vals = list(map(f, x_vals))
 
