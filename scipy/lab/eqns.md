@@ -31,7 +31,9 @@ t(x) &= x^6 - 3 x^5 - 41 x^4 + 87 x^3 + 400 x^2 - 444 x - 720
 $$
 
 Skriv en funktion som finner nollställen för en given funktion. Använd 
-[Newton-Raphsons metod][nr-method].
+[Newton-Raphsons metod][nr-method]. Använd den för att finna ett nollställe för 
+respektive funktion ($p, q, s, t$, en åt gången, inte alla som ett 
+ekvationssystem).
 
 [nr-method]: https://en.wikipedia.org/wiki/Newton%27s_method
 
