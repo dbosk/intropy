@@ -1,4 +1,4 @@
 .PHONY: all
-all: eqns.html graph.html
+all: eqns.html graphs.html
 
 include ../../html.mk
