@@ -37,7 +37,9 @@ ekvationssystem).
 
 [nr-method]: https://en.wikipedia.org/wiki/Newton%27s_method
 
-Newton-Raphsons metod kräver dock en gissning för $x_0$. Skriv en funktion som 
-tar $n$ som argument gissar $x_0$ för att få ut $n$ unika nollställen för en 
-given funktion. Funktionen ska sedan returnera de $n$ unika nollställena.
+**Extrauppgift**: Newton-Raphsons metod kräver dock en gissning för $x_0$. 
+Skriv en funktion som tar $n$ som argument och gissar $x_0$ och sedan använder 
+funktionen ovan för att få ut ett nollställe, sedan gissar $x_0$ igen o.s.v. 
+för att få ut $n$ unika nollställen för en given funktion. Funktionen ska sedan 
+returnera de $n$ unika nollställena.
 
