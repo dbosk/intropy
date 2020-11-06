@@ -15,7 +15,7 @@ $$t(x) = x^6 - 3 x^5 - 41 x^4 + 87 x^3 + 400 x^2 - 444 x - 720$$
 Rita deras grafer, först var och en för sig och sedan alla i samma graf.
 
 
-## Tredimensionella grafer
+## Tredimensionella grafer (extrauppgift)
 
 Utforska [Matlabs bibliotek][matlab-help] och testa att använda några olika 
 funktioner för att skapa några snygga/coola/häftiga/fascinerande 3D-grafer.
