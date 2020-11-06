@@ -10,7 +10,7 @@ $$
 \begin{cases}
 2x + 1y + 3z = 13 \\
 5x + 1z = 8 \\
--x - 1y - 3z = 12
+-x - 1y - 3z = -12
 \end{cases}
 $$
 Skriv ett program som finner $x, y, z$ med hjälp av [gaussisk 
