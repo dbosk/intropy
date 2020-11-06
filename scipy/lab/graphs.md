@@ -17,7 +17,7 @@ $$
 Rita deras grafer, först var och en för sig och sedan alla i samma graf.
 
 
-## Tredimensionella grafer
+## Tredimensionella grafer (extrauppgift)
 
 Utforska [Matlabs bibliotek][matlab-help] och testa att använda några olika 
 funktioner för att skapa några snygga/coola/häftiga/fascinerande 3D-grafer.
