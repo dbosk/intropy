@@ -1,6 +1,9 @@
 pile = []
-pile.append(1)
-pile.append(2)
-pile.append(3)
+pile.append("Bertil")
+pile.append("Adam")
+pile.append("Cesar")
+
 while pile:
     print(pile.pop())
+
+print("Done!")
