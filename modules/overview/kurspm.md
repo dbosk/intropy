@@ -3,7 +3,7 @@ title: Översikt
 permalink: overview
 prev:
   title: Ingångssida
-  url: /
+  url:
 next:
   title: Introduktionsföreläsning
   url: overview-lecture
