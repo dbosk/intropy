@@ -2,6 +2,9 @@
 title: En kurs i programmeringsteknik
 permalink: /
 lang: sv
+next:
+  title: Översikt
+  url: overview
 ---
 # En introduktion till programmering i Python
 
