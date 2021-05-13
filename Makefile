@@ -1,6 +1,4 @@
-SUBDIR+= 	overview
-SUBDIR+= 	variables
-SUBDIR+= 	conditionals
+SUBDIR+= 	modules
 
 INCLUDE_MAKEFILES=./makefiles
 include ${INCLUDE_MAKEFILES}/subdir.mk
