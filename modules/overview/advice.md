@@ -1,3 +1,5 @@
+# prgi20
+
 > Att se till att sitta och programmera mycket själv om man inte fattar
 
 > Fokusera och öva moment för moment så kommer allt att sitta till p-uppgiften
@@ -40,3 +42,29 @@
 
 > Ångrar att jag inte började med labbarna tidigare (började oftast 
 > eftermiddagen/kvällen innan inlämning)
+
+
+# prgm20
+
+> Lägg mer tid i början för då slipper ni lägga lika mycket tid i slutet
+
+> Att göra saker i tid och att samarbeta med andra
+
+> Om du har programmerat tidigare och är duktig på det, bli inte nonchalant, 
+> det kan (om du är oförsiktig) straffa sig riktigt hårt. Häng med på  
+> lektionerna istället och utmana dig själv så fort du får chansen.
+
+> Att arbeta så mycket som möjligt med programmering.
+
+> Att programmera ofta så att man inte glömmer det man har lärt sig samt att 
+> inte vara rädd att fråga om du inte förstår.
+
+> Att hålla bra koll på inlämnings datum och inte lämna in i sista sekunden.
+
+> Undrrskatta inte hur lång tid p-uppgiften kommer ta
+
+> Göra oli modulerna i god tid och börja med alla uppgifter tidigt för att få 
+> en förståelse för hur mycket tid de kommer ta.
+
+> Lägg ner mycket egen tid och öva mycket.
+
