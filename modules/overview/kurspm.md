@@ -1,13 +1,3 @@
----
-title: Översikt
-permalink: overview
-prev:
-  title: Ingångssida
-  url: /
-next:
-  title: Introduktionsföreläsning
-  url: overview-lecture
----
 ## Kursens mål
 
 Kursen syftar till att ge grundläggande kunskaper i programmering och
