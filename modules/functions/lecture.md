@@ -1,3 +1,13 @@
+---
+title: Mer funktioner
+permalink: functions
+prev:
+  title: Variabler och funktioner
+  url: variables
+next:
+  title: Felsökning
+  url: debug
+---
 Föreläsningen ges i följande [zoomrum][zoom-room]: 666 222 743 94. Se [ditt 
 schema][schedule-personal] eller [kursens föreläsningsschema][schedule].
 

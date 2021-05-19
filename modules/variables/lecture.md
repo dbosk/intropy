@@ -1,3 +1,13 @@
+---
+title: Variabler och funktioner
+permalink: variables
+prev:
+  title: Introduktionsföreläsning
+  url: overview-lecture
+next:
+  title: Mer funktioner
+  url: functions
+---
 Föreläsningen ges i följande [zoomrum][zoom-room]: 666 222 743 94. Se [ditt 
 schema][schedule-personal] eller [kursens föreläsningsschema][schedule].
 

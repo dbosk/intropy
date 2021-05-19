@@ -1,3 +1,13 @@
+---
+title: Behållare
+permalink: containers
+prev:
+  title: Villkorssatser
+  url: conditionals
+next:
+  title: Felhantering med särfall
+  url: exceptions
+---
 Föreläsningen ges i följande [zoomrum][zoom-room]: 666 222 743 94. Se [ditt 
 schema][schedule-personal] eller [kursens föreläsningsschema][schedule].
 

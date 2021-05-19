@@ -1,3 +1,13 @@
+---
+title: Villkorssatser
+permalink: conditionals
+prev:
+  title: Felsökning
+  url: debug
+next:
+  title: Behållare
+  url: containers
+---
 Föreläsningen ges i följande [zoomrum][zoom-room]: 666 222 743 94. Se [ditt 
 schema][schedule-personal] eller [kursens föreläsningsschema][schedule].
 
