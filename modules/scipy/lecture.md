@@ -1,0 +1,4 @@
+---
+title: SciPy
+permalink: scipy
+---
