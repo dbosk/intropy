@@ -10,8 +10,11 @@ Denna kurs introducerar programmering i Python, mer specifikt att
 - välja lämpliga identifierarnamn,
 - konstruera interaktiva program,
 - överföra data mellan fil och program,
-- använda och konstruera sammansatta datatyper (klasser),
-- granska andras program.
+- använda och konstruera sammansatta datatyper (klasser).
+
+Materialet finns i användbar form [här][intropy].
+
+[intropy]: https://daniel.bosk.se/intropy
 
 
 ## Ingående moduler
