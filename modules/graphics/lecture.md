@@ -1,4 +1,4 @@
 ---
 title: Grafiska användargränssnitt
-permalink: graphics
 ---
+Material om grafiska användargränssnitt.

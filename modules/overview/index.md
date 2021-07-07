@@ -1,12 +1,5 @@
 ---
 title: Kursöversikt
-permalink: overview
-prev:
-  title: Lärandemål
-  url: /
-next:
-  title: Introduktionsföreläsning
-  url: overview-lecture
 ---
 # Kursdesign
 
