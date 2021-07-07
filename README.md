@@ -21,12 +21,7 @@ Materialet finns i användbar form [här][intropy].
 
 Vi har följande moduler:
 
-- `overview`
-- `variables`
-- `conditionals`
-- `containers`
-- `functions`
-- `files`
-- `classes`
-- `graphics`
+{% for module in site.data.navigation %}
+- [{{ module.title }}]({{ module }})
+{% endfor %}
 
