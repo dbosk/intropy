@@ -2,8 +2,8 @@
 
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
 
-I vårt förra program lät vi användaren mata in värdena för variablerna \(a_1, 
-d, g_1, q\) och \(n\), därefter beräknade vi den aritmetiska och den 
+I vårt förra program lät vi användaren mata in värdena för variablerna \\(a_1, 
+d, g_1, q\\) och \(n\), därefter beräknade vi den aritmetiska och den 
 geometriska summan och, slutligen, skrev vi ut vilken av dem som var störst.
 
 
