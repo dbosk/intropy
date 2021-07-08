@@ -22,8 +22,8 @@ att studenten ska kunna
 ## Ingående moduler
 
 Vi har följande moduler:
-
-{% for module in site.data.navigation %}
-- [{{ module.title }}]({{ module }})
+{% for module in site.data.navigation.modules %}
+- [{{ module[1].title }}]({{ module[0] }}) 
+{% if module[0] == "/" %}(denna sida){% endif %}
 {% endfor %}
 
