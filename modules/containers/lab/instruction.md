@@ -1,3 +1,6 @@
+---
+mathjax: yes
+---
 # Laboration: Listor, for-slingor och uppslagslistor
 
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
