@@ -16,5 +16,5 @@ clean:
 	${RM} notes.pdf slides.pdf
 
 
-INCLUDE_MAKEFILES=../..//makefiles
+INCLUDE_MAKEFILES=../../../makefiles
 include ${INCLUDE_MAKEFILES}/tex.mk

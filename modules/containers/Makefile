@@ -1,3 +1,6 @@
+SUBDIR+=		slides
+SUBDIR_GOALS=	all clean distclean
+
 HTML_FILES= 	lecture.html exercise.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos
@@ -15,4 +18,6 @@ clean:
 	${RM} ${HTML_FILES} ${PDF_FILES}
 
 
-include ../html.mk
+include ../../html.mk
+MAKEFILES_INCLUDE=../../makefiles
+include ${MAKEFILES_INCLUDE}/subdir.mk

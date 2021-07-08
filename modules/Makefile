@@ -1,10 +1,10 @@
 SUBDIR+=	overview
 SUBDIR+=	variables
 SUBDIR+=	functions
-SUBDIR+=	debug
+#SUBDIR+=	debug
 SUBDIR+=	conditionals
 SUBDIR+=	containers
-SUBDIR+=	exceptions
+#SUBDIR+=	exceptions
 SUBDIR+=	files
 SUBDIR+=	classes
 SUBDIR+=	recap
