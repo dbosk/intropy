@@ -35,6 +35,6 @@ använda formlerna för att beräkna summan.
 **Exempeltillämpning**: Säg att vi har ett sparkonto där räntan varierar och vi 
 vill uppskatta inkomsten från räntan för ett år framåt. Då låter vi $g_1$ vara 
 vårt ursprungliga sparkapital, medan $q_1, \ldots, q_{12}$ är räntan för varje 
-månad.  Då ger räntan en avkastning på $g_1\cdot q_1\cdot q_2\cdots q_{12} 
-- g_1$.
+månad.  Då ger räntan en avkastning på
+$g_1\cdot q_1\cdot q_2\cdots q_{12} - g_1$.
 
