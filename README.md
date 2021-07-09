@@ -21,6 +21,7 @@ Vi har följande moduler:
 - `overview`
 - `variables`
 - `conditionals`
+- `exceptions`
 - `containers`
 - `functions`
 - `files`
