@@ -1,0 +1,82 @@
+\paragraph{What the program does}
+
+We want to have a short program in C++ for the purpose of showing debugging 
+using gdb(1).
+
+The program should ask the user for two factors.
+Then the program will multiply them in a rather inefficient way --- by repeated 
+addition --- and then print the result.
+
+
+\paragraph{Source code structure}
+
+A C++ program is structured as follows.
+We only depend on [[<iostream>]] since we want to read from standard in and 
+write to standard out.
+We also add the [[using namespace std]] so that we don't have to type [[std::]] 
+before things from the [[iostream]] (e.g. [[std::cout]], see
+[[<<ask the user for two factors>>]]).
+<<multiplier.cpp>>=
+// The multiplier program
+
+#include <iostream>
+using namespace std;
+
+<<functions>>
+
+int main(void) {
+  <<main body>>
+}
+@
+
+The program execution starts in the [[main]] function.
+The bulk of out program will go into [[<<main body>>]].
+Then we can have helper functions in [[<<functions>>]].
+
+In out case, we need to do the following in the [[<<main body>>]].
+<<main body>>=
+<<ask the user for two factors>>
+<<compute and print the result>>
+@
+
+
+\paragraph{Communicating with the user}
+
+We should ask the user for the two numbers and store them in variables so that 
+we can use them later.
+We choose the type [[float]] since we don't need the precision and want to 
+reduce our memory footprint.
+Otherwise the [[double]] type would have done a fine job too.
+<<ask the user for two factors>>=
+float factor1, factor2;
+
+cout << "Enter two factors: ";
+cin >> factor1 >> factor2;
+@
+
+
+\paragraph{Compute and print the result}
+
+Now we want to compute the result from our input in
+[[<<ask the user for two factors>>]].
+We will do this with a function.
+This is to introduce a call stack for our debugging purposes.
+<<compute and print the result>>=
+cout << factor1 << " * " << factor2
+  << " = " << multiply(factor1, factor2) << endl;
+@
+
+The function [[multiply]] will be templated since we don't want to rewrite 
+anything in case we change types later.
+This way the compiler can even infer all types automatically.
+<<functions>>=
+template <class type>
+type multiply(type factor1, type factor2) {
+  type result = 0;
+
+  for (auto i = 0; i < factor2; i++)
+    result += factor2;
+
+  return result;
+}
+@
