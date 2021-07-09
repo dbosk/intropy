@@ -2,9 +2,6 @@
 title: En kurs i programmeringsteknik
 permalink: /
 lang: sv
-next:
-  title: Kursöversikt
-  url: overview
 ---
 # En introduktion till programmering i Python
 
@@ -19,20 +16,14 @@ att studenten ska kunna
 - välja lämpliga identifierarnamn,
 - konstruera interaktiva program,
 - överföra data mellan fil och program,
-- använda och konstruera sammansatta datatyper (klasser),
-- granska andras program.
+- använda och konstruera sammansatta datatyper (klasser).
 
 
 ## Ingående moduler
 
 Vi har följande moduler:
 
-- `overview`
-- `variables`
-- `conditionals`
-- `containers`
-- `functions`
-- `files`
-- `classes`
-- `graphics`
+{% for module in site.data.navigation %}
+- [{{ module.title }}]({{ module }})
+{% endfor %}
 
