@@ -1,5 +1,5 @@
 ---
-title: En kurs i programmeringsteknik
+title: En inledande kurs i pythonprogrammering
 permalink: /
 lang: sv
 ---
