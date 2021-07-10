@@ -1,3 +1,6 @@
+---
+title: Formalia
+---
 ## Kursens mål
 
 Kursen syftar till att ge grundläggande kunskaper i programmering och
