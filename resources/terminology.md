@@ -1,9 +1,10 @@
 ---
 title: Kortfattad programmerings- och pythonordlista
 version: v1.1
-author:
-  name: Olle Bälter
-  email: ob1@kth.se
+authors:
+  Olle:
+    name: Olle Bälter
+    email: ob1@kth.se
 ---
 # Kortfattad programmerings- och pythonordlista
 
