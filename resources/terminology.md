@@ -1,4 +1,10 @@
-Kortfattad programmerings- och Pythonordlista v1.1
+---
+title: Kortfattad programmerings- och pythonordlista
+version: v1.1
+author: Olle Bälter
+email: ob1@kth.se
+---
+# Kortfattad programmerings- och pythonordlista
 
 **=**​ är »tilldelningsoperatorn« (assignment operator) som tilldelar
 variabeln till vänster om operatorn värdet av uttrycket till höger.
