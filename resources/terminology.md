@@ -1,5 +1,5 @@
 ---
-title: Kortfattad programmerings- och pythonordlista
+title: Ordlista
 version: v1.1
 authors:
   Olle:
