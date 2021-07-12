@@ -1,6 +1,10 @@
 <footer class="site-footer h-card">
   <data class="u-url" href="{{ "/" | relative_url }}"></data>
   <div class="wrapper">
+    {%- assign module_parts = page.url | split: "/" -%}
+    {%- assign module_name = module_parts[2] | default: "index" -%}
+    {%- assign navigation = site.data.navigation['modules'] -%}
+    {%- assign module = navigation[module_name] -%}
     {%- if titles_size > 0 -%}
       <nav class="site-nav bottom-nav">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
@@ -13,9 +17,11 @@
         </label>
 
         <div class="trigger">
-          {%- if page.next -%}
-          <a class="page-link" href="{{ page.next.url | relative_url }}">
-            {{ page.next.title | escape }} &gt;
+          {%- if module.next -%}
+          <a class="page-link" href="{{ navigation[module.next].path | 
+                    relative_url }}">
+            {{ navigation[module.next].title | escape }}
+            &gt;
           </a>
           {%- endif -%}
         </div>
@@ -26,14 +32,20 @@
 
     <div class="footer-col-wrapper">
       <div class="footer-col">
-      {%- if page.author %}
+      {%- if page.authors %}
+        Författat av:
         <ul class="contact-list">
-          {% if page.author.name -%}
-            <li class="p-name">{{ page.author.name | escape }}</li>
-          {% endif -%}
-          {% if page.author.email -%}
-            <li><a class="u-email" href="mailto:{{ page.author.email }}">{{ page.author.email }}</a></li>
-          {%- endif %}
+          {% for author in page.authors -%}
+            <li class="p-name">
+              {% if author[1].url -%}
+                <a href="{{ author[1].url }}">
+              {% endif -%}
+              {{ author[1].name | escape }}
+              {% if author[1].email -%}
+                &lt;<a class="u-email" href="mailto:{{ author[1].email }}">{{ author[1].email }}</a>&gt;
+              {%- endif %}
+            </li>
+          {% endfor -%}
         </ul>
       {%- endif %}
       </div>

@@ -18,7 +18,7 @@ clean:
 	${RM} notes.pdf slides.pdf
 
 
-INCLUDE_MAKEFILES=../..//makefiles
+INCLUDE_MAKEFILES=../../../makefiles
 include ${INCLUDE_MAKEFILES}/tex.mk
-INCLUDE_BEAMERDIDACTIC=../../beamer-didactic
+INCLUDE_BEAMERDIDACTIC=../../../beamer-didactic
 include ${INCLUDE_BEAMERDIDACTIC}/beamer-didactic.mk

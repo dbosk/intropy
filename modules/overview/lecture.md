@@ -1,12 +1,5 @@
 ---
 title: Introduktionsföreläsning
-permalink: overview-lecture
-prev:
-  title: Översikt
-  url: overview
-next:
-  title: Variabler
-  url: variables
 ---
 Föreläsningen ges i följande [zoomrum][zoom-room]: 666 222 743 94. Se [ditt 
 schema][schedule-personal] eller [kursens föreläsningsschema][schedule].

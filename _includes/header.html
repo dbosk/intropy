@@ -4,10 +4,14 @@
     {%- assign default_paths = site.pages | map: "path" -%}
     {%- assign page_paths = site.header_pages | default: default_paths -%}
     {%- assign titles_size = site.pages | map: 'title' | join: '' | size -%}
+    {%- assign module_parts = page.url | split: "/" -%}
+    {%- assign module_name = module_parts[2] | default: "index" -%}
+    {%- assign navigation = site.data.navigation['modules'] -%}
+    {%- assign module = navigation[module_name] -%}
     <div class="site-title">
       <a rel="author" href="{{ "/" | relative_url }}">{{ site.title | escape 
         }}</a>
-      {{ page.title | escape }}
+      {{ module.title | escape }}
     </div>
 
     {%- if titles_size > 0 -%}
@@ -22,14 +26,18 @@
         </label>
 
         <div class="trigger">
-          {%- if page.prev -%}
-          <a class="page-link" href="{{ page.prev.url | relative_url }}">
-            &lt; {{ page.prev.title | escape }}
+          {%- if module.prev -%}
+          <a class="page-link" href="{{ navigation[module.prev].path | 
+                    relative_url }}">
+            &lt;
+            {{ navigation[module.prev].title | default: "Föregående" }}
           </a>
           {%- endif -%}
-          {%- if page.next -%}
-          <a class="page-link" href="{{ page.next.url | relative_url }}">
-            {{ page.next.title | escape }} &gt;
+          {%- if module.next -%}
+          <a class="page-link" href="{{ navigation[module.next].path | 
+                    relative_url }}">
+            {{ navigation[module.next].title | default: "Nästa" }}
+            &gt;
           </a>
           {%- endif -%}
         </div>
