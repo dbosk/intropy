@@ -28,3 +28,15 @@ Månad 2: 1030.20 kr  30.20 kr
 ```
 Samma krav på felhantering som tidigare gäller.
 
+
+## Extrauppgift
+
+Använd Pythons inbyggda [`csv`-modul][csv] för att läsa in en fil på 
+CSV-format. Då kan filen med räntor skapas i ett kalkylarksprogram som Google 
+Sheets, LibreOffice Calc eller Microsoft Excel.
+
+[csv]: https://docs.python.org/3/library/csv.html
+
+Om resultaten även skrivs till fil i CSV-format (med hjälp av `csv`-modulen), 
+då kan även resultatet importeras tillbaka i kalkylarksprogrammet.
+
