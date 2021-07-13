@@ -1,6 +1,12 @@
-# intropy: En introduktion till programmering i Python
+---
+title: En inledande kurs i pythonprogrammering
+permalink: /
+lang: sv
+---
+# En introduktion till programmering i Python
 
-Denna kurs introducerar programmering i Python, mer specifikt att
+Denna kurs introducerar programmering i Python. Mer specifikt är lärandemålen 
+att studenten ska kunna
 
 - dela upp ett större problem i hanterliga delar,
 - konstruera program utan kodupprepningar,
@@ -12,16 +18,12 @@ Denna kurs introducerar programmering i Python, mer specifikt att
 - överföra data mellan fil och program,
 - använda och konstruera sammansatta datatyper (klasser).
 
-Materialet finns i användbar form [här][intropy].
-
-[intropy]: https://daniel.bosk.se/intropy
-
 
 ## Ingående moduler
 
 Vi har följande moduler:
-
-{% for module in site.data.navigation %}
-- [{{ module.title }}]({{ module }})
+{% for module in site.data.navigation.modules %}
+- [{{ module[1].title }}]({{ module[1].path | relative_url }}) {% if 
+  module[1].path == "/" %}(denna sida){% endif %}
 {% endfor %}
 
