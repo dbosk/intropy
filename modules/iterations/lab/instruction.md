@@ -7,9 +7,10 @@ föregående laboration.
 
 ## Uppgift
 
-Skriv en funktion som tar inmatning från användaren och inte returnerar förrän 
-användaren har matat in korrekt data. Ersätt all inmatning i förra programmet 
-med din nya funktion. Föregående program tog följande inmatning:
+Skriv en funktion (eller flera funktioner om så behövs) som tar inmatning från 
+användaren och inte returnerar förrän användaren har matat in korrekt data. 
+Ersätt all inmatning i förra programmet med din(a) nya funktion(er). Föregående 
+program tog följande inmatning:
 ```
 Data för den aritmetiska summan:
 a_1: 1
