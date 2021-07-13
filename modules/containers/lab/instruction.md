@@ -41,12 +41,14 @@ värde och värdeökning månad för månad. Exempelvis:
 ```
 Hur mycket sparkapital har du (ange i kr)? 1000
 Hur många månader avser du spara? 2
-Ange ränta för månad 1: 1.02
-Ange ränta för månad 2: 1.01
+Ange ränta för månad 1 (i procent): 2
+Ange ränta för månad 2 (i procent): 1
 
          Total       Ökning
 Månad 0: 1000.00 kr   0.00 kr
 Månad 1: 1020.00 kr  20.00 kr
 Månad 2: 1030.20 kr  30.20 kr
 ```
-Använd din funktion för att beräkna värdena.
+Använd din funktion för att beräkna värdena. (Inmatningarna ska givetvis 
+repeteras tills att värdena är korrekta, återanvänd funktionerna från 
+föregående laboration --- men du får givetvis skriva om dem om det behövs.)
