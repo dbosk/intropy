@@ -1,4 +1,4 @@
-# Laboration: Listor, for-slingor och uppslagslistor
+# Laboration: Behållare och iterationer
 
 Hittills har vi arbetat med aritmetiska och geometriska talföljder, d.v.s. att 
 $d$ och $q$ har varit konstanta. Nu ska de variera över tid. Som vi nämnt 
