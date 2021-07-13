@@ -14,3 +14,11 @@ genom modulerna.
 
 Använd även `pylint` för att säkerställa kodens kvalitet.
 
+
+## Extrauppgift
+
+Läs om [paketering][packaging] i Python och gör dina moduler installerbara 
+genom `pip`. Då kan andra enkelt installera dina moduler på sina system.
+
+[packaging]: https://packaging.python.org/tutorials/packaging-projects/
+
