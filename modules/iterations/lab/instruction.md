@@ -11,24 +11,32 @@ Skriv en funktion som tar inmatning från användaren och inte returnerar förr�
 användaren har matat in korrekt data. Ersätt all inmatning i förra programmet 
 med din nya funktion. Föregående program tog följande inmatning:
 ```
-n: 3
-q_1: 1.02
-q_2: 1.05
-q_3: 1.04
-g_1: 1000
-Summan blir: 1113.84
+Data för den aritmetiska summan:
+a_1: 1
+d: 2
+Data för den geometriska summan:
+g_1: 1.01
+q: 1.10
+Antal termer i summorna:
+n: 10
+Den aritmetiska summan är störst.
 ```
 Men nu ska vi kunna hantera att användaren matar in fel, exempelvis:
 ```
+Data för den aritmetiska summan:
+a_1: a
+a_1 måste vara ett flyttal, prova igen.
+a_1: 1
+d: 2
+Data för den geometriska summan:
+g_1: 1.01
+q: b
+q måste vara ett flyttal, prova igen.
+q: 1.10
+Antal termer i summorna:
 n: 0
-n måste vara större än 0, prova igen.
-n: 3
-q_1: 1.02
-q_2: 1.05
-q_3: a
-q_3 måste vara ett flyttal, prova igen.
-q_3: 1.04
-g_1: 1000
-Summan blir: 1113.84
+n måste vara större än noll.
+n: 10
+Den aritmetiska summan är störst.
 ```
 
