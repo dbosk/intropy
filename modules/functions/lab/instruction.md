@@ -12,7 +12,9 @@ för inmatning) som du kan återanvända i andra program genom `import`. Skriv
 sedan om programmet i föregående laboration så att det använder funktionerna 
 genom modulerna.
 
-Använd även `pylint` för att säkerställa kodens kvalitet.
+Använd även [`pylint`][pylint] för att säkerställa kodens kvalitet.
+
+[pylint]: https://pylint.pycqa.org/en/latest/
 
 
 ## Extrauppgift
