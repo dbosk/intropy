@@ -1,15 +1,20 @@
 # Laboration: Klasser och objekt
 
-I förra laborationen lär vi användaren mata in ett filnamn och programmet läste 
-därefter $q$-värdena från filen och returnerade summan.
+Hittils har vi använt funktioner för att beräkna $g_n$ på olika sätt (konstant 
+$q$ och en lista med $q$-värden). Syftet med klasser (och objekt) är att de 
+bättre liknar objekt i verkligheten. Exempelvis är en talföljd väldigt lik en 
+lista, det är ju trots allt en (möjligtvis oändlig) lista med tal, men mindre 
+lik en funktion för att beräkna talen i följden.
 
-I den här laborationen ska vi förenkla hanteringen av olika geometriska summor.
+Fördelen med att representera objekt på ett bättre sätt är att det underlättar 
+för den som ska programmera. Det kan göra koden mer intuitiv, mer läsbar. Detta 
+minskar risken för fel (buggar).
 
 
 ## Uppgift
 
 Nu ska vi skriva klasser som hanterar talföljder. Låt klasserna vara en del av 
-en modul för talföljder. De ska hantera den karakteristiska egenskapen för en 
+din modul för talföljder. De ska hantera den karakteristiska egenskapen för en 
 talföljd: det ska gå att få ut det $n$:te elementet (använd 
 [`__getitem__`][getitem]).
 
@@ -32,9 +37,6 @@ def main():
   # Skriv ut de första 20 elementen
   for i in range(20):
     print(f"a[{i}] = {a[i]}")
-
-  # Skriv ut summan av de första 20 elementen
-  print(f"sum(a) = {sum(a[:20])}")
 
   g1 = it.input_type(float, "g1 = ")
   q = it.input_type(float, "q = ")
@@ -68,10 +70,25 @@ myseq.MultiplicativeSequenceFromFile("file.txt")` (som läser in en sekvens frå
 fil, likt föregående laboration) och resten av koden i exemplet ovan kommer att 
 fortsätta att fungera.
 
-För raden `sum(a[:20])` (se [här][slice-notation] för förklaring av notationen) 
-krävs att din kod hanterar [sliceobjekt][slice-docs]. Följande exempelkod är 
-bra att experimentera med:
+**Inlämning**: Lämna in en modul (`my_sequence_library.py`) som fungerar med 
+testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`, 
+`GeometricSequence` och `MultiplicativeSequenceFromFile`.
 
+**Krav**: Du ska ha felhantering. Exempelvis hantera att filen inte finns, att 
+talföljden (från fil) inte har tillräckligt många element. Exempelvis om den 
+innehållet data för 12 månader, då finns inte `a[20]`.
+
+
+## Extrauppgift
+
+Hantera [slice-notation][slice-notation], exempelvis:
+```
+# Skriv ut summan av de första 20 elementen
+print(f"sum(a) = {sum(a[:20])}")
+```
+
+För raden `sum(a[:20])` krävs att din kod hanterar [sliceobjekt][slice-docs]. 
+Följande exempelkod är bra att experimentera med för att komma igång:
 ```python
 class Test:
   def __getitem__(self, key):
@@ -92,18 +109,8 @@ print(isinstance(t[4], slice))
 [slice-notation]: https://docs.python.org/3/tutorial/introduction.html#strings
 [slice-docs]: https://docs.python.org/3/library/functions.html#slice
 
-**Inlämning**: Lämna in en modul (`my_sequence_library.py`) som fungerar med 
-testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`, 
-`GeometricSequence` och `MultiplicativeSequenceFromFile`.
 
-**Krav**: Du ska ha felhantering. Exempelvis hantera att filen inte finns, att 
-talföljden (från fil) inte har tillräckligt många element. Exempelvis om den 
-innehållet data för 12 månader, då finns inte `a[20]`.
-
-
-## Extrauppgift
-
-Denna uppgift är för extra utmaning och behöver inte lämnas in.
+## Ytterligare extrauppgift
 
 Implementera [`__setitem__`][setitem] för `MultiplicativeSequenceFromFile` för 
 att sätta värden. När värdena sätts ska respektive $q$-värde beräknas från 
@@ -112,3 +119,4 @@ $q$-värden till en fil som kan läsas in med `MultiplicativeSequenceFromFile`
 nästa körning.
 
 [setitem]: https://docs.python.org/3/reference/datamodel.html#object.__setitem__
+

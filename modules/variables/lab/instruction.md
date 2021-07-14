@@ -43,7 +43,9 @@ g_1 \frac{q^n-1}{q-1}$.
 
 ## Uppgift
 
-Skriv ett program som använder variabler för $$
-  a_1, d, g_1, q, n
-$$ och beräknar summorna $S^a_n$ och $S^g_n$.
+Skriv en funktion som beräknar summan för en aritmetisk talföljd (givet $a_1, 
+d, n$ returnera $S^a_n$) och en som beräknar summan för en geometrisk talföljd 
+(givet $g_1, q, n$ returnera $S^g_n$).
+Skriv ett program som använder funktionerna.
+(Kontrollera att funktionerna ger korrekt resultat.)
 
