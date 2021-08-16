@@ -106,8 +106,8 @@ c:a 80 timmar för en medelsvår uppgift.
 
 P-uppgifterna kan kräva olika tidsomfång beroende på tillvägagångssätt,
 tidigare programmeringserfarenhet etc. Tänk på att i enlighet med
-[hederskodexen][hederskodex] ALLTID ange varifrån koden kommer när det inte är 
-din egen.
+[hederskodexen][hederskodex] *alltid* ange varifrån koden kommer när det inte 
+är din egen.
 
 [hederskodex]: https://www.kth.se/eecs/utbildning/hederskodex/inledning-1.17237
 
