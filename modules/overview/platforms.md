@@ -3,9 +3,12 @@ plattformen låter dig interagera med videon genom att ställa frågor om det ä
 något du inte förstår eller vill dubbelkolla, läraren kan även lägga in 
 quizzfrågor i videon för att få en bild över hur väl klassen hänger med i 
 materialet. På nästa sida finns en video som exempel, den introducerar den 
-andra plattformen vi använder, Open Learning Initiative (OLI).
+andra plattformen vi använder, [Open Learning Initiative (OLI)][oli].
 
 För att använda plattformarna måste du dock fylla i några saker manuellt.
+
+[fbf]: https://feedbackfruits.com/interactive-video
+[oli]: https://oli.cmu.edu/
 
 ## Skapa konto hos FeedbackFruits
 
@@ -21,7 +24,6 @@ de två alternativen du använder för att skapa konto och logga in.
 ![FeedbackFruits inloggning som visar "Sign Up" och "Log in with email" 
 inringade][fbf-login]
 
-[fbf]: https://feedbackfruits.com/interactive-video
 [fbf-login]: https://github.com/dbosk/introtools/raw/master/modules/overview/fbf.png
 
 
@@ -34,7 +36,7 @@ vill bidra till vår forskning om undervisning.
 
 ![OLI:s första-gången-registrering][oli-reg]
 
-[oli-reg]: https://github.com/dbosk/introtools/raw/master/modules/overview/fbf.png
+[oli-reg]: https://github.com/dbosk/introtools/raw/master/modules/overview/OLI.png
 
 ## När du går vidare
 
