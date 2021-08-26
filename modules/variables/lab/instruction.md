@@ -34,8 +34,10 @@ Exempelvis, $$
   1, 2, 4, 8, 16, \ldots
 $$ är en geometrisk följd där kvoten är två.
 
-Låt oss säga att det första elementet i följden är $g_1$ och kvoten är $q$. 
-Då kan vi beräkna $g_n = g_1 q^{n-1}$.
+Låt oss säga att det första elementet i följden är $g_1$ och kvoten är $q$. Då 
+kan vi beräkna $g_n = g_1 q^{n-1}$. (Operationen "upphöjt till" har en 
+annorlunda notation i Python, $a^b$ skrivs `a**b` medan $a\cdot b$ skrivs som 
+det förväntade `a*b`.)
 
 Vi kan även beräkna summan $S^g_n = g_1 + \cdots + g_n =
 g_1 \frac{q^n-1}{q-1}$.
