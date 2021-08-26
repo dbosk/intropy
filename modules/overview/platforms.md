@@ -24,7 +24,7 @@ de två alternativen du använder för att skapa konto och logga in.
 ![FeedbackFruits inloggning som visar "Sign Up" och "Log in with email" 
 inringade][fbf-login]
 
-[fbf-login]: https://github.com/dbosk/introtools/raw/master/modules/overview/fbf.png
+[fbf-login]: https://github.com/dbosk/intropy/raw/master/modules/overview/fbf.png
 
 
 ## Fylla i uppgifter hos OLI
@@ -36,7 +36,7 @@ vill bidra till vår forskning om undervisning.
 
 ![OLI:s första-gången-registrering][oli-reg]
 
-[oli-reg]: https://github.com/dbosk/introtools/raw/master/modules/overview/OLI.png
+[oli-reg]: https://github.com/dbosk/intropy/raw/master/modules/overview/OLI.png
 
 ## När du går vidare
 
