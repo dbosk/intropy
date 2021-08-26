@@ -40,7 +40,8 @@ vill bidra till vår forskning om undervisning.
 
 ## När du går vidare
 
-När du går vidare nedan, då kommer du att komma till FeedbackFruits. Registrera 
-dig om du inte redan har ett konto. Då får du se en video om OLI. När du 
-fortsätter från videon, då kommer du att komma till OLI:s registreringssida.
+När du går vidare nedan (genom att klicka "Nästa"), då kommer du att komma till 
+FeedbackFruits. Registrera dig om du inte redan har ett konto. Då får du se en 
+video om OLI. När du fortsätter från videon, då kommer du att komma till OLI:s 
+registreringssida.
 
