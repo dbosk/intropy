@@ -1,7 +1,7 @@
 SUBDIR+=		slides
 SUBDIR_GOALS=	all clean distclean
 
-HTML_FILES= 	kurspm.html
+HTML_FILES= 	kurspm.html platforms.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos
 
@@ -10,6 +10,7 @@ PANDOCFLAGS= 	--filter pandoc-xnos
 all: ${HTML_FILES} ${PDF_FILES}
 
 kurspm.html: kurspm.md
+platforms.html: platforms.md
 
 
 .PHONY: clean
