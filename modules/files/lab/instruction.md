@@ -1,4 +1,4 @@
-# Laboration: Filer och filhantering
+# Laboration: Filer och felhantering
 
 Tidigare har vi låtit användaren ange ett följd av $q$-värden som har använts i 
 beräkningarna av en talföljd. Ibland kan det bli långa följder, exempelvis om 
@@ -13,7 +13,7 @@ in dessa för hand. Vanligtvis finns dessa värden att tillgå i en fil.
 
 I denna laboration ska du låta användaren mata in namnet på en fil som 
 innehåller värdena för $q$. Därefter läser du in värdena och använder dem i 
-ditt program.
+ditt program. Om filen inte finns ska användaren mata in ett nytt filnamn.
 
 Du kan låta användaren mata in $g_1$, värdet för $n$ får du genom antalet 
 värden för $q$ som finns i filen. Ett exempel på inmatning:
@@ -26,7 +26,7 @@ Månad 0: 1000.00 kr   0.00 kr
 Månad 1: 1020.00 kr  20.00 kr
 Månad 2: 1030.20 kr  30.20 kr
 ```
-Samma krav på felhantering som tidigare gäller.
+Givetvis ska vi hantera att användaren försöker mata in felaktiga värden.
 
 
 ## Extrauppgift
