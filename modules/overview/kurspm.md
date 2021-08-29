@@ -166,6 +166,73 @@ kursens slut och därefter plussa upp betyget.
 [labbveckan]: https://www.kth.se/social/group/labbvecka/page/restlabbar-7/
 
 
+### Fusk
+
+Fusk ses väldigt allvarligt. Vi citerar några utdrag ur 10 kapitlet i 
+Högskoleförordningen (SFS 1993:100):
+
+    Allmänna bestämmelser
+
+    1 § Disciplinära åtgärder får vidtas mot studenter som
+
+    1.  med otillåtna hjälpmedel eller på annat sätt försöker vilseleda vid
+        prov eller när en studieprestation annars ska bedömas,
+
+    2.  stör eller hindrar undervisning, prov eller annan verksamhet inom
+        ramen för utbildningen vid högskolan,
+
+    3.  stör verksamheten vid högskolans bibliotek eller annan särskild
+        inrättning inom högskolan, eller
+
+    4.  utsätter en annan student eller en arbetstagare vid högskolan för
+        sådana trakasserier eller sexuella trakasserier som avses i 1 kap. 4
+        § diskrimineringslagen (2008:567).
+
+Den första punkten är den som avser fusk, eller vilseledande vid examination 
+som det kallas. Om sådan inträffar får högskolan vidta åtgärder. Igen från 10 
+kapitlet i Högskoleförordningen (SFS 1993:100):
+
+    Disciplinära åtgärder
+
+    2 § De disciplinära åtgärderna är varning och avstängning.
+
+    Ett beslut om avstängning innebär att studenten inte får delta i
+    undervisning, prov eller annan verksamhet inom ramen för utbildningen
+    vid högskolan. Beslutet skall avse en eller flera perioder, dock
+    sammanlagt högst sex månader.
+
+    Ett beslut om avstängning får också begränsas till att avse tillträde
+    till vissa lokaler inom högskolan.
+
+Fusk utreds av disciplinnämnden, igen från 10 kapitlet i Högskoleförordningen 
+(SFS 1993:100):
+
+    Disciplinnämnden
+
+    3 § Ärenden om disciplinära åtgärder skall, om inte annat följer av 9 §,
+    handläggas av en disciplinnämnd. En sådan nämnd skall finnas vid varje
+    högskola.
+
+    4 § Disciplinnämnden skall bestå av rektor som ordförande, en lagfaren
+    ledamot som skall vara eller ha varit ordinarie domare och en
+    företrädare för lärarna vid högskolan. Studenterna vid högskolan har
+    rätt att vara representerade i nämnden med två ledamöter. Förordning
+    (1998:1003).
+
+Det vill säga en domare från svensk domstol är med i bedömningen. Slutligen:
+
+    13 § När ett beslut om avstängning har fattats, skall underrättelser om 
+    detta genast tillställas Centrala studiestödsnämnden och de organ inom 
+    högskolan som berörs.
+
+Det vill säga: om ni blir dömda till avstängning kommer ni eventuellt även att 
+tappa ert CSN-stöd, beroende på längden av avstängningen.
+
+EECS-skolan vid KTH har utarbetat en hederskodex för att underlätta att inte 
+råka vilseleda vid examination. Se [EECS:s hederskodex][hederskodex] för 
+detaljer.
+
+
 ## Studentexpeditionen och servicecenter
 
 Du finner information om studentexpeditionen och servicecenter 
