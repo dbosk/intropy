@@ -53,8 +53,10 @@ Kursen består av tre Ladokmoment (studiemedelspoängsmoment)
 -   LAB3 (3,0 hp) Benämns P-del (P som i projekt) och utgörs av en större
     individuell programmeringsuppgift. Graderad betygsskala A--E för godkänt 
     samt F och Fx för underkänt.
+-   MAT1 (1,5 hp) Utgörs av två laborationer i Matlab som man
+    arbetar med parvis. Betyg G/U.
 
-Sammanlagt 6 hp eller c:a 160 timmar arbete.
+Sammanlagt 7,5 hp eller c:a 200 timmar arbete.
 
 
 ### Laborationer (LAB1)
@@ -110,6 +112,16 @@ tidigare programmeringserfarenhet etc. Tänk på att i enlighet med
 inte är din egen.
 
 [hederskodex]: https://www.kth.se/eecs/utbildning/hederskodex/inledning-1.17237
+
+
+### Matlab (MAT1)
+
+Den sista delen introducerar Matlab. Dessa laborationer syftar till att ge en
+introduktion till numeriska metoder, vilket ni kommer att läsa under
+andra året på ert program.
+
+Ni jobbar parvis med dessa och både hjälp och redovisning sker muntligt vid 
+laborationerna.
 
 
 ## Betyg
