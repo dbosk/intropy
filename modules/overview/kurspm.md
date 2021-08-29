@@ -168,8 +168,8 @@ kursens slut och därefter plussa upp betyget.
 
 ### Fusk
 
-Fusk ses väldigt allvarligt. Vi citerar några utdrag ur 10 kapitlet i 
-Högskoleförordningen (SFS 1993:100):
+Fusk ses väldigt allvarligt. Vi citerar några utdrag ur [10 kapitlet i 
+Högskoleförordningen (SFS 1993:100)][högskoleförordningen]:
 
     Allmänna bestämmelser
 
@@ -225,12 +225,14 @@ Det vill säga en domare från svensk domstol är med i bedömningen. Slutligen:
     detta genast tillställas Centrala studiestödsnämnden och de organ inom 
     högskolan som berörs.
 
-Det vill säga: om ni blir dömda till avstängning kommer ni eventuellt även att 
+Det vill säga: om ni blir dömda till avstängning kommer ni eventuellt att även 
 tappa ert CSN-stöd, beroende på längden av avstängningen.
 
 EECS-skolan vid KTH har utarbetat en hederskodex för att underlätta att inte 
 råka vilseleda vid examination. Se [EECS:s hederskodex][hederskodex] för 
 detaljer.
+
+[högskoleförordningen]: https://www.riksdagen.se/sv/dokument-lagar/dokument/svensk-forfattningssamling/hogskoleforordning-1993100_sfs-1993-100#K10
 
 
 ## Studentexpeditionen och servicecenter
