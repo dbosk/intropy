@@ -59,6 +59,9 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
   2. diska (handdisk, då diskmaskinen inte är så utmanande, vi såg en algoritm 
      på föreläsningen).
 
+Vi går igenom olika lösningar samt ett [alternativ för vad som händer när man 
+diskar](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/diska.py)
+
 
 ## Önskemål från gruppen
 
