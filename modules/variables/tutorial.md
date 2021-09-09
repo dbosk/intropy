@@ -10,6 +10,6 @@ kakelmönster och olika storlekar.
 
 Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
 
-[!Kakel: cirkel](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel1.png)
-[!Kakel: kvadrat](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel2.png)
-[!Kakel: hexagon](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel3.png)
+![Kakel: cirkel](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel1.png)
+![Kakel: kvadrat](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel2.png)
+![Kakel: hexagon](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel3.png)
