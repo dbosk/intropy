@@ -53,12 +53,11 @@ walk_two_steps()
 ```
 Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
-Skriv program som, på samma sätt som ovan, skriver ut instruktioner för 
-följande:
+Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
 
   1. dansa (valfri dans), vilka steg ska tas med vilka fötter?
-  2. diska (handdisk, då diskmaskinen inte är så utmanande), vi såg en algoritm 
-     på föreläsningen.
+  2. diska (handdisk, då diskmaskinen inte är så utmanande, vi såg en algoritm 
+     på föreläsningen).
 
 
 ## Önskemål från gruppen
