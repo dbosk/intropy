@@ -60,7 +60,7 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
      på föreläsningen).
 
 Vi går igenom olika lösningar samt ett [alternativ för vad som händer när man 
-diskar](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/diska.py)
+diskar](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/diska.py).
 
 
 ## Önskemål från gruppen
