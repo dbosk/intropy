@@ -1,6 +1,8 @@
 .PHONY: all
 all: notes.pdf slides.pdf
 
+LATEXFLAGS+=	-shell-escape
+
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 
