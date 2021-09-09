@@ -3,9 +3,17 @@ title: Övning om variabler och funktioner
 ---
 # Övning: funktioner och variabler
 
+Målet med övningen är att du ska blir bättre på att
+
+  - dela upp problem in mindre problem,
+  - minimera kodupprepning,
+  - skapa funktioner med parametrar och returvärden.
+
+
 ## Laborationen
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika.
+Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
+några lösningar.
 
 
 ## Kakelfabriken
