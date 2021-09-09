@@ -1,3 +1,6 @@
+---
+title: Övning om variabler och funktioner
+---
 # Övning: funktioner och variabler
 
 ## Kakelfabriken
