@@ -16,7 +16,7 @@ def lean_body(direction):
     print(f"luta kroppen {direction}")
 
 def walk_two_steps():
-    """En funktion som tar fem steg framåt"""
+    """En funktion som tar två steg framåt"""
     take_step_fwd()
     take_step_fwd()
 
