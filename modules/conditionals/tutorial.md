@@ -9,8 +9,9 @@ Målet med övningen är att du ska blir bättre på att
 
   - tillämpa styrstrukturer,
   - konstruera interaktiva program,
-  - dela upp problem in mindre problem,
-  - minimera kodupprepning.
+  - dela upp problem i mindre problem,
+  - minimera kodupprepning,
+  - bekanta dig med rekursion.
 
 
 ## Laborationen
