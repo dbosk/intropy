@@ -1,9 +1,9 @@
 ---
-title: Övning om variabler och funktioner
+title: Övning om inmatning och villkorssatser
 authors:
   - Daniel Bosk <dbosk@kth.se>
 ---
-# Övning: funktioner och variabler
+# Övning: inmatning och villkorssatser
 
 Målet med övningen är att du ska blir bättre på att
 
