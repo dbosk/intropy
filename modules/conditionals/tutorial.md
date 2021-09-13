@@ -17,7 +17,7 @@ Målet med övningen är att du ska blir bättre på att
 ## Laborationen
 
 Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar.
+några lösningar. Hur löser man extrauppgiften?
 
 
 ## Att göra saker
