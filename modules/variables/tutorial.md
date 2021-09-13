@@ -1,5 +1,7 @@
 ---
 title: Övning om variabler och funktioner
+authors:
+  - Daniel Bosk <dbosk@kth.se>
 ---
 # Övning: funktioner och variabler
 
