@@ -1,18 +1,14 @@
 .PHONY: all
 all: notes.pdf slides.pdf
 
-LATEXFLAGS+=	-shell-escape
-
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 
-DEPENDS+= 	beamer-didactic.sty
-
-
 notes.pdf: notes.tex
-slides.pdf: slides.tex
+notes.pdf: ${SRC}
 
-notes.pdf slides.pdf: ${SRC} ${DEPENDS}
+slides.pdf: slides.tex
+slides.pdf: ${SRC}
 
 
 .PHONY: clean
@@ -22,5 +18,3 @@ clean:
 
 INCLUDE_MAKEFILES=../../../makefiles
 include ${INCLUDE_MAKEFILES}/tex.mk
-INCLUDE_BEAMERDIDACTIC=../../../beamer-didactic
-include ${INCLUDE_BEAMERDIDACTIC}/beamer-didactic.mk

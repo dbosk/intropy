@@ -14,5 +14,5 @@ clean:
 	${RM} ${HTML_FILES} ${PDF_FILES}
 
 
-include ../../html.mk
+include ../../../html.mk
 

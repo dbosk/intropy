@@ -31,25 +31,25 @@ kommer en handledare att gå med i ditt möte.
 
 ![Logga in med SSO][zoom-login]{#fig:login}
 
-[zoom-login]: https://github.com/dbosk/intropy/raw/master/overview/help/zoom-login.png
+[zoom-login]: https://github.com/dbosk/intropy/raw/master/modules/overview/help/zoom-login.png
 
 ![Välj KTH:s inloggningstjänst][zoom-sso]{#fig:sso}
 
-[zoom-sso]: https://github.com/dbosk/intropy/raw/master/overview/help/zoom-sso-kth.png
+[zoom-sso]: https://github.com/dbosk/intropy/raw/master/modules/overview/help/zoom-sso-kth.png
 
 ![Starta ett nytt möte][new-meeting]{#fig:new}
 
-[new-meeting]: https://github.com/dbosk/intropy/raw/master/overview/help/new-meeting.png
+[new-meeting]: https://github.com/dbosk/intropy/raw/master/modules/overview/help/new-meeting.png
 
 ![Hitta inbjudningslänken][participants]{#fig:participants}
 
-[participants]: https://github.com/dbosk/intropy/raw/master/overview/help/participants.png
+[participants]: https://github.com/dbosk/intropy/raw/master/modules/overview/help/participants.png
 
 ![Kopiera inbjudningslänken][invite]{#fig:invite}
 
-[invite]: https://github.com/dbosk/intropy/raw/master/overview/help/invite.png
+[invite]: https://github.com/dbosk/intropy/raw/master/modules/overview/help/invite.png
 
 ![Ställ dig i kön för att få hjälp][queuefig]{#fig:queue}
 
-[queuefig]: https://github.com/dbosk/intropy/raw/master/overview/help/queue.png
+[queuefig]: https://github.com/dbosk/intropy/raw/master/modules/overview/help/queue.png
 

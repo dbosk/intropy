@@ -34,8 +34,10 @@ Exempelvis, $$
   1, 2, 4, 8, 16, \ldots
 $$ är en geometrisk följd där kvoten är två.
 
-Låt oss säga att det första elementet i följden är $g_1$ och kvoten är $q$. 
-Då kan vi beräkna $g_n = g_1 q^{n-1}$.
+Låt oss säga att det första elementet i följden är $g_1$ och kvoten är $q$. Då 
+kan vi beräkna $g_n = g_1 q^{n-1}$. (Operationen "upphöjt till" har en 
+annorlunda notation i Python, $a^b$ skrivs `a**b` medan $a\cdot b$ skrivs som 
+det förväntade `a*b`.)
 
 Vi kan även beräkna summan $S^g_n = g_1 + \cdots + g_n =
 g_1 \frac{q^n-1}{q-1}$.
@@ -43,7 +45,9 @@ g_1 \frac{q^n-1}{q-1}$.
 
 ## Uppgift
 
-Skriv ett program som använder variabler för $$
-  a_1, d, g_1, q, n
-$$ och beräknar summorna $S^a_n$ och $S^g_n$.
+Skriv en funktion som beräknar summan för en aritmetisk talföljd (givet $a_1, 
+d, n$ returnera $S^a_n$) och en som beräknar summan för en geometrisk talföljd 
+(givet $g_1, q, n$ returnera $S^g_n$).
+Skriv ett program som använder funktionerna.
+(Kontrollera att funktionerna ger korrekt resultat.)
 

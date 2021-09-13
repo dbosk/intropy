@@ -1,10 +1,9 @@
-# Laboration: Filer och filhantering
+# Laboration: Filer och felhantering
 
-I förra laborationen lät vi användaren skapa två geometriska följder och 
-jämföra deras summor. Vi underlättade programmeringen genom att göra 
-beräkningen av den geometriska summan till en funktion.
-
-Nu ska vi förbättra vårt program ytterligare.
+Tidigare har vi låtit användaren ange ett följd av $q$-värden som har använts i 
+beräkningarna av en talföljd. Ibland kan det bli långa följder, exempelvis om 
+vi har månadsräntorna för flera år. Då kan det vara bekvämt att lagra värdena 
+på fil och läsa dem därifrån.
 
 
 ## Uppgift
@@ -14,11 +13,30 @@ in dessa för hand. Vanligtvis finns dessa värden att tillgå i en fil.
 
 I denna laboration ska du låta användaren mata in namnet på en fil som 
 innehåller värdena för $q$. Därefter läser du in värdena och använder dem i 
-ditt program. Notera att du ska läsa in två följder av $q$-värden och jämföra 
-dem, precis som tidigare.
+ditt program. Om filen inte finns ska användaren mata in ett nytt filnamn.
 
 Du kan låta användaren mata in $g_1$, värdet för $n$ får du genom antalet 
-värden för $q$ som finns i filen.
+värden för $q$ som finns i filen. Ett exempel på inmatning:
+```
+Hur mycket sparkapital har du (ange i kr)? 1000
+Ange fil med förväntad ränteutveckling: räntor.txt
 
-**Krav**: Du ska lämna in ett välskrivet program, d.v.s. det ska fortfarande ha 
-felhantering, vara uppdelat i lämpliga funktioner och moduler, etc.
+         Total       Ökning
+Månad 0: 1000.00 kr   0.00 kr
+Månad 1: 1020.00 kr  20.00 kr
+Månad 2: 1030.20 kr  30.20 kr
+```
+Givetvis ska vi hantera att användaren försöker mata in felaktiga värden.
+
+
+## Extrauppgift
+
+Använd Pythons inbyggda [`csv`-modul][csv] för att läsa in en fil på 
+CSV-format. Då kan filen med räntor skapas i ett kalkylarksprogram som Google 
+Sheets, LibreOffice Calc eller Microsoft Excel.
+
+[csv]: https://docs.python.org/3/library/csv.html
+
+Om resultaten även skrivs till fil i CSV-format (med hjälp av `csv`-modulen), 
+då kan även resultatet importeras tillbaka i kalkylarksprogrammet.
+
