@@ -23,9 +23,9 @@ kakelmönster och olika storlekar.
 
 Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
 
-![Kakel: cirkel](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel1.png)
-![Kakel: kvadrat](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel2.png)
-![Kakel: hexagon](https://github.com/dbosk/intropy/raw/functions-first/modules/variables/fig/kakel3.png)
+![Kakel: cirkel](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel1.png)
+![Kakel: kvadrat](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel2.png)
+![Kakel: hexagon](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel3.png)
 
 
 ## Att göra saker
@@ -69,7 +69,7 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
 
 Vi går igenom olika lösningar samt
 
-  - ett [alternativ för vad som händer när man diskar](https://github.com/dbosk/intropy/blob/functions-first/modules/variables/diska.py)
+  - ett [alternativ för vad som händer när man diskar](https://github.com/dbosk/intropy/blob/master/modules/variables/diska.py)
     och
   - hur man kan [konstruera e-postadresser utifrån namn](https://github.com/dbosk/intropy/blob/master/resources/funktioner/adress.py).
 
