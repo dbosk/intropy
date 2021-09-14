@@ -76,6 +76,18 @@ olika tillfällena i musiken?
 
 Vi går igenom olika lösningar.
 
+En användbar byggsten för att få lite variation i dansen är slump. Följande kod 
+illustrerar hur vi kan slumpa tal.
+```python
+"""Ett program som illustrerar hur man skapar slumptal i Python"""
+
+import random
+
+slumptal = random.randint(1, 10)
+
+print(f"Slumptalet är {slumptal}.")
+```
+
 
 ## Frågesport
 
