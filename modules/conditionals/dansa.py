@@ -45,10 +45,10 @@ def dansa(n):
     slump = random.randint(0, 1)
 
     if slump < 1:
-        n = flytta_fot(n, slumpa_fot(), slumpa_riktning())
+        new_n = flytta_fot(n, slumpa_fot(), slumpa_riktning())
     else:
-        n = snurra(n)
+        new_n = snurra(n)
 
-    dansa(n)
+    dansa(new_n)
 
 dansa(5)
