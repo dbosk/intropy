@@ -72,9 +72,12 @@ Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
 [walk]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/walk.py
 
-Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att 
-dansa (valfri dans) $n$ takter, vilka steg ska tas med vilka fötter vid de 
-olika tillfällena i musiken?
+Skriv program som, på samma sätt som ovan, skriver ut instruktioner för
+
+  - gå en slumpmässig promenad (höger, vänster, framåt, bakåt) som är $n$ meter 
+    lång.
+  - att dansa (valfri dans) $n$ takter, vilka steg ska tas med vilka fötter vid 
+    de olika tillfällena i musiken?
 
 Vi går igenom olika lösningar.
 
