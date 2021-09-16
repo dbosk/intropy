@@ -74,6 +74,7 @@ Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
 Skriv program som, på samma sätt som ovan, skriver ut instruktioner för
 
+  - att gå till olika platser som användaren kan välja mellan.
   - gå en slumpmässig promenad (höger, vänster, framåt, bakåt) som är $n$ meter 
     lång.
   - att dansa (valfri dans) $n$ takter, vilka steg ska tas med vilka fötter vid 
@@ -81,8 +82,8 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för
 
 Vi går igenom olika lösningar.
 
-En användbar byggsten för att få lite variation i dansen är slump. Följande kod 
-illustrerar hur vi kan slumpa tal.
+En användbar byggsten för promenaden och för att få lite variation i dansen är 
+slump. Följande kod illustrerar hur vi kan slumpa tal.
 ```python
 """Ett program som illustrerar hur man skapar slumptal i Python"""
 
