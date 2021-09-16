@@ -101,12 +101,16 @@ dans][random-dance].
 [random-dance]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/dance.py
 
 
-## Bomben
+## Bombspelet
 
 Vi har satt ihop ett frågespel. Svarar man fel detoneras bomben.
 
 Det behövs två filer: [bomben.py][bomben] och [bomb.py][bomb]. Båda måste ligga 
 i samma katalog. Därefter kör man bomben.py: `python3 bomben.py`.
+
+[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomben.py
+[bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
+
 
 
 ## Frågesport
