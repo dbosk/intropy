@@ -27,7 +27,7 @@ algoritmer i deras beståndsdelar. Den här gången kommer algoritmerna att kunn
 bli lite mer avancerade, de ska kunna göra olika saker beroende på olika 
 villkor.
 
-Vi börjar med ett exempel för att gå.
+Vi börjar med [ett exempel för att gå][walk].
 ```python
 """Ett program som illustrerar funktionsuppdelningen i att gå, dock med en 
 tämligen udda gångstil."""
@@ -70,6 +70,8 @@ walk_fwd(2)
 ```
 Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
+[walk]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/walk.py
+
 Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att 
 dansa (valfri dans) $n$ takter, vilka steg ska tas med vilka fötter vid de 
 olika tillfällena i musiken?
@@ -87,6 +89,10 @@ slumptal = random.randint(1, 10)
 
 print(f"Slumptalet är {slumptal}.")
 ```
+Vi kan även gå igenom [ett exempel som använder denna och skapar en slumpmässig 
+dans][random-dance].
+
+[random-dance]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/dance.py
 
 
 ## Frågesport
