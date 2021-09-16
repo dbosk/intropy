@@ -35,7 +35,7 @@ Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
 Vi ska nu fokusera på att skriva funktioner som fokuserar på att dela upp 
 algoritmer i deras beståndsdelar.
 
-Vi börjar med ett exempel för att gå.
+Vi börjar med [ett exempel för att gå][walk].
 ```python
 """Ett program som illustrerar funktionsuppdelningen i att gå"""
 
@@ -63,6 +63,8 @@ walk_two_steps()
 ```
 Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
+[walk]: https://github.com/dbosk/intropy/blob/master/modules/variables/walk.py
+
 Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
 
   1. dansa (valfri dans), vilka steg ska tas med vilka fötter?
@@ -79,3 +81,4 @@ Vi går igenom olika lösningar samt
 ## Önskemål från gruppen
 
 Vad vill gruppen gå igenom igen från veckan som var?
+
