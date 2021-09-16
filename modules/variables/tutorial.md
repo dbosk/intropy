@@ -35,7 +35,7 @@ Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
 Vi ska nu fokusera på att skriva funktioner som fokuserar på att dela upp 
 algoritmer i deras beståndsdelar.
 
-Vi börjar med [ett exempel för att gå][walk].
+Vi börjar med [ett exempel för att gå][walk]:
 ```python
 """Ett program som illustrerar funktionsuppdelningen i att gå"""
 

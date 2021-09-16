@@ -27,7 +27,7 @@ algoritmer i deras beståndsdelar. Den här gången kommer algoritmerna att kunn
 bli lite mer avancerade, de ska kunna göra olika saker beroende på olika 
 villkor.
 
-Vi börjar med [ett exempel för att gå][walk].
+Vi börjar med [ett exempel för att gå][walk]:
 ```python
 """Ett program som illustrerar funktionsuppdelningen i att gå, dock med en 
 tämligen udda gångstil."""
