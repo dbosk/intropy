@@ -230,12 +230,20 @@ To create the gradebook, we will first fetch all the users and then fetch all
 the submissions.
 Then we will map them together.
 This way we only need two requests to Canvas, instead of one per user.
+
+We note that we must check if there is an integration ID, because those have 
+disappeared for some students at times.
 <<functions>>=
 def make_gradebook(course, component):
   gradebook = {}
 
   users_by_id = {}
   for user in course.get_users(enrollment_type=["student"]):
+    if not user.integration_id:
+      print(f"{course.course_code} {user.name} ({user.login_id}) "
+        "has no integration ID.")
+      continue
+
     users_by_id[user.id] = user
     gradebook[user.integration_id] = {}
 
