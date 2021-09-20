@@ -5,8 +5,8 @@ def gå(meter, språk="sv"):
     """Går meter antal meter, språk anger språk för instruktionerna"""
     if språk == "sv":
         return f"Gå {meter} m rakt fram."
-    else:
-        return f"Walk {meter} m stright ahead."
+
+    return f"Walk {meter} m stright ahead."
 
 def sväng(riktning, språk="sv"):
     """Svänger höger eller vänster, språk anger språk för instruktionerna.
@@ -18,8 +18,8 @@ def sväng(riktning, språk="sv"):
         return "Turn right."
     elif riktning == "vänster":
         return "Turn left."
-    else:
-        return f"Turn {riktning}."
+
+    return f"Turn {riktning}."
 
 def gå_till_postlådan(språk="sv"):
     """Ger instruktioner för att gå till affären, språk anger språk för 
