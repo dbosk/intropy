@@ -1,7 +1,7 @@
 SUBDIR+=		slides
 SUBDIR_GOALS=	all clean distclean
 
-HTML_FILES= 	lecture.html exercise.html
+HTML_FILES= 	lecture.html exercise.html tutorial.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos
 

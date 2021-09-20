@@ -7,8 +7,8 @@ in LADOK.
 we assume that all assignments in the Canvas course instance are grouped; and 
 each group must map exactly to the names of the LADOK components.
 
-The course components in LADOK (and assignment groups in Canvas) for the prgi 
-(DD1315) course are
+The course components in LADOK (and assignment groups in Canvas) for the prgX 
+(DD1310, DD1315) courses are
 \begin{itemize}
 \item LAB1,
 \item LAB2,
@@ -22,6 +22,9 @@ In Canvas, it has P/F assignments (\eg presentation) and one A--F assignment
 (the project itself).
 The component grade is based on the project itself, but the other assignments 
 each must have a P too.
+
+However, the DD1310 course doesn't have the MAT1 module, so we'll need to skip 
+that one for that course.
 
 For now we will ignore setting the grade on the full course.
 
@@ -47,23 +50,30 @@ We provide the following files:
 We provide an include file for GNU make to build all the targets.
 <<canvas2ladok.mk>>=
 .PHONY: all
-all: canvas2ladok.py prgi2ladok
+all: canvas2ladok.pdf canvas2ladok.py prgx2ladok
 
-.PHONY: prgi2ladok
-prgi2ladok: canvas2ladok.py Dockerfile
-	docker build -t prgi2ladok .
+LATEXFLAGS= -shell-escape
+
+canvas2ladok.pdf: doc.tex canvas2ladok.tex
+	${PDFLATEX} ${LATEXFLAGS} doc.tex
+	mv doc.pdf $@
+
+.PHONY: prgx2ladok
+prgx2ladok: canvas2ladok.py Dockerfile
+	docker build -t prgx2ladok .
 
 Dockerfile: canvas2ladok.nw
 	${NOTANGLE}
 
 .PHONY: clean
 clean:
-	${RM} canvas2ladok.pdf canvas2ladok.py
+	${RM} canvas2ladok.pdf canvas2ladok.tex
+	${RM} canvas2ladok.py
 	${RM} Dockerfile canvas2ladok.mk
 
 .PHONY: distclean
 distclean:
-	-docker image rm -f prgi2ladok
+	-docker image rm -f prgx2ladok
 @
 
 The Docker image will just contain the [[canvas2ladok.py]] file and run it by 
@@ -104,9 +114,10 @@ API_KEY = os.environ["CANVAS_TOKEN"]
 
 canvas = Canvas(API_URL, API_KEY)
 
-course_code_ladok = "DD1315"
-# We match all course round HT20 and onwards
-course_code_canvas = "DD1315[HV]T[2-9][0-9]"
+course_codes = {
+  "DD1310": "DD1310[HV]T(2[1-9]|[3-9][0-9])3",
+  "DD1315": "DD1315[HV]T[2-9][0-9]"
+}
 components = [
   "LAB1",
   "LAB2",
@@ -161,13 +172,14 @@ LADOK needs in \cref{into-ladok}.
 
 \section{The main body}
 
-Then we can report those results to LADOK.
+Then we can report those results to LADOK, for each course.
 In summary, we do the following:
 <<main body>>=
-for course in get_courses(course_code_canvas):
-  for component in get_components(course):
-    component_results = students_results(course, component)
-    report_results(course_code_ladok, component.name, component_results)
+for course_code_ladok, course_code_canvas in course_codes.items():
+  for course in get_courses(course_code_canvas):
+    for component in get_components(course):
+      component_results = students_results(course, component)
+      report_results(course_code_ladok, component.name, component_results)
 @
 
 
@@ -218,12 +230,20 @@ To create the gradebook, we will first fetch all the users and then fetch all
 the submissions.
 Then we will map them together.
 This way we only need two requests to Canvas, instead of one per user.
+
+We note that we must check if there is an integration ID, because those have 
+disappeared for some students at times.
 <<functions>>=
 def make_gradebook(course, component):
   gradebook = {}
 
   users_by_id = {}
   for user in course.get_users(enrollment_type=["student"]):
+    if not user.integration_id:
+      print(f"{course.course_code} {user.name} ({user.login_id}) "
+        "has no integration ID.")
+      continue
+
     users_by_id[user.id] = user
     gradebook[user.integration_id] = {}
 
