@@ -1,3 +1,6 @@
+LATEXFLAGS+=	-shell-escape
+TEX_PYTHONTEX=	yes
+
 .PHONY: all
 all: notes.pdf slides.pdf
 
