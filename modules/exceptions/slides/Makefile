@@ -1,3 +1,6 @@
+LATEXFLAGS+=	-shell-escape
+TEX_PYTHONTEX=	yes
+
 .PHONY: all
 all: notes.pdf slides.pdf
 
@@ -16,5 +19,5 @@ clean:
 	${RM} notes.pdf slides.pdf
 
 
-INCLUDE_MAKEFILES=../../makefiles
+INCLUDE_MAKEFILES=../../../makefiles
 include ${INCLUDE_MAKEFILES}/tex.mk
