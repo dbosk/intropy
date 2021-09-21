@@ -3,7 +3,7 @@ title: Övning om upprepningar
 authors:
   - Daniel Bosk <dbosk@kth.se>
 ---
-# Övning: inmatning och villkorssatser
+# Övning: upprepningar
 
 Målet med övningen är att du ska blir bättre på att
 
