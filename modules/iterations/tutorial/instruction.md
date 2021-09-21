@@ -117,8 +117,7 @@ $ cowsay "Smaka på den här utmaningen!"
                 ||----w |
                 ||     ||
 ```
-Skriv en funktion som åstadkommer samma sak som `cowsay`. [Lösningsförslag 
-cowsay.py][cowsay].
+Skriv en funktion som åstadkommer samma sak som `cowsay`. [Lösningsförslag cowsay.py][cowsay].
 
 [cowsay]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/cowsay.py
 
