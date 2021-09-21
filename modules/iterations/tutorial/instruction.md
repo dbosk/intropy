@@ -102,6 +102,24 @@ funktion är sannolikt enklast att skriva som en rekursiv funktion.)
 [primes]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/primes.py
 
 
+## Cowsay
+
+I terminalen finns alla möjliga intressanta kommandond. Ett av de lite roligare 
+är `cowsay`. Det funkar såhär:
+```
+$ cowsay Smaka på den här utmaningen!
+ ______________________________
+< Smaka på den här utmaningen! >
+ ------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+```
+Skriv en funktion som åstadkommer samma sak som `cowsay`.
+
+
 ## Önskemål från gruppen
 
 Vad vill gruppen gå igenom igen från veckan som var?
