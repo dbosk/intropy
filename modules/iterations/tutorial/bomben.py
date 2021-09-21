@@ -73,22 +73,28 @@ def krångliga_if():
     if not(0 < flyttal and flyttal < 1):
         bomb.detonera()
 
-    flyttal = input_typ(float, "Säg ett tal mellan 1 och 2: ")
-    if 1 > flyttal or flyttal > 2:
-        bomb.detonera()
-
     print("1 < 2 and 2 < 1 or 9 < 10, ", end=" ")
     # den här är vansinnigt klurig, testa att typkonvertera strängar till bool
     if input_typ(bool, "True eller False? "):
         bomb.detonera()
 
-    ålder = input_typ(int, "Nämn en bra ålder? [Ange ett tal] ")
-    if ålder < 30:
-        bomb.detonera()
-    elif ålder > 20 and ålder < 40:
-        bomb.detonera()
-    elif not(ålder < 65):
-        bomb.detonera()
+def klurig_vilket_tal():
+    """Ställer en klurig fråga om vilket tal"""
+    tal = random.randint(0, 100000)
+    while tal % 2 != input_typ(int, "Vilket tal tänker jag på? "):
+        kommentera_fel()
+        tal //= 10
+
+    if tal == 0:
+        print("Det tog en del försök ...")
+
+def aritmetik(antal):
+    """Ställer antal aritmetiska frågor"""
+    for frågenr in range(antal):
+        term1 = random.randint(1, 10)
+        term2 = random.randint(1, 10)
+        if not ge_försök(2, f"{term1} + {term2} = ", term1+term2):
+            bomb.detonera()
 
 def main():
     """Kör igång bombenspelet"""
@@ -103,14 +109,16 @@ def main():
 Grattis, du tog dig igenom de krångliga if-satserna! Men nu blir det svårare.
         """)
 
-    if ge_försök(3,
+    antal_fel = 0
+    while not ge_försök(3,
             "Gissa vilket tal jag tänker på: ",
             random.randint(1, 10)):
-        print("Imponerande, du gissade rätt!")
-    else:
         print("Du hade tre försök, "
-              "som straff får du ta rundan med krångliga if igen.")
-        krångliga_if()
+              "som straff får du ta en omgång aritmetik.")
+        antal_fel += 1
+        aritmetik(antal_fel)
+
+    klurig_vilket_tal()
 
     fråga_oändligt("Vem är bäst på att programmera? ", "Jag")
     print("Precis, det tar sig ;-)")
