@@ -43,6 +43,14 @@ bomben2.py: `python3 bomben2.py`.
 [bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
 
 
+## Fakultet
+
+Skriv ett program som beräknar n-fakultet, d.v.s. $n! = n\cdot (n-1) \cdots 3 
+\cdot 2 \cdot 1$. Skriv tre funktioner som löser problemet: en som använder 
+rekursion, en som använder for och en som använder while. (Detta är ett 
+typexempel som enklast löses med rekursion.)
+
+
 ## Multiplikationshjälpmedel
 
 **Multiplikationstabellen** Låt användaren ange vilken multiplikationstabell 
@@ -73,6 +81,25 @@ Vilket är det högsta tal du vill multiplicera? 7
 Ett lösningsförslag (för båda) finns i [multtable.py][multtable].
 
 [multtable]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/multtable.py
+
+
+## Primtalsfaktorisering
+
+Ett [primtal][primtal] är ett tal som endast är delbart med 1 och sig självt, 
+exempelvis 2, 3, 5, 7, 11 och 13. [Aritmetikens fundamentalsats][aritfund] 
+säger att "varje heltal större än 1 kan skrivas som en produkt av primtal på 
+ett och endast ett sätt" (primtalsfaktorerna är sorterade, $2\cdot 3$ och 
+$3\cdot 2$ räknas som samma).
+
+Skriv en funktion som tar ett heltal och returnerar en sträng med dess 
+primtalsfaktorer. Exempelvis: $15 = 3\cdot 5$, $8 = 2\cdot 2\cdot 2$. (Denna 
+funktion är sannolikt enklast att skriva som en rekursiv funktion.)
+
+[Lösningsförslag för primtalsfaktorisering, primes.py][primes].
+
+[primtal]: https://sv.wikipedia.org/wiki/Primtal
+[aritfund]: https://sv.wikipedia.org/wiki/Aritmetikens_fundamentalsats
+[primes]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/primes.py
 
 
 ## Önskemål från gruppen
