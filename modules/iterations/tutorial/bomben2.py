@@ -90,10 +90,12 @@ def klurig_vilket_tal():
 
 def aritmetik(antal):
     """Ställer antal aritmetiska frågor"""
+    antal_försök = max(1, round(3/antal))
+
     for frågenr in range(antal):
         term1 = random.randint(1, 10)
         term2 = random.randint(1, 10)
-        if not ge_försök(2, f"{term1} + {term2} = ", term1+term2):
+        if not ge_försök(antal_försök, f"{term1} + {term2} = ", term1+term2):
             bomb.detonera()
 
 def main():
