@@ -107,7 +107,7 @@ funktion är sannolikt enklast att skriva som en rekursiv funktion.)
 I terminalen finns alla möjliga intressanta kommandond. Ett av de lite roligare 
 är `cowsay`. Det funkar såhär:
 ```
-$ cowsay Smaka på den här utmaningen!
+$ cowsay "Smaka på den här utmaningen!"
  ______________________________
 < Smaka på den här utmaningen! >
  ------------------------------
