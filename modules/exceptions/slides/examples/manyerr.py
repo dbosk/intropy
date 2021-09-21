@@ -1,3 +1,5 @@
+"""Program som illustrerar hur man fångar flera typer av fel"""
+
 while True:
     try:
         x = int(input("Nominator x = "))
