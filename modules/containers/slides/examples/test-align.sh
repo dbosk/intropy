@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python3 align_list.py << _EOF
+python3 align.py << _EOF
 adam
 bertil
 cesar
