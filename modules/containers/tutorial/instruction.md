@@ -29,7 +29,7 @@ behöver omedelbart fixa den till finkod. Finkod uppfyller kriterierna:
 
 - Informativa utskrifter
 - Enkel inmatning
-- Kommentarer: doc-strings, komplexa delar (`pylint`!)
+- Kommentarer: doc-strings, komplexa delar (`pylint` och `pydoc`!)
 - Beskrivande namn
 - Konsekvent språk och typografi (`pylint`!)
 - Uppdelning i funktioner/metoder (och moduler?)
