@@ -22,7 +22,7 @@ Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom
 några lösningar. Hur löser man extrauppgiften?
 
 
-## Fixa koden!
+## Förfina fulkoden!
 
 Vi har lagt vantarna på lite fulkod. Fulkod är vi allergiska emot, så vi 
 behöver omedelbart fixa den till finkod. Finkod uppfyller kriterierna:
