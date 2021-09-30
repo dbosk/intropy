@@ -29,11 +29,11 @@ behöver omedelbart fixa den till finkod. Finkod uppfyller kriterierna:
 
 - Informativa utskrifter
 - Enkel inmatning
-- Kommentarer
+- Kommentarer: doc-strings, komplexa delar (`pylint`!)
 - Beskrivande namn
-- Konsekvent språk och typografi
-- Uppdelning i funktioner/metoder/moduler
-- Parametrar och returvärden
+- Konsekvent språk och typografi (`pylint`!)
+- Uppdelning i funktioner/metoder (och moduler?)
+- Funktioner har lämpliga parametrar och returvärden
 - Ingen kodupprepning
 
 Fulkoden som behöver fixas är följande:
