@@ -72,7 +72,13 @@ You never hesitate to tackle the most difficult problems.
 $
 ```
 Skriv ett program som skriver ut en slumpvis vald humoristisk "fortune cookie" 
-relaterad till era studier.
+relaterad till era studier. Exempelvis:
+```
+$ python3 fortune.py
+Alla kommer att få A på matematiktentan!
+$ python3 fortune.py
+Det är en lovande dag för dig!
+```
 
 
 ## Ett bättre `cowsay`
