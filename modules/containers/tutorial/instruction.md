@@ -3,7 +3,7 @@ title: Övning om behållare
 authors:
   - Daniel Bosk <dbosk@kth.se>
 ---
-# Övning: upprepningar
+# Övning: behållare
 
 Målet med övningen är att du ska blir bättre på att
 
