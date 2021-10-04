@@ -16,6 +16,7 @@ def main_read():
 
     any_bad = False
     for line in lines:
+        line = line.strip()
         x_val, y_val = line.split(" -> ")
         if 2*int(x_val)+3 != int(y_val):
             print(f"{x_val} -/> {y_val}")
