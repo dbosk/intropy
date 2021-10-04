@@ -3,7 +3,7 @@
 def main_write():
     """ Writes x, f(x) pairs to a file """
     x_list = range(100)
-    y_list = map(lambda x: 2*x+3, x_list)
+    y_list = apply_f(x_list)
     xy_pairs = zip(x_list, y_list)
     with open("xy.txt", "w") as file:
         for x_val, y_val in xy_pairs:
@@ -23,6 +23,15 @@ def main_read():
 
     if not any_bad:
         print("All values looked good!")
+
+def apply_f(xs):
+    """Takes a list of x-values, xs, returns the list 2x+3"""
+    ys = []
+
+    for x in xs:
+        ys.append(2*x+3)
+
+    return ys
 
 if __name__ == "__main__":
     main_write()

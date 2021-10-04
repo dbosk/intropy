@@ -1,8 +1,7 @@
 """ Opening and closing files """
 
-def without_with():
+def read_without_with(filename):
     """ Read a file without the with statement """
-    filename = input("Please enter file name: ")
     try:
         file = open(filename, "r")
         number = int(file.read())
@@ -11,12 +10,12 @@ def without_with():
         print(f"Error related to file: {err}")
     except ValueError as err:
         print(f"Error related to type conversion: {err}")
-    if file:
-        file.close()
+    finally:
+        if file:
+            file.close()
 
-def with_with():
+def read_with_with(filename):
     """ Read a file with the with statement """
-    filename = input("Please enter file name:")
     try:
         with open(filename, "r") as file:
             number = int(file.read())
@@ -26,8 +25,16 @@ def with_with():
     except ValueError as err:
         print(f"Error related to type conversion: {err}")
 
-if __name__ == "__main__":
+def main():
+    """The main program"""
+    filename = input("Please enter file name: ")
+
     print("without:")
-    without_with()
+    without_with(filename)
+
     print("with:")
-    with_with()
+    with_with(filename)
+
+if __name__ == "__main__":
+    main()
+
