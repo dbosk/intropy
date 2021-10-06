@@ -78,12 +78,24 @@ Skriv ett program som frågar användaren om ett filnamn, läser in filen och
 räknar förekomsten av varje ord i filen.
 
 Låt programmet även fråga användaren om ett filnamn och skriv sedan ut 
-resultatet i CSV-format till filen. (Ni kan antingen använda Pythons CSV-modul, 
-d.v.s. `import csv`, eller skriva ut på egen hand.) Sedan kan ni prova att 
-öppna filen i ett kalkylbladsprogram (exempelvis LibreOffice Calc, Microsoft 
-Excel eller Google Sheets).
+resultatet i CSV-format till filen.
+```
+Vilken fil ska vi analysera? något
+Finns ingen fil som heter något, försök igen.
+Vilken fil ska vi analysera? madicken.txt
+Vill du analysera antalet ord eller bokstäver?
+Ange ett av alternativen ['ord', 'bokstäver']: något
+Tyvärr är något inte ett av alternativen.
+Ange ett av alternativen ['ord', 'bokstäver']: ord
+Till vilken fil ska vi skriva resultatet (CSV-format)? madicken.txt
+Det finns redan en fil som heter madicken.txt, försök igen.
+Till vilken fil ska vi skriva resultatet (CSV-format)? madicken.csv
+```
+(Ni kan antingen använda Pythons CSV-modul, d.v.s. `import csv`, eller skriva 
+ut på egen hand.) Sedan kan ni prova att öppna filen i ett kalkylbladsprogram 
+(exempelvis LibreOffice Calc, Microsoft Excel eller Google Sheets).
 
-Filer att arbeta med:
+Exempelfiler att arbeta med:
 - [Textfil att räkna ord och bokstäver i, madicken.txt][madicken.txt], [utdrag 
   ur wikipediauppslaget "Madicken (bok)"][madicken-wiki].
 - [Resultat av ordräkning, madicken.csv][madicken.csv].
