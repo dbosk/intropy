@@ -63,9 +63,9 @@ Hint: dela först upp i stycken, därefter meningar med ord.
 
 Filer i lösningsförslaget:
 
-- [fortune_better.py][fortune_better.py],
-- [fortunes.txt][fortunes.txt]
-- [cowsay_better.py][cowsay_better.py],
+- [Ett förbättrat fortune-program, fortune_better.py][fortune_better.py],
+- [En fortunesdatabas, fortunes.txt][fortunes.txt]
+- [En förbättrad cowsay-funktion, cowsay_better.py][cowsay_better.py],
 
 [fortune_better.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/fortune_better.py
 [cowsay_better.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/cowsay_better.py
