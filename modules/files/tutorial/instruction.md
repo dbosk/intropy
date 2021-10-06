@@ -110,7 +110,7 @@ Lösningsförslag:
 [wc.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/wc.py
 
 
-## Översättare
+## Översättare till och från rövarspråket
 
 Skriv ett program som frågar efter ett filnamn, frågar om översättning till 
 eller från rövarspråket, läser filen och översätter all text. Översättningen 
