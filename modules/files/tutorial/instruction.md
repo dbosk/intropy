@@ -110,6 +110,37 @@ Lösningsförslag:
 [wc.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/wc.py
 
 
+## Översättare
+
+Skriv ett program som frågar efter ett filnamn, frågar om översättning till 
+eller från rövarspråket, läser filen och översätter all text. Översättningen 
+ska sedan skriva över originalfilen.
+
+När du har en översättar från rövarspråket tillbaka till vanligt språk kan du 
+läsa [filen rövare.txt][rövare.txt].
+
+[rövare.txt]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/rövare.txt
+
+Lösningsförslag:
+- [Översättare till och från rövarspråket, rövare.py][rövare.py]
+- [Ett ord- och bokstavsräkningsprogram, wc.py][wc.py],
+
+[rövare.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/rövare.py
+
+
+## Rövarspråket eller inte?
+
+Skriv ett program som använder `wc`- och `rövare`-modulerna ovan för att 
+undersöka hur bokstavsförekomsterna förändras när en text översätts till 
+rövarspråket.
+
+Lösningsförslag:
+- [Analysprogram som jämför text med översättning till rövarspråket, 
+  analys.py][analys.py]
+
+[analys.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/analys.py
+
+
 ## Önskemål från gruppen
 
 Vad vill gruppen gå igenom igen från veckan som var?

@@ -1,38 +1,36 @@
 """Program som räknar ord och bokstäver"""
 
-def räkna_ord(filnamn):
+def räkna_ord(text):
     """Returnerar en dictionary med orden i filen filnamn som nycklar och 
     antalet gånger de förekommer som värden"""
 
     ord_antal = {}
 
-    with open(filnamn, "r") as infil:
-        for rad in infil:
-            rad = rad.strip()
-            for ett_ord in rad.split(" "):
-                # ett väldigt pythoniskt sätt att göra detta på (try-except)
-                try:
-                    ord_antal[ett_ord] += 1
-                except KeyError:
-                    ord_antal[ett_ord] = 1
+    for rad in text.split("\n"):
+        rad = rad.strip()
+        for ett_ord in rad.split(" "):
+            # ett väldigt pythoniskt sätt att göra detta på (try-except)
+            try:
+                ord_antal[ett_ord] += 1
+            except KeyError:
+                ord_antal[ett_ord] = 1
 
     return ord_antal
 
-def räkna_bokstäver(filnamn):
+def räkna_bokstäver(text):
     """Returnerar en dictionary med bokstäverna i filen filnamn som nycklar
     och antalet gånger de förekommer som värden"""
 
     bokstäver_antal = {}
 
-    with open(filnamn, "r") as infil:
-        for rad in infil:
-            rad = rad.strip()
-            for bokstav in rad:
-                # mindre pythoniskt sätt, men funkar också.
-                if not bokstav in ord_antal:
-                    ord_antal[bokstav] = 1
-                else:
-                    ord_antal[bokstav] += 1
+    for rad in text.split("\n"):
+        rad = rad.strip()
+        for bokstav in rad:
+            # mindre pythoniskt sätt, men funkar också.
+            if not bokstav in bokstäver_antal:
+                bokstäver_antal[bokstav] = 1
+            else:
+                bokstäver_antal[bokstav] += 1
 
     return bokstäver_antal
 
@@ -79,6 +77,13 @@ def läs_alternativ(prompt, alternativ):
 
     return valet
 
+def läs_fil(filnamn):
+    """Returnerar innehållet i en fil vid namn filnamn"""
+    with open(filnamn, "r") as infil:
+        innehåll = infil.read()
+
+    return innehåll
+
 def skriv_CSV(filnamn, uppslagslista):
     """Skriver uppslagslistan till en fil. Använder CSV-format: nyckel;värde"""
     with open(filnamn, "w") as utfil:
@@ -98,10 +103,12 @@ def main():
     utfilnamn = läs_utfilnamn("Till vilken fil ska vi skriva "
             "resultatet (CSV-format)? ")
 
+    innehåll = läs_fil(infilnamn)
+
     if att_analysera == "ord":
-        skriv_CSV(utfilnamn, räkna_ord(infilnamn))
+        skriv_CSV(utfilnamn, räkna_ord(innehåll))
     else:
-        skriv_CSV(utfilnamn, räkna_bokstäver(infilnamn))
+        skriv_CSV(utfilnamn, räkna_bokstäver(innehåll))
 
 if __name__ == "__main__":
     main()
