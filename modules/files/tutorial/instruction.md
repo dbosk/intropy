@@ -72,6 +72,32 @@ Filer i lösningsförslaget:
 [fortunes.txt]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/fortunes.txt
 
 
+## Räkna ord och bokstäver
+
+Skriv ett program som frågar användaren om ett filnamn, läser in filen och 
+räknar förekomsten av varje ord i filen.
+
+Låt programmet även fråga användaren om ett filnamn och skriv sedan ut 
+resultatet i CSV-format till filen. (Ni kan antingen använda Pythons CSV-modul, 
+d.v.s. `import csv`, eller skriva ut på egen hand.) Sedan kan ni prova att 
+öppna filen i ett kalkylbladsprogram (exempelvis LibreOffice Calc, Microsoft 
+Excel eller Google Sheets).
+
+Filer att arbeta med:
+- [Textfil att räkna ord och bokstäver i, madicken.txt][madicken.txt], [utdrag 
+  ur wikipediauppslaget "Madicken (bok)"][madicken-wiki].
+- [Resultat av ordräkning, madicken.csv][madicken.csv].
+
+[madicken.txt]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/madicken.txt
+[madicken-wiki]: https://sv.wikipedia.org/wiki/Madicken_(bok)
+[madicken.csv]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/madicken.csv
+
+Lösningsförslag:
+- [Ett ord- och bokstavsräkningsprogram, wc.py][wc.py],
+
+[wc.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/wc.py
+
+
 ## Önskemål från gruppen
 
 Vad vill gruppen gå igenom igen från veckan som var?
