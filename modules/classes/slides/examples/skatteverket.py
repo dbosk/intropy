@@ -14,7 +14,7 @@ class Person(PersonStr):
 
     def get_parents(self):
         """ Returns the parents """
-        return self.__parents
+        return self.__parents.copy()
 
     def get_address(self):
         """ Returns the address """
