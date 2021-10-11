@@ -25,10 +25,12 @@ följande:
 
 ```python
 import my_sequence_library as myseq
+# Ladda hem modulen input_type från:
 # https://github.com/dbosk/intropy/raw/master/modules/classes/lab/input_type.py
 import input_type as it
 
-def main():
+def run_tests():
+  """Function containing tests for the my_sequence_library module"""
   a1 = it.input_type(int, "a1 = ")
   d = it.input_type(int, "d = ")
 
@@ -59,7 +61,7 @@ def main():
     print("På tok för stort index.")
 
 if __name__ == "__main__":
-  main()
+  run_tests()
 ```
 
 Ovan nämnda egenskap (indexering, `__getitem___`) är sann för alla talföljder, 
@@ -75,9 +77,9 @@ fortsätta att fungera.
 testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`, 
 `GeometricSequence` och `MultiplicativeSequenceFromFile`.
 
-**Krav**: Du ska ha felhantering. Exempelvis hantera att filen inte finns, att 
-talföljden (från fil) inte har tillräckligt många element. Exempelvis om den 
-innehållet data för 12 månader, då finns inte `a[20]`.
+**Krav**: Du ska ha felhantering. Exempelvis hantera att talföljden (från fil) 
+inte har tillräckligt många element. Exempelvis om den innehållet data för 12 
+månader, då finns inte `a[20]`.
 
 
 ## Extrauppgift
