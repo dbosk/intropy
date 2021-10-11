@@ -1,3 +1,8 @@
+---
+title: Laboration: Klasser och objekt
+authors
+  - Daniel Bosk <dbosk@kth.se>
+---
 # Laboration: Klasser och objekt
 
 Hittils har vi använt funktioner för att beräkna $g_n$ på olika sätt (konstant 
