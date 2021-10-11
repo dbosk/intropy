@@ -87,7 +87,10 @@ fortsätta att fungera.
 
 **Inlämning**: Lämna in en modul (`my_sequence_library.py`) som fungerar med 
 testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`, 
-`GeometricSequence` och `MultiplicativeSequenceFromFile`.
+`GeometricSequence` och `MultiplicativeSequenceFromFile`. Ni kan utgå från 
+följande [kodskal för `my_sequence_library.py`][kodskal].
+
+[kodskal]: https://github.com/dbosk/intropy/raw/master/modules/classes/lab/my_sequence_library-template.py
 
 **Krav**: Du ska ha felhantering. Exempelvis hantera att talföljden (från fil) 
 inte har tillräckligt många element. Exempelvis om den innehållet data för 12 
