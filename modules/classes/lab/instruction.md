@@ -39,27 +39,34 @@ def run_tests():
   a1 = it.input_type(int, "a1 = ")
   d = it.input_type(int, "d = ")
 
-  # Skapa talföljdsobjekt
+  # Skapa artimetiskt talföljdsobjekt
   a = myseq.ArithmeticSequence(a1, d)
 
   # Skriv ut de första 20 elementen
   for i in range(20):
     print(f"a[{i}] = {a[i]}")
 
+  # skapa geometriskt talföljdsobjekt
   g1 = it.input_type(float, "g1 = ")
   q = it.input_type(float, "q = ")
   g = myseq.GeometricSequence(g1, q)
   print(f"g[12] = {g[12]}")
   
+  # detta ska generera ett IndexError, finns inget sista element i en
+  # oändlig lista
   try:
     print(f"g[-1] = {g[-1]}")
   except IndexError:
     print("Finns inget sista tal i en oändlig talföljd")
 
+  # använd sequence.csv som exempelinmatning:
+  # https://github.com/dbosk/intropy/raw/master/modules/classes/lab/sequence.csv
   filename = it.input_type(str, "filename = ")
   gf = myseq.MultiplicativeSequenceFromFile(filename)
   print(f"gf[12] = {gf[12]}")
 
+  # sequence.csv har färre än 1000 element, så detta ska generera ett
+  # IndexError
   try:
     print(f"gf[1000] = {gf[1000]}")
   except IndexError:
@@ -84,7 +91,8 @@ testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`,
 
 **Krav**: Du ska ha felhantering. Exempelvis hantera att talföljden (från fil) 
 inte har tillräckligt många element. Exempelvis om den innehållet data för 12 
-månader, då finns inte `a[20]`.
+månader, då finns inte `a[20]`. Testkoden ovan innehåller try-except-satser som 
+fångar de särfall (exceptions) som er kod förväntas att kasta (`raise`).
 
 
 ## Extrauppgift
