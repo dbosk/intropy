@@ -50,18 +50,43 @@ class Person:
         """ Returns phone number """
         return self.__phone
 
+    def __lt__(self, other):
+        """Returns True if self is younger than other,
+        False otherwise"""
+        # smaller birthday means older
+        return self.get_birthday() > other.get_birthday()
+
+    def __repr__(self):
+        """Returns unique representation"""
+        return f"({self}, {self.get_birthday()}, {self.get_address()}, " \
+                f"{self.get_phone()})"
+
 
 def main():
     """ Test program """
     person = Person("Anne-Marie", "Ingeström", "1907-08-28",
                     "Vimmerby", "okänt")
-    print(f"{person.get_name()} har telefonnummer {person.get_phone()}"
+    print(f"{person.get_name()} har telefonnummer {person.get_phone()} "
           f"och bor på adressen {person.get_address()}")
-    print(person)
+    print(f"{person} har telefonnummer {person.get_phone()} "
+          f"och bor på adressen {person.get_address()}")
+
     person.change_name("Margareta Engström")
-    print(f"{person.get_name()} bor på adressen {person.get_address()}")
+    print(f"{person} bor på adressen {person.get_address()}")
     print(person.get_first_name())
     print(person.get_last_name())
+
+    person2 = Person("Ada", "Bedasdotter", "1990-01-01",
+                    "Kiruna", "070-1234567")
+    if person < person2:
+        print(f"{person} är yngre än {person2}.")
+    else:
+        print(f"{person2} är yngre än {person}.")
+
+    lista = [person, person2]
+    print(lista)
+    lista.sort()
+    print(lista)
 
 if __name__ == "__main__":
     main()
