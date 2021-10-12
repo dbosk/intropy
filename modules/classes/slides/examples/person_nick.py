@@ -4,9 +4,10 @@ from person import Person
 
 class PersonNick(Person):
     """ Class for a person """
-    def __init__(self, first_name, last_name, birthday, address, phone, 
-            nickname=""):
-        super().__init__(first_name, last_name, birthday, address, phone)
+    def __init__(self, first_name, last_name, birthday,
+                 address, phone, nickname=""):
+        super().__init__(first_name, last_name, birthday,
+                         address, phone)
         self.__nick = nickname
 
     def set_nick(self, nick):
@@ -34,7 +35,6 @@ def main():
                         "Vimmerby", "okänt")
     print(person)
     person.change_name("Margareta Engström")
-    print(f"{person.get_name()} är född {person.get_birthday()}.")
     person.set_nick("Madicken")
     print(f"{person.get_name()} är född {person.get_birthday()}.")
 
