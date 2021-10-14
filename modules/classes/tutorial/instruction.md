@@ -86,6 +86,7 @@ Lösningsförslag:
 
 [bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
 [bank_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank_arv.py
+[banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
 [banken_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken_arv.py
 [input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
 
