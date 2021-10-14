@@ -55,11 +55,11 @@ Folkbokföringen håller koll på följande om varje person:
 Lösningsförslag:
 
   - [En modul med en klass för personer, person.py][person.py],
-  - [en modul med en klass för adresser, address.py][address.py],
+  - [en modul med en klass för adresser, adress.py][adress.py],
   - [en modul med anpassningar för Skatteverket och testprogram, skatteverket.py][skatteverket.py]
 
 [person.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/person.py
-[address.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/address.py
+[adress.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/adress.py
 [skatteverket.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/skatteverket.py
 
 
