@@ -79,11 +79,14 @@ sammansatt datatyp (klass) som kan representera ett bankkonto:
 Lösningsförslag:
 
   - [En modul med klasser för en bank, bank.py][bank.py]
+  - [En modul med klasser för en bank (använder arv), bank_arv.py][bank_arv.py]
   - [Ett program med gränssnitt för en bank, banken.py][banken.py]
+  - [Ett program med gränssnitt för en bank (arv), banken_arv.py][banken_arv.py]
   - [En modul för inmatning av specifika typer, input_type.py][input_type.py]
 
 [bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
-[banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
+[bank_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank_arv.py
+[banken_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken_arv.py
 [input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
 
 
