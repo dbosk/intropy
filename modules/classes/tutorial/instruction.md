@@ -80,6 +80,12 @@ att experimentera med en.
 Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
 alla avbockade saker.
 
+Lösningsförslag:
+
+  - [En modul som illustrerar en enkel inköpslista, shopping.py][shopping.py]
+
+[shopping.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/shopping.py
+
 
 ## En bråkig klass
 
