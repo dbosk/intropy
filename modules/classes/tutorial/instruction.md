@@ -96,7 +96,7 @@ Lösningsförslag:
 Vi vill ha en klass för att räkna med rationella tal, eller bråk. Vi ska kunna:
 
   - skapa bråk, exempelvis `a = Bråk(1, 3)` och `b = Bråk(2, 6)`;
-  - jämföra bråka, exempelvis `a == b` eller `a < b`;
+  - jämföra bråk, exempelvis `a == b` eller `a < b`;
   - skriva ut bråk på läsbar form, exempelvis `print(f"{a} och {b}")` ger 
     utskriften `1/3 och 2/6`.
   - förkorta bråk, exempelvis så att `b` (som är 2/6) kan förkortas till 1/3.
