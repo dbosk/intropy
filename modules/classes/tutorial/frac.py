@@ -3,20 +3,26 @@
 class Fraction:
     """ Class for fractions """
     def __init__(self, nominator, denominator=1):
-        if isinstance(nominator, Fraction):
-            self.__nominator = nominator.nominator
-            self.__denominator = nominator.denominator
-        elif isinstance(nominator, int):
-            self.__nominator = nominator
-            self.__denominator = 1
-        else:
-            raise TypeError(f"can't create fraction from {type(nominator)}")
+        self.__nominator = 1
+        self.__denominator = 1
 
         if isinstance(denominator, Fraction):
             self.__nominator *= denominator.denominator
             self.__denominator *= denominator.nominator
         elif isinstance(denominator, int):
             self.__denominator *= denominator
+        else:
+            raise TypeError(f"can't create fraction from {type(nominator)}")
+
+        if isinstance(nominator, Fraction):
+            self.__nominator *= nominator.nominator
+            self.__denominator *= nominator.denominator
+        elif isinstance(nominator, int):
+            self.__nominator *= nominator
+        elif isinstance(nominator, str):
+            nominator, denominator = nominator.split("/")
+            self.__nominator *= int(nominator)
+            self.__denominator *= int(denominator)
         else:
             raise TypeError(f"can't create fraction from {type(nominator)}")
 
@@ -98,6 +104,10 @@ def main():
         print(frac)
 
     print(f"Summan är {sum(fracs)}")
+
+    # typkonvertering
+    frac_test = Fraction("1/2")
+    print(f"1/2 blir {frac_test}")
 
 if __name__ == "__main__":
     main()
