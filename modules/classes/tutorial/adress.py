@@ -1,4 +1,4 @@
-"""Module med en klass för att hantera adresser"""
+"""Modul med en klass för att hantera adresser"""
 
 class Adress:
     """Klass för att hantera adresser"""

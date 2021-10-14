@@ -1,44 +1,22 @@
 """En modul för bankrelaterade klasser"""
 
 import adress
+import person
 
-class Kund:
+class Kund(person.Person):
     """En klass för kunder"""
 
     def __init__(self, namn, personnummer, adress, telefon):
         """Skapar en bankkund: namn (sträng), personnummer (sträng), adress 
-        (Adress-objekt), telefon (sträng)"""
-        self.__namn = namn
-        self.__personnummer = personnummer
-        self.__adress = adress
+        (Address-objekt), telefon (sträng)"""
+        namnen = namn.split(" ")
+        super().__init__(" ".join(namnen[:-1]), namnen[-1], personnummer,
+                         adress)
         self.__telefon = telefon
         self.__konton = []
 
     # @property gör att vi inte behöver parenteserna:
-    # `kund.namn` istället för `kund.namn()`
-    @property
-    def namn(self):
-        """ Returnerar namnet"""
-        return self.__namn
-
-    def __str__(self):
-        """Returnerar en strängrepresentation lämpligt för utskrift"""
-        return self.namn
-
-    @property
-    def personnummer(self):
-        """ Returnera personnummer """
-        return self.__personnummer
-
-    @property
-    def adress(self):
-        """ Returnera adress """
-        return self.__adress
-
-    def __repr__(self):
-        """Returns unique representation"""
-        return f"({self.namn}, {self.personnummer}"
-
+    # `kund.telefon` istället för `kund.telefon()`
     @property
     def telefon(self):
         """Returnerar telefonnumret"""
@@ -61,10 +39,10 @@ def input_kund(prompt=""):
 
     namn = input("Fullständigt namn: ")
     personnummer = input("Personnummer: ")
-    adressen = adress.input_adress()
+    adress = address.input_adress()
     telefon = input("Telefonnummer: ")
 
-    return Kund(namn, personnummer, adressen, telefon)
+    return Kund(namn, personnummer, adress, telefon)
 
 class Konto:
     """Ett bankkonto"""
@@ -136,10 +114,10 @@ class Bank:
     def registrera_kund(self, kund):
         """Registrera kunden kund (Kund-objekt) som kund i banken.
         kund får inte vara registrerad, då kastas ett KeyError."""
-        if kund.personnummer in self.__kunder:
+        if kund.get_personnummer() in self.__kunder:
             raise KeyError(f"{kund} är redan registrerad som kund.")
 
-        self.__kunder[kund.personnummer] = kund
+        self.__kunder[kund.get_personnummer()] = kund
 
     def hämta_kund(self, personnummer):
         """Returnerar kund med personnummer personnummer"""
@@ -164,7 +142,7 @@ class Bank:
 def main():
     """Testprogram"""
     kund = Kund("Ada Adamsdotter", "1999-01-01-xxxx",
-                adress.Adress("Stora vägen", "1", "12345", "Orten"),
+                address.Adress("Stora vägen", "1", "12345", "Orten"),
                 "070-1234567")
     konto = Konto(kund, "123-456-789")
 

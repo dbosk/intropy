@@ -3,7 +3,7 @@
 import person
 # vi kan byta namn på Adress till Address då personklassen är skriven på 
 # engelska
-from address import Adress as Address
+from adress import Adress as Address
 
 # vi kan ha "samma namn" på dem, fast egentligen är det inte samma namn:
 # den ena heter Person och den andra person.Person.

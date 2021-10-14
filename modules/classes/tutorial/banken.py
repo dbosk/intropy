@@ -71,7 +71,7 @@ def ta_ut(konto):
     """Låter användaren mata in summa att ta ut från konto"""
     personnummer = input("Ange ägarens personnummer: ")
     lösenord = input("Ange kontots lösenord: ")
-    if konto.ägare.get_personnummer() != personnummer or \
+    if konto.ägare.personnummer != personnummer or \
        not konto.korrekt_lösenord(lösenord):
         print("Tyvärr autentiseringen misslyckades!")
         return
@@ -107,7 +107,7 @@ def main():
             else:
                 ta_ut(konto)
 
-        menyval = meny()
+        menyval = meny(banken)
 
 if __name__ == "__main__":
     main()
