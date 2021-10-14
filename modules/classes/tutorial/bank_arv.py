@@ -39,10 +39,10 @@ def input_kund(prompt=""):
 
     namn = input("Fullständigt namn: ")
     personnummer = input("Personnummer: ")
-    adress = address.input_adress()
+    adressen = adress.input_adress()
     telefon = input("Telefonnummer: ")
 
-    return Kund(namn, personnummer, adress, telefon)
+    return Kund(namn, personnummer, adressen, telefon)
 
 class Konto:
     """Ett bankkonto"""
@@ -142,7 +142,7 @@ class Bank:
 def main():
     """Testprogram"""
     kund = Kund("Ada Adamsdotter", "1999-01-01-xxxx",
-                address.Adress("Stora vägen", "1", "12345", "Orten"),
+                adress.Adress("Stora vägen", "1", "12345", "Orten"),
                 "070-1234567")
     konto = Konto(kund, "123-456-789")
 
