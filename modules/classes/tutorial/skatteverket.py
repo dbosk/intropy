@@ -1,6 +1,8 @@
 """ Reperesenting Skatteverket's pupulation register """
 
 import person
+# vi kan byta namn på Adress till Address då personklassen är skriven på 
+# engelska
 from address import Adress as Address
 
 # vi kan ha "samma namn" på dem, fast egentligen är det inte samma namn:
@@ -9,6 +11,7 @@ class Person(person.Person):
     """ Represents a real/physical person """
     def __init__(self, person_id, full_name, parents, address):
         names = full_name.split()
+        # vi behöver separera för- och efternamn åt person.Person
         super().__init__(" ".join(names[:-1]), names[-1], person_id, address)
         self.__parents = parents
         self.__address = address
@@ -20,6 +23,8 @@ class Person(person.Person):
 
     def get_parents(self):
         """ Returns the parents """
+        # vi returnerar en kopia, annars kan någon uppdatera föräldrarna
+        # genom att modifiera listan som returneras.
         return self.__parents.copy()
 
     def change_address(self, new_address):
@@ -29,6 +34,7 @@ class Person(person.Person):
 
     def get_address_history(self):
         """Returns the list of all addresses"""
+        # returnera kopia för att historiken inte ska kunna förvanskas
         return self.__old_addresses.copy()
 
 
