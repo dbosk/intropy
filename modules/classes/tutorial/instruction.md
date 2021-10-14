@@ -21,6 +21,22 @@ Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom
 några lösningar. Hur löser man extrauppgiften?
 
 
+## Inköpslistan
+
+Skriv ett program som hanterar en inköpslista. Du ska kunna ha flera olika 
+inköpslistor (exempelvis en för mat, en för andra saker), men det räcker med 
+att experimentera med en.
+
+Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
+alla avbockade saker.
+
+Lösningsförslag:
+
+  - [En modul som illustrerar en enkel inköpslista, shopping.py][shopping.py]
+
+[shopping.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/shopping.py
+
+
 ## Folkbokföringen
 
 Under föreläsningen skrev vi en [modul med en klass för 
@@ -69,22 +85,6 @@ Lösningsförslag:
 [bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
 [banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
 [input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
-
-
-## Inköpslistan
-
-Skriv ett program som hanterar en inköpslista. Du ska kunna ha flera olika 
-inköpslistor (exempelvis en för mat, en för andra saker), men det räcker med 
-att experimentera med en.
-
-Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
-alla avbockade saker.
-
-Lösningsförslag:
-
-  - [En modul som illustrerar en enkel inköpslista, shopping.py][shopping.py]
-
-[shopping.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/shopping.py
 
 
 ## En bråkig klass
