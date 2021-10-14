@@ -27,6 +27,10 @@ class Person(person.Person):
         self.__old_addresses.append(self.__address)
         self.__address = new_address
 
+    def get_address_history(self):
+        """Returns the list of all addresses"""
+        return self.__old_addresses.copy()
+
 
 def main():
     """ Skatteverket test program """
@@ -52,6 +56,9 @@ def main():
 
     cecilia.change_address(Address("Vägen", "2", "12345", "Orten"))
     print(f"{cecilia} bor på {cecilia.get_address()}")
+    print(f"{cecilia} har tidigare bott på adresserna:")
+    for address in cecilia.get_address_history():
+        print(address)
 
     parents = cecilia.get_parents()
     print(f"{cecilia}s föräldrar heter {parents[0]} och {parents[1]}.")

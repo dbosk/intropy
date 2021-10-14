@@ -27,14 +27,24 @@ Under föreläsningen skrev vi en [modul med en klass för
 personer][person_old.py]. Vi ska nu bygga vidare på den och skriva en enkel 
 version av Skatteverkets folkbokföringsdatabas.
 
+[person_old.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/slides/examples/person.py
+
 Folkbokföringen håller koll på följande om varje person:
 
   - personens identitet (namn, personnummer och de olika delarna av dessa),
   - personens föräldrar och barn,
   - personens bostadsadress (delarna av den adressen) och alla historiska 
-    bostadsadresser,
+    bostadsadresser.
 
-[person_old.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/slides/examples/person.py
+Lösningsförslag:
+
+  - [En modul med en klass för personer, person.py][person.py],
+  - [en modul med en klass för adresser, address.py][address.py],
+  - [en modul med anpassningar för Skatteverket och testprogram, skatteverket.py][skatteverket.py]
+
+[person.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/person.py
+[address.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/address.py
+[skatteverket.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/skatteverket.py
 
 
 ## Inköpslistan
