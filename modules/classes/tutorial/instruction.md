@@ -99,9 +99,9 @@ Vi vill ha en klass för att räkna med rationella tal, eller bråk. Vi ska kunn
   - jämföra bråk, exempelvis `a == b` eller `a < b`;
   - skriva ut bråk på läsbar form, exempelvis `print(f"{a} och {b}")` ger 
     utskriften `1/3 och 2/6`.
-  - förkorta bråk, exempelvis så att `b` (som är 2/6) kan förkortas till 1/3.
   - addera, subtrahera, multiplicera och dividera bråk.
   - typkonvertera bråket till ett flyttal (`float`).
+  - förkorta bråk, exempelvis så att `b` (som är 2/6) kan förkortas till 1/3.
 
 Detta kräver en del specialmetoder. Se [dokumentationen för Pythons 
 specialmetoder för jämförelse][doc-cmp] och [dokumentationen för Pythons 
