@@ -47,16 +47,6 @@ Lösningsförslag:
 [skatteverket.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/skatteverket.py
 
 
-## Inköpslistan
-
-Skriv ett program som hanterar en inköpslista. Du ska kunna ha flera olika 
-inköpslistor (exempelvis en för mat, en för andra saker), men det räcker med 
-att experimentera med en.
-
-Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
-alla avbockade saker.
-
-
 ## Bankkontot
 
 Vi ska skriva ett enkelt program som hanterar konton åt en bank. Vi behöver en 
@@ -69,6 +59,26 @@ sammansatt datatyp (klass) som kan representera ett bankkonto:
   - Det ska gå att sätta in pengar.
   - Det ska gå att ta ut pengar, men bara om det finns tillräckligt med pengar 
     på kontot. Inga negativa saldon!
+
+Lösningsförslag:
+
+  - [En modul med klasser för en bank, bank.py][bank.py]
+  - [Ett program med gränssnitt för en bank, banken.py][banken.py]
+  - [En modul för inmatning av specifika typer, input_type.py][input_type.py]
+
+[bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
+[banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
+[input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
+
+
+## Inköpslistan
+
+Skriv ett program som hanterar en inköpslista. Du ska kunna ha flera olika 
+inköpslistor (exempelvis en för mat, en för andra saker), men det räcker med 
+att experimentera med en.
+
+Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
+alla avbockade saker.
 
 
 ## En bråkig klass

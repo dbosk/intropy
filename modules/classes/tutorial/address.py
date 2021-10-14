@@ -37,6 +37,23 @@ class Adress:
                self.__postort == other.__postort and \
                self.__land == other.__land
 
+def input_adress(prompt=""):
+    """Låter användaren mata in data för en adress,
+    returnerar ett Adress-objekt"""
+    if prompt:
+        print(prompt)
+
+    gata = input("Gatans namn: ")
+    nummer = input("Gatunummer: ")
+    postnummer = input("Postnummer: ")
+    postort = input("Postort: ")
+    land = input("Land [blankt för Sverige]: ")
+    if not land:
+        land = "Sverige"
+
+    return Adress(gata, nummer, postnummer, postort, land)
+
+
 def main():
     """Testprogram"""
     daniels_kontor = Adress("Lindstedtsvägen", "5", "11428", "Stockholm")
