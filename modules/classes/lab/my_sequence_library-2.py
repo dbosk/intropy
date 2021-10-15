@@ -1,5 +1,13 @@
 """Modul för att arbeta med talföljder"""
 
+def läs_tal(fil):
+    """ Läser tal från fil, returnerar lista med dessa tal"""
+    q = []
+    for rad in fil:
+        q.append(float(rad))
+    return q
+
+
 class ArithmeticSequence:
     """Klass för en aritmetisk talföljd"""
 
@@ -46,15 +54,7 @@ class MultiplicativeSequenceFromFile:
             # snyggar till felmeddelandet
             raise FileNotFoundError(
                 filnamn+" existerar inte (i den katalogen).")
-        self.talserie = MultiplicativeSequenceFromFile.läs_tal(fil)
-
-    @staticmethod
-    def läs_tal(fil):
-        """ Läser tal från fil, returnerar lista med dessa tal"""
-        q = []
-        for rad in fil:
-            q.append(float(rad))
-        return q
+        self.talserie = läs_tal(fil)
 
     def __getitem__(self, n):
         """Returnerar det n:te talet i följden,
