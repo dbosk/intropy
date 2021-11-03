@@ -90,11 +90,20 @@ def test_file_seq():
     """Function testing the MultiplicativeSequenceFromFile class"""
     # använd sequence.csv som exempelinmatning:
     # https://github.com/dbosk/intropy/raw/master/modules/classes/lab/sequence.csv
-    filename = "sequence.csv"
-    gf = myseq.MultiplicativeSequenceFromFile(filename)
+    correct_filename = "sequence.csv"
+    incorrect_filename = "this_file_does_not_exist.nonexisting_extension"
+    # detta ska ge ett exception
+    try:
+      gf = myseq.MultiplicativeSequenceFromFile(incorrect_filename)
+    except FileNotFoundError as err:
+      print(f"Super, det verkar fungera: {err}")
+
+    # detta ska funka om filen sequence.csv finns i samma mapp
+    gf = myseq.MultiplicativeSequenceFromFile(correct_filename)
 
     print(f"gf[7] = {gf[7]}")
     if gf[7] != 1.217251414:
+        # det här ska inte inträffa med sequence.csv ovan
         raise Exception(f"gf[7] = {gf[7]} != 1.217251414")
 
     # sequence.csv har färre än 1000 element, så detta ska generera ett
