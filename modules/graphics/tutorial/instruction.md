@@ -95,7 +95,7 @@ ska du utöka det programmet:
 
 Det kan se ut såhär:
 
-![Ritprogram med knappar för att byta färg och mellan rektangel och linje][draw.png]
+![En bild på ett ritprogram med knappar för att byta färg och mellan rektangel och linje][draw.png]
 
 Lösningsförslag:
 - [Ritprogram där man kan byta färger][draw_colors.py]
