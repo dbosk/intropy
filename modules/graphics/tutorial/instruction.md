@@ -44,7 +44,7 @@ För att få tillgång till tiden (och för att vänta mellan utskrifterna) anv�
 
 ![En bild på grafiskt gränssnitt som visar tiden i digitalt fortmat][clock]
 
-[clock]: https://github.com/dbosk/intropy/blob/master/modules/graphics/tutorial/clock.png
+[clock]: https://github.com/dbosk/intropy/raw/master/modules/graphics/tutorial/clock.png
 
 Nu kan du gå vidare med att skriva ett grafiskt gränssnitt som visar tiden. Nu 
 kan vi inte längre använda `time.sleep` för att vänta mellan uppdateringarna. 
@@ -69,7 +69,7 @@ ställa in timern och sedan ska den räkna ner. Exempelvis kan det se ut såhär
 
 ![En bild på grafiskt gränssnitt som visar en timer som räknar ned][timer]
 
-[timer]: https://github.com/dbosk/intropy/blob/master/modules/graphics/tutorial/timer.png
+[timer]: https://github.com/dbosk/intropy/raw/master/modules/graphics/tutorial/timer.png
 
 I exemplet ovan skriver vi in tiden i rutorna och sedan räknar programmet ned i 
 samma rutor. Men man kan ha rutor där man ställer in, en OK-knapp och sedan 
@@ -101,7 +101,7 @@ Lösningsförslag:
 - [Ritprogram där man kan byta färger][draw_colors.py]
 - [Ritprogram där man kan rita rektanglar][draw_rect.py]
 
-[draw.png]: https://github.com/dbosk/intropy/blob/master/modules/graphics/tutorial/draw.png
+[draw.png]: https://github.com/dbosk/intropy/raw/master/modules/graphics/tutorial/draw.png
 
 [draw_debug.py]: https://github.com/dbosk/intropy/blob/master/modules/graphics/tutorial/draw_debug.py
 
