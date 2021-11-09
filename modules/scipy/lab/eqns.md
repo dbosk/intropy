@@ -6,6 +6,7 @@ Vi ska nu använda datorn för att lösa ekvationer åt oss.
 ## Linjära ekvationssystem
 
 Vi har följande ekvationssystem:
+
 $$
 \begin{cases}
 2x + 1y + 3z = 13 \\
@@ -13,6 +14,7 @@ $$
 -x - 1y - 3z = -12
 \end{cases}
 $$
+
 Skriv ett program som finner $x, y, z$ med hjälp av [gaussisk 
 elimination][gauss-elim].
 
