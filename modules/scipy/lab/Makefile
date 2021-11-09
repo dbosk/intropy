@@ -1,4 +1,7 @@
 .PHONY: all
-all: eqns.html graphs.html
+all: instruction.html
 
-include ../../html.mk
+instruction.html: graphs.md eqns.md
+	cat $^ | pandoc -f markdown -o $@
+
+include ../../../html.mk
