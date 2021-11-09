@@ -16,10 +16,23 @@ $$
 
 Rita deras grafer, först var och en för sig och sedan alla i samma graf.
 
+Användbara funktioner i Matlab:
+
+  - `plot`
+  - `figure`
+  - `fplot`
+  - `hold`
+
 
 ## Tredimensionella grafer (extrauppgift)
 
 Utforska [Matlabs bibliotek][matlab-help] och testa att använda några olika 
 funktioner för att skapa några snygga/coola/häftiga/fascinerande 3D-grafer.
+
+Användbara funktioner i Matlab:
+
+  - `meshgrid`
+  - `surf`
+  - `title`
 
 [matlab-help]: https://se.mathworks.com/help/
