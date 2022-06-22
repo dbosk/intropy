@@ -88,3 +88,27 @@ experiencing variation in critical aspects is a necessary condition for
 learning. Variation theory is proposed to be a powerful means for describing 
 and revealing conditions critical for learning in a pedagogical setting.
 
+## What Does It Take to Do Computer Programming?: Surveying the K-12 Students' Conceptions
+
+From the abstract of [What Does It Take to Do Computer Programming?: Surveying 
+the K-12 Students' Conceptions](https://doi.org/10.1145/2676723.2677229):
+
+> Phenomenographic studies in computing education research have previously 
+focused on learning "programming thinking" [3], the act of learning to program 
+[2], and conceptions of learning generally in an engineering context [10]. In 
+the present study we analyze and discuss "what it takes to do computer 
+programming" using phenomenography as research approach. This study is based on 
+a large survey dataset gathered in summer outreach courses for K-12 students. 
+The analysis resulted in 12 qualitatively different categories belonging to 
+five separate, emergent themes: Syntax and language features, nature of 
+programming work generally, computational thinking and problem solving, 
+prerequisites, and auxiliary skills. We additionally reviewed whether the 
+students' previous experience explains the categories, and observed that a 
+mechanistic view of programming was prevailing among the inexperienced users, 
+while experienced students more often stressed algorithmic thinking and logical 
+reasoning. This study resembles work done by Eckerdal et al. [3], but gives a 
+K-12 perspective to the question, "what does it takes to do programming?"
+
+This seems like a relevant paper. There is not that much difference between 12 
+and HE, at least not at KTH.
+
