@@ -112,3 +112,29 @@ K-12 perspective to the question, "what does it takes to do programming?"
 This seems like a relevant paper. There is not that much difference between 12 
 and HE, at least not at KTH.
 
+
+# Computational thinking studies with phenomenography, education
+
+[Semantic Scholar: "computational thinking" "variation theory" phenomenography, limited to education](https://www.semanticscholar.org/search?fos%5B0%5D=computer-science&q=%22computational%20thinking%22%20%22variation%20theory%22%20phenomenography&sort=relevance)
+
+Yields 54 results, not all relevent. The relevant results (has anything to do 
+with computational thinking in title or abstract) are the following results 
+(the following subsections).
+
+## Variation theory applied to students’ conceptions of computer programming
+
+From the abstract of [Variation theory applied to students’ conceptions of 
+computer programming](https://doi.org/10.1080/03043790902989374):
+
+> The present work has its focus on university-level engineering education 
+students that do not intend to major in computer science but still have to take 
+a mandatory programming course. Phenomenography and variation theory are 
+applied to empirical data from a study of students’ conceptions of computer 
+programming. A phenomenographic outcome space is presented, with five 
+qualitatively different categories of description of students’ ways of seeing 
+computer programming. Moreover, dimensions of variation related to these 
+categories are identified. Based on this discussion it is suggested how to use 
+patterns of variation in order to support students’ learning of computer 
+programming. Finally, results from a pilot study demonstrate the successful 
+application of two patterns of variation in a computer lab assignment.
+
