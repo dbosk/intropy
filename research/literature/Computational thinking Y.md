@@ -1,7 +1,6 @@
-# Google Scholar- computational thinking  variation theory 
+## Google Scholar- computational thinking  variation theory 
 
-Teaching Computational Reasoning Through Construals
-https://publications.aston.ac.uk/id/eprint/37782/1/ESD133_5.pdf
+[Teaching Computational Reasoning Through Construals](https://publications.aston.ac.uk/id/eprint/37782/1/ESD133_5.pdf)
 
 ## Abstract 
 Can construals be used to teach computational reasoning? This paper outlines some of the issues of teaching computational reasoning and then endeavours to show how it might be possible, through using the principles of variation theory to design teaching sequences and consequently construals that open the learner up to the computational reasoning ideas being considered.
@@ -29,18 +28,19 @@ Expanding the context – real generalisation and fusion
 Studien har kommit fram till: 
 “We argue that providing learners with construals that encourage them to focus on experimentation around the critical aspects of the problem can aid their learning”. 
 Asking the learner to develop a model of the problem space is problematic as the learner has to learn the modelling environment and how to represent the problem in that environment before they can focus on developing the knowledge to solve the problem.
-Intressant från diskussionen:
+
+## Intressant från diskussionen:
 “For the transfer of the computational thinking technique, it is not simply discerning the invariant concept in a particular type of problem space (i.e. the writing of a code segment) but in a range of different problems possibly from different problem domains. We start with games but transfer the concept to programming. We contend that we should include some everyday real world problems to encourage transfer and to verify that transfer is occurring.”
 
 
 
-Intressanta referenser:
+## Intressanta referenser:
 Aho, A. V. (2011). Ubiquity symposium: Computation and Computational Thinking. Ubiquity, 2011(January). doi:10.1145/1922681.1922682
 https://dl.acm.org/doi/pdf/10.1145/1922681.1922682
 Wing, J. M. (2006). Computational thinking. Communications of the ACM, 49(3), 33-35. Retrieved from: 
 https://doi.org/10.1145/1118178.1118215
 
-Länken:
+Jeannette M. Wing, Computational thinking:
 https://dl.acm.org/doi/pdf/10.1145/1118178.1118215
 
 V. Barr, C. Stephenson. Bringing Computational Thinking to K-12: What is Involved and what is The Role of The Computer Science Education Community? ACM Inroads, Vol.2, No.1, 48-54, 2011
