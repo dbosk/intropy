@@ -16,3 +16,4 @@ article.pdf: article.tex
 .PHONY: clean
 clean:
 	latexmk -C
+	${RM} article.bbl article.run.xml
