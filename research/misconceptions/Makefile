@@ -2,6 +2,8 @@
 all: article.pdf
 
 article.pdf: bibliography.bib
+article.pdf: preamble.tex
+
 article.pdf: classes.tex
 article.pdf: conditionals.tex
 article.pdf: functions-variables.tex
