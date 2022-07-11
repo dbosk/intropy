@@ -35,15 +35,19 @@ prgm22booked = utils.read_signup_sheet_from_url(
 #prgm22 = utils.read_signup_sheet_from_file("DD1310.csv")
 prgm22 = prgm22booked
 
-prgi22tutorials = filter(lambda x: "Övning" in x[0], prgi22)
+prgi22tuts = filter(lambda x: "Övning" in x[0], prgi22)
 prgi22labs = filter(
         lambda x: "laboration" in x[0] or "Laboration" in x[0],
         prgi22)
 
+h_per_student = utils.hours_per_student(prgi22)
+
 print("# prgi22")
-print(f"Övn: {to_hours(utils.max_hours(prgi22tutorials))}")
-print(f"Lab: {to_hours(utils.max_hours(prgi22labs))}")
-print(f"Tot: {to_hours(utils.total_hours(prgi22booked))} h "
+
+for event, hours in h_per_student.items():
+    print(f"{event}: {to_hours(hours)} h/student")
+
+print(f"Booked: {to_hours(utils.total_hours(prgi22booked))} h "
         f"({to_hours(utils.max_hours(prgi22))} h)\n")
 
 
@@ -52,17 +56,30 @@ prgm22labs = filter(
         lambda x: "laboration" in x[0] or "Laboration" in x[0],
         prgm22)
 
+h_per_student = utils.hours_per_student(prgm22)
+
 print("# prgm22")
-print(f"Övn: {to_hours(utils.max_hours(prgm22tutorials))}")
-print(f"Lab: {to_hours(utils.max_hours(prgm22labs))}")
-print(f"Tot: {to_hours(utils.total_hours(prgm22booked))} h "
+
+for event, hours in h_per_student.items():
+    print(f"{event}: {to_hours(hours)} h/student")
+
+print(f"Booked: {to_hours(utils.total_hours(prgm22booked))} h "
         f"({to_hours(utils.max_hours(prgm22))} h)\n")
 
 
-print("Amanuenser:")
-for user, data in utils.compute_amanuensis_data(prgi22 + prgm22).items():
+print("# Amanuenser")
+amanuensis = utils.compute_amanuensis_data(prgi22 + prgm22)
+for user, data in amanuensis.items():
     if not user:
         continue
     print(f"{user}: {data[2]} h, {100*utils.compute_percentage(*data):.0f}%: "
             f"{data[0].format('YYYY-MM-DD')}--{data[1].format('YYYY-MM-DD')}")
+
+print()
+print("# Hourly")
+for user, hours in utils.hours_per_TA(prgi22 + prgm22).items():
+    if not user or user in amanuensis:
+        continue
+    print(f"{user}: {to_hours(hours)} h")
+
 
