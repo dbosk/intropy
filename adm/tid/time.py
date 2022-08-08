@@ -45,10 +45,10 @@ h_per_student = utils.hours_per_student(prgi22)
 print("# prgi22")
 
 for event, hours in h_per_student.items():
-    print(f"{event}: {to_hours(hours)} h/student")
+    print(f"{event}: {to_hours(hours):.2f} h/student")
 
-print(f"Booked: {to_hours(utils.total_hours(prgi22booked))} h "
-        f"({to_hours(utils.max_hours(prgi22))} h)\n")
+print(f"Booked: {to_hours(utils.total_hours(prgi22booked)):.2f} h "
+        f"({to_hours(utils.max_hours(prgi22)):.2f} h)\n")
 
 
 prgm22tutorials = filter(lambda x: "Övning" in x[0], prgm22)
@@ -61,10 +61,10 @@ h_per_student = utils.hours_per_student(prgm22)
 print("# prgm22")
 
 for event, hours in h_per_student.items():
-    print(f"{event}: {to_hours(hours)} h/student")
+    print(f"{event}: {to_hours(hours):.2f} h/student")
 
-print(f"Booked: {to_hours(utils.total_hours(prgm22booked))} h "
-        f"({to_hours(utils.max_hours(prgm22))} h)\n")
+print(f"Booked: {to_hours(utils.total_hours(prgm22booked)):.2f} h "
+        f"({to_hours(utils.max_hours(prgm22)):.2f} h)\n")
 
 
 print("# Amanuenser")
