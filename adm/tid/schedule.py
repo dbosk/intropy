@@ -1,6 +1,4 @@
 import arrow
-import calendar
-import dateutil
 import ics.icalendar
 import nytid.schedules as sched
 import nytid.schedules.utils as utils
@@ -36,61 +34,6 @@ def generate_schedule():
 
     return schedule
 
-def format_header(event):
-    """Formats the event header"""
-    header = f"Week {event.begin.isocalendar()[1]} " + \
-            calendar.day_name[event.begin.weekday()] + " " + \
-            event.begin.to(dateutil.tz.tzlocal()).format('DD/MM HH:mm')
-
-    if "DD1317" in event.name or "DD1310" in event.name:
-        header += f" {event.name.split(',')[0]}"
-    else:
-        header += f" {event.name}"
-
-    return header
-
-def format_event(event):
-    """Takes event (ics.event.Event) object,
-    returns string representation"""
-    header = format_header(event)
-    location = event.location
-    description = "\n".join(filter(lambda x: "http" not in x,
-            event.description.splitlines()))
-
-    return f"{header}\n{location}\n{description}".strip()
-
-def filter_event_description(event_desc):
-    """Takes event description event_desc as string,
-    returns filtered string"""
-
-    desc_parts = event_desc.splitlines()
-    desc_parts_keep = []
-
-    for part in desc_parts:
-        if "http" in part:
-            continue
-        elif "grupp" in part:
-            continue
-        elif "ID " in part:
-            continue
-        elif "CINEK" in part:
-            continue
-        elif "Daniel Bosk" in part:
-            continue
-
-        desc_parts_keep.append(part)
-
-    return " ".join(desc_parts_keep)
-
-def format_event_short(event):
-    """Takes event (ics.event.Event) object,
-    returns string representation"""
-    header = format_header(event)
-    description = filter_event_description(event.description)
-
-    return f"{header} {description}".strip()
-
-
 
 def main():
     """Main program"""
@@ -112,7 +55,7 @@ def main():
             break
         """
 
-        print(format_event_short(event))
+        print(sched.format_event_short(event))
 
 
 if __name__ == "__main__":
