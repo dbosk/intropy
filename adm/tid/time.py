@@ -72,14 +72,15 @@ amanuensis = utils.compute_amanuensis_data(prgi22 + prgm22)
 for user, data in amanuensis.items():
     if not user:
         continue
-    print(f"{user}: {data[2]} h, {100*utils.compute_percentage(*data):.0f}%: "
-            f"{data[0].format('YYYY-MM-DD')}--{data[1].format('YYYY-MM-DD')}")
+    print(f"{user}: {data[2]:.2f} h, "
+          f"{100*utils.compute_percentage(*data):.1f}%: "
+          f"{data[0].format('YYYY-MM-DD')}--{data[1].format('YYYY-MM-DD')}")
 
 print()
 print("# Hourly")
 for user, hours in utils.hours_per_TA(prgi22 + prgm22).items():
     if not user or user in amanuensis:
         continue
-    print(f"{user}: {to_hours(hours)} h")
+    print(f"{user}: {to_hours(hours):.2f} h")
 
 
