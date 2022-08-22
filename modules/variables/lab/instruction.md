@@ -54,13 +54,6 @@ d, n$ returnera $S^a_n$) och en funktion som beräknar summan för en geometrisk
 Skriv ett program som använder funktionerna.
 (Kontrollera att funktionerna ger korrekt resultat.)
 
-## Krav
-
-* De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från huvudprogrammet
-* Programmet ska följa de riktlinjer kursen har:
-  * Varje funktion ska vara dokumenterad med en docstring
-  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
-
 ## Exempelutskrift
 
 ```
@@ -68,8 +61,14 @@ Den aritmetiska summan är: 11
 Den geometriska summan är: 26
 
 ```
+## Krav
 
-## Extrauppgift
+* De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från huvudprogrammet
+* Programmet ska följa de riktlinjer kursen har:
+  * Varje funktion ska vara dokumenterad med en docstring
+  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
+
+## Frivillig extrauppgift
 
 Lägg till så att användaren måste skriva in värdena för $a_1, d, n$ samt $g_1, q, n$. 
 Räkna därefter ut den aritmetiska respektive geometriska summan av de värdena användaren skrivit in.
