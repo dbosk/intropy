@@ -65,3 +65,23 @@ Den aritmetiska summan är: 11
 Den geometriska summan är: 26
 
 ```
+
+## Extrauppgift
+
+Lägg till så att användaren måste skriva in värdena för $a_1, d, n$ samt $g_1, q, n$ i början av körningen. 
+Räkna därefter ut den aritmetiska och geometriska summan av de värdena användaren skrivit in.
+
+## Exempelutskrift
+
+```
+Skriv in värdet på a1: 1
+Skriv in värdet på d: 2
+Skriv in värdet på n: 3
+Den aritmetiska summan är: 5
+
+Skriv in värdet på g1: 2
+Skriv in värdet på q: 2
+Skriv in värdet på n: 4
+Den geometriska summan är: 16
+
+```
