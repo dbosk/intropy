@@ -39,7 +39,7 @@ Den aritmetiska summan är störst.
   * Varje funktion ska vara dokumenterad med en docstring
   * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
-## Extrauppgift
+## Frivillig extrauppgift
 
 Låt programmet först fråga användaren om en summa är aritmetisk eller 
 geometrisk. På så vis kan användaren jämföra en aritmetisk summa med en 
