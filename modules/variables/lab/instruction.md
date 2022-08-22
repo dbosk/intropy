@@ -68,8 +68,8 @@ Den geometriska summan är: 26
 
 ## Extrauppgift
 
-Lägg till så att användaren måste skriva in värdena för $a_1, d, n$ samt $g_1, q, n$ i början av körningen. 
-Räkna därefter ut den aritmetiska och geometriska summan av de värdena användaren skrivit in.
+Lägg till så att användaren måste skriva in värdena för $a_1, d, n$ samt $g_1, q, n$. 
+Räkna därefter ut den aritmetiska respektive geometriska summan av de värdena användaren skrivit in.
 
 ### Exempelutskrift
 
