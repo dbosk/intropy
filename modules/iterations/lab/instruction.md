@@ -1,28 +1,50 @@
-# Laboration: Iterationer
+# Laboration: Iterationer och felhantering
 
 Hittills har vi antagit att användaren matat in korrekta data, men det är inte 
 alltid fallet. I den här laborationen ska vi felsäkra det program vi skrev i 
-föregående laboration.
+föregående laboration med hjälp av egna felhanteringsfunktioner. De funktioner 
+vi skriver i denna laboration kommer vara bra verktyg att ha för kommande 
+laborationer! 
 
+## Innan du börjar koda
+
+Läs på om $try-except$ samt om importering av $moduler$. 
 
 ## Uppgift
 
-Skriv en funktion (eller flera funktioner om så behövs) som tar inmatning från 
-användaren och inte returnerar förrän användaren har matat in korrekt data. 
-Ersätt all inmatning i förra programmet med din(a) nya funktion(er). Föregående 
-program tog följande inmatning:
+I denna laboration kommer vi använda oss av en egenskriven modul som vi 
+importerar in i vårt huvudprogram. Denna modul ska innehålla två funktioner, 
+en som kontrollerar att input är en int och en som kontrollerar om input är en float. 
+Funktionerna ska ta inmatning från användaren och inte returnera förrän 
+användaren har matat in korrekt data. 
+
+Ert huvudprogram kommer efteråt likna programmet nedan:
+
+```python
+import check_input_library as check_input
+
+def sum_arithmetic(a1, d, n):
+  # Here goes your code from earlier labs
+
+def sum_geometric(g1, q, n):
+  # Here goes your code from earlier labs
+
+def main():
+  a1 = check_input.is_float("Skriv in värdet på a1: ")
+  d = check_input.is_float("Skriv in värdet på d: ")
+  n = check_input.is_int("Skriv in värdet på n: ")
+  
+  arithmetic = sum_arithmetic(a1, d, n)
+  
+  g1 = check_input.is_float("Skriv in värdet på a1: ")
+  q = check_input.is_float("Skriv in värdet på d: ")
+  
+  geometric = sum_geometric(g1, q, n)
+  
+  # and then your code to compare the two sums
+  
 ```
-Data för den aritmetiska summan:
-a_1: 1
-d: 2
-Data för den geometriska summan:
-g_1: 1.01
-q: 1.10
-Antal termer i summorna:
-n: 10
-Den aritmetiska summan är störst.
-```
-Men nu ska vi kunna hantera att användaren matar in fel, exempelvis:
+## Exempelutskrift
 ```
 Data för den aritmetiska summan:
 a_1: a
@@ -37,7 +59,20 @@ q: 1.10
 Antal termer i summorna:
 n: 0
 n måste vara större än noll.
+n: 10.2
+n måste vara ett heltal.
 n: 10
 Den aritmetiska summan är störst.
 ```
 
+## Krav
+
+* Felhanteringsfunktionerna ska vara i en separat modul som importeras in i huvudprogrammet
+* All inmatning ska felhanteras med hjälp av passande hjälpfunktion
+* Användaren ska ha oändligt antal försök på sig att mata in rätt värden 
+* Ert program ska kunna hantera alla testfall som visas i exempelutskriften
+* Programmet ska följa de riktlinjer kursen har:
+  * Varje funktion ska vara dokumenterad med en docstring
+  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
+
+## Extrauppgift
