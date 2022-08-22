@@ -75,6 +75,12 @@ Den aritmetiska summan är störst.
   * Varje funktion ska vara dokumenterad med en docstring
   * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
+## Redovisning
+
+Denna laboration ska redovisas för en lärarassistent på ett laborationstillfälle. Information 
+om bokning av redovisningstillfälle kommer komma upp på Canvas. På redovisningen ska du kunna
+köra din kod och beskriva ditt program detaljerat. 
+
 ## Frivillig extrauppgift
 
 Läs om [paketering][packaging] i Python och gör din modul installerbar 
