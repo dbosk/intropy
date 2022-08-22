@@ -4,9 +4,6 @@ I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
 I föregående laboration skrev vi två funktioner, en som beräknar en aritmetisk 
 summa och en som beräknar en geometrisk summa.
 
-## Innan du börjar koda
-
-Läs på om $styrstrukturer$ och hur $inmatning$ sker i Python.
 
 ## Uppgift
 
@@ -19,7 +16,7 @@ Låt användaren mata in värdena för $a_1, d, g_1, q$ och $n$. Efter att summo
   eller
 - "Summorna är lika" om de är lika.
 
-## Exempelutskrift
+Exempelvis:
 ```
 Data för den aritmetiska summan:
 a_1: 1
@@ -32,20 +29,12 @@ n: 10
 Den aritmetiska summan är störst.
 ```
 
-## Krav
-
-* Den aritmetiska och geometriska summan ska använda sig av samma $n$
-* Programmet ska följa de riktlinjer kursen har:
-  * Varje funktion ska vara dokumenterad med en docstring
-  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
 ## Extrauppgift
 
 Låt programmet först fråga användaren om en summa är aritmetisk eller 
 geometrisk. På så vis kan användaren jämföra en aritmetisk summa med en 
 geometrisk eller två aritmetiska summor.
-
-### Exempelutskrift
 ```
 Är den första summan [a]rtimetisk eller [g]eometrisk? a
 a_1: 1.02
