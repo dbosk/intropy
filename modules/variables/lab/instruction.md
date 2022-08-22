@@ -71,7 +71,7 @@ Den geometriska summan är: 26
 Lägg till så att användaren måste skriva in värdena för $a_1, d, n$ samt $g_1, q, n$ i början av körningen. 
 Räkna därefter ut den aritmetiska och geometriska summan av de värdena användaren skrivit in.
 
-## Exempelutskrift
+### Exempelutskrift
 
 ```
 Skriv in värdet på a1: 1
