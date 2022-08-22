@@ -76,3 +76,8 @@ Den aritmetiska summan är störst.
   * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
 ## Extrauppgift
+
+Läs om [paketering][packaging] i Python och gör din modul installerbar 
+genom `pip`. Då kan andra enkelt installera din modul på sina system.
+
+[packaging]: https://packaging.python.org/tutorials/packaging-projects/
