@@ -42,6 +42,9 @@ det förväntade `a*b`.)
 Vi kan även beräkna summan $S^g_n = g_1 + \cdots + g_n =
 g_1 \frac{q^n-1}{q-1}$.
 
+## Innan du börjar koda
+
+Se till att du har koll på hur $parametrar$ och $return-värden$ fungerar i Python. 
 
 ## Uppgift
 
