@@ -58,7 +58,7 @@ Skriv ett program som använder funktionerna.
   * Varje funktion ska vara dokumenterad med en docstring
   * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
-# Exempelutskrift
+## Exempelutskrift
 
 ```
 Den aritmetiska summan är: 11
