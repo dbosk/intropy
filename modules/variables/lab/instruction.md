@@ -46,8 +46,22 @@ g_1 \frac{q^n-1}{q-1}$.
 ## Uppgift
 
 Skriv en funktion som beräknar summan för en aritmetisk talföljd (givet $a_1, 
-d, n$ returnera $S^a_n$) och en som beräknar summan för en geometrisk talföljd 
+d, n$ returnera $S^a_n$) och en funktion som beräknar summan för en geometrisk talföljd 
 (givet $g_1, q, n$ returnera $S^g_n$).
 Skriv ett program som använder funktionerna.
 (Kontrollera att funktionerna ger korrekt resultat.)
 
+## Krav
+
+* De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från huvudprogrammet
+* Programmet ska följa de riktlinjer kursen har:
+  * Varje funktion ska vara dokumenterad med en docstring
+  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
+
+# Exempelutskrift
+
+```
+Den aritmetiska summan är: 11
+Den geometriska summan är: 26
+
+```
