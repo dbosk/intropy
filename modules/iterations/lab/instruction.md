@@ -75,7 +75,7 @@ Den aritmetiska summan är störst.
   * Varje funktion ska vara dokumenterad med en docstring
   * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
-## Extrauppgift
+## Frivillig extrauppgift
 
 Läs om [paketering][packaging] i Python och gör din modul installerbar 
 genom `pip`. Då kan andra enkelt installera din modul på sina system.
