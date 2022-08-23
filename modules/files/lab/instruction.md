@@ -11,6 +11,8 @@ Läs på om [filhantering][filhantering] i Python.
 Ladda ner filen [students.csv](https://github.com/dbosk/intropy/files/9403241/students.csv)
 och spara den på ett bra ställe på datorn. 
 
+[filhantering]: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
+
 ## Uppgift
 
 I denna laboration ska du låta användaren mata in namnet på en fil som 
