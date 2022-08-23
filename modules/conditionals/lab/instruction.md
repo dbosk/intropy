@@ -1,20 +1,28 @@
-# Laboration: Inmatning och styrstrukturer
+# Laboration: Inmatning, felhantering och styrstrukturer
 
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
 I föregående laboration skrev vi två funktioner, en som beräknar en aritmetisk 
-summa och en som beräknar en geometrisk summa.
+summa och en som beräknar en geometrisk summa vilka har använt sig av variabler
+definierade i programmet. Nu ska istället användaren få mata in dessa värden. 
+
+För att se till att programmet inte kraschar om användaren matar in fel värden
+kommer vi lägga till felhantering i koden som skriver ut ett fint meddelande till
+användaren. 
 
 ## Innan du börjar koda
 
-Läs på om [styrstrukturer][styrstrukturer] och hur [inmatning][inmatning] sker i Python.
+Läs på om [styrstrukturer][styrstrukturer], [felhantering][felhantering] och hur [inmatning][inmatning] sker i Python.
 
 [styrstrukturer]: https://docs.python.org/3/reference/compound_stmts.html#
+[felhantering]: https://docs.python.org/3/tutorial/errors.html
 [inmatning]: https://docs.python.org/3/library/functions.html#input
 
 ## Uppgift
 
-Låt användaren mata in värdena för $a_1, d, g_1, q$ och $n$. Efter att summorna 
-är beräknade, använd lämplig styrstruktur för att skriva ut enligt följande:
+Låt användaren mata in värdena för $a_1, d, g_1, q$ och $n$. Om användaren
+skriver in fel typ ska programmet avslutas med ett felmeddelande. Efter att 
+summorna är beräknade, använd lämplig styrstruktur för att skriva ut 
+enligt följande:
 
 - "Den aritmetiska summan är störst" om den aritmetiska summan är (strikt) 
   större än den geometriska,
@@ -24,6 +32,11 @@ Låt användaren mata in värdena för $a_1, d, g_1, q$ och $n$. Efter att summo
 
 ## Exempelutskrift
 ```
+Data för den aritmetiska summan:
+Skriv in startvärdet (a1): a
+
+Det där var inte en siffra. Starta om programmmet och försök igen.
+
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): 1
 Skriv in differensen (d): 2
