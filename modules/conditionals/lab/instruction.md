@@ -6,7 +6,10 @@ summa och en som beräknar en geometrisk summa.
 
 ## Innan du börjar koda
 
-Läs på om $styrstrukturer$ och hur $inmatning$ sker i Python.
+Läs på om [styrstrukturer][styrstrukturer] och hur [inmatning][inmatning] sker i Python.
+
+[styrstrukturer]: https://docs.python.org/3/reference/compound_stmts.html#
+[inmatning]: https://docs.python.org/3/library/functions.html#input
 
 ## Uppgift
 
@@ -22,26 +25,27 @@ Låt användaren mata in värdena för $a_1, d, g_1, q$ och $n$. Efter att summo
 ## Exempelutskrift
 ```
 Data för den aritmetiska summan:
-a_1: 1
-d: 2
+Skriv in startvärdet (a1): 1
+Skriv in differensen (d): 2
+
 Data för den geometriska summan:
-g_1: 1.01
-q: 1.10
+Skriv in startvärdet (g1): 1.01
+Skriv in kvoten (q): 1.10
+
 Antal termer i summorna:
-n: 10
+Skriv in antal element i följden (n): 10
 Den aritmetiska summan är störst.
 ```
 
 ## Krav
 
 * Den aritmetiska och geometriska summan ska använda sig av samma $n$
-* Programmet ska följa de riktlinjer kursen har:
-  * Varje funktion ska vara dokumenterad med en docstring
-  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
+* Din kod ska uppfylla kraven i rättningsmatrisen
+* Din kod ska lämnas in på Canvas som en .py fil
  
 ## Kamraträttning
 
-Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den bedömningsmall som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i bedömningsmallen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
+Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
 
 ## Frivillig extrauppgift
 
@@ -52,11 +56,13 @@ geometrisk eller två aritmetiska summor.
 ### Exempelutskrift
 ```
 Är den första summan [a]rtimetisk eller [g]eometrisk? a
-a_1: 1.02
-d: 0.1
+Skriv in startvärdet (a1): 1.02
+Skriv in differensen (d): 0.1
+
 Är den andra summan [a]ritmetisk eller [g]eometrisk? g
-g_1: 1.02
-q: 1.1
-Hur många termer, n? 10
+Skriv in startvärdet (g1): 1.02
+Skriv in kvoten (q): 1.1
+
+Hur många termer (n)? 10
 Den andra summan är störst.
 ```
