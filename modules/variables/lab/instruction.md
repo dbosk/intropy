@@ -89,14 +89,14 @@ Räkna därefter ut den aritmetiska respektive geometriska summan av de värdena
 ### Exempelutskrift
 
 ```
-Skriv in värdet på a1: 1
-Skriv in värdet på d: 2
-Skriv in värdet på n: 3
+Skriv in startvärdet (a1): 1
+Skriv in differensen (d): 2
+Skriv in antal element i följden (n): 3
 Den aritmetiska summan är: 5
 
-Skriv in värdet på g1: 2
-Skriv in värdet på q: 2
-Skriv in värdet på n: 4
+Skriv in startvärdet (g1): 2
+Skriv in kvoten (q): 2
+Skriv in antal element i följden (n): 4
 Den geometriska summan är: 16
 
 ```
