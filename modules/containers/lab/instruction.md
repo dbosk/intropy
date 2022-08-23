@@ -5,6 +5,10 @@ I den här laborationen ska ni istället skapa er egen datatyp genom att
 skriva er första klass. Ni kommer öva på att skapa objekt av er typ och
 att spara ner dessa i en behållare som ni sedan ska iterera igenom.
 
+Fördelen med att representera objekt på ett bättre sätt är att det underlättar 
+för den som ska programmera. Det kan göra koden mer intuitiv, mer läsbar. Detta 
+minskar risken för fel (buggar).
+
 ## Innan du börjar koda
 
 Läs på om [klasser][klasser], [listor][listor] och [upprepningar][upprepningar].
