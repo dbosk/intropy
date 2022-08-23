@@ -64,10 +64,8 @@ Den geometriska summan är: 26
 ## Krav
 
 * De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från huvudprogrammet
+* Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
-* Programmet ska följa de riktlinjer kursen har:
-  * Varje funktion ska vara dokumenterad med en docstring
-  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
 
 ## Kamraträttning
 
