@@ -77,7 +77,7 @@ Den geometriska summan är: 26
 
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat.
 När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som
-du ska rätta utifrån den bedömningsmall som syns bredvid inlämningen. Ladda ner koden, provkör den
+du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den
 på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa
 varandra att bli ännu bättre på att koda! 
 
