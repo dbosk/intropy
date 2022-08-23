@@ -1,4 +1,4 @@
-# Laboration: Iterationer och felhantering
+# Laboration: Upprepningar och felhantering
 
 Hittills har vi antagit att användaren matat in korrekta data, men det är inte 
 alltid fallet. I den här laborationen ska vi felsäkra det program vi skrev i 
