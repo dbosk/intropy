@@ -44,7 +44,13 @@ g_1 \frac{q^n-1}{q-1}$.
 
 ## Innan du börjar koda
 
-Se till att du har koll på hur $parametrar$ och $return-värden$ fungerar i Python. 
+Se till att du har koll på hur [parametrar][parametrar], [argument][argument] och [funktioner][funktioner] fungerar i Python.
+Kom även ihåg att använda [pylint][pylint] när du kodar. 
+
+[parametrar]: https://docs.python.org/3/glossary.html#term-parameter
+[argument]: https://docs.python.org/3/glossary.html#term-argument
+[funktioner]: https://docs.python.org/3/reference/compound_stmts.html#function
+[pylint]: https://pypi.org/project/pylint/
 
 ## Uppgift
 
@@ -72,7 +78,7 @@ Den geometriska summan är: 26
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat.
 När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som
 du ska rätta utifrån den bedömningsmall som syns bredvid inlämningen. Ladda ner koden, provkör den
-på din dator och fyll sedan i bedömningsmallen. Lämna gärna konstruktiva kommentarer för att hjälpa
+på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa
 varandra att bli ännu bättre på att koda! 
 
 ## Frivillig extrauppgift
