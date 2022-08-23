@@ -38,6 +38,12 @@ Per Edenström 8410024155
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
 
+## Redovisning
+
+Denna laboration ska redovisas för en lärarassistent på ett laborationstillfälle. 
+Information om bokning av redovisningstillfälle kommer komma upp på Canvas. 
+På redovisningen ska du kunna köra ditt program och beskriva din kod detaljerat.
+
 ## Extrauppgift 1
 
 Ge användaren möjlighet att lägga till, ändra eller ta bort objekt. 
