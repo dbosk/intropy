@@ -1,4 +1,4 @@
-# Laboration: Klasser, behållare och iterationer
+# Laboration: Klasser, behållare och upprepningar
 
 Hittills i kursen har vi jobbat med existerande datatyper i Python. 
 I den här laborationen ska ni istället skapa er egen datatyp genom att
@@ -7,11 +7,11 @@ att spara ner dessa i en behållare som ni sedan ska iterera igenom.
 
 ## Innan du börjar koda
 
-Läs på om [klasser][klasser], [listor][listor] och [iterationer][iterationer].
+Läs på om [klasser][klasser], [listor][listor] och [upprepningar][upprepningar].
 
 [klasser]: https://docs.python.org/3/tutorial/classes.html
 [listor]: https://docs.python.org/3/library/stdtypes.html#lists
-[iterationer]: https://docs.python.org/3/reference/compound_stmts.html?highlight=while#the-while-statement
+[upprepningar]: https://docs.python.org/3/reference/compound_stmts.html?highlight=while#the-while-statement
 
 ## Uppgift
 
