@@ -1,10 +1,10 @@
-# Laboration: Upprepningar och felhantering
+# Laboration: Upprepningar, moduler och felhantering
 
-Hittills har vi antagit att användaren matat in korrekta data, men det är inte 
-alltid fallet. I den här laborationen ska vi felsäkra det program vi skrev i 
-föregående laboration med hjälp av egna felhanteringsfunktioner. De funktioner 
-vi skriver i denna laboration kommer vara bra verktyg att ha för kommande 
-laborationer! 
+Hittills har vi avslutat programmet om användaren matat in inkorrekt data, men det är inte 
+särskilt användarvänligt. I den här laborationen ska vi felsäkra det program vi skrev i 
+föregående laboration med hjälp av egna felhanteringsfunktioner som låter användaren skriva
+in datan igen. De funktioner vi skriver i denna laboration kommer vara bra verktyg att ha 
+för kommande laborationer! 
 
 ## Innan du börjar koda
 
