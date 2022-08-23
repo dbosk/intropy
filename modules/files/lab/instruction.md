@@ -8,7 +8,7 @@ därför ska vi nu istället låta programmet läsa in den informationen från e
 
 Läs på om [filhantering][filhantering] i Python.
 
-Ladda ner filen [students.csv](https://github.com/dbosk/intropy/files/9403241/students.csv)
+Ladda ner filen [students.txt](https://github.com/dbosk/intropy/files/9403483/students.txt)
 och spara den på ett bra ställe på datorn. 
 
 [filhantering]: https://docs.python.org/3/tutorial/inputoutput.html#reading-and-writing-files
@@ -100,12 +100,13 @@ Per Edenström 8410024155
 
 ## Extrauppgift 3
 
+Ladda ner filen [students.csv](https://github.com/dbosk/intropy/files/9403241/students.csv)
+
 Använd Pythons inbyggda [`csv`-modul][csv] för att läsa in en fil på 
-CSV-format. Då kan filen med räntor skapas i ett kalkylarksprogram som Google 
+CSV-format. Då kan filen med studenter skapas i ett kalkylarksprogram som Google 
 Sheets, LibreOffice Calc eller Microsoft Excel.
 
 [csv]: https://docs.python.org/3/library/csv.html
 
 Om resultaten även skrivs till fil i CSV-format (med hjälp av `csv`-modulen), 
 då kan även resultatet importeras tillbaka i kalkylarksprogrammet.
-
