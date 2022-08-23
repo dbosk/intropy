@@ -1,138 +1,94 @@
 ---
-title: Laboration: Klasser och objekt
+title: Laboration: Mer klasser och behållare
 authors
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
-# Laboration: Klasser och objekt
+# Laboration: Mer klasser och behållare
 
-Hittils har vi använt funktioner för att beräkna $g_n$ på olika sätt (konstant 
-$q$ och en lista med $q$-värden). Syftet med klasser (och objekt) är att de 
-bättre liknar objekt i verkligheten. Exempelvis är en talföljd väldigt lik en 
-lista, det är ju trots allt en (möjligtvis oändlig) lista med tal, men mindre 
-lik en funktion för att beräkna talen i följden.
+I förra laborationen använde vi oss av en klass vars objekt vi sparade ner
+i en lista. Nu ska vi istället använda oss av två klasser, därav den första
+klassen har ett attribut som är en dictionary, där vi sparar ner objekt från
+den andra klassen. 
 
-Fördelen med att representera objekt på ett bättre sätt är att det underlättar 
-för den som ska programmera. Det kan göra koden mer intuitiv, mer läsbar. Detta 
-minskar risken för fel (buggar).
+Fördelen med att spara ner objekt på detta vis är att vi kan skapa en mer
+strukturerad och användbar kod, vilket gör koden mer lättläst och flexibel.
 
+## Innan du börjar koda
+
+Läs på om [uppslagsverk][uppslagsverk]
+
+[uppslagsverk]: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
 
 ## Uppgift
 
-Nu ska vi skriva klasser som hanterar talföljder. Låt klasserna vara en del av 
-din modul för talföljder. De ska hantera den karakteristiska egenskapen för en 
-talföljd: det ska gå att få ut det $n$:te elementet (använd 
-[`__getitem__`][getitem]).
+Nu ska vi skriva en klass "School" som har minst ett attribut $students$. 
+Attributet $students$ ska vara av typen uppslagsverk. 
 
-[getitem]: https://docs.python.org/3/reference/datamodel.html#object.__getitem__
+Skapa ett objekt av typen School. Låt igen användaren skriva in information om 
+minst tre studenter och skapa objekt av typen Student. 
 
-Med den egenskapen och om du använder `__getitem__` kan vi skriva kod som 
-följande:
+Istället för att spara ner objekten i en lista som vi gjorde i förra laborationen, 
+ska objekten nu sparas i skol-objektets attribut $students$. Tänk på vad som är 
+rimligt att vi använder som nyckel för ett student-objekt och vad vi använder som värde. 
 
-```python
-import my_sequence_library as myseq
-# Ladda hem modulen input_type från:
-# https://github.com/dbosk/intropy/raw/master/modules/classes/lab/input_type.py
-import input_type as it
+Avsluta programmet med att skriva ut objektet av typen School.
 
-def run_tests():
-  """Function containing tests for the my_sequence_library module"""
-  a1 = it.input_type(int, "a1 = ")
-  d = it.input_type(int, "d = ")
+## Exempelutskrift
 
-  # Skapa artimetiskt talföljdsobjekt
-  a = myseq.ArithmeticSequence(a1, d)
+```
+...
+Vad heter studenten? Emma Löv
+Vad är studentens personnummer? 010101000a
+Personnumret får bara innehålla siffror, försök igen!
+Vad är studentens personnummer? 0101010000
 
-  # Skriv ut de första 20 elementen
-  for i in range(20):
-    print(f"a[{i}] = {a[i]}")
+Studenten är tillagd!
 
-  # skapa geometriskt talföljdsobjekt
-  g1 = it.input_type(float, "g1 = ")
-  q = it.input_type(float, "q = ")
-  g = myseq.GeometricSequence(g1, q)
-  print(f"g[12] = {g[12]}")
-  
-  # detta ska generera ett IndexError, finns inget sista element i en
-  # oändlig lista
-  try:
-    print(f"g[-1] = {g[-1]}")
-  except IndexError:
-    print("Finns inget sista tal i en oändlig talföljd")
+Här är alla studenter på KTH:
+Jan Jansson 0404040010
+Per Persson 0303030030
+Emma Löv 0101010000
 
-  # använd sequence.csv som exempelinmatning:
-  # https://github.com/dbosk/intropy/raw/master/modules/classes/lab/sequence.csv
-  filename = it.input_type(str, "filename = ")
-  gf = myseq.MultiplicativeSequenceFromFile(filename)
-  print(f"gf[12] = {gf[12]}")
-
-  # sequence.csv har färre än 1000 element, så detta ska generera ett
-  # IndexError
-  try:
-    print(f"gf[1000] = {gf[1000]}")
-  except IndexError:
-    print("På tok för stort index.")
-
-if __name__ == "__main__":
-  run_tests()
 ```
 
-Ovan nämnda egenskap (indexering, `__getitem___`) är sann för alla talföljder, 
-vare sig de är aritmetiska, geometriska eller något annat. Då kan vi ha en 
-generell klass för talföljder och sedan specialiserade klasser för aritmetiska 
-och geometriska talföljder. Så vi skulle kunna byta ut `a = 
-myseq.ArithmeticSequence(a1=1, d=2)` mot `a = 
-myseq.MultiplicativeSequenceFromFile("file.txt")` (som läser in en sekvens från 
-fil, likt föregående laboration) och resten av koden i exemplet ovan kommer att 
-fortsätta att fungera.
+## Krav
 
-**Inlämning**: Lämna in en modul (`my_sequence_library.py`) som fungerar med 
-testprogrammet ovan. Den måste då innehålla klasserna `ArithmeticSequence`, 
-`GeometricSequence` och `MultiplicativeSequenceFromFile`.
+* Programmet ska uppfylla alla krav nämnda i beskrivningen
+* All inmatning ska felhanteras med hjälp av lämplig hjälpfunktion
+* Din kod ska uppfylla kraven i rättningsmatrisen
+* Din kod ska lämnas in på Canvas som en .py fil
 
-**Krav**: Du ska ha felhantering. Exempelvis hantera att talföljden (från fil) 
-inte har tillräckligt många element. Exempelvis om den innehållet data för 12 
-månader, då finns inte `a[20]`. Testkoden ovan innehåller try-except-satser som 
-fångar de särfall (exceptions) som er kod förväntas att kasta (`raise`).
+## Kamraträttning
 
+Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
 
-## Extrauppgift
+## Frivillig extrauppgift
 
-Hantera [slice-notation][slice-notation], exempelvis:
+Lägg till en klass Person som klassen Student ärver ifrån, se [arv][arv]. 
+Skapa en till klass Teacher som också ärver från Person. Lägg till så att
+klassen Skola har två attribut, en för studenter och en för lärare, alternativt
+hitta på ett eget sätt att hålla isär elever och lärare i ditt program. 
+
+[arv]: https://docs.python.org/3/tutorial/classes.html#inheritance
+
+## Exempelutskrift
+
 ```
-# Skriv ut summan av de första 20 elementen
-print(f"sum(a) = {sum(a[:20])}")
+...
+Vad för roll har personen? Lärare
+Vad heter personen? Albert Einstein
+Vad är personens personnummer? 7903140050
+
+Personen tillagd!
+
+Här är alla studenter på KTH:
+Jan Jansson 0404040010
+Per Persson 0303030030
+Emma Löv 0101010000
+
+Här är alla lärare på KTH:
+Albert Einsten 7903140050
+
 ```
-
-För raden `sum(a[:20])` krävs att din kod hanterar [sliceobjekt][slice-docs]. 
-Följande exempelkod är bra att experimentera med för att komma igång:
-```python
-class Test:
-  def __getitem__(self, key):
-    return key
-
-t = Test()
-print(t[0])
-print(t[:10])
-print(t[4:7])
-slice_object = t[4:7]
-print(slice_object.start)
-print(slice_object.stop)
-print(slice_object.step)
-print(isinstance(t[4:8], slice))
-print(isinstance(t[4], slice))
-```
-
-[slice-notation]: https://docs.python.org/3/tutorial/introduction.html#strings
-[slice-docs]: https://docs.python.org/3/library/functions.html#slice
-
-
-## Ytterligare extrauppgift
-
-Implementera [`__setitem__`][setitem] för `MultiplicativeSequenceFromFile` för 
-att sätta värden. När värdena sätts ska respektive $q$-värde beräknas från 
-föregående värde. Lägg till en metod `.save(filename)` som sparar alla 
-$q$-värden till en fil som kan läsas in med `MultiplicativeSequenceFromFile` 
-nästa körning.
-
-[setitem]: https://docs.python.org/3/reference/datamodel.html#object.__setitem__
 
