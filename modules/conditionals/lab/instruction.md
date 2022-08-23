@@ -35,7 +35,22 @@ enligt följande:
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): a
 
-Det där var inte en siffra. Starta om programmmet och försök igen.
+Det där var inte ett flyttal. Starta om programmmet och försök igen.
+
+
+Data för den aritmetiska summan:
+Skriv in startvärdet (a1): 1
+Skriv in differensen (d): 2
+
+Data för den geometriska summan:
+Skriv in startvärdet (g1): 1.01
+Skriv in kvoten (q): 1.10
+
+Antal termer i summorna:
+Skriv in antal element i följden (n): 10.1
+
+Det där var inte ett heltal. Starta om programmet och försök igen.
+
 
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): 1
@@ -53,6 +68,8 @@ Den aritmetiska summan är störst.
 ## Krav
 
 * Den aritmetiska och geometriska summan ska använda sig av samma $n$
+* All inmatning ska felhanteras
+* Ditt program ska kunna hantera alla testfall som visas i exempelutskriften
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
  
