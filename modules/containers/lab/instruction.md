@@ -7,7 +7,11 @@ att spara ner dessa i en behållare som ni sedan ska iterera igenom.
 
 ## Innan du börjar koda
 
-Läs på om [klasser][klasser], [behållare][behållare] och [iterationer][iterationer].
+Läs på om [klasser][klasser], [listor][listor] och [iterationer][iterationer].
+
+[klasser]: https://docs.python.org/3/tutorial/classes.html
+[listor]: https://docs.python.org/3/library/stdtypes.html#lists
+[iterationer]: https://docs.python.org/3/reference/compound_stmts.html?highlight=while#the-while-statement
 
 ## Uppgift
 
