@@ -8,17 +8,21 @@ laborationer!
 
 ## Innan du börjar koda
 
-Läs på om $try-except$ samt om importering av $moduler$. 
+Läs på om [felhantering][felhantering] samt om [moduler][moduler]. 
+
+[felhantering]: https://docs.python.org/3/tutorial/errors.html
+[moduler]: https://docs.python.org/3/tutorial/modules.html#:~:text=A%20module%20is%20a%20file,global%20variable%20__name__%20.
+
 
 ## Uppgift
 
 I denna laboration kommer vi använda oss av en egenskriven modul som vi 
 importerar in i vårt huvudprogram. Denna modul ska innehålla två funktioner, 
 en som kontrollerar att input är en int och en som kontrollerar om input är en float. 
-Funktionerna ska ta inmatning från användaren och inte returnera förrän 
+De två funktionerna ska ta inmatning från användaren och inte returnera förrän 
 användaren har matat in korrekt data. 
 
-Ert huvudprogram kommer efteråt likna programmet nedan:
+Ert huvudprogram kommer efteråt likna programmet nedan (med bättre variabelnamn):
 
 ```python
 import check_input_library as check_input
@@ -70,16 +74,15 @@ Den aritmetiska summan är störst.
 * Felhanteringsfunktionerna ska vara i en separat modul som importeras in i huvudprogrammet
 * All inmatning ska felhanteras med hjälp av passande hjälpfunktion
 * Användaren ska ha oändligt antal försök på sig att mata in rätt värden 
-* Ert program ska kunna hantera alla testfall som visas i exempelutskriften
-* Programmet ska följa de riktlinjer kursen har:
-  * Varje funktion ska vara dokumenterad med en docstring
-  * Variabel och funktionsnamn ska vara beskrivande och skrivna med snake_case
+* Ditt program ska kunna hantera alla testfall som visas i exempelutskriften
+* Din kod ska uppfylla kraven i rättningsmatrisen
+* Din kod ska lämnas in på Canvas som en .py fil
 
 ## Redovisning
 
 Denna laboration ska redovisas för en lärarassistent på ett laborationstillfälle. Information 
 om bokning av redovisningstillfälle kommer komma upp på Canvas. På redovisningen ska du kunna
-köra din kod och beskriva ditt program detaljerat. 
+köra ditt program och beskriva din kod detaljerat. 
 
 ## Frivillig extrauppgift
 
