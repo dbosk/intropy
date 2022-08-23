@@ -16,7 +16,7 @@ strukturerad och användbar kod, vilket gör koden mer lättläst och flexibel.
 
 ## Innan du börjar koda
 
-Läs på om [uppslagsverk][uppslagsverk]
+Läs på om [uppslagsverk][uppslagsverk].
 
 [uppslagsverk]: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
 
