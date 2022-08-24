@@ -15,8 +15,9 @@ Målet med övningen är att du ska blir bättre på att
 
 ## Önskemål från gruppen
 
+Har alla kommit igång med kursens material? Är det några frågetecken om kursuppläget?
+
 Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
-Var det något från förra veckans laboration som gruppen vill diskutera i helklass?
 
 ## Övningsuppgifter
 
