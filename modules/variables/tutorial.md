@@ -2,6 +2,7 @@
 title: Övning om variabler och funktioner
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
 # Övning: funktioner och variabler
 
@@ -12,13 +13,14 @@ Målet med övningen är att du ska blir bättre på att
   - skapa funktioner med parametrar och returvärden.
 
 
-## Laborationen
+## Önskemål från gruppen
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar.
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
+Var det något från förra veckans laboration som gruppen vill diskutera i helklass?
 
+## Övningsuppgifter
 
-## Kakelfabriken
+### Kakelfabriken
 
 En kakelfabrik behöver räkna ut hur mycket färg som går åt för olika 
 kakelmönster och olika storlekar.
@@ -29,8 +31,17 @@ Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
 ![Kakel: kvadrat](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel2.png)
 ![Kakel: hexagon](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel3.png)
 
+### Finn fem fel
 
-## Att göra saker
+Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/variables/easy_house_chores.py)
+
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
+
+Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under veckan).
+
+Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
+
+### Att göra saker
 
 Vi ska nu fokusera på att skriva funktioner som fokuserar på att dela upp 
 algoritmer i deras beståndsdelar.
@@ -71,14 +82,26 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
   2. diska (handdisk, då diskmaskinen inte är så utmanande, vi såg en algoritm 
      på föreläsningen).
 
-Vi går igenom olika lösningar samt
-
-  - ett [alternativ för vad som händer när man diskar](https://github.com/dbosk/intropy/blob/master/modules/variables/diska.py)
-    och
-  - hur man kan [konstruera e-postadresser utifrån namn](https://github.com/dbosk/intropy/blob/master/resources/funktioner/adress.py).
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/diska.py)
 
 
-## Önskemål från gruppen
+## Svårare övningsuppgifter
 
-Vad vill gruppen gå igenom igen från veckan som var?
+De här uppgifterna är till för veckans avancerade övning alternativt om det finns tid över på den första övningen. 
+
+### Generera e-postadresser
+
+Skriv ett program som generar en e-postadress utifrån parametrar som antingen är hårdkodade eller givna av användaren.
+
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/resources/funktioner/adress.py)
+
+### Finn fem fel
+
+Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/variables/hard_house_chores.py)
+
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
+
+Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under veckan).
+
+Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
 
