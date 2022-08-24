@@ -3,7 +3,7 @@ title: Övning om upprepningar
 authors:
   - Daniel Bosk <dbosk@kth.se>
 ---
-# Övning: upprepningar
+# Övning: upprepningar och moduler
 
 Målet med övningen är att du ska blir bättre på att
 
@@ -15,22 +15,26 @@ Målet med övningen är att du ska blir bättre på att
   - leta i Pythons dokumentation.
 
 
-## Laborationen
+## Önskemål från gruppen
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar. Hur löser man extrauppgiften?
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
 
+Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
 
-## Frågesport
+## Övningsuppgifter
 
-Skriv ett frågeprogram med kluriga frågor. Enklare frågor ska ha ett begränsat 
+### Finn fem fel 
+
+### Frågesport
+
+Utveckla ditt frågeprogram från förra veckans övning. Enklare frågor ska ha ett begränsat 
 antal försök, medan svårare frågor ska tillåta oändligt antal försök. Vi vill 
 också att användaren ska mata in korrekt, exempelvis om användaren skriver 
 "tre" istället för "3" ber vi användaren att skriva in igen. (Ska detta räknas 
 som ett försök? Kanske, det får ni avgöra själva.)
 
 
-## Bombspelet 2.0
+### Bombspelet 2.0
 
 Vi har förbättrat vårt frågespel Bomben till Bomben 2.0. Svarar man fel 
 detoneras fortfarande bomben, men klurigheterna är uppgraderade.
@@ -43,15 +47,16 @@ bomben2.py: `python3 bomben2.py`.
 [bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
 
 
-## Fakultet
+### Fakultet
 
 Skriv ett program som beräknar n-fakultet, d.v.s. $n! = n\cdot (n-1) \cdots 3 
 \cdot 2 \cdot 1$. Skriv tre funktioner som löser problemet: en som använder 
 rekursion, en som använder for och en som använder while. (Detta är ett 
 typexempel som enklast löses med rekursion.)
 
+## Svårare övningsuppgifter
 
-## Multiplikationshjälpmedel
+### Multiplikationshjälpmedel
 
 **Multiplikationstabellen** Låt användaren ange vilken multiplikationstabell 
 hen vill se och skriv ut den. Exempelvis 7:ans multiplikationstabell:
@@ -83,7 +88,7 @@ Ett lösningsförslag (för båda) finns i [multtable.py][multtable].
 [multtable]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/multtable.py
 
 
-## Primtalsfaktorisering
+### Primtalsfaktorisering
 
 Ett [primtal][primtal] är ett tal som endast är delbart med 1 och sig självt, 
 exempelvis 2, 3, 5, 7, 11 och 13. [Aritmetikens fundamentalsats][aritfund] 
@@ -102,7 +107,7 @@ funktion är sannolikt enklast att skriva som en rekursiv funktion.)
 [primes]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/primes.py
 
 
-## Cowsay
+### Cowsay
 
 I terminalen finns alla möjliga intressanta kommandond. Ett av de lite roligare 
 är `cowsay`. Det funkar såhär:
@@ -120,8 +125,3 @@ $ cowsay "Smaka på den här utmaningen!"
 Skriv en funktion som åstadkommer samma sak som `cowsay`. [Lösningsförslag cowsay.py][cowsay].
 
 [cowsay]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/cowsay.py
-
-
-## Önskemål från gruppen
-
-Vad vill gruppen gå igenom igen från veckan som var?
