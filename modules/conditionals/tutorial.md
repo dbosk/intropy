@@ -14,13 +14,66 @@ Målet med övningen är att du ska blir bättre på att
   - bekanta dig med rekursion.
 
 
-## Laborationen
+## Önskemål från gruppen
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar. Hur löser man extrauppgiften?
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
+
+Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
+
+## Övningsuppgifter
+
+### Finn fem fel
+
+Dela upp er i par och låt en av er ladda ner ett program för [att köpa biobiljetter](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/conditionals/movietickets.py)
+
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
+
+Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under veckan).
+
+Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
+
+### Bombspelet
+
+Vi har satt ihop ett frågespel. Svarar man fel detoneras bomben.
+
+Det behövs två filer: [bomben.py][bomben] och [bomb.py][bomb]. Båda måste ligga 
+i samma katalog. Därefter kör man bomben.py: `python3 bomben.py`.
+
+[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomben.py
+[bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
 
 
-## Att göra saker
+
+### Frågesport
+
+Ett klassiskt program för att experimentera med villkor är frågesport. Skriv 
+ett frågeprogram med kluriga frågor. För att mäta hur lång tid en användare tar 
+på sig kan man använda följande konstruktion:
+```python
+"""
+Exempelprogram för tidsmätning
+
+Vi sparar klockslaget vid start och klockslaget vid slut, sedan tar vi 
+skillnaden.
+"""
+
+import datetime as dt
+
+start_time = dt.datetime.now()
+
+svar = input("Vad är svaret på frågan? ")
+
+end_time = dt.datetime.now()
+
+print(f"Tidsåtgång: {end_time-start_time}")
+```
+
+Tips: använd funktioner för att åstadkomma straffrundor vid fel svar.
+
+
+## Svårare övningsuppgifter
+
+### Att göra saker
 
 Vi ska nu fokusera på att skriva funktioner som fokuserar på att dela upp 
 algoritmer i deras beståndsdelar. Den här gången kommer algoritmerna att kunna 
@@ -81,6 +134,7 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för
     lång.
   - att dansa (valfri dans) $n$ takter, vilka steg ska tas med vilka fötter vid 
     de olika tillfällena i musiken?
+  - reagerar om användaren går in i en vägg, ramlar ner i ett hål m.m. 
 
 Vi går igenom olika lösningar.
 
@@ -100,46 +154,3 @@ dans][random-dance].
 
 [random-dance]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/dance.py
 
-
-## Bombspelet
-
-Vi har satt ihop ett frågespel. Svarar man fel detoneras bomben.
-
-Det behövs två filer: [bomben.py][bomben] och [bomb.py][bomb]. Båda måste ligga 
-i samma katalog. Därefter kör man bomben.py: `python3 bomben.py`.
-
-[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomben.py
-[bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
-
-
-
-## Frågesport
-
-Ett klassiskt program för att experimentera med villkor är frågesport. Skriv 
-ett frågeprogram med kluriga frågor. För att mäta hur lång tid en användare tar 
-på sig kan man använda följande konstruktion:
-```python
-"""
-Exempelprogram för tidsmätning
-
-Vi sparar klockslaget vid start och klockslaget vid slut, sedan tar vi 
-skillnaden.
-"""
-
-import datetime as dt
-
-start_time = dt.datetime.now()
-
-svar = input("Vad är svaret på frågan? ")
-
-end_time = dt.datetime.now()
-
-print(f"Tidsåtgång: {end_time-start_time}")
-```
-
-Tips: använd funktioner för att åstadkomma straffrundor vid fel svar.
-
-
-## Önskemål från gruppen
-
-Vad vill gruppen gå igenom igen från veckan som var?
