@@ -48,7 +48,7 @@ def main():
   # and then your code to compare the two sums
   
 ```
-## Exempelutskrift
+### Exempelutskrift
 ```
 Data för den aritmetiska summan:
 a_1: a
@@ -69,7 +69,7 @@ n: 10
 Den aritmetiska summan är störst.
 ```
 
-## Krav
+### Krav
 
 * Felhanteringsfunktionerna ska vara i en separat modul som importeras in i huvudprogrammet
 * All inmatning ska felhanteras med hjälp av passande hjälpfunktion
@@ -78,7 +78,7 @@ Den aritmetiska summan är störst.
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
 
-## Redovisning
+### Redovisning
 
 Denna laboration ska redovisas för en lärarassistent på ett laborationstillfälle. Information 
 om bokning av redovisningstillfälle kommer komma upp på Canvas. På redovisningen ska du kunna
