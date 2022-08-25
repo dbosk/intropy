@@ -2,6 +2,7 @@
 title: Fördjupande övning om upprepningar
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
 # Fördjupande övning: upprepningar och moduler
 
@@ -18,6 +19,8 @@ Målet med övningen är att du ska få en djupare förståelse för för hur du
 ## Önskemål från gruppen
 
 Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå in djupare på?
+
+Är det någon som vill visa upp något särskilt från förra veckans laboration som kan ge inspiration till gruppen?
 
 ## Övningsuppgifter
 
@@ -60,7 +63,7 @@ Vilket är det högsta tal du vill multiplicera? 7
  7 |  7 14 21 28 35 42 49
 ```
 
-Ett lösningsförslag (för båda) finns i [multtable.py][multtable].
+Ett lösningsförslag finns i [multtable.py][multtable].
 
 [multtable]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/multtable.py
 
