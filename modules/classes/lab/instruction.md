@@ -37,7 +37,7 @@ Avsluta programmet med att skriva ut objektet av typen School.
 
 ```
 ...
-Vad heter studenten? Emma Löv
+Vad heter studenten? Emma Emilsson
 Vad är studentens personnummer? 010101000a
 Personnumret får bara innehålla siffror, försök igen!
 Vad är studentens personnummer? 0101010000
@@ -45,9 +45,9 @@ Vad är studentens personnummer? 0101010000
 Studenten är tillagd!
 
 Här är alla studenter på KTH:
-Jan Jansson 0404040010
-Per Persson 0303030030
-Emma Löv 0101010000
+Namn: Jan Jansson Personnr: 0404040010
+Namn: Per Persson Personnr: 0303030030
+Namn: Emma Emilsson Personnr: 0101010000
 
 ```
 
@@ -82,12 +82,11 @@ Vad är personens personnummer? 7903140050
 Personen tillagd!
 
 Här är alla studenter på KTH:
-Jan Jansson 0404040010
-Per Persson 0303030030
-Emma Löv 0101010000
+Namn: Jan Jansson Personnr: 0404040010
+Namn: Per Persson Personnr: 0303030030
+Namn: Emma Emilsson Personnr: 0101010000
 
 Här är alla lärare på KTH:
-Albert Einsten 7903140050
+Namn: Albert Einsten Personnr: 7903140050
 
 ```
-
