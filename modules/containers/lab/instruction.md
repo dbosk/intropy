@@ -49,9 +49,9 @@ Vad är studentens personnummer? 0101010000
 Objektet skapat!
 
 Här är alla sparade objekt:
-Jan Jansson 0404040010
-Per Persson 0303030030
-Emma Emilsson 0101010000
+Namn: Jan Jansson Personnr: 0404040010
+Namn: Per Persson Personnr: 0303030030
+Namn: Emma Emilsson Personnr: 0101010000
 
 ```
 
