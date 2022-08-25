@@ -35,8 +35,7 @@ Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar 
 
 [Lösningsförslag](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess-good.py)
 
-
-## Bankkontot
+### Bankkontot
 
 Vi ska skriva ett enkelt program som hanterar konton åt en bank. Vi behöver en 
 sammansatt datatyp (klass) som kan representera ett bankkonto:
@@ -64,7 +63,7 @@ Lösningsförslag:
 [input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
 
 
-## En bråkig klass
+### En bråkig klass
 
 Vi vill ha en klass för att räkna med rationella tal, eller bråk. Vi ska kunna:
 
