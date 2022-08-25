@@ -7,7 +7,7 @@ authors:
 ---
 # Övning: filer
 
-Målet med övningen är att du ska blir bättre på att
+Målet med övningen är att du ska bli bättre på att
 
   - överföra data mellan fil och program, d.v.s.
     - läsa data från filer,
