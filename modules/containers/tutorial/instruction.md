@@ -1,5 +1,5 @@
 ---
-title: Övning om behållare
+title: Övning om klasser och behållare
 authors:
   - Daniel Bosk <dbosk@kth.se>
 ---
@@ -10,16 +10,17 @@ Målet med övningen är att du ska blir bättre på att
   - tillämpa behållare för att lagra mängder med data,
   - se textsträngar som en lista med bokstäver,
   - tillämpa olika former av upprepningar för att arbeta med behållarna,
+  - skapa enkla klasser för att skapa nya datatyper,
   - dela upp problem i mindre problem,
   - minimera kodupprepning,
   - konstruera interaktiva program,
   - leta i Pythons dokumentation.
 
+## Önskemål från gruppen
 
-## Laborationen
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar. Hur löser man extrauppgiften?
+Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
 
 
 ## Förfina fulkoden!
