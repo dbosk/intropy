@@ -22,6 +22,8 @@ Var det något särskilt från veckans föreläsning och/eller OLI-material som 
 
 Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
 
+## Övningsuppgifter
+
 ### Finn fem fel
 
 Programmet [En multiplikationstabell](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/multtable.py) skriver ut en multiplikationstabell.
@@ -50,7 +52,7 @@ Lösningsförslag:
 [shopping.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/shopping.py
 
 
-## Bankkontot
+### Bankkontot
 
 Vi ska skriva ett enkelt program som hanterar konton åt en bank. Vi behöver en 
 sammansatt datatyp (klass) som kan representera ett bankkonto:
