@@ -10,6 +10,7 @@ Målet med övningen är att du ska bli bättre på att
 
   - tillämpa olika former av upprepningar: rekursion, for- och
     while-iterationer,
+  - iterera genom och lägga till element i en lista,
   - konstruera interaktiva program,
   - dela upp problem i mindre problem,
   - minimera kodupprepning,
