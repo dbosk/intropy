@@ -4,7 +4,7 @@ authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
 ---
-# Fördjupande övning: inmatning och villkorssatser
+# Fördjupande övning: inmatning, felhantering och villkorssatser
 
 Målet med övningen är att du ska få en fördjupad förståelse för hur du ska
 
