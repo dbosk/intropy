@@ -7,7 +7,7 @@ authors:
 ---
 # Fördjupande övning: filer
 
-Målet med övningen är att du ska blir bättre på att
+Målet med övningen är att du ska få en djupare förståelse för för hur du ska
 
   - överföra data mellan fil och program, d.v.s.
     - läsa data från filer,
