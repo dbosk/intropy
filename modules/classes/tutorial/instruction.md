@@ -45,6 +45,10 @@ att experimentera med en.
 Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
 alla avbockade saker.
 
+Testa att spara inköpslistorna i en lista, så att du får listor i listor.
+Försök iterera genom listan med inköpslistor och alla varor i inköpslistorna.
+Hur gör du detta enklast?
+
 Lösningsförslag:
 
   - [En modul som illustrerar en enkel inköpslista, shopping.py][shopping.py]
