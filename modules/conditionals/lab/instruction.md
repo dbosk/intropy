@@ -12,10 +12,12 @@ användaren.
 ## Innan du börjar koda
 
 Läs på om [styrstrukturer][styrstrukturer], [felhantering][felhantering] och hur [inmatning][inmatning] sker i Python.
+Kom även ihåg att använda [pylint][pylint] när du kodar. 
 
 [styrstrukturer]: https://docs.python.org/3/reference/compound_stmts.html#
 [felhantering]: https://docs.python.org/3/tutorial/errors.html
 [inmatning]: https://docs.python.org/3/library/functions.html#input
+[pylint]: https://pypi.org/project/pylint/
 
 ## Uppgift
 
