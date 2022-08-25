@@ -2,6 +2,7 @@
 title: Övning om inmatning och villkorssatser
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
 # Övning: inmatning, felhantering och villkorssatser
 
