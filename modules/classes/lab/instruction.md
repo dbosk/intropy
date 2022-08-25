@@ -1,14 +1,13 @@
 ---
 title: Laboration: Mer klasser och behållare
-authors
-  - Daniel Bosk <dbosk@kth.se>
+authors:
   - Celina Soori <celinah@kth.se>
 ---
 # Laboration: Mer klasser och behållare
 
-I förra laborationen använde vi oss av en klass vars objekt vi sparade ner
-i en lista. Nu ska vi istället använda oss av två klasser, därav den första
-klassen har ett attribut som är en dictionary, där vi sparar ner objekt från
+I förra laborationen använde vi oss av en klass vars objekt vi sparade i en behållare i huvudprogrammet.
+Nu ska vi istället använda oss av två klasser, därav den första
+klassen har en behållare som ett attribut, där vi sparar objekt från
 den andra klassen. 
 
 Fördelen med att spara ner objekt på detta vis är att vi kan skapa en mer
@@ -22,19 +21,19 @@ Läs på om [uppslagsverk][uppslagsverk].
 
 ## Uppgift
 
-Nu ska vi skriva en klass "School" som har minst ett attribut $students$. 
-Attributet $students$ ska vara av typen uppslagsverk. 
+Nu ska vi skriva en klass "School" som har minst ett attribut __students__. 
 
 Skapa ett objekt av typen School. Låt igen användaren skriva in information om 
 minst tre studenter och skapa objekt av typen Student. 
 
-Istället för att spara ner objekten i en lista som vi gjorde i förra laborationen, 
-ska objekten nu sparas i skol-objektets attribut $students$. Tänk på vad som är 
-rimligt att vi använder som nyckel för ett student-objekt och vad vi använder som värde. 
+Spara nu objekten i skol-objektets attribut __students__. 
+
+Fundera på vad som är den bästa typen av behållare för att spara objekten. 
+Vilka nackdelar och fördelar finns det med olika behållare?
 
 Avsluta programmet med att skriva ut objektet av typen School.
 
-## Exempelutskrift
+### Exempelutskrift
 
 ```
 ...
@@ -52,14 +51,14 @@ Emma Löv 0101010000
 
 ```
 
-## Krav
+### Krav
 
 * Programmet ska uppfylla alla krav nämnda i beskrivningen
 * All inmatning ska felhanteras med hjälp av lämplig hjälpfunktion
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
 
-## Kamraträttning
+### Kamraträttning
 
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
 
@@ -72,7 +71,7 @@ hitta på ett eget sätt att hålla isär elever och lärare i ditt program.
 
 [arv]: https://docs.python.org/3/tutorial/classes.html#inheritance
 
-## Exempelutskrift
+### Exempelutskrift
 
 ```
 ...
