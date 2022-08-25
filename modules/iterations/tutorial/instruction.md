@@ -2,6 +2,7 @@
 title: Övning om upprepningar
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
 # Övning: upprepningar och moduler
 
@@ -25,6 +26,15 @@ Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom 
 
 ### Finn fem fel
 
+Programmet [Fibonacci sekvenser](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/iterations/tutorial/fib.py)
+skriver ut en [fibonacci sekvens](https://sv.wikipedia.org/wiki/Fibonaccital). 
+
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
+
+Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under veckan).
+
+Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
+
 ### Frågesport
 
 Utveckla ditt frågeprogram från förra veckans övning. Enklare frågor ska ha ett begränsat
@@ -32,6 +42,9 @@ antal försök, medan svårare frågor ska tillåta oändligt antal försök. Vi
 också att användaren ska mata in korrekt, exempelvis om användaren skriver
 "tre" istället för "3" ber vi användaren att skriva in igen. (Ska detta räknas
 som ett försök? Kanske, det får ni avgöra själva.)
+
+Lägg till en meny för frågesporten och låt användaren köra programmet oändligt många gånger.
+Testa att använda for, while och rekursion för att upprepa programmet. Vad fungerar bäst?
 
 ### Bombspelet 2.0
 
