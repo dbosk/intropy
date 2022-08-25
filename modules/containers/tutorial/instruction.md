@@ -2,12 +2,13 @@
 title: Övning om klasser och behållare
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
-# Övning: behållare
+# Övning: Fler behållare och mer klasser
 
-Målet med övningen är att du ska blir bättre på att
+Målet med övningen är att du ska bli bättre på att
 
-  - tillämpa behållare för att lagra mängder med data,
+  - tillämpa olika behållare för att lagra mängder med data,
   - se textsträngar som en lista med bokstäver,
   - tillämpa olika former av upprepningar för att arbeta med behållarna,
   - skapa enkla klasser för att skapa nya datatyper,
@@ -22,123 +23,78 @@ Var det något särskilt från veckans föreläsning och/eller OLI-material som 
 
 Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
 
+## Övningsuppgifter
 
-## Förfina fulkoden!
+### Finn fem fel
 
-Vi har lagt vantarna på lite fulkod. Fulkod är vi allergiska emot, så vi 
-behöver omedelbart fixa den till finkod. Finkod uppfyller kriterierna:
+[Gissningsspelet](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess.py) låter användaren gissa.
 
-- Informativa utskrifter
-- Enkel inmatning
-- Kommentarer: doc-strings, komplexa delar (`pylint` och `pydoc`!)
-- Beskrivande namn
-- Konsekvent språk och typografi (`pylint`!)
-- Uppdelning i funktioner/metoder (och moduler?)
-- Funktioner har lämpliga parametrar och returvärden
-- Ingen kodupprepning
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
-Fulkoden som behöver fixas är följande:
+Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under veckan).
 
-- [Ett gissningsspel, guess.py][guess.py]
-  ([lösningsförslag, guess-good.py][guess-good.py])
-- [En multiplikationskolumn, multcol.py][multcol.py]
-- [En multiplikationstabell, multtable.py][multtable.py]
-  ([lösningsförslag, multtable-good.py][multtable-good.py])
+Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
 
-[guess.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess.py
-[guess-good.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess-good.py
-[multcol.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/multcol.py
-[multtable.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/multtable.py
-[multtable-good.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/multtable-good.py
+[Lösningsförslag](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess-good.py)
 
+### Avgöra om en e-postadress är giltig
 
-## Fortune cookies
+Skriv ett program som läser in en e-postadress från användaren och avgör om det är en giltig adress.
 
-Det finns många intressanta kommandon i den UNIX-lika terminalen. Förra 
-övningen nämnde vi `cowsay`. Det finns även ett kommando `fortune` som ger 
-lustiga korta utsagor och citat:
-```
-(0|13:23)dbosk@X1:tutorial (master)
-$ fortune
-Q:      What is printed on the bottom of beer bottles in Minnesota?
-A:      Open other end.
-(0|13:23)dbosk@X1:tutorial (master)
-$ fortune
-Go not to the elves for counsel, for they will say both yes and no.
-                -- J.R.R. Tolkien
-(0|13:24)dbosk@X1:tutorial (master)
-$ fortune
-You never hesitate to tackle the most difficult problems.
-(0|13:24)dbosk@X1:tutorial (master)
-$
-```
-Skriv ett program som skriver ut en slumpvis vald humoristisk "fortune cookie" 
-relaterad till era studier. Exempelvis:
-```
-$ python3 fortune.py
-Alla kommer att få A på matematiktentan!
-$ python3 fortune.py
-Det är en lovande dag för dig!
-```
+Fundera på:
+- Vad avgör om en e-postadress är giltig
+- Vad är gemensamt med alla e-postadresser? Hur kan vi använda det för att skapa ett flexibelt program?
 
+### Bankkontot
 
-## Ett bättre `cowsay`
+Vi ska skriva ett enkelt program som hanterar konton åt en bank. Vi behöver en 
+sammansatt datatyp (klass) som kan representera ett bankkonto:
 
-Förra övningen hade vi med en uppgift att implementera [en enkel version av 
-kommandot `cowsay`][cowsay.py]. Resultatet när man körde programmet såg ut 
-något i stil med följande:
-```
- --------------------------------------------------------
-| Smaka på den här utmaningen! Fast så svår är den inte. |
- --------------------------------------------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\ 
-                ||----w |
-                ||     ||
-```
+  - Det ska lagra ägarens uppgifter. Ägaren är en person. (Hm, kanske vi har en 
+    klass lämplig för att spara en persons data? Hint: se folkbokföringen 
+    ovan.)
+  - Det ska lagra nuvarande saldo.
+  - Det ska gå att sätta in pengar.
+  - Det ska gå att ta ut pengar, men bara om det finns tillräckligt med pengar 
+    på kontot. Inga negativa saldon!
+    
+Testa att lagra objekten i en lista och i en uppslagslista. Vad fungerar bäst i det här fallet?
 
-Om texten blir för lång funkar inte programmet då skärmbredden tar slut. Nu 
-vill vi kunna hantera längre texter genom att bryta dem till lagom långa rader,
-exempelvis:
-```
- -------------------------------
-|  Smaka på den här utmaningen! |
-|  Fast så svår är den inte.    |
- -------------------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\ 
-                ||----w |
-                ||     ||
-```
+Lösningsförslag:
 
-[cowsay.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/cowsay.py
+  - [En modul med klasser för en bank, bank.py][bank.py]
+  - [En modul med klasser för en bank (använder arv), bank_arv.py][bank_arv.py]
+  - [Ett program med gränssnitt för en bank, banken.py][banken.py]
+  - [Ett program med gränssnitt för en bank (arv), banken_arv.py][banken_arv.py]
+  - [En modul för inmatning av specifika typer, input_type.py][input_type.py]
 
+[bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
+[bank_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank_arv.py
+[banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
+[banken_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken_arv.py
+[input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
 
-## `fortune` + `cowsay` = humor
+### En bråkig klass
 
-Skriv dina fortune- och cowsay-program som moduler och kombinera dem:
-```
- ---------------------------
-|  Alla kommer att          |
-|  få A på matematiktentan! |
- ---------------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\ 
-                ||----w |
-                ||     ||
-```
-När ni känner er nöjda finns följande lösningsförslag:
+Vi vill ha en klass för att räkna med rationella tal, eller bråk. Vi ska kunna:
 
-- [fortune.py][fortune.py],
-- [radbrytande cowsay_good.py][cowsay_good.py].
+  - skapa bråk, exempelvis `a = Bråk(1, 3)` och `b = Bråk(2, 6)`;
+  - jämföra bråk, exempelvis `a == b` eller `a < b`;
+  - skriva ut bråk på läsbar form, exempelvis `print(f"{a} och {b}")` ger 
+    utskriften `1/3 och 2/6`.
+  - addera, subtrahera, multiplicera och dividera bråk.
+  - typkonvertera bråket till ett flyttal (`float`).
+  - förkorta bråk, exempelvis så att `b` (som är 2/6) kan förkortas till 1/3.
 
-[fortune.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/fortune.py
-[cowsay_good.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/cowsay_good.py
+Detta kräver en del specialmetoder. Se [dokumentationen för Pythons 
+specialmetoder för jämförelse][doc-cmp] och [dokumentationen för Pythons 
+specialmetoder för att emulera numeriska typer][doc-numtypemethods].
 
+[doc-cmp]: https://docs.python.org/3/reference/datamodel.html#object.__lt__
+[doc-numtypemethods]: https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types
 
-## Önskemål från gruppen
+Lösningsförslag:
 
-Vad vill gruppen gå igenom igen från veckan som var?
+  - [Lösningsförslag: en modul med en klass för bråktal, frac.py][frac.py]
+
+[frac.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/frac.py
