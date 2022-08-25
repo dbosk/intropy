@@ -60,20 +60,20 @@ d, n$ returnera $S^a_n$) och en funktion som beräknar summan för en geometrisk
 Skriv ett program som använder funktionerna.
 (Kontrollera att funktionerna ger korrekt resultat.)
 
-## Exempelutskrift
+### Exempelutskrift
 
 ```
 Den aritmetiska summan är: 11
 Den geometriska summan är: 26
 
 ```
-## Krav
+### Krav
 
 * De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från huvudprogrammet
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
 
-## Kamraträttning
+### Kamraträttning
 
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat.
 När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som
