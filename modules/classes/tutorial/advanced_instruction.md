@@ -33,7 +33,7 @@ Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni
 
 Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
 
-([Lösningsförslag]([multtable-good.py](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess-good.py)
+[Lösningsförslag](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/guess-good.py)
 
 
 ## Bankkontot
