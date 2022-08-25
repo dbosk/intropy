@@ -9,15 +9,16 @@ authors:
 Målet med övningen är att du ska få en fördjupad förståelse för hur du ska
 
   - tillämpa styrstrukturer,
+  - felhantera inmatning,
   - konstruera interaktiva program,
   - dela upp problem i mindre problem,
-  - minimera kodupprepning,
-  - bekanta dig med rekursion.
-
+  - minimera kodupprepning
 
 ## Önskemål från gruppen
 
 Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå in djupare på?
+
+Är det någon som vill visa upp något särskilt från förra veckans laboration som kan ge inspiration till gruppen?
 
 ## Övningsuppgifter
 
