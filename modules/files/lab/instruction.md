@@ -20,25 +20,25 @@ innehåller alla studenters uppgifter. Därefter läser du in uppgifterna på fi
 använder dem i ditt program som du skrev i förra laborationen. Om filen inte 
 finns ska användaren mata in ett nytt filnamn.
 
-## Exempelutskrift
+### Exempelutskrift
 
 ```
 Vad heter filen med alla studenter? students.cs
 Den filen fanns inte! Skriv in en ny fil: students.csv
 
 Dessa studenter är skrivna på KTH:
-Johan Tierney 8411285597
-Erik Bolin 9910247016
-Per Edenström 8410024155
+Namn: Johan Tierney Personnr: 8411285597
+Namn: Erik Bolin Personnr: 9910247016
+Namn: Per Edenström Personnr: 8410024155
 ...
 ```
 
-## Krav
+### Krav
 * Användaren ska få mata in ett nytt filnamn om filen inte hittas
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
 
-## Redovisning
+### Redovisning
 
 Denna laboration ska redovisas för en lärarassistent på ett laborationstillfälle. 
 Information om bokning av redovisningstillfälle kommer komma upp på Canvas. 
@@ -97,7 +97,6 @@ Per Edenström 8410024155
 ...
 
 ```
-
 ## Extrauppgift 3
 
 Ladda ner filen [students.csv](https://github.com/dbosk/intropy/files/9403241/students.csv)
