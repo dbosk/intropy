@@ -4,7 +4,7 @@ authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
 ---
-# Övning: upprepningar och moduler
+# Övning: upprepningar, listor och moduler
 
 Målet med övningen är att du ska bli bättre på att
 
@@ -43,8 +43,13 @@ också att användaren ska mata in korrekt, exempelvis om användaren skriver
 "tre" istället för "3" ber vi användaren att skriva in igen. (Ska detta räknas
 som ett försök? Kanske, det får ni avgöra själva.)
 
+Lägg alla frågor i en lista och testa att använda while och for för att iterera genom listan. 
+Vad fungerar bäst?
+
 Lägg till en meny för frågesporten och låt användaren köra programmet oändligt många gånger.
 Testa att använda for, while och rekursion för att upprepa programmet. Vad fungerar bäst?
+
+Lägg till ett menyval där användaren får lägga till en fråga. 
 
 ### Bombspelet 2.0
 
