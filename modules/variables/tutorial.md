@@ -6,7 +6,7 @@ authors:
 ---
 # Övning: funktioner och variabler
 
-Målet med övningen är att du ska blir bättre på att
+Målet med övningen är att du ska bli bättre på att
 
   - dela upp problem in mindre problem,
   - minimera kodupprepning,
