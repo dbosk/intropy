@@ -30,7 +30,7 @@ enligt följande:
   eller
 - "Summorna är lika" om de är lika.
 
-## Exempelutskrift
+### Exempelutskrift
 ```
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): a
@@ -65,7 +65,7 @@ Skriv in antal element i följden (n): 10
 Den aritmetiska summan är störst.
 ```
 
-## Krav
+### Krav
 
 * Den aritmetiska och geometriska summan ska använda sig av samma $n$
 * All inmatning ska felhanteras
@@ -73,7 +73,7 @@ Den aritmetiska summan är störst.
 * Din kod ska uppfylla kraven i rättningsmatrisen
 * Din kod ska lämnas in på Canvas som en .py fil
  
-## Kamraträttning
+### Kamraträttning
 
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
 
