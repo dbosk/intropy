@@ -3,6 +3,7 @@ title: Övning om filer
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Olle Bälter <ob1@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
 # Övning: filer
 
@@ -20,59 +21,31 @@ Målet med övningen är att du ska blir bättre på att
   - leta i Pythons dokumentation.
 
 
-## Laborationen
+## Önskemål från gruppen
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar. Hur löser man extrauppgiften?
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
 
+Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
 
-## Fortune cookies
+## Övningsuppgifter
 
-Under förra övningen skrev vi ett program som heter `fortune.py`. Det skriver 
-ut en slumpvis vald humoristisk "fortune cookie" relaterad till era studier. 
-Exempelvis:
-```
-$ python3 fortune.py
-Alla kommer att få A på matematiktentan!
-$ python3 fortune.py
-Det är en lovande dag för dig!
-```
-I den förra versionen hårdkodade vi databasen med fortunes i programmet. Nu ska 
-vi lagra dem på fil. Ändra programmet så att det läser alla fortunes från en 
-fil.
+### Finn fem fel
 
-### Extra utmaning med fortune och cowsay
+Den här övningen ska ni kvalitet-checka en kurskamrats kod.
 
-Hantera fortunes som innehåller flera rader. Anpassa även `cowsay.py` så att 
-den kan hantera flerradiga inmatningar utan problem.
-```
- ---------------------------------
-| Vi vill även ha fortunes som    |
-| kan vara flera rader.           |
-|                                 |
-| Och till och med flera stycken. |
- ---------------------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\ 
-                ||----w |
-                ||     ||
-```
+Förra veckans övning skrev ni ett program för att skapa bankkonton. Byt kod med en annan person i gruppen.
+Om du inte var med eller inte hann skriva programmet på förra övningen, byt istället med en annan kod 
+du skrivit under en övning!
 
-Hint: dela först upp i stycken, därefter meningar med ord.
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
-Filer i lösningsförslaget:
+Hitta nu minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under kursen).
 
-- [Ett förbättrat fortune-program, fortune_better.py][fortune_better.py],
-- [En fortunesdatabas, fortunes.txt][fortunes.txt]
-- [En förbättrad cowsay-funktion, cowsay_better.py][cowsay_better.py],
+Förbättra nu koden efter det du hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
 
-[fortune_better.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/fortune_better.py
-[cowsay_better.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/cowsay_better.py
-[fortunes.txt]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/fortunes.txt
+Finns det en gräns till hur mycket man kan komprimera en kod utan att påverka kodens läsbarhet?
 
-
-## Räkna ord och bokstäver
+### Räkna ord och bokstäver
 
 Skriv ett program som frågar användaren om ett filnamn, läser in filen och 
 räknar förekomsten av varje ord i filen.
@@ -110,7 +83,7 @@ Lösningsförslag:
 [wc.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/wc.py
 
 
-## Översättare till och från rövarspråket
+### Översättare till och från rövarspråket
 
 Skriv ett program som frågar efter ett filnamn, frågar om översättning till 
 eller från rövarspråket, läser filen och översätter all text. Översättningen 
@@ -126,21 +99,3 @@ Lösningsförslag:
 - [Ett ord- och bokstavsräkningsprogram, wc.py][wc.py],
 
 [rövare.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/rövare.py
-
-
-## Rövarspråket eller inte?
-
-Skriv ett program som använder `wc`- och `rövare`-modulerna ovan för att 
-undersöka hur bokstavsförekomsterna förändras när en text översätts till 
-rövarspråket.
-
-Lösningsförslag:
-- [Analysprogram som jämför text med översättning till rövarspråket, 
-  analys.py][analys.py]
-
-[analys.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/analys.py
-
-
-## Önskemål från gruppen
-
-Vad vill gruppen gå igenom igen från veckan som var?
