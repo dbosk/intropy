@@ -6,7 +6,7 @@ authors:
 ---
 # Övning: klasser och objekt
 
-Målet med övningen är att du ska blir bättre på att
+Målet med övningen är att du ska bli bättre på att
 
   - använda och konstruera sammansatta datatyper (klasser),
   - tillämpa behållare för att lagra mängder med data,
