@@ -69,7 +69,7 @@ Det är en lovande dag för dig!
 ```
 
 
-## Ett bättre `cowsay`
+### Ett bättre `cowsay`
 
 Förra övningen hade vi med en uppgift att implementera [en enkel version av 
 kommandot `cowsay`][cowsay.py]. Resultatet när man körde programmet såg ut 
@@ -103,7 +103,7 @@ exempelvis:
 [cowsay.py]: https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/cowsay.py
 
 
-## `fortune` + `cowsay` = humor
+### `fortune` + `cowsay` = humor
 
 Skriv dina fortune- och cowsay-program som moduler och kombinera dem:
 ```
