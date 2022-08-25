@@ -4,12 +4,13 @@ authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
 ---
-# Fördjupande övning: upprepningar och moduler
+# Fördjupande övning: upprepningar, listor och moduler
 
 Målet med övningen är att du ska få en djupare förståelse för för hur du ska
 
   - tillämpa olika former av upprepningar: rekursion, for- och
     while-iterationer,
+  - iterera genom och lägga till element i en lista,
   - konstruera interaktiva program,
   - dela upp problem i mindre problem,
   - minimera kodupprepning,
