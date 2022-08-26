@@ -1,8 +1,15 @@
+---
+title: Laboration: Filer och felhantering
+authors:
+  - Celina Soori <celinah@kth.se>
+  - Daniel Bosk <dbosk@kth.se>
+---
 # Laboration: Filer och felhantering
 
 Tidigare har vi låtit användaren ange all information om studenterna. Detta
-känns dock inte helt rimligt för administrativ personal på en stor skola att göra,
-därför ska vi nu istället låta programmet läsa in den informationen från en fil. 
+känns dock inte helt rimligt för administrativ personal på en stor skola att 
+göra, därför ska vi nu istället låta programmet läsa in den informationen från 
+en fil. 
 
 ## Innan du börjar koda
 
@@ -16,9 +23,9 @@ och spara den på ett bra ställe på datorn.
 ## Uppgift
 
 I denna laboration ska du låta användaren mata in namnet på en fil som 
-innehåller alla studenters uppgifter. Därefter läser du in uppgifterna på filen och 
-använder dem i ditt program som du skrev i förra laborationen. Om filen inte 
-finns ska användaren mata in ett nytt filnamn.
+innehåller alla studenters uppgifter. Därefter läser du in uppgifterna på filen 
+och använder dem i ditt program som du skrev i förra laborationen. Om filen 
+inte finns ska användaren mata in ett nytt filnamn.
 
 ### Exempelutskrift
 
@@ -34,9 +41,8 @@ Namn: Per Edenström Personnr: 8410024155
 ```
 
 ### Krav
-* Användaren ska få mata in ett nytt filnamn om filen inte hittas
-* Din kod ska uppfylla kraven i rättningsmatrisen
-* Din kod ska lämnas in på Canvas som en .py fil
+* Användaren ska få mata in ett nytt filnamn om filen inte hittas.
+* Din kod ska uppfylla kraven i rättningsmatrisen.
 
 ### Redovisning
 
@@ -44,14 +50,13 @@ Denna laboration ska redovisas för en lärarassistent på ett laborationstillf�
 Information om bokning av redovisningstillfälle kommer komma upp på Canvas. 
 På redovisningen ska du kunna köra ditt program och beskriva din kod detaljerat.
 
-## Extrauppgift 1
+## Frivillig extrauppgift: Redigera
 
 Ge användaren möjlighet att lägga till, ändra eller ta bort objekt. 
 I slutet av programmet ska alla objekt läsas tillbaka till en fil som 
 användaren får skriva in namnet på.
 
 ### Exempelutskrift
-
 
 ```
 Vad heter filen med alla studenter? students.cs
@@ -76,7 +81,7 @@ Ange namn på den fil som uppgifterna ska sparas på: students.csv
 Nu är alla uppgifter sparade på filen students.csv
 ```
 
-## Extrauppgift 2
+## Frivillig extrauppgift: Fel i filen
 
 Lägg till felhantering när programmet läser in en fil. Om det
 är något som är fel i filen ska programmet varna användaren för det
@@ -95,15 +100,15 @@ Johan Tierney 8411285597
 Erik Bolin 9910247016
 Per Edenström 8410024155
 ...
-
 ```
-## Extrauppgift 3
+
+## Frivillig extrauppgift: CSV-formaterad fil
 
 Ladda ner filen [students.csv](https://github.com/dbosk/intropy/files/9403241/students.csv)
 
 Använd Pythons inbyggda [`csv`-modul][csv] för att läsa in en fil på 
-CSV-format. Då kan filen med studenter skapas i ett kalkylarksprogram som Google 
-Sheets, LibreOffice Calc eller Microsoft Excel.
+CSV-format. Då kan filen med studenter skapas i ett kalkylarksprogram som 
+Google Sheets, LibreOffice Calc eller Microsoft Excel.
 
 [csv]: https://docs.python.org/3/library/csv.html
 
