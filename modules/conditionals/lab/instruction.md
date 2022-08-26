@@ -1,13 +1,20 @@
+---
+title: Laboration: Klasser och objekt
+authors:
+  - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
+---
 # Laboration: Inmatning, felhantering och styrstrukturer
 
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
 I föregående laboration skrev vi två funktioner, en som beräknar en aritmetisk 
-summa och en som beräknar en geometrisk summa vilka har använt sig av variabler
-definierade i programmet. Nu ska istället användaren få mata in dessa värden. 
+summa och en som beräknar en geometrisk summa, vilka har använt sig av 
+variabler definierade i programmet. Nu ska istället användaren få mata in dessa 
+värden. 
 
 För att se till att programmet inte kraschar om användaren matar in fel värden
-kommer vi lägga till felhantering i koden som skriver ut ett fint meddelande till
-användaren. 
+kommer vi lägga till felhantering i koden som skriver ut ett fint meddelande 
+till användaren. 
 
 ## Innan du börjar koda
 
@@ -33,13 +40,17 @@ enligt följande:
 - "Summorna är lika" om de är lika.
 
 ### Exempelutskrift
+
+Användaren kör programmet:
 ```
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): a
 
 Det där var inte ett flyttal. Starta om programmmet och försök igen.
+```
 
-
+Användaren kör programmet igen:
+```
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): 1
 Skriv in differensen (d): 2
@@ -52,8 +63,10 @@ Antal termer i summorna:
 Skriv in antal element i följden (n): 10.1
 
 Det där var inte ett heltal. Starta om programmet och försök igen.
+```
 
-
+Användaren kör programmet ytterligare en gång:
+```
 Data för den aritmetiska summan:
 Skriv in startvärdet (a1): 1
 Skriv in differensen (d): 2
@@ -69,11 +82,10 @@ Den aritmetiska summan är störst.
 
 ### Krav
 
-* Den aritmetiska och geometriska summan ska använda sig av samma $n$
-* All inmatning ska felhanteras
-* Ditt program ska kunna hantera alla testfall som visas i exempelutskriften
-* Din kod ska uppfylla kraven i rättningsmatrisen
-* Din kod ska lämnas in på Canvas som en .py fil
+* Den aritmetiska och geometriska summan ska använda sig av samma $n$.
+* All inmatning ska felhanteras.
+* Ditt program ska kunna hantera alla testfall som visas i exempelutskriften.
+* Din kod ska uppfylla kraven i rättningsmatrisen.
  
 ### Kamraträttning
 
