@@ -1,7 +1,8 @@
 ---
-title: Laboration om Mer klasser och behållare
+title: Laboration: Mer klasser och behållare
 authors:
   - Celina Soori <celinah@kth.se>
+  - Daniel Bosk <dbosk@kth.se>
 ---
 # Laboration: Mer klasser och behållare
 
@@ -48,21 +49,21 @@ Här är alla studenter på KTH:
 Namn: Jan Jansson Personnr: 0404040010
 Namn: Per Persson Personnr: 0303030030
 Namn: Emma Emilsson Personnr: 0101010000
-
 ```
 
 ### Krav
 
-* Programmet ska uppfylla alla krav nämnda i beskrivningen
-* All inmatning ska felhanteras med hjälp av lämplig hjälpfunktion
-* Din kod ska uppfylla kraven i rättningsmatrisen
-* Din kod ska lämnas in på Canvas som en .py fil
+* Programmet ska uppfylla alla krav nämnda i beskrivningen.
+* All inmatning ska felhanteras med hjälp av lämplig hjälpfunktion.
+* Din kod ska uppfylla kraven i rättningsmatrisen.
 
 ### Kamraträttning
 
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
 
-## Frivillig extrauppgift
+## Frivilliga extrauppgifter
+
+### Hantera lärare
 
 Lägg till en klass Person som klassen Student ärver ifrån, se [arv][arv]. 
 Skapa en till klass Teacher som också ärver från Person. Lägg till så att
@@ -71,7 +72,7 @@ hitta på ett eget sätt att hålla isär elever och lärare i ditt program.
 
 [arv]: https://docs.python.org/3/tutorial/classes.html#inheritance
 
-### Exempelutskrift
+#### Exempelutskrift
 
 ```
 ...
@@ -89,4 +90,26 @@ Namn: Emma Emilsson Personnr: 0101010000
 Här är alla lärare på KTH:
 Namn: Albert Einsten Personnr: 7903140050
 
+```
+
+### Sök efter personer
+
+Lägg till en metod så att man kan söka efter en student och få studentobjektet.
+Om du har gjort föregående frivilliga extrauppgift, lägg till så att man kan 
+söka efter lärare också.
+
+Låt sökningen söka bland både lärare och studenter.
+
+#### Exempelutskrift
+
+```
+Vem vill du söka efter? Albert Einstein
+Namn: Albert Einsten Personnr: 7903140050 Roll: Lärare
+```
+
+och
+
+```
+Vem vill du söka efter? Emma Emilsson
+Namn: Emma Emilsson Personnr: 0101010000 Roll: Student
 ```
