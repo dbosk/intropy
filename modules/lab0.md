@@ -3,7 +3,7 @@
 Det här är en frivillig laboration för att hjälpa dig att komma igång med kodandet. 
 Du behöver inte lämna in något för denna laboration.
 
-Det du ska göra:
+Målet med laboration är att:
 
 - Installera Python
 - Välj, installera och förstå en textredigerare
