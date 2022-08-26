@@ -98,10 +98,10 @@ Räkna därefter ut den aritmetiska respektive geometriska summan av de värdena
 Skriv in startvärdet (a1): 1
 Skriv in differensen (d): 2
 Skriv in antal element i följden (n): 3
-Den aritmetiska summan är: 5
+Den aritmetiska summan är: 9
 
 Skriv in startvärdet (g1): 2
 Skriv in kvoten (q): 2
 Skriv in antal element i följden (n): 4
-Den geometriska summan är: 16
+Den geometriska summan är: 30
 ```
