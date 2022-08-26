@@ -78,7 +78,6 @@ Den geometriska summan är: 26
 * De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från 
   huvudprogrammet.
 * Din kod ska uppfylla kraven i rättningsmatrisen.
-* Din kod ska lämnas in på Canvas som en .py fil.
 
 ### Kamraträttning
 
