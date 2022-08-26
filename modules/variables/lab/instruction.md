@@ -1,5 +1,5 @@
 ---
-title: Laboration: Funktioner, variabler och utskrifter
+title: Laboration om Funktioner, variabler och utskrifter
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
