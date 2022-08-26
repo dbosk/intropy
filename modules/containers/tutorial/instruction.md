@@ -17,6 +17,12 @@ Målet med övningen är att du ska bli bättre på att
   - konstruera interaktiva program,
   - leta i Pythons dokumentation.
 
+## Genomgång av veckans svårigheter
+
+Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
+
+Zoomlänk: 
+
 ## Önskemål från gruppen
 
 Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
