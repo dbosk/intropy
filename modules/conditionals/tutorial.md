@@ -14,6 +14,11 @@ Målet med övningen är att du ska bli bättre på att
   - dela upp problem i mindre problem,
   - minimera kodupprepning
 
+## Genomgång av veckans svårigheter
+
+Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
+
+Zoomlänk: 
 
 ## Önskemål från gruppen
 
