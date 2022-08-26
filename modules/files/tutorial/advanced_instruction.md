@@ -5,9 +5,9 @@ authors:
   - Olle Bälter <ob1@kth.se>
   - Celina Soori <celinah@kth.se>
 ---
-# Övning: filer
+# Fördjupande övning: filer
 
-Målet med övningen är att du ska bli bättre på att
+Målet med övningen är att du ska få en djupare förståelse för för hur du ska
 
   - överföra data mellan fil och program, d.v.s.
     - läsa data från filer,
@@ -20,35 +20,60 @@ Målet med övningen är att du ska bli bättre på att
   - konstruera interaktiva program,
   - leta i Pythons dokumentation.
 
-## Genomgång av veckans svårigheter
-
-Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
-
-Zoomlänk: 
 
 ## Önskemål från gruppen
 
-Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå in djupare på?
 
-Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
+Är det någon som vill visa upp något särskilt från förra veckans laboration som kan ge inspiration till gruppen?
 
 ## Övningsuppgifter
 
-### Finn fem fel
+### Fortune cookies
 
-Den här övningen ska ni kvalitet-checka en kurskamrats kod.
+Under förra övningen skrev vi ett program som heter `fortune.py`. Det skriver 
+ut en slumpvis vald humoristisk "fortune cookie" relaterad till era studier. 
+Exempelvis:
+```
+$ python3 fortune.py
+Alla kommer att få A på matematiktentan!
+$ python3 fortune.py
+Det är en lovande dag för dig!
+```
+I den förra versionen hårdkodade vi databasen med fortunes i programmet. Nu ska 
+vi lagra dem på fil. Ändra programmet så att det läser alla fortunes från en 
+fil.
 
-Förra veckans övning skrev ni ett program för att skapa bankkonton. Byt kod med en annan person i gruppen.
-Om du inte var med eller inte hann skriva programmet på förra övningen, byt istället med en annan kod 
-du skrivit under en övning!
+### Extra utmaning med fortune och cowsay
 
-Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
+Hantera fortunes som innehåller flera rader. Anpassa även `cowsay.py` så att 
+den kan hantera flerradiga inmatningar utan problem.
+```
+ ---------------------------------
+| Vi vill även ha fortunes som    |
+| kan vara flera rader.           |
+|                                 |
+| Och till och med flera stycken. |
+ ---------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\ 
+                ||----w |
+                ||     ||
+```
 
-Hitta nu minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under kursen).
+Hint: dela först upp i stycken, därefter meningar med ord.
 
-Förbättra nu koden efter det du hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
+Filer i lösningsförslaget:
 
-Finns det en gräns till hur mycket man kan komprimera en kod utan att påverka kodens läsbarhet?
+- [Ett förbättrat fortune-program, fortune_better.py][fortune_better.py],
+- [En fortunesdatabas, fortunes.txt][fortunes.txt]
+- [En förbättrad cowsay-funktion, cowsay_better.py][cowsay_better.py],
+
+[fortune_better.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/fortune_better.py
+[cowsay_better.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/cowsay_better.py
+[fortunes.txt]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/fortunes.txt
+
 
 ### Räkna ord och bokstäver
 
@@ -104,3 +129,16 @@ Lösningsförslag:
 - [Ett ord- och bokstavsräkningsprogram, wc.py][wc.py],
 
 [rövare.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/rövare.py
+
+
+### Rövarspråket eller inte?
+
+Skriv ett program som använder `wc`- och `rövare`-modulerna ovan för att 
+undersöka hur bokstavsförekomsterna förändras när en text översätts till 
+rövarspråket.
+
+Lösningsförslag:
+- [Analysprogram som jämför text med översättning till rövarspråket, 
+  analys.py][analys.py]
+
+[analys.py]: https://github.com/dbosk/intropy/blob/master/modules/files/tutorial/analys.py

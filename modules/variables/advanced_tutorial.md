@@ -1,45 +1,29 @@
 ---
-title: Övning om variabler och funktioner
+title: Fördjupande övning om variabler och funktioner
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
 ---
-# Övning: funktioner och variabler
+# Fördjupande övning: funktioner och variabler
 
-Målet med övningen är att du ska bli bättre på att
+Målet med övningen är att du ska få en fördjupad förståelse för hur man ska
 
   - dela upp problem in mindre problem,
   - minimera kodupprepning,
   - skapa funktioner med parametrar och returvärden.
 
-## Genomgång av veckans svårigheter
-
-Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
-
-Zoomlänk: 
 
 ## Önskemål från gruppen
 
 Har alla kommit igång med kursens material? Är det några frågetecken om kursuppläget?
 
-Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå in djupare på?
 
 ## Övningsuppgifter
 
-### Kakelfabriken
-
-En kakelfabrik behöver räkna ut hur mycket färg som går åt för olika 
-kakelmönster och olika storlekar.
-
-Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
-
-![Kakel: cirkel](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel1.png)
-![Kakel: kvadrat](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel2.png)
-![Kakel: hexagon](https://github.com/dbosk/intropy/raw/master/modules/variables/fig/kakel3.png)
-
 ### Finn fem fel
 
-Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/variables/easy_house_chores.py)
+Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/variables/hard_house_chores.py)
 
 Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
@@ -89,3 +73,15 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
      på föreläsningen).
 
 Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/diska.py)
+
+### Generera e-postadresser
+
+Skriv ett program som generar en e-postadress utifrån parametrar som antingen är hårdkodade eller givna av användaren.
+
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/resources/funktioner/adress.py)
+
+### Avgöra om en e-postadress är giltig
+
+Skriv ett program som tar en e-postadress som input och sedan returnerar om
+den givna e-postadressen är giltig eller inte. Går det att återanvända kod från
+föregående uppgift?
