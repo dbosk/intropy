@@ -1,4 +1,10 @@
-# Laboration: Variabler och utskrifter
+---
+title: Laboration: Funktioner, variabler och utskrifter
+authors:
+  - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
+---
+# Laboration: Funktioner, variabler och utskrifter
 
 Vi ska nu börja med att använda datorn som den räknemaskin den är. Vi ska 
 arbeta med [aritmetiska][aritmetiska] och [geometriska][geometriska] följder. 
@@ -55,8 +61,8 @@ Kom även ihåg att använda [pylint][pylint] när du kodar.
 ## Uppgift
 
 Skriv en funktion som beräknar summan för en aritmetisk talföljd (givet $a_1, 
-d, n$ returnera $S^a_n$) och en funktion som beräknar summan för en geometrisk talföljd 
-(givet $g_1, q, n$ returnera $S^g_n$).
+d, n$ returnera $S^a_n$) och en funktion som beräknar summan för en geometrisk 
+talföljd (givet $g_1, q, n$ returnera $S^g_n$).
 Skriv ett program som använder funktionerna.
 (Kontrollera att funktionerna ger korrekt resultat.)
 
@@ -65,13 +71,14 @@ Skriv ett program som använder funktionerna.
 ```
 Den aritmetiska summan är: 11
 Den geometriska summan är: 26
-
 ```
+
 ### Krav
 
-* De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från huvudprogrammet
-* Din kod ska uppfylla kraven i rättningsmatrisen
-* Din kod ska lämnas in på Canvas som en .py fil
+* De två summa-funktionerna ska returnera summan, som sedan ska skrivas ut från 
+  huvudprogrammet.
+* Din kod ska uppfylla kraven i rättningsmatrisen.
+* Din kod ska lämnas in på Canvas som en .py fil.
 
 ### Kamraträttning
 
@@ -98,5 +105,4 @@ Skriv in startvärdet (g1): 2
 Skriv in kvoten (q): 2
 Skriv in antal element i följden (n): 4
 Den geometriska summan är: 16
-
 ```
