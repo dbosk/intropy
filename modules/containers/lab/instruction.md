@@ -1,3 +1,9 @@
+---
+title: Laboration: Klasser, behållare och upprepningar
+authors:
+  - Celina Soori <celinah@kth.se>
+  - Daniel Bosk <dbosk@kth.se>
+---
 # Laboration: Klasser, behållare och upprepningar
 
 Hittills i kursen har vi jobbat med existerande datatyper i Python. 
@@ -20,8 +26,8 @@ Läs på om [klasser][klasser], [listor][listor] och [upprepningar][upprepningar
 
 ## Uppgift
 
-Definiera en klass "Student" som har minst tre attribut, __förnamn__, __efternamn__ och __personnummer__.
-Klassen ska ha minst två metoder, __\_init\___ och __\_str\___. 
+Definiera en klass "Student" som har minst tre attribut: __förnamn__, __efternamn__ och __personnummer__.
+Klassen ska ha minst två metoder, `__init__` och `__str__`. 
 
 Skapa minst tre objekt av typen "Student" genom att be användaren skriva in
 information om studenter. Fundera på bästa sättet att spara ner de skapade objekten.
@@ -52,26 +58,26 @@ Här är alla sparade objekt:
 Namn: Jan Jansson Personnr: 0404040010
 Namn: Per Persson Personnr: 0303030030
 Namn: Emma Emilsson Personnr: 0101010000
-
 ```
 
 ### Krav
 
-* Programmet ska uppfylla alla krav nämnda i beskrivningen
-* All inmatning ska felhanteras med hjälp av lämplig hjälpfunktion
-* Din kod ska uppfylla kraven i rättningsmatrisen
-* Din kod ska lämnas in på Canvas som en .py fil
+* Programmet ska uppfylla alla krav nämnda i beskrivningen.
+* All inmatning ska felhanteras med hjälp av lämplig hjälpfunktion.
+* Din kod ska uppfylla kraven i rättningsmatrisen.
 
 ### Kamraträttning
 
 Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträttas av en kurskamrat. När du lämnat in din kod på Canvas kommer du automatiskt bli tilldelad en annan persons kod, som du ska rätta utifrån den rättningsmatris som syns bredvid inlämningen. Ladda ner koden, provkör den på din dator och fyll sedan i rättningsmatrisen. Lämna gärna konstruktiva kommentarer för att hjälpa varandra att bli ännu bättre på att koda!
 
-## Frivillig extrauppgift
+## Frivilliga extrauppgifter
+
+### Redigera listan
 
 I grunduppgiften kan vi endast lägga till objekt av typen Student. 
 Lägg till så att användaren kan ändra och ta bort objekt från listan. 
 
-### Exempelutskrift
+#### Exempelutskrift
 
 ```
 Vill du lägga till (l), ändra (a) eller ta bort (t) ett objekt? a
@@ -81,4 +87,27 @@ Vill du ändra namn på Emma Löv (j/n)? j
 Skriv in det nya namnet: Ebba Löv
 
 Nu är namnet för 0101010000 ändrat till Ebba Löv!
-``` 
+```
+
+### Lägga till många studenter
+
+Ändra så att programmet kan fråga efter $n$ studenter istället för bara tre.
+
+#### Exempelutskrift
+```
+Hur många studenter vill du lägga till? 2
+
+Vad heter studenten? Jan Jansson
+Vad är studentens personnummer? 0404040010
+
+Objektet skapat!
+
+Vad heter studenten? Per Persson
+Vad är studentens personnummer? 0303030030
+
+Objektet skapat!
+
+Här är alla sparade objekt:
+Namn: Jan Jansson Personnr: 0404040010
+Namn: Per Persson Personnr: 0303030030
+```
