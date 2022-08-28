@@ -1,4 +1,5 @@
 SUBDIR+=	overview
+SUBDIR+=	helloworld
 SUBDIR+=	variables
 SUBDIR+=	functions
 #SUBDIR+=	debug
