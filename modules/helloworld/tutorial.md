@@ -1,7 +1,8 @@
 ---
-title: Övning: Hello World!
+title: Övning om Hello World!
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
 ---
 # Övning: Hello World!
 
@@ -17,18 +18,21 @@ Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
 
 Zoomlänk: 
 
-## Önskemål från gruppen
+## Terminalen
 
-Har alla kommit igång med kursens material? Är det några frågetecken om kursuppläget?
+Under veckans föreläsning har ni arbetat med terminalen. Om ni
+har frågor eller behöver hjälp med terminalen, be en lärarassistent
+om hjälp när vi jobbar med Hello World. 
 
-Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
+## Hello World!
 
-## Övningsuppgifter
+Under den här övningen ska vi jobba med __Laboration (0) Hello World__ som
+ni hittar på Canvas. Dela upp er i smågrupper och hitta den textredigerare
+som passar er bäst och se till att ni kan skapa och köra ett Hello World-program 
+i den. 
 
-### Hello World!
+### Exempelkod
 
-Testa olika textredigerare eller IDE:er. Skapa och kör ett Hello World-program 
-i varje:
 ```python
 print("Hello World!")
 ```
