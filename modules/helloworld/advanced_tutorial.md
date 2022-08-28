@@ -11,6 +11,8 @@ Målet med övningen är att du ska bli bättre på att
   - kontrollera datorn med terminalen,
   - hantera filsystemet,
   - använda en textredigerare eller IDE för att skriva program.
+  - versionshantera källkod.
+
 
 ## Repetition och förtydliganden
 
@@ -62,8 +64,11 @@ Gör en redigering av labb 1 och spara ändringarna i repot.
 
 ### Pusha repot till GitHub
 
-Skapa ett privat repo på GitHub eller KTH GitHub. Pusha innehållet i repot ovan 
-till repot på GitHub.
+Skapa ett privat repo på [GitHub][gh] eller [KTH GitHub][gits15]. Pusha 
+innehållet i repot ovan till repot på GitHub.
+
+[gh]: https://github.com
+[gits15]: https://gits-15.sys.kth.se
 
 
 ### Utforska Git-integrering i din IDE
