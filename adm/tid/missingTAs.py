@@ -18,22 +18,49 @@ SIGNUP = {
             "https://docs.google.com/spreadsheets/d/18-afYjlI--e8hDwzSp9VcHjatc7SPvBFW0fH9JRrZ-4/edit#gid=1755336853")
         }
 
-def generate_schedule():
-    """Generates schedule, uses sys.args, returns schedule
-    as ics.icalendar.Calendar object"""
+def events_missing_TAs(csv_rows, missing_factor=0.5):
+    """
+    Input: a list of CSV data (tuples)
 
+    Output: a list of CSV data, only those rows where there are fewer TAs 
+    booked than the number of needed TAs.
+    """
+    needed_TAs_index = utils.SIGNUP_SHEET_HEADER.index("#Needed TAs")
+
+    for row in csv_rows:
+        num_TAs = len(utils.get_TAs_from_csv(row))
+        needed_TAs = int(row[needed_TAs_index])
+
+        if num_TAs < missing_factor * needed_TAs:
+            yield row
+
+
+def generate_schedule(csv_rows):
+    """
+    Generates schedule (ICS format) from a list of CSV rows,
+    returns an ics.icalendar.Calendar object.
+    """
     schedule = ics.icalendar.Calendar()
-
-    for course, url in SIGNUP.items():
-        schedule.events |= set(map(utils.EventFromCSV,
-            utils.read_signup_sheet_from_url(url)))
+    schedule.events |= set(map(utils.EventFromCSV, csv_rows))
 
     return schedule
 
 
+def format_event(event):
+    """
+    Returns a string representation of the event.
+    """
+    return f"{sched.format_event_short(event)}\n" + \
+            ", ".join([attendee.email for attendee in event.attendees])
+
+
 def main():
     """Main program"""
-    schedule = generate_schedule()
+    booking_data = []
+    for _, url in SIGNUP.items():
+        booking_data += utils.read_signup_sheet_from_url(url)
+
+    schedule = generate_schedule(events_missing_TAs(booking_data))
 
     if len(sys.argv) > 1:
         try:
@@ -59,9 +86,7 @@ def main():
         except NameError:
             pass
 
-        print(sched.format_event_short(event) + "\n" +
-                ", ".join([attendee.email for attendee in event.attendees]),
-                    end="\n\n")
+        print(format_event(event), end="\n\n")
 
 
 if __name__ == "__main__":
