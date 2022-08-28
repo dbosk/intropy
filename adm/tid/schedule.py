@@ -59,9 +59,8 @@ def main():
         except NameError:
             pass
 
-        print(sched.format_event_short(event) + "\n" +
-                ", ".join([attendee.email for attendee in event.attendees]),
-                    end="\n\n")
+        print(sched.format_event_short(event) + "; " +
+                ", ".join([attendee.email for attendee in event.attendees]))
 
 
 if __name__ == "__main__":
