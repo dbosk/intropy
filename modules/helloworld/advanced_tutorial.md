@@ -1,10 +1,10 @@
 ---
-title: Övning om Hello World!
+title: Fördjupande övning om terminalen, IDE:er och versionshantering
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
 ---
-# Övning: Hello World!
+# Fördjupande övning: Terminalen, IDE:er och versionshantering
 
 Målet med övningen är att du ska bli bättre på att
 
