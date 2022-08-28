@@ -28,7 +28,7 @@ def events_missing_TAs(csv_rows, missing_factor=0.5):
     needed_TAs_index = utils.SIGNUP_SHEET_HEADER.index("#Needed TAs")
 
     for row in csv_rows:
-        num_TAs = len(utils.get_booked_TAs_from_csv(row))
+        num_TAs = len(utils.get_TAs_from_csv(row))
         needed_TAs = int(row[needed_TAs_index])
 
         if num_TAs < missing_factor * needed_TAs:
