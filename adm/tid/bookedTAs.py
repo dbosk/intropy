@@ -45,7 +45,7 @@ def format_event(event):
     """
     Returns a string representation of the event.
     """
-    return f"{sched.format_event_short(event)}\n" + \
+    return f"{sched.format_event_short(event)}; " + \
             ", ".join([attendee.email for attendee in event.attendees])
 
 
