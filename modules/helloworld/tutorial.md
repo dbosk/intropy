@@ -1,5 +1,5 @@
 ---
-title: Övning: Hello World!
+title: Övning om Hello World!
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
