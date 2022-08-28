@@ -33,7 +33,7 @@ i varje:
 print("Hello World!")
 ```
 eller
-```
+```python
 name = "World"
 print(f"Hello {name}!")
 ```
@@ -45,4 +45,5 @@ kursen. Exempelvis en mapp för kursen. I den finns en mapp för varje labb:
 labb1, labb2, ..., labb6. Lägg sedan in ett program i varje labbmapp som 
 skriver ut "Hello labb N" när det körs, där $N$ är labbens nummer.
 
-Prova att växla mellan labbarna och köra dem.
+Prova att växla mellan labbarna och köra dem. Om programmet skriver ut "Hello 
+labb N" så vet du att du kör rätt program.
