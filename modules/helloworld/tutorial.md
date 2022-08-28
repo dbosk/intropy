@@ -51,3 +51,10 @@ skriver ut "Hello labb N" när det körs, där $N$ är labbens nummer.
 
 Prova att växla mellan labbarna och köra dem. Om programmet skriver ut "Hello 
 labb N" så vet du att du kör rätt program.
+
+
+### Mer med terminalen
+
+Använd terminalen för att redigera labb 3 i din mappstruktur. Använd därefter 
+terminalen för att köra labb 3 i terminalen.
+
