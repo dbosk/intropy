@@ -1,5 +1,5 @@
 ---
-title: Laboration: Kom igång med Hello world
+title: Laboration Kom igång med Hello world
 authors:
   - Celina Soori <celinah@kth.se>
 ---
