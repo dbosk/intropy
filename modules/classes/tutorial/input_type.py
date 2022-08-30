@@ -1,5 +1,6 @@
 """Take input more easily."""
 
+
 def input_type(t, prompt=""):
     """Take input, convert to type t; repeat if error."""
     while True:
@@ -11,6 +12,7 @@ def input_type(t, prompt=""):
             else:
                 print(f"Sorry, can't convert to {t}.")
 
+
 def main():
     """Test functionality of this module"""
     x = input_type(int, "x = ")
@@ -21,6 +23,7 @@ def main():
     print(f"{x} + {y} = {x+y}")
     print(f"z = {z}")
     print(f"Your name is {name}")
+
 
 if __name__ == "__main__":
     main()

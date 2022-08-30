@@ -1,7 +1,7 @@
 """Take input more easily."""
 
 
-def input_type(t, prompt=""):
+def input_type(t: type, prompt: str = ""):
     """Take input, convert to type t; repeat if error."""
     while True:
         try:

@@ -3,10 +3,11 @@ title: Övning om klasser och objekt
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
+  - Mazen Mardini <mazenm@kth.se>
 ---
 # Fördjupande övning: klasser och objekt
 
-Målet med övningen är att du ska få en djupare förståelse för för hur du ska
+Målet med övningen är att du ska få en djupare förståelse för hur du ska
 
   - använda och konstruera sammansatta datatyper (klasser),
   - tillämpa behållare för att lagra mängder med data,
@@ -51,16 +52,18 @@ sammansatt datatyp (klass) som kan representera ett bankkonto:
 Lösningsförslag:
 
   - [En modul med klasser för en bank, bank.py][bank.py]
-  - [En modul med klasser för en bank (använder arv), bank_arv.py][bank_arv.py]
-  - [Ett program med gränssnitt för en bank, banken.py][banken.py]
-  - [Ett program med gränssnitt för en bank (arv), banken_arv.py][banken_arv.py]
+  - [Ett program med gränssnitt för en bank, bank_program.py][bank_program.py]
+  - [En modul med en personklass, person.py][bank_program.py]
+  - [En modul med en medborgarklass, citizen.py][citizen.py]
+  - [En modul med en adressklass, address.py][address.py]
   - [En modul för inmatning av specifika typer, input_type.py][input_type.py]
 
-[bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
-[bank_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank_arv.py
-[banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
-[banken_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken_arv.py
-[input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
+[bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial-advanced/bank.py
+[bank_program.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial-advanced/bank_program.py
+[address.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial-advanced/address.py
+[citizen.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial-advanced/citizen.py
+[person.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial-advanced/person.py
+[input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial-advanced/input_type.py
 
 
 ### En bråkig klass
