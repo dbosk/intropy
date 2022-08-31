@@ -1,8 +1,10 @@
 """ Fractions library """
 
+
 class Fraction:
     """ Class for fractions """
-    def __init__(self, nominator, denominator=1):
+    def __init__(self, nominator: int | str | "Fraction",
+                 denominator: int | "Fraction" = 1):
         self.__nominator = 1
         self.__denominator = 1
 
@@ -27,13 +29,13 @@ class Fraction:
             raise TypeError(f"can't create fraction from {type(nominator)}")
 
     @property
-    def nominator(self):
+    def nominator(self) -> int:
         """nominator getter"""
         return self.__nominator
 
     @property
-    def denominator(self):
-        """demoninator getter"""
+    def denominator(self) -> int:
+        """denominator getter"""
         return self.__denominator
 
     def __str__(self):
@@ -90,16 +92,16 @@ def main():
     """Test program"""
     frac_a = Fraction(1, 2)
     frac_b = Fraction(2, 4)
-    if frac_a == frac_b: # frac_a.__eq__(frac_b)
+    if frac_a == frac_b:  # frac_a.__eq__(frac_b)
         print(f"{frac_a} = {frac_b}")
-    elif frac_a > frac_b: # frac_a.__gt__(frac_b) --> not (a <= b)
+    elif frac_a > frac_b:  # frac_a.__gt__(frac_b) --> not (a <= b)
         print(f"{frac_a} > {frac_b}")
-    elif frac_a < frac_b: # frac_a.__lt__(frac_b)
+    elif frac_a < frac_b:  # frac_a.__lt__(frac_b)
         print(f"{frac_a} <= {frac_b}")
 
     fracs = sorted([Fraction(1, 2), Fraction(1, 3), Fraction(1, 4)])
-    #fracs = [Fraction(1, 2), Fraction(1, 3), Fraction(1, 4)]
-    #fracs.sort()
+    # fracs = [Fraction(1, 2), Fraction(1, 3), Fraction(1, 4)]
+    # fracs.sort()
     for frac in fracs:
         print(frac)
 
@@ -108,6 +110,7 @@ def main():
     # typkonvertering
     frac_test = Fraction("1/2")
     print(f"1/2 blir {frac_test}")
+
 
 if __name__ == "__main__":
     main()
