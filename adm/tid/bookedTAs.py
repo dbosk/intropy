@@ -56,10 +56,13 @@ def main():
         booking_data += utils.read_signup_sheet_from_url(url)
 
     schedule = generate_schedule(events_booked_TAs(booking_data))
+    now = arrow.get(2022, 8, 29)
+    if now < arrow.now():
+        now = arrow.now()
 
     if len(sys.argv) > 1:
         try:
-            time_limit = arrow.get(2022, 8, 29).shift(weeks=+int(sys.argv[1]))
+            time_limit = now.shift(weeks=+int(sys.argv[1]))
         except ValueError as err:
             print(f"{sys.argv[0]}: {err}: "
                   f"first argument must be the number of weeks to print",
@@ -76,7 +79,9 @@ def main():
             print(end="\n\n")
 
         try:
-            if event.begin > time_limit:
+            if event.begin < now:
+                continue
+            elif event.begin > time_limit:
                 break
         except NameError:
             pass
