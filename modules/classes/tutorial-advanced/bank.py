@@ -1,37 +1,27 @@
 from citizen import Citizen
 from address import Address, input_address
 import input_type as it
+from dataclasses import dataclass
+from typing import List, Tuple
 
 
+@dataclass(frozen=True)
 class ClientProfile:
     """Klient hos en bank."""
-    def __init__(self, citizen, phone_number):
-        self.__citizen = citizen
-        self.__phone_number = phone_number
+    citizen: Citizen  # medborgaren som ska vara en klient
+    phone_number: int  # medborgarens telefonnummer
 
     def __str__(self):
         return f"{self.citizen} (telefon nummer: {self.phone_number})"
 
-    def __repr__(self):
-        return f"ClientProfile({repr(self.citizen)}, {self.phone_number})"
-
-    @property
-    def citizen(self):
-        """Klienten som profilen avser."""
-        return self.__citizen
-
-    @property
-    def phone_number(self):
-        """Klientens telefonnummer."""
-        return self.__phone_number
-
 
 class Account:
     """Bankkonto."""
-    def __init__(self, account_id, password, owner_profile):
-        """`account_id` är ett unikt kontonummer hos en bank (heltal).
-        `password` är lösenordet (sträng)..Krav: minst 8 symboler lång.
-        `owner_profile` är profilen till ägaren (ClientProfile).
+    def __init__(self, account_id: int, password: str,
+                 owner_profile: ClientProfile):
+        """`account_id` är ett unikt kontonummer hos en bank.
+        `password` är lösenordet. Krav: minst 8 symboler lång.
+        `owner_profile` är profilen till ägaren.
         """
         self.__account_id = account_id
         self.__owner_profile = owner_profile
@@ -49,25 +39,25 @@ class Account:
                f"{self.__balance})"
 
     @property
-    def account_id(self):
+    def account_id(self) -> int:
         """Kontonummer."""
         return self.__account_id
 
     @property
-    def owner_profile(self):
+    def owner_profile(self) -> ClientProfile:
         """Kontonummer."""
         return self.__owner_profile
 
     @property
-    def balance(self):
+    def balance(self) -> float:
         """Kontots saldo."""
         return self.__balance
 
-    def insert_money(self, amount):
+    def insert_money(self, amount: float):
         """Sätt in pengar."""
         self.__balance += amount
 
-    def withdraw_money(self, amount):
+    def withdraw_money(self, amount: float):
         """Tar ut en summa pengar från kontot,
         kastar ett särfall ValueError vid för lite täckning på kontot"""
         if self.__balance < amount:
@@ -76,21 +66,21 @@ class Account:
 
         self.__balance -= amount
 
-    def set_password(self, password):
+    def set_password(self, password: str):
         """Byt lösenord. Krav: minst 8 bokstäver."""
         if len(password) < 8:
             raise ValueError("bankkontolösenordet är för kort.")
 
         self.__password = password
 
-    def check_password(self, password):
+    def check_password(self, password: str) -> bool:
         """Är lösenordet korrekt?"""
         return self.__password == password
 
 
 class Bank:
     """En bank."""
-    def __init__(self, name):
+    def __init__(self, name: str):
         """`name` är namnet på banken."""
         self.__name = name
         # Personnummer till respektive klients ClientProfile-objekt:
@@ -110,10 +100,10 @@ class Bank:
                f"{len(self.__accounts)} accounts)"
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.__name
 
-    def create_account(self, personal_id, password):
+    def create_account(self, personal_id: int, password: str) -> Account:
         """Skapar ett nytt konto åt klienten med personnumret `personal_id`,
         returnerar det nya kontot. `password` blir kontots lösenord.
         Se Account-klassen för krav på lösenordet."""
@@ -125,7 +115,7 @@ class Bank:
         self.__client_accounts[personal_id].append(account)
         return account
 
-    def __get_client_profile2(self, personal_id):
+    def __get_client_profile2(self, personal_id: int) -> ClientProfile:
         """Är personen en klient? Om ja, returnera klientens profil.
         Om inte, släng ett ValueError."""
         try:
@@ -134,13 +124,13 @@ class Bank:
             raise ValueError(f"medborgare med personnummer {personal_id} "
                              f"är inte en klient.")
 
-    def add_client(self, citizen, phone_number):
+    def add_client(self, citizen: Citizen, phone_number: int):
         """Lägger till en ny klient."""
         self.__clients[citizen.personal_id] = \
             ClientProfile(citizen, phone_number)
         self.__client_accounts[citizen.personal_id] = []
 
-    def get_client_accounts(self, personal_id):
+    def get_client_accounts(self, personal_id: int) -> List[Account]:
         """Lista med alla konton som tillhör en klient."""
         self.__get_client_profile2(personal_id)
         try:
@@ -148,18 +138,18 @@ class Bank:
         except KeyError:
             return []
 
-    def get_client_profile(self, personal_id):
+    def get_client_profile(self, personal_id: int) -> ClientProfile:
         """Returnerar profil till klient med personnumret `personal_id`,
         om inte denne är en klient så kastas ett KeyError."""
         return self.__clients[personal_id]
 
-    def get_account(self, account_id):
+    def get_account(self, account_id: int) -> Account:
         """Returnerar ett konto med kontonumret `account_id`, om kontot inte
         existerar så kastas ett KeyError."""
         return self.__accounts[account_id]
 
 
-def input_client(prompt=""):
+def input_client(prompt: str = "") -> Tuple[Citizen, int]:
     """Låter användaren mata in uppgifter för en kund,
     returnerar ett Client-objekt"""
     if prompt:

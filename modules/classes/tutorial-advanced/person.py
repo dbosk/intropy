@@ -4,7 +4,7 @@ from address import Address
 class Person:
     """En person."""
 
-    def __init__(self, first_name, last_name, address):
+    def __init__(self, first_name: str, last_name: str, address: Address):
         """`first_name` är förnamnet (sträng).
         `last_name` är efternamnet (sträng).
         `address` är adressen (Address-objekt).
@@ -30,22 +30,22 @@ class Person:
     # Obs: @property gör att vi inte behöver parenteserna:
     # `kund.namn` istället för `kund.namn()`
     @property
-    def first_name(self):
+    def first_name(self) -> str:
         """Personens förnamn."""
         return self.__first_name.capitalize()
 
     @property
-    def last_name(self):
+    def last_name(self) -> str:
         """Personens efternamn."""
         return self.__last_name.capitalize()
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         """Personens fullständiga namn."""
         return self.first_name + " " + self.last_name
 
     @property
-    def address(self):
+    def address(self) -> Address:
         """Personens adress."""
         return self.__address
 
@@ -53,7 +53,8 @@ class Person:
     # ett anrop om du väljer att tilldela dem värden. Till exempel är
     # "person.change_name('Olle', 'Ohlsson')" inte tillåtet, men
     # "person.change_name(first_name='Olle', last_name='Ohlsson')" är det.
-    def change_name(self, *, first_name=None, last_name=None):
+    def change_name(self, *, first_name: str | None = None,
+                    last_name: str | None = None):
         """Byt personens för- och/eller efternamn.
 
         Om parametern `first_name` eller `last_name` är None så byts det
