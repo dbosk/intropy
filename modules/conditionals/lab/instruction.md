@@ -1,5 +1,5 @@
 ---
-title: Laboration: Klasser och objekt
+title: Laboration om Klasser och objekt
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
