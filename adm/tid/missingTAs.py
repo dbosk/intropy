@@ -86,7 +86,7 @@ def main():
         except NameError:
             pass
 
-        print(format_event(event), end="\n\n")
+        print(format_event(event))
 
 
 if __name__ == "__main__":
