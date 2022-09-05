@@ -30,10 +30,11 @@ def age_game(name, birthyear):
     # beräkna nytt födelseår
     birthyear = birthyear_age(25)
 
-    print(f"Du är {age(birthyear, this_year)} år gammal, "
-        f"det är {the_age-age(brithyear, this_year)} år yngre.")
+    print(f"Du är {age(birthyear, THIS_YEAR)} år gammal, "
+        f"det är {the_age-age(birthyear, THIS_YEAR)} år yngre.")
 
 name = "Daniel"
 birthyear = 1985
 
 age_game(name, birthyear)
+age_game("Urban", 1950)
