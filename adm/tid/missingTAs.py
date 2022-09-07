@@ -84,7 +84,7 @@ def main():
             print(end="\n\n")
 
         try:
-            if event.begin < now:
+            if event.end < now:
                 continue
             elif event.begin > time_limit:
                 break
