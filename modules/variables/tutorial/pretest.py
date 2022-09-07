@@ -3,10 +3,11 @@
 def multiply(x, y):
     return x*y
 
+
 x = 4
 y = 5
 
-multiple = multiply(x,y)
+multiple = multiply(x, y)
 
 print(multiple)
 
