@@ -1,5 +1,5 @@
 ---
-title: Laboration: Mer klasser och behållare
+title: Laboration om Mer klasser och behållare
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>

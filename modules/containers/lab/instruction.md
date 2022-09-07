@@ -1,5 +1,5 @@
 ---
-title: Laboration: Klasser, behållare och upprepningar
+title: Laboration om Klasser, behållare och upprepningar
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>
