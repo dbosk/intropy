@@ -37,6 +37,7 @@ print(f"{user}: {data[2]:.2f} h, {100*utils.compute_percentage(*data):.1f}%: "
 
 prgx = utils.filter_events_by_TA(user, sorted(prgi22 + prgm22,
          key=operator.itemgetter(utils.SIGNUP_SHEET_HEADER.index("Start"))))
+prgx = filter(lambda x: user in utils.get_booked_TAs_from_csv(x)[0], prgx)
 prgx = list(map(lambda x: x[0:len(utils.SIGNUP_SHEET_HEADER)] + [user], prgx))
 
 for event, hours in utils.hours_per_event(prgx).items():

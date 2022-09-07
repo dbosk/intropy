@@ -8,6 +8,8 @@ SRC+=		abstract.tex contents.tex
 
 DEPENDS+= 	beamer-didactic.sty
 
+SRC+= 		examples/age.py
+
 
 notes.pdf: notes.tex
 slides.pdf: slides.tex
