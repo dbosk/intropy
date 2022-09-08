@@ -20,7 +20,7 @@ def main():
     print("18.5 ≤ BMI < 25.0 ==> Du är normalviktig")
     print("25.0 ≤ BMI        ==> Du är överviktig")
     print()
-    print(f"Din BMI är: {bmi(VIKT, LÄNGD):.2f}")
+    print(f"Ditt BMI är: {bmi(VIKT, LÄNGD):.2f}")
 
 
 if __name__ == "__main__":
