@@ -85,6 +85,20 @@ Programmet ska använda funktionen för att skriva ut (åtminstone) ett BMI.
 
 Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/bmi.py)
 
+### Optimera en långsam funktion med @lru_cache
+
+Skriv en långsam funktion. Optimera funktionen m.h.a. [@lru_cache](https://docs.python.org/3/library/functools.html?highlight=lru_cache#functools.lru_cache).
+
+Tips: du kan använda [sleep](https://docs.python.org/3/library/time.html?highlight=sleep#time.sleep) för att göra funktionen långsam.
+
+Notera, så här kan du importera lru_cache och sleep för att få tillgång till dem i din kod:
+```python
+from functools import lru_cache
+from time import sleep
+```
+
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/snabbt_ibland.py)
+
 ### Generera e-postadresser
 
 Skriv ett program som generar en e-postadress utifrån parametrar som antingen är hårdkodade eller givna av användaren.
