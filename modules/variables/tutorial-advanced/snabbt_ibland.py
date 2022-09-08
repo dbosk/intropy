@@ -12,7 +12,7 @@ def multiplicera_med_15(tal: float) -> float:
 def fråga_om_multiplikation():
     """Fråga användaren om vilket tal denne vill multiplicera med 15."""
     tal = float(input("Skriv ett tal som du vill multiplicera med 15: "))
-    print("Multiplicerar: ", end="")
+    print("Multiplicerar... ", end="")
     print(multiplicera_med_15(tal))
 
 
