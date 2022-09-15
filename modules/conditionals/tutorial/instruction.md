@@ -14,11 +14,10 @@ Målet med övningen är att du ska bli bättre på att
   - dela upp problem i mindre problem,
   - minimera kodupprepning
 
-## Genomgång av veckans svårigheter
+## Veckans övningsgrupp
 
-Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
+...
 
-Zoomlänk: 
 
 ## Önskemål från gruppen
 
@@ -48,6 +47,8 @@ i samma katalog. Därefter kör man bomben.py: `python3 bomben.py`.
 [bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomben.py
 [bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
 
+Kör igenom spelet utan att detonera bomben. Skapa därefter ett eget bombspel åt 
+de andra i klassen.
 
 
 ### Frågesport
