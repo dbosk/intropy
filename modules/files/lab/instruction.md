@@ -1,5 +1,5 @@
 ---
-title: Laboration: Filer och felhantering
+title: Laboration om Filer och felhantering
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>

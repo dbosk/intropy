@@ -23,7 +23,7 @@ Var det något särskilt från veckans föreläsning och/eller OLI-material som 
 
 ### Finn fem fel
 
-Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/variables/hard_house_chores.py)
+Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/hard_house_chores.py)
 
 Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
@@ -64,7 +64,7 @@ walk_two_steps()
 ```
 Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
-[walk]: https://github.com/dbosk/intropy/blob/master/modules/variables/walk.py
+[walk]: https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/walk.py
 
 Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
 
@@ -72,7 +72,32 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
   2. diska (handdisk, då diskmaskinen inte är så utmanande, vi såg en algoritm
      på föreläsningen).
 
-Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/diska.py)
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/diska.py)
+
+### Beräkna Body Mass Index (BMI)
+
+Body Mass Index (BMI) kan användas för att se om man kanske är över- eller underviktigt, eller har en bra vikt.
+
+Formula är: "BMI" = "vikt i kg" / ("längd i meter" ^ 2)
+
+Skriv ett program bestående av en funktion som givet en persons vikt och längd beräknar hans/hennes BMI. 
+Programmet ska använda funktionen för att skriva ut (åtminstone) ett BMI.
+
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/bmi.py)
+
+### Optimera en långsam funktion med @lru_cache
+
+Skriv en långsam funktion. Optimera funktionen m.h.a. [@lru_cache](https://docs.python.org/3/library/functools.html?highlight=lru_cache#functools.lru_cache).
+
+Tips: du kan använda [sleep](https://docs.python.org/3/library/time.html?highlight=sleep#time.sleep) för att göra funktionen långsam.
+
+Notera, så här kan du importera lru_cache och sleep för att få tillgång till dem i din kod:
+```python
+from functools import lru_cache
+from time import sleep
+```
+
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial-advanced/snabbt_ibland.py)
 
 ### Generera e-postadresser
 
