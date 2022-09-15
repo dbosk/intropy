@@ -1,3 +1,5 @@
+LATEXFLAGS+=	-shell-escape
+
 .PHONY: all
 all: notes.pdf slides.pdf
 
