@@ -14,6 +14,11 @@ Målet med övningen är att du ska få en fördjupad förståelse för hur du s
   - dela upp problem i mindre problem,
   - minimera kodupprepning
 
+## Veckans övningsgrupp
+
+...
+
+
 ## Önskemål från gruppen
 
 Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå in djupare på?
@@ -24,7 +29,8 @@ Var det något särskilt från veckans föreläsning och/eller OLI-material som 
 
 ### Finn fem fel
 
-Dela upp er i par och låt en av er ladda ner ett program för [att köpa biobiljetter](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/conditionals/movietickets.py)
+Dela upp er i par och låt en av er ladda ner ett program för [att köpa 
+biobiljetter](https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/movietickets.py)
 
 Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
@@ -39,8 +45,8 @@ Vi har satt ihop ett frågespel. Svarar man fel detoneras bomben.
 Det behövs två filer: [bomben.py][bomben] och [bomb.py][bomb]. Båda måste ligga 
 i samma katalog. Därefter kör man bomben.py: `python3 bomben.py`.
 
-[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomben.py
-[bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
+[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/bomben.py
+[bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/bomb.py
 
 
 
@@ -122,7 +128,7 @@ walk_fwd(2)
 Givetvis kan vi dela upp funktionen `lift_leg` ytterligare. Du kan även se en
 [interaktiv genomgång av exekveringen][walk-tutor].
 
-[walk]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/walk.py
+[walk]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial-advanced/walk.py
 [walk-tutor]: https://pythontutor.com/visualize.html#code=%22%22%22Ett%20program%20som%20illustrerar%20funktionsuppdelningen%20i%20att%20g%C3%A5,%20dock%20med%20en%20%0At%C3%A4mligen%20udda%20g%C3%A5ngstil.%22%22%22%0A%0Adef%20take_step_first%28the_leg%29%3A%0A%20%20%20%20%22%22%22En%20funktion%20som%20anropar%20funktionerna%20som%20beh%C3%B6vs%20f%C3%B6r%20att%20ta%20ett%20steg%22%22%22%0A%20%20%20%20lift_leg%28the_leg%29%0A%20%20%20%20lean_body%28%22fram%C3%A5t%22%29%0A%0Adef%20take_step_second%28the_leg%29%3A%0A%20%20%20%20%22%22%22En%20funktion%20som%20anropar%20funktionerna%20f%C3%B6r%20att%20ta%20det%20kompletterande%20steget%22%22%22%0A%20%20%20%20lift_leg%28the_leg%29%0A%20%20%20%20lean_body%28%22bak%C3%A5t%22%29%0A%20%20%20%20put_leg%28the_leg%29%0A%0Adef%20lift_leg%28the_leg%29%3A%0A%20%20%20%20%22%22%22Lyfter%20ett%20ben,%20the_leg%20anger%20h%C3%B6ger%20eller%20v%C3%A4nster%22%22%22%0A%20%20%20%20print%28f%22lyft%20%7Bthe_leg%7D%20ben%22%29%0A%0Adef%20put_leg%28the_leg%29%3A%0A%20%20%20%20%22%22%22S%C3%A4tter%20ner%20ett%20ben%20som%20%C3%A4r%20i%20luften%22%22%22%0A%20%20%20%20print%28f%22s%C3%A4tt%20ned%20%7Bthe_leg%7D%20ben%22%29%0A%0Adef%20lean_body%28direction%29%3A%0A%20%20%20%20%22%22%22Luta%20kroppen,%20direction%20anger%20riktning%22%22%22%0A%20%20%20%20print%28f%22luta%20kroppen%20%7Bdirection%7D%22%29%0A%0Adef%20walk_1m_fwd%28%29%3A%0A%20%20%20%20%22%22%22En%20funktion%20som%20g%C3%A5r%20en%20meter%20fram%C3%A5t%22%22%22%0A%20%20%20%20take_step_first%28%22h%C3%B6ger%22%29%0A%20%20%20%20take_step_second%28%22v%C3%A4nster%22%29%0A%0Adef%20walk_fwd%28meters%29%3A%0A%20%20%20%20%22%22%22En%20funktion%20som%20g%C3%A5r%20meters%20antal%20meter%20fram%C3%A5t%22%22%22%0A%20%20%20%20if%20meters%20%3E%200%3A%0A%20%20%20%20%20%20%20%20walk_1m_fwd%28%29%0A%20%20%20%20%20%20%20%20walk_fwd%28meters-1%29%0A%0Awalk_fwd%282%29&cumulative=false&curInstr=0&heapPrimitives=nevernest&mode=display&origin=opt-frontend.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false
 
 Skriv program som, på samma sätt som ovan, skriver ut instruktioner för
@@ -150,4 +156,4 @@ print(f"Slumptalet är {slumptal}.")
 Vi kan även gå igenom [ett exempel som använder denna och skapar en slumpmässig
 dans][random-dance].
 
-[random-dance]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/dance.py
+[random-dance]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial-advanced/dansa.py
