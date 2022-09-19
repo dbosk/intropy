@@ -4,6 +4,8 @@ def hej_for():
     """Skriver ut hej 50 gånger med en for-loop"""
     for gång in range(50):
         print(f"hej {gång}!")
+        if gång > 2:
+            break
 
 def hej_while():
     """Skriver ut hej 50 gånger med en while-loop"""
@@ -12,6 +14,8 @@ def hej_while():
         print(f"hej {antal}!")
         # antal = antal - 1
         antal -= 1
+        if antal < 48:
+            break
 
 def hej_while_alt():
     """En alternativ version av hej_while"""
@@ -19,6 +23,8 @@ def hej_while_alt():
     while antal < 50:
         print(f"hej {antal}!")
         antal += 1
+        if antal > 2:
+            break
 
 
 if __name__ == "__main__":
