@@ -67,4 +67,5 @@ def main():
     print(f"On average, you needed {average_attempts:.2f} tries.")
 
 # start the main program
-main()
+if __name__ == "__main__":
+    main()
