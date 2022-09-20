@@ -1,5 +1,7 @@
 """Program som beräknar area"""
 
+import math
+
 def area_rekt(höjd, bredd):
     """Beräknar arean av en rektangel."""
     return höjd * bredd
@@ -12,6 +14,7 @@ def main():
     """Huvudprogrammet"""
     r = 4
     print(f"area_cirkel({r}) = {area_cirkel(r)}")
+    print(f"area_cirkel({r}, {math.pi}) = {area_cirkel(r, math.pi)}")
 
     b = 2
     h = 3
