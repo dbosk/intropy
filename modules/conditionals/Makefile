@@ -1,4 +1,5 @@
-SUBDIR+=		slides
+SUBDIR+=		slides-input
+SUBDIR+=		slides-conditionals
 SUBDIR_GOALS=	all clean distclean
 
 HTML_FILES= 	lecture.html exercise.html tutorial.html

@@ -8,7 +8,7 @@ def blommor():
 
 def sopor(string):
     print(string)
-    no = input()
+    no: bool = input()
 
     if not no == "no":
         print("Tar ut soporna")

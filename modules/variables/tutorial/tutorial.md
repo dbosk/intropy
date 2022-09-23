@@ -39,7 +39,7 @@ Skriv funktioner som beräknar mängden färg givet relevanta inparametrar.
 
 ### Finn fem fel
 
-Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/variables/easy_house_chores.py)
+Dela upp er i par och låt en av er ladda ner [ett program för att göra hushållssysslor](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial/easy_house_chores.py)
 
 Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
@@ -80,7 +80,7 @@ walk_two_steps()
 ```
 Givetvis kan vi dela upp funktionen `lift_leg` ytterligare.
 
-[walk]: https://github.com/dbosk/intropy/blob/master/modules/variables/walk.py
+[walk]: https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial/walk.py
 
 Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
 
@@ -88,4 +88,4 @@ Skriv program som, på samma sätt som ovan, skriver ut instruktioner för att:
   2. diska (handdisk, då diskmaskinen inte är så utmanande, vi såg en algoritm
      på föreläsningen).
 
-Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/diska.py)
+Vi går igenom olika lösningar och det här [lösningsförslaget](https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial/diska.py)
