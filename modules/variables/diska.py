@@ -14,6 +14,7 @@ def gnugga(sak):
 
 def doppa_i_vatten(sak):
     """Doppar sak i diskvatten"""
+    
     return "diskvattendränkt " + sak
 
 print(diska("smutsigt glas"))
