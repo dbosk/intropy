@@ -30,16 +30,6 @@ def siffersumma_for(heltal):
 
     return summan
 
-def input_int(prompt):
-    """Returnerar ett heltal, låter användaren försöka igen tills att det är 
-    ett heltal."""
-    while True:
-        try:
-            heltal = int(input(prompt))
-            return heltal
-        except ValueError:
-            print("Det måste vara ett heltal.")
 
-
-heltalet = input_int("Postivt heltal: ")
+heltalet = int(input("Postivt heltal: "))
 print(f"Siffersumman för {heltalet} är {siffersumma(heltalet)}!")
