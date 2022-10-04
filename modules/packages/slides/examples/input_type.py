@@ -1,15 +1,15 @@
 """Take input more easily."""
 
-def input_type(t, prompt=""):
-    """Take input, convert to type t; repeat if error."""
+def input_type(the_type, prompt=""):
+    """Take input, convert to type the_type; repeat if error."""
     while True:
         try:
-            return t(input(prompt))
+            return the_type(input(prompt))
         except ValueError:
-            if t == int:
+            if the_type == int:
                 print(f"Sorry, can't convert to integer.")
             else:
-                print(f"Sorry, can't convert to {t}.")
+                print(f"Sorry, can't convert to {the_type}.")
 
 def main():
     """Test functionality of this module"""
