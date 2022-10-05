@@ -14,11 +14,10 @@ Målet med övningen är att du ska bli bättre på att
   - dela upp problem i mindre problem,
   - minimera kodupprepning
 
-## Genomgång av veckans svårigheter
+## Veckans övningsgrupp
 
-Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
+...
 
-Zoomlänk: 
 
 ## Önskemål från gruppen
 
@@ -30,7 +29,8 @@ Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom 
 
 ### Finn fem fel
 
-Dela upp er i par och låt en av er ladda ner ett program för [att köpa biobiljetter](https://github.com/dbosk/intropy/blob/revision_of_exercises/modules/conditionals/movietickets.py)
+Dela upp er i par och låt en av er ladda ner ett program för [att köpa 
+biobiljetter](https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/movietickets.py)
 
 Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
 
@@ -45,9 +45,13 @@ Vi har satt ihop ett frågespel. Svarar man fel detoneras bomben.
 Det behövs två filer: [bomben.py][bomben] och [bomb.py][bomb]. Båda måste ligga 
 i samma katalog. Därefter kör man bomben.py: `python3 bomben.py`.
 
-[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomben.py
-[bomb]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/bomb.py
+[bomben]: 
+https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/bomben.py
+[bomb]: 
+https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/bomb.py
 
+Kör igenom spelet utan att detonera bomben. Skapa därefter ett eget bombspel åt 
+de andra i klassen.
 
 
 ### Frågesport
