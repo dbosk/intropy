@@ -11,6 +11,14 @@ def input_type(the_type, prompt=""):
             else:
                 print(f"Sorry, can't convert to {the_type}.")
 
+def input_int(prompt="")
+    """Läser in ett heltal; fortsätter att fråga prompt till användaren tills att användaren matat in något som går att konvertera till ett heltal"""
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Inte heltal, försök igen.")
+
 def main():
     """Test functionality of this module"""
     x = input_type(int, "x = ")
