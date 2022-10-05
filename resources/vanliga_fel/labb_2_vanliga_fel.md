@@ -72,7 +72,7 @@ Om ni ser att den globala delen av koden har blivit väldigt lång, se då till 
 Inkonsekvent typografi
 --------------------------
 
-Om du väljer att använda snake_case för funktionsnamn då bör alla funktioner vara skrivna på samma sätt. Samma princip gäller för variabelnamn också.
+Om du väljer att använda snake_case för funktionsnamn, då bör alla funktioner vara skrivna på samma sätt. Samma princip gäller för variabelnamn också.
 
 **Fel:**
 ```python
