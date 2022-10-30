@@ -27,13 +27,13 @@ Nu ska vi skriva en klass "School" som har minst ett attribut __students__.
 Skapa ett objekt av typen School. Låt igen användaren skriva in information om 
 minst tre studenter och skapa objekt av typen Student. 
 
-Spara objekten i skol-objektets attribut __students__. 
+Spara objekten i School-objektets attribut __students__. 
 
 Fundera på vad som är den bästa typen av behållare för att spara objekten. 
 Vilka nackdelar och fördelar finns det med olika behållare?
 
-Lägg nu till en metod i klassen Skola som låter användaren söka efter en
-elev som går på skolan och som skriver ut om studenten finns och det funna
+Lägg nu till en metod i klassen School som låter användaren söka efter en
+elev som går på skolan och som skriver ut om eleven finns och det funna
 Student-objektet. Du får välja själv om du ska söka med hjälp av förnamn, efternamn
 eller personnummer. 
 
