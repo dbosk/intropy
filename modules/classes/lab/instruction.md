@@ -22,15 +22,20 @@ Läs på om [uppslagsverk][uppslagsverk].
 
 ## Uppgift
 
-Nu ska vi skriva en klass "School" som har minst ett attribut __students__. 
+Nu ska vi skriva en klass "School" som har minst ett attribut __students__.
 
 Skapa ett objekt av typen School. Låt igen användaren skriva in information om 
 minst tre studenter och skapa objekt av typen Student. 
 
-Spara nu objekten i skol-objektets attribut __students__. 
+Spara objekten i skol-objektets attribut __students__. 
 
 Fundera på vad som är den bästa typen av behållare för att spara objekten. 
 Vilka nackdelar och fördelar finns det med olika behållare?
+
+Lägg nu till en metod i klassen Skola som låter användaren söka efter en
+elev som går på skolan efter att användaren har lagt till tre elever.
+
+Obs! Du behöver inte ha en meny i programmet. 
 
 Avsluta programmet med att skriva ut objektet av typen School.
 
