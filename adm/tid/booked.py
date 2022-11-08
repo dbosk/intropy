@@ -18,21 +18,16 @@ SIGNUP = {
             "https://docs.google.com/spreadsheets/d/18-afYjlI--e8hDwzSp9VcHjatc7SPvBFW0fH9JRrZ-4/edit#gid=1755336853")
         }
 
-def events_missing_TAs(csv_rows, missing_factor=0.5):
+def events_booked_TAs(csv_rows):
     """
     Input: a list of CSV data (tuples)
 
-    Output: a list of CSV data, only those rows where there are fewer TAs 
-    booked than the number of needed TAs.
+    Output: a list of CSV data, only containing booked TAs, excluding the 
+    reserves.
     """
-    needed_TAs_index = utils.SIGNUP_SHEET_HEADER.index("#Needed TAs")
-
     for row in csv_rows:
-        num_TAs = len(utils.get_TAs_from_csv(row))
-        needed_TAs = int(row[needed_TAs_index])
-
-        if num_TAs < missing_factor * needed_TAs:
-            yield row
+        booked, _ = utils.get_booked_TAs_from_csv(row)
+        yield row[:len(utils.SIGNUP_SHEET_HEADER)] + booked
 
 
 def generate_schedule(csv_rows):
@@ -60,7 +55,7 @@ def main():
     for _, url in SIGNUP.items():
         booking_data += utils.read_signup_sheet_from_url(url)
 
-    schedule = generate_schedule(events_missing_TAs(booking_data))
+    schedule = generate_schedule(events_booked_TAs(booking_data))
     now = arrow.get(2022, 8, 29)
     if now < arrow.now():
         now = arrow.now()
@@ -76,13 +71,6 @@ def main():
 
     first = True
     for event in schedule.timeline:
-        if first:
-            first = False
-            current_week = event.begin.isocalendar()[1]
-        elif event.begin.isocalendar()[1] != current_week:
-            current_week = event.begin.isocalendar()[1]
-            print(end="\n\n")
-
         try:
             if event.end < now:
                 continue
@@ -90,6 +78,13 @@ def main():
                 break
         except NameError:
             pass
+
+        if first:
+            first = False
+            current_week = event.begin.isocalendar()[1]
+        elif event.begin.isocalendar()[1] != current_week:
+            current_week = event.begin.isocalendar()[1]
+            print(end="\n\n")
 
         print(format_event(event))
 
