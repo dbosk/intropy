@@ -37,11 +37,25 @@ Dessa studenter är skrivna på KTH:
 Namn: Johan Tierney Personnr: 8411285597
 Namn: Erik Bolin Personnr: 9910247016
 Namn: Per Edenström Personnr: 8410024155
+
 ...
+
+Vad heter studenten? Emma Emilsson
+Vad är studentens personnummer? 010101000a
+Personnumret får bara innehålla siffror, försök igen!
+Vad är studentens personnummer? 0101010000
+
+Studenten är tillagd!
+
+Vilken student vill du söka efter? Jan
+
+Den studenten läser på KTH:
+Namn: Jan Jansson Personnr: 0404040010
 ```
 
 ### Krav
 * Användaren ska få mata in ett nytt filnamn om filen inte hittas.
+* Alla krav från laboration 5 ska vara uppfyllda.
 * Din kod ska uppfylla kraven i rättningsmatrisen.
 
 ### Redovisning
