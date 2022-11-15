@@ -40,13 +40,6 @@ Namn: Per Edenström Personnr: 8410024155
 
 ...
 
-Vad heter studenten? Emma Emilsson
-Vad är studentens personnummer? 010101000a
-Personnumret får bara innehålla siffror, försök igen!
-Vad är studentens personnummer? 0101010000
-
-Studenten är tillagd!
-
 Vilken student vill du söka efter? Jan
 
 Den studenten läser på KTH:
