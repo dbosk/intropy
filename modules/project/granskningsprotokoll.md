@@ -1,4 +1,4 @@
-# Granskningsprotokoll
+Granskningsprotokoll
 
 **Granskning av:** «Fyll i ditt namn»
 
@@ -391,4 +391,5 @@ Versionsinformation
 ===================
 
 Första versionen av denna granskningsmall skrevs av Mazen Mardini, med
-tillägg av Celina Soori, den 28 och 29 november 2022.
+tillägg av Celina Soori, den 28 och 29 november 2022, baserat på ett
+granskningsprotokoll med förklaringar av Alexander Baltatzis.
