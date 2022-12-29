@@ -1,0 +1,113 @@
+\documentclass[a4paper]{article}
+\usepackage{noweb}
+% Needed to relax penalty for breaking code chunks across pages, otherwise 
+% there might be a lot of space following a code chunk.
+\def\nwendcode{\endtrivlist \endgroup}
+\let\nwdocspar=\smallbreak
+
+\usepackage[hyphens]{url}
+\usepackage{hyperref}
+\usepackage{authblk}
+
+\input{preamble.tex}
+
+\title{%
+  Ett frågespel
+}
+\author{%
+  Daniel Bosk
+}
+
+\begin{document}
+\maketitle
+\clearpage
+
+\tableofcontents
+\clearpage
+
+@
+\section{Inledning}
+
+Vi vill skriva ett frågespel.
+Frågespelet ska ha kluriga frågor som användaren ska svara på.
+Frågorna ska kunna ha olika följdfrågor beroende på användarens svar 
+(exempelvis ge ledningar) och ibland flera möjliga svar.
+
+\section{Kodens struktur}
+
+Detta program har den vanliga strukturen för ett litet pythonprogram där all 
+kod finns i en fil:
+<<qgame.py>>=
+"""Ett frågespel"""
+
+<<klasser>>
+<<funktioner>>
+
+def main():
+  """Huvudprogrammet"""
+  <<huvudprogrammets innehåll>>
+
+if __name__ == "__main__":
+  main()
+@
+
+\section{Huvudprogrammets innehåll}
+
+Huvudprogrammet ska köra själva spelet.
+Designen är som följer.
+
+Huvudprogrammet kör igenom en lista med frågor.
+Det ställer frågan och så länge detta resulterar i en ny följdfråga ställer vi 
+även den frågan.
+Om det inte blir någon följdfråga avslutas [[while]]-satsen.
+Därefter fortsätter vi med nästa fråga tills att alla frågor är slut.
+<<huvudprogrammets innehåll>>=
+<<skapa lista med frågor, questions>>
+
+for question in questions:
+  while follow_up_question := ask_question(question):
+    question = follow_up_question
+@
+
+\section{Frågornas format}
+
+Det mest intressanta i huvudprogrammet är frågornas format.
+Formatet bestämmer nämligen hur funktionen [[ask_question]] ska utformas.
+Vi ser ovan att [[ask_question]] tar en fråga som argument och returnerar 
+eventuell följdfråga.
+Om det inte blir någon följdfråga returneras [[None]].
+Om svaret är fel kan vi returnera samma fråga igen.
+Om något med svaret är fel, kastas ett särfall av typen [[ValueError]].
+Detta skrivs ut, sedan ställs samma fråga igen.
+<<funktioner>>=
+def ask_question(question):
+  """
+  Takes a question object as argument, asks the question and returns any 
+  follow-up question. If there is no follow-up question, None is returned.
+  """
+  while True:
+    try:
+      return question.check_answer(input(question.question()))
+    except ValueError as err:
+      print(err)
+@
+
+Detta betyder att frågorna måste ärva följande klass:
+<<klasser>>=
+class Question:
+  """A class for questions"""
+  def ask(self):
+    """
+    Return the question in string format to be printed.
+    """
+    raise NotImplementedError
+
+  def check_answer(self, answer):
+    """
+    Checks answer, returns None if correct.
+    Returns a new Question object if not correct.
+    """
+    raise NotImplementedError
+@
+
+\end{document}
