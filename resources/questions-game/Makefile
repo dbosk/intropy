@@ -4,8 +4,6 @@ all: qgame.pdf
 LATEXFLAGS+=	-shell-escape
 
 qgame.pdf: qgame.tex
-qgame.pdf: abstract.tex
-
 qgame.tex: qgame.nw
 
 
