@@ -27,6 +27,9 @@ for user in utils.hours_per_TA(prgi22 + prgm22):
     if len(user_data) > 1:
         pprint(user_data)
         continue
+    elif len(user_data) < 1:
+        print(f"ug: can't find {user}")
+        continue
     members.append(user_data[0]["kthid"])
 
 prgi = next(ug.find_group_by_name("edu.courses.DD.DD1317.20222.1.assistants"))
