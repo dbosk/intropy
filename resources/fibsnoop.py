@@ -14,4 +14,4 @@ def fib(n):
     return fib(n-1) + fib(n-2)
 
 with snoop(depth=10):
-    print(f"fib(5) = {fib(5)}")
+    print(f"fib(3) = {fib(3)}")
