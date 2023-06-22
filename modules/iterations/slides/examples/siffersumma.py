@@ -12,7 +12,7 @@ def siffersumma(heltal):
 def siffersumma_while(heltal):
     """Returnerar siffersumman för heltalet heltal (int)"""
     summan = 0
-    
+
     while heltal > 0:
         sista_siffran = heltal % 10
         summan += sista_siffran
@@ -20,6 +20,16 @@ def siffersumma_while(heltal):
 
     return summan
 
+def siffersumma_for(heltal):
+    """Returnerar siffersumman för heltal (int)"""
+    summan = 0
+    siffror = str(heltal)
 
-heltal = int(input("Postivt heltal: "))
-print(f"Siffersumman för {heltal} är {siffersumma_while(heltal)}!")
+    for siffra in siffror:
+        summan += int(siffra)
+
+    return summan
+
+
+heltalet = int(input("Postivt heltal: "))
+print(f"Siffersumman för {heltalet} är {siffersumma(heltalet)}!")

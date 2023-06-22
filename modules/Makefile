@@ -1,15 +1,19 @@
 SUBDIR+=	overview
+SUBDIR+=	helloworld
+SUBDIR+=	computational-thinking
 SUBDIR+=	variables
-SUBDIR+=	functions
 #SUBDIR+=	debug
 SUBDIR+=	conditionals
+SUBDIR+=	iterations
+SUBDIR+=	packages
 SUBDIR+=	containers
+#SUBDIR+=	functions
 #SUBDIR+=	exceptions
-SUBDIR+=	files
 SUBDIR+=	classes
-SUBDIR+=	recap
+SUBDIR+=	files
+#SUBDIR+=	recap
 SUBDIR+=	graphics
-SUBDIR+=	scipy
+#SUBDIR+=	scipy
 SUBDIR+=	project
 
 INCLUDE_MAKEFILES=../makefiles

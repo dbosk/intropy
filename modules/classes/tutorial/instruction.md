@@ -2,10 +2,12 @@
 title: Övning om klasser och objekt
 authors:
   - Daniel Bosk <dbosk@kth.se>
+  - Celina Soori <celinah@kth.se>
+  - Mazen Mardini <mazenm@kth.se>
 ---
 # Övning: klasser och objekt
 
-Målet med övningen är att du ska blir bättre på att
+Målet med övningen är att du ska bli bättre på att
 
   - använda och konstruera sammansatta datatyper (klasser),
   - tillämpa behållare för att lagra mängder med data,
@@ -14,14 +16,33 @@ Målet med övningen är att du ska blir bättre på att
   - minimera kodupprepning,
   - leta i Pythons dokumentation.
 
+## Genomgång av veckans svårigheter
 
-## Laborationen
+Vi går igenom det vi upptäckt i OLI är extra svårt den här veckan.
 
-Hur har olika grupper löst samma labb? Oftast väldigt olika. Vi går igenom 
-några lösningar. Hur löser man extrauppgiften?
+Zoomlänk: 
 
+## Önskemål från gruppen
 
-## Inköpslistan
+Var det något särskilt från veckans föreläsning och/eller OLI-material som gruppen vill gå igenom igen?
+
+Gick förra veckans laboration bra? Finns det något ni skulle vilja gå igenom från laborationen?
+
+## Övningsuppgifter
+
+### Finn fem fel
+
+Programmet [En multiplikationstabell](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/multtable.py) skriver ut en multiplikationstabell.
+
+Läs igenom koden och få ett hum om vad den är tänkt att göra. Testa att köra koden.
+
+Hitta nu tillsammans minst fem fel/utvecklingsområden i koden (tänk på vad ni lärt er under veckan).
+
+Förbättra nu koden efter det ni hittat. Blev koden mer lättläst, användbar och/eller användarvänlig? Varför?
+
+([Lösningsförslag]([multtable-good.py](https://github.com/dbosk/intropy/blob/master/modules/containers/tutorial/multtable-good.py)
+
+### Inköpslistan
 
 Skriv ett program som hanterar en inköpslista. Du ska kunna ha flera olika 
 inköpslistor (exempelvis en för mat, en för andra saker), men det räcker med 
@@ -30,6 +51,10 @@ att experimentera med en.
 Det ska gå att lägga till saker, lista dem, bocka av enskilda saker och ta bort 
 alla avbockade saker.
 
+Testa att spara inköpslistorna i en lista, så att du får listor i listor.
+Försök iterera genom listan med inköpslistor och alla varor i inköpslistorna.
+Hur gör du detta enklast?
+
 Lösningsförslag:
 
   - [En modul som illustrerar en enkel inköpslista, shopping.py][shopping.py]
@@ -37,33 +62,7 @@ Lösningsförslag:
 [shopping.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/shopping.py
 
 
-## Folkbokföringen
-
-Under föreläsningen skrev vi en [modul med en klass för 
-personer][person_old.py]. Vi ska nu bygga vidare på den och skriva en enkel 
-version av Skatteverkets folkbokföringsdatabas.
-
-[person_old.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/slides/examples/person.py
-
-Folkbokföringen håller koll på följande om varje person:
-
-  - personens identitet (namn, personnummer och de olika delarna av dessa),
-  - personens föräldrar och barn,
-  - personens bostadsadress (delarna av den adressen) och alla historiska 
-    bostadsadresser.
-
-Lösningsförslag:
-
-  - [En modul med en klass för personer, person.py][person.py],
-  - [en modul med en klass för adresser, adress.py][adress.py],
-  - [en modul med anpassningar för Skatteverket och testprogram, skatteverket.py][skatteverket.py]
-
-[person.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/person.py
-[adress.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/adress.py
-[skatteverket.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/skatteverket.py
-
-
-## Bankkontot
+### Bankkontot
 
 Vi ska skriva ett enkelt program som hanterar konton åt en bank. Vi behöver en 
 sammansatt datatyp (klass) som kan representera ett bankkonto:
@@ -79,44 +78,16 @@ sammansatt datatyp (klass) som kan representera ett bankkonto:
 Lösningsförslag:
 
   - [En modul med klasser för en bank, bank.py][bank.py]
-  - [En modul med klasser för en bank (använder arv), bank_arv.py][bank_arv.py]
-  - [Ett program med gränssnitt för en bank, banken.py][banken.py]
-  - [Ett program med gränssnitt för en bank (arv), banken_arv.py][banken_arv.py]
+  - [Ett program med gränssnitt för en bank, bank_program.py][bank_program.py]
+  - [En modul med en personklass, person.py][bank_program.py]
+  - [En modul med en medborgarklass, citizen.py][citizen.py]
+  - [En modul med en adressklass, address.py][address.py]
   - [En modul för inmatning av specifika typer, input_type.py][input_type.py]
 
 [bank.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank.py
-[bank_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank_arv.py
-[banken.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken.py
-[banken_arv.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/banken_arv.py
+[bank_program.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/bank_program.py
+[address.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/address.py
+[citizen.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/citizen.py
+[person.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/person.py
 [input_type.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/input_type.py
 
-
-## En bråkig klass
-
-Vi vill ha en klass för att räkna med rationella tal, eller bråk. Vi ska kunna:
-
-  - skapa bråk, exempelvis `a = Bråk(1, 3)` och `b = Bråk(2, 6)`;
-  - jämföra bråk, exempelvis `a == b` eller `a < b`;
-  - skriva ut bråk på läsbar form, exempelvis `print(f"{a} och {b}")` ger 
-    utskriften `1/3 och 2/6`.
-  - addera, subtrahera, multiplicera och dividera bråk.
-  - typkonvertera bråket till ett flyttal (`float`).
-  - förkorta bråk, exempelvis så att `b` (som är 2/6) kan förkortas till 1/3.
-
-Detta kräver en del specialmetoder. Se [dokumentationen för Pythons 
-specialmetoder för jämförelse][doc-cmp] och [dokumentationen för Pythons 
-specialmetoder för att emulera numeriska typer][doc-numtypemethods].
-
-[doc-cmp]: https://docs.python.org/3/reference/datamodel.html#object.__lt__
-[doc-numtypemethods]: https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types
-
-Lösningsförslag:
-
-  - [Lösningsförslag: en modul med en klass för bråktal, frac.py][frac.py]
-
-[frac.py]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/frac.py
-
-
-## Önskemål från gruppen
-
-Vad vill gruppen gå igenom igen från veckan som var?
