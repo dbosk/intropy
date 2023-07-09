@@ -44,24 +44,20 @@ b})) is interpreted by Python, could be as followed:
 
 \begin{description}
     \item [Contrast] Show the contrast between where x first is defined by 
-addition of constants, then by addition of variables, then by addition 
-of variables where the value is changed after the definition of x. The 
-contrast is shown by printing all these variations, where the value of 
-x is invariant, but the definition varies. 
+addition of variables, then by addition of variables where the value of 
+the variables is changed after the definition of x. The contrast is 
+shown by printing all these variations, where the value of x is 
+invariant, but the value of the variables is the variant. 
     \begin{lstlisting}[language=Python]
+
         def example1():
-            x = 1 + 2
-
-            return x
-
-        def example2():
             a = 1
             b = 2
             x = a + b
 
             return x
 
-        def example3():
+        def example2():
             a = 1
             b = 2
             x = a + b
@@ -78,7 +74,7 @@ invariant.
     \begin{lstlisting}[language=Python]
 
         def example1():
-            a = 1 + 1
+            a = 3
             b = 2
             x = a + b
 
@@ -86,14 +82,7 @@ invariant.
 
         def example2():
             a = 2
-            b = 5 + a
-            x = a + b
-
-            return x
-
-        def example3():
-            a = 3
-            b = a
+            b = 5
             x = a + b
 
             return x
@@ -114,6 +103,8 @@ and variables simultaneously).
             a = 1
             b = 2
             x = a + b
+            a = 2
+            b = 3
 
             return x
 
@@ -123,8 +114,9 @@ and variables simultaneously).
             x = a + b
             a = 2
             b = 3
+            x = a + b
 
-            return x + a
+            return x
             
     \end{lstlisting}
     
@@ -163,15 +155,87 @@ purpose. To achieve this we propose this pattern:
     \item [Contrast] We show a standard example, then we change a variable 
 name from a relevant to an irrelevant one. We show that the program 
 still works.
+    \begin{lstlisting}[language=Python]
+
+        def example1(values):
+            maximum = 0
+            for value in values:
+                if value > maximum:
+                    maximum = value
+
+            return maximum
+
+        def example2(values):
+            x = 0
+
+            for value in values:
+                if i > x:
+                    x = i
+
+            return x
+            
+    \end{lstlisting}
+
+    
     \item [Generalisation] We can then \emph{generalise} this by showing 
-that we can rename the other variables too, and even show other 
+that we can rename the other variables too. We can even show other 
 examples where the variable names are disconnected from the purpose.
+
+    \begin{lstlisting}[language=Python]
+
+        def example1(l):
+            maximum = 0
+            for i in l:
+                if i > maximum:
+                    maximum = i
+
+            return maximum
+
+        def example2(values):
+            x = 0
+
+            for value in values:
+                if value < x:
+                    x = value
+
+            return x
+            
+    \end{lstlisting}
+    
     \item [Fusion] When done, we can point out that we name variables 
-properly for readability 
-(ease of comprehension), by \emph{contrasting} the same example with and 
-without relevant variable names.
-We can follow this by \emph{generalisation}, by showing a previously unseen 
+properly for readability (ease of comprehension), by \emph{contrasting} 
+the same example with and without relevant variable names. We can 
+follow this by \emph{generalisation}, by showing a previously unseen 
 example with unrelated variable names and trying to read it.
+
+    \begin{lstlisting}[language=Python]
+
+        def example1(l):
+            x = 0
+
+            for i in l:
+                if i > x:
+                    x = i
+
+            return x
+
+        def example2(hi):
+            y = []
+            
+            variable = hi.readlines()
+
+            for i in variable:
+                x = i.split()
+                object = Class1(x[0], x[1])
+                y.append(object)
+                
+            for i in y:
+                if y.property2 > 18:
+                    print(f"Hi {y.property1}! You are an adult.")
+            
+    \end{lstlisting}
+
+    
 \end{description}
 
 
@@ -191,9 +255,66 @@ managed through a similar pattern as described for the misconception
 of variable names' power of variable values. First by \emph{
 contrasting} via examples where the name \mintinline{python}{my_list} 
 is used throughout the programme and changed mid-programme 
-respectively. Then, \emph{generalising} by using different variable 
-names, but keeping them throughout the programme. The pattern ends 
-with a fusion of the two.
+respectively. 
+
+       \begin{lstlisting}[language=Python]
+
+        def example1():
+            maximum = 0
+            for value in my_list:
+                if value > maximum:
+                    maximum = value
+
+            return maximum
+
+        def example2():
+            maximum = 0
+
+            for value in list:
+                if value > maximum:
+                    maximum = value
+
+            return maximum
+
+
+        my_list = [1, 3, 2, 5, 4]
+        maximum = example1()
+        maximum = example2()
+            
+    \end{lstlisting}
+      
+      Then, \emph{generalising} by using different variable names, but 
+keeping them throughout the programme. 
+
+      \begin{lstlisting}[language=Python]
+
+        def example1():
+            for value in my_list:
+                if value > maximum:
+                    maximum = value
+
+
+        maximum = 4
+        my_list = [1, 3, 2, 5, 4]
+        example1()
+            
+    \end{lstlisting}
+      
+      The pattern ends with a fusion of the two.
+
+      \begin{lstlisting}[language=Python]
+
+        def example1():
+            for value in list:
+                if value > maximum:
+                    maximum = value
+
+
+        maximum = 4
+        my_list = [1, 3, 2, 5, 4]
+        example1()
+            
+    \end{lstlisting}
     \item Defining a variable by using another variable students use 
       \mintinline{python}{x == y} instead of \mintinline{python}{x = y}, a 
       misconception supposedly originating from how the statement is read 
@@ -206,35 +327,116 @@ different statements, by printing the output of \mintinline{python}{x
 python}{x} and \mintinline{python}{y} can be pre-defined, to avoid 
 the programme throwing an error. However, in the contrast we could 
 also include the example where an error is thrown, this to \emph{
-contrast} even further. The \emph{generalisation} for this pattern is 
-easy, and consists of several variable-definitions where other 
-variables are used in the definition. The last pattern, \emph{Fusion} 
-should consist of both variable-definitions, and where the variables 
-are also used in comparison-statements. 
+contrast} even further. 
+      
+      \begin{lstlisting}[language=Python]
+
+        def example1():
+            x = 1
+            y = 2
+            x == y
+
+            return x
+
+        def example2():
+            x = 1
+            y = 2
+            x = y
+            
+            return x
+
+        def example3():
+            y = 2
+            x == y # Will throw an error
+
+            return x
+
+    \end{lstlisting}
+    
+      The \emph{generalisation} for this pattern is easy, and consists of 
+several variable-definitions where other variables are used in the 
+definition. 
+
+      \begin{lstlisting}[language=Python]
+
+        def example1(y):
+            x = y
+
+            return x   
+            
+
+        def example2():
+            a = 3
+            b = a
+
+            return b
+            
+    \end{lstlisting}
+      
+      The last pattern, \emph{Fusion} should consist of both variable-
+definitions, and where the variables also are used in comparison-
+statements. 
+
+      \begin{lstlisting}[language=Python]
+
+        def example1():
+            XXX Not really sure of a good example for this... 
+            maybe an absolut-value example?
+                
+    \end{lstlisting}
     \item Writing definitions of variables from left-to-right 
       (\mintinline{python}{a+b = c}) instead of right-to-left 
       (\mintinline{python}{c = a+b}). The same can be seen when using 
 functions 
       in the definition of variables, for example instead of writing 
-      \mintinline{python}{x=str(input())} the students write 
-      \mintinline{python}{str(x) = input()}.
+      \mintinline{python}{x=parse(input())} the students write 
+      \mintinline{python}{parse(x) = input()}.
 
       This misconception can be seen as a misconception of what the 
 functionality of the left and right side of a variable definition is. 
 To \emph{contrast} this, we need to create code which will throw 
 errors, since it is not possible to do function calls on the left 
-side a variable definition. This can be done with examples from both 
-misconceptions mentioned, where we do it the right way and the wrong 
-way. We then \emph{generalise} it by writing several examples, with 
-several function calls which will not throw errors. In this pattern 
-it will however not be possible to \emph{fuse} the invariant and 
-variant with each other, since the latter will throw an error for the 
-programme. 
+side of a variable definition. This can be done with examples from 
+both misconceptions mentioned, where we do it the right way and the 
+wrong way, using the same examples as \textcite{GuoMarkelZhang2020}.
+
+      \begin{lstlisting}[language=Python]
+
+        def example1():
+            a = 1
+            b = 2
+            c = a + b
+            a + b = c # Will throw an error
+
+        def example2():
+            x = parse(input())
+            parse(x) = input() # Will throw an error
+            
+    \end{lstlisting}
+      
+      We then \emph{generalise} it by writing several examples, with 
+several function calls which will not throw errors. 
+
+      \begin{lstlisting}[language=Python]
+
+        def example1():
+            number = int(input("Write a number "))
+
+            new_number = number + 1
+
+            string_number = str(abs(new_number))
+            
+    \end{lstlisting}
+      
+      In this pattern it will however not be possible to \emph{fuse} the 
+invariant and variant with each other, since the latter will throw an 
+error for the programme. XXX Or can you think of a fusion Daniel?
 \end{enumerate}
 
 
 Since Python is an interpreted language, the placement of the definition of 
-a function is important, which differs from a compiled language. This gives 
+a function is important, something that differs from a compiled language. 
+This gives 
 room for a misconception for students that have learned to code in for 
 example Java, where the definition of a function can be below a call of the 
 function. 
@@ -250,35 +452,159 @@ If we move on to the relationship between variables and functions we can see
 more misconceptions that students have; for example where input and output 
 arguments 
 come from and go to \parencite{Ragonis2005OOP}.
-The first difficulty is how students treat return-values. When a function is 
-supposed to return a value some students miss the return value, expecting 
-the 
-function to return it by default \parencite{Kurvinen2016,KumarVeerasamy2016}
-. 
-. Some students might also believe that a print-statement at the end of a 
-function will act as a return statement \parencite{MisconceptionsSurvey2017}
-. Furthermore, it has also been found that students that know that a return-
-statement is needed have difficulties 
-returning the right value or variable from a function
-\parencite{KumarVeerasamy2016}. 
-. 
+The first difficulty is how students understand and treat return-values, 
+where these student misconceptions have been found: 
 
-These misconceptions are all connected to each other, and what they have in 
+\begin{enumerate}
+    \item Missing to return the variable when a function is supposed to, 
+expecting the function to return it by default \parencite{
+Kurvinen2016,KumarVeerasamy2016}.
+
+    \item Believe that a print-statement at the end of a function will act 
+as a return statement \parencite{MisconceptionsSurvey2017}.
+
+\end{enumerate}
+ 
+
+These two misconceptions are connected to each other, and what they have in 
 common is the trouble to return a value, the \emph{right} value, from a 
-function. To help the students understand how to write a correct return-
-statement for different functions we propose this pattern:
+function. However, the two misconceptions can be, and according to us 
+should be, treated separately. To help the students understand how to write 
+a correct return-statement for different functions we propose these two 
+patterns for the two misconceptions:
 
+\begin{enumerate}
+    \item To help the students understand that a function will not return 
+the correct value by default, we start with \emph{contrasting} with the 
+help of a function which in the first example does not return a value, 
+and in the second return the value. We name the functions \mintinline{
+python}{find_maximum}, this to trigger the misconception since this 
+might "trick" students into believing that the return value will 
+automatically be the expected value (in this case the maximum). 
+    
+     \begin{lstlisting}[language=Python]
+        def find_maximum(list_of_values):
+            maximum = 0
 
-\begin{description}
-    \item[Contrast]
-    \item[Generalisation]
-    \item[Fusion]
-\end{description}
+            for value in list_of_values:
+                if value > maximum:
+                    maximum = value
+            
+        def find_maximum2(list_of_values):
+            maximum = 0
 
+            for value in list_of_values:
+                if value > maximum:
+                    maximum = value
+                    
+            return maximum
+
+        x = find_maximum([1,3,2,5])
+        y = find_maximum2([1,3,2,5])
+    \end{lstlisting}
+
+    Then we \emph{generalise} by showing two different examples where we 
+return the expected value. 
+
+    \begin{lstlisting}[language=Python]
+        def read_file(filename):
+            file = open(filename, "r")
+            lines = file.readlines()
+
+            return lines
+            
+        def calculate_average(values):
+            values_sum = sum(values)
+            average = values_sum/len(values)
+     
+            return average
+    \end{lstlisting}
+
+    And the last step of the pattern, the \emph{fusion}, consists of an 
+example where we use functions that return the expected value, and not.
+
+    \begin{lstlisting}[language=Python]
+        def read_file(filename):
+            file = open(filename, "r")
+            lines = file.readlines()
+
+            return lines
+            
+        def calculate_average(values):
+            values_sum = sum(values)
+            average = values_sum/len(values)
+
+        def main():
+            lines = readfile("test.txt")
+            values = []
+            for line in lines:
+                values.append(int(line[0]))
+            average = calculate_average(values)
+            print(average)
+    \end{lstlisting}
+
+    \item The latter misconception we believe originates from the students' 
+misconception that what they see in the terminal is what happening in 
+the programme. So when we print the value that we want to be returned, 
+the programme will see it and can later use it. We start the pattern 
+with \emph{contrasting} this concept, using the same example as above.
+
+     \begin{lstlisting}[language=Python]
+        def find_maximum(list_of_values):
+            maximum = 0
+
+            for value in list_of_values:
+                if value > maximum:
+                    maximum = value
+
+            print(maximum)
+            
+        def find_maximum2(list_of_values):
+            maximum = 0
+
+            for value in list_of_values:
+                if value > maximum:
+                    maximum = value
+                    
+            return maximum
+
+        x = find_maximum([1,3,2,5])
+        y = find_maximum2([1,3,2,5])
+    \end{lstlisting}
+
+    Here the students will see the maximum in the terminal when calling 
+\mintinline{python}{find_maximum}, and might therefore believe that x 
+will hold the value the function printed. The \emph{generalisation} for 
+this misconception will be the same as for the first misconception, but 
+the \emph{fusion} will differ slightly. When we \emph{fuse} in this 
+pattern, we instead vary between returning the correct value and only 
+printing it.
+
+     \begin{lstlisting}[language=Python]
+        def read_file(filename):
+            file = open(filename, "r")
+            lines = file.readlines()
+
+            print(lines)
+            
+        def calculate_appearences(lines):
+            num_appearences = 0
+            for line in lines:
+                if line[0] == "Adam":
+                    num_appearences += 1
+            return num_appearences
+            
+
+        def main():
+            lines = readfile("test.txt")
+            appearences = calculate_appearences(lines)
+            print(appearences)
+    \end{lstlisting}
+    
+\end{enumerate}
 
 A student might also write a function which returns a value, but that value 
-is 
-not stored nor being used later in the program 
+is not stored nor being used later in the program 
 \parencite{AltadmriBrown2015}.
 
 
@@ -376,5 +702,7 @@ variable definitions in programming and equations in mathematics
     \item[Generalisation]
     \item[Fusion]
 \end{description}
+
+
 
 
