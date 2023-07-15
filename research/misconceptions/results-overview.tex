@@ -142,58 +142,46 @@ print(
     Now, we'll change the example, but keep this property invariant;
     or, phrased in terms of the scientific method, we try to falsify our 
     hypothesis.
-    \begin{pyblock}[default1][highlightlines={15-16}]
+    \begin{pyblock}[default1][highlightlines={10,21-22}]
 class Person:
   def __init__(self, first, last):
     self.first = first
     self.last = last
 
-def create_person(first, last,
-                  person_base=Person("Gina", "Joe")):
-  person_base.first = first
-  person_base.last = last
+  def __str__(self):
+    return f"{self.first} {self.last}"
+
+def create_person(first=None, last=None,
+                  person_base=Person("Gina", "Jones")):
+  if first: person_base.first = first
+  if last: person_base.last = last
   return person_base
 
-person_A = create_person("A", "Ason")
-print(person_A.first)
-person_B = create_person("B", "Bdotter")
-print(person_B.first)
-print(person_A.first)
+person_default = create_person()
+print(person_default)
+person_A = create_person("Ada")
+print(person_A)
+person_B = create_person("Beda")
+print(person_B)
+print(person_A)
+print(person_default)
     \end{pyblock}
     \vspace{0.5em}
     This yields the output
     \vspace{0.5em}
-    \printpythontex[verbatim][highlightlines={2-3}]
+    \printpythontex[verbatim][highlightlines={4-5}]
 
-    We can see that the two last lines of the output is the same.
+    We can see that the last three lines of the output is the same.
     This means that they refer to the same object, \ie that 
-    \mintinline{python}{person_A} and \mintinline{python}{person_B} refer to 
-    the same object.
+    \mintinline{python}{person_A}, \mintinline{python}{person_B} and 
+    \mintinline{python}{person_default} all refer to the same object.
 
-  \item[Fusion] Now we can fuse this back with our previous understanding of 
-    default arguments.
-    \begin{pyblock}[default1]
-def increment(x=1):
-  x += 1
-  return x
-
-print(f"(1) -> {increment(1)}")
-print(f"(2) -> {increment(2)}")
-print(f"()  -> {increment()}")
-print(f"()  -> {increment()}")
-print(f"()  -> {increment()}")
-    \end{pyblock}
-    \vspace{0.5em}
-    This yields the output
-    \vspace{0.5em}
-    \printpythontex[verbatim][highlightlines={3-5}]
-
-    And we can thus conclude that this phenomenon happens only with mutable 
-    objects.
-    The reason is how Python is constructed.
-    The default value is constructed when the function is defined and then 
-    referenced whenever the function is called without the argument.
-    Consider this final example.
+    This must be due to how Python is constructed.
+    The default value seems to be constructed when the function is defined, not 
+    when it's called (like in other languages, C++ for instance), and then 
+    referenced (not copied) whenever the function is called without the 
+    argument.
+    Consider this example.
 
     \begin{pyblock}[default1][highlightlines=3]
 class TraceClass:
@@ -212,9 +200,31 @@ test_function()
     \printpythontex[verbatim][highlightlines={1}]
 
     We see that the print statement from the constructor is executed before the 
-    test code is executed, supporting our thesis that the default value is 
+    test code is executed, supporting our hypothesis that the default value is 
     constructed when the function is defined, not the when function is called, 
     and then referenced throughout.
+
+  \item[Fusion] Now we can fuse this back with our previous understanding of 
+    default arguments, to see that it doesn't work with non-mutables like 
+    integers.
+    \begin{pyblock}[default1]
+def increment(x=1):
+  x += 1
+  return x
+
+print(f"(1) -> {increment(1)}")
+print(f"(2) -> {increment(2)}")
+print(f"()  -> {increment()}")
+print(f"()  -> {increment()}")
+print(f"()  -> {increment()}")
+    \end{pyblock}
+    \vspace{0.5em}
+    This yields the output
+    \vspace{0.5em}
+    \printpythontex[verbatim][highlightlines={3-5}]
+
+    And we can thus conclude that this phenomenon happens only with mutable 
+    objects.
 \end{description}
 
 There are several things to note with this example.
