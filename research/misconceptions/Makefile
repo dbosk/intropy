@@ -11,7 +11,7 @@ article.pdf: preamble.tex
 article.pdf: introduction.tex
 article.pdf: background.tex
 article.pdf: method.tex
-article.pdf: results-overview.tex
+#article.pdf: results-overview.tex
 
 article.pdf: classes.tex
 article.pdf: conditionals.tex
