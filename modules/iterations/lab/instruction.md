@@ -1,5 +1,5 @@
 ---
-title: Laboration: Upprepningar, moduler och mer felhantering
+title: Laboration om Upprepningar, moduler och mer felhantering
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>

@@ -1,183 +1,198 @@
-"""En modul för bankrelaterade klasser"""
+from citizen import Citizen
+from address import Address, input_address
+import input_type as it
 
-import adress
 
-class Kund:
-    """En klass för kunder"""
-
-    def __init__(self, namn, personnummer, adress, telefon):
-        """Skapar en bankkund: namn (sträng), personnummer (sträng), adress 
-        (Adress-objekt), telefon (sträng)"""
-        self.__namn = namn
-        self.__personnummer = personnummer
-        self.__adress = adress
-        self.__telefon = telefon
-        self.__konton = []
-
-    # @property gör att vi inte behöver parenteserna:
-    # `kund.namn` istället för `kund.namn()`
-    @property
-    def namn(self):
-        """ Returnerar namnet"""
-        return self.__namn
+class ClientProfile:
+    """Klient hos en bank."""
+    def __init__(self, citizen, phone_number):
+        self.__citizen = citizen
+        self.__phone_number = phone_number
 
     def __str__(self):
-        """Returnerar en strängrepresentation lämpligt för utskrift"""
-        return self.namn
-
-    @property
-    def personnummer(self):
-        """ Returnera personnummer """
-        return self.__personnummer
-
-    @property
-    def adress(self):
-        """ Returnera adress """
-        return self.__adress
+        return f"{self.citizen} (telefon nummer: {self.phone_number})"
 
     def __repr__(self):
-        """Returns unique representation"""
-        return f"({self.namn}, {self.personnummer}"
+        return f"ClientProfile({repr(self.citizen)}, {self.phone_number})"
 
     @property
-    def telefon(self):
-        """Returnerar telefonnumret"""
-        return self.__telefon
-
-    def lägg_till_konto(self, konto):
-        """Lägger till konto till kundens konton"""
-        self.__konton.append(konto)
+    def citizen(self):
+        """Klienten som profilen avser."""
+        return self.__citizen
 
     @property
-    def konton(self):
-        """Returnerar en lista med kundens konton"""
-        return self.__konton.copy()
+    def phone_number(self):
+        """Klientens telefonnummer."""
+        return self.__phone_number
 
-def input_kund(prompt=""):
+
+class Account:
+    """Bankkonto."""
+    def __init__(self, account_id, password, owner_profile):
+        """`account_id` är ett unikt kontonummer hos en bank (heltal).
+        `password` är lösenordet (sträng)..Krav: minst 8 symboler lång.
+        `owner_profile` är profilen till ägaren (ClientProfile).
+        """
+        self.__account_id = account_id
+        self.__owner_profile = owner_profile
+        self.__balance = 0.0
+        self.__password = None  # Obs: Här deklarerar vi bara att attributet
+        # `__password` finns, och vi låter set_password-metoden tilldela kontot
+        # sitt lösenord för att slippa kod-duplicering.
+        self.set_password(password)
+
+    def __str__(self):
+        return str(self.__account_id)
+
+    def __repr__(self):
+        return f"Account({self.__account_id}, '{self.__password}', " \
+               f"{self.__balance})"
+
+    @property
+    def account_id(self):
+        """Kontonummer."""
+        return self.__account_id
+
+    @property
+    def owner_profile(self):
+        """Kontonummer."""
+        return self.__owner_profile
+
+    @property
+    def balance(self):
+        """Kontots saldo."""
+        return self.__balance
+
+    def insert_money(self, amount):
+        """Sätt in pengar."""
+        self.__balance += amount
+
+    def withdraw_money(self, amount):
+        """Tar ut en summa pengar från kontot,
+        kastar ett särfall ValueError vid för lite täckning på kontot"""
+        if self.__balance < amount:
+            raise ValueError(f"kontot saknar täckning, saldot {self.__balance} "
+                             f"är mindre än uttaget {amount}.")
+
+        self.__balance -= amount
+
+    def set_password(self, password):
+        """Byt lösenord. Krav: minst 8 bokstäver."""
+        if len(password) < 8:
+            raise ValueError("bankkontolösenordet är för kort.")
+
+        self.__password = password
+
+    def check_password(self, password):
+        """Är lösenordet korrekt?"""
+        return self.__password == password
+
+
+class Bank:
+    """En bank."""
+    def __init__(self, name):
+        """`name` är namnet på banken."""
+        self.__name = name
+        # Personnummer till respektive klients ClientProfile-objekt:
+        self.__clients = {}
+        # Kontonummer till respektive Account-objekt:
+        self.__accounts = {}
+        # Personnummer till respektive Account-objekt (värdet är en lista):
+        self.__client_accounts = {}
+        # Följande hjälper oss att hitta på unika ID nummer för nya konton:
+        self.__account_id_autoincrement = 1
+
+    def __str__(self):
+        return self.__name
+
+    def __repr__(self):
+        return f"Bank({self.__name}, {len(self.__clients)} clients, " \
+               f"{len(self.__accounts)} accounts)"
+
+    @property
+    def name(self):
+        return self.__name
+
+    def create_account(self, personal_id, password):
+        """Skapar ett nytt konto åt klienten med personnumret `personal_id`,
+        returnerar det nya kontot. `password` blir kontots lösenord.
+        Se Account-klassen för krav på lösenordet."""
+        owner_profile = self.__get_client_profile2(personal_id)
+        new_account_id = self.__account_id_autoincrement
+        account = Account(new_account_id, password, owner_profile)
+        self.__accounts[account.account_id] = account
+        self.__account_id_autoincrement += 1
+        self.__client_accounts[personal_id].append(account)
+        return account
+
+    def __get_client_profile2(self, personal_id):
+        """Är personen en klient? Om ja, returnera klientens profil.
+        Om inte, släng ett ValueError."""
+        try:
+            return self.get_client_profile(personal_id)
+        except KeyError:
+            raise ValueError(f"medborgare med personnummer {personal_id} "
+                             f"är inte en klient.")
+
+    def add_client(self, citizen, phone_number):
+        """Lägger till en ny klient."""
+        self.__clients[citizen.personal_id] = \
+            ClientProfile(citizen, phone_number)
+        self.__client_accounts[citizen.personal_id] = []
+
+    def get_client_accounts(self, personal_id):
+        """Lista med alla konton som tillhör en klient."""
+        self.__get_client_profile2(personal_id)
+        try:
+            return self.__client_accounts[personal_id].copy()
+        except KeyError:
+            return []
+
+    def get_client_profile(self, personal_id):
+        """Returnerar profil till klient med personnumret `personal_id`,
+        om inte denne är en klient så kastas ett KeyError."""
+        return self.__clients[personal_id]
+
+    def get_account(self, account_id):
+        """Returnerar ett konto med kontonumret `account_id`, om kontot inte
+        existerar så kastas ett KeyError."""
+        return self.__accounts[account_id]
+
+
+def input_client(prompt=""):
     """Låter användaren mata in uppgifter för en kund,
-    returnerar ett Kund-objekt"""
+    returnerar ett Client-objekt"""
     if prompt:
         print(prompt)
 
-    namn = input("Fullständigt namn: ")
-    personnummer = input("Personnummer: ")
-    adressen = adress.input_adress()
-    telefon = input("Telefonnummer: ")
+    full_name = input("Fullständigt namn: ")
+    personal_id = it.input_type(int, "Personnummer: ")
+    address = input_address()
+    phone_number = it.input_type(int, "Telefonnummer: ")
 
-    return Kund(namn, personnummer, adressen, telefon)
-
-class Konto:
-    """Ett bankkonto"""
-
-    def __init__(self, ägare, konto_id, saldo=0):
-        """Skapar ett bankkonto:
-            ägare är en Kund,
-            konto_id är en textsträng,
-            saldo är ett tal (int eller float, default 0)"""
-        self.__owner = ägare
-        self.__account_id = konto_id
-        self.__amount = saldo
-        self.__lösneord = ""
-
-    @property
-    def ägare(self):
-        """Returnerar ägaren"""
-        return self.__owner
-
-    @property
-    def kontonr(self):
-        """Returnerar kontonumret"""
-        return self.__account_id
-
-    def __str__(self):
-        return str(self.kontonr)
-
-    def sätt_in(self, summa):
-        """Sätter in en summa pengar på kontot"""
-        self.__amount += summa
-
-    @property
-    def saldo(self):
-        """Returnerar kontots saldo"""
-        return self.__amount
-
-    def ta_ut(self, summa):
-        """Tar ut en summa pengar från kontot,
-        kastar ett särfall ValueError vid för lite täckning på kontot"""
-        if self.__amount - summa < 0:
-            raise ValueError(f"kontot saknar täckning, "
-                             f"saldot {self.__amount} är mindre än "
-                             f"uttaget {summa}")
-
-        self.__amount -= summa
-
-    def sätt_lösenord(self, lösenord):
-        """Sätter ett lösenord för kontot"""
-        self.__lösenord = lösenord
-
-    def korrekt_lösenord(self, lösenord):
-        """Returnerar True om lösenordet matchar"""
-        return self.__lösenord == lösenord
-
-class Bank:
-    """Klass för en bank"""
-
-    def __init__(self, namn):
-        """Skapa en bank med namnet namn"""
-        self.__namn = namn
-        self.__kunder = {}
-        self.__konton = {}
-        self.__nuvarande_kontonr = 0
-
-    def __str__(self):
-        """Returnerar en strängformaterat representation"""
-        return self.__namn
-
-    def registrera_kund(self, kund):
-        """Registrera kunden kund (Kund-objekt) som kund i banken.
-        kund får inte vara registrerad, då kastas ett KeyError."""
-        if kund.personnummer in self.__kunder:
-            raise KeyError(f"{kund} är redan registrerad som kund.")
-
-        self.__kunder[kund.personnummer] = kund
-
-    def hämta_kund(self, personnummer):
-        """Returnerar kund med personnummer personnummer"""
-        return self.__kunder[personnummer]
-
-    def skapa_konto(self, personnummer):
-        """Skapa ett nytt konto åt kunden med personnumret personnummer, 
-        returnerar det nya kontot"""
-        kund = self.hämta_kund(personnummer)
-        konto = Konto(kund, self.__nuvarande_kontonr+1)
-        self.__konton[konto.kontonr] = konto
-        self.__nuvarande_kontonr += 1
-        kund.lägg_till_konto(konto)
-        return konto
-
-    def hämta_konto(self, kontonr):
-        """Returnerar Konto-objektet med kontonumret kontonr,
-        kastar KeyError om kontonumret inte finns"""
-        return self.__konton[int(kontonr)]
+    return Citizen(full_name, personal_id, address, []), phone_number
 
 
 def main():
-    """Testprogram"""
-    kund = Kund("Ada Adamsdotter", "1999-01-01-xxxx",
-                adress.Adress("Stora vägen", "1", "12345", "Orten"),
-                "070-1234567")
-    konto = Konto(kund, "123-456-789")
+    bank = Bank("LåtsasBanken")
 
-    print(f"{konto.ägare} har {konto.saldo} kr på {konto}")
-    konto.sätt_in(500)
-    print(f"{konto.ägare} har {konto.saldo} kr på {konto}")
-    konto.ta_ut(200)
-    print(f"{konto.ägare} har {konto.saldo} kr på {konto}")
-    try:
-        konto.ta_ut(500)
-    except ValueError as err:
-        print(err)
-    print(f"{konto.ägare} har {konto.saldo} kr på {konto}")
+    # Specificera medborgaren som ska bli en ny klient hos LåtsasBanken
+    vilmas_id = 9911037621
+    vilmas_address = Address("Trollgatan", "1", 50641, "Borås")
+    vilma = Citizen("Vilma (totally legit) Andersson", vilmas_id,
+                    vilmas_address, [])
+
+    # Lägg till klient och skapa ett nya konton
+    bank.add_client(vilma, 5555555)
+    student_account = bank.create_account(vilmas_id, "pa$$word")
+    savings_account = bank.create_account(vilmas_id, "pa$$word2")
+
+    student_account.insert_money(100.0)
+    student_account.withdraw_money(71.5)
+    savings_account.insert_money(71.5)
+
+    print(bank.get_client_accounts(vilmas_id))
+
 
 if __name__ == "__main__":
     main()

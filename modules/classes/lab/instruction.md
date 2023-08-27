@@ -1,5 +1,5 @@
 ---
-title: Laboration: Mer klasser och behållare
+title: Laboration om Mer klasser och behållare
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>
@@ -22,17 +22,20 @@ Läs på om [uppslagsverk][uppslagsverk].
 
 ## Uppgift
 
-Nu ska vi skriva en klass "School" som har minst ett attribut __students__. 
+Nu ska vi skriva en klass "School" som har minst ett attribut __students__.
 
 Skapa ett objekt av typen School. Låt igen användaren skriva in information om 
 minst tre studenter och skapa objekt av typen Student. 
 
-Spara nu objekten i skol-objektets attribut __students__. 
+Spara objekten i School-objektets attribut __students__. 
 
 Fundera på vad som är den bästa typen av behållare för att spara objekten. 
 Vilka nackdelar och fördelar finns det med olika behållare?
 
-Avsluta programmet med att skriva ut objektet av typen School.
+Lägg nu till en metod i klassen School som låter användaren söka efter en
+elev som går på skolan och som skriver ut om eleven finns och det funna
+Student-objektet. Du får välja själv om du ska söka med hjälp av förnamn, efternamn
+eller personnummer. 
 
 ### Exempelutskrift
 
@@ -45,10 +48,11 @@ Vad är studentens personnummer? 0101010000
 
 Studenten är tillagd!
 
-Här är alla studenter på KTH:
+Vilken student vill du söka efter? Jan
+
+Den studenten läser på KTH:
 Namn: Jan Jansson Personnr: 0404040010
-Namn: Per Persson Personnr: 0303030030
-Namn: Emma Emilsson Personnr: 0101010000
+
 ```
 
 ### Krav
@@ -90,26 +94,4 @@ Namn: Emma Emilsson Personnr: 0101010000
 Här är alla lärare på KTH:
 Namn: Albert Einsten Personnr: 7903140050
 
-```
-
-### Sök efter personer
-
-Lägg till en metod så att man kan söka efter en student och få studentobjektet.
-Om du har gjort föregående frivilliga extrauppgift, lägg till så att man kan 
-söka efter lärare också.
-
-Låt sökningen söka bland både lärare och studenter.
-
-#### Exempelutskrift
-
-```
-Vem vill du söka efter? Albert Einstein
-Namn: Albert Einsten Personnr: 7903140050 Roll: Lärare
-```
-
-och
-
-```
-Vem vill du söka efter? Emma Emilsson
-Namn: Emma Emilsson Personnr: 0101010000 Roll: Student
 ```

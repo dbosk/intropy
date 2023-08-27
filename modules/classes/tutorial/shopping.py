@@ -1,59 +1,58 @@
 """En modul lämpad för hantering av shoppinglistor"""
 
-class Vara:
+
+class Item:
     """En klass för varor i en shoppinglista"""
 
-    def __init__(self, namn, antal=1):
+    def __init__(self, name, amount=1):
         """Skapar ett inlägg i en shoppinglista:
-        namn (sträng),
-        antal (int, default 1)"""
-        self.__namn = namn
-        if type(antal) in [int, float]:
-            self.__antal = antal
+        `name` (sträng),
+        `amount` (heltal, default 1)"""
+        self.__name = name
+        if type(amount) in [int, float]:
+            self.__amount = amount
         else:
-            self.__antal = int(antal)
-        self.__avbockad = False
+            self.__amount = int(amount)
+        self.__checked = False
 
     @property
-    def namn(self):
+    def name(self):
         """Returnerar namnet"""
-        return self.__namn
+        return self.__name
 
     @property
-    def antal(self):
+    def amount(self):
         """Returnerar antalet"""
-        return self.__antal
+        return self.__amount
 
     @property
-    def avbockad(self):
+    def checked(self):
         """Returnerar True om varan är avbockad, False annars"""
-        return self.__avbockad
+        return self.__checked
 
     def __str__(self):
         """Returnerar en representation lämplig för utskrift"""
-        return f"[{'x' if self.avbockad else ' '}] {self.antal} st {self.namn}"
+        return f"[{'x' if self.checked else ' '}] {self.amount} st {self.name}"
 
-    def bocka_av(self):
+    def check(self):
         """Bockar av"""
-        self.__avbockad = True
+        self.__checked = True
 
 
 def main():
     """Testprogram"""
-    lista = []
-    lista.append(Vara("mjölk", 5))
-    lista.append(Vara("tomater", 3))
-    lista.append(Vara("yoghurt", 1))
+    shopping_items = [Item("mjölk", 5), Item("tomater", 3), Item("yoghurt", 1)]
 
     print("Shoppinglista")
-    for vara in lista:
-        print(vara)
+    for item in shopping_items:
+        print(item)
 
-    lista[1].bocka_av()
+    shopping_items[1].check()
 
     print("Shoppinglista")
-    for vara in lista:
-        print(vara)
+    for item in shopping_items:
+        print(item)
+
 
 if __name__ == "__main__":
     main()
