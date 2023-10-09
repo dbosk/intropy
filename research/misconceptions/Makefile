@@ -4,6 +4,7 @@ all: article.pdf
 article.pdf: article.tex
 	latexmk -shell-escape -pdf $<
 
+article.pdf: abstract.tex
 article.pdf: bibliography.bib
 article.pdf: preamble.tex
 article.pdf: classes.tex
