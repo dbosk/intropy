@@ -1,0 +1,86 @@
+This is a script\footnote{%
+  Authored by Daniel Bosk.
+  Licensed under the MIT license.
+  Written with autocompletion by GitHub Copilot.
+} that generates a list of addresses for the given lab rooms.
+We want to get the intervals, that is, the first and last address in a range 
+that spans the lab room.
+<<addresses.sh>>=
+#!/bin/bash
+# Author: Daniel Bosk <dbosk@kth.se>
+# License: MIT
+# Description: Generates the address ranges for the given lab rooms.
+# Usage: ./addresses.sh <lab room> <lab room> ...
+# The lab room is the hostname prefix, eg red (for Röd) or toke (for Toker).
+
+<<constants>>
+<<helper functions>>
+
+rooms=$*
+<<generate lab rooms CSV file>>
+for room in $rooms; do
+  <<print the address interval for [[room]]>>
+done
+@
+
+\section{Generating a list of lab rooms' addresses}
+
+We'll create a file that contains all addresses of the lab computers.
+<<constants>>=
+LABROOMS_CSV=$(mktemp)
+<<generate lab rooms CSV file>>=
+list_lab_computer_hostnames_IPs $rooms > $LABROOMS_CSV
+<<helper functions>>=
+list_lab_computer_hostnames_IPs() {
+  local rooms=$*
+  local room
+  for room in $rooms; do
+    <<print the hostname-address pairs for [[room]]>>
+  done
+}
+@
+
+Now we just need to print the hostname-address pairs for each lab room.
+We'll simply use the DNS to enumerate the computers.
+
+There are two possible domains, [[eecs.kth.se]] (for the Unix computers) and 
+[[ug.kth.se]] (for the Windows computers).
+We'll try both and just ignore any results with [[NXDOMAIN]] in its output.
+
+We'll also ignore any IPv6 addresses, that is, any results containing [[IPv6]] 
+in its output.
+
+We'll also assume that there will be less than 100 computer in a lab room.
+All lab computers are named [[<room>-<number>]], for instance 
+[[red-01.eecs.kth.se]] or [[toke-01.ug.kth.se]].
+<<print the hostname-address pairs for [[room]]>>=
+for num in $(seq -w 1 99); do
+  host $room-$num.eecs.kth.se | grep -v NXDOMAIN | grep -v IPv6 \
+    | cut -d " " -f 1,4
+  host $room-$num.ug.kth.se | grep -v NXDOMAIN \
+    | cut -d " " -f 1,4
+done
+@
+
+\section{Getting the start and end address}
+
+We'll use a file that contains all addresses of the lab room computers.
+We find this file in [[LABROOMS_CSV]], as outlined above.
+That file contains hostname and IP-address pairs.
+We'll filter out (grep) the lines containing the lab room name, then we'll cut 
+out the IP-addresses, and finally we'll sort the addresses.
+We need to sort them so that the first and last in the range can be found using 
+[[head]] and [[tail]].
+<<helper functions>>=
+get_start_end_address() {
+  local room=$1
+  local addresses=$(grep -i $room $LABROOMS_CSV | cut -d " " -f 2 | sort)
+  local start=$(echo "$addresses" | head -n 1)
+  local end=$(echo "$addresses" | tail -n 1)
+  echo $start $end
+}
+@
+
+This leaves us with the following.
+<<print the address interval for [[room]]>>=
+get_start_end_address $room
