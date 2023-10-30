@@ -5,6 +5,10 @@ all: addresses.sh addresses.pdf
 addresses.pdf: addresses.sh.nw
 	${NOWEAVE.pdf}
 
+addresses.sh: addresses.sh.nw
+	${NOTANGLE}
+	chmod +x $@
+
 .PHONY: clean
 clean:
 	${RM} addresses.tex addresses.sh addresses.pdf
