@@ -1,0 +1,264 @@
+\section{Misconceptions in introductory programming}
+\label{misconceptions}
+
+This section is divided to reflect the different concepts that are taught 
+throughout CS1. Each section will describe what students often are meant to 
+learn and understand in that module. Something which is followed by a 
+summary 
+of what different studies have found is difficult for students in that 
+particular
+module and which common misconceptions that students may have. Each common 
+misconception will be analysed through the lens of variation theory, with 
+the purpose of explaining how it can be avoided by adjusting the way 
+the specific term or concept is being introduced or taught.
+
+Let us start with an example to illustrate the outline.
+We will use a particular feature related to default arguments in Python that 
+few expect, hence most readers will hopefully not know about this and get the 
+intended experience.
+(So this first set of patterns is not intended for students learning to program 
+for the first time, but rather the instructors for whom this paper is 
+intended.)
+
+Variation theory dictates that we teach using specific patterns of variation.
+We should start with a contrast pattern in a critical aspect, followed by a 
+generalization pattern for the same critical aspect and finally tie several 
+aspects together using a fusion pattern.
+
+Let's get started.
+
+\begin{description}
+  \item[Contrast] The contrast pattern requires two examples to create 
+    contrast.
+    The left-hand example should be read first and then the right-hand 
+    example will highlight the changes made to the left-hand example to get 
+    the right-hand one.
+    (So that one can make the changes oneself.)
+
+    We assume that the reader is familiar with default values for arguments in 
+    Python.
+    We define a function \mintinline{python}{expand} that takes a list as an 
+    argument and expands it by appending an element \mintinline{python}{1} 
+    (left-hand code below).
+    Then we run some examples.
+
+    \begin{minipage}[t]{0.45\columnwidth}
+      \begin{pyblock}[default1]
+def expand(x=[]):
+  return x + [1]
+
+
+print(
+  f"[1] -> {expand([1])}\n"
+  f"[2] -> {expand([2])}\n"
+  f"()  -> {expand()}\n"
+  f"()  -> {expand()}\n"
+)
+      \end{pyblock}
+      \vspace{0.5em}
+      This yields the output
+      \vspace{0.5em}
+      \printpythontex[verbatim]
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\columnwidth}
+      \begin{pyblock}[default2][highlightlines={2-3}]
+def expand(x=[]):
+  x.extend([1])
+  return x
+
+print(
+  f"[1] -> {expand([1])}\n"
+  f"[2] -> {expand([2])}\n"
+  f"()  -> {expand()}\n"
+  f"()  -> {expand()}\n"
+)
+      \end{pyblock}
+
+      \vspace{0.5em}
+      This yields the output
+      \vspace{0.5em}
+      \printpythontex[verbatim][highlightlines={4}]
+    \end{minipage}
+
+    On the right-hand side, the change is that we modify \mintinline{python}{x} 
+    before returning the new value.
+    However, we notice in the output that something weird happens when we use 
+    the default value of the parameter now:
+    it seems like we actually update the default value every time we run the 
+    function using the default value.
+
+  \item[Generalisation] This brings us to the generalisation pattern.
+    In the generalisation pattern we vary the non-critical aspects and keep the 
+    critical aspect invariant.
+    In this case, we just add more print statements to the example.
+    (For brevity we don't repeat the definition of the 
+    function~\mintinline{python}{expand}.)
+
+    \begin{minipage}[t]{0.45\columnwidth}
+      \begin{pyblock}[default1]
+print(
+  f"()  -> {expand()}\n"
+  f"[3] -> {expand([3])}\n"
+  f"()  -> {expand()}\n"
+  f"[]  -> {expand([])}\n"
+  f"[]  -> {expand([])}\n"
+  f"()  -> {expand()}\n"
+)
+      \end{pyblock}
+      \vspace{0.5em}
+      This yields the output
+      \vspace{0.5em}
+      \printpythontex[verbatim]
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.45\columnwidth}
+      \begin{pyblock}[default2]
+print(
+  f"()  -> {expand()}\n"
+  f"[3] -> {expand([3])}\n"
+  f"()  -> {expand()}\n"
+  f"[]  -> {expand([])}\n"
+  f"[]  -> {expand([])}\n"
+  f"()  -> {expand()}\n"
+)
+      \end{pyblock}
+
+      \vspace{0.5em}
+      This yields the output
+      \vspace{0.5em}
+    \printpythontex[verbatim][highlightlines={1,3,6}]
+    \end{minipage}
+
+    We can see in the output that the default value in the argument keeps 
+    expanding.
+    In a sense, the generalisation pattern is the same as induction or the 
+    scientific method.
+
+    Now, we'll change the example, but keep this property invariant;
+    or, phrased in terms of the scientific method, we try to falsify our 
+    hypothesis.
+    (We highlight the lines that keeps this property, \ie remains invariant in 
+    the variation theoretic sense.)
+    \begin{pyblock}[default1][highlightlines={10-12}]
+class Person:
+  def __init__(self, first, last):
+    self.first = first
+    self.last = last
+
+  def __str__(self):
+    return f"{self.first} {self.last}"
+
+def create_person(first=None, last=None,
+                  person_base=Person("Gina", "Jones")):
+  if first: person_base.first = first
+  if last: person_base.last = last
+  return person_base
+
+person_default = create_person()
+print(person_default)
+person_A = create_person("Ada")
+print(person_A)
+person_B = create_person("Beda")
+print(person_B)
+print(person_A)
+print(person_default)
+    \end{pyblock}
+    \vspace{0.5em}
+    This yields the output
+    \vspace{0.5em}
+    \printpythontex[verbatim][highlightlines={4-5}]
+
+    We can see that the last three lines of the output is the same.
+    The first is expected, but the last two (highlighted) indicates that they 
+    refer to the same object; \ie that \mintinline{python}{person_A}, 
+    \mintinline{python}{person_B} and \mintinline{python}{person_default} all 
+    refer to the same object.
+
+    This must be due to how Python is constructed.
+    The default value seems to be constructed when the function is defined, not 
+    when it's called (like in other languages, C++ for instance), and then 
+    referenced (not copied) whenever the function is called without the 
+    argument.
+    Consider this example.
+
+    \begin{pyblock}[default1][highlightlines=5]
+class TraceClass:
+  def __init__(self):
+    print(f"{self} created")
+
+def test_function(obj=TraceClass()):
+  print(f"test_function called with obj = {obj}")
+
+print("Test code begins")
+test_function()
+    \end{pyblock}
+    \vspace{0.5em}
+    This yields the output
+    \vspace{0.5em}
+    \printpythontex[verbatim][highlightlines={1}]
+
+    We see that the print statement from the constructor is executed before the 
+    test code is executed (highlighted line), supporting our hypothesis that 
+    the default value is constructed when the function is defined, not the when 
+    function is called, and then referenced throughout.
+
+  \item[Fusion] Now we can fuse this back with our previous understanding of 
+    default arguments, to see that it doesn't work with non-mutables like 
+    integers.
+    \begin{pyblock}[default1]
+def increment(x=1):
+  x += 1
+  return x
+
+print(f"(1) -> {increment(1)}")
+print(f"(2) -> {increment(2)}")
+print(f"()  -> {increment()}")
+print(f"()  -> {increment()}")
+print(f"()  -> {increment()}")
+    \end{pyblock}
+    \vspace{0.5em}
+    This yields the output
+    \vspace{0.5em}
+    \printpythontex[verbatim][highlightlines={3-5}]
+
+    And we can thus conclude that this phenomenon happens only with mutable 
+    objects.
+\end{description}
+
+There are several things to note with this example.
+First, note how the contrast pattern is designed to focus the your (the 
+reader's) attention to the phenomenon at hand: that default values can change 
+during execution.
+Next, the generalisation pattern broadens our view of when this phenomenon 
+happens, that the objects are referenced and reused.
+Finally, the fusion pattern merges this back into our original view of default 
+values, namely that they work as usual for non-mutable types (\eg integers).
+
+Second thing to note, if you are a seasoned programmer, once you had that 
+initial contrast pattern the remaining patterns (generalisation and fusion) 
+probably resembles quite a lot what you would have tested yourself to make 
+sense of this phenomenon---it would probably resemble how you would go about to 
+\enquote{debug} this.
+
+We actually tested this hypothesis on several colleagues who have been 
+programming for many years, are well-versed in Python but didn't know of this 
+phenomenon.
+We gave them the contrast above and asked them to \enquote{debug} this 
+behaviour and later explain it when they understood it.
+(To record the data, we asked them to think aloud and recorded their screen and 
+voice in a Zoom session.)
+
+% XXX Test with more colleagues.
+% Tested with Alexander.
+The concrete examples that they tried varied from person to person, some tried 
+many more examples than above, but the patterns of variation shown above were 
+present.
+Indeed, they couldn't explain the phenomenon until they had generated all the 
+patterns above---covering both generalisation and fusion.
+
+XXX add reference to NCOL that students taught according to variation theory, 
+becomes better at creating these patterns for themselves.
+In the context of programming, this should mean that if we teach them using 
+variation theory, they would get better at debugging.
+
