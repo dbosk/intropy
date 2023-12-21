@@ -28,6 +28,8 @@ DEPENDS+=	fig/contrast-color.tikz
 DEPENDS+=	fig/generalization-color.tikz
 DEPENDS+=	fig/fusion-color.tikz
 
+DEPENDS+=	didactic.sty
+
 article.pdf: article.tex ${SRC} ${DEPENDS}
 slides.pdf: slides.tex ${SRC} ${DEPENDS}
 
@@ -38,3 +40,5 @@ clean:
 
 INCLUDE_MAKEFILES?=../../makefiles
 include ${INCLUDE_MAKEFILES}/tex.mk
+INCLUDE_DIDACTIC=../../beamer-didactic
+include ${INCLUDE_DIDACTIC}/didactic.mk
