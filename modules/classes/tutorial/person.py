@@ -1,86 +1,111 @@
-""" Class for a person """
+from address import Address
+
 
 class Person:
-    """ Class for a person """
-    def __init__(self, first_name, last_name, personnummer, address):
-        """first_name: string with first name.
-        last_name: string with last name.
-        personnummer: string with personnummer,
-        address: string or Adress object with address."""
+    """En person."""
+
+    def __init__(self, first_name, last_name, address):
+        """`first_name` är förnamnet (sträng).
+        `last_name` är efternamnet (sträng).
+        `address` är adressen (Address-objekt).
+        """
         self.__first_name = first_name
         self.__last_name = last_name
-        self.__personnummer = personnummer
         self.__address = address
 
-    def get_name(self):
-        """ Returns the full name as a concatenation """
-        return self.__first_name + " " + self.__last_name
-
+    # Obs: __str__-metoden används för att ge en användarvänlig
+    # sträng-representation av objektet.
     def __str__(self):
-        """Returnerar en strängrepresentation lämpligt för utskrift"""
-        return self.get_name()
+        """Personens fullständiga namn."""
+        return self.full_name
 
-    def get_first_name(self):
-        """ Returns the first name """
-        return self.__first_name
+    # Obs: __repr__-metoden används för att ge en sträng-representation
+    # av objektet som är hjälpsam
+    # för programmeraren.
+    def __repr__(self):
+        """En sträng som innehåller alla attribut."""
+        return f"Person({self.__first_name}, {self.__last_name}, " \
+               f"{repr(self.__address)})"
 
-    def get_last_name(self):
-        """ Returns the last name """
-        return self.__last_name
+    # Obs: @property gör att vi inte behöver parenteserna:
+    # `kund.namn` istället för `kund.namn()`
+    @property
+    def first_name(self):
+        """Personens förnamn."""
+        return self.__first_name.capitalize()
 
-    def change_name(self, name):
-        """ Takes a concatenated name, sets last and first names """
-        names = name.split()
-        # Shorthand for the last element in the list
-        self.__last_name = names[-1]
-        # names[:-1] all elements except the last
-        self.__first_name = " ".join(names[:-1])
+    @property
+    def last_name(self):
+        """Personens efternamn."""
+        return self.__last_name.capitalize()
 
-    def get_personnummer(self):
-        """ Return personnummer """
-        return self.__personnummer
+    @property
+    def full_name(self):
+        """Personens fullständiga namn."""
+        return self.first_name + " " + self.last_name
 
-    def get_address(self):
-        """ Return address """
+    @property
+    def address(self):
+        """Personens adress."""
         return self.__address
 
+    # Obs: "*" betyder att alla efterkommande parametrar måste explicit anges i
+    # ett anrop om du väljer att tilldela dem värden. Till exempel är
+    # "person.change_name('Olle', 'Ohlsson')" inte tillåtet, men
+    # "person.change_name(first_name='Olle', last_name='Ohlsson')" är det.
+    def change_name(self, *, first_name=None, last_name=None):
+        """Byt personens för- och/eller efternamn.
+
+        Om parametern `first_name` eller `last_name` är None så byts det
+        inte ut.
+
+        Exempel:
+        >> person.change_name()  # Gör ingenting
+        >> person.change_name(last_name="Stonkman")  # Byter efternamnet till
+        "Stonkman"
+        """
+        if first_name:
+            self.__first_name = first_name
+
+        if last_name:
+            self.__last_name = last_name
+
     def __lt__(self, other):
-        """Returns True if self comes before other in alphabetical order"""
-        if self.get_last_name() == other.get_last_name():
-            return self.get_first_name() < other.get_first_name()
-
-        return self.get_last_name() < other.get_last_name()
-
-    def __repr__(self):
-        """Returns unique representation"""
-        return f"({self.get_name()}, {self.get_personnummer()}"
+        """Gör så att operatorn < jämför personer baserat på deras namn."""
+        return self.full_name < other.full_name
 
 
 def main():
     """ Test program """
-    person = Person("Anne-Marie", "Ingeström", "1907-08-28",
-                    "Vimmerby", "okänt")
-    print(f"{person.get_name()} har telefonnummer {person.get_phone()} "
-          f"och bor på adressen {person.get_address()}")
-    print(f"{person} har telefonnummer {person.get_phone()} "
-          f"och bor på adressen {person.get_address()}")
 
-    person.change_name("Margareta Engström")
-    print(f"{person} bor på adressen {person.get_address()}")
-    print(person.get_first_name())
-    print(person.get_last_name())
+    # Skapa ett Person-objekt
+    person = Person("Anne-Marie", "Ingeström", Address("Odengatan", "1",
+                                                       11424, "Stockholm"))
+    print(f"{person} bor på adressen {person.address}.")
 
-    person2 = Person("Ada", "Bedasdotter", "1990-01-01",
-                    "Kiruna", "070-1234567")
+    # Byt namn
+    person.change_name(first_name="Margareta", last_name="Engström")
+    print(f"{person} bor på adressen {person.address}")
+
+    # Skapa ett annat Person-objekt
+    person2 = Person("Ada", "Bedasdotter", Address("Uttervägen", "12",
+                                                   98137, "Kiruna"))
+
+    # Jämför objekten (använder __lt__-metoden implicit)
     if person < person2:
         print(f"{person} sorteras före {person2}.")
     else:
         print(f"{person2} sorteras före {person}.")
 
-    lista = [person, person2]
-    print(lista)
-    lista.sort()
-    print(lista)
+    people = [person, person2]
+
+    # När man skriver ut en lista så används __repr__-metoden för alla element
+    print(people)
+
+    # Vi kan sortera listan eftersom < operatorn är definierad för Person-objekt
+    people.sort()
+    print(people)
+
 
 if __name__ == "__main__":
     main()

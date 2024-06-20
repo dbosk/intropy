@@ -8,4 +8,4 @@ def skriv_ut(meddelande, antal_gånger):
     print(meddelande)
     skriv_ut(meddelande, antal_gånger-1)
 
-skriv_ut("hej", 2000)
+skriv_ut("hej", 995)

@@ -10,14 +10,15 @@ Specifikationen ska innehålla följande:
 
   - Datastruktur. Vilken eller vilka datastrukturer behöver du? Oftast behöver 
     data lagras på något sätt; i minnet (objektinstans av en klass) eller i 
-    filer (serialiserade med CSV, JSON eller annat lämpligt format). Hur ser 
-    din klass (dina klasser) ut (attribut och metoder)? Vilka av Pythons 
+    filer (serialiserade med CSV, JSON eller annat lämpligt format).  Vilka av Pythons 
     inbyggda strukturer behöver du?
-
+    
+  - Klass. Hur ser din klass (dina klasser) ut (attribut och metoder)? 
+  
   - Funktioner. Du kan dela upp din algoritm i funktioner som med hjälp av de 
     argument de får löser de olika delarna av algoritmen.
 
-Den ska ge en översikt över projektet, så kvalitet är viktigare än kvantitet.
+Den ska ge en översikt över projektet, så kvalitet är viktigare än kvantitet: [en exempelspecifikation](https://github.com/dbosk/intropy/blob/v2022/modules/project/exempelspec.pdf)
 
-**Redovisning**: Specifikationen redovisas muntligen under ett labbtillfälle. 
-Välj redovisning istället för hjälp i labbkön.
+**Redovisning**: Specifikationen redovisas muntligen under ett labbtillfälle, tider finns att boka på Canvas. Välj redovisning istället för hjälp i labbkön.
+
