@@ -92,8 +92,8 @@ Hello World!
 
 Ladda hem programmen
 
-  - [frågesport.py](https://github.com/dbosk/intropy/raw/v2023/modules/helloworld/frågesport.py)
-  - [rövarspråket.py](https://github.com/dbosk/intropy/raw/v2023/modules/helloworld/rövarspråket.py)
+  - [rövarspråket.py](https://github.com/dbosk/intropy/raw/v2024/modules/helloworld/r%C3%B6varspr%C3%A5ket.py)
+  - [frågesport.py](https://github.com/dbosk/intropy/raw/v2024/modules/helloworld/fr%C3%A5gesport.py)
 
 Provkör programmen. Prova att ändra på programmen.
 
