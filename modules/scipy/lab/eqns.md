@@ -7,13 +7,9 @@ Vi ska nu använda datorn för att lösa ekvationer åt oss.
 
 Vi har följande ekvationssystem:
 
-$$
-\begin{cases}
-2x + 1y + 3z = 13 \\
-5x + 1z = 8 \\
--x - 1y - 3z = -12
-\end{cases}
-$$
+$$2x + 1y + 3z = 13$$
+$$5x + 1z = 8$$
+$$-x - 1y - 3z = -12$$
 
 Skriv ett program som finner $x, y, z$ med hjälp av [gaussisk 
 elimination][gauss-elim].
@@ -27,14 +23,12 @@ Användbara funktioner i Matlab:
 
 ## Hitta nollställen
 
-Vi har funktionerna $$
-\begin{align}
-p(x) &= x^6 - 21 x^5 + 175 x^4 - 735 x^3 + 1624 x^2 - 1764 x + 720 \\
-q(x) &= x^6 + 21 x^5 + 175 x^4 + 735 x^3 + 1624 x^2 + 1764 x + 720 \\
-s(x) &= x^6 + 3 x^5 - 41 x^4 - 87 x^3 + 400 x^2 + 444 x - 720 \\
-t(x) &= x^6 - 3 x^5 - 41 x^4 + 87 x^3 + 400 x^2 - 444 x - 720
-\end{align}.
-$$
+Vi har funktionerna
+
+$$p(x) = x^6 - 21 x^5 + 175 x^4 - 735 x^3 + 1624 x^2 - 1764 x + 720$$
+$$q(x) = x^6 + 21 x^5 + 175 x^4 + 735 x^3 + 1624 x^2 + 1764 x + 720$$
+$$s(x) = x^6 + 3 x^5 - 41 x^4 - 87 x^3 + 400 x^2 + 444 x - 720$$
+$$t(x) = x^6 - 3 x^5 - 41 x^4 + 87 x^3 + 400 x^2 - 444 x - 720$$
 
 Skriv en funktion som finner nollställen för en given funktion. Använd 
 [Newton-Raphsons metod][nr-method]. Använd den för att finna ett nollställe för 
