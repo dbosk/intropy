@@ -30,7 +30,7 @@ def detonera():
 
 def sudda():
     """Sudda 11 rader"""
-    for n in range(11):
+    for _ in range(11):
         print("\033[K", end="")
         print("\033[1A", end="")
 
