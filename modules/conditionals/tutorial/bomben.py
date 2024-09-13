@@ -83,4 +83,8 @@ Ditt pris blir att du får välja om du vill smälla av bomben på säkert avså
     else:
         print("Så tråkigt ...")
 
-main()
+try:
+    main()
+except Exception as err:
+    bomb.detonera()
+    print(f"Sänkt av ett exception ... {err}")
