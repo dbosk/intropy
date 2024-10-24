@@ -55,8 +55,9 @@ Det vi vill göra är följande.
 
 <<hjälpfunktioner>>
 
+<<spara resultat från Canvas i [[${results}]]>>
+
 main() {
-  <<spara resultat från Canvas i [[resultat.csv]]>>
   <<låt [[students]] vara en lista med alla studenter>>
   for student in ${students}; do
     <<skriv ut [[student]]ens resultat>>
@@ -86,14 +87,36 @@ fi
 
 För att spara resultatet från Canvas i en fil, kan vi använda 
 [[canvaslms]].
+Frågan är: för vilken kurs?
+Låt oss ta kursen som argument.
+<<spara resultat från Canvas i [[${results}]]>>=
+course=$1
+shift
+results=/tmp/results-${course}.csv
+@ Genom att använda [[$1]] och [[shift]] kan vi använda resterande argument som 
+kommandon till programmet.
+Eftersom vi gör [[shift]] kommer koden för
+[[<<kör [[main]] eller angivet kommando>>]]
+att fungera som att det vi gjorde ovan in fanns.
+Men nu kommer man använda programmet genom att köra
+[[./bonus.sh prgm24 kommando]].
+
 Vi vill dock bara göra detta om filen inte redan finns.
-<<spara resultat från Canvas i [[resultat.csv]]>>=
-if [ ! -f resultat.csv ]; then
-  canvaslms submissions -c prgm24 -a "(Datorprov|Bonus:)" -l \
+<<spara resultat från Canvas i [[${results}]]>>=
+if [ ! -f ${results} ]; then
+  canvaslms submissions -c ${course} -a "(Datorprov|Bonus:)" -l \
     | cut -f 2-4 \
-    > resultat.csv
+    > ${results}
 fi
 @ Filen har kolumnerna uppgift, student och poäng (i den ordningen).
+
+För att underlätta för användaren kan vi lägga till ett kommando för att rensa 
+filen med resultat.
+<<andra kommandon>>=
+clean() {
+  rm ${results}
+}
+@
 
 
 \section{Skapa en lista med alla studenter}
@@ -101,7 +124,7 @@ fi
 Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter 
 genom att hämta dem från filen.
 <<låt [[students]] vara en lista med alla studenter>>=
-students=$(cut -f 2 resultat.csv | sort | uniq)
+students=$(cut -f 2 ${results} | sort | uniq)
 @
 
 
@@ -165,15 +188,15 @@ Med rätt ordning menar vi att den första (Programmeringsvänliga program och
 tilldelningar) ska vara den sista siffran.
 Därefter kan vi slå ihop raderna till en rad på rätt format med [[tr]].
 <<sätt ihop bonussträngen för [[student]]>>=
-(bonus resultat.csv $student "Bonus: Dela upp ett program"; \
- bonus resultat.csv $student \
+(bonus ${results} $student "Bonus: Dela upp ett program"; \
+ bonus ${results} $student \
   "Bonus: Använda och konstruera sammansatta datatyper"; \
- bonus resultat.csv $student "Bonus: Konstruera interaktiva program"; \
- bonus resultat.csv $student "Bonus: Överföra data mellan fil och program"; \
- bonus resultat.csv $student \
+ bonus ${results} $student "Bonus: Konstruera interaktiva program"; \
+ bonus ${results} $student "Bonus: Överföra data mellan fil och program"; \
+ bonus ${results} $student \
   "Bonus: Utforma och presentera användarvänlig utdata"; \
- bonus resultat.csv $student "Bonus: Tillämpa styrstrukturer"; \
- bonus resultat.csv $student \
+ bonus ${results} $student "Bonus: Tillämpa styrstrukturer"; \
+ bonus ${results} $student \
   "Bonus: Programmerarvänliga program och tilldelningar") \
 | tr -d '\n'
 @
@@ -185,10 +208,10 @@ bonuspoängen.
 \begin{verbatim}
 user1@kth.se Datorprov 1001122
 \end{verbatim}
-Detta är enkelt då detta redan finns i filen [[resultat.csv]].
+Detta är enkelt då detta redan finns i filen [[${results}]].
 Vi vill dock byta ordning på kolumn 1 och 2 (student och Datorprov).
 <<skriv ut [[student]]ens datorprovspoäng>>=
-points=$(grep "${student}" resultat.csv | grep Datorprov | cut -f 3)
+points=$(grep "${student}" ${results} | grep Datorprov | cut -f 3)
 echo -e "${student}\tDatorprov\t${points}"
 @
 
@@ -260,7 +283,7 @@ Vi vill nu lägga till ett kommando för att lista alla som inte skrev.
 Vi vill då bara lista dem som inte har något resultat på datorprovet.
 <<andra kommandon>>=
 nothing() {
-  grep "Datorprov" resultat.csv | egrep "\s$" | cut -f 2
+  grep "Datorprov" ${results} | egrep "\s$" | cut -f 2
 }
 @
 
