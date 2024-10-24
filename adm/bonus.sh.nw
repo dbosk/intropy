@@ -1,0 +1,283 @@
+\section{Inledning}
+
+När studenterna skriver Datorprovet behöver de ha rätt på två av tre frågor på 
+varje lärandemål.
+Mappningen är enligt följande.
+
+\begin{tabular}{rll}
+\(n\) & Lärandemål & Frågor\\
+\hline
+1 & Programmerarvänliga program och tilldelningar & Frågorna 1-3\\
+2 & Tillämpa styrstrukturer & Frågorna 4-6\\
+3 & Utforma och presentera användarvänliga utdata & Frågorna 7-9\\
+4 & Överföra data mellan fil och program & Frågorna 10-12\\
+5 & Konstruera interaktiva program & Frågorna 13-15\\
+6 & Använda och konstruera sammansatta datatyper och klasser & Frågorna 16-18\\
+7 & Dela upp ett program & Frågorna 19-21\\
+\hline
+\end{tabular}
+Då är poängen för varje fråga på lärandemål \(n\), \(10^{n-1}\).
+Studenternas resultat ser ut enligt följande.
+\begin{verbatim}
+$ canvaslms submissions -c prgm24 -a Datorprov -l \
+  | cut -f 3,4 | egrep "[0-3]+"
+user1@kth.se	1001122
+user2@kth.se	2332132
+user3@kth.se	1232232
+user4@kth.se	3333333
+user5@kth.se	3222213
+\end{verbatim}
+
+Vi vill ha ett program, [[<<bonus.sh>>]], som läser vilka moment som 
+studenterna har bonus på och ut en sträng som motsvarar samma ordning som i 
+Datorprovet.
+Då kan vi bara addera dessa för att få fram vilka frågor som studenten uppnått 
+godkänt på.
+Bonuspoängen finns lagrad per lärandemål i Canvas:
+
+\begin{verbatim}
+$ canvaslms assignments -c prgm24 -a ^Bonus: | cut -f 3
+Bonus: Programmerarvänliga program och tilldelningar
+Bonus: Tillämpa styrstrukturer
+Bonus: Utforma och presentera användarvänlig utdata
+Bonus: Överföra data mellan fil och program
+Bonus: Konstruera interaktiva program
+Bonus: Använda och konstruera sammansatta datatyper
+Bonus: Dela upp ett program
+\end{verbatim}
+
+
+\section{Översikt över programmet}
+
+Det vi vill göra är följande.
+<<bonus.sh>>=
+#!/bin/bash
+
+<<hjälpfunktioner>>
+
+main() {
+  <<spara resultat från Canvas i [[resultat.csv]]>>
+  <<låt [[students]] vara en lista med alla studenter>>
+  for student in ${students}; do
+    <<skriv ut [[student]]ens resultat>>
+    <<skriv även ut summan av [[student]]ens bonus och datorprov>>
+  done
+}
+
+<<andra kommandon>>
+
+<<kör [[main]] eller angivet kommando>>
+@
+
+Vi kan låta användaren ange ett kommando på kommandoraden.
+Om man vill köra [[main]] så kör man bara [[./bonus.sh]].
+Om man vill köra ett annat kommando än [[main]], så kan man köra
+[[./bonus.sh kommando]].
+<<kör [[main]] eller angivet kommando>>=
+if [ $# -eq 0 ]; then
+  main
+else
+  $@
+fi
+@
+
+
+\section{Spara resultat från Canvas}
+
+För att spara resultatet från Canvas i en fil, kan vi använda 
+[[canvaslms]].
+Vi vill dock bara göra detta om filen inte redan finns.
+<<spara resultat från Canvas i [[resultat.csv]]>>=
+if [ ! -f resultat.csv ]; then
+  canvaslms submissions -c prgm24 -a "(Datorprov|Bonus:)" -l \
+    | cut -f 2-4 \
+    > resultat.csv
+fi
+@ Filen har kolumnerna uppgift, student och poäng (i den ordningen).
+
+
+\section{Skapa en lista med alla studenter}
+
+Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter 
+genom att hämta dem från filen.
+<<låt [[students]] vara en lista med alla studenter>>=
+students=$(cut -f 2 resultat.csv | sort | uniq)
+@
+
+
+\section{skriv ut [[student]]ens resultat}
+
+Vi vill skriva ut både studentens resultat och bonuspoängen; båda på samma 
+format, en på varje rad.
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+user1@kth.se Datorprov 1001122
+\end{verbatim}
+<<skriv ut [[student]]ens resultat>>=
+<<skriv ut [[student]]ens bonuspoäng>>
+<<skriv ut [[student]]ens datorprovspoäng>>
+@
+
+\subsection{Studentens bonuspoäng}
+
+Låt oss fokusera på att skriva ut studentens bonuspoäng.
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+\end{verbatim}
+<<skriv ut [[student]]ens bonuspoäng>>=
+bonus=$(<<sätt ihop bonussträngen för [[student]]>>)
+echo -e "${student}\tBonus\t${bonus}"
+@
+
+Det vi har som indata är följande.
+\begin{verbatim}
+Bonus: Programmerarvänliga program och tilldelningar	user1@kth.se	1
+Bonus: Tillämpa styrstrukturer	user1@kth.se	1
+Bonus: Utforma och presentera användarvänlig utdata	user1@kth.se	
+Bonus: Överföra data mellan fil och program	user1@kth.se	1
+Bonus: Konstruera interaktiva program	user1@kth.se	1
+Bonus: Använda och konstruera sammansatta datatyper	user1@kth.se	
+Bonus: Dela upp ett program	user1@kth.se	1
+\end{verbatim}
+
+För att skriva ut studentens bonuspoäng börjar vi med att skriva ut 
+bonuspoängen (0 eller 1) för varje område, i rätt ordning.
+För att skriva ut bonuspoängen för ett område, kan vi använda följande 
+hjälpfunktion.
+Den läser ut bonuspoängen för en student och ett område från filen.
+Om det inte finns någon bonuspoäng, då är kolumnen tom, men vi ska då skriva ut 
+0.
+<<hjälpfunktioner>>=
+bonus() {
+  file=$1
+  student=$2
+  area=$3
+  points=$(grep "${student}" ${file} | grep "${area}" | cut -f 3)
+  if [ -z "${points}" ]; then
+    echo 0
+  else
+    echo ${points}
+  fi
+}
+@
+
+Med rätt ordning menar vi att den första (Programmeringsvänliga program och 
+tilldelningar) ska vara den sista siffran.
+Därefter kan vi slå ihop raderna till en rad på rätt format med [[tr]].
+<<sätt ihop bonussträngen för [[student]]>>=
+(bonus resultat.csv $student "Bonus: Dela upp ett program"; \
+ bonus resultat.csv $student \
+  "Bonus: Använda och konstruera sammansatta datatyper"; \
+ bonus resultat.csv $student "Bonus: Konstruera interaktiva program"; \
+ bonus resultat.csv $student "Bonus: Överföra data mellan fil och program"; \
+ bonus resultat.csv $student \
+  "Bonus: Utforma och presentera användarvänlig utdata"; \
+ bonus resultat.csv $student "Bonus: Tillämpa styrstrukturer"; \
+ bonus resultat.csv $student \
+  "Bonus: Programmerarvänliga program och tilldelningar") \
+| tr -d '\n'
+@
+
+\subsection{Studentens datorprovspoäng}
+
+Vi vill nu skriva ut studentens datorprovspoäng på samma sätt som vi skrev ut 
+bonuspoängen.
+\begin{verbatim}
+user1@kth.se Datorprov 1001122
+\end{verbatim}
+Detta är enkelt då detta redan finns i filen [[resultat.csv]].
+Vi vill dock byta ordning på kolumn 1 och 2 (student och Datorprov).
+<<skriv ut [[student]]ens datorprovspoäng>>=
+points=$(grep "${student}" resultat.csv | grep Datorprov | cut -f 3)
+echo -e "${student}\tDatorprov\t${points}"
+@
+
+
+\section{Skriv ut summan av bonus och datorprov}
+
+Vi vill nu gå från
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+user1@kth.se Datorprov 1001122
+\end{verbatim}
+till
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+user1@kth.se Datorprov 1001122
+user1@kth.se Datorprov med bonus 2012133
+\end{verbatim}
+
+Vi har redan skrivit ut de första två raderna.
+Vi har även värdena [[bonus]] och [[points]] (för datorprovet).
+Om de inte skrivit datorprovet kommer [[points]] vara en tom sträng, då hoppar 
+vi vidare.
+<<skriv även ut summan av [[student]]ens bonus och datorprov>>=
+if [ -z "${points}" ]; then
+  sum=${bonus}
+else
+  sum=$(echo ${bonus} + ${points} | bc)
+fi
+echo -e "${student}\tDatorprov med bonus\t${sum}"
+@
+
+
+\section{Andra kommandon}
+
+Vi vill nu lägga till lite fler kommandon.
+Detta görs i form av att lägga till funktioner i [[<<andra kommandon>>]].
+
+\subsection{Alla godkända}
+
+Vi vill nu lägga till ett kommando för att lista alla godkända.
+Då kan vi helt enkelt kolla på alla studenter som har minst 2:or rakt igenom 
+efter att vi lagt till bonus.
+<<andra kommandon>>=
+P() {
+  main \
+  | grep "med bonus" \
+  | egrep "[2-4]{7}"
+}
+@
+
+\subsection{Lista kompletteringar}
+
+Vi vill nu lägga till ett kommando för att lista alla kompletteringar.
+Vi vill då filtrera bort alla godkända.
+Därefter vill vi hitta alla som har max en 1:a och resten lägst 2:or.
+<<andra kommandon>>=
+Fx() {
+  main \
+  | grep "med bonus" \
+  | egrep -v "[2-4]{7}" \
+  | egrep "[1-4]{7}" \
+  | egrep "\s[2-4]*1[2-4]*($|\.)"
+}
+@
+
+\subsection{Lista de som inte skrev}
+
+Vi vill nu lägga till ett kommando för att lista alla som inte skrev.
+Vi vill då bara lista dem som inte har något resultat på datorprovet.
+<<andra kommandon>>=
+nothing() {
+  grep "Datorprov" resultat.csv | egrep "\s$" | cut -f 2
+}
+@
+
+\subsection{Lista underkända}
+
+Vi vill nu lägga till ett kommando för att lista alla underkända.
+Vi vill då bara lista dem som gjort ett försök att skriva.
+<<andra kommandon>>=
+F() {
+  main \
+  | <<filtrera bort övriga>> \
+  | grep "med bonus"
+}
+@
+
+För att filtrera bort studenter kan vi använda funktionerna ovan, plocka ut 
+studenternas identifierare och använda [[grep -v -f]] med 
+[[bash]]-funktionaliteten [[<(...)]], som skapar en temporär fil.
+<<filtrera bort övriga>>=
+grep -v -f <(P | cut -f 1; Fx | cut -f 1; nothing)
