@@ -33,7 +33,7 @@ class DrawGUI(tk.Tk):
         x_start, y_start = self.x_old, self.y_old
         x_dest, y_dest = self.x_old, self.y_old = event.x, event.y
         self.canvas.create_line(x_start, y_start,
-                                x_dest, y_dest)
+                                x_dest, y_dest, fill="black")
 
     def reset_old_coord(self, _):
         """Reset x_old and y_old to None"""
