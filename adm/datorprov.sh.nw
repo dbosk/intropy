@@ -1,3 +1,6 @@
+\tableofcontents
+\clearpage
+
 \section{Inledning}
 
 När studenterna skriver Datorprovet behöver de ha rätt på två av tre frågor på 
@@ -28,7 +31,7 @@ user4@kth.se	3333333
 user5@kth.se	3222213
 \end{verbatim}
 
-Vi vill ha ett program, [[<<bonus.sh>>]], som läser vilka moment som 
+Vi vill ha ett program, [[<<datorprov.sh>>]], som läser vilka moment som 
 studenterna har bonus på och ut en sträng som motsvarar samma ordning som i 
 Datorprovet.
 Då kan vi bara addera dessa för att få fram vilka frågor som studenten uppnått 
@@ -50,9 +53,10 @@ Bonus: Dela upp ett program
 \section{Översikt över programmet}
 
 Det vi vill göra är följande.
-<<bonus.sh>>=
+<<datorprov.sh>>=
 #!/bin/bash
 
+<<konfigurationsvariabler>>
 <<hjälpfunktioner>>
 
 <<spara resultat från Canvas i [[${results}]]>>
@@ -71,9 +75,9 @@ main() {
 @
 
 Vi kan låta användaren ange ett kommando på kommandoraden.
-Om man vill köra [[main]] så kör man bara [[./bonus.sh]].
+Om man vill köra [[main]] så kör man bara [[./datorprov.sh]].
 Om man vill köra ett annat kommando än [[main]], så kan man köra
-[[./bonus.sh kommando]].
+[[./datorprov.sh kommando]].
 <<kör [[main]] eller angivet kommando>>=
 if [ $# -eq 0 ]; then
   main
@@ -99,7 +103,7 @@ Eftersom vi gör [[shift]] kommer koden för
 [[<<kör [[main]] eller angivet kommando>>]]
 att fungera som att det vi gjorde ovan in fanns.
 Men nu kommer man använda programmet genom att köra
-[[./bonus.sh prgm24 kommando]].
+[[./datorprov.sh prgm24 kommando]].
 
 Vi vill dock bara göra detta om filen inte redan finns.
 <<spara resultat från Canvas i [[${results}]]>>=
@@ -128,7 +132,7 @@ students=$(cut -f 2 ${results} | sort | uniq)
 @
 
 
-\section{skriv ut [[student]]ens resultat}
+\section{Skriv ut [[student]]ens resultat}
 
 Vi vill skriva ut både studentens resultat och bonuspoängen; båda på samma 
 format, en på varje rad.
@@ -310,8 +314,134 @@ F() {
 }
 @
 
+Vi vill också ha ett kommando för alla underkända, vare sig de har F eller Fx.
+Detta är användbart i de fall vi inte tillämpar komplettering (Fx), utan vill 
+sätta F på alla som skrev som inte fick P.
+<<andra kommandon>>=
+ickeP() {
+  main \
+  | grep "med bonus" \
+  | <<filtrera bort alla med P och som inte skrev>>
+}
+@
+
 För att filtrera bort studenter kan vi använda funktionerna ovan, plocka ut 
 studenternas identifierare och använda [[grep -v -f]] med 
 [[bash]]-funktionaliteten [[<(...)]], som skapar en temporär fil.
 <<filtrera bort övriga>>=
 grep -v -f <(P | cut -f 1; Fx | cut -f 1; nothing)
+<<filtrera bort alla med P och som inte skrev>>=
+grep -v -f <(P | cut -f 1; nothing)
+@
+
+
+\section{Rapportera resultaten till Canvas}
+
+Vi vill nu rapportera resultaten till Canvas.
+Det upplägg vi har är att studenterna behöver skriva om provet om de inte har 
+klarat det.
+Vi har två upplägg:
+\begin{itemize}
+\item På prgi behöver de skriva om provet i sin helhet om de inte klarat det.
+\item På prgm behöver de bara skriva om de lärandemål de inte klarat.
+\end{itemize}
+
+Det vi vill rapportera är följande, för varje student vill vi rapportera:
+\begin{itemize}
+\item betyget, P eller F;
+\item vilka lärandemål (och frågor) som de blev underkända på.
+\end{itemize}
+Sedan vill vi även lägga till en kommentar för studenterna på prgm att de bara 
+behöver skriva om de lärandemål de blev underkända på.
+
+\subsection{Lista lärandemål och frågor}
+
+Vi vill nu skriva en hjälpfunktion som tar en students poäng och returnerar 
+(skriver ut till stdout) vilka lärandemål och motsvarande frågor de behöver 
+jobba mer med.
+<<hjälpfunktioner>>=
+lo_återkoppling() {
+  points=$1
+  bonus=$2
+  antal_full_pott=0
+  for lo_num in $(seq 1 7); do
+    lo_points=$((points % 10))
+    bonus_points=$((bonus % 10))
+    if [ ${lo_points} -eq 3 ]; then
+      <<öka på [[antal_full_pott]]>>=
+    else
+      <<skriv ut namn och frågor för lärandemål [[lo_num]]>>
+      <<skriv ut återkoppling för [[lo_points]]>>
+      echo # för blankrad mellan lärandemål
+    fi
+    points=$((points / 10))
+    bonus=$((bonus / 10))
+  done
+  <<skriv ut hur många lärandemål studenten fick full pott på>>
+}
+@
+
+Man kan få maximalt tre poäng utan bonus.
+Det krävs två poäng för att klara ett lärandemål.
+Om studenten har fått tre av tre behöver vi inte skriva ut något, då räcker det 
+med att vi ökar på antalet.
+<<öka på [[antal_full_pott]]>>=
+antal_full_pott=$((antal_full_pott + 1))
+@ Om studenten fått full pott på åtminstone ett lärandemål, då skriver vi det.
+<<skriv ut hur många lärandemål studenten fick full pott på>>=
+if [ ${antal_full_pott} -gt 0 ]; then
+  echo
+  echo "Sedan fick du full pott på övriga lärandemål (${antal_full_pott})."
+fi
+@
+
+Vi vill ha en funktion som översätter lärandemålets nummer till dess namn.
+<<hjälpfunktioner>>=
+lo_name() {
+  case $1 in
+    1) echo -n "Programmerarvänliga program och tilldelningar";;
+    2) echo -n "Tillämpa styrstrukturer";;
+    3) echo -n "Utforma och presentera användarvänlig utdata";;
+    4) echo -n "Överföra data mellan fil och program";;
+    5) echo -n "Konstruera interaktiva program";;
+    6) echo -n "Använda och konstruera sammansatta datatyper";;
+    7) echo -n "Dela upp ett program";;
+  esac
+}
+@
+
+Detta ger oss följande.
+<<skriv ut namn och frågor för lärandemål [[lo_num]]>>=
+echo -n "${lo_num} $(lo_name ${lo_num}) "
+första_frågan=$(( (lo_num - 1) * 3))
+sista_frågan=$((lo_num * 3))
+echo -n "(frågorna ${första_frågan}-${sista_frågan}): "
+@
+
+Vi vill även ha en funktion som skriver ut återkopplingen för en viss poäng.
+Om de fick två poäng vill vi säga att de uppnådde godkänd nivå, men att det 
+ändå finns utrymme för förbättring.
+Om de fick en poäng vill vi säga att de inte uppnådde godkänd nivå.
+Men vi vill också ha en version för när vi använder bonuspoäng.
+Vi kontrollerar detta med en miljövariabel.
+<<hjälpfunktioner>>=
+poäng_återkoppling() {
+  poäng=$1
+  bonus=$2
+  case ${poäng} in
+    2) echo "Du uppnådde godkänd nivå," \
+            "men det finns ett litet utrymme för förbättring.";;
+    1|0)
+       echo -n "Dina svar uppnådde inte godkänd nivå," \
+               "du behöver läsa på detta område. "
+       if [ "${bonus}" -eq 1 -a ${poäng} -eq 1 ]; then
+         echo "Men du fick godkänt tack vare bonuspoängen."
+       else if [ "${bonus}" -eq 0 -a "BONUSPOÄNG" -eq 1 ]; then
+         echo "Tyvärr har du inte bonuspoäng att falla tillbaka på här."
+       fi;;
+  esac
+}
+<<konfigurationsvariabler>>=
+BONUSPOÄNG=1
+@
+
