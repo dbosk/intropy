@@ -215,8 +215,25 @@ user1@kth.se Datorprov 1001122
 Detta är enkelt då detta redan finns i filen [[${results}]].
 Vi vill dock byta ordning på kolumn 1 och 2 (student och Datorprov).
 <<skriv ut [[student]]ens datorprovspoäng>>=
-points=$(grep "${student}" ${results} | grep Datorprov | cut -f 3)
+points=$(grep "${student}" ${results} | grep Datorprov | cut -f 3 | round)
 echo -e "${student}\tDatorprov\t${points}"
+@
+
+Då Canvas ibland slänger in en massa decimaler, exempelvis att poängen slutar 
+med \(2.9999999\), då måste vi avrunda det till 3.
+Detta kan vi göra med följande trick\footnote{%
+  \texttt{https://stackoverflow.com/questions/68878409/rounding-floats-to-integer-under-bash}
+}.
+Men vi vill bara göra något om det finns poäng.
+Om studenten inte har skrivit provet så är poängen en tom sträng, då hoppar vi 
+vidare utan att göra något.
+<<hjälpfunktioner>>=
+round() {
+  local points=$(cat)
+  if [ -n "${points}" ]; then
+    echo "(${points} + 0.5) / 1" | bc
+  fi
+}
 @
 
 
