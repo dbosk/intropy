@@ -354,21 +354,107 @@ Det vi vill rapportera är följande, för varje student vill vi rapportera:
 Sedan vill vi även lägga till en kommentar för studenterna på prgm att de bara 
 behöver skriva om de lärandemål de blev underkända på.
 
+Vi vill ha ett kommando för att rapportera resultaten.
+<<andra kommandon>>=
+rapportera() {
+  <<avgör om vi ska använda bonus>>
+  <<för varje [[student]] som gjort något>>
+  do
+    <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
+    <<låt [[points]] vara [[student]]ens datorprovspoäng>>
+    <<låt [[points_with_bonus]] vara summan av [[bonus]] och [[points]]>>
+    grade=$(compute_grade ${points_with_bonus})
+    feedback=$(lo_feedback ${points} ${bonus})
+    echo canvaslms grade -c ${course} -a "Betyg datorprov" \
+      -u ${student} \
+      -g ${grade} \
+      -m "${feedback}"
+  done
+  rm ${results}
+}
+@
+
+
+\subsection{Få ut data för studenternas resultat}
+
+Värdena [[bonus]], [[points]] och [[points_with_bonus]] finns redan i 
+utmatningen från [[all]], vi behöver bara plocka ut dem på samma sätt som vi 
+plockar ut studenterna.
+Och de studenter vi är intresserade av är de som fick P eller icke-P (inte de 
+som inte skrev).
+Eftersom det tar lite tid att köra [[all]] varje gång, vill vi spara resultatet 
+i en temporär fil och använda den istället.
+<<för varje [[student]] som gjort något>>=
+all_cache=$(mktemp)
+all > ${all_cache}
+for student in $(<<alla relevanta studenter>> | cut -f 1 | sort | uniq)
+<<låt [[bonus]] vara [[student]]ens bonuspoäng>>=
+bonus=$(grep "${student}" ${all_cache} | grep Bonus | cut -f 3)
+<<låt [[points]] vara [[student]]ens datorprovspoäng>>=
+points=$(grep "${student}" ${all_cache} \
+  | grep -P "Datorprov(?! med bonus)" | cut -f 3)
+<<låt [[points_with_bonus]] vara summan av [[bonus]] och [[points]]>>=
+points_with_bonus=$(grep "${student}" ${all_cache} \
+  | grep "med bonus" | cut -f 3)
+@
+
+De studenter som är relevanta är alla som fått P eller icke-P---men som inte 
+redan har ett P rapporterat i `Betyg datorprov`.
+<<alla relevanta studenter>>=
+(P; ickeP) \
+| grep -v -f <(canvaslms submissions -c ${course} -a "Betyg datorprov" -l \
+               | grep -E "\sP\s" | cut -f 3)
+@
+
+
+\subsection{Beräkna betyg}
+
+Vi vill nu skriva en funktion som beräknar betyget på samma sätt som ovan.
+Om studenten fått minst 2:or rakt igenom, då har hen fått P, annars F.
+Men om studenten inte har någon poäng alls (dvs. hen inte skrev, och poängen är 
+en tom sträng), då ska hen inte få något betyg (det ska vara en tom sträng).
+<<hjälpfunktioner>>=
+compute_grade() {
+  points=$1
+  if [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
+    echo P
+  elif [ -z "${points}" ]; then
+    return
+  else
+    echo F
+  fi
+}
+@
+
+
+\subsection{Avgöra om vi ska använda bonus}
+
+Vi vill avgöra från kursnamnet i [[course]] om vi ska använda bonus eller inte.
+De kurser som ska använda bonus har kurskod DD1310 eller inleds med prgm.
+<<avgör om vi ska använda bonus>>=
+if [ $(echo ${course} | egrep -c "DD1310|prgm") -eq 1 ]; then
+  BONUSPOINTS=1
+else
+  BONUSPOINTS=0
+fi
+@
+
+
 \subsection{Lista lärandemål och frågor}
 
 Vi vill nu skriva en hjälpfunktion som tar en students poäng och returnerar 
 (skriver ut till stdout) vilka lärandemål och motsvarande frågor de behöver 
 jobba mer med.
 <<hjälpfunktioner>>=
-lo_återkoppling() {
+lo_feedback() {
   points=$1
   bonus=$2
-  antal_full_pott=0
+  count_full_score=0
   for lo_num in $(seq 1 7); do
     lo_points=$((points % 10))
     bonus_points=$((bonus % 10))
     if [ ${lo_points} -eq 3 ]; then
-      <<öka på [[antal_full_pott]]>>=
+      <<öka på [[count_full_score]]>>
     else
       <<skriv ut namn och frågor för lärandemål [[lo_num]]>>
       <<skriv ut återkoppling för [[lo_points]]>>
@@ -385,13 +471,13 @@ Man kan få maximalt tre poäng utan bonus.
 Det krävs två poäng för att klara ett lärandemål.
 Om studenten har fått tre av tre behöver vi inte skriva ut något, då räcker det 
 med att vi ökar på antalet.
-<<öka på [[antal_full_pott]]>>=
-antal_full_pott=$((antal_full_pott + 1))
+<<öka på [[count_full_score]]>>=
+count_full_score=$((count_full_score + 1))
 @ Om studenten fått full pott på åtminstone ett lärandemål, då skriver vi det.
 <<skriv ut hur många lärandemål studenten fick full pott på>>=
-if [ ${antal_full_pott} -gt 0 ]; then
+if [ ${count_full_score} -gt 0 ]; then
   echo
-  echo "Sedan fick du full pott på övriga lärandemål (${antal_full_pott})."
+  echo "Sedan fick du full pott på övriga lärandemål (${count_full_score})."
 fi
 @
 
@@ -412,10 +498,10 @@ lo_name() {
 
 Detta ger oss följande.
 <<skriv ut namn och frågor för lärandemål [[lo_num]]>>=
-echo -n "${lo_num} $(lo_name ${lo_num}) "
-första_frågan=$(( (lo_num - 1) * 3))
-sista_frågan=$((lo_num * 3))
-echo -n "(frågorna ${första_frågan}-${sista_frågan}): "
+echo -n "(${lo_num}) $(lo_name ${lo_num}) "
+first_question=$(( (lo_num - 1) * 3))
+last_questions=$((lo_num * 3))
+echo -n "(frågorna ${first_question}-${last_questions}): "
 @
 
 Vi vill även ha en funktion som skriver ut återkopplingen för en viss poäng.
@@ -425,23 +511,29 @@ Om de fick en poäng vill vi säga att de inte uppnådde godkänd nivå.
 Men vi vill också ha en version för när vi använder bonuspoäng.
 Vi kontrollerar detta med en miljövariabel.
 <<hjälpfunktioner>>=
-poäng_återkoppling() {
-  poäng=$1
+points_feedback() {
+  points=$1
   bonus=$2
-  case ${poäng} in
+  case ${points} in
     2) echo "Du uppnådde godkänd nivå," \
             "men det finns ett litet utrymme för förbättring.";;
     1|0)
        echo -n "Dina svar uppnådde inte godkänd nivå," \
                "du behöver läsa på detta område. "
-       if [ "${bonus}" -eq 1 -a ${poäng} -eq 1 ]; then
+       if [ "${bonus}" -eq 1 -a ${points} -eq 1 ]; then
          echo "Men du fick godkänt tack vare bonuspoängen."
-       else if [ "${bonus}" -eq 0 -a "BONUSPOÄNG" -eq 1 ]; then
+       elif [ "${bonus}" -eq 0 -a "${BONUSPOINTS}" -eq 1 ]; then
          echo "Tyvärr har du inte bonuspoäng att falla tillbaka på här."
+       else
+         echo # för att bryta raden
        fi;;
   esac
 }
 <<konfigurationsvariabler>>=
-BONUSPOÄNG=1
+BONUSPOINTS=1
 @
 
+Det ger oss följande.
+<<skriv ut återkoppling för [[lo_points]]>>=
+points_feedback ${lo_points} ${bonus_points}
+@
