@@ -176,10 +176,10 @@ Om det inte finns någon bonuspoäng, då är kolumnen tom, men vi ska då skriv
 0.
 <<hjälpfunktioner>>=
 bonus() {
-  file=$1
-  student=$2
-  area=$3
-  points=$(grep "${student}" ${file} | grep "${area}" | cut -f 3)
+  local file=$1
+  local student=$2
+  local area=$3
+  local points=$(grep "${student}" ${file} | grep "${area}" | cut -f 3)
   if [ -z "${points}" ]; then
     echo 0
   else
@@ -385,25 +385,32 @@ som inte skrev).
 Eftersom det tar lite tid att köra [[all]] varje gång, vill vi spara resultatet 
 i en temporär fil och använda den istället.
 <<för varje [[student]] som gjort något>>=
-all_cache=$(mktemp)
+local all_cache=$(mktemp)
 all > ${all_cache}
-for student in $(<<alla relevanta studenter>> | cut -f 1 | sort | uniq)
+for student in $(<<filtrera ut alla relevanta studenter>>)
 <<låt [[bonus]] vara [[student]]ens bonuspoäng>>=
-bonus=$(grep "${student}" ${all_cache} | grep Bonus | cut -f 3)
+local bonus=$(grep "${student}" ${all_cache} | grep Bonus | cut -f 3)
 <<låt [[points]] vara [[student]]ens datorprovspoäng>>=
-points=$(grep "${student}" ${all_cache} \
+local points=$(grep "${student}" ${all_cache} \
   | grep -P "Datorprov(?! med bonus)" | cut -f 3)
 <<låt [[points_with_bonus]] vara summan av [[bonus]] och [[points]]>>=
-points_with_bonus=$(grep "${student}" ${all_cache} \
+local points_with_bonus=$(grep "${student}" ${all_cache} \
   | grep "med bonus" | cut -f 3)
 @
 
+\subsection{Filtrera ut relevanta studenter}
+
 De studenter som är relevanta är alla som fått P eller icke-P---men som inte 
 redan har ett P rapporterat i `Betyg datorprov`.
-<<alla relevanta studenter>>=
+Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och 
+[[ickeP]]).
+<<filtrera ut alla relevanta studenter>>=
 (P; ickeP) \
-| grep -v -f <(canvaslms submissions -c ${course} -a "Betyg datorprov" -l \
-               | grep -E "\sP\s" | cut -f 3)
+| cut -f 1 | sort | uniq \
+| <<filtrera ut alla som redan har P som betyg>>
+<<filtrera ut alla som redan har P som betyg>>=
+grep -v -f <(canvaslms submissions -c ${course} -a "Betyg datorprov" -l \
+             | grep -E "\sP\s" | cut -f 3)
 @
 
 
@@ -415,7 +422,7 @@ Men om studenten inte har någon poäng alls (dvs. hen inte skrev, och poängen 
 en tom sträng), då ska hen inte få något betyg (det ska vara en tom sträng).
 <<hjälpfunktioner>>=
 compute_grade() {
-  points=$1
+  local points=$1
   if [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
     echo P
   elif [ -z "${points}" ]; then
@@ -447,13 +454,13 @@ Vi vill nu skriva en hjälpfunktion som tar en students poäng och returnerar
 jobba mer med.
 <<hjälpfunktioner>>=
 lo_feedback() {
-  points=$1
-  bonus=$2
-  count_full_score=0
+  local points=$1
+  local bonus=$2
+  local count_full_score=0
   for lo_num in $(seq 1 7); do
-    lo_points=$((points % 10))
-    bonus_points=$((bonus % 10))
-    if [ ${lo_points} -eq 3 ]; then
+    local lo_points=$((points % 10))
+    local bonus_points=$((bonus % 10))
+    if [ ${lo_points} -ge 3 ]; then
       <<öka på [[count_full_score]]>>
     else
       <<skriv ut namn och frågor för lärandemål [[lo_num]]>>
@@ -474,10 +481,13 @@ med att vi ökar på antalet.
 <<öka på [[count_full_score]]>>=
 count_full_score=$((count_full_score + 1))
 @ Om studenten fått full pott på åtminstone ett lärandemål, då skriver vi det.
+Om de fått full pott på alla lärandemål, då skriver vi något extra positivt.
 <<skriv ut hur många lärandemål studenten fick full pott på>>=
-if [ ${count_full_score} -gt 0 ]; then
-  echo
-  echo "Sedan fick du full pott på övriga lärandemål (${count_full_score})."
+if [ ${count_full_score} -eq 7 ]; then
+  echo "Bra jobbat, du fick full pott på alla lärandemål!"
+elif [ ${count_full_score} -gt 0 ]; then
+  echo "Sedan fick du full pott på övriga lärandemål (${count_full_score})." \
+       "Bra jobbat!"
 fi
 @
 
@@ -499,8 +509,8 @@ lo_name() {
 Detta ger oss följande.
 <<skriv ut namn och frågor för lärandemål [[lo_num]]>>=
 echo -n "(${lo_num}) $(lo_name ${lo_num}) "
-first_question=$(( (lo_num - 1) * 3))
-last_questions=$((lo_num * 3))
+local first_question=$(( (lo_num - 1) * 3))
+local last_questions=$((lo_num * 3))
 echo -n "(frågorna ${first_question}-${last_questions}): "
 @
 
@@ -512,11 +522,11 @@ Men vi vill också ha en version för när vi använder bonuspoäng.
 Vi kontrollerar detta med en miljövariabel.
 <<hjälpfunktioner>>=
 points_feedback() {
-  points=$1
-  bonus=$2
+  local points=$1
+  local bonus=$2
   case ${points} in
-    2) echo "Du uppnådde godkänd nivå," \
-            "men det finns ett litet utrymme för förbättring.";;
+    2) echo "Dina svar uppnådde godkänd nivå," \
+            "men det finns utrymme för förbättring.";;
     1|0)
        echo -n "Dina svar uppnådde inte godkänd nivå," \
                "du behöver läsa på detta område. "
