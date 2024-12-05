@@ -1,6 +1,8 @@
+NOWEAVEFLAGS=-option "shift,longchunks,swedish,longxref"
+
 .PHONY: all
 all: addresses.sh addresses.pdf
-all: datorprov.sh datorprov.pdf
+all: datorprov.pdf datorprov.sh
 
 .INTERMEDIATE: addresses.tex
 addresses.pdf: addresses.sh.nw
