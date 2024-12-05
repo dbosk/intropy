@@ -679,8 +679,11 @@ poäng.
 ack_feedback() {
   local points=$1
   echo points = $points
+  <<rensa bort ledande nollor från [[points]]>>
   local bonus=$2
   echo bonus = $bonus
+  <<rensa bort ledande nollor från [[bonus]]>>
+  echo
   for lo_num in $(seq 1 7); do
     echo -n "Lärandemål ${lo_num}," \
             "frågorna $(( (lo_num - 1) * 3 + 1))-$((lo_num * 3)): "
@@ -693,13 +696,34 @@ ack_feedback() {
 }
 @
 
-Denna kan vara väldigt kortfattad och fokusera på vad studenten behöver göra 
-för att uppnå godkänt.
+\label{NoLeadingZeroes}
+Anledningen till att vi vill rensa bort ledande nollor från poängen är för att 
+annars kommer [[$((...))]] att tolka dem oktalt.
+<<hjälpfunktioner>>=
+no_leading_zeroes() {
+  points=$1
+  while [ ${points} -ne 0 -a ${points:0:1} = 0 ]; do
+    points=${points:1}
+  done
+  echo ${points}
+}
+<<rensa bort ledande nollor från [[points]]>>=
+points=$(no_leading_zeroes ${points})
+<<rensa bort ledande nollor från [[bonus]]>>=
+bonus=$(no_leading_zeroes ${bonus})
+@
+
+
+Denna återkoppling kan vara väldigt kortfattad och fokusera på vad studenten 
+behöver göra för att uppnå godkänt.
+Vi skulle kunna lägga till poäng och bonus för varje enskilt lärandemål, det 
+gör det enklare för studenten att förstå hur de ska läsa sina poäng.
+Dock inte här, det skulle funka bättre på återkopplingen på datorprovet.
 <<skriv ut återkopplingen för lärandemålet>>=
 if [ ${lo_points} -ge 2 ]; then
-  echo "Godkänt resultat."
+  echo "godkänt resultat."
 else
-  echo -n "Underkänt resultat." \
+  echo -n "underkänt resultat." \
           "Du måste klara minst två av tre av dessa frågor på nästa prov. "
   if [ ${lo_bonus} -gt 0 ]; then
     echo "Du har en bonuspoäng till hjälp."
@@ -828,7 +852,9 @@ jobba mer med.
 <<hjälpfunktioner>>=
 lo_feedback() {
   local points=$1
+  <<rensa bort ledande nollor från [[points]]>>
   local bonus=$2
+  <<rensa bort ledande nollor från [[bonus]]>>
   local count_full_score=0
   for lo_num in $(seq 1 7); do
     local lo_points=$((points % 10))
