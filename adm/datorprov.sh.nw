@@ -626,7 +626,7 @@ rapportera() {
     <<låt [[total_points]] vara [[student]]ens totala poäng>>
     if [ ${USE_ACKUMULATION} -eq 1 ]
     then
-      <<uppdatera [[student]]ens poäng i [[ACKUMULERAD]], om det behövs>>
+      <<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>
     fi
     grade=$(compute_grade ${total_points})
     feedback=$(lo_feedback ${points} ${bonus})
@@ -670,21 +670,23 @@ local total_points=$(all | grep "${student}" \
 Vi vill nu uppdatera ackumulerad poäng i Canvas.
 Detta är enkelt i detta steg.
 Vi har redan uppdaterat poängen i [[ackumulera]], om det behövdes.
-Så istället för att jämföra datum igen, så kan vi bara uppdatera poängen om den 
-skiljer.
+
+Vi kommer också bara att komma hit om studenten har uppdaterade resultat, 
+annars är de inte med i listan [[studenter_med_nya_resultat]].
+På så vis ska vi alltid uppdatera poängen.
+Om vi inte gör det så ställer vi inte datumet till rätta och studenten kommer 
+alltid att ha nya resultat.
+
 Kom ihåg att om vi kommer hit så innehåller [[total_points]] den ackumulerade 
 poängen.
-<<uppdatera [[student]]ens poäng i [[ACKUMULERAD]], om det behövs>>=
+<<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>=
 points_ack_stored=$(results | grep "${student}" \
                             | grep "${ACKUMULERAD}" | cut -f 3)
-if [ "${total_points}" != "${points_ack_stored}" ]
-then
-  canvaslms grade -c ${course} \
-                  -a "${ACKUMULERAD}" \
-                  -u ${student} \
-                  -g ${total_points} \
-                  -m "$(ack_feedback ${total_points} ${bonus})"
-fi
+canvaslms grade -c ${course} \
+                -a "${ACKUMULERAD}" \
+                -u ${student} \
+                -g ${total_points} \
+                -m "$(ack_feedback ${total_points} ${bonus})"
 @
 
 Vi vill även ha en funktion som skriver ut återkopplingen för ackumulerade 
