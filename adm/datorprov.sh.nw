@@ -381,8 +381,9 @@ Då kan vi helt enkelt kolla på alla studenter som har minst 2:or rakt igenom
 efter att vi lagt till bonus.
 <<andra kommandon>>=
 P() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
   all \
-  | grep "${SUM_POINTS}" \
+  | grep "${from_points}" \
   | egrep "[2-4]{7}"
 }
 @
@@ -391,7 +392,7 @@ P() {
 
 Vi vill även se vilka som blev godkända utan att behöva sin bonuspoäng.
 <<andra kommandon>>=
-PutanBonus() {
+PDPutanBonus() {
   all \
   | grep "${DP_POINTS}" | grep -v "${SUM_POINTS}" \
   | egrep "[2-4]{7}"
@@ -405,8 +406,9 @@ Vi vill då filtrera bort alla godkända.
 Därefter vill vi hitta alla som har max en 1:a och resten lägst 2:or.
 <<andra kommandon>>=
 Fx() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
   all \
-  | grep "${SUM_POINTS}" \
+  | grep "${from_points}" \
   | egrep -v "[2-4]{7}" \
   | egrep "[0-4]{7}" \
   | egrep "\s[2-4]*[01][2-4]*($|\.)"
@@ -431,9 +433,10 @@ Vi vill nu lägga till ett kommando för att lista alla underkända.
 Vi vill då bara lista dem som gjort ett försök att skriva.
 <<andra kommandon>>=
 F() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
   all \
   | <<filtrera bort övriga>> \
-  | grep "${SUM_POINTS}"
+  | grep "${from_points}"
 }
 @
 
@@ -442,9 +445,10 @@ Detta är användbart i de fall vi inte tillämpar komplettering (Fx), utan vill
 sätta F på alla som skrev som inte fick P.
 <<andra kommandon>>=
 ickeP() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
   all \
   | <<filtrera bort alla med P och som inte skrev>> \
-  | grep "${SUM_POINTS}"
+  | grep "${from_points}"
 }
 @
 
@@ -455,6 +459,18 @@ studenternas identifierare och använda [[grep -v -f]] med
 grep -v -f <((P; Fx) | cut -f 1; nothing)
 <<filtrera bort alla med P och som inte skrev>>=
 grep -v -f <(P | cut -f 1; nothing)
+@
+
+Den slutgiltiga poängen är antingen summan av datorprovspoäng och bonuspoäng 
+eller ackumulerade poäng.
+Vi kan använda [[USE_ACKUMULATION]] för att avgöra vilken av dem vi ska 
+använda.
+<<låt [[from_points]] vara den slutgiltiga poängen>>=
+local from_points="${SUM_POINTS}"
+if [ ${USE_ACKUMULATION} -eq 1 ]
+then
+  from_points="${ACK_POINTS}"
+fi
 @
 
 
@@ -602,11 +618,7 @@ Vi vill ha ett kommando för att rapportera resultaten, som i fallet med prgi.
 <<andra kommandon>>=
 rapportera() {
   local to_assignment="${BETYG}"
-  local from_points="${SUM_POINTS}"
-  if [ ${USE_ACKUMULATION} -eq 1 ]
-  then
-    from_points="${ACK_POINTS}"
-  fi
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
   for student in $(<<filterera ut alla studenter med nya resultat>>)
   do
     <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
