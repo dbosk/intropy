@@ -2,6 +2,7 @@
 title: Laboration: Kom igång med Hello world
 authors:
   - Celina Soori <celinah@kth.se>
+  - Daniel Bosk <dbosk@kth.se>
 ---
 # Laboration: Kom igång med Hello world
 
@@ -80,12 +81,25 @@ annat skoj). Skriv in:
 message = "Hello World!"
 
 print(message)
-
 ```
 Kör din fil helloworld.py i din textredigerare. Utskriften i terminalen ska nu 
 se ut så här:
 ```
 Hello World!
 ```
-Om du har lyckats med detta är du klar med Laboration 0 och är redo för veckans 
-utmaningar!
+
+## Remixa program
+
+Ladda hem programmen
+
+  - [rövarspråket.py](https://github.com/dbosk/intropy/raw/v2024/modules/helloworld/r%C3%B6varspr%C3%A5ket.py)
+  - [frågesport.py](https://github.com/dbosk/intropy/raw/v2024/modules/helloworld/fr%C3%A5gesport.py)
+
+Provkör programmen. Prova att ändra på programmen.
+
+När du är nöjd med dina ändringar kan du lämna in programmet här. Efter 
+deadline kommer du att få två program som dina klasskamrater har skrivit. Ge 
+dem återkoppling. Detta låter dig öva på att använda Canvas såsom vi kommer att 
+använda det på kommande labbar. Se Canvas sida
+[How do I submit a peer review to an assignment?](https://community.canvaslms.com/t5/Student-Guide/How-do-I-submit-a-peer-review-to-an-assignment/ta-p/293) 
+om hur du går tillväga.

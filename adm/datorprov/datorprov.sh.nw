@@ -1,0 +1,1016 @@
+\tableofcontents
+\clearpage
+
+\section{Inledning}
+
+När studenterna skriver Datorprovet behöver de ha rätt på två av tre frågor på 
+varje lärandemål.
+Mappningen är enligt följande.
+\begin{center}
+\begin{tabular}{rll}
+\(n\) & Lärandemål & Frågor\\
+\hline
+1 & Programmerarvänliga program och tilldelningar & Frågorna 1-3\\
+2 & Tillämpa styrstrukturer & Frågorna 4-6\\
+3 & Utforma och presentera användarvänliga utdata & Frågorna 7-9\\
+4 & Överföra data mellan fil och program & Frågorna 10-12\\
+5 & Konstruera interaktiva program & Frågorna 13-15\\
+6 & Använda och konstruera sammansatta datatyper och klasser & Frågorna 16-18\\
+7 & Dela upp ett program & Frågorna 19-21\\
+\hline
+\end{tabular}
+\end{center}
+Då är poängen för varje fråga på lärandemål \(n\), \(10^{n-1}\).
+Studenternas resultat ser ut enligt följande.
+\begin{verbatim}
+$ canvaslms submissions -c prgm24 -a Datorprov -l \
+  | cut -f 3,4 | egrep "[0-3]+"
+user1@kth.se	1001122
+user2@kth.se	2332132
+user3@kth.se	1232232
+user4@kth.se	3333333
+user5@kth.se	3222213
+\end{verbatim}
+(Vi kan få [[canvaslms]] genom att köra [[python3 -m pip install canvaslms]] 
+och därefter köra [[canvaslms login]].)
+
+Vi vill ha ett program, [[<<datorprov.sh>>]], som läser vilka moment som 
+studenterna har bonus på och skriver ut en sträng som motsvarar samma ordning 
+som i Datorprovet.
+Då kan vi bara addera dessa för att få fram vilka frågor som studenten uppnått 
+godkänt på.
+Bonuspoängen finns lagrad per lärandemål i Canvas:
+\begin{verbatim}
+$ canvaslms assignments -c prgm24 -a ^Bonus: | cut -f 3
+Bonus: Programmerarvänliga program och tilldelningar
+Bonus: Tillämpa styrstrukturer
+Bonus: Utforma och presentera användarvänlig utdata
+Bonus: Överföra data mellan fil och program
+Bonus: Konstruera interaktiva program
+Bonus: Använda och konstruera sammansatta datatyper
+Bonus: Dela upp ett program
+\end{verbatim}
+
+Sedan vill vi även rapportera resultaten till Canvas.
+Slutligen kan vi även låta studenten ackumulera poängen från provomgång till 
+provomgång.
+
+Detta är skrivet med strukturen att provet finns i varje kursrum i åtanke.
+Vi kör skriptet med följande rad:
+[[./datorprov.sh prgm24 kommando]].
+Kan vi då använda skriptet även när datorprovet finns i ett examinationsrum och 
+bonuspoängen finns i kursrummet?
+Ja, det borde vi kunna, genom att köra följande:
+[[./datorprov.sh "(prgm24|DD1310 LAB2 .2025-08-18.)" kommando]].
+På så vis får vi uppgifterna från examinationsrummet blandade med uppgifterna 
+från kursrummet, precis som om de var i samma rum.
+(Se [[<<klipp ut kolumnerna som är relevanta för [[results]]>>]] nedan.)
+
+
+\section{Konfigurationsvariabler}\label{Konfigurationsvariabler}
+
+Vi har några konfigurationsvariabler som används i programmet.
+Den första får vi från kommandoraden, men den används överallt:
+[[./datorprov.sh prgm24 kommando]].
+Genom att använda [[$1]] och [[shift]] kan vi använda resterande argument som 
+kommandon till programmet.
+Eftersom vi gör [[shift]] kommer koden nedan att funka som att detta argument 
+aldrig funnits.
+<<konfigurationsvariabler>>=
+course="$1"
+shift
+@
+
+Vi har följande konfigurationsvariabler för att kontrollera namnen på de olika 
+uppgifterna i Canvas:
+<<konfigurationsvariabler>>=
+DATORPROV="Datorprov"
+BETYG="Betyg datorprov"
+BONUS="Bonus:"
+ACKUMULERAD="Ackumulerad datorprovspoäng"
+@ Sedan har vi följande för att kontrollera namnen i resultatutmatningen:
+<<konfigurationsvariabler>>=
+DP_POINTS="Datorprov"
+BONUS_POINTS="Bonus"
+SUM_POINTS="Datorprov med bonus"
+ACK_POINTS="Ackumulerad datorprovspoäng"
+@
+
+Slutligen har vi även följande.
+Vi testar om det finns en uppgift för ackumulerad poäng.
+Om så är fallet, då ska vi använda den.
+Alla uppgifter av intresse finns i [[results]], mer om det i avsnitt 
+\ref{SparaResultat}.
+(Vi lägger dessa i [[<<beräknade konstanter>>]] snarare än
+[[<<konfigurationsvariabler>>]] eller [[<<konstanter>>]] eftersom [[results]] 
+inte finns när vi sätter dessa.
+Dessutom så räknar vi ut deras värden, snarare än sätter dem som en del av 
+konfigurationen.)
+<<beräknade konstanter>>=
+USE_ACKUMULATION=$(results | cut -f 1 | sort | uniq | grep -c "${ACKUMULERAD}")
+@ På samma sätt kan vi avgöra om vi ska använda bonuspoäng eller inte.
+Vi vill avgöra från kursnamnet i [[course]] om vi ska använda bonus eller inte.
+De kurser som ska använda bonus har kurskod DD1310 eller inleds med prgm.
+<<beräknade konstanter>>=
+USE_BONUS_POINTS=$(echo ${course} | egrep -c "DD1310|prgm")
+@
+
+
+\section{Översikt över programmet}
+
+Det vi vill göra är följande.
+<<datorprov.sh>>=
+#!/bin/bash
+
+<<konfigurationsvariabler>>
+<<konstanter>>
+<<hjälpfunktioner>>
+<<beräknade konstanter>>
+
+all() {
+  <<kolla om vi har cachat resultat för [[all]], om så, använd det istället>>
+  <<låt [[students]] vara en lista med alla studenter>>
+  for student in ${students}; do
+    <<skriv ut [[student]]ens resultat>>
+  done | <<spara resultatet i cachen för [[all]]>>
+  <<skriv ut de cachade resultaten för [[all]]>>
+}
+
+<<andra kommandon>>
+
+<<kör angivet kommando>>
+@
+
+Vi kan låta användaren ange ett kommando på kommandoraden.
+Om användaren gör det så kör vi det kommandot, annars gör vi ingenting.
+Anledningen till att vi inte will köra [[all]] direkt om inget annat anges 
+(vilket vi gjorde i tidigare versioner) är att vi vill kunna köra
+[[source datorprov.sh prgm24]]
+utan att köra något av kommandona.
+<<kör angivet kommando>>=
+if ! [ $# -eq 0 ]; then
+  "$@"
+fi
+@ Så nu kan vi köra programmet med
+[[./datorprov.sh prgm24 all]]
+för att skriva ut alla resultat.
+
+
+\section{Cachea resultat}
+
+Vi vill nu skapa en cache för vissa resultat som återanvänds.
+Utmatningen från [[all]] återanvänds på en del ställen,
+därför vill vi bara köra den en gång och spara resultatet i en temporär fil.
+<<konstanter>>=
+all_cache=$(mktemp)
+<<kolla om vi har cachat resultat för [[all]], om så, använd det istället>>=
+if [ -s ${all_cache} ]; then
+  <<skriv ut de cachade resultaten för [[all]]>>
+  return
+fi
+<<skriv ut de cachade resultaten för [[all]]>>=
+cat ${all_cache}
+<<spara resultatet i cachen för [[all]]>>=
+cat > ${all_cache}
+@
+
+\subsection{Resultat från Canvas}\label{SparaResultat}
+
+Vi vill även komma åt resultat från Canvas.
+Resultatet (utmatningen) har kolumnerna uppgift, student, poäng och 
+rättningsdatum (i den ordningen).
+
+Detta tar ännu längre tid att köra än [[all]].
+Så vi vill ha en cahcad version av detta också.
+<<hjälpfunktioner>>=
+results() {
+  <<om vi har cachat resultat för [[results]], använd det istället>>
+  <<hämta resultat från Canvas>> \
+    | <<spara resultatet i cachen för [[results]]>>
+  <<skriv ut de cachade resultaten för [[results]]>>
+}
+@
+
+Vi vill ha en deterministiskt namngiven fil för resultatet.
+På så vis kan vi återanvända den mellan körningar.
+<<konstanter>>=
+results_cache=/tmp/results-${course}.csv
+<<spara resultatet i cachen för [[results]]>>=
+cat > ${results_cache}
+<<skriv ut de cachade resultaten för [[results]]>>=
+cat ${results_cache}
+<<om vi har cachat resultat för [[results]], använd det istället>>=
+if [ -s ${results_cache} ]; then
+  <<skriv ut de cachade resultaten för [[results]]>>
+  return
+fi
+@
+
+För att komma åt resultaten i Canvas kan vi använda [[canvaslms]].
+<<hämta resultat från Canvas>>=
+canvaslms submissions -c ${course} -l \
+                      -a "(${DATORPROV}|${BONUS}|${ACKUMULERAD}|${BETYG})" \
+| <<klipp ut kolumnerna som är relevanta för [[results]]>> \
+| <<rensa bort dubletter>>
+@
+
+De kolumner som vi är intresserade av är uppgift (2), student (3), poäng (4) 
+och rättningsdatum (6).
+(Rättningsdatumnet borde vara detsamma som inlämningsdatumet, i de fall båda 
+finns.
+Men i vissa fall finns bara rättningsdatumet.
+Så vi kan använda det.)
+<<klipp ut kolumnerna som är relevanta för [[results]]>>=
+cut -f 2-4,6
+@
+
+När vi rensar dubletter vill vi behålla en av varje resultat.
+<<rensa bort dubletter>>=
+sort -u \
+| keep_latest
+@ Efter sorteringen har vi en lista där rader kan skilja sig i resultaten.
+Då vill vi behålla det senaste resultatet.
+
+Funktionen~[[keep_latest]] tar en lista med resultat och behåller det senaste 
+resultatet.
+Om vi plockar ut alla unika student--uppgiftpar, då kan vi sedan sortera dem 
+och ta det senaste resultatet för varje student--uppgiftpar.
+<<hjälpfunktioner>>=
+keep_latest() {
+  local lines=$(cat) # need to use it twice
+  for assign_student_pair in $(echo "${lines}" | cut -f 1,2 | sort -u); do
+    local latest_date=$(echo "${lines}" \
+                        | grep -v "${assign_student_pair}" \
+                        | cut -f 4 \
+                        | sort \
+                        | last -n 1)
+    # get the whole line
+    echo "${lines}" \
+    | grep "${assign_student_pair}" \
+    | grep "${latest_date}"
+  done
+}
+@
+
+
+\subsection{Rensa cachade resultat}
+
+För att underlätta för användaren kan vi lägga till ett kommando för att rensa 
+filen med resultat.
+<<andra kommandon>>=
+clean() {
+  rm ${results_cache}
+  rm ${all_cache}
+}
+@ Då kan vi köra [[./datorprov.sh prgm24 clean]] för att få färska resultat på 
+efterföljande körningar.
+
+
+\section{Skapa en lista med alla studenter}
+
+Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter 
+genom att hämta dem från filen.
+<<låt [[students]] vara en lista med alla studenter>>=
+students=$(results | cut -f 2 | sort | uniq)
+@
+
+
+\section{Skriv ut [[student]]ens resultat}
+
+Vi vill skriva ut både studentens resultat och bonuspoängen; båda på samma 
+format, en på varje rad.
+Vi vill även skriva ut summan av studentens bonus och datorprovspoäng.
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+user1@kth.se Datorprov 1001122
+user1@kth.se Datorprov med bonus 2012133
+\end{verbatim}
+<<skriv ut [[student]]ens resultat>>=
+<<skriv ut [[student]]ens bonuspoäng>>
+<<skriv ut [[student]]ens datorprovspoäng>>
+<<skriv även ut summan av [[student]]ens bonus och datorprov>>
+@
+
+\subsection{Studentens bonuspoäng}
+
+Låt oss fokusera på att skriva ut studentens bonuspoäng.
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+\end{verbatim}
+<<skriv ut [[student]]ens bonuspoäng>>=
+bonus=$(<<sätt ihop bonussträngen för [[student]]>>)
+echo -e "${student}\t${BONUS_POINTS}\t${bonus}"
+@
+
+Det vi har som indata är följande.
+\begin{verbatim}
+Bonus: Programmerarvänliga program och tilldelningar	user1@kth.se	1
+Bonus: Tillämpa styrstrukturer	user1@kth.se	1
+Bonus: Utforma och presentera användarvänlig utdata	user1@kth.se	
+Bonus: Överföra data mellan fil och program	user1@kth.se	1
+Bonus: Konstruera interaktiva program	user1@kth.se	1
+Bonus: Använda och konstruera sammansatta datatyper	user1@kth.se	
+Bonus: Dela upp ett program	user1@kth.se	1
+\end{verbatim}
+
+För att skriva ut studentens bonuspoäng börjar vi med att skriva ut 
+bonuspoängen (0 eller 1) för varje område, i rätt ordning.
+För att skriva ut bonuspoängen för ett område, kan vi använda följande 
+hjälpfunktion.
+Den läser ut bonuspoängen för en student och ett område från filen.
+Om det inte finns någon bonuspoäng, då är kolumnen tom, men vi ska då skriva ut 
+0.
+<<hjälpfunktioner>>=
+bonus() {
+  local file=$1
+  local student=$2
+  local area=$3
+  local points=$(grep "${student}" ${file} | grep "${area}" | cut -f 3)
+  if [ -z "${points}" ]; then
+    echo 0
+  else
+    echo ${points}
+  fi
+}
+@
+
+Med rätt ordning menar vi att den första (Programmeringsvänliga program och 
+tilldelningar) ska vara den sista siffran.
+Därefter kan vi slå ihop raderna till en rad på rätt format med [[tr]].
+<<sätt ihop bonussträngen för [[student]]>>=
+(bonus ${results_cache} $student "${BONUS} Dela upp ett program"; \
+ bonus ${results_cache} $student \
+  "${BONUS} Använda och konstruera sammansatta datatyper"; \
+ bonus ${results_cache} $student "${BONUS} Konstruera interaktiva program"; \
+ bonus ${results_cache} $student \
+  "${BONUS} Överföra data mellan fil och program"; \
+ bonus ${results_cache} $student \
+  "${BONUS} Utforma och presentera användarvänlig utdata"; \
+ bonus ${results_cache} $student "${BONUS} Tillämpa styrstrukturer"; \
+ bonus ${results_cache} $student \
+  "${BONUS} Programmerarvänliga program och tilldelningar") \
+| tr -d '\n'
+@
+
+\subsection{Studentens datorprovspoäng}
+
+Vi vill nu skriva ut studentens datorprovspoäng på samma sätt som vi skrev ut 
+bonuspoängen.
+\begin{verbatim}
+user1@kth.se Datorprov 1001122
+\end{verbatim}
+Detta är enkelt då detta redan finns i [[results]].
+Vi vill dock byta ordning på kolumn 1 och 2 (student och Datorprov).
+<<skriv ut [[student]]ens datorprovspoäng>>=
+points=$(results | grep "${student}" | grep ${DATORPROV} | cut -f 3 | round)
+echo -e "${student}\t${DP_POINTS}\t${points}"
+@
+
+Då Canvas ibland slänger in en massa decimaler, exempelvis att poängen slutar 
+med \(2.9999999\), då måste vi avrunda det till 3.
+Detta kan vi göra med följande trick\footnote{%
+  \texttt{https://stackoverflow.com/questions/68878409/rounding-floats-to-integer-under-bash}
+}.
+Men vi vill bara göra något om det finns poäng.
+Om studenten inte har skrivit provet så är poängen en tom sträng, då hoppar vi 
+vidare utan att göra något.
+<<hjälpfunktioner>>=
+round() {
+  local points=$(cat)
+  if [ -n "${points}" ]; then
+    echo "(${points} + 0.5) / 1" | bc
+  fi
+}
+@
+
+
+\section{Skriv ut summan av bonus och datorprov}
+
+Vi vill nu gå från
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+user1@kth.se Datorprov 1001122
+\end{verbatim}
+till
+\begin{verbatim}
+user1@kth.se Bonus 1011011
+user1@kth.se Datorprov 1001122
+user1@kth.se Datorprov med bonus 2012133
+\end{verbatim}
+
+Vi har redan skrivit ut de första två raderna.
+Vi har även värdena [[bonus]] och [[points]] (för datorprovet).
+Om de inte skrivit datorprovet kommer [[points]] vara en tom sträng, då hoppar 
+vi vidare.
+<<skriv även ut summan av [[student]]ens bonus och datorprov>>=
+if [ -z "${points}" ]; then
+  sum=${bonus}
+else
+  sum=$(echo ${bonus} + ${points} | bc)
+fi
+echo -e "${student}\t${SUM_POINTS}\t${sum}"
+@
+
+
+\section{Andra kommandon}
+
+Vi vill nu lägga till lite fler kommandon.
+Detta görs i form av att lägga till funktioner i [[<<andra kommandon>>]].
+
+\subsection{Alla godkända}
+
+Vi vill nu lägga till ett kommando för att lista alla godkända.
+Då kan vi helt enkelt kolla på alla studenter som har minst 2:or rakt igenom 
+efter att vi lagt till bonus.
+<<andra kommandon>>=
+P() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
+  all \
+  | grep "${from_points}" \
+  | egrep "[2-4]{7}"
+}
+@
+
+\subsection{Godkända utan bonus}
+
+Vi vill även se vilka som blev godkända utan att behöva sin bonuspoäng.
+<<andra kommandon>>=
+PDPutanBonus() {
+  all \
+  | grep "${DP_POINTS}" | grep -v "${SUM_POINTS}" \
+  | egrep "[2-4]{7}"
+}
+@
+
+\subsection{Lista kompletteringar}
+
+Vi vill nu lägga till ett kommando för att lista alla kompletteringar.
+Vi vill då filtrera bort alla godkända.
+Därefter vill vi hitta alla som har max en 1:a och resten lägst 2:or.
+<<andra kommandon>>=
+Fx() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
+  all \
+  | grep "${from_points}" \
+  | egrep -v "[2-4]{7}" \
+  | egrep "[0-4]{7}" \
+  | egrep "\s[2-4]*[01][2-4]*($|\.)"
+}
+@
+
+\subsection{Lista de som inte skrev}
+
+Vi vill nu lägga till ett kommando för att lista alla som inte skrev.
+Vi vill då bara lista dem som inte har något resultat på datorprovet.
+<<andra kommandon>>=
+nothing() {
+  results | grep "${DATORPROV}" \
+          | egrep -v "[0-9]{4}-[0-9]{2}-[0-9]{2}" \
+          | cut -f 2
+}
+@
+
+\subsection{Lista underkända}
+
+Vi vill nu lägga till ett kommando för att lista alla underkända.
+Vi vill då bara lista dem som gjort ett försök att skriva.
+<<andra kommandon>>=
+F() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
+  all \
+  | <<filtrera bort övriga>> \
+  | grep "${from_points}"
+}
+@
+
+Vi vill också ha ett kommando för alla underkända, vare sig de har F eller Fx.
+Detta är användbart i de fall vi inte tillämpar komplettering (Fx), utan vill 
+sätta F på alla som skrev som inte fick P.
+<<andra kommandon>>=
+ickeP() {
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
+  all \
+  | <<filtrera bort alla med P och som inte skrev>> \
+  | grep "${from_points}"
+}
+@
+
+För att filtrera bort studenter kan vi använda funktionerna ovan, plocka ut 
+studenternas identifierare och använda [[grep -v -f]] med 
+[[bash]]-funktionaliteten [[<(...)]], som skapar en temporär fil.
+<<filtrera bort övriga>>=
+grep -v -f <((P; Fx) | cut -f 1; nothing)
+<<filtrera bort alla med P och som inte skrev>>=
+grep -v -f <(P | cut -f 1; nothing)
+@
+
+Den slutgiltiga poängen är antingen summan av datorprovspoäng och bonuspoäng 
+eller ackumulerade poäng.
+Vi kan använda [[USE_ACKUMULATION]] för att avgöra vilken av dem vi ska 
+använda.
+<<låt [[from_points]] vara den slutgiltiga poängen>>=
+local from_points="${SUM_POINTS}"
+if [ ${USE_ACKUMULATION} -eq 1 ]
+then
+  from_points="${ACK_POINTS}"
+fi
+@
+
+
+\section{Ackumulera poäng mellan provomgångar}\label{AckumuleraPoäng}
+
+Vi nämnde ovan att prgm ackumulerar poäng från skrivning till skrivning.
+På så vis behöver de bara komplettera de lärandemål de inte klarat.
+Det vi vill åstadkomma här är att skriva ut studenternas ackumulerade poäng i
+[[<<skriv ut [[student]]ens resultat>>]].
+Men vi skriver bara ut det om vi ska använda ackumulering.
+<<skriv ut [[student]]ens resultat>>=
+if [ ${USE_ACKUMULATION} -eq 1 ]
+then
+  local ack_points=$(ackumulera ${student})
+  echo -e "${student}\t${ACK_POINTS}\t${ack_points}"
+fi
+@ Det vi vill göra här är att implementera funktionen [[ackumulerad]].
+
+Det här betyder att vi behöver komma ihåg poängen från förra provomgången.
+Vi hade enkelt löst detta om vi hade haft [[--history]] på
+[[canvaslms submissions]]\footnote{
+  \texttt{https://github.com/dbosk/canvaslms/issues/189}
+}.
+Då hade vi bara kunnat summera alla poäng för en student på den uppgiften.
+
+Det vi får göra istället är att ha en extra uppgift i Canvas, `Ackumulerad 
+datorprovspoäng` ([[ACKUMULERAD]]).
+Denna motsvarar betyget i `Betyg datorprov` ([[BETYG]]).
+Det finns flera fördelar med detta:
+\begin{itemize}
+\item Studenterna kan se sin ackumulerade poäng, den poäng som ligger till 
+grund för betyget.
+\item Vi kan använda existensen av denna uppgift för att avgöra om vi ska 
+ackumulera poängen eller ej.
+\end{itemize}
+
+Vi kan börja med en funktion som ackumulerar poängen för en student.
+<<hjälpfunktioner>>=
+ackumulera() {
+  local student="$1"
+  <<kolla om vi ska ackumulera poängen, returnera fel om inte>>
+  <<låt [[points_ack]] vara [[student]]ens ackumulerade poäng>>
+  <<om vi behöver ackumulera nya poäng>>
+  then
+    <<addera poängen från senaste provet till [[points_ack]]>>
+  fi
+  echo "${points_ack}"
+}
+@
+
+För att läsa ut studentens tidigare ackumulerade poäng från Canvas, kan vi 
+hämta den från [[results]].
+Om den är tom, då har de inget sedan tidigare.
+Och då ska poängen vara noll.
+<<låt [[points_ack]] vara [[student]]ens ackumulerade poäng>>=
+local points_ack=$(results | grep "${student}" \
+                           | grep "${ACKUMULERAD}" | cut -f 3)
+if [ -z "${points_ack}" ]; then
+  points_ack=0
+fi
+@
+
+\subsection{Kolla om vi ska ackumulera poängen}
+
+Denna är enkel.
+Som vi påpekande ovan, om uppgiften `Ackumulerad datorprovspoäng` inte finns, 
+då ska vi inte ackumulera poängen.
+<<kolla om vi ska ackumulera poängen, returnera fel om inte>>=
+if [ ${USE_ACKUMULATION} -eq 0 ]
+then
+  return 1
+fi
+@
+
+\subsection{Om vi behöver ackumulera nya poäng}
+
+För att kolla om vi behöver ackumulera poängen, kollar vi på datumen när de 
+senast ändrades.
+Vi kan jämföra dem alfanumeriskt eftersom datumen är på ISO-format 
+(YYYY-MM-DD).
+<<om vi behöver ackumulera nya poäng>>=
+<<låt [[date_dp]] vara datumet för [[student]]s senaste [[DATORPROV]]>>
+<<låt [[date_ack]] vara datumet för [[student]]s senaste [[ACKUMULERAD]]>>
+if [ "${date_dp}" \> "${date_ack}" ]
+<<låt [[date_ack]] vara datumet för [[student]]s senaste [[ACKUMULERAD]]>>=
+local date_ack=$(get_assignment_date "${ACKUMULERAD}" "${student}")
+@ Mer om [[get_assignment_date]] nedan.
+
+\subsection{Summera poängen}
+
+Nu återstår bara att addera poängen från senaste provet till den ackumulerade 
+poängen.
+
+Värt att diskutera här är huruvida studenterna ska kunna får godkänt genom att 
+bli underkänd två gånger.
+De kommer att kunna få ett poäng på en skrivning (underkänt) och ett till poäng 
+på nästa (underkänt), och då bli godkänd.
+Vore det inte rimligare att de måste uppnå godkänt på en och samma skrivning?
+Å andra sidan talar ju det emot bonussystemet, för det är ju precis vad man gör 
+där.
+Dock så har de klarat 80 procent av flera frågor då.
+
+Det vi vill göra nu är att addera poängen från senaste provet och bonuspoängen 
+till den ackumulerade poängen.
+<<addera poängen från senaste provet till [[points_ack]]>>=
+<<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>
+<<låt [[bonus]] vara [[student]]ens bonuspoäng>>
+points_ack=$(echo ${points} + ${bonus} + ${points_ack} | bc)
+@ Men, om de inte kommer upp i två poäng (godkänt) på ett lärandemål,
+då ska vi sätta poängen till noll.
+På så vis betyder det att de inte får poäng för bonuspoängen fler än en gång.
+De måste klara lärandemålet under en skrivning, med hjälp av bonuspoängen.
+För att åstadkomma detta skriver vi om alla ettor till nollor.
+<<addera poängen från senaste provet till [[points_ack]]>>=
+points_ack=$(echo ${points_ack} | sed 's/1/0/g')
+@ Vi vill inte heller råka få ett lärandemål som kommer upp i 10 poäng, och på 
+så vis ger poäng på ett annat lärandemål.
+Därför sätter vi alla poäng över 4 till 4.
+<<addera poängen från senaste provet till [[points_ack]]>>=
+points_ack=$(echo ${points_ack} | sed 's/[5-9]/4/g')
+@
+
+
+\section{Rapportera resultaten till Canvas}
+
+Vi vill nu rapportera resultaten till Canvas.
+Det upplägg vi har är att studenterna behöver skriva om provet om de inte har 
+klarat det.
+Vi har två upplägg:
+\begin{itemize}
+\item På prgi behöver de skriva om provet i sin helhet om de inte klarat det.
+\item På prgm behöver de bara skriva om de lärandemål de inte klarat.
+\end{itemize}
+
+Det vi vill rapportera är följande, för varje student vill vi rapportera:
+\begin{itemize}
+\item betyget, P eller F (eller Fx, gör dock ingen skillnad, bara underlättar 
+statistiken för att se vilka som var nära);
+\item vilka lärandemål (och frågor) som de blev underkända på.
+\end{itemize}
+Sedan vill vi även lägga till en kommentar för studenterna på prgm att de bara 
+behöver skriva om de lärandemål de blev underkända på.
+
+Vi vill ha ett kommando för att rapportera resultaten, som i fallet med prgi.
+<<andra kommandon>>=
+rapportera() {
+  local to_assignment="${BETYG}"
+  <<låt [[from_points]] vara den slutgiltiga poängen>>
+  for student in $(<<filterera ut alla studenter med nya resultat>>)
+  do
+    <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
+    <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>
+    <<låt [[total_points]] vara [[student]]ens totala poäng>>
+    if [ ${USE_ACKUMULATION} -eq 1 ]
+    then
+      <<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>
+    fi
+    grade=$(compute_grade ${total_points})
+    feedback=$(lo_feedback ${points} ${bonus})
+    canvaslms grade -c ${course} \
+                    -a "${to_assignment}" \
+                    -u ${student} \
+                    -g ${grade} \
+                    -m "${feedback}"
+  done
+}
+@
+
+
+\subsection{Få ut data för studenternas resultat}
+
+Värdena [[bonus]], [[points]] och [[total_points]] finns redan i 
+utmatningen från [[all]], vi behöver bara plocka ut dem på samma sätt som vi 
+plockar ut studenterna.
+Och de studenter vi är intresserade av är de som fick P eller icke-P (inte de 
+som inte skrev).
+<<låt [[bonus]] vara [[student]]ens bonuspoäng>>=
+local bonus=$(all | grep "${student}" | grep "${BONUS_POINTS}" | cut -f 3)
+<<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>=
+local points=$(all | grep "${student}" \
+                   | grep "${DP_POINTS}" \
+                   | grep -v "${SUM_POINTS}" | cut -f 3)
+@
+
+Det är [[total_points]] som avgör betyget som rapporteras.
+Så vi hämtar därför den poängen från [[from_points]].
+<<låt [[total_points]] vara [[student]]ens totala poäng>>=
+local total_points=$(all | grep "${student}" \
+                         | grep "${from_points}" | cut -f 3)
+@
+
+\subsection{Uppdatera ackumulerad poäng i Canvas}
+
+Vi vill nu uppdatera ackumulerad poäng i Canvas.
+Detta är enkelt i detta steg.
+Vi har redan uppdaterat poängen i [[ackumulera]], om det behövdes.
+
+Vi kommer också bara att komma hit om studenten har uppdaterade resultat, 
+annars är de inte med i listan [[studenter_med_nya_resultat]].
+På så vis ska vi alltid uppdatera poängen.
+Om vi inte gör det så ställer vi inte datumet till rätta och studenten kommer 
+alltid att ha nya resultat.
+
+Kom ihåg att om vi kommer hit så innehåller [[total_points]] den ackumulerade 
+poängen.
+<<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>=
+points_ack_stored=$(results | grep "${student}" \
+                            | grep "${ACKUMULERAD}" | cut -f 3)
+canvaslms grade -c ${course} \
+                -a "${ACKUMULERAD}" \
+                -u ${student} \
+                -g ${total_points} \
+                -m "$(ack_feedback ${total_points} ${bonus})"
+@
+
+Vi vill även ha en funktion som skriver ut återkopplingen för ackumulerade 
+poäng.
+<<hjälpfunktioner>>=
+ack_feedback() {
+  local points=$1
+  echo points = $points
+  <<rensa bort ledande nollor från [[points]]>>
+  local bonus=$2
+  echo bonus = $bonus
+  <<rensa bort ledande nollor från [[bonus]]>>
+  echo
+  for lo_num in $(seq 1 7); do
+    echo -n "Lärandemål ${lo_num}," \
+            "frågorna $(( (lo_num - 1) * 3 + 1))-$((lo_num * 3)): "
+    local lo_points=$((points % 10))
+    local lo_bonus=$((bonus % 10))
+    <<skriv ut återkopplingen för lärandemålet>>
+    points=$((points / 10))
+    bonus=$((bonus / 10))
+  done
+}
+@
+
+\label{NoLeadingZeroes}
+Anledningen till att vi vill rensa bort ledande nollor från poängen är för att 
+annars kommer [[$((...))]] att tolka dem oktalt.
+<<hjälpfunktioner>>=
+no_leading_zeroes() {
+  points=$1
+  while [ ${points} -ne 0 -a ${points:0:1} = 0 ]; do
+    points=${points:1}
+  done
+  echo ${points}
+}
+<<rensa bort ledande nollor från [[points]]>>=
+points=$(no_leading_zeroes ${points})
+<<rensa bort ledande nollor från [[bonus]]>>=
+bonus=$(no_leading_zeroes ${bonus})
+@
+
+
+Denna återkoppling kan vara väldigt kortfattad och fokusera på vad studenten 
+behöver göra för att uppnå godkänt.
+Vi skulle kunna lägga till poäng och bonus för varje enskilt lärandemål, det 
+gör det enklare för studenten att förstå hur de ska läsa sina poäng.
+Dock inte här, det skulle funka bättre på återkopplingen på datorprovet.
+<<skriv ut återkopplingen för lärandemålet>>=
+if [ ${lo_points} -ge 2 ]; then
+  echo "godkänt resultat."
+else
+  echo -n "underkänt resultat." \
+          "Du måste klara minst två av tre av dessa frågor på nästa prov. "
+  if [ ${lo_bonus} -gt 0 ]; then
+    echo "Du har en bonuspoäng till hjälp."
+  else
+    echo "Du har tyvärr ingen bonuspoäng till hjälp på detta lärandemål."
+  fi
+fi
+echo
+@
+
+
+\subsection{Filtrera ut relevanta studenter}
+
+De studenter som är relevanta är alla som har fått ett nytt resultat---men som 
+inte redan har ett P rapporterat i `Betyg datorprov` ([[BETYG]]), eftersom vi 
+inte vill skriva över ett P med något annat.
+Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och 
+[[ickeP]]).
+<<filterera ut alla studenter med nya resultat>>=
+(P; ickeP) \
+| cut -f 1 | sort | uniq \
+| <<filtrera bort alla som redan har P som betyg>> \
+| <<filtrera bort alla som inte har uppdaterade resultat>>
+<<filtrera bort alla som redan har P som betyg>>=
+grep -v -f <(results | grep "${BETYG}" | grep -E "\sP\s" | cut -f 2)
+@ Vi såg
+[[<<filtrera bort alla som inte har uppdaterade resultat>>]]
+i avsnitt \ref{FiltreraBortAllaSomInteHarUppdateradeResultat}.
+
+\subsection{Studenter med nya resultat}
+
+Ibland vill vi bara göra saker för studenter med nya resultat.
+Därför vill vi hålla koll på vilka dessa studenter är.
+
+För att hålla koll på detta använder vi datumen för när studenterna skrev 
+`Datorprov` ([[DATORPROV]]) och datumet när vi satte betyget i `Betyg 
+datorprov` ([[BETYG]]).
+Om datumet för `Datorprov` är senare än för `Betyg datorprov`, då vet vi att 
+studenten har nyare resultat.
+När vi då uppdaterar betyget kommer datumet att bli nyare än för `Datorprov`.
+<<hjälpfunktioner>>=
+studenter_med_nya_resultat() {
+  <<låt [[students]] vara en lista med alla studenter>>
+  for student in ${students}; do
+    <<om studenten har nya resultat>>
+    then
+      echo ${student}
+    fi
+  done
+}
+@
+
+Nu kan vi även passa på att lösa samma problem i fallet med att rapportera.
+\label{FiltreraBortAllaSomInteHarUppdateradeResultat}
+<<filtrera bort alla som inte har uppdaterade resultat>>=
+grep -f <(studenter_med_nya_resultat)
+@
+
+För att kolla om studenten har nya resultat,
+kollar vi på datumen när de senast ändrades.
+Vi kan jämföra dem alfanumeriskt eftersom datumen är på ISO-format 
+(YYYY-MM-DD).
+<<om studenten har nya resultat>>=
+<<låt [[date_dp]] vara datumet för [[student]]s senaste [[DATORPROV]]>>
+<<låt [[date_betyg]] vara datumet för [[student]]s senaste [[BETYG]]>>
+if [ "${date_dp}" \> "${date_betyg}" ]
+@
+
+För att få ut datumen kollar vi på rättningsdatumet.
+Den finns för båda uppgifterna.
+Inlämingsdatumet som finns i kolumn 4 finns dock inte för `Ackumulerad 
+datorprovspoäng` eller `Betyg datorprov`, eftersom studenterna aldrig lämnar in 
+något där.
+Vi vill ha uppgiften (kolumn 2), studentens e-post (kolumn 3) och 
+rättningsdatumet (kolumn 5).
+Eftersom datumen inte finns ibland, vill vi i de fallen använda 0000-00-00.
+På så vis kommer det alltid före ett datum.
+<<hjälpfunktioner>>=
+get_assignment_date() {
+  local assignment=$1
+  local student=$2
+  local date=$(results | grep "${student}" \
+                       | grep "${assignment}" \
+                       | cut -f 4)
+  if [ -z "${date}" ]; then
+    echo "0000-00-00"
+  else
+    echo ${date}
+  fi
+}
+<<låt [[date_dp]] vara datumet för [[student]]s senaste [[DATORPROV]]>>=
+local date_dp=$(get_assignment_date "${DATORPROV}" "${student}")
+<<låt [[date_betyg]] vara datumet för [[student]]s senaste [[BETYG]]>>=
+local date_betyg=$(get_assignment_date "${BETYG}" "${student}")
+@
+
+
+\subsection{Beräkna betyg}
+
+Vi vill nu skriva en funktion som beräknar betyget på samma sätt som ovan.
+Om studenten fått minst 2:or rakt igenom, då har hen fått P, annars F eller Fx.
+Men om studenten inte har någon poäng alls (dvs. hen inte skrev, och poängen är 
+en tom sträng), då ska hen inte få något betyg (det ska vara en tom sträng).
+<<hjälpfunktioner>>=
+compute_grade() {
+  local points=$1
+  if [ -z "${points}" ]; then
+    return
+  elif [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
+    echo P
+  else
+    echo F
+  fi
+}
+
+compute_grade_with_Fx() {
+  local points=$1
+  if [ -z "${points}" ]; then
+    return
+  elif [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
+    echo P
+  elif [ $(echo ${points} | egrep "^([0-4]{7}|[2-4]{6})$" \
+           | egrep -c "^([2-4]*[01][2-4]*|[2-4]{6})$") -eq 1 ]; then
+    echo Fx
+  else
+    echo F
+  fi
+}
+@
+
+
+\subsection{Lista lärandemål och frågor med återkoppling}
+
+Vi vill nu skriva en hjälpfunktion som tar en students poäng och returnerar 
+(skriver ut till stdout) vilka lärandemål och motsvarande frågor de behöver 
+jobba mer med.
+<<hjälpfunktioner>>=
+lo_feedback() {
+  local points=$1
+  <<rensa bort ledande nollor från [[points]]>>
+  local bonus=$2
+  <<rensa bort ledande nollor från [[bonus]]>>
+  local count_full_score=0
+  for lo_num in $(seq 1 7); do
+    local lo_points=$((points % 10))
+    local bonus_points=$((bonus % 10))
+    if [ ${lo_points} -ge 3 ]; then
+      <<öka på [[count_full_score]]>>
+    else
+      <<skriv ut namn och frågor för lärandemål [[lo_num]]>>
+      <<skriv ut återkoppling för [[lo_points]]>>
+      echo # för blankrad mellan lärandemål
+    fi
+    points=$((points / 10))
+    bonus=$((bonus / 10))
+  done
+  <<skriv ut hur många lärandemål studenten fick full pott på>>
+}
+@
+
+Man kan få maximalt tre poäng utan bonus.
+Det krävs två poäng för att klara ett lärandemål.
+Om studenten har fått tre av tre behöver vi inte skriva ut något, då räcker det 
+med att vi ökar på antalet.
+<<öka på [[count_full_score]]>>=
+count_full_score=$((count_full_score + 1))
+@ Om studenten fått full pott på åtminstone ett lärandemål, då skriver vi det.
+Om de fått full pott på alla lärandemål, då skriver vi något extra positivt.
+<<skriv ut hur många lärandemål studenten fick full pott på>>=
+if [ ${count_full_score} -eq 7 ]; then
+  echo "Bra jobbat, du fick full pott på alla lärandemål!"
+elif [ ${count_full_score} -gt 0 ]; then
+  echo "Sedan fick du full pott på övriga lärandemål (${count_full_score})." \
+       "Bra jobbat!"
+fi
+@
+
+Vi vill ha en funktion som översätter lärandemålets nummer till dess namn.
+<<hjälpfunktioner>>=
+lo_name() {
+  case $1 in
+    1) echo -n "Programmerarvänliga program och tilldelningar";;
+    2) echo -n "Tillämpa styrstrukturer";;
+    3) echo -n "Utforma och presentera användarvänlig utdata";;
+    4) echo -n "Överföra data mellan fil och program";;
+    5) echo -n "Konstruera interaktiva program";;
+    6) echo -n "Använda och konstruera sammansatta datatyper";;
+    7) echo -n "Dela upp ett program";;
+  esac
+}
+@
+
+Detta ger oss följande.
+<<skriv ut namn och frågor för lärandemål [[lo_num]]>>=
+echo -n "(${lo_num}) $(lo_name ${lo_num}) "
+local first_question=$(( (lo_num - 1) * 3))
+local last_questions=$((lo_num * 3))
+echo -n "(frågorna ${first_question}-${last_questions}): "
+@
+
+\subsection{Återkoppling för given poäng}
+
+Vi vill även ha en funktion som skriver ut återkopplingen för en viss poäng.
+Om de fick två poäng vill vi säga att de uppnådde godkänd nivå, men att det 
+ändå finns utrymme för förbättring.
+Om de fick en poäng vill vi säga att de inte uppnådde godkänd nivå.
+Men vi vill också ha en version för när vi använder bonuspoäng.
+Vi kontrollerar detta med en miljövariabel.
+<<hjälpfunktioner>>=
+points_feedback() {
+  local points=$1
+  local bonus=$2
+  case ${points} in
+    2) echo "Dina svar uppnådde godkänd nivå," \
+            "men det finns utrymme för förbättring.";;
+    1) echo -n "Dina svar uppnådde inte godkänd nivå," \
+               "du behöver läsa på detta område. "
+       if [ "${bonus}" -eq 1 ]; then
+         echo "Men du fick godkänt tack vare bonuspoängen."
+       elif [ "${bonus}" -eq 0 -a "${USE_BONUS_POINTS}" -eq 1 ]; then
+         echo "Tyvärr har du inte bonuspoäng att falla tillbaka på här."
+       else
+         echo # för att bryta raden
+       fi;;
+    0) echo "Du hade inga korrekta svar på detta lärandemål.";;
+  esac
+}
+@
+
+Det ger oss följande.
+<<skriv ut återkoppling för [[lo_points]]>>=
+points_feedback ${lo_points} ${bonus_points}
+@
+
