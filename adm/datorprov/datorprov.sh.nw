@@ -40,7 +40,6 @@ som i Datorprovet.
 Då kan vi bara addera dessa för att få fram vilka frågor som studenten uppnått 
 godkänt på.
 Bonuspoängen finns lagrad per lärandemål i Canvas:
-
 \begin{verbatim}
 $ canvaslms assignments -c prgm24 -a ^Bonus: | cut -f 3
 Bonus: Programmerarvänliga program och tilldelningar
@@ -56,15 +55,27 @@ Sedan vill vi även rapportera resultaten till Canvas.
 Slutligen kan vi även låta studenten ackumulera poängen från provomgång till 
 provomgång.
 
+Detta är skrivet med strukturen att provet finns i varje kursrum i åtanke.
+Vi kör skriptet med följande rad:
+[[./datorprov.sh prgm24 kommando]].
+Kan vi då använda skriptet även när datorprovet finns i ett examinationsrum och 
+bonuspoängen finns i kursrummet?
+Ja, det borde vi kunna, genom att köra följande:
+[[./datorprov.sh "(prgm24|DD1310 LAB2 .2025-08-18.)" kommando]].
+På så vis får vi uppgifterna från examinationsrummet blandade med uppgifterna 
+från kursrummet, precis som om de var i samma rum.
+(Se [[<<klipp ut kolumnerna som är relevanta för [[results]]>>]] nedan.)
+
+
 \section{Konfigurationsvariabler}\label{Konfigurationsvariabler}
 
 Vi har några konfigurationsvariabler som används i programmet.
-Den första får vi från kommandoraden, men den används överallt.
+Den första får vi från kommandoraden, men den används överallt:
+[[./datorprov.sh prgm24 kommando]].
 Genom att använda [[$1]] och [[shift]] kan vi använda resterande argument som 
 kommandon till programmet.
 Eftersom vi gör [[shift]] kommer koden nedan att funka som att detta argument 
 aldrig funnits.
-[[./datorprov.sh prgm24 kommando]].
 <<konfigurationsvariabler>>=
 course="$1"
 shift
@@ -115,7 +126,6 @@ Det vi vill göra är följande.
 <<konstanter>>
 <<hjälpfunktioner>>
 <<beräknade konstanter>>
-
 
 all() {
   <<kolla om vi har cachat resultat för [[all]], om så, använd det istället>>
@@ -200,13 +210,46 @@ För att komma åt resultaten i Canvas kan vi använda [[canvaslms]].
 <<hämta resultat från Canvas>>=
 canvaslms submissions -c ${course} -l \
                       -a "(${DATORPROV}|${BONUS}|${ACKUMULERAD}|${BETYG})" \
-| <<klipp ut kolumnerna som är relevanta för [[results]]>>
+| <<klipp ut kolumnerna som är relevanta för [[results]]>> \
+| <<rensa bort dubletter>>
 @
 
-De kolumner som vi är intresserade av är uppgift, student, poäng och 
-rättningsdatum.
+De kolumner som vi är intresserade av är uppgift (2), student (3), poäng (4) 
+och rättningsdatum (6).
+(Rättningsdatumnet borde vara detsamma som inlämningsdatumet, i de fall båda 
+finns.
+Men i vissa fall finns bara rättningsdatumet.
+Så vi kan använda det.)
 <<klipp ut kolumnerna som är relevanta för [[results]]>>=
 cut -f 2-4,6
+@
+
+När vi rensar dubletter vill vi behålla en av varje resultat.
+<<rensa bort dubletter>>=
+sort -u \
+| keep_latest
+@ Efter sorteringen har vi en lista där rader kan skilja sig i resultaten.
+Då vill vi behålla det senaste resultatet.
+
+Funktionen~[[keep_latest]] tar en lista med resultat och behåller det senaste 
+resultatet.
+Om vi plockar ut alla unika student--uppgiftpar, då kan vi sedan sortera dem 
+och ta det senaste resultatet för varje student--uppgiftpar.
+<<hjälpfunktioner>>=
+keep_latest() {
+  local lines=$(cat) # need to use it twice
+  for assign_student_pair in $(echo "${lines}" | cut -f 1,2 | sort -u); do
+    local latest_date=$(echo "${lines}" \
+                        | grep -v "${assign_student_pair}" \
+                        | cut -f 4 \
+                        | sort \
+                        | last -n 1)
+    # get the whole line
+    echo "${lines}" \
+    | grep "${assign_student_pair}" \
+    | grep "${latest_date}"
+  done
+}
 @
 
 
@@ -647,9 +690,6 @@ utmatningen från [[all]], vi behöver bara plocka ut dem på samma sätt som vi
 plockar ut studenterna.
 Och de studenter vi är intresserade av är de som fick P eller icke-P (inte de 
 som inte skrev).
-Eftersom det tar lite tid att köra [[all]] varje gång, vill vi spara resultatet 
-i en temporär fil och använda den istället.
-<<för varje [[student]] som gjort något>>=
 <<låt [[bonus]] vara [[student]]ens bonuspoäng>>=
 local bonus=$(all | grep "${student}" | grep "${BONUS_POINTS}" | cut -f 3)
 <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>=
@@ -846,13 +886,24 @@ en tom sträng), då ska hen inte få något betyg (det ska vara en tom sträng)
 <<hjälpfunktioner>>=
 compute_grade() {
   local points=$1
-  if [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
+  if [ -z "${points}" ]; then
+    return
+  elif [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
+    echo P
+  else
+    echo F
+  fi
+}
+
+compute_grade_with_Fx() {
+  local points=$1
+  if [ -z "${points}" ]; then
+    return
+  elif [ $(echo ${points} | egrep -c "[2-4]{7}") -eq 1 ]; then
     echo P
   elif [ $(echo ${points} | egrep "^([0-4]{7}|[2-4]{6})$" \
            | egrep -c "^([2-4]*[01][2-4]*|[2-4]{6})$") -eq 1 ]; then
     echo Fx
-  elif [ -z "${points}" ]; then
-    return
   else
     echo F
   fi
