@@ -194,13 +194,13 @@ results() {
 Vi vill ha en deterministiskt namngiven fil för resultatet.
 På så vis kan vi återanvända den mellan körningar.
 <<konstanter>>=
-results_cache=/tmp/results-${course}.csv
+results_cache="/tmp/results-${course}.csv"
 <<spara resultatet i cachen för [[results]]>>=
-cat > ${results_cache}
+cat > "${results_cache}"
 <<skriv ut de cachade resultaten för [[results]]>>=
-cat ${results_cache}
+cat "${results_cache}"
 <<om vi har cachat resultat för [[results]], använd det istället>>=
-if [ -s ${results_cache} ]; then
+if [ -s "${results_cache}" ]; then
   <<skriv ut de cachade resultaten för [[results]]>>
   return
 fi
@@ -208,7 +208,7 @@ fi
 
 För att komma åt resultaten i Canvas kan vi använda [[canvaslms]].
 <<hämta resultat från Canvas>>=
-canvaslms submissions -c ${course} -l \
+canvaslms submissions -c "${course}" -l \
                       -a "(${DATORPROV}|${BONUS}|${ACKUMULERAD}|${BETYG})" \
 | <<klipp ut kolumnerna som är relevanta för [[results]]>> \
 | <<rensa bort dubletter>>
@@ -510,7 +510,7 @@ Vi kan använda [[USE_ACKUMULATION]] för att avgöra vilken av dem vi ska
 använda.
 <<låt [[from_points]] vara den slutgiltiga poängen>>=
 local from_points="${SUM_POINTS}"
-if [ ${USE_ACKUMULATION} -eq 1 ]
+if [ "${USE_ACKUMULATION}" -eq 1 ]
 then
   from_points="${ACK_POINTS}"
 fi
@@ -525,7 +525,7 @@ Det vi vill åstadkomma här är att skriva ut studenternas ackumulerade poäng 
 [[<<skriv ut [[student]]ens resultat>>]].
 Men vi skriver bara ut det om vi ska använda ackumulering.
 <<skriv ut [[student]]ens resultat>>=
-if [ ${USE_ACKUMULATION} -eq 1 ]
+if [ "${USE_ACKUMULATION}" -eq 1 ]
 then
   local ack_points=$(ackumulera ${student})
   echo -e "${student}\t${ACK_POINTS}\t${ack_points}"
@@ -582,7 +582,7 @@ Denna är enkel.
 Som vi påpekande ovan, om uppgiften `Ackumulerad datorprovspoäng` inte finns, 
 då ska vi inte ackumulera poängen.
 <<kolla om vi ska ackumulera poängen, returnera fel om inte>>=
-if [ ${USE_ACKUMULATION} -eq 0 ]
+if [ "${USE_ACKUMULATION}" -eq 0 ]
 then
   return 1
 fi
@@ -667,16 +667,16 @@ rapportera() {
     <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
     <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>
     <<låt [[total_points]] vara [[student]]ens totala poäng>>
-    if [ ${USE_ACKUMULATION} -eq 1 ]
+    if [ "${USE_ACKUMULATION}" -eq 1 ]
     then
       <<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>
     fi
     grade=$(compute_grade ${total_points})
     feedback=$(lo_feedback ${points} ${bonus})
-    canvaslms grade -c ${course} \
+    canvaslms grade -c "${course}" \
                     -a "${to_assignment}" \
-                    -u ${student} \
-                    -g ${grade} \
+                    -u "${student}" \
+                    -g "${grade}" \
                     -m "${feedback}"
   done
 }
@@ -722,10 +722,10 @@ poängen.
 <<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>=
 points_ack_stored=$(results | grep "${student}" \
                             | grep "${ACKUMULERAD}" | cut -f 3)
-canvaslms grade -c ${course} \
+canvaslms grade -c "${course}" \
                 -a "${ACKUMULERAD}" \
-                -u ${student} \
-                -g ${total_points} \
+                -u "${student}" \
+                -g "${total_points}" \
                 -m "$(ack_feedback ${total_points} ${bonus})"
 @
 
@@ -949,9 +949,9 @@ count_full_score=$((count_full_score + 1))
 @ Om studenten fått full pott på åtminstone ett lärandemål, då skriver vi det.
 Om de fått full pott på alla lärandemål, då skriver vi något extra positivt.
 <<skriv ut hur många lärandemål studenten fick full pott på>>=
-if [ ${count_full_score} -eq 7 ]; then
+if [ "${count_full_score}" -eq 7 ]; then
   echo "Bra jobbat, du fick full pott på alla lärandemål!"
-elif [ ${count_full_score} -gt 0 ]; then
+elif [ "${count_full_score}" -gt 0 ]; then
   echo "Sedan fick du full pott på övriga lärandemål (${count_full_score})." \
        "Bra jobbat!"
 fi
