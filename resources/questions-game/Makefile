@@ -1,9 +1,11 @@
+LATEX_FLAGS+=	-shell-escape
+
 .PHONY: all
 all: qgame.pdf
 
 LATEXFLAGS+=	-shell-escape
 
-qgame.pdf: qgame.tex
+qgame.pdf: qgame.tex qgame.py
 qgame.tex: qgame.nw
 
 
