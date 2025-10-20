@@ -331,9 +331,15 @@ user1@kth.se Datorprov 1001122
 user1@kth.se Datorprov med bonus 2012133
 \end{verbatim}
 <<skriv ut [[student]]ens resultat>>=
-<<skriv ut [[student]]ens bonuspoäng>>
+if [ "${USE_BONUS_POINTS}" -gt 0 ]
+then
+  <<skriv ut [[student]]ens bonuspoäng>>
+fi
 <<skriv ut [[student]]ens datorprovspoäng>>
-<<skriv även ut summan av [[student]]ens bonus och datorprov>>
+if [ "${USE_BONUS_POINTS}" -gt 0 ]
+then
+  <<skriv även ut summan av [[student]]ens bonus och datorprov>>
+fi
 @
 
 \subsection{Studentens bonuspoäng}
@@ -370,7 +376,7 @@ bonus() {
   local file=$1
   local student=$2
   local area=$3
-  local points=$(grep -F "${student}" ${file} \
+  local points=$(grep -F "${student}" "${file}" \
                  | grep -F "${area}" \
                  | cut -f 3)
   if [ -z "${points}" ]; then
@@ -906,7 +912,7 @@ if [ "${date_dp}" \> "${date_betyg}" ]
 @
 
 För att få ut datumen kollar vi på rättningsdatumet.
-Den finns för båda uppgifterna.
+Det finns för båda uppgifterna.
 Inlämingsdatumet som finns i kolumn 4 finns dock inte för `Ackumulerad 
 datorprovspoäng` eller `Betyg datorprov`, eftersom studenterna aldrig lämnar in 
 något där.
@@ -920,7 +926,8 @@ get_assignment_date() {
   local student=$2
   local date=$(results | grep "${student}" \
                        | grep "${assignment}" \
-                       | cut -f 4 | tail -n 1)
+                       | <<rensa bort CR>> \
+                       | cut -f 4 | sort -u | tail -n 1)
   if [ -z "${date}" ]; then
     echo "0000-00-00"
   else
@@ -931,6 +938,13 @@ get_assignment_date() {
 local date_dp=$(get_assignment_date "${DATORPROV}" "${student}")
 <<låt [[date_betyg]] vara datumet för [[student]]s senaste [[BETYG]]>>=
 local date_betyg=$(get_assignment_date "${BETYG}" "${student}")
+@
+
+Av någon anledning får vi med en massa CR (carriage return, 
+\texttt{\textbackslash r}) i resultaten.
+Dessa vill vi rensa bort.
+<<rensa bort CR>>=
+tr -d '\r'
 @
 
 
