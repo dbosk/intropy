@@ -1,6 +1,7 @@
 .PHONY: all
 all: notes.pdf slides.pdf
 
+PDFLATEX=		xelatex
 LATEXFLAGS+=	-shell-escape
 
 SRC+=		preamble.tex
