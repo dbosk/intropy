@@ -10,8 +10,21 @@ fördelar klasser erbjuder.
 \subsection{Utan klasser}
 
 Vi börjar med att titta på ett enkelt program för en telefonbok, skrivet 
-utan att använda klasser. Programmet använder en dictionary för att lagra 
-namn och telefonnummer.
+utan att använda klasser.
+\begin{exercise}
+  Skriv ett program som lagrar ett par telefonnummer för några personer och 
+  låter användaren hämta dem.
+  Programmet ska kunna:
+  \begin{itemize}
+    \item Visa alla kontaktnamn i telefonboken.
+    \item Be användaren skriva ett namn så skriver programmet ut motsvarande 
+      telefonnummer.
+    \item Fortsätta fråga efter namn tills användaren trycker Enter på en tom rad.
+      Då avslutar programmet.
+  \end{itemize}
+\end{exercise}
+
+Vi kan använda en uppslagslista för att lagra namn och telefonnummer.
 
 \begin{frame}[fragile]
   phonebook.py \hrulefill
@@ -22,31 +35,32 @@ Detta är en ganska enkel lösning. Men vad händer om vi vill lagra mer
 information om varje person? Kanske vill vi ha både telefonnummer och 
 adress?
 
-\begin{question}
+\begin{exercise}
   Hur skulle du modifiera programmet ovan för att även lagra adresser? 
   Tänk igenom strukturen innan du fortsätter läsa.
-\end{question}
+\end{exercise}
 
-Ett första försök skulle kunna vara att använda en nästlad dictionary, 
-där varje person får en dictionary med olika fält. Låt oss titta på hur 
-det kan se ut:
+Ett första försök skulle kunna vara att använda en nästlad uppslagslista, 
+där varje person får en uppslagslista med olika fält. Låt oss titta på hur det 
+kan se ut (\texttt{phonebook.py} hade vi tidigare, vårt förbättrade program 
+lägger vi i \texttt{contacts.py}):
 
 \begin{frame}[fragile]
   phonebook.py \hrulefill
   \inputminted[linenos,firstline=5,lastline=6]{python}{examples/phonebook.py}
-  \vfill
+  \vspace{0.5em}
   contacts.py \hrulefill
   \inputminted[linenos,firstline=5,lastline=16]{python}{examples/contacts.py}
 \end{frame}
 
 Nu har vi en mer komplicerad datastruktur. Varje person representeras av 
-en dictionary med nycklarna \mintinline{python}{"phone"} och \mintinline{python}{"address"}. 
+en uppslagslista med nycklarna \mintinline{python}{"phone"} och \mintinline{python}{"address"}. 
 Notera att inte alla personer har alla fält ifyllda.
 
-\begin{question}
+\begin{exercise}
   Vad händer om du försöker läsa ett fält som inte finns för en person? 
   Vilket fel kommer du att få?
-\end{question}
+\end{exercise}
 
 Svaret är att du får ett \mintinline{python}{KeyError}. Detta måste vi hantera när vi 
 läser informationen. Låt oss se hur koden för att läsa informationen blir:
@@ -54,7 +68,7 @@ läser informationen. Låt oss se hur koden för att läsa informationen blir:
 \begin{frame}[fragile]
   phonebook.py \hrulefill
   \inputminted[linenos,firstline=13,lastline=13]{python}{examples/phonebook.py}
-  \vfill
+  \vspace{0.5em}
   contacts.py \hrulefill
   \inputminted[linenos,firstline=25,lastline=35]{python}{examples/contacts.py}
 \end{frame}
@@ -63,15 +77,15 @@ Som du ser blev koden ganska omständlig. Vi måste använda \mintinline{python}
 för varje fält vi vill läsa, eftersom vi inte vet om fältet finns. Detta blir 
 snabbt svårläst och repetitivt.
 
-\begin{question}
+\begin{exercise}
   Vilka problem kan du se med denna approach? Tänk på:
   \begin{itemize}
-    \item Vad händer om du skriver fel nyckelnamn i dictionaryn?
+    \item Vad händer om du skriver fel nyckelnamn i uppslagslistan?
     \item Hur vet andra programmerare vilka fält som finns tillgängliga?
     \item Vad händer om du vill lägga till validering (t.ex. kontrollera 
           att telefonnumret har rätt format)?
   \end{itemize}
-\end{question}
+\end{exercise}
 
 Låt oss nu se hur klasser kan hjälpa oss att lösa dessa problem på ett 
 mer elegant och strukturerat sätt.
@@ -79,7 +93,7 @@ mer elegant och strukturerat sätt.
 \subsection{Med klasser}
 
 Nu ska vi se samma funktionalitet implementerad med hjälp av klasser. 
-Istället för att använda nästlade dictionaries skapar vi en 
+Istället för att använda nästlade uppslagslistor skapar vi en 
 \mintinline{python}{Person}-klass som innehåller all information om en person.
 
 \begin{frame}[fragile]
@@ -93,10 +107,10 @@ Här har vi definierat en \mintinline{python}{Person}-klass med en
 \mintinline{python}{__init__}-metod som initierar alla attribut. Varje attribut 
 lagras som en privat variabel (notera de dubbla understreken).
 
-\begin{question}
+\begin{exercise}
   Varför tror du att attributen börjar med dubbla understreck 
   (\mintinline{python}{__})? Vad betyder detta i Python?
-\end{question}
+\end{exercise}
 
 De dubbla understrecken gör attributen privata, vilket innebär att de 
 inte kan nås direkt från utsidan av klassen. Detta kallas inkapsling 
@@ -108,17 +122,34 @@ olika metoderna:
 \begin{frame}[fragile]
   contacts.py \hrulefill
   \inputminted[linenos,firstline=3,lastline=9]{python}{examples/contacts.py}
-  \vfill
+  \vspace{0.5em}
   contacts\textunderscore{}class.py \hrulefill
   \inputminted[linenos,firstline=3,lastline=9]{python}{examples/contacts_class.py}
 \end{frame}
 
+\begin{exercise}
+  Jämför koden för att skapa personer i de två exemplen. Vilka skillnader ser 
+  du? Vilket sätt tycker du är tydligare och varför?
+\end{exercise}
+
 Noterar du att koden för att skapa personer är tydligare med klasser? 
 Vi ser direkt vilka argument som behövs, och i vilken ordning. Med 
-dictionaries är det lätt att göra fel eller glömma ett fält.
+uppslagslistor är det lätt att göra fel eller glömma ett fält.
+Dessutom ser vi här att datat gäller en person 
+(\mintinline{python}{person.Person}).
 
 Nu ska vi titta på hur \mintinline{python}{Person}-klassen definierar 
-metoder för att hämta information. Detta är ett exempel på inkapsling:
+metoder för att hämta information.
+
+\begin{exercise}
+  Hur tror du vi kan läsa information från en 
+  \mintinline{python}{Person}-instans?
+  Tänk på hur vi gjorde det med uppslagslistor innan:
+  \mintinline{python}{phonebook["adam"]["phone"]}.
+\end{exercise}
+
+Vi behöver definiera metoder (exempelvis \mintinline{python}{get_name} nedan) 
+som låter oss läsa ut attributen.
 
 \begin{frame}[fragile]
   person.py \hrulefill
@@ -129,26 +160,58 @@ metoder för att hämta information. Detta är ett exempel på inkapsling:
   \inputminted[autogobble=false,linenos,firstline=65,lastline=70]{python}{examples/person.py}
 \end{frame}
 
-Här ser vi metoder som \mintinline{python}{get_name()} och 
-\mintinline{python}{__str__()}. Den senare är en speciell metod som 
-Python anropar automatiskt när vi försöker konvertera objektet till en 
-sträng (t.ex. med \mintinline{python}{print()}).
+Detta är ett exempel på inkapsling.
+Vi har attribut,
+\mintinline{python}{__first_name} och
+\mintinline{python}{__last_name},
+som vi kan läsa ut med en metod \mintinline{python}{get_name()}.
+Men vi kan inte komma åt attributen direkt utanför klassen.
 
-\begin{question}
+Vi får skriva liknande metoder för de andra attributen.
+
+\begin{exercise}
+  Varför tror du det är bra att inte kunna komma åt attributen direkt? Vad 
+  skulle kunna gå fel om vi tillät det?
+\end{exercise}
+
+Genom att använda metoder för att läsa och skriva attribut kan vi kontrollera 
+hur data hanteras. Vi kan lägga till validering, loggning, eller andra 
+funktioner utan att ändra hur användare av klassen interagerar med den.
+Vi kan också förhindra att en programmerare oavsiktligt ändrar ett attribut på 
+ett sätt som bryter klassens interna logik.
+Det förhindrar många möjliga buggar att uppstå.
+
+Här ser vi metoder som \mintinline{python}{get_name()} och 
+\mintinline{python}{__str__()}.
+
+\begin{exercise}
+  Vad tror du att \mintinline{python}{__str__()}-metoden gör?
+  Hur skiljer den sig från \mintinline{python}{get_name()}?
+\end{exercise}
+
+Dundermetoden \mintinline{python}{__str__()} är en speciell metod som Python 
+anropar automatiskt när vi försöker konvertera objektet till en sträng 
+(exempelvis med \mintinline{python}{print()}) eller \mintinline{python}{str()}.
+
+\begin{exercise}
   Varför har metoden \mintinline{python}{__str__()} dubbla understreck 
   både före och efter namnet? Vad tror du detta indikerar?
-\end{question}
+\end{exercise}
 
-Metoder med dubbla understreck på båda sidor kallas \enquote{\selectlanguage{english}magic methods} eller 
-\enquote{\selectlanguage{english}dunder methods} (\selectlanguage{english}double underscore). De har speciell betydelse i Python 
-och anropas automatiskt i vissa situationer.
+Metoder med dubbla understreck på båda sidor kallas dundermetoder,
+\enquote{\selectlanguage{english}magic methods} eller 
+\enquote{\selectlanguage{english}dunder methods} på engelska.
+Dunder är an sammandragning av orden \foreignlanguage{english}{double 
+underscore}.
+De har speciell betydelse i Python och anropas \emph{automatiskt} i vissa 
+situationer.
 
 Nu kan vi jämföra hur vi läser information med de två metoderna:
 
 \begin{frame}[fragile]
   contacts.py \hrulefill
   \inputminted[linenos,firstline=25,lastline=35]{python}{examples/contacts.py}
-  \vfill
+  \vspace{0.5em}
   contacts\textunderscore{}class.py \hrulefill
   \inputminted[linenos,firstline=23,lastline=25]{python}{examples/contacts_class.py}
 \end{frame}
@@ -158,38 +221,46 @@ eller kontrollera om fält finns. Metoderna \mintinline{python}{get_phone()} och
 \mintinline{python}{get_address()} garanterar att vi alltid får ett värde 
 (även om det kan vara strängen \mintinline{python}{"okänt"}).
 
-\begin{question}
-  Vilka fördelar ser du med att använda klasser jämfört med dictionaries? 
+\begin{exercise}
+  Vilka fördelar ser du med att använda klasser jämfört med uppslagslistor? 
   Lista minst tre fördelar.
-\end{question}
+\end{exercise}
 
 
 \section{Klasser och objekt}
 
-Nu har vi sett ett praktiskt exempel. Låt oss definiera begreppen mer 
-formellt. I objektorienterad programmering är det viktigt att förstå 
-skillnaden mellan en klass och ett objekt.
+Nu har vi sett ett praktiskt exempel. Låt oss definiera begreppen klass och 
+objekt.
 
-Objekt är instanser av klasser.
-Klasser är ritningarna, specifikationerna.
+\begin{exercise}
+  Vad är en klass och vad är ett objekt?
+  Varför vi behöver två olika begrepp i överhuvudtaget?
+  Försök att formulera dina egna definitioner innan du fortsätter läsa.
+\end{exercise}
 
-\begin{question}
-  Tänk på en riktig ritning, till exempel en husritning. Vad motsvarar 
-  klassen och vad motsvarar objekten i den analogin?
-\end{question}
+I objektorienterad programmering är det viktigt att förstå skillnaden mellan en 
+klass och ett objekt.
+\begin{description}
+  \item[Objekt] är instanser av klasser.
+  \item[Klasser] är ritningarna, specifikationerna.
+\end{description}
 
-Klassen är som ritningen av huset: den beskriver hur huset ska se ut, 
-vilka rum det ska ha, etc. Objekten är de faktiska husen som byggs enligt 
-ritningen. Du kan bygga många hus (objekt) från samma ritning (klass), 
-och varje hus kan ha olika färger, inredning osv., men grundstrukturen 
-är densamma.
+Klassen är som ritningen av huset: den beskriver hur huset ska se ut, vilka rum 
+och färger det ska ha, etc. Objekten är de faktiska husen som byggs enligt 
+ritningen. Du kan bygga många hus (objekt) från samma ritning (klass), och 
+varje hus kan ha olika färger, inredning osv., men grundstrukturen är densamma.
+
+Klassen beskriver vilka data som ska vara med.
+Objekten som skapas från klassen innehåller den faktiska datan, själva värdena.
 
 \begin{frame}[fragile]
+  \begin{onlyenv}<presentation>
   \begin{block}{Klass}
     \begin{itemize}
       \item En klass är en ritning eller specifikation för ett objekt.
     \end{itemize}
   \end{block}
+\end{onlyenv}
 
   \begin{minted}{python}
     class Class:
@@ -205,25 +276,28 @@ I kodexemplet ovan ser vi hur en klass definieras med
 \mintinline{python}{class}-nyckelordet. Lägg märke till 
 \mintinline{python}{self}-parametern i metoderna.
 
-\begin{question}
+\begin{exercise}
   Vad tror du \mintinline{python}{self} betyder? Varför finns det som 
   första parameter i alla metoder?
-\end{question}
+\end{exercise}
 
 \mintinline{python}{self} refererar till det specifika objektet (instansen) 
-som metoden anropas på. Det är Pythons sätt att låta metoden veta vilket 
-objekt den arbetar med.
+som metoden anropas på. Det är Pythons sätt att låta metoden veta vilket objekt 
+den arbetar med och komma åt alla attributen (och de andra metoderna som finns 
+definierade i klassen).
 
 \begin{frame}[fragile]
+  \begin{onlyenv}<presentation>
   \begin{block}{Objekt}
     \begin{itemize}
       \item Objekt (plural) är instanser av en klass.
     \end{itemize}
   \end{block}
+  \end{onlyenv}
 
   \begin{minted}{python}
-    objekt1 = Class()
-    objekt2 = Class()
+    objekt1 = Class("some value")
+    objekt2 = Class("another value")
   \end{minted}
 \end{frame}
 
@@ -235,16 +309,25 @@ kan ha olika värden i sina attribut.
 \subsection{Metoder och attribut}
 
 Nu ska vi titta närmare på de två huvudkomponenterna i en klass: attribut 
-och metoder. Attribut är data som objektet lagrar, medan metoder är 
-funktioner som kan arbeta med denna data.
+och metoder.
+
+\begin{exercise}
+  Vad är skillnaden mellan attribut och metoder i en klass?
+  Försök att formulera dina egna definitioner innan du fortsätter läsa.
+\end{exercise}
+
+Attribut är data som objektet lagrar, medan metoder är funktioner som kan 
+arbeta med denna data.
 
 \begin{frame}[fragile]
+  \begin{onlyenv}<presentation>
   \begin{block}{Attribut}
     \begin{itemize}
       \item Är data som tillhör objektet.
       \item Vanligtvis initierade i \mintinline{python}{__init__}.
     \end{itemize}
   \end{block}
+  \end{onlyenv}
 
   \begin{minted}{python}
     class Class:
@@ -253,11 +336,11 @@ funktioner som kan arbeta med denna data.
   \end{minted}
 \end{frame}
 
-\begin{question}
+\begin{exercise}
   I kodexemplet ovan, vilken metod används för att initiera attributen? 
   Vad tror du händer när vi skapar ett nytt objekt med 
-  \mintinline{python}{Class(attr)}?
-\end{question}
+  \mintinline{python}{Class(attribute)}?
+\end{exercise}
 
 Metoden \mintinline{python}{__init__} kallas automatiskt när vi skapar 
 ett nytt objekt. Det är här vi sätter startvärden för objektets attribut. 
@@ -278,15 +361,35 @@ Här ser vi att \mintinline{python}{Person}-klassen har fem attribut:
 \end{enumerate}
 Alla lagras som privata attribut.
 
-Nu ska vi titta på metoder - funktioner som tillhör objektet:
+\begin{exercise}
+  Vad är det som gör dem privata?
+  Kan man göra publika attribut, hur?
+\end{exercise}
+
+Attributen är privata eftersom de börjar med dubbla understreck 
+(\mintinline{python}{__}).
+Om vi ville göra dem publika skulle vi helt enkelt inte använda några 
+understreck alls.
 
 \begin{frame}[fragile]
+  \inputminted[highlightlines={7,21-22}]{python}{examples/public.py}
+\end{frame}
+
+Detta hade inte fungerat om vi hade skrivit \mintinline{python}{self.__value} 
+istället för \mintinline{python}{self.value}.
+(Prova!)
+
+Nu ska vi titta på metoder---funktioner som tillhör objektet.
+
+\begin{frame}[fragile]
+  \begin{onlyenv}<presentation>
   \begin{block}{Metoder}
     \begin{itemize}
       \item Metoder är funktioner som tillhör objektet.
       \item Dessa används för att interagera med objektet.
     \end{itemize}
   \end{block}
+  \end{onlyenv}
 
   \begin{minted}{python}
     class Class:
@@ -298,14 +401,15 @@ Nu ska vi titta på metoder - funktioner som tillhör objektet:
 Metoder är som funktioner, men de tillhör ett specifikt objekt och har 
 tillgång till objektets attribut genom \mintinline{python}{self}.
 
-\begin{question}
+\begin{exercise}
   Hur tror du vi kan läsa värdet på ett privat attribut som 
   \mintinline{python}{__first_name} om vi inte kan komma åt det direkt? 
   Varför skulle vi vilja ha privata attribut?
-\end{question}
+\end{exercise}
 
-Svaret är att vi skapar metoder (ofta kallade \enquote{\selectlanguage{english}getters}) för att läsa 
-attributen. Detta ger oss kontroll över hur data läses och kan ändras. 
+Svaret är att vi skapar metoder (ofta kallade 
+\enquote{\selectlanguage{english}getters}) för att läsa attributen. Detta ger 
+oss kontroll över hur data läses och förhindrar ändringar.
 Låt oss se exempel från \mintinline{python}{Person}-klassen:
 
 \begin{frame}[fragile]
@@ -320,9 +424,9 @@ Här ser vi metoder som \mintinline{python}{get_name()} och
 kombinerar för- och efternamn till ett fullständigt namn.
 
 
-\section{Specialmetoder}
+\section{Dundermetoder}
 
-Vi har redan sett några specialmetoder som \mintinline{python}{__init__} 
+Vi har redan sett några dundermetoder som \mintinline{python}{__init__} 
 och \mintinline{python}{__str__}. Python har många sådana \enquote{\selectlanguage{english}magic methods} 
 som låter oss anpassa hur våra objekt beter sig i olika situationer.
 
@@ -335,22 +439,29 @@ som låter oss anpassa hur våra objekt beter sig i olika situationer.
 
 Vi såg tidigare att \mintinline{python}{__str__()} används för att 
 konvertera objektet till en läsbar sträng. Detta är bara en av många 
-specialmetoder som Python erbjuder.
+dundermetoder som Python erbjuder.
 
-\begin{question}
-  Vad tror du händer när vi skriver \mintinline{python}{print(person)}? 
-  Vilken metod anropas automatiskt?
-\end{question}
+\begin{exercise}
+  Vad tror du händer när vi skriver \mintinline{python}{print(person)}?
+\end{exercise}
 
-Python anropar \mintinline{python}{__str__()}-metoden automatiskt. Detta 
-gör att vi kan styra hur våra objekt presenteras när de skrivs ut. Låt oss 
-titta på Pythons dokumentation för att se fler specialmetoder:
+Python anropar \mintinline{python}{__str__()}-metoden automatiskt, 
+d.v.s.~\mintinline{python}{person.__str__()}.
+Detta gör att vi kan styra hur våra objekt presenteras när de skrivs ut.
+Låt oss titta på Pythons dokumentation i \cref{doc:dundermetoder} för att se 
+fler dundermetoder.
 
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-special-methods.png}
+  \begin{figure}[h]
+    \begin{sidecaption}
+      {Utdrag från Pythons dokumentation som visar några vanliga 
+      dundermetoder.}[doc:dundermetoder]%
+      \includegraphics[width=\columnwidth]{figs/docs-special-methods.png}
+    \end{sidecaption}
+  \end{figure}
 \end{frame}
 
-Som du ser finns det många specialmetoder! De låter oss definiera hur 
+Som du ser finns det många dundermetoder! De låter oss definiera hur 
 objekt ska bete sig med operatorer som \mintinline{python}{+}, 
 \mintinline{python}{<}, \mintinline{python}{==}, och så vidare. 
 
@@ -367,90 +478,128 @@ Låt oss titta på några konkreta exempel från vår \mintinline{python}{Person
   \inputminted[autogobble=false,linenos,firstline=81,lastline=84]{python}{examples/person.py}
 \end{frame}
 
-Här ser vi flera intressanta specialmetoder:
+Här ser vi flera intressanta dundermetoder:
 \begin{itemize}
-  \item \mintinline{python}{__lt__} (\selectlanguage{english}less than) 
-    används när vi jämför objekt med \mintinline{python}{<}
-  \item \mintinline{python}{__repr__} ger en mer teknisk representation 
-    av objektet, ofta användbar för debugging
+  \item \mintinline{python}{__lt__} (\selectlanguage{english}less than) används 
+  när vi jämför objekt med \mintinline{python}{<}.
+  \item \mintinline{python}{__repr__} ger en mer teknisk representation av 
+    objektet, ofta användbar för debugging.
+    Ska inte användas på samma sätt som \mintinline{python}{__str__}.
+    En tumregel är att utskriften från \mintinline{python}{__repr__} ska kunna 
+    använadas för att särskilja objektet från andra objekt med \emph{exakt 
+    samma värden på alla attribut}.
 \end{itemize}
 
-\begin{question}
-  I koden ovan jämför \mintinline{python}{__lt__} födelsedagar. Varför 
-  returnerar den \mintinline{python}{self.get_birthday() > other.get_birthday()}? 
-  Varför \mintinline{python}{>} och inte \mintinline{python}{<}?
-\end{question}
+\begin{exercise}
+  I koden ovan jämför \mintinline{python}{__lt__} födelsedagar.
+  Då kunde vi använda \mintinline{python}{person1 < person2} för att jämföra 
+  två personer.
+  Kan vi även använda \mintinline{python}{person1 > person2}?
+  Hur fungerar det i så fall?
+\end{exercise}
 
-Tänk efter: en person som är född senare har ett högre födelsedatum men är 
-\emph{yngre}. Därför är \mintinline{python}{person1 < person2} sant om 
-\mintinline{python}{person1} är yngre, vilket betyder att födelsedatumet 
-är större!
+Ja! Python använder automatiskt \mintinline{python}{__lt__} för att härleda 
+\mintinline{python}{__gt__} (\selectlanguage{english}greater than).
+Faktum är att vi bara behöver definiera \mintinline{python}{__lt__}
+(eller \mintinline{python}{__gt__})
+och \mintinline{python}{__eq__} (\selectlanguage{english}equal) för att få alla 
+andra jämförelseoperatorer gratis.
+
+\begin{exercise}
+  Varför tror du det är användbart att kunna jämföra objekt med 
+  operatorer som \mintinline{python}{<} och \mintinline{python}{==}?
+  Ge ett exempel på när detta skulle vara praktiskt.
+\end{exercise}
+
+När vi har definierat dessa dundermetoder för jämförelse, då kan vi även 
+sortera en lista med \mintinline{python}{Person}-objekt med funktionen
+\mintinline{python}{sorted()}.
 
 
 \section{Arv}
 
 Nu ska vi utforska ett av de mest kraftfulla koncepten i objektorienterad 
-programmering: arv (\selectlanguage{english}inheritance). Arv låter oss skapa nya klasser 
-baserade på befintliga klasser, och utöka eller modifiera deras funktionalitet.
+programmering: arv (\selectlanguage{english}inheritance).
 
-\begin{question}
+\begin{exercise}
   Om du skulle skapa en \mintinline{python}{PersonNick}-klass som är 
-  precis som \mintinline{python}{Person} men också har ett smeknamn, hur 
-  skulle du göra det? Skulle du kopiera all kod från \mintinline{python}{Person}?
-\end{question}
+  precis som \mintinline{python}{Person} men också har ett smeknamn, hur skulle 
+  du göra det?
+\end{exercise}
 
-Nej! Istället använder vi arv. Låt oss se hur:
+Arv låter oss skapa nya klasser baserade på befintliga klasser, och utöka eller 
+modifiera deras funktionalitet---helt utan kodupprepning.
+Så istället för att kopiera all kod från \mintinline{python}{Person}, kan vi 
+ärva från den och bara lägga till det nya vi behöver.
 
 \begin{frame}[fragile]
   person\textunderscore nick.py \hrulefill
-  \inputminted[linenos,firstline=3,lastline=19]{python}{examples/person_nick.py}
+  \inputminted[linenos,firstline=3,lastline=8]{python}{examples/person_nick.py}
+  \dots
+  \inputminted[linenos,firstline=11,lastline=19]{python}{examples/person_nick.py}
 \end{frame}
 
-Notera syntaxen \mintinline{python}{class PersonNick(Person):} - detta 
-betyder att \mintinline{python}{PersonNick} ärver från 
-\mintinline{python}{Person}. Vi säger att \mintinline{python}{PersonNick} 
-är en \emph{subklass} till \mintinline{python}{Person}, och 
-\mintinline{python}{Person} är \emph{superklass} till 
-\mintinline{python}{PersonNick}.
+Notera syntaxen \mintinline{python}{class PersonNick(Person)}, detta betyder 
+att \mintinline{python}{PersonNick} ärver från \mintinline{python}{Person}. Vi 
+säger att \mintinline{python}{PersonNick} är en \emph{underklass} eller 
+\emph{barnklass}
+(\selectlanguage{english}\enquote{\selectlanguage{english}subclass})
+till \mintinline{python}{Person}, och \mintinline{python}{Person} är 
+\emph{föräldraklass} 
+(\selectlanguage{english}\enquote{\selectlanguage{english}superclass})
+till \mintinline{python}{PersonNick}.
+
+\begin{exercise}
+  Hur ska vi tilldela de attribut som \mintinline{python}{Person} redan har?
+\end{exercise}
+
+\begin{frame}[fragile]
+  person\textunderscore nick.py \hrulefill
+  \inputminted[linenos,firstline=9,lastline=10]{python}{examples/person_nick.py}
+\end{frame}
 
 I \mintinline{python}{__init__} använder vi \mintinline{python}{super()} 
-för att anropa superklassens \mintinline{python}{__init__}-metod. Detta 
-initierar alla attribut från \mintinline{python}{Person}, och sedan lägger 
-vi till vårt nya attribut \mintinline{python}{__nick}.
+för att anropa föräldraklassens \mintinline{python}{__init__}-metod. Detta 
+initierar alla attribut från \mintinline{python}{Person}, och sedan lägger vi 
+till vårt nya attribut \mintinline{python}{__nick} som föräldern inte känner 
+till.
 
-\begin{question}
+\begin{exercise}
   Vilka metoder från \mintinline{python}{Person}-klassen kan 
   \mintinline{python}{PersonNick} använda? Måste vi skriva om alla metoder?
-\end{question}
+\end{exercise}
 
 Nej! \mintinline{python}{PersonNick} ärver automatiskt alla metoder från 
 \mintinline{python}{Person}. Men vi kan också välja att \emph{ersätta} 
-(\selectlanguage{english}override) metoder om vi vill ändra deras beteende:
+(överlagra, \selectlanguage{english}overload) metoder om vi vill ändra deras 
+beteende, vilket vi gjorde med \mintinline{python}{__init__()}.
 
 \begin{frame}[fragile]
+  \begin{onlyenv}<presentation>
   \begin{remark}
     \begin{itemize}
       \item Kan även byta ut funktionalitet.
     \end{itemize}
   \end{remark}
+  \end{onlyenv}
   person\textunderscore nick.py \hrulefill
   \inputminted[linenos,firstline=21,lastline=29]{python}{examples/person_nick.py}
 \end{frame}
 
-Här har vi \emph{överskrivit} (\selectlanguage{english}overridden) metoden 
+Här har vi \emph{överlagrat} (\selectlanguage{english}overloaded) metoden 
 \mintinline{python}{get_name()}. Nu returnerar den smeknamnet om det finns, 
 annars förnamnet. Den ursprungliga metoden från \mintinline{python}{Person} 
 finns fortfarande kvar och kan nås via \mintinline{python}{super()}, vilket 
 vi gör i metoden \mintinline{python}{get_full_name()}.
 
-\begin{question}
-  Varför tror du det är användbart att kunna anropa superklassens metod 
+\begin{exercise}
+  Varför tror du det är användbart att kunna anropa föräldraklassens metod 
   med \mintinline{python}{super()}? Ge ett exempel på när det skulle vara 
   praktiskt.
-\end{question}
+\end{exercise}
 
 Det är användbart när vi vill \emph{utöka} beteendet snarare än att helt 
-ersätta det. Vi kan köra superklassens logik först, och sedan lägga till 
+ersätta det. Vi kan köra föräldraklassens logik först, och sedan lägga till 
 vår egen. Låt oss se hela exemplet:
 
 \begin{frame}[fragile]
@@ -465,12 +614,14 @@ både \mintinline{python}{PersonNick} och \mintinline{python}{Person}.
 Låt oss sammanfatta konceptet arv:
 
 \begin{frame}[fragile]
+  \begin{onlyenv}<presentation>
   \begin{block}{Arv}
     \begin{itemize}
       \item En klass kan ärva en annan klass.
       \item Den kan då förbättra saker.
     \end{itemize}
   \end{block}
+  \end{onlyenv}
 
   \begin{minted}{python}
     class Class:
@@ -490,10 +641,10 @@ I detta exempel ärver \mintinline{python}{Child} från
 ursprungliga metoden via \mintinline{python}{super()}, och kvadrerar sedan 
 resultatet.
 
-\begin{question}
+\begin{exercise}
   Reflektera över fördelarna med arv: När skulle det vara lämpligt att 
   använda arv? När skulle det vara bättre att skapa en helt ny klass istället?
-\end{question}
+\end{exercise}
 
 Arv är lämpligt när den nya klassen verkligen \enquote{är en} variant av 
 basklassen (\enquote{\selectlanguage{english}is-a} relation). Till exempel är 
@@ -503,3 +654,41 @@ extra funktionalitet. Om relationerna istället är \enquote{\selectlanguage{eng
 \mintinline{python}{Address}), då är det bättre att använda komposition 
 (ett objekt som attribut) istället för arv.
 
+\begin{onlyenv}<article>
+
+\section{All kod i sin helhet}
+
+Här är all kod från exemplen i kapitlet samlat på ett ställe för enkel 
+referens.
+
+\begin{frame}[fragile]
+  phonebook.py \hrulefill
+  \inputminted[linenos]{python}{examples/phonebook.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  contacts.py \hrulefill
+  \inputminted[linenos]{python}{examples/contacts.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  contacts\textunderscore{}class.py \hrulefill
+  \inputminted[linenos]{python}{examples/contacts_class.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  person.py \hrulefill
+  \inputminted[linenos]{python}{examples/person.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  person\textunderscore nick.py \hrulefill
+  \inputminted[linenos]{python}{examples/person_nick.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  public.py \hrulefill
+  \inputminted[linenos]{python}{examples/public.py}
+\end{frame}
+
+\end{onlyenv}
