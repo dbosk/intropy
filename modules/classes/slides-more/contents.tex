@@ -82,7 +82,7 @@ behåller kontrollen över hur data läses och skrivs.
 \begin{frame}[fragile]
   \inputminted[linenos,firstline=3,lastline=3]{python}{examples/myfrac_base.py}
   \dots
-  \inputminted[linenos,autogobble=off,firstline=15,lastline=24]{python}{examples/myfrac_base.py}
+  \inputminted[linenos,autogobble=false,firstline=15,lastline=24]{python}{examples/myfrac_base.py}
 
   \begin{example}
     Hur vi använder egenskaperna:
@@ -116,6 +116,9 @@ Låt oss jämföra två sätt att arbeta med attribut:
   \begin{minipage}[t]{0.49\linewidth}
     \begin{minted}{python}
         class Class:
+          def __init__(self, attribute):
+            self.__attribute = attribute
+
           @property
           def attribute(self):
             return self.__attribute
@@ -132,6 +135,9 @@ Låt oss jämföra två sätt att arbeta med attribut:
   \begin{minipage}[t]{0.49\linewidth}
     \begin{minted}{python}
         class Class:
+          def __init__(self, attribute):
+            self.__attribute = attribute
+
           def get_attribute(self):
             return self.__attribute
 
@@ -167,7 +173,7 @@ olika representationer:
 \begin{frame}[fragile]
   \inputminted[linenos,firstline=3,lastline=3]{python}{examples/myfrac_base.py}
   \dots
-  \inputminted[linenos,autogobble=off,firstline=25,lastline=30]{python}{examples/myfrac_base.py}
+  \inputminted[linenos,autogobble=false,firstline=25,lastline=30]{python}{examples/myfrac_base.py}
 
   \begin{example}
     Vi provar att typkonvertera:
@@ -467,27 +473,212 @@ för \(\frac{1}{2}\).
   \end{exercise}
 \end{frame}
 
+Vi kan skriva en metod som förkortar bråket.
+Då kan vi anropa denna metod vid lämpliga tillfällen för att hålla bråket i 
+förkortad form.
+
 \begin{frame}
   \begin{exercise}
     Vilken matematisk operation behöver vi för att förkorta ett bråk? Vad har 
     \(\frac{2}{6} = \frac{1}{3}\) gemensamt?
+    Hur kan vi beräkna denna operation i Python?
   \end{exercise}
 \end{frame}
 
 Vi behöver hitta största gemensamma delaren (\foreignlanguage{english}{Greatest Common Divisor}, 
 GCD) av täljaren och nämnaren, och sedan dividera båda med den.
 
-\begin{exercise}
-  När ska vi förkorta bråket? Efter varje operation? I konstrueraren? I 
-  \mintinline{python}{__str__()}?
-\end{exercise}
+Python har funktionen \mintinline{python}{math.gcd(a, b)} som beräknar största 
+gemensamma delaren av två tal. Vi kan använda den så här:
+\mintinline{python}{gcd = math.gcd(nominator, denominator)}.
+
+\begin{frame}
+  \begin{exercise}
+    När är det lämpligt att förkorta bråket?
+  \end{exercise}
+\end{frame}
 
 Det finns flera möjligheter:
 \begin{itemize}
-  \item I konstrueraren och efter varje operation - håller bråket alltid förkortat
-  \item Bara i \mintinline{python}{__str__()} - förkortar endast för visning
-  \item Som en separat metod - låter användaren välja när
+  \item I konstrueraren och efter varje operation---håller bråket alltid 
+    förkortat.
+  \item Bara i \mintinline{python}{__str__()}---förkortar endast för visning.
+  \item Som en separat metod---låter användaren välja när.
 \end{itemize}
 
 Den bästa lösningen beror på användningsfallet. För en matematisk klass är 
-det vanligt att alltid hålla bråket förkortat.
+det vanligt att alltid hålla bråket förkortat. Vi väljer att implementera 
+förkortning i konstrueraren,
+för vi vill ju även ha ha bråket förkortat när vi läser ut täljaren och 
+nämnaren (\mintinline{python}{Fraction.nominator} och 
+\mintinline{python}{Fraction.denominator}).
+
+\begin{exercise}
+  Varför räcker det med att förkorta i konstrueraren 
+  (\mintinline{python}{Fraction.__init__}) för att hålla bråket förkortat efter 
+  varje operation?
+\end{exercise}
+
+Det räcker med konstrueraren eftersom varje aritmetisk operation skapar ett 
+nytt \mintinline{python}{Fraction}-objekt---det vill säga: anropar 
+konstrueraren.
+
+\subsection{Implementation}
+
+Låt oss titta på hur vi implementerar förkortning:
+
+\begin{frame}[fragile]
+  \inputminted[linenos,firstline=3,lastline=7]{python}{examples/myfrac_simplify.py}
+  \dots
+  \inputminted[autogobble=false,linenos,firstline=17,lastline=18]{python}{examples/myfrac_simplify.py}
+  \dots
+  \inputminted[autogobble=false,linenos,firstline=20,lastline=25]{python}{examples/myfrac_simplify.py}
+\end{frame}
+
+Vi behöver importera \mintinline{python}{math}-modulen för att få tillgång till 
+\mintinline{python}{gcd()}-funktionen. Sedan skapar vi en (privat) metod 
+\mintinline{python}{__simplify()} som gör själva förkortningen.
+
+\begin{exercise}
+  Varför är \mintinline{python}{__simplify()} en privat metod (med dubbla 
+  understreck)? Behöver den inte vara publik?
+\end{exercise}
+
+Nej, det är en intern hjälpmetod som bara behövs inom klassen.
+Genom att göra den privat skyddar vi klassens interna implementation.
+En användare (annan programmerare) kommer aldrig att behöva den då vi alltid 
+håller bråken förkortade.
+
+Låt oss titta närmare på implementationen av \mintinline{python}{__simplify()}:
+
+\begin{frame}[fragile]
+  \inputminted[linenos,firstline=20,lastline=24]{python}{examples/myfrac_simplify.py}
+\end{frame}
+
+Metoden är enkel:
+\begin{enumerate}
+  \item Beräkna GCD av täljare och nämnare
+  \item Dividera både täljare och nämnare med GCD (heltals-division)
+\end{enumerate}
+
+\begin{exercise}
+  Varför använder vi \mintinline{python}{//=} (heltalsdivision och tilldelning) 
+  istället för \mintinline{python}{/=} (vanlig division)?
+\end{exercise}
+
+Täljare och nämnare ska alltid vara heltal.
+Om vi använder vanlig division får vi flyttal, vilket inte är lämpligt för en 
+bråkrepresentation (rationella tal).
+Eftersom att vi alltid delar med största gemensamma delaren vet vi att 
+divisionen alltid går jämnt upp---det blir aldrig några decimaler.
+
+\subsection{Testning}
+
+\begin{frame}[fragile]
+  \begin{example}
+    Låt oss testa vår förkortningsfunktion:
+    \only<1>{%
+      \inputminted[linenos,firstline=75,lastline=92]{python}{examples/myfrac_simplify.py}
+    }
+    \only<2>{%
+      \inputminted[linenos,firstline=75,lastline=79]{python}{examples/myfrac_simplify.py}
+    }
+    \dots
+
+    \begin{onlyenv}<2>
+      När vi kör detta program får vi:
+      \begin{minted}{text}
+        Fraction(6, 12) = 1/2
+        Fraction(2, 6) = 1/3
+        1/2 + 1/4 = 3/4
+        1/2 * 2/3 = 1/3
+        2/3 - 1/6 = 1/2
+      \end{minted}
+    \end{onlyenv}
+  \end{example}
+\end{frame}
+
+Perfekt! Alla bråk förkortas automatiskt till sin enklaste form. 
+\mintinline{python}{Fraction(6, 12)} blir \mintinline{python}{1/2}, och 
+resultatet av \mintinline{python}{Fraction(1, 2) + Fraction(1, 4)} blir 
+\mintinline{python}{3/4} istället för \mintinline{python}{6/8}.
+
+\section{Sammanfattning}
+
+Vi har nu en komplett bråkklass med:
+\begin{itemize}
+  \item Flexibel konstruktion av bråk
+  \item Egenskaper för att läsa täljare och nämnare
+  \item Aritmetiska operationer (+, -, *, med både normala och omvända varianter)
+  \item Typkonvertering till sträng och flyttal
+  \item Automatisk förkortning
+\end{itemize}
+
+Hela koden för klassen ser ut så här:
+\begin{frame}[fragile]
+  \inputminted[linenos]{python}{examples/myfrac_simplify.py}
+\end{frame}
+
+\begin{exercise}
+  Vilka ytterligare funktioner skulle kunna vara användbara för en bråkklass?
+\end{exercise}
+
+Vi har en del saker som skulle kunna implementeras med fler dundermetoder:
+\begin{itemize}
+  \item Division av bråk, använder \mintinline{python}{__truediv__()} och 
+  \mintinline{python}{__rtruediv__()}.
+  \item Att skapa bråk med ett bråk i nämnaren.
+  \item Hantera noll i nämnaren med undantag.
+  \item Typkonvertera sträng till bråk, använder konstrueraren.
+    (Då kan vi skapa bråk med \mintinline{python}{Fraction("3/4")} och således 
+    använda \mintinline{python}{input_type(Fraction, "Ange ett bråktal: ")}.)
+  \item Jämförelseoperatorer (\mintinline{python}{<}, \mintinline{python}{>}, 
+    \mintinline{python}{==}), använder \mintinline{python}{__lt__()}, 
+    \mintinline{python}{__eq__()}, etc.
+  \item Upphöjning till potens, använder \mintinline{python}{__pow__()}.
+  \item Absolutbelopp, använder \mintinline{python}{__abs__()}.
+\end{itemize}
+
+\begin{exercise}
+  Vad händer om vi skapar ett bråk med negativ nämnare, som 
+  \mintinline{python}{Fraction(1, -2)}?
+  %Hur kan vi förbättra vår \mintinline{python}{__simplify()}-metod för att 
+  %hantera detta?
+\end{exercise}
+
+Det är problematiskt att tillåta negativ nämnare eftersom klassen då saknar en 
+entydig, kanonisk representation av ett rationellt tal.
+Konsekvenserna blir:
+
+\begin{itemize}
+\item Samma tal får flera olika interna former. Exempelvis 
+  \(\texttt{Fraction(1, -2)}\) och \(\texttt{Fraction(-1, 2)}\) representerar båda 
+  \(-\frac{1}{2}\), medan \(\texttt{Fraction(-1, -2)}\) egentligen är \(\frac{1}{2}\).
+  Om vi skriver ut dem får vi
+  \mintinline{python}{print(Fraction(1, -2))} som ger \(1/-2\) och 
+  \mintinline{python}{print(Fraction(-1, 2))} ger \(-1/2\), vilket ger olika 
+  utskrift för samma värde.
+  Detta kan leda till förvirring vid felsökning och jämförelser.
+\item Förenklingen via \(\gcd\) flyttar inte tecknet till täljaren. 
+  \mintinline{python}{Fraction(6, -12)} förkortas exempelvis till 
+  \(\frac{1}{-2}\) i stället för \(-\frac{1}{2}\), trots att värdet är 
+  detsamma.
+\item Negativa nämnare \enquote{sprids} vidare i sammansatta konstruktioner:
+  \mintinline{python}{Fraction(1, -2) + Fraction(1, 3)} ger \(1/-6\), medan 
+  \mintinline{python}{Fraction(-1, 2) + Fraction(1, 3)} ger \(-1/6\).
+  Resultatet är korrekt, men representationerna gör felsökning och jämförelser 
+  svårare.
+\end{itemize}
+
+För robusthet och determinism bör man därför normalisera tecknet efter 
+förenkling: se alltid till att nämnaren är strikt positiv genom att 
+multiplicera både täljare och nämnare med \(-1\) när nämnaren är negativ.
+Detta ger en unik, kanonisk representation för varje värde.
+Vi kan lägga till kod som flyttar minustecknet till täljaren om nämnaren 
+är negativ. Detta säkerställer en konsekvent representation:
+\begin{minted}{python}
+if self.__denominator < 0:
+    self.__nominator = -self.__nominator
+    self.__denominator = -self.__denominator
+\end{minted}
+
