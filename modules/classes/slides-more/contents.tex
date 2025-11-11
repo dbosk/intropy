@@ -2,15 +2,41 @@
 
 \section{En klass för bråk}
 
-I förra kapitlet lärde vi oss grunderna i objektorienterad programmering med 
-klasser och objekt. Nu ska vi fördjupa oss i mer avancerade tekniker genom 
-att bygga en egen klass för att representera bråk (matematiska bråktal som 
+\ltnote{%
+  \textbf{Learning Objectives for this chapter}:
+  \begin{enumerate}
+    \item LO1: Implementera dundermetoder för aritmetiska operationer
+    \item LO2: Förstå skillnaden mellan \mintinline{python}{__add__} och
+      \mintinline{python}{__radd__}
+    \item LO3: Använda \mintinline{python}{@property}-dekoratorn
+    \item LO4: Implementera typkonvertering
+    \item LO5: Förstå när operatorer är kommutativa
+    \item LO6: Designa en klass som representerar en matematisk entitet
+    \item LO7: Använda \mintinline{python}{isinstance()} för typkontroll
+  \end{enumerate}
+
+  \textbf{Pedagogical strategy}: We build ONE complete example (Fraction
+  class) that demonstrates ALL these concepts. This follows variation
+  theory's principle of showing the WHOLE before breaking it into PARTS.
+  As we build the class incrementally, we use SEPARATION to isolate
+  each concept, then later students must achieve FUSION by integrating
+  all concepts in their own designs.
+
+  \textbf{Why fractions work well}: Fractions are mathematically familiar
+  but programming-wise novel. Students understand WHAT a fraction should
+  do (from math class), so they can focus on HOW to implement it in code.
+  This reduces cognitive load while introducing complex OOP concepts.
+}
+
+I förra kapitlet lärde vi oss grunderna i objektorienterad programmering med
+klasser och objekt. Nu ska vi fördjupa oss i mer avancerade tekniker genom
+att bygga en egen klass för att representera bråk (matematiska bråktal som
 \(\frac{1}{2}\) eller \(\frac{3}{4}\)).
 
 Detta är ett utmärkt exempel eftersom:
 \begin{itemize}
   \item Bråk har en naturligt sammansatt struktur (täljare och nämnare).
-  \item Vi behöver implementera flertalet aritmetiska operationer och 
+  \item Vi behöver implementera flertalet aritmetiska operationer och
     jämförelser.
   \item Vi kan se hur dundermetoder används i praktiken.
   \item Vi lär oss om egenskaper (\foreignlanguage{english}{properties})
@@ -18,15 +44,32 @@ Detta är ett utmärkt exempel eftersom:
 
 \subsection{Konstrueraren}
 
-Vi börjar med att definiera hur vår \mintinline{python}{Fraction}-klass ska 
-skapas. Konstrueraren (\mintinline{python}{__init__}-metoden) är den metod 
+\ltnote{%
+  \textbf{Learning Objectives}: LO6 (Designa en matematisk klass), LO7
+  (Använda \mintinline{python}{isinstance()})
+
+  \textbf{Variation Pattern: Separation + Generalization}
+
+  We will show MULTIPLE ways to create fractions, then generalize to a
+  SINGLE flexible constructor that handles all cases. This demonstrates
+  good API design.
+}
+
+Vi börjar med att definiera hur vår \mintinline{python}{Fraction}-klass ska
+skapas. Konstrueraren (\mintinline{python}{__init__}-metoden) är den metod
 som anropas när vi skapar ett nytt objekt.
 
 \begin{exercise}
-  Vilka argument behöver vi för att skapa ett bråk? Tänk på vad ett bråk 
+  Vilka argument behöver vi för att skapa ett bråk? Tänk på vad ett bråk
   består av matematiskt.
   Vad är användbara argument att skapa ett nytt bråk ifrån?
 \end{exercise}
+
+\ltnote{%
+  Try-first: Students consider the design before seeing our solution.
+  This activates their mathematical knowledge of fractions and makes
+  them think about API design---what would be CONVENIENT for users?
+}
 
 Ett bråk består av två delar: täljare och nämnare.
 Men vad händer om vi vill skapa ett heltal som bråk?
@@ -60,21 +103,73 @@ Den kan hantera flera olika sätt att skapa bråk:
   \end{example}
 \end{frame}
 
-Konstrueraren använder \mintinline{python}{isinstance()} för att kontrollera 
-typen på argumentet. Detta är ett exempel på \emph{polymorfism}---samma metod 
+Konstrueraren använder \mintinline{python}{isinstance()} för att kontrollera
+typen på argumentet. Detta är ett exempel på \emph{polymorfism}---samma metod
 kan hantera olika typer av indata.
+
+\ltnote{%
+  \textbf{Relation to LO7}: The use of \mintinline{python}{isinstance()}
+  demonstrates runtime type checking and polymorphism. By varying the
+  INPUT TYPE (int vs Fraction) while keeping the OUTPUT INVARIANT (always
+  a valid Fraction), students can discern how flexible APIs work.
+
+  \textbf{Variation Pattern: Generalization}
+
+  \textbf{What varies}: Input type and number of arguments
+
+  \textbf{What remains invariant}: The result (a properly initialized
+  Fraction object)
+
+  \textbf{Critical aspect}: The SAME interface
+  (\mintinline{python}{Fraction(...)}) can handle DIFFERENT input
+  patterns. This is the essence of polymorphism and good API design.
+
+  \textbf{Why this works}: Students see multiple concrete examples
+  (int, Fraction, int+int, Fraction+int) that all work with the same
+  constructor. The pattern becomes visible through these varied instances.
+}
 
 
 \subsection{Attribut som egenskaper}
 
-I förra kapitlet såg vi hur vi använde \enquote{\foreignlanguage{english}{getter}}-metoder 
-som \mintinline{python}{get_name()} för att läsa attribut. Nu ska vi lära oss 
+\ltnote{%
+  \textbf{Learning Objective}: LO3 (Använda \mintinline{python}{@property})
+
+  \textbf{Variation Pattern: Contrast}
+
+  \textbf{What varies}: The access syntax (method call
+  \mintinline{python}{get_nominator()} vs property access
+  \mintinline{python}{nominator})
+
+  \textbf{What remains invariant}: The functionality (reading a private
+  attribute) and encapsulation (controlled access)
+
+  \textbf{Critical aspect to discern}: Properties provide the SYNTAX of
+  direct attribute access while maintaining the CONTROL of method-based
+  access. This is a key distinction---it's not just syntactic sugar,
+  it's about API design.
+
+  \textbf{Relation to LO3}: By contrasting getter methods (from previous
+  chapter) with properties, students can see the evolution of Python's
+  approach to encapsulation. Properties are more ``Pythonic''---they
+  look like attributes but behave like methods.
+}
+
+I förra kapitlet såg vi hur vi använde \enquote{\foreignlanguage{english}{getter}}-metoder
+som \mintinline{python}{get_name()} för att läsa attribut. Nu ska vi lära oss
 ett mer elegant sätt: egenskaper (\foreignlanguage{english}{properties}).
 
 \begin{exercise}
-  Vad är skillnaden mellan att skriva \mintinline{python}{frac.get_nominator()} 
+  Vad är skillnaden mellan att skriva \mintinline{python}{frac.get_nominator()}
   och \mintinline{python}{frac.nominator}? Vilket känns mer naturligt?
 \end{exercise}
+
+\ltnote{%
+  Try-first: Students consider which syntax feels more natural. Most
+  will prefer the property syntax, which motivates learning about
+  \mintinline{python}{@property}. This creates intrinsic motivation---they
+  WANT the cleaner syntax.
+}
 
 Egenskaper låter oss använda attribut-liknande syntax medan vi fortfarande 
 behåller kontrollen över hur data läses och skrivs.
@@ -159,13 +254,40 @@ I höger kolumn ser vi det traditionella sättet med explicita metoder.
 
 \subsection{Typkonvertering}
 
-Nu har vi ett bråk som kan skapas och vars täljare och nämnare kan läsas. Men 
+\ltnote{%
+  \textbf{Learning Objective}: LO4 (Implementera typkonvertering)
+
+  \textbf{Variation Pattern: Generalization}
+
+  \textbf{What varies}: The target type (string, float, int)
+
+  \textbf{What remains invariant}: The source (Fraction object) and the
+  pattern (dunder methods for type conversion)
+
+  \textbf{Critical aspect}: Different type conversions require different
+  dunder methods, but they all follow the SAME pattern: Python calls
+  these methods automatically when type conversion is needed.
+
+  \textbf{Relation to LO4}: By showing multiple type conversions
+  (\mintinline{python}{__str__}, \mintinline{python}{__float__},
+  \mintinline{python}{__int__}), students can generalize the pattern:
+  ``When I want my objects to convert to type X, I implement
+  \mintinline{python}{__X__}.''
+}
+
+Nu har vi ett bråk som kan skapas och vars täljare och nämnare kan läsas. Men
 hur ska det visas för användaren? Och hur konverterar vi det till andra typer?
 
 \begin{exercise}
-  Vad tror du händer om vi försöker skriva ut ett \mintinline{python}{Fraction}-objekt 
+  Vad tror du händer om vi försöker skriva ut ett \mintinline{python}{Fraction}-objekt
   med \mintinline{python}{print()}? Hur ska det se ut?
 \end{exercise}
+
+\ltnote{%
+  Try-first: Students predict the behavior before seeing the
+  implementation. This makes them think about user experience and
+  what SHOULD happen, which is crucial for API design (LO6).
+}
 
 Vi behöver implementera dundermetoder för att konvertera vårt bråk till 
 olika representationer:
@@ -208,6 +330,29 @@ För att implementera det skulle vi behöva
 
 
 \section{Addition och subtraktion}
+
+\ltnote{%
+  \textbf{Learning Objectives}: LO1 (Implementera aritmetiska operationer),
+  LO2 (Förstå \mintinline{python}{__add__} vs \mintinline{python}{__radd__}),
+  LO5 (Förstå kommutativitet)
+
+  \textbf{Variation Pattern: Separation + Contrast}
+
+  We will SEPARATE the aspects of operator overloading:
+  \begin{enumerate}
+    \item First: Basic addition (\mintinline{python}{__add__})
+    \item Then: Reversed addition (\mintinline{python}{__radd__})
+    \item Compare: Commutative (addition) vs non-commutative (subtraction)
+  \end{enumerate}
+
+  This systematic separation helps students discern each aspect
+  individually before needing to integrate them (FUSION).
+
+  \textbf{Why this order}: Starting with addition (simpler, commutative)
+  before subtraction (more complex, non-commutative) follows the
+  principle of progressing from simple to complex while maintaining
+  a common pattern.
+}
 
 Nu kommer vi till det riktigt intressanta: att implementera aritmetiska 
 operationer! Vi vill kunna skriva \mintinline{python}{frac_a + frac_b} precis 
@@ -261,6 +406,28 @@ Nu fungerar \mintinline{python}{frac_a + frac_b}.
     Varför fungerar inte \mintinline{python}{1 + frac_a}?
   \end{exercise}
 \end{frame}
+
+\ltnote{%
+  \textbf{Relation to LO2}: This exercise is CRUCIAL for understanding
+  \mintinline{python}{__radd__}. Students must discern WHY
+  \mintinline{python}{frac_a + 1} works but \mintinline{python}{1 + frac_a}
+  doesn't. The CONTRAST reveals Python's operator resolution mechanism.
+
+  \textbf{Variation Pattern: Contrast}
+
+  \textbf{What varies}: Operand order (\mintinline{python}{frac + int} vs
+  \mintinline{python}{int + frac})
+
+  \textbf{What remains invariant}: The operation (addition) and the values
+
+  \textbf{Critical aspect}: Python calls \mintinline{python}{__add__} on
+  the LEFT operand. When that fails, Python tries
+  \mintinline{python}{__radd__} on the RIGHT operand. This is the key
+  insight for LO2.
+
+  Try-first: Students debug the problem before being told the solution,
+  making the learning more memorable.
+}
 
 Tänk på vilken ordning Python utvärderar \mintinline{python}{1 + frac_a}. 
 Vilket objekt är till vänster om \mintinline{python}{+}? Vilken metod anropas?
@@ -390,9 +557,36 @@ subtract}), men här måste vi vara försiktiga!
 \end{frame}
 
 \begin{exercise}
-  Kan vi implementera \mintinline{python}{__rsub__()} på samma sätt som 
+  Kan vi implementera \mintinline{python}{__rsub__()} på samma sätt som
   \mintinline{python}{__radd__()}? Varför eller varför inte?
 \end{exercise}
+
+\ltnote{%
+  \textbf{Relation to LO5}: This is THE critical question for
+  understanding commutativity in operator overloading.
+
+  \textbf{Variation Pattern: Contrast}
+
+  \textbf{What varies}: The operation (addition vs subtraction)
+
+  \textbf{What remains invariant}: The need for reversed operators
+
+  \textbf{Critical aspect to discern}: Commutativity determines whether
+  \mintinline{python}{__radd__} can simply call
+  \mintinline{python}{__add__}. For addition (commutative):
+  $a + b = b + a$, so \mintinline{python}{__radd__} can reuse
+  \mintinline{python}{__add__}. For subtraction (non-commutative):
+  $a - b \neq b - a$, so \mintinline{python}{__rsub__} needs different
+  logic.
+
+  \textbf{Why this contrast works}: By showing addition FIRST (where
+  the trick works) then subtraction (where it doesn't), students
+  experience the pattern and its limitation. This makes the abstract
+  concept of commutativity CONCRETE.
+
+  Try-first: Students predict before being told, forcing them to reason
+  about the mathematics.
+}
 
 Nej! Subtraktion är \emph{inte} kommutativ:
 \(1 - \frac{1}{2} \neq \frac{1}{2} - 1\).
@@ -462,8 +656,33 @@ Precis som med addition och subtraktion behöver vi
 
 \section{Förkortning}
 
-Nu har vi en fungerande bråkklass, men det finns ett problem: bråken förkortas 
-inte automatiskt. Efter några operationer kan vi få \(\frac{6}{12}\) istället 
+\ltnote{%
+  \textbf{Relation to LO6}: This section demonstrates a key aspect of
+  designing mathematical classes: maintaining CANONICAL FORM. A well-
+  designed mathematical class should represent values in their simplest,
+  most standard form.
+
+  \textbf{Variation Pattern: Contrast}
+
+  \textbf{What varies}: Whether fractions are simplified or not
+
+  \textbf{What remains invariant}: The mathematical value
+  ($\frac{6}{12} = \frac{1}{2}$ mathematically, but different
+  representations)
+
+  \textbf{Critical aspect}: Same VALUE, different REPRESENTATION. This
+  distinction is crucial for class design. We want ONE canonical
+  representation per value, which makes comparison, hashing, and
+  debugging easier.
+
+  \textbf{Design decision}: We simplify in the constructor, which means
+  fractions are ALWAYS simplified. This is a design choice---we could
+  have chosen to simplify only for display. Each choice has trade-offs,
+  and students must learn to evaluate these (LO6).
+}
+
+Nu har vi en fungerande bråkklass, men det finns ett problem: bråken förkortas
+inte automatiskt. Efter några operationer kan vi få \(\frac{6}{12}\) istället
 för \(\frac{1}{2}\).
 
 \begin{frame}
@@ -604,6 +823,50 @@ resultatet av \mintinline{python}{Fraction(1, 2) + Fraction(1, 4)} blir
 \mintinline{python}{3/4} istället för \mintinline{python}{6/8}.
 
 \section{Sammanfattning}
+
+\ltnote{%
+  \textbf{Variation Pattern: Fusion}
+
+  Throughout this chapter, we used SEPARATION to introduce each concept
+  individually:
+  \begin{enumerate}
+    \item Constructor design (\mintinline{python}{isinstance()})
+    \item Properties (\mintinline{python}{@property})
+    \item Type conversion (\mintinline{python}{__str__},
+      \mintinline{python}{__float__})
+    \item Arithmetic operators (\mintinline{python}{__add__},
+      \mintinline{python}{__radd__}, etc.)
+    \item Simplification (design decisions)
+  \end{enumerate}
+
+  Now students see the complete class where ALL these aspects work
+  TOGETHER. This is FUSION---experiencing multiple critical aspects
+  simultaneously as an integrated whole.
+
+  \textbf{Relation to all LOs}: The complete Fraction class demonstrates:
+  \begin{itemize}
+    \item LO1: Multiple arithmetic dunder methods working together
+    \item LO2: Both \mintinline{python}{__add__} and
+      \mintinline{python}{__radd__} present
+    \item LO3: Properties providing clean API
+    \item LO4: Type conversions integrated
+    \item LO5: Commutative vs non-commutative operations
+    \item LO6: Complete mathematical class design
+    \item LO7: \mintinline{python}{isinstance()} enabling flexibility
+  \end{itemize}
+
+  \textbf{Why fusion completes learning}: Following Marton \& Pang (2006),
+  students must not only discern individual aspects (via separation) but
+  also experience how they interrelate (via fusion). The complete class
+  shows how design decisions cascade---simplification in constructor
+  affects all operations, properties affect API usability,
+  \mintinline{python}{isinstance()} enables flexible construction, etc.
+
+  \textbf{Next step for students}: Now that they've seen the complete
+  pattern with fractions, they should be able to apply similar patterns
+  to design their own mathematical/domain classes (GENERALIZATION to
+  new contexts).
+}
 
 Vi har nu en komplett bråkklass med:
 \begin{itemize}
