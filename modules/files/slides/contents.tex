@@ -93,11 +93,107 @@
 
 \section{Hur använder vi filer?}
 
+\ltnote{%
+  \textbf{Lärandemål som behandlas i detta avsnitt:}
+  \begin{enumerate}
+    \item \textbf{LO2}: Använda filoperationer (\mintinline{python}{open()},
+      \mintinline{python}{read()}, \mintinline{python}{write()},
+      \mintinline{python}{close()}) korrekt.
+    \item \textbf{LO3}: Tillämpa kontexthanterare (\mintinline{python}{with}-satsen)
+      för säker filhantering.
+    \item \textbf{LO4}: Skilja mellan text- och binärfiler samt välja lämpligt
+      läge vid öppning.
+  \end{enumerate}
+
+  \textbf{Variationsmönster: Generalisering (primärt) + Kontrast}
+
+  \textbf{VIKTIGT --- Koppling till tidigare kunskap}:
+  Studenter har redan använt \mintinline{python}{print()} och
+  \mintinline{python}{input()} för att skriva till och läsa från terminalen.
+  Filhantering följer SAMMA PRINCIP: strukturera data för ett syfte.
+
+  \textbf{Vad som varierar}: Destination/källa (terminal vs fil)
+
+  \textbf{Vad som hålls invariant}: Principen att strukturera data för input/output
+
+  \textbf{Generalisering --- Print/Input till Filer}:
+  \begin{itemize}
+    \item \mintinline{python}{print("text")} $\leftrightarrow$
+      \mintinline{python}{file.write("text")}
+    \item \mintinline{python}{input()} $\leftrightarrow$
+      \mintinline{python}{file.read()}
+    \item Båda kräver formatering och struktur
+    \item Båda hanterar text som strängar
+    \item Skillnad: Filer kräver explicit öppning/stängning, terminalen gör det automatiskt
+  \end{itemize}
+
+  \textbf{Varför denna generalisering fungerar}: Enligt Marton \& Pang (2006)
+  hjälper generalisering studenter att urskilja det invarianta mönstret över
+  olika kontexter. Genom att visa att print/input och file read/write följer
+  samma princip (strukturera data för I/O) men varierar destinationen, gör vi
+  det INVARIANTA MÖNSTRET urskiljbart. Studenter ser att de redan KAN denna
+  typ av tänkande --- filer är bara en ny destination för samma operationer.
+
+  \textbf{Ytterligare variationsmönster i detta avsnitt}:
+  \begin{description}
+    \item[Kontrast (open/close vs with)] Varierar resurshanteringsmetod medan
+      funktionaliteten hålls invariant. Visar VARFÖR \mintinline{python}{with}
+      är bättre (automatisk stängning, felhantering).
+    \item[Separation (läsa vs skriva)] Isolerar en operation åt gången för att
+      visa distinktionen mellan input och output.
+    \item[Separation (text vs binär)] Isolerar filtyp för att visa när varje
+      typ är lämplig.
+  \end{description}
+
+  \textbf{Pedagogisk sekvens}:
+  \begin{enumerate}
+    \item Börja med dokumentation (referensbild) för att visa att det finns
+      etablerade mönster.
+    \item Visa manual open/close först (det explicita sättet).
+    \item Kontrastera med \mintinline{python}{with}-satsen (det bättre sättet).
+    \item Separera läsning och skrivning för att isolera varje operation.
+    \item Visa textuell jämförelse mellan olika läsmetoder
+      (\mintinline{python}{read()} vs \mintinline{python}{readlines()}).
+    \item Introducera binärfiler som en separation av filtyper.
+  \end{enumerate}
+}
+
 \begin{frame}
   \includegraphics[width=\columnwidth]{figs/docs-files.png}
 \end{frame}
 
 \subsection{Öppna och stänga}
+
+\ltnote{%
+  \textbf{Variationsmönster: Kontrast}
+
+  \textbf{Vad som varierar}: Resurshanteringsmetod (manuell
+  \mintinline{python}{open()}/\mintinline{python}{close()} vs automatisk
+  \mintinline{python}{with}-sats)
+
+  \textbf{Vad som hålls invariant}: Filoperationerna (läsa/skriva), resultatet
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \textbf{LO2 --- Resurshanter ing}: Filer måste stängas efter användning.
+      Manual metod kräver explicit \mintinline{python}{close()}.
+    \item \textbf{LO3 --- Kontexthanterare}: \mintinline{python}{with}-satsen
+      garanterar automatisk stängning även vid fel. Detta är det BÄTTRE sättet.
+    \item \textbf{LO3 --- Robusthet}: Vid fel (exception) stängs inte filen med
+      manual metod, men \mintinline{python}{with} hanterar detta korrekt.
+  \end{itemize}
+
+  \textbf{Varför denna kontrast fungerar}: Genom att visa båda metoderna där
+  den enda skillnaden är hanteringsmetoden (varianten) medan operationerna är
+  identiska (invarianten), kan studenter urskilja FÖRDELEN med
+  \mintinline{python}{with}. De ser samma funktionalitet uppnådd på två sätt,
+  vilket gör den kritiska aspekten (automatisk resurshantering) urskiljbar.
+
+  \textbf{Pedagogisk motivering}: Vi visar först det explicita sättet
+  (open/close) för att göra resurshanteringen synlig, sedan det bättre sättet
+  (\mintinline{python}{with}) som abstraherar bort den manuella hanteringen.
+  Detta följer principen att visa det underliggande innan abstraktion.
+}
 
 \begin{frame}[fragile]
   \begin{minted}[numbers=none,fontsize=\Large]{python}
@@ -131,6 +227,36 @@ with open("filename", "r") as file:
 \end{frame}
 
 \subsection{Läsa och skriva}
+
+\ltnote{%
+  \textbf{Variationsmönster: Separation + Generalisering}
+
+  \textbf{Separation --- Läsning vs skrivning}:
+  \begin{itemize}
+    \item \textbf{Vad som varierar}: Operation (read vs write), filläge
+      (\mintinline{python}{"r"} vs \mintinline{python}{"w"})
+    \item \textbf{Vad som hålls invariant}: Filhanteringsmönstret
+      (öppna-operera-stäng), syntax
+    \item \textbf{Kritisk aspekt (LO2)}: Läsning och skrivning är MOTSATTA
+      operationer men följer samma mönster. Filläget bestämmer vilken operation
+      som är tillåten.
+  \end{itemize}
+
+  \textbf{Generalisering --- Flera läsmetoder}:
+  Visar \mintinline{python}{file.read()} (hela filen) vs
+  \mintinline{python}{for line in file} (rad för rad). Samma princip (läsa
+  innehåll) men olika granularitet. Detta generaliserar mönstret: Python ger
+  olika verktyg för samma uppgift beroende på behov.
+
+  \textbf{Koppling till print/input}: Precis som \mintinline{python}{print()}
+  skriver till terminal och \mintinline{python}{input()} läser från terminal,
+  så skriver \mintinline{python}{file.write()} till fil och
+  \mintinline{python}{file.read()} läser från fil. SAMMA PRINCIP, olika medium.
+
+  \textbf{Pedagogisk sekvens}: Visar skrivning först, sedan läsning, för att
+  studenter ska ha data att läsa. Visar sedan olika sätt att läsa (read vs
+  iteration) för att demonstrera flexibilitet.
+}
 
 \begin{frame}[fragile]
   \begin{example}<+->[write\textunderscore file.py]
@@ -173,6 +299,39 @@ with open("filename", "r") as file:
 \end{frame}
 
 \subsection{Typer av filer}
+
+\ltnote{%
+  \textbf{Variationsmönster: Kontrast}
+
+  \textbf{Vad som varierar}: Filtyp (text vs binär), struktur (radbrytningar
+  med \mintinline{python}{'\n'} vs ingen struktur)
+
+  \textbf{Vad som hålls invariant}: Filhanteringsoperationer
+  (\mintinline{python}{open()}, \mintinline{python}{read()},
+  \mintinline{python}{write()}), grundläggande syntax
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \textbf{LO4 --- Textfiler}: Antar läsbara tecken, har struktur med
+      radbrytningar. Används för kod, konfiguration, CSV, etc.
+    \item \textbf{LO4 --- Binärfiler}: Ingen antagande om struktur, rå bytes.
+      Används för bilder, video, komprimerade filer, etc.
+    \item \textbf{LO4 --- Lägesval}: Måste välja rätt läge vid öppning:
+      \mintinline{python}{"r"}/\mintinline{python}{"w"} för text,
+      \mintinline{python}{"rb"}/\mintinline{python}{"wb"} för binär.
+  \end{itemize}
+
+  \textbf{Varför denna kontrast fungerar}: Genom att kontrastera de två
+  filtyperna (text med struktur vs binär utan struktur) medan
+  filhanteringsoperationerna förblir desamma, gör vi filtypsaspekten
+  urskiljbar. Studenter ser att VALET av filtyp beror på innehållets natur,
+  inte på programmeringstekniken.
+
+  \textbf{Pedagogisk koppling}: Referensbilden från Python-dokumentationen
+  visar de olika lägena (\mintinline{python}{"r"}, \mintinline{python}{"w"},
+  \mintinline{python}{"rb"}, \mintinline{python}{"wb"}, etc.) vilket ger
+  studenter ett konkret verktyg för att välja rätt läge.
+}
 
 \begin{frame}
   \begin{remark}[Två typer av filer]
