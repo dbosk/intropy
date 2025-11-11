@@ -104,6 +104,214 @@ objekt av våra egna klasser.
   \end{itemize}
 \end{exercise}
 
+\subsection{Att representera varor: Uppslagslistor eller klass?}
+
+Vi har använt uppslagslistor för att representera varor i vår inköpslista.
+Men är det det bästa sättet? Låt oss undersöka alternativen.
+
+\ltnote{%
+  \textbf{Lärandemål:}
+  \begin{enumerate}
+    \item Studenter ska kunna discernera när man ska använda uppslagslistor
+      vs klasser för datarepresentation
+    \item Studenter ska kunna identifiera avvägningen mellan
+      flexibilitet/enkelhet och struktur/säkerhet
+    \item Studenter ska kunna motivera sitt designval baserat på kontext
+      (programstorlek, komplexitet, teamstorlek)
+  \end{enumerate}
+
+  \textbf{Pedagogisk strategi:}
+
+  Vi introducerar här en viktig designfråga: när ska man använda enklare
+  datastrukturer (uppslagslistor) vs klasser? Detta följer variation theory's
+  contrast pattern: genom att visa samma funktionalitet implementerad på två
+  olika sätt kan studenter discernera den kritiska skillnaden mellan
+  flexibilitet/enkelhet och struktur/säkerhet.
+
+  \textbf{Koppling till lärandemål:} Variationsmönstret (contrast) stödjer
+  direkt mål 1 och 2. Genom att variera implementationsapproach medan
+  funktionaliteten förblir invariant kan studenter discernera de kritiska
+  aspekterna som skiljer dessa val åt.
+
+  Frågan ställs INNAN vi visar lösningen, enligt try-first pedagogy, för att
+  aktivera studenters tänkande om designavvägningar (stödjer mål 3).
+}
+
+\begin{exercise}
+  I vår nuvarande implementation representerar vi varje vara som en
+  uppslagslista: \mintinline{python}{{"name": "mjölk", "checked": False}}.
+
+  Vilka för- och nackdelar finns med detta approach jämfört med att skapa
+  en egen \mintinline{python}{Item}-klass för varorna?
+\end{exercise}
+
+\begin{frame}[fragile]
+  \begin{example}[Nuvarande: Varor som uppslagslistor]
+    Från vår ShoppingList-klass:
+    \inputminted[linenos,firstline=8,lastline=14]{python}{examples/shopping.py}
+  \end{example}
+\end{frame}
+
+Här ser vi att varje vara är en uppslagslista med nycklarna
+\mintinline{python}{"name"} och \mintinline{python}{"checked"}.
+När vi ska använda varan måste vi komma ihåg nyckelnamnen exakt.
+
+\begin{exercise}
+  Vad händer om vi råkar skriva \mintinline{python}{item["namn"]} istället för
+  \mintinline{python}{item["name"]}? Kommer vi upptäcka felet direkt?
+\end{exercise}
+
+Detta är ett vanligt problem med uppslagslistor: stavfel i nyckelnamn upptäcks
+först vid körtid, när koden faktiskt exekveras. Låt oss se hur en
+\mintinline{python}{Item}-klass kan förbättra situationen.
+
+\begin{frame}[fragile]
+  \begin{example}[Alternativ: En Item-klass]
+    En separat klass för varor:
+    \inputminted[linenos,firstline=3,lastline=28]{python}{examples/shopping_with_items.py}
+  \end{example}
+\end{frame}
+
+Nu har vi inkapsling av vara-information i en egen klass. Varje
+\mintinline{python}{Item} har privata attribut och publika egenskaper
+för att läsa dem. Metoden \mintinline{python}{__str__()} gör det enkelt
+att skriva ut varan.
+
+\begin{frame}[fragile]
+  \begin{example}[Uppdaterad ShoppingList]
+    Nu använder ShoppingList Item-objekt:
+    \inputminted[linenos,firstline=31,lastline=54]{python}{examples/shopping_with_items.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till förändringarna:
+\begin{description}
+  \item[add\_item()] Skapar nu \mintinline{python}{Item}-objekt istället för
+    uppslagslistor
+  \item[list\_items()] Använder \mintinline{python}{Item.__str__()} automatiskt
+    för att visa varje vara
+  \item[check\_item()] Anropar \mintinline{python}{item.check()} istället för
+    att ändra uppslagslistan direkt
+  \item[remove\_checked()] Använder \mintinline{python}{item.checked}
+    (egenskap) istället för \mintinline{python}{item["checked"]}
+\end{description}
+
+\begin{frame}
+  \begin{block}{Jämförelse: Uppslagslistor vs Item-klass}
+    \textbf{Med uppslagslistor} (\mintinline{python}{{"name": "...", "checked": False}}):
+    \begin{itemize}
+      \item[+] Snabbt att skriva initialt
+      \item[+] Flexibelt (kan lägga till nycklar dynamiskt)
+      \item[−] Stavfel i nyckelnamn upptäcks sent (körtid)
+      \item[−] Ingen inkapsling av logik
+      \item[−] Ingen IDE-hjälp (autocomplete, typkontroll)
+      \item[−] Svårare att utöka med mer funktionalitet
+    \end{itemize}
+
+    \vspace{0.5em}
+
+    \textbf{Med Item-klass}:
+    \begin{itemize}
+      \item[+] Tydligt interface med metoder
+      \item[+] Stavfel upptäcks tidigt (av IDE/interpreter)
+      \item[+] Kan lägga till validering och logik
+      \item[+] IDE kan ge autocomplete
+      \item[+] Lättare att utöka (nya metoder, nya attribut)
+      \item[−] Mer initial kod att skriva
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\ltnote{%
+  \textbf{Relation till lärandemål:}
+
+  Denna jämförelse adresserar direkt:
+  \begin{itemize}
+    \item \textbf{Mål 1} (när använda uppslagslistor vs klasser): För-/nackdelslistan
+      ger konkreta kriterier för beslutsfattande
+    \item \textbf{Mål 2} (identifiera avvägningar): Kontrasten gör avvägningen
+      mellan flexibilitet/enkelhet och struktur/säkerhet explicit och synlig
+  \end{itemize}
+
+  \textbf{Variationsmönster: Contrast}
+
+  \textbf{Vad varierar:} Hur vi representerar varor (uppslagslista vs klass)
+
+  \textbf{Vad förblir invariant:} Vilken information vi lagrar (namn och
+  avbockningsstatus) och vilken funktionalitet vi behöver
+
+  \textbf{Kritiska aspekter studenter ska discernera (kopplade till mål):}
+  \begin{enumerate}
+    \item Avvägningsstrukturen: flexibilitet/enkelhet vs struktur/säkerhet
+      (Mål 2)
+    \item Kriterier för val: tidpunkt för felupptäckt, IDE-stöd,
+      utökningsbarhet, initial insats (Mål 1)
+    \item Inget universellt \enquote{bättre} val---kontext avgör (Mål 3)
+  \end{enumerate}
+
+  \textbf{Varför denna variation fungerar:} Enligt Marton \& Pang (2006)
+  varierar vi implementationsapproach medan funktionaliteten förblir invariant.
+  Detta gör de kritiska särskiljande egenskaperna (avvägningarna) discernerbara
+  eftersom studenter kan se EXAKT vad som ändras när man byter representation
+  medan allt annat förblir detsamma.
+
+  Utan denna kontrast kan studenter tänka att \enquote{klasser är alltid bättre} eller
+  \enquote{använd det som är enklast}. Jämförelsen sida vid sida tvingar uppmärksamhet
+  på de nyanserade avvägningar som styr verkliga designbeslut.
+}
+
+\begin{exercise}
+  Fundera över när det är lämpligt att använda uppslagslistor och när
+  det är bättre att skapa en egen klass. Några frågor att tänka på:
+  \begin{itemize}
+    \item Hur ofta används denna datastruktur i programmet?
+    \item Behövs metoder som arbetar med datan?
+    \item Är strukturen enkel och stabil, eller kommer den växa?
+  \end{itemize}
+\end{exercise}
+
+\ltnote{%
+  \textbf{Relation till lärandemål:}
+
+  Denna reflektionsövning adresserar direkt \textbf{Mål 3} (motivera designval
+  baserat på kontext). De tre vägledande frågorna operationaliserar den
+  abstrakta avvägningen till konkreta beslutskriterier:
+
+  \begin{description}
+    \item[Hur ofta används...?] → Relaterar till underhållsbörda och felpotential.
+      Mer användning → högre värde av klassstruktur
+    \item[Behövs metoder...?] → Kopplar till \enquote{beteende vs data}-distinktionen.
+      Behov av metoder → klasser blir lämpliga
+    \item[Kommer den växa?] → Framtida komplexitet. Förväntad tillväxt → klasser
+      hanterar förändring bättre
+  \end{description}
+
+  \textbf{Generalisering och transfer:}
+
+  Denna reflektionsfråga hjälper studenter att generalisera från det specifika
+  exemplet (Item-klass för inköpslista) till ett bredare designprincip. Frågorna
+  guidar deras tänkande mot de kritiska faktorerna: återanvändning, behov av
+  beteende (metoder), och förväntad evolution av koden.
+
+  Detta stödjer transfer av kunskap till nya situationer---studenter ska kunna
+  applicera detta designtänkande på andra problem, inte bara inköpslistor.
+
+  \textbf{Bedömningsmöjlighet:} Lyssna efter om studenter nämner kontextuella
+  faktorer (inte bara \enquote{klasser är bättre}). Om de säger \enquote{använd alltid klasser}
+  eller \enquote{använd alltid uppslagslistor}, undersök med motexempel: \enquote{Vad sägs om
+  konfigurationsdata från JSON?} eller \enquote{Vad sägs om ett komplext
+  användarprofilsystem?}
+}
+
+Som tumregel: Om du har en uppslagslista med fast struktur som används på
+många ställen i koden, överväg att göra den till en klass. Klasser ger bättre
+struktur, säkerhet och underhållbarhet---särskilt när programmet växer.
+
+I vårt fall med inköpslistor är \mintinline{python}{Item}-klassen förmodligen
+\enquote{overkill} för ett så enkelt program. Men om vi skulle lägga till
+funktioner som prioritet, kategori, antal, pris, etc., skulle
+\mintinline{python}{Item}-klassen snabbt bli mycket mer värd besväret.
+
 \section{Banksystem med sammansatta klasser}
 
 Nu ska vi bygga ett mer komplext system där flera klasser samverkar. 
