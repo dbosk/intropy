@@ -7,20 +7,34 @@ När vi arbetar med filer från grundläggande modulen lärde vi oss att öppna,
 Detta kräver att vi tänker på \emph{felhantering och validering} --- hur vi hanterar situationer när något går fel. Detta är en generalisering av principen vi redan känner från input-validering i terminalen. När vi bad användaren mata in ett tal eller välja mellan alternativ, validerade vi att inputen var giltig och bad om ny input om den inte var det. Samma princip gäller för filer, men nu validerar vi att \emph{filnamnet} pekar på en existerande fil.
 
 \ltnote{%
-  \FilesMoreLOValidation*.
+  Relevanta lärandemål:
+  \cref{FilesMoreLOValidation}
 
-  \textbf{Mönster}: Separation + Generalisering
+  \textbf{Variationsmönster}: Separation + Generalisering
 
-  \textbf{Varierar}: Hanteringsmetod (krascha vs fånga vs förebygga)
+  \textbf{Separation av hanteringsstrategier}: Varierar felhanteringsmetod
+  (krascha vs fånga med \mintinline{python}{try-except} vs förebygga med validering).
+  Invariant: Problemet (fil kanske inte finns). Studenten måste urskilja
+  skillnaden mellan reaktiv (fånga fel) och proaktiv (förebygga) hantering.
 
-  \textbf{Invariant}: Problemet (fil kanske inte finns)
+  \textbf{Generalisering från terminal-validering}: Samma valideringsmönster som
+  för terminal-input (loopa tills giltigt input), nu applicerat på filnamn.
+  Invariant: Valideringsstrukturen (läs $\to$ validera $\to$ upprepa $\to$ returnera).
+  Varierar: Valideringskriteriet (numer vs existerande fil).
 
-  \textbf{Kritiska aspekter}:
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOValidation}:
   \begin{itemize}
-    \item Filer kan saknas (vs terminal där \mintinline{python}{input()} alltid fungerar)
-    \item \mintinline{python}{try-except} fångar fel, programmet fortsätter
-    \item Validera FÖRE öppning för bättre UX
-    \item Generalisering: Samma mönster som terminal-input-validering (loopa tills giltigt)
+    \item \textbf{Filers osäkerhet}: Filer kan saknas, till skillnad från
+      terminalen där \mintinline{python}{input()} alltid finns tillgänglig.
+      Studenten måste förstå denna fundamentala skillnad mellan resurser.
+    \item \textbf{Exception-hantering}: \mintinline{python}{try-except} fångar
+      \mintinline{python}{FileNotFoundError}, programmet kan fortsätta med
+      alternativ hantering. Fel blir kontrollerbara händelser, inte krascher.
+    \item \textbf{Proaktiv validering}: Kontrollera filexistens FÖRE öppning ger
+      bättre användarupplevelse (tydligare felmeddelanden, möjlighet att välja
+      igen).
+    \item \textbf{Mönstergeneralisering}: Samma loop-struktur som använd för
+      numerisk input-validering. Studenten känner igen mönstret i ny kontext.
   \end{itemize}
 }
 
@@ -112,21 +126,41 @@ Nu när vi kan hantera filer på ett robust sätt är det dags att göra något 
 Vi har redan arbetat med dictionaries för att lagra nyckel-värde-par. Nu ska vi se hur dictionaries kan användas för \emph{räkning och analys} av filinnehåll. Mönstret är enkelt men kraftfullt: använd det vi vill räkna (ord, bokstäver, etc.) som nyckel i en dictionary, och antalet förekomster som värde. Detta är samma räknarmönster vi sett tidigare, men nu tillämpar vi det på data från filer.
 
 \ltnote{%
-  \FilesMoreLODictProcessing*, \FilesMoreLOCSVOutput*.
+  Relevanta lärandemål:
+  \cref{FilesMoreLODictProcessing}, \cref{FilesMoreLOCSVOutput}
 
-  \textbf{Mönster}: Fusion + Generalisering
+  \textbf{Variationsmönster}: Fusion + Generalisering
 
-  \textbf{Varierar}: Bearbetningsenhet (ord vs bokstäver)
+  \textbf{Fusion av koncept}: Detta avsnitt integrerar flera tidigare lärda koncept
+  i ett verkligt problem. Filer (input/output), dictionaries (datastruktur),
+  loopar (iteration), strängar (text-processering), och CSV (strukturerad output).
+  Studenten måste koordinera alla dessa verktyg samtidigt. Detta är essensen
+  av verklig programmering.
 
-  \textbf{Invariant}: Grundmönster (läs $\rightarrow$ räkna i dict $\rightarrow$ skriv CSV)
+  \textbf{Generalisering av räknarmönstret}: Varierar vad som räknas (ord vs
+  bokstäver). Invariant: Grundstrukturen (läs $\to$ iterera $\to$ uppdatera
+  dict $\to$ skriv CSV). Studenten urskiljer att mönstret är oberoende av
+  vad som räknas --- samma teknik för olika domäner.
 
-  \textbf{Kritiska aspekter}:
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLODictProcessing}:
   \begin{itemize}
-    \item Dict perfekt för räkning (nyckel = objekt, värde = antal)
-    \item Mönster: läs $\rightarrow$ iterera $\rightarrow$ uppdatera dict
-    \item CSV naturligt för dict-data (nyckel,värde $\rightarrow$ kolumner)
-    \item Fusion: Kombinerar filer, dict, loopar, strängar, CSV
-    \item Generalisering: Samma mönster för bokstäver och ord
+    \item \textbf{Dict som räknarstruktur}: Nyckel representerar det räknade
+      objektet, värde dess frekvens. Naturlig mappning från problem till
+      datastruktur.
+    \item \textbf{Bearbetningsmönster}: Läs fil $\to$ iterera över enheter $\to$
+      uppdatera dict (initiera eller inkrementera). Fast sekvens oavsett domän.
+    \item \textbf{Granularitetens betydelse}: Olika enheter (bokstäver vs ord)
+      kräver olika parsing (\mintinline{python}{for c in text} vs
+      \mintinline{python}{text.split()}), men samma räknarlogik.
+  \end{itemize}
+
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOCSVOutput}:
+  \begin{itemize}
+    \item \textbf{Dict-CSV naturlig koppling}: Dictionary (nyckel-värde-par)
+      mappar direkt till CSV-rad (kolumn1,kolumn2). Formatet speglar
+      datastrukturen.
+    \item \textbf{Strukturerad output}: CSV gör dict-data analysabel utanför
+      Python (Excel, statistikverktyg). Data blir delbar och persistent.
   \end{itemize}
 }
 
@@ -250,20 +284,36 @@ Vi har redan sett hur \mintinline{python}{import} fungerar när vi använde \min
 Tänk på det här sättet: istället för att skriva om samma kod om och om igen, skriver vi den en gång i en modul och importerar sedan den modulen varje gång vi behöver funktionaliteten. Detta följer DRY-principen (\foreignlanguage{english}{Don't Repeat Yourself}) och gör vår kod mer underhållbar och återanvändbar.
 
 \ltnote{%
-  \FilesMoreLOComposition*.
+  Relevanta lärandemål:
+  \cref{FilesMoreLOComposition}
 
-  \textbf{Mönster}: Generalisering + Fusion
+  \textbf{Variationsmönster}: Generalisering + Fusion
 
-  \textbf{Varierar}: Antal moduler, interaktionskomplexitet
+  \textbf{Generalisering av funktionsanvändning}: Varierar omfattning (samma fil
+  $\to$ separata filer $\to$ flera moduler). Invariant: Funktioner som
+  återanvändbara byggstenar. Studenten urskiljer att principen för funktioner
+  (abstrahera, namnge, återanvänd) gäller över filgränser.
 
-  \textbf{Invariant}: Återanvända kod, funktioner som byggstenar
+  \textbf{Fusion genom komposition}: Funktioner från olika moduler kombineras
+  för att lösa nya problem de inte designades för. Exempel: \mintinline{python}{räkna_bokstäver()}
+  från \texttt{wc.py} + \mintinline{python}{översätt_till()} från
+  \texttt{rövare.py} $\to$ analysera översatt text. Ingen modul "vet" om den
+  andra, ändå fungerar kombinationen.
 
-  \textbf{Kritiska aspekter}:
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOComposition}:
   \begin{itemize}
-    \item Funktioner i separata filer kan importeras och kombineras
-    \item Komposition: Små funktioner $\rightarrow$ större lösningar
-    \item Återanvändning: Kod från ett syfte används i andra sammanhang
-    \item Generalisering: Samma fil $\rightarrow$ separata filer $\rightarrow$ flera moduler
+    \item \textbf{Import gör funktioner tillgängliga}: \mintinline{python}{import wc}
+      ger åtkomst till alla funktioner i \texttt{wc.py} via \mintinline{python}{wc.funktionsnamn()}.
+      Modulen blir ett namnrum.
+    \item \textbf{Komponerbarhetsegenskapen}: Funktioner med tydliga I/O-kontrakt
+      kan kombineras utan att ha designats för varandra. Studenten urskiljer att
+      väldefinierade gränssnitt möjliggör komposition.
+    \item \textbf{Återanvändning över domäner}: Samma funktion användbar i
+      flera sammanhang. \mintinline{python}{räkna_bokstäver()} skriven för
+      vanlig text fungerar lika bra på rövarspråk. Abstraktionens kraft.
+    \item \textbf{DRY-principen i praktiken}: Skriva kod en gång, använda många
+      gånger. Ändringar på ett ställe propagerar automatiskt till alla
+      användare.
   \end{itemize}
 }
 
@@ -326,21 +376,42 @@ Tänk på det här sättet: Vi har redan sett hur funktioner transformerar värd
 Detta är ytterligare en generalisering av koncept vi redan känner. Och precis som med funktioner finns det viktiga överväganden: Ska vi bevara originaldata? Vad händer om något går fel under bearbetningen? Hur säkerställer vi att transformationen lyckas innan vi skriver över original?
 
 \ltnote{%
-  \FilesMoreLOTransformation*.
+  Relevanta lärandemål:
+  \cref{FilesMoreLOTransformation}
 
-  \textbf{Mönster}: Generalisering
+  \textbf{Variationsmönster}: Generalisering + Kontrast
 
-  \textbf{Varierar}: Transformation (översättning, formatering), antal filer
+  \textbf{Generalisering från funktionstransformation}: Varierar skala (funktion
+  i minnet vs program på disk). Invariant: Transformationsmönstret (input $\to$
+  bearbetning $\to$ output). Studenten urskiljer att samma princip gäller på
+  olika abstraktionsnivåer. Funktion transformerar värde, program transformerar
+  fil --- samma koncept, olika medium.
 
-  \textbf{Invariant}: Grundmönster (läs $\rightarrow$ bearbeta $\rightarrow$ skriv)
+  \textbf{Kontrast in-place vs separata filer}: Varierar antal filer och risk
+  (en fil, överskrivning vs två filer, original bevarad). Invariant:
+  Transformationslogiken. Studenten måste väga enkelhet mot datasäkerhet.
 
-  \textbf{Kritiska aspekter}:
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOTransformation}:
   \begin{itemize}
-    \item Läs-bearbeta-skriv är fundamentalt mönster
-    \item In-place vs separata filer: olika risker
-    \item Mellanlagring nödvändig (kan ej läsa och skriva samtidigt till samma fil)
-    \item Generalisering: Funktioner transformerar värden, program transformerar filer
+    \item \textbf{Läs-bearbeta-skriv som fundamentalt mönster}: Detta är essensen
+      av dataprocessering. Läs input, applicera transformation, producera output.
+      Mönstret återkommer i alla databehandlingssystem (compiler, bildbehandling,
+      dataanalys).
+    \item \textbf{Mellanlagringskravet}: Kan ej läsa från och skriva till samma
+      fil samtidigt i denna enkla modell. Måste läsa hela innehållet först,
+      stänga filen, sedan öppna för skrivning. Studenten förstår sekvensiell
+      natur.
+    \item \textbf{In-place farorna}: Överskrivning förstör original. Om
+      transformation misslyckas (exception, strömavbrott) är data förlorad.
+      Studenten urskiljer risken.
+    \item \textbf{Temporär fil-mönster}: Skriv till \texttt{fil.tmp}, om framgång
+      använd \mintinline{python}{os.replace()} för atomär ersättning. Defensiv
+      programmering --- skydda mot dataförlust.
   \end{itemize}
+
+  \textbf{Pedagogisk progression}: Visa enkel in-place transformation först
+  (problem synligt), sedan temporär fil-lösning (kontrast gör säkerhetstekniken
+  urskiljbar).
 }
 
 \begin{frame}[fragile]
