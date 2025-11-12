@@ -17,7 +17,6 @@ slides.pdf: ${SRC}
 .PHONY: clean
 clean:
 	${RM} notes.pdf slides.pdf
-	${MAKE} -C examples $@
 
 
 INCLUDE_MAKEFILES=../../../makefiles
