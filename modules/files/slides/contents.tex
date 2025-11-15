@@ -22,10 +22,12 @@
       sekundärminne långsammare men permanent. Förståelse för när varje typ behövs.
   \end{itemize}
 
-  \textbf{Pedagogisk sekvens}: Parallella definitioner (overlay 1-3) skapar direkt
-  kontrast mellan minnestyperna. Därefter koppla till konkret erfarenhet
-  (Python-program försvinner, bilder består) innan WHY-frågan.
-  Progression: konkret $\rightarrow$ konceptuell förståelse.
+  \textbf{Pedagogisk sekvens}: Parallella definitioner (side-by-side med
+  \mintinline{latex}{\textbytext*}) skapar direkt spatial kontrast mellan
+  minnestyperna. Studenter kan omedelbart jämföra egenskaper (flyktigt/oflyktigt,
+  snabbt/långsamt). Därefter koppla till konkret erfarenhet (Python-program
+  försvinner, bilder består) innan WHY-frågan. Progression: konkret
+  $\rightarrow$ konceptuell förståelse.
 }
 
 Innan vi lär oss hur vi arbetar med filer i Python behöver vi förstå \emph{varför}
@@ -52,20 +54,18 @@ i mikro- till millisekunder), men det är persistent och kan lagra mycket störr
 mängder data.
 
 \begin{frame}
-  \begin{uncoverenv}<1,3>
+  \textbytext*{%
     \begin{definition}[Primärminne]
       Datorns arbetsminne där exekverande program (processer) och data (variabler)
       lagras. Detta är flyktigt minne med mycket snabb åtkomst (storleksordning
       nanosekunder).
     \end{definition}
-  \end{uncoverenv}
-
-  \begin{uncoverenv}<2,3>
+  }{%
     \begin{definition}[Sekundärminne]
       Oflyktigt minne där icke-exekverande program och data (filer) lagras.
       Långsammare åtkomst än primärminne (storleksordning mikro- till millisekunder).
     \end{definition}
-  \end{uncoverenv}
+  }
 \end{frame}
 
 \subsection{Vad är en fil?}
@@ -104,29 +104,41 @@ Python-program vi skriver själva är lagrade som textfiler på hårddisken.
   \end{example}
 \end{frame}
 
-Men varför behöver vi egentligen filer i våra program? Tre huvudsakliga
-anledningar:
-
-\begin{enumerate}
-\item \textbf{Persistens}: Filer låter oss \emph{minnas} data mellan olika
-  körningar av programmet. Om vi skriver ett program som samlar in data från
-  användaren vill vi kanske spara den informationen så att den finns kvar
-  nästa gång programmet körs.
-
-\item \textbf{Datautbyte}: Filer låter oss \emph{överföra} data mellan olika
-  program. Ett program kan generera data och spara i en fil, som sedan kan
-  läsas av ett annat program. Detta är grunden för hur program samarbetar.
-
-\item \textbf{Skalbarhet}: Filer låter oss hantera \emph{stora mängder} data
-  som inte får plats i primärminnet samtidigt. Vi kan läsa och bearbeta data
-  bit för bit från en fil istället för att behöva ha allt i minnet på en gång.
-\end{enumerate}
+Men varför behöver vi egentligen filer i våra program? Låt oss titta på några
+konkreta situationer där filer löser viktiga problem.
 
 \begin{frame}
-  \begin{remark}
-    Filer behövs för att minnas data mellan körningarna (persistens), för att
-    överföra data mellan program (datautbyte), och för att hantera kopiösa
-    mängder data som inte får plats i primärminnet samtidigt (skalbarhet).
+  \begin{example}[Spara spelets progress]
+    Ett spel behöver komma ihåg spelarens poäng, nivå, och upplåsta achievements
+    mellan olika spelsessioner. När spelaren stänger ner programmet och startar
+    det igen nästa dag ska all progress finnas kvar. Detta löses genom att
+    spara data i en fil på hårddisken.
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[Dela data mellan program]
+    Ett program genererar en lista med e-postadresser från en databas och
+    sparar dem i en fil. Ett annat program läser sedan filen och skickar ut
+    nyhetsbrev till alla adresser. Programmen behöver aldrig köra samtidigt
+    --- filen fungerar som brygga mellan dem.
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[Bearbeta stora datamängder]
+    SCB:s namnstatistik innehåller miljontals namnposter. Att ladda allt i
+    primärminnet samtidigt skulle kräva enorma mängder RAM. Istället läser
+    programmet filen rad för rad, bearbetar varje post, och behåller bara
+    resultatet i minnet.
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{remark}[Varför filer behövs]
+    Filer behövs för \emph{persistens} (minnas data mellan körningar),
+    \emph{datautbyte} (överföra data mellan program), och \emph{skalbarhet}
+    (hantera stora mängder data som inte får plats i primärminnet samtidigt).
   \end{remark}
 \end{frame}
 
@@ -166,12 +178,37 @@ Nu när vi förstår \emph{varför} filer behövs är det dags att lära oss \em
 När vi använde \mintinline{python}{print()} skrev vi till terminalen; när vi använde \mintinline{python}{input()} läste vi från terminalen. Nu ska vi lära oss att skriva till och läsa från filer istället. Principen är densamma --- endast destinationen ändras.
 
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-files.png}
+  \begin{exercise}
+    Vad behöver vi göra extra för filer som vi inte behövde göra för
+    \mintinline{python}{print()} och \mintinline{python}{input()}?
+
+    Tänk på att terminalen alltid är tillgänglig, men filer\ldots?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentation för filhantering visar grundläggande filoperationer}[fig:docs-files]
+      \includegraphics[width=0.7\textwidth]{figs/docs-files.png}
+    \end{sidecaption}
+  \end{figure}
 \end{frame}
 
 \subsection{Öppna och stänga}
 
 Innan vi kan arbeta med en fil måste vi \emph{öppna} den. Detta ger oss ett filobjekt som vi kan använda för att läsa eller skriva data. När vi är färdiga måste vi också \emph{stänga} filen för att frigöra systemresurser och säkerställa att all data verkligen skrivs till disken.
+
+\begin{frame}
+  \begin{exercise}
+    Vi behöver alltså två operationer: \enquote{öppna} och \enquote{stänga}.
+    Hur bör dessa implementeras?
+
+    Tänk på: \mintinline{python}{print()} är en funktion som alltid skriver
+    till terminalen. Men för filer behöver vi kunna specificera \emph{vilken}
+    fil. Bör \mintinline{python}{open()} vara en funktion eller metod?
+    Bör \mintinline{python}{close()} vara en funktion eller metod?
+  \end{exercise}
+\end{frame}
 
 Det finns två sätt att hantera öppning och stängning: manuellt med \mintinline{python}{open()} och \mintinline{python}{close()}, eller automatiskt med \mintinline{python}{with}-satsen. Låt oss först titta på den manuella metoden för att förstå vad som egentligen händer, sedan ska vi se varför \mintinline{python}{with}-satsen är det bättre alternativet.
 
@@ -218,6 +255,16 @@ file.close()
   \end{example}
 \end{frame}
 
+\begin{frame}
+  \begin{exercise}
+    Vad händer om ett exception uppstår mellan \mintinline{python}{open()} och
+    \mintinline{python}{close()}?
+
+    Hur kan vi garantera att filen alltid stängs korrekt, även om något går fel
+    under bearbetningen?
+  \end{exercise}
+\end{frame}
+
 %\begin{frame}
 %  \includegraphics[width=\columnwidth]{figs/docs-with.png}
 %\end{frame}
@@ -236,9 +283,18 @@ with open("filename", "r") as file:
   \end{example}
 \end{frame}
 
-Som vi ser i exemplen ovan fungerar båda metoderna. Men \mintinline{python}{with}-satsen har en avgörande fördel: den garanterar att filen \emph{alltid} stängs korrekt, även om ett fel uppstår i programmet. Med den manuella metoden riskerar vi att lämna filen öppen om något går fel mellan \mintinline{python}{open()} och \mintinline{python}{close()}.
+\begin{frame}
+  \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+    Båda metoderna fungerar när allt går som planerat. Men
+    \mintinline{python}{with}-satsen har en avgörande fördel: den garanterar
+    att filen \emph{alltid} stängs korrekt, även om ett exception uppstår.
 
-Därför rekommenderas starkt att använda \mintinline{python}{with}-satsen för all filhantering. Det är säkrare, tydligare, och tar hand om resurshanteringen automatiskt.
+    Med manuell hantering riskerar vi att filen lämnas öppen om något går fel
+    mellan \mintinline{python}{open()} och \mintinline{python}{close()}.
+    \mintinline{python}{with}-satsen implementerar kontexthanterare-protokollet
+    och anropar \mintinline{python}{close()} automatiskt när blocket lämnas.
+  \end{remark}
+\end{frame}
 
 \subsection{Läsa och skriva}
 
@@ -311,6 +367,16 @@ Läget avgör vilka operationer som är tillåtna på filen.
   \end{example}
 \end{frame}
 
+\begin{frame}
+  \begin{exercise}
+    Vi har sett två sätt att läsa från filer: \mintinline{python}{file.read()}
+    (hela filen) och iteration rad för rad.
+
+    När bör vi använda vilket? Tänk särskilt på SCB-exemplet med miljontals
+    namnposter --- vilket sätt är lämpligast där, och varför?
+  \end{exercise}
+\end{frame}
+
 \begin{frame}[fragile]
   \begin{uncoverenv}<+->
     \begin{example}[read\textunderscore file.py]
@@ -349,7 +415,19 @@ När vi läser från en fil kan vi antingen använda \mintinline{python}{file.re
 
 Hittills har vi arbetat med textfiler --- filer som innehåller läsbar text. Men inte alla filer är textfiler. Bilder, videor, och komprimerade filer är exempel på \emph{binärfiler} som innehåller data i ett format som inte är direkt läsbart som text.
 
-Python skiljer mellan dessa två typer av filer, och vi måste ange rätt läge när vi öppnar dem. För textfiler använder vi lägena \mintinline{python}{"r"}, \mintinline{python}{"w"}, och \mintinline{python}{"a"}. För binärfiler lägger vi till ett \mintinline{python}{"b"}: \mintinline{python}{"rb"}, \mintinline{python}{"wb"}, \mintinline{python}{"ab"}.
+Python skiljer mellan dessa två typer av filer, och vi måste ange rätt läge när vi öppnar dem.
+
+\begin{frame}
+  \begin{exercise}
+    Varför måste Python skilja mellan textfiler och binärfiler?
+
+    Tänk på vad som händer när Python läser en textfil: varje byte tolkas som
+    en bokstav (teckenkodning). Fungerar det för en bildfil? Vad händer om vi
+    försöker läsa en \texttt{.jpg}-fil som text?
+  \end{exercise}
+\end{frame}
+
+För textfiler använder vi lägena \mintinline{python}{"r"}, \mintinline{python}{"w"}, och \mintinline{python}{"a"}. För binärfiler lägger vi till ett \mintinline{python}{"b"}: \mintinline{python}{"rb"}, \mintinline{python}{"wb"}, \mintinline{python}{"ab"}.
 
 \ltnote{%
   Relevanta lärandemål:
@@ -394,7 +472,11 @@ Python skiljer mellan dessa två typer av filer, och vi måste ange rätt läge 
 \end{frame}
 
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-open.png}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentation för \mintinline{python}{open()} visar alla fillägen}[fig:docs-open]
+      \includegraphics[width=0.7\textwidth]{figs/docs-open.png}
+    \end{sidecaption}
+  \end{figure}
 \end{frame}
 
 
@@ -493,14 +575,31 @@ I exemplet ovan ser vi hur vi kan skriva koordinatpar till en fil. Varje par skr
   \end{example}
 \end{frame}
 
-När vi läser tillbaka filen måste vi tolka strukturen: dela upp varje rad vid kommatecknet, konvertera delarna till tal, och återskapa koordinatparen. Detta fungerar, men det finns problem med detta tillvägagångssätt. Vad händer om någon av koordinaterna innehåller ett kommatecken? Vad händer om vi vill ha mer komplex data? Snabbt blir vårt enkla format otillräckligt.
+När vi läser tillbaka filen måste vi tolka strukturen: dela upp varje rad vid kommatecknet, konvertera delarna till tal, och återskapa koordinatparen.
+
+\begin{frame}
+  \begin{exercise}
+    Detta enkla format fungerar för koordinatpar, men vilka problem kan uppstå?
+
+    Tänk på: Vad händer om vi vill spara personnamn och e-postadresser istället?
+    Kan ett namn innehålla kommatecken (t.ex. \enquote{Andersson, Eva})?
+    Kan en e-postadress innehålla kommatecken? Hur skulle vi hantera
+    citattecken i data?
+  \end{exercise}
+\end{frame}
+
+Detta fungerar för enkla fall, men snabbt blir vårt egendesignade format otillräckligt när data blir mer komplex.
 
 \subsection{Mer komplexa standarder}
 
 Istället för att uppfinna egna format för vanliga behov är det mycket bättre att använda \emph{standardformat} --- välkända och väl testade format som många program förstår. Ett av de vanligaste formaten för tabelldata är CSV (\foreignlanguage{english}{Comma-Separated Values}).
 
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-csv.png}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentation för \mintinline{python}{csv}-modulen visar CSV-hantering}[fig:docs-csv]
+      \includegraphics[width=0.7\textwidth]{figs/docs-csv.png}
+    \end{sidecaption}
+  \end{figure}
 \end{frame}
 
 CSV är ett standardformat som Python har inbyggt stöd för genom \mintinline{python}{csv}-modulen. Fördelen med att använda denna modul istället för att själv dela upp strängar vid kommatecken är att CSV-modulen hanterar alla specialfall korrekt: citattecken, kommatecken inuti fält, olika radbrytningar, och så vidare.
