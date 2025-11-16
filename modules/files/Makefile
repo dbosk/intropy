@@ -1,4 +1,6 @@
 SUBDIR+=		slides
+SUBDIR+=		slides-more
+
 SUBDIR_GOALS=	all clean distclean
 
 HTML_FILES= 	lecture.html exercise.html
