@@ -126,7 +126,9 @@ Det vi vill göra är följande.
 <<konfigurationsvariabler>>
 <<konstanter>>
 <<hjälpfunktioner>>
-<<beräknade konstanter>>
+if [ "$course" != "" ]; then
+  <<beräknade konstanter>>
+fi
 
 all() {
   <<kolla om vi har cachat resultat för [[all]], om så, använd det istället>>
@@ -148,9 +150,19 @@ Anledningen till att vi inte will köra [[all]] direkt om inget annat anges
 (vilket vi gjorde i tidigare versioner) är att vi vill kunna köra
 [[source datorprov.sh prgm24]]
 utan att köra något av kommandona.
+Om vi inte anger några argument vill vi skriva ut alla funktioner i filen.
+<<hjälpfunktioner>>=
+list_commands() {
+  grep -E '^\w+\(\)\s*\{' "$1" \
+    | cut -d '(' -f 1
+}
+@
+
 <<kör angivet kommando>>=
 if ! [ $# -eq 0 ]; then
   "$@"
+else
+  list_commands "$0"
 fi
 @ Så nu kan vi köra programmet med
 [[./datorprov.sh prgm24 all]]
