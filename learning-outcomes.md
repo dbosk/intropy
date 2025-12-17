@@ -14,17 +14,17 @@ The students should be able to
 
 To be able to do this the students must learn to
 
-  Lo01: design programs without code repetitions,
-  Lo02: divide a larger problem in manageable parts,
-  Lo03: divide a program
-  Lo04: apply control structures
-  Lo05: design and present user friendly output
-  Lo06: create flexible applications
-  Lo07: choose appropriate names of identifiers
-  Lo08: design interactive programs
-  Lo09: use and design composite data types (classes)
-  Lo10: transfer data between file and program,
-  Lo11: review others' programs.
+- Lo01: design programs without code repetitions,
+- Lo02: divide a larger problem in manageable parts,
+- Lo03: divide a program
+- Lo04: apply control structures
+- Lo05: design and present user friendly output
+- Lo06: create flexible applications
+- Lo07: choose appropriate names of identifiers
+- Lo08: design interactive programs
+- Lo09: use and design composite data types (classes)
+- Lo10: transfer data between file and program,
+- Lo11: review others' programs.
 
 
 # Revised learning outcomes
