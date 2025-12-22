@@ -20,7 +20,7 @@ bash ./datorprov.sh \
   "(${NEW_DATORPROV_COURSES}|${NEW_DATORPROV_EXAMROOMS})" \
   rapportera
 
-datorprov_courses="DD1317 LAB2.*${current}"
+datorprov_courses="DD1317.*LAB2.*${current}"
 
 canvaslms results -c "$datorprov_courses" -A "LAB2" \
 | sed -E "s/ ?[HV]T[0-9]{2}( \(.*\))?//" \
