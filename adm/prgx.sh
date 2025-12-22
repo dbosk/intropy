@@ -15,7 +15,7 @@ canvaslms results -c "$courses" -A "$components" \
 NEW_DATORPROV_COURSES="(DD1317 HT(2[5-9]|[3-9][0-9]))"
 current=$(date +%Y-%m)
 #NEW_DATORPROV_EXAMROOMS="DD131[07] LAB2.*${current}"
-NEW_DATORPROV_EXAMROOMS="DD1317 LAB2.*${current}"
+NEW_DATORPROV_EXAMROOMS="DD1317.*LAB2.*${current}"
 bash ./datorprov.sh \
   "(${NEW_DATORPROV_COURSES}|${NEW_DATORPROV_EXAMROOMS})" \
   rapportera
