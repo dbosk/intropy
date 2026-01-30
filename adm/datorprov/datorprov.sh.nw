@@ -867,16 +867,34 @@ echo
 
 \subsection{Filtrera ut relevanta studenter}
 
-De studenter som är relevanta är alla som har fått ett nytt resultat---men som 
-inte redan har ett P rapporterat i `Betyg datorprov` ([[BETYG]]), eftersom vi 
+De studenter som är relevanta är alla som har fått ett nytt resultat---men som
+inte redan har ett P rapporterat i `Betyg datorprov` ([[BETYG]]), eftersom vi
 inte vill skriva över ett P med något annat.
-Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och 
+Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och
 [[ickeP]]).
+
+Men först måste vi filtrera bort studenter från andra kurser.
+Om flera kurser delar samma datorprovssal (till exempel om [[COURSE_REGEX]]
+matchar flera kurser), kommer [[P]] och [[ickeP]] att inkludera studenter från
+alla dessa kurser.
+Vi vill bara ge återkoppling till studenter som har uppgiften \enquote{Betyg
+datorprov} ([[BETYG]])---denna uppgift fungerar som ett medlemskapsfilter för
+kursen.
 <<filterera ut alla studenter med nya resultat>>=
 (P; ickeP) \
 | cut -f 1 | sort | uniq \
+| <<filtrera till studenter som har [[BETYG]]-uppgiften>> \
 | <<filtrera bort alla som redan har P som betyg>> \
 | <<filtrera bort alla som inte har uppdaterade resultat>>
+@
+
+Vi filtrerar till endast de studenter som finns i resultaten för
+[[BETYG]]-uppgiften.
+Om en student inte har denna uppgift tillhör de en annan kurs och ska inte få
+återkoppling från oss.
+<<filtrera till studenter som har [[BETYG]]-uppgiften>>=
+grep -Ff <(results | awk -F'\t' -v betyg="$BETYG" '$1==betyg {print $2}')
+@
 <<filtrera bort alla som redan har P som betyg>>=
 grep -v -f <(results \
              | awk -F'\t' -v betyg="$BETYG" \
