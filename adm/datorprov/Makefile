@@ -5,7 +5,6 @@ all: datorprov.pdf datorprov.sh
 
 .INTERMEDIATE: datorprov.tex
 datorprov.pdf: datorprov.sh.nw
-	${NOWEAVE.pdf}
 
 datorprov.sh: datorprov.sh.nw
 	${NOTANGLE}

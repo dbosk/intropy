@@ -1,3 +1,17 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{csquotes}
+\usepackage{biblatex}
+\usepackage[colorlinks]{hyperref}
+\usepackage{noweb}
+\usepackage{didactic}
+
+\title{Hantera datorprovet}
+\author{Daniel Bosk}
+
+\begin{document}
+\maketitle
 \tableofcontents
 \clearpage
 
@@ -58,13 +72,19 @@ provomgång.
 Detta är skrivet med strukturen att provet finns i varje kursrum i åtanke.
 Vi kör skriptet med följande rad:
 [[./datorprov.sh prgm24 kommando]].
-Kan vi då använda skriptet även när datorprovet finns i ett examinationsrum och 
+Kan vi då använda skriptet även när datorprovet finns i ett examinationsrum och
 bonuspoängen finns i kursrummet?
 Ja, det borde vi kunna, genom att köra följande:
 [[./datorprov.sh "(prgm24|DD1310 LAB2 .2025-08-18.)" kommando]].
-På så vis får vi uppgifterna från examinationsrummet blandade med uppgifterna 
+På så vis får vi uppgifterna från examinationsrummet blandade med uppgifterna
 från kursrummet, precis som om de var i samma rum.
 (Se [[<<klipp ut kolumnerna som är relevanta för [[results]]>>]] nedan.)
+
+Notera att uppgiften \enquote{Betyg datorprovet} ([[BETYG]]) fungerar som ett
+medlemskapsfilter: endast studenter som har denna uppgift anses tillhöra kursen.
+När vi kör med ett regex som matchar flera kurser filtreras studentlistan
+automatiskt så att bara studenter från kursen med [[BETYG]]-uppgiften inkluderas
+i kommandon som~[[P]], [[ickeP]], [[Fx]] och~[[rapportera]].
 
 
 \section{Konfigurationsvariabler}\label{Konfigurationsvariabler}
@@ -85,7 +105,7 @@ Vi har följande konfigurationsvariabler för att kontrollera namnen på de olik
 uppgifterna i Canvas:
 <<konfigurationsvariabler>>=
 DATORPROV="Datorprov"
-BETYG="Betyg datorprov"
+BETYG="Betyg datorprovet"
 BONUS="Bonus:"
 ACKUMULERAD="Ackumulerad datorprovspoäng"
 @ Sedan har vi följande för att kontrollera namnen i resultatutmatningen:
@@ -94,6 +114,20 @@ DP_POINTS="Datorprov"
 BONUS_POINTS="Bonus"
 SUM_POINTS="Datorprov med bonus"
 ACK_POINTS="Ackumulerad datorprovspoäng"
+@
+
+Miljövariabeln~[[DRY_RUN]] styr om kommandon ska köras eller bara skrivas ut.
+Om~[[DRY_RUN=1]], då skrivs kommandona ut utan att köras (för att kunna
+granska dem innan körning).
+Om~[[DRY_RUN]] inte är satt eller är~0, då körs kommandona direkt.
+<<hjälpfunktioner>>=
+run_or_echo() {
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    echo "$@"
+  else
+    "$@"
+  fi
+}
 @
 
 Slutligen har vi även följande.
@@ -309,6 +343,20 @@ keep_latest() {
 }
 @
 
+Uppgiften~[[BETYG]] (\enquote{Betyg datorprovet}) fungerar som ett medlemskaps\-filter
+för kursen---om en student har denna uppgift tillhör de kursen vi vill rapportera
+till.
+När vi kör med ett regex som matchar flera kurser (exempelvis
+\verb|"(prgi25|DD1317.*LAB2.*)"|), kommer [[results]] att innehålla studenter
+från alla matchade kurser.
+Funktionen~[[studenter_i_kursen]] returnerar bara de studenter som har
+[[BETYG]]-uppgiften, dvs.\ de som tillhör kursen vi vill rapportera till.
+<<hjälpfunktioner>>=
+studenter_i_kursen() {
+  results | awk -F'\t' -v betyg="$BETYG" '$1==betyg {print $2}'
+}
+@
+
 
 \subsection{Rensa cachade resultat}
 
@@ -325,10 +373,16 @@ efterföljande körningar.
 
 \section{Skapa en lista med alla studenter}
 
-Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter 
+Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter
 genom att hämta dem från filen.
+Men vi vill bara ha studenter som tillhör kursen vi vill rapportera till---inte
+studenter från andra kurser som råkar matcha samma kursregex (exempelvis
+studenter i examinationsrummet).
+Därför filtrerar vi genom~[[studenter_i_kursen]], som bara returnerar studenter
+som har uppgiften~[[BETYG]].
 <<låt [[students]] vara en lista med alla studenter>>=
-students=$(results | cut -f 2 | sort | uniq)
+students=$(results | cut -f 2 | sort | uniq \
+                   | grep -Ff <(studenter_i_kursen))
 @
 
 
@@ -743,7 +797,7 @@ rapportera() {
     fi
     grade=$(compute_grade ${total_points})
     feedback=$(lo_feedback ${points} ${bonus})
-    echo canvaslms grade -c "${course}" \
+    run_or_echo canvaslms grade -c "${course}" \
                     -a "${to_assignment}" \
                     -u "${student}" \
                     -g "${grade}" \
@@ -797,7 +851,7 @@ poängen.
 points_ack_stored=$(results | grep -F "${student}" \
                             | grep "${ACKUMULERAD}" \
                             | cut -f 3)
-echo canvaslms grade -c "${course}" \
+run_or_echo canvaslms grade -c "${course}" \
                 -a "${ACKUMULERAD}" \
                 -u "${student}" \
                 -g "${total_points}" \
@@ -868,33 +922,23 @@ echo
 \subsection{Filtrera ut relevanta studenter}
 
 De studenter som är relevanta är alla som har fått ett nytt resultat---men som
-inte redan har ett P rapporterat i `Betyg datorprov` ([[BETYG]]), eftersom vi
-inte vill skriva över ett P med något annat.
+inte redan har ett P rapporterat i \enquote{Betyg datorprovet} ([[BETYG]]),
+eftersom vi inte vill skriva över ett P med något annat.
 Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och
 [[ickeP]]).
 
-Men först måste vi filtrera bort studenter från andra kurser.
-Om flera kurser delar samma datorprovssal (till exempel om [[COURSE_REGEX]]
-matchar flera kurser), kommer [[P]] och [[ickeP]] att inkludera studenter från
-alla dessa kurser.
-Vi vill bara ge återkoppling till studenter som har uppgiften \enquote{Betyg
-datorprov} ([[BETYG]])---denna uppgift fungerar som ett medlemskapsfilter för
-kursen.
+Notera att vi inte behöver filtrera bort studenter från andra kurser här.
+Filtreringen sker redan i~[[<<låt [[students]] vara en lista med alla
+studenter>>]], som filtrerar genom~[[studenter_i_kursen]].
+Därmed innehåller [[P]] och [[ickeP]] redan bara studenter från kursen vi vill
+rapportera till.
 <<filterera ut alla studenter med nya resultat>>=
 (P; ickeP) \
 | cut -f 1 | sort | uniq \
-| <<filtrera till studenter som har [[BETYG]]-uppgiften>> \
 | <<filtrera bort alla som redan har P som betyg>> \
 | <<filtrera bort alla som inte har uppdaterade resultat>>
 @
 
-Vi filtrerar till endast de studenter som finns i resultaten för
-[[BETYG]]-uppgiften.
-Om en student inte har denna uppgift tillhör de en annan kurs och ska inte få
-återkoppling från oss.
-<<filtrera till studenter som har [[BETYG]]-uppgiften>>=
-grep -Ff <(results | awk -F'\t' -v betyg="$BETYG" '$1==betyg {print $2}')
-@
 <<filtrera bort alla som redan har P som betyg>>=
 grep -v -f <(results \
              | awk -F'\t' -v betyg="$BETYG" \
@@ -1125,3 +1169,4 @@ Det ger oss följande.
 points_feedback ${lo_points} ${bonus_points}
 @
 
+\end{document}
