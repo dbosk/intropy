@@ -1,13 +1,15 @@
-\documentclass[a4paper]{article}
-\usepackage[utf8]{inputenc}
+\documentclass[a4paper,british]{article}
+\usepackage[british]{babel}
 \usepackage{url}
 \usepackage{csquotes}
+\usepackage{booktabs}
 \usepackage{biblatex}
 \usepackage[colorlinks]{hyperref}
 \usepackage{noweb}
 \noweboptions{shift,longchunks,longxref,breakcode}
 \usepackage{didactic}
 \usepackage{minted}
+\usepackage[capitalize]{cleveref}
 
 \title{Reminders about missing assignments}
 \author{Daniel Bosk}
@@ -248,21 +250,27 @@ have passed their deadlines, then delegates to [[send_reminders]].
 
 We want reminders to start \emph{after} each module's due date, not
 before, so that students are not nagged about work that is not yet due.
-The course runs from September to mid-January, so the dispatch table is:
+The course runs from September to mid-January, so the dispatch table is 
+\cref{tab:dispatch}.
 
+\begin{table}
 \begin{center}
-\begin{tabular}{rll}
+\begin{tabular}{lrl}
+\toprule
 Month & Numeric & Active modules\\
-\hline
+\midrule
 September & 9 & KAL1\\
 October & 10 & KAL1, LAB1\\
 November & 11 & KAL1, LAB1\\
 December & 12 & KAL1, LAB1\\
 January--May & 1--5 & KAL1, LAB1, LAB3\\
 June--August & 6--8 & \emph{(none)}\\
-\hline
+\bottomrule
 \end{tabular}
 \end{center}
+\caption{Active modules by month.}
+\label{tab:dispatch}
+\end{table}
 
 The year wraps between December (12) and January (1), so a simple
 \(month \ge 9\) test does not cover spring months.
@@ -362,7 +370,16 @@ send_reminders() {
   for student in $students; do
     local body
     body=$(email_body "$student" "$all_missing")
-    run_or_echo mutt -s "$subject" "$student" <<< "$body"
+    if [ -z "$body" ]; then
+      continue
+    fi
+    if [ "${DRY_RUN:-0}" = "1" ]; then
+      echo "Would send email to $student with subject '$subject' and body:"
+      echo "$body"
+      echo "----"
+    else
+      run_or_echo mutt -s "$subject" "$student" <<< "$body"
+    fi
   done
 }
 @
