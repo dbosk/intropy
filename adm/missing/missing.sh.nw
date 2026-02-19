@@ -403,8 +403,16 @@ email_subject() {
 
 [[email_body]] assembles a complete email body for one student.
 It filters the full missing-rows snapshot down to that student's rows,
-then delegates formatting to [[format_by_module]] and
-[[how_to_proceed]].
+then iterates over each module present in those rows: printing the module
+heading, its assignment lines, and any inline per-module instruction
+immediately after.
+General instructions that span multiple modules (the diagnostic test,
+Restlabb) are collected at the end by [[how_to_proceed]].
+
+Placing the KAL1 instruction immediately after the KAL1 assignments ---
+rather than at the bottom with the other instructions --- means the
+student sees the relevant venue information right next to the assignments
+it applies to, without having to read past LAB1 or LAB3 entries first.
 
 The student rows are passed as a string rather than re-querying Canvas,
 which keeps the function pure and avoids a second network round-trip.
@@ -423,8 +431,14 @@ email_body() {
   echo "Du saknar fortfarande godkänt på följande uppgifter" \
        "i kursen ${course}:"
   echo ""
-  format_by_module "$student_rows"
-  echo ""
+  local present_modules
+  present_modules=$(echo "$student_rows" | cut -f2 | awk '!seen[$0]++')
+  for module in $present_modules; do
+    echo "${module}:"
+    format_module_rows "$module" "$student_rows"
+    echo ""
+    module_instructions "$module"
+  done
   how_to_proceed "$student_rows"
   echo ""
   echo "Med vänliga hälsningar,"
@@ -432,69 +446,81 @@ email_body() {
 }
 @
 
-\subsection{Grouping missing assignments by module}
+\subsection{Formatting a single module's rows}
 
-We group the rows under a heading for each module so the student can see
-at a glance which part of the course each item belongs to.
-A new heading is printed whenever the module column (field 2) changes.
-Each assignment (field 4) and its motivation (field 5) are indented under
-the heading.
+[[format_module_rows]] prints the assignment lines for one module,
+indented under the heading that [[email_body]] has already printed.
+Filtering to a single module here, rather than iterating over all modules
+in one pass, keeps the function focused and makes [[email_body]]'s loop
+easy to follow.
 <<functions>>=
-format_by_module() {
-  local rows="$1"
-  echo "$rows" | awk -F'\t' '
-    {
-      if ($2 != current_module) {
-        if (current_module != "") print ""
-        current_module = $2
-        print current_module ":"
-      }
-      print "  - " $4 ": " $5
-    }
-  '
+format_module_rows() {
+  local module="$1"
+  local rows="$2"
+  echo "$rows" | awk -F'\t' -v mod="$module" \
+    '$2 == mod { print "  - " $4 ": " $5 }'
 }
 @
 
-\subsection{How to proceed}
+\subsection{Per-module inline instructions}
 
-Different assignments require different actions, so we tailor the
-instructions rather than giving a generic \enquote{contact your teacher}
-message.
-Different assignments require different actions, so we tailor the
-instructions rather than giving a generic \enquote{contact your teacher}
-message.
-The diagnostic test is a special case: it is a Canvas quiz that students
-complete entirely on their own, with no grader involvement, so the
-instruction is simply to open Canvas and do it.
-KAL1 (Excel) assignments differ from the other modules in \emph{where}
-they can be presented: during regular lab sessions while the course runs,
-or at Lab Week in June after the course ends.
-They cannot be presented at the weekly Restlabb sessions.
-LAB1 and the project parts of LAB3 can be presented at Restlabb.
+Some modules need a short instruction placed immediately after their
+assignment list, before the next module's entries.
+KAL1 is the only such module: its assignments are presented at regular
+lab sessions during the course, or at Lab Week after the course ends ---
+not at the weekly Restlabb.
+Putting this note right after the KAL1 list makes the connection between
+assignments and venue explicit without forcing the student to scan to the
+bottom of the email.
 
-We therefore detect three cases by scanning the student's rows once with
-[[awk]] and setting flags.
-Emitting each paragraph at most once avoids repeating instructions when
-a student is missing items in several modules.
+For all other modules [[module_instructions]] produces no output, so the
+loop in [[email_body]] works uniformly regardless of how many modules are
+active.
 <<constants>>=
 LAB_WEEK_URL="https://www.kth.se/social/group/labbvecka/"
 @
 
 <<functions>>=
+module_instructions() {
+  local module="$1"
+  case "$module" in
+    "$MODULE_KAL1")
+      echo "KAL1-uppgifterna kan redovisas på de flesta labbtillfällen" \
+           "under kursens gång. Efter kursens slut redovisas de under" \
+           "Labbveckan:"
+      echo "  ${LAB_WEEK_URL}"
+      echo ""
+      ;;
+  esac
+}
+@
+
+\subsection{How to proceed}
+
+At the end of the email we emit instructions for assignments that are not
+covered by the inline per-module notes above.
+The diagnostic test is a special case: it is a Canvas quiz that students
+complete entirely on their own, with no grader involvement, so the
+instruction is simply to open Canvas and do it.
+LAB1 and the project parts of LAB3 require presenting at a Restlabb
+session.
+
+We detect these two cases by scanning the student's rows once with
+[[awk]] and setting flags.
+Emitting each paragraph at most once avoids repetition when a student is
+missing items in both LAB1 and LAB3.
+KAL1 rows are excluded from [[needs_restlabb]] because their instructions
+were already emitted inline by [[module_instructions]].
+<<functions>>=
 how_to_proceed() {
   local rows="$1"
 
-  local needs_diagnostic needs_kal1 needs_restlabb
+  local needs_diagnostic needs_restlabb
   needs_diagnostic=$(
     echo "$rows" | awk -F'\t' \
       -v mod="$MODULE_LAB3" \
       -v diag="$DIAGNOSTIC_TEST" \
       '$2==mod && $4==diag {found=1} END {print (found ? 1 : 0)}'
-  )
-  needs_kal1=$(
-    echo "$rows" | awk -F'\t' \
-      -v mod="$MODULE_KAL1" \
-      '$2==mod {found=1} END {print (found ? 1 : 0)}'
   )
   needs_restlabb=$(
     echo "$rows" | awk -F'\t' \
@@ -508,13 +534,6 @@ how_to_proceed() {
     echo "Det avslutande diagnostiska provet (\"${DIAGNOSTIC_TEST}\")" \
          "kan du göra när som helst direkt i Canvas --- du behöver inte" \
          "boka tid eller invänta rättning."
-    echo ""
-  fi
-  if [ "$needs_kal1" = "1" ]; then
-    echo "KAL1-uppgifterna kan redovisas på de flesta labbtillfällen" \
-         "under kursens gång. Efter kursens slut redovisas de under" \
-         "Labbveckan:"
-    echo "  ${LAB_WEEK_URL}"
     echo ""
   fi
   if [ "$needs_restlabb" = "1" ]; then
