@@ -5,6 +5,7 @@
 \usepackage{biblatex}
 \usepackage[colorlinks]{hyperref}
 \usepackage{noweb}
+\noweboptions{shift,longchunks,longxref,breakcode}
 \usepackage{didactic}
 \usepackage{minted}
 
@@ -153,5 +154,336 @@ For example, for the missing diagnostic tests, the email should say that they
 should just do it and then they'll get the grade.
 But for other assignments, they might need to present during a lab session or 
 at Restlabb, then this should be mentioned in the body of the email.
+
+
+\section{Configuration variables}
+
+The script takes the course identifier as its first positional argument,
+following the same convention as [[datorprov.sh]].
+This makes the script reusable across course instances (e.g.\ [[prgi25]],
+[[prgi26]]) without editing, and lets cron invoke it as
+\mintinline{bash}{./missing.sh prgi25}.
+<<constants>>=
+course="$1"
+shift
+@
+
+The four module names mirror the Ladok modules and the Canvas assignment
+groups.
+We define them as constants so that a name change in Canvas only requires
+updating one place.
+We also name the summary strategy here because it must be passed to every
+[[canvaslms results --missing]] call; defining it once prevents the calls
+from drifting out of sync.
+<<constants>>=
+MODULE_KAL1="KAL1"
+MODULE_LAB1="LAB1"
+MODULE_LAB3="LAB3"
+SUMMARY_STRATEGY="canvaslms.grades.conjunctavgsurvey"
+@
+
+The diagnostic test is the one LAB3 assignment that students can complete
+entirely on their own at any time --- it requires no presentation and no
+grader.
+Naming it here lets [[how_to_proceed]] give specific guidance for it
+without embedding the Swedish assignment title in the logic.
+The Restlabb URL is the drop-in session where students present all other
+assignments after the course ends.
+<<constants>>=
+DIAGNOSTIC_TEST="Avslutande diagnostiskt prov"
+RESTLABB_URL="https://www.kth.se/social/group/labbvecka/page/restlabbar-7/"
+@
+
+
+\section{Dry-run support}
+
+Testing a script that sends email is risky: a single off-by-one in the
+student loop would flood real inboxes.
+We therefore support a [[DRY_RUN]] mode in which [[run_or_echo]] prints the
+command it would execute instead of running it.
+Setting [[DRY_RUN=1]] in the environment is enough; the default is live
+mode.
+<<functions>>=
+run_or_echo() {
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    echo "$@"
+  else
+    "$@"
+  fi
+}
+@
+
+
+\section{Overview of the implementation}
+
+Before diving into each piece, here is the complete function dependency
+graph.
+It shows how [[main]] orchestrates the reminder flow and which helpers each
+function relies on.
+
+\begin{verbatim}
+main
+ └─ send_reminders(modules...)
+     ├─ missing_for_module(module)   [called once per active module]
+     ├─ email_subject()
+     └─ email_body(student, all_missing)
+         ├─ format_by_module(student_rows)
+         └─ how_to_proceed(student_rows)
+             [uses: DIAGNOSTIC_TEST, MODULE_LAB3, RESTLABB_URL]
+
+run_or_echo   [used inside send_reminders when invoking mutt]
+\end{verbatim}
+
+The key design choice is that [[send_reminders]] collects all missing
+rows from Canvas in one pass (one [[canvaslms]] call per active module)
+and then distributes that data to per-student email composition.
+This avoids re-querying Canvas once per student, which would be
+prohibitively slow.
+
+
+\section{The main function}
+
+[[main]] looks at the current calendar month and decides which modules
+have passed their deadlines, then delegates to [[send_reminders]].
+
+We want reminders to start \emph{after} each module's due date, not
+before, so that students are not nagged about work that is not yet due.
+The course runs from September to mid-January, so the dispatch table is:
+
+\begin{center}
+\begin{tabular}{rll}
+Month & Numeric & Active modules\\
+\hline
+September & 9 & KAL1\\
+October & 10 & KAL1, LAB1\\
+November & 11 & KAL1, LAB1\\
+December & 12 & KAL1, LAB1\\
+January--May & 1--5 & KAL1, LAB1, LAB3\\
+June--August & 6--8 & \emph{(none)}\\
+\hline
+\end{tabular}
+\end{center}
+
+The year wraps between December (12) and January (1), so a simple
+\(month \ge 9\) test does not cover spring months.
+We handle the wrap by checking either the autumn condition or the spring
+condition: a month is \enquote{active for KAL1} if it is \(\ge 9\)
+(autumn) \emph{or} \(\le 5\) (spring semester, where Restlabb still runs).
+The [[10#]] prefix forces decimal interpretation so that months like
+[[09]] are not mis-read as octal.
+<<functions>>=
+main() {
+  local month
+  month=$(date +%m)
+  local modules=()
+  <<add KAL1 if month is in range>>
+  <<add LAB1 if month is in range>>
+  <<add LAB3 if month is in range>>
+  send_reminders "${modules[@]}"
+}
+@
+
+<<add KAL1 if month is in range>>=
+if [[ 10#$month -ge 9 || 10#$month -le 5 ]]; then
+  modules+=("$MODULE_KAL1")
+fi
+@
+
+LAB1 reminders start one month later than KAL1, in October.
+<<add LAB1 if month is in range>>=
+if [[ 10#$month -ge 10 || 10#$month -le 5 ]]; then
+  modules+=("$MODULE_LAB1")
+fi
+@
+
+LAB3's deadline is mid-January, so the first reminder goes out at the
+end of January.
+Checking \(\le 5\) covers January through May without needing a special
+case for the year boundary.
+<<add LAB3 if month is in range>>=
+if [[ 10#$month -le 5 ]]; then
+  modules+=("$MODULE_LAB3")
+fi
+@
+
+
+\section{Fetching missing assignments}
+
+[[missing_for_module]] wraps the [[canvaslms results --missing]] command
+for a single module.
+We pass [[-S $SUMMARY_STRATEGY]] because LAB3 contains a survey
+(the diagnostic test), and without a custom summary module [[canvaslms]]
+cannot compute a passing grade for it.
+The same flag is harmless for KAL1 and LAB1, so we use it uniformly.
+
+The output is tab-separated with five columns:
+course, module, student e-mail, assignment name, motivation.
+<<functions>>=
+missing_for_module() {
+  local module="$1"
+  canvaslms results --missing \
+    -c "$course" \
+    -A "$module" \
+    -S "$SUMMARY_STRATEGY"
+}
+@
+
+
+\section{Sending reminders}
+
+[[send_reminders]] collects all missing rows from Canvas across every
+active module in a single pass, then sends one email per student
+containing everything they are missing.
+
+Collecting first and distributing second is critical for correctness:
+if we queried Canvas per student we would get O(students) API calls, and
+the data between calls could drift as Canvas updates in the background.
+By collecting once we guarantee that each student's email reflects a
+consistent snapshot.
+<<functions>>=
+send_reminders() {
+  local all_missing
+  all_missing=$(
+    for module in "$@"; do
+      missing_for_module "$module"
+    done
+  )
+
+  if [ -z "$all_missing" ]; then
+    return
+  fi
+
+  local students
+  students=$(echo "$all_missing" | cut -f3 | sort -u)
+
+  local subject
+  subject=$(email_subject)
+
+  for student in $students; do
+    local body
+    body=$(email_body "$student" "$all_missing")
+    run_or_echo mutt -s "$subject" "$student" <<< "$body"
+  done
+}
+@
+
+
+\section{Composing the email}
+
+\subsection{Subject}
+
+The subject identifies the course and makes clear this is an automatic
+reminder.
+We omit the module name because the email may cover several modules at
+once.
+<<functions>>=
+email_subject() {
+  echo "[Påminnelse] ${course} --- du saknar betyg"
+}
+@
+
+\subsection{Body}
+
+[[email_body]] assembles a complete email body for one student.
+It filters the full missing-rows snapshot down to that student's rows,
+then delegates formatting to [[format_by_module]] and
+[[how_to_proceed]].
+
+The student rows are passed as a string rather than re-querying Canvas,
+which keeps the function pure and avoids a second network round-trip.
+<<functions>>=
+email_body() {
+  local student="$1"
+  local all_missing="$2"
+
+  local student_rows
+  student_rows=$(
+    echo "$all_missing" | awk -F'\t' -v s="$student" '$3 == s'
+  )
+
+  echo "Hej!"
+  echo ""
+  echo "Du saknar fortfarande godkänt på följande uppgifter" \
+       "i kursen ${course}:"
+  echo ""
+  format_by_module "$student_rows"
+  echo ""
+  how_to_proceed "$student_rows"
+  echo ""
+  echo "Med vänliga hälsningar,"
+  echo "Daniel Bosk (automatisk påminnelse)"
+}
+@
+
+\subsection{Grouping missing assignments by module}
+
+We group the rows under a heading for each module so the student can see
+at a glance which part of the course each item belongs to.
+A new heading is printed whenever the module column (field 2) changes.
+Each assignment (field 4) and its motivation (field 5) are indented under
+the heading.
+<<functions>>=
+format_by_module() {
+  local rows="$1"
+  echo "$rows" | awk -F'\t' '
+    {
+      if ($2 != current_module) {
+        if (current_module != "") print ""
+        current_module = $2
+        print current_module ":"
+      }
+      print "  - " $4 ": " $5
+    }
+  '
+}
+@
+
+\subsection{How to proceed}
+
+Different assignments require different actions, so we tailor the
+instructions rather than giving a generic \enquote{contact your teacher}
+message.
+The diagnostic test is a special case: it is a Canvas quiz that students
+complete entirely on their own, with no grader involvement, so the
+instruction is simply to open Canvas and do it.
+Every other missing assignment --- whether in KAL1, LAB1, or the project
+parts of LAB3 --- requires the student to present at a Restlabb session.
+
+We detect these two cases by scanning the student's rows once with
+[[awk]] and setting flags.
+Emitting each paragraph at most once avoids repeating the Restlabb URL
+when a student is missing items in both KAL1 and LAB1.
+<<functions>>=
+how_to_proceed() {
+  local rows="$1"
+
+  local needs_diagnostic needs_restlabb
+  needs_diagnostic=$(
+    echo "$rows" | awk -F'\t' \
+      -v mod="$MODULE_LAB3" \
+      -v diag="$DIAGNOSTIC_TEST" \
+      '$2==mod && $4==diag {found=1} END {print (found ? 1 : 0)}'
+  )
+  needs_restlabb=$(
+    echo "$rows" | awk -F'\t' \
+      -v mod3="$MODULE_LAB3" \
+      -v diag="$DIAGNOSTIC_TEST" \
+      '$2!=mod3 || $4!=diag {found=1} END {print (found ? 1 : 0)}'
+  )
+
+  if [ "$needs_diagnostic" = "1" ]; then
+    echo "Det avslutande diagnostiska provet (\"${DIAGNOSTIC_TEST}\")" \
+         "kan du göra när som helst direkt i Canvas --- du behöver inte" \
+         "boka tid eller invänta rättning."
+    echo ""
+  fi
+  if [ "$needs_restlabb" = "1" ]; then
+    echo "Övriga uppgifter redovisas på Restlabb (drop-in, ingen" \
+         "föranmälan krävs):"
+    echo "  ${RESTLABB_URL}"
+    echo ""
+  fi
+}
+@
 
 \end{document}
