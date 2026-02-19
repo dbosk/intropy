@@ -1,0 +1,157 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{csquotes}
+\usepackage{biblatex}
+\usepackage[colorlinks]{hyperref}
+\usepackage{noweb}
+\usepackage{didactic}
+\usepackage{minted}
+
+\title{Reminders about missing assignments}
+\author{Daniel Bosk}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+
+\section{Introduction}
+
+Many students email me about why they haven't received the grades for the 
+course prgi, for example prgi25.
+The cause is always the same: they have not submitted or presented or passed 
+all the assignments.
+
+For this reason, I wrote the [[canvaslms results --missing]] functionality.
+On this course we have four modules:
+\begin{itemize}
+\item KAL1 covering Excel,
+\item LAB1 covering the labs,
+\item LAB2 covering the exam Datorprovet,
+\item LAB3 covering the project and a final diagnostic test.
+\end{itemize}
+Each module exists under that name in Ladok and has a corresponding assignment 
+group in Canvas.
+A missing grade for LAB3 in Ladok means that one of the assignments in the 
+assignment group LAB3 in Canvas lacks a passing grade.
+
+Most students who email me have missed the final diagnostic test, which is the 
+last assignment in the course that must be done earliest the last week of the 
+course.
+That is part of LAB3.
+
+We can run
+\begin{minted}{bash}
+canvaslms results --missing -c prgi25 -A LAB3 \
+  -S canvaslms.grades.conjunctavgsurvey
+\end{minted}
+to get a list of all students and what they are missing, one assignment and a 
+motivation per row.
+We need the [[-S]] option to specify a summary module that can handle the 
+survey included in LAB3.
+For example, if we pipe the output of the command to [[cut -f 1,2,4-]], to 
+remove student identifiers, the output looks like this:
+\begin{minted}{text}
+DD1317 HT25 (prgi25)	LAB3	Projektspecifikation	not done
+DD1317 HT25 (prgi25)	LAB3	Projektgranskning	not done
+DD1317 HT25 (prgi25)	LAB3	Projektredovisning	not done
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Projektspecifikation	not done
+DD1317 HT25 (prgi25)	LAB3	Projektgranskning	not done
+DD1317 HT25 (prgi25)	LAB3	Projektredovisning	not done
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Projektspecifikation	submitted on 2025-12-02 15:20, but not graded
+DD1317 HT25 (prgi25)	LAB3	Projektredovisning	not done
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Projektspecifikation	not done
+DD1317 HT25 (prgi25)	LAB3	Projektgranskning	not done
+DD1317 HT25 (prgi25)	LAB3	Projektredovisning	not done
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Projektgranskning	not a passing grade (F)
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Projektspecifikation	not done
+DD1317 HT25 (prgi25)	LAB3	Projektgranskning	not done
+DD1317 HT25 (prgi25)	LAB3	Projektredovisning	not done
+DD1317 HT25 (prgi25)	LAB3	Avslutande diagnostiskt prov	not done
+DD1317 HT25 (prgi25)	LAB3	Projektgranskning	not a passing grade (F)
+[...]
+\end{minted}
+
+LAB2 is not an issue nowadays as that's an exam and it doesn't contain the 
+diagnostic test as it used too.
+So we will not send reminders about that, but we will send reminders about the 
+other three modules.
+Those tree modules can also be finished at any time, unlike LAB2 that must be 
+taken when the exam is given.
+
+Here we provide a script that will email students at suitable points in time 
+and intervals.
+
+\subsection{The script}
+
+The script is a bash script.
+Cron will execute the script at suitable points in time.
+We also want to be able to source it for debugging and use in other scripts.
+<<[[missing.sh]]>>=
+#!/bin/bash
+
+<<constants>>
+<<functions>>
+
+# Run the script if not sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main
+fi
+@
+
+\subsection{When to run the script}
+
+The course is given during autumns, September to mid-January.
+The different modules have different timelines.
+
+KAL1 should be done by October.
+The labs can usually be presented at most lab sessions during the course.
+After the course ends it can only be presented during Lab Week in June.
+
+LAB1 should be done by November.
+These labs can also be presented at any lab session during the course.
+After the course ends they can be presented at Restlabb every week during the 
+semester, but also during Lab Week in June.
+
+LAB3 should be done by mid-January.
+After the course ends they can present these assignments at Restlabb every week 
+during the semester, but also during Lab Week in June.
+The diagnostic test can be done at any time as it requires no grading.
+
+The script should optimally be run around the time the students think that they 
+are done with a module.
+Then I want a reminder at the end of every month.
+(This ought to be researched.
+Particularly, it should be founded in the nudging research literature.)
+
+Cron will run the script at the end of every month.
+So the [[main]] function must look at the current month and determine which 
+modules to check for.
+
+\subsection{The email}
+
+We get the students' email addresses as the third field of the output of 
+[[canvaslms results --missing]].
+(The field that we [[cut]] away above.)
+We want to send one email per student.
+We can use the [[mutt]] command to send the email.
+
+We want the subject to contain the course (column 1) and something indicating 
+that this is an automatic reminder about things left to do to get a grade.
+
+The body of the email should contain a list of the missing assignments and the 
+motivations for why they are missing.
+It should also contain a brief description of how to proceed.
+For example, for the missing diagnostic tests, the email should say that they 
+should just do it and then they'll get the grade.
+But for other assignments, they might need to present during a lab session or 
+at Restlabb, then this should be mentioned in the body of the email.
+
+\end{document}
