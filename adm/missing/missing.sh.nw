@@ -460,38 +460,61 @@ format_by_module() {
 Different assignments require different actions, so we tailor the
 instructions rather than giving a generic \enquote{contact your teacher}
 message.
+Different assignments require different actions, so we tailor the
+instructions rather than giving a generic \enquote{contact your teacher}
+message.
 The diagnostic test is a special case: it is a Canvas quiz that students
 complete entirely on their own, with no grader involvement, so the
 instruction is simply to open Canvas and do it.
-Every other missing assignment --- whether in KAL1, LAB1, or the project
-parts of LAB3 --- requires the student to present at a Restlabb session.
+KAL1 (Excel) assignments differ from the other modules in \emph{where}
+they can be presented: during regular lab sessions while the course runs,
+or at Lab Week in June after the course ends.
+They cannot be presented at the weekly Restlabb sessions.
+LAB1 and the project parts of LAB3 can be presented at Restlabb.
 
-We detect these two cases by scanning the student's rows once with
+We therefore detect three cases by scanning the student's rows once with
 [[awk]] and setting flags.
-Emitting each paragraph at most once avoids repeating the Restlabb URL
-when a student is missing items in both KAL1 and LAB1.
+Emitting each paragraph at most once avoids repeating instructions when
+a student is missing items in several modules.
+<<constants>>=
+LAB_WEEK_URL="https://www.kth.se/social/group/labbvecka/"
+@
+
 <<functions>>=
 how_to_proceed() {
   local rows="$1"
 
-  local needs_diagnostic needs_restlabb
+  local needs_diagnostic needs_kal1 needs_restlabb
   needs_diagnostic=$(
     echo "$rows" | awk -F'\t' \
       -v mod="$MODULE_LAB3" \
       -v diag="$DIAGNOSTIC_TEST" \
       '$2==mod && $4==diag {found=1} END {print (found ? 1 : 0)}'
   )
+  needs_kal1=$(
+    echo "$rows" | awk -F'\t' \
+      -v mod="$MODULE_KAL1" \
+      '$2==mod {found=1} END {print (found ? 1 : 0)}'
+  )
   needs_restlabb=$(
     echo "$rows" | awk -F'\t' \
+      -v mod1="$MODULE_KAL1" \
       -v mod3="$MODULE_LAB3" \
       -v diag="$DIAGNOSTIC_TEST" \
-      '$2!=mod3 || $4!=diag {found=1} END {print (found ? 1 : 0)}'
+      '$2!=mod1 && ($2!=mod3 || $4!=diag) {found=1} END {print (found ? 1 : 0)}'
   )
 
   if [ "$needs_diagnostic" = "1" ]; then
     echo "Det avslutande diagnostiska provet (\"${DIAGNOSTIC_TEST}\")" \
          "kan du göra när som helst direkt i Canvas --- du behöver inte" \
          "boka tid eller invänta rättning."
+    echo ""
+  fi
+  if [ "$needs_kal1" = "1" ]; then
+    echo "KAL1-uppgifterna kan redovisas på de flesta labbtillfällen" \
+         "under kursens gång. Efter kursens slut redovisas de under" \
+         "Labbveckan:"
+    echo "  ${LAB_WEEK_URL}"
     echo ""
   fi
   if [ "$needs_restlabb" = "1" ]; then
