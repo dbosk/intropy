@@ -26,7 +26,17 @@ def write_lines():
     except EnvironmentError as err:
         print(f"We encountered an error: {err}")
 
+def write_text():
+    """ Writing text in write mode """
+    try:
+        with open("test1.txt", "w") as file:
+            file.write("Hej\n")
+            file.write("Världen\n")
+    except EnvironmentError as err:
+        print(f"We encountered an error: {err}")
+
 if __name__ == "__main__":
-    main1()
-    main2()
-    main3()
+    write_text()
+    write_for()
+    write_print()
+    write_lines()
