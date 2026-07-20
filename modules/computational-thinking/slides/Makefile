@@ -11,6 +11,7 @@ TEX_PYTHONTEX=	yes
 
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
+SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/pannkakor.py
