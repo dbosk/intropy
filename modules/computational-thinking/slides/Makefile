@@ -2,6 +2,8 @@
 all: notes.pdf slides.pdf
 
 LATEXFLAGS+=	-shell-escape
+# The assembled program's output is executed and embedded with PythonTeX.
+TEX_PYTHONTEX=	yes
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example program is tangled from
