@@ -110,7 +110,7 @@ TABLE = r"""\begingroup\footnotesize
   >{\raggedright\arraybackslash}p{0.44\textwidth}c%%
   >{\raggedright\arraybackslash}p{0.13\textwidth}%%
   >{\raggedright\arraybackslash}p{0.26\textwidth}@{}}
-\caption{Fullständig träfflista, sökspår %(track)s (session \texttt{%(sess)s};
+\caption{Fullständig träfflista, sökspår %(num)s (session \texttt{%(sess)s};
 %(n)d unika träffar: %(cit)d citerade, %(sup)d stöder påståendet,
 %(adj)d angränsande, %(off)d felträffar).  Skälet till varje in- eller
 uteslutning står i sista kolumnen; för maskinklassade rader anges modellens
@@ -131,7 +131,8 @@ Titel & År & Leverantör & Skäl \\
 \endgroup
 """
 
-for track, sess in [("A", "sprak-A"), ("B", "sprak-B"), ("C", "sprak-C")]:
+for track, sess, num in [("A", "sprak-A", "1"), ("B", "sprak-B", "2"),
+                         ("C", "sprak-C", "3")]:
     rows = rows_for(BASE / f"{sess}.csv")
     # kept-cited -> supports -> adjacent -> felträff; title within each group
     rows.sort(key=lambda r: (r[5], r[0].lower()))
@@ -143,8 +144,8 @@ for track, sess in [("A", "sprak-A"), ("B", "sprak-B"), ("C", "sprak-C")]:
         "%s & %s & %s & %s \\\\" % (t, y, p, reason)
         for (t, y, p, _st, reason, _o) in rows)
     (BASE / f"{sess}-full.tex").write_text(
-        TABLE % {"track": track, "sess": sess, "n": len(rows), "cit": cit,
-                 "sup": sup, "adj": adj, "off": off, "body": body},
+        TABLE % {"track": track, "num": num, "sess": sess, "n": len(rows),
+                 "cit": cit, "sup": sup, "adj": adj, "off": off, "body": body},
         encoding="utf-8")
     print(f"track {track}: {len(rows)} rows | {cit} citerade, {sup} stöder, "
           f"{adj} angränsande, {off} felträff -> {sess}-full.tex")
