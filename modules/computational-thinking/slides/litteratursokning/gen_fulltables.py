@@ -28,8 +28,18 @@ SPECIAL = {"&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
 
 # Screening / theme tag -> readable Swedish reason for the "Skäl" column.
 DISCARD_REASON = {
+    "covered-by-cited-source": "täcks av vald källa",
+    "outside-module-claim": "utanför modulens påståenden",
     "off-topic-false-hit": "annat ämne (felträff)",
+    # legacy tag, kept for backward compatibility with older exports
     "on-topic-not-selected": "på ämnet, ej vald",
+}
+# Sort order among discarded rows (kept rows always come first).
+REASON_ORDER = {
+    "täcks av vald källa": 0,
+    "utanför modulens påståenden": 1,
+    "annat ämne (felträff)": 2,
+    "på ämnet, ej vald": 1,
 }
 THEME_REASON = {
     "structured-programming-theorem": "struktureringsteoremet",
@@ -95,8 +105,9 @@ TABLE = r"""\begingroup\footnotesize
   >{\raggedright\arraybackslash}p{0.13\textwidth}%%
   >{\raggedright\arraybackslash}p{0.26\textwidth}@{}}
 \caption{Fullständig träfflista, sökspår %(track)s (session \texttt{%(sess)s};
-%(n)d unika träffar, %(kept)d behållna, %(off)d felträffar, %(nots)d på ämnet
-men ej valda).  Skälet till varje in- eller uteslutning står i sista
+%(n)d unika träffar: %(kept)d behållna, %(covered)d täcks av vald källa,
+%(outside)d utanför modulens påståenden, %(off)d felträffar).  Skälet till
+varje in- eller uteslutning står i sista
 kolumnen.}\label{tab:sok-%(track)s}\\
 \toprule
 Titel & År & Leverantör & Skäl \\
@@ -116,19 +127,21 @@ Titel & År & Leverantör & Skäl \\
 
 for track, sess in [("A", "sprak-A"), ("B", "sprak-B"), ("C", "sprak-C")]:
     rows = rows_for(BASE / f"{sess}.csv")
-    # kept first, then on-topic-not-selected, then off-topic; title within group
+    # kept first, then by exclusion reason (covered -> outside -> off), title within
     rows.sort(key=lambda r: (r[3] != "kept",
-                             "på ämnet" not in r[4],   # on-topic before off
+                             REASON_ORDER.get(r[4], 9),
                              r[0].lower()))
     kept = sum(1 for r in rows if r[3] == "kept")
-    off = sum(1 for r in rows if "felträff" in r[4])
-    nots = sum(1 for r in rows if "på ämnet" in r[4])
+    covered = sum(1 for r in rows if r[4] == "täcks av vald källa")
+    outside = sum(1 for r in rows if r[4] == "utanför modulens påståenden")
+    off = sum(1 for r in rows if r[4] == "annat ämne (felträff)")
     body = "\n".join(
         "%s & %s & %s & %s \\\\" % (t, y, p, reason)
-        for (t, y, p, s, reason) in rows)
+        for (t, y, p, _s, reason) in rows)
     (BASE / f"{sess}-full.tex").write_text(
-        TABLE % {"track": track, "sess": sess, "n": len(rows),
-                 "kept": kept, "off": off, "nots": nots, "body": body},
+        TABLE % {"track": track, "sess": sess, "n": len(rows), "kept": kept,
+                 "covered": covered, "outside": outside, "off": off,
+                 "body": body},
         encoding="utf-8")
-    print(f"track {track}: {len(rows)} unique rows, {kept} kept, "
-          f"{off} felträff, {nots} på ämnet -> {sess}-full.tex")
+    print(f"track {track}: {len(rows)} rows | {kept} kept, {covered} covered, "
+          f"{outside} outside, {off} felträff -> {sess}-full.tex")
