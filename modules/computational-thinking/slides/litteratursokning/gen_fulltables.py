@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 """Generate auditable full-candidate longtables from scholar session CSVs.
 
-Every candidate is listed with the reason it was included or excluded.  The
-reason comes from the decision tag recorded in the scholar session:
+Every candidate is listed with the reason it was included or excluded, drawn
+from the decision recorded in the scholar session.  Candidates were screened
+by LLM classification (scholar llm classify) against a stated research context,
+grounded in each paper's abstract:
 
-  * kept papers carry a *theme* tag (why they were selected);
-  * discarded papers carry one of two *screening* tags, assigned by reading
-    each candidate's title and venue:
-      - off-topic-false-hit   -> another subject, returned on keyword overlap
-      - on-topic-not-selected -> genuinely on topic, but not cited
+  * citerad            -- the primary source actually cited (human decision);
+  * stöder påståendet  -- LLM-judged to bear on the module's decomposition
+                          claim (a corroborating source strengthens the claim);
+  * angränsande delämne-- within computing, but does not bear on the claim;
+  * annat ämne (felträff) -- another field, returned only on keyword overlap.
+
+For LLM-decided rows the model's confidence is shown in parentheses.
 """
 import csv
 import pathlib
@@ -26,27 +30,19 @@ SPECIAL = {"&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
            "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}",
            "^": r"\textasciicircum{}", "\\": r"\textbackslash{}"}
 
-# Screening / theme tag -> readable Swedish reason for the "Skäl" column.
-DISCARD_REASON = {
-    "covered-by-cited-source": "täcks av vald källa",
-    "outside-module-claim": "utanför modulens påståenden",
-    "off-topic-false-hit": "annat ämne (felträff)",
-    # legacy tag, kept for backward compatibility with older exports
-    "on-topic-not-selected": "på ämnet, ej vald",
-}
-# Sort order among discarded rows (kept rows always come first).
-REASON_ORDER = {
-    "täcks av vald källa": 0,
-    "utanför modulens påståenden": 1,
-    "annat ämne (felträff)": 2,
-    "på ämnet, ej vald": 1,
-}
+# Theme tag (kept, human-cited) -> readable Swedish name of the strand.
 THEME_REASON = {
     "structured-programming-theorem": "struktureringsteoremet",
     "misconceptions-review": "översikt över missuppfattningar",
     "CT-definition": "definition av beräkningstänkande",
     "CT-facets-concepts-vs-practices": "facetter: begrepp mot färdigheter",
     "systematic-review": "systematisk översikt",
+}
+# Decision tag -> (Swedish reason label, sort order).  Kept-cited is 0.
+CATEGORY = {
+    "supports-claim": ("stöder påståendet", 1),
+    "adjacent-subtopic": ("angränsande delämne", 2),
+    "off-topic-false-hit": ("annat ämne (felträff)", 3),
 }
 
 
@@ -70,12 +66,21 @@ def short_provider(p):
         .replace("scopus", "Scopus").replace("wos", "WoS").replace("ieee", "IEEE")
 
 
-def reason_for(status, tags):
-    """Human-readable Swedish reason from a paper's status and decision tag."""
-    tag = (tags or "").split("|")[0].strip()
-    if status == "kept":
-        return "\\emph{vald}: " + tex(THEME_REASON.get(tag, tag or "vald"))
-    return tex(DISCARD_REASON.get(tag, tag or "ej vald"))
+def reason_for(row):
+    """(reason label, sort order) from a paper's status, tag, and confidence."""
+    status = (row.get("status") or "").strip().lower()
+    tag = (row.get("tags") or "").split("|")[0].strip()
+    conf = (row.get("llm_confidence") or "").strip()
+    src = (row.get("decision_source") or "").strip().lower()
+    if status == "kept" and tag != "supports-claim":     # human-cited source
+        return "\\emph{citerad}: " + tex(THEME_REASON.get(tag, tag)), 0
+    label, order = CATEGORY.get(tag, (tex(tag or "?"), 4))
+    if src == "llm" and conf:                            # show model confidence
+        try:
+            label += " (%.2f)" % float(conf)
+        except ValueError:
+            pass
+    return label, order
 
 
 def rows_for(csv_path):
@@ -85,8 +90,8 @@ def rows_for(csv_path):
             title = tex(r["title"])[:180]
             year = tex(r.get("year", ""))
             prov = short_provider(r.get("provider", ""))
-            status = r.get("status", "").strip().lower()
-            reason = reason_for(status, r.get("tags", ""))
+            status = (r.get("status") or "").strip().lower()
+            reason, order = reason_for(r)
             key = (r["title"].strip().lower(), year)
             if key in seen:                       # merge provider dups
                 if prov and prov not in seen[key][2]:
@@ -94,8 +99,9 @@ def rows_for(csv_path):
                 if status == "kept":              # a kept dup wins the reason
                     seen[key][3] = "kept"
                     seen[key][4] = reason
+                    seen[key][5] = order
             else:
-                seen[key] = [title, year, prov, status, reason]
+                seen[key] = [title, year, prov, status, reason, order]
     return list(seen.values())
 
 
@@ -105,10 +111,10 @@ TABLE = r"""\begingroup\footnotesize
   >{\raggedright\arraybackslash}p{0.13\textwidth}%%
   >{\raggedright\arraybackslash}p{0.26\textwidth}@{}}
 \caption{Fullständig träfflista, sökspår %(track)s (session \texttt{%(sess)s};
-%(n)d unika träffar: %(kept)d behållna, %(covered)d täcks av vald källa,
-%(outside)d utanför modulens påståenden, %(off)d felträffar).  Skälet till
-varje in- eller uteslutning står i sista
-kolumnen.}\label{tab:sok-%(track)s}\\
+%(n)d unika träffar: %(cit)d citerade, %(sup)d stöder påståendet,
+%(adj)d angränsande, %(off)d felträffar).  Skälet till varje in- eller
+uteslutning står i sista kolumnen; för maskinklassade rader anges modellens
+konfidens.}\label{tab:sok-%(track)s}\\
 \toprule
 Titel & År & Leverantör & Skäl \\
 \midrule
@@ -127,21 +133,18 @@ Titel & År & Leverantör & Skäl \\
 
 for track, sess in [("A", "sprak-A"), ("B", "sprak-B"), ("C", "sprak-C")]:
     rows = rows_for(BASE / f"{sess}.csv")
-    # kept first, then by exclusion reason (covered -> outside -> off), title within
-    rows.sort(key=lambda r: (r[3] != "kept",
-                             REASON_ORDER.get(r[4], 9),
-                             r[0].lower()))
-    kept = sum(1 for r in rows if r[3] == "kept")
-    covered = sum(1 for r in rows if r[4] == "täcks av vald källa")
-    outside = sum(1 for r in rows if r[4] == "utanför modulens påståenden")
-    off = sum(1 for r in rows if r[4] == "annat ämne (felträff)")
+    # kept-cited -> supports -> adjacent -> felträff; title within each group
+    rows.sort(key=lambda r: (r[5], r[0].lower()))
+    cit = sum(1 for r in rows if r[5] == 0)
+    sup = sum(1 for r in rows if r[5] == 1)
+    adj = sum(1 for r in rows if r[5] == 2)
+    off = sum(1 for r in rows if r[5] == 3)
     body = "\n".join(
         "%s & %s & %s & %s \\\\" % (t, y, p, reason)
-        for (t, y, p, _s, reason) in rows)
+        for (t, y, p, _st, reason, _o) in rows)
     (BASE / f"{sess}-full.tex").write_text(
-        TABLE % {"track": track, "sess": sess, "n": len(rows), "kept": kept,
-                 "covered": covered, "outside": outside, "off": off,
-                 "body": body},
+        TABLE % {"track": track, "sess": sess, "n": len(rows), "cit": cit,
+                 "sup": sup, "adj": adj, "off": off, "body": body},
         encoding="utf-8")
-    print(f"track {track}: {len(rows)} rows | {kept} kept, {covered} covered, "
-          f"{outside} outside, {off} felträff -> {sess}-full.tex")
+    print(f"track {track}: {len(rows)} rows | {cit} citerade, {sup} stöder, "
+          f"{adj} angränsande, {off} felträff -> {sess}-full.tex")
