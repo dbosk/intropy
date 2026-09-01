@@ -38,27 +38,24 @@ veckorna.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 3 Vecka 4 i Torus* och
-   se videorna *Upprepningar*, *Moduler och paket*, *Behållare: Listor,
-   del 1*, *Behållare: Tupler*, *Behållare: Listor, del 2: Sökning,
-   sortering, mm* och *Behållare: Gissningsspel* här i modulen. Det är
-   fler videor än tidigare veckor, så börja i tid.
-2. **Gå på föreläsningen.** Den går igenom samma innehåll som videorna
-   och texten, men live och med utrymme för dina frågor.
-3. **Gå på övningen för din grupp:** *Övning upprepningar, listor och
-   moduler*. Vi löser problem tillsammans i mindre grupper och går igenom
-   lösningarna. Vi hinner bara ett urval av problemen; resten finns med
-   lösningar på övningens sida så att du kan fortsätta på egen hand.
-4. **Arbeta med** *Laboration (3) upprepningar, listor och moduler* i
-   par. Ni flyttar felhanteringen från laboration 2 till en egen modul
-   med funktioner som frågar om igen tills inmatningen är korrekt. På
-   labbpassen finns lärare och assistenter för att hjälpa er när ni
-   fastnar; det mesta av arbetet gör ni på egen tid.
-5. **Boka tid för redovisning av laboration 3.** Redovisningen sker
-   nästa vecka, måndag 5/10 för grupp A–F och tisdag 6/10 för grupp G–L.
-   Boka en tid i kalendern i Canvas.
-6. **Vill du fördjupa dig?** Gör *Fördjupande övning upprepningar, listor
-   och moduler*.
+1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning upprepningar, listor och
+   moduler*. Vi går igenom veckans innehåll genom att lösa problem
+   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
+   resten finns med lösningar på övningens sida så att du kan fortsätta på
+   egen hand.
+3. **Arbeta med** *Laboration (3) upprepningar, listor och moduler* i par. Ni
+   flyttar felhanteringen från laboration 2 till en egen modul med funktioner
+   som frågar om igen tills inmatningen är korrekt. På labbpassen finns
+   lärare och assistenter för att hjälpa er när ni fastnar; det mesta av
+   arbetet gör ni på egen tid.
+4. **Boka tid för redovisning av laboration 3.** Redovisningen sker nästa
+   vecka, måndag 5/10 för grupp A–F och tisdag 6/10 för grupp G–L. Boka en
+   tid i kalendern i Canvas.
+5. **Vill du fördjupa dig?** Gör *Fördjupande övning upprepningar, listor och
+   moduler*.
 
 ## Schema
 

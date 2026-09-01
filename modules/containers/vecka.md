@@ -40,22 +40,20 @@ inmatning från användaren.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 5 Vecka 6 i Torus* (obs,
-   inget modulprov denna vecka) och se videon *Klasser:
-   Operatoröverlagring*. Gör också *Läsförståelse: Dokumentation för olika
-   behållare*; att kunna läsa dokumentationen är en stor del av veckans
-   mål.
-2. **Gå på föreläsningen.** Den går igenom samma innehåll som videon och
-   texten, men live och med utrymme för dina frågor.
-3. **Gå på övningen för din grupp:** *Övning fler behållare och mer om
-   klasser*. Vi löser problem tillsammans i mindre grupper och går igenom
-   lösningarna. Vi hinner bara ett urval av problemen; resten finns med
-   lösningar på övningens sida så att du kan fortsätta på egen hand.
-4. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)*
-   i par. På labbpassen finns lärare och assistenter för att hjälpa er när
-   ni fastnar; det mesta av arbetet gör ni på egen tid.
-5. **Vill du fördjupa dig?** Gör *Fördjupande övning fler behållare och
-   mer om klasser*.
+1. **Gå på föreläsningen (måndag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning fler behållare och mer om
+   klasser*. Vi går igenom veckans innehåll genom att lösa problem
+   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
+   resten finns med lösningar på övningens sida så att du kan fortsätta på
+   egen hand. Att hitta och läsa dokumentationen för Pythons behållare är en
+   stor del av veckans mål, så ha den uppe under övningen.
+3. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
+   par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
+   fastnar; det mesta av arbetet gör ni på egen tid.
+4. **Vill du fördjupa dig?** Gör *Fördjupande övning fler behållare och mer
+   om klasser*.
 
 ## Schema
 

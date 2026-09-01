@@ -35,28 +35,24 @@ redigera det i din textredigerare.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 1 Vecka 2 i Torus* och
-   se videorna *Algoritmiskt tänkande*, *Variabler och utskrifter* och
-   *Funktioner* här i modulen. Läs igenom *pep8.org — The Prettiest Way
-   to View the PEP 8 Python Style Guide* och *PEP 257 – Docstring
-   Conventions*; du behöver inte kunna dem utantill, men veta vad som
-   finns där. Använd gärna *PythonTutor* för att se vad som händer i
-   programmen steg för steg.
-2. **Gå på föreläsningen.** Den går igenom samma innehåll som videorna
-   och texten, men live och med utrymme för dina frågor. Inspelningen
-   läggs upp under *Föreläsning / Övning funktioner och variabler*.
-3. **Gå på övningen för din grupp.** Vi löser problem tillsammans i
-   mindre grupper och går igenom lösningarna. Vi hinner bara ett urval av
-   problemen; resten finns med lösningar på övningens sida så att du kan
-   fortsätta på egen hand.
-4. **Se** *Genomgång inför laboration 1* och **arbeta med**
-   *Laboration (1) funktioner, variabler och utskrifter* i par. På
-   labbpassen finns lärare och assistenter för att hjälpa er när ni
-   fastnar; det mesta av arbetet gör ni på egen tid.
-5. **Granska** en annan grupps lösning i *Granskning Laboration 1* när
-   ni lämnat in er egen. Att läsa andras kod är ett av kursens mål och
-   det bästa sättet att se hur din egen kod kan bli tydligare.
-6. **Vill du fördjupa dig?** Gör *Fördjupande övning funktioner och
+1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning funktioner och variabler*. Vi
+   går igenom veckans innehåll genom att lösa problem tillsammans i mindre
+   grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
+   på övningens sida så att du kan fortsätta på egen hand. Ha *pep8.org — The
+   Prettiest Way to View the PEP 8 Python Style Guide* och *PEP 257 –
+   Docstring Conventions* till hands; du behöver inte kunna dem utantill, men
+   veta vad som finns där.
+3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter* i
+   par. Se gärna *Genomgång inför laboration 1* innan ni börjar. På
+   labbpassen finns lärare och assistenter för att hjälpa er när ni fastnar;
+   det mesta av arbetet gör ni på egen tid.
+4. **Granska** en annan grupps lösning i *Granskning Laboration 1* när ni
+   lämnat in er egen. Att läsa andras kod är ett av kursens mål och det bästa
+   sättet att se hur din egen kod kan bli tydligare.
+5. **Vill du fördjupa dig?** Gör *Fördjupande övning funktioner och
    variabler*.
 
 ## Schema

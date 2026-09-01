@@ -47,14 +47,13 @@ programmeringsuppgift som avgör ditt betyg på kursen. Se sidan
 
 Varje undervisningsvecka har samma rytm, i den här ordningen:
 
-1. **Förbered dig** med veckans unit i Torus och videorna i modulen,
-   *före* föreläsningen. Materialet ställer frågor som visar dig vad du
-   behöver fråga om.
-2. **Föreläsningen** går igenom samma innehåll som videorna och texten,
-   men live och med utrymme för dina frågor.
-3. **Övningen** i din grupp är egen problemlösning tillsammans med andra;
-   vi hinner ett urval av problemen och resten finns med lösningar.
-4. **Laborationen** gör ni i par. På labbpassen finns lärare och
+1. **Föreläsningen** ges live så att du kan ställa frågor. Föredrar du att
+   se den i efterhand eller läsa i stället finns inspelningen och
+   föreläsningsanteckningarna på föreläsningens sida i modulen.
+2. **Övningen** i din grupp går igenom veckans innehåll genom egen
+   problemlösning tillsammans med andra; vi hinner ett urval av problemen
+   och resten finns med lösningar på övningens sida.
+3. **Laborationen** gör ni i par. På labbpassen finns lärare och
    assistenter för att hjälpa er när ni fastnar.
 
 Alla tillfällen utom föreläsningarna är delade mellan grupp A–F och
@@ -210,24 +209,24 @@ Vecka för vecka är målen följande.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Materialet överst i modulen (från
-   *Briefly on interfaces* till *Choosing an editor*) kommer från
-   terminalkursen DD1301 och förklarar hur du hittar terminalen på just
-   din dator (Ubuntu, macOS eller Windows) och hur du använder den. Läs
-   det som gäller ditt system; sammanfattningen finns i *Guide to
-   accessing the terminal* och *The terminal*.
-2. **Gå på föreläsningen** (onsdag): introduktion till terminalen,
-   filsystemet och textredigerare.
-3. **Gå på labbpasset för din grupp** direkt efter föreläsningen
-   (onsdag eller torsdag): det är en hjälpsession för att få igång din
-   arbetsmiljö. Arbeta med *Laboration (0) kom igång med Hello World*
-   och markera den som klar när ditt program kör. Ett extra labbpass för
-   dem som inte hunnit klart ges måndagen vecka 38.
-4. **Gå på övningen för din grupp:** *Övning: Terminalen och köra kod*,
-   där vi övar på att köra kod från terminalen och introducerar
-   versionshantering med Git.
-5. **Vill du fördjupa dig?** Gör *Fördjupande övning: Terminalen, IDE:er
-   och versionshantering*.
+1. **Gå på föreläsningen** (onsdag): introduktion till terminalen,
+   filsystemet och textredigerare. Den ges live så att du kan ställa frågor;
+   kan du inte komma finns inspelningen och anteckningarna på föreläsningens
+   sida här i modulen.
+2. **Gå på labbpasset för din grupp** direkt efter föreläsningen (onsdag
+   eller torsdag): det är en hjälpsession för att få igång din arbetsmiljö.
+   Arbeta med *Laboration (0) kom igång med Hello World* och markera den som
+   klar när ditt program kör. Materialet från terminalkursen DD1301 överst i
+   modulen (från *Briefly on interfaces* till *Choosing an editor*) förklarar
+   hur du hittar och använder terminalen på just din dator (Ubuntu, macOS
+   eller Windows); *Guide to accessing the terminal* och *The terminal*
+   sammanfattar. Ett extra labbpass för dem som inte hunnit klart ges
+   måndagen vecka 38.
+3. **Gå på övningen för din grupp:** *Övning: Terminalen och köra kod*, där
+   vi övar på att köra kod från terminalen och introducerar versionshantering
+   med Git.
+4. **Vill du fördjupa dig?** Gör *Fördjupande övning: Terminalen, IDE:er och
+   versionshantering*.
 
 ## Schema
 

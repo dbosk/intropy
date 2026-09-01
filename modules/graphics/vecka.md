@@ -41,18 +41,19 @@ bibliotek du inte använt förut.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 7 Grafik i Torus* (om du
-   strävar efter högsta betyg) och se videon *Grafiska gränssnitt*.
-2. **Gå på föreläsningen.** Den går igenom samma innehåll som videon och
-   texten, men live och med utrymme för dina frågor.
-3. **Gå på övningen för din grupp:** *Övning grafiskt gränssnitt eller
-   repetition*. Välj spår: grafiska gränssnitt, eller repetition av
-   tidigare veckor inför datorprovet. Vi hinner bara ett urval av
-   problemen; resten finns med lösningar på övningens sida.
-4. **Arbeta med** *Laboration (frivillig) grafiska gränssnitt* om du vill,
-   gärna i par. På labbpassen finns lärare och assistenter för att hjälpa
-   er, oavsett om ni arbetar med den frivilliga laborationen, laboration 6
-   eller repetition.
+1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning grafiskt gränssnitt eller
+   repetition*. Vi går igenom veckans innehåll genom att lösa problem
+   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
+   resten finns med lösningar på övningens sida så att du kan fortsätta på
+   egen hand. Välj spår: grafiska gränssnitt, eller repetition av tidigare
+   veckor inför datorprovet.
+3. **Arbeta med** *Laboration (frivillig) grafiska gränssnitt* om du vill,
+   gärna i par. På labbpassen finns lärare och assistenter för att hjälpa er,
+   oavsett om ni arbetar med den frivilliga laborationen, laboration 6 eller
+   repetition.
 
 ## Schema
 

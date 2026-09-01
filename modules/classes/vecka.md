@@ -37,21 +37,19 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 4 Vecka 5 i Torus* och
-   se videon *Klasser* här i modulen. Frågorna i materialet är till för att
-   du ska upptäcka vad du behöver fråga om.
-2. **Gå på föreläsningen.** Den går igenom samma innehåll som videon och
-   texten, men live och med utrymme för dina frågor.
-3. **Gå på övningen för din grupp:** *Övning klasser och objekt*. Vi löser
-   problem tillsammans i mindre grupper och går igenom lösningarna. Vi
-   hinner bara ett urval av problemen; resten finns med lösningar på
-   övningens sida så att du kan fortsätta på egen hand.
-4. **Arbeta med** *Laboration (4) klasser och objekt (kamratgranskning)*
-   i par. På labbpassen finns lärare och assistenter för att hjälpa er när
-   ni fastnar; det mesta av arbetet gör ni på egen tid.
-5. **Redovisa laboration 3** på måndagens eller tisdagens
-   redovisningspass för din grupp. Boka en tid i kalendern i Canvas.
-6. **Vill du fördjupa dig?** Gör *Fördjupande övning klasser och objekt*.
+1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning klasser och objekt*. Vi går
+   igenom veckans innehåll genom att lösa problem tillsammans i mindre
+   grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
+   på övningens sida så att du kan fortsätta på egen hand.
+3. **Arbeta med** *Laboration (4) klasser och objekt (kamratgranskning)* i
+   par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
+   fastnar; det mesta av arbetet gör ni på egen tid.
+4. **Redovisa laboration 3** på måndagens eller tisdagens redovisningspass
+   för din grupp. Boka en tid i kalendern i Canvas.
+5. **Vill du fördjupa dig?** Gör *Fördjupande övning klasser och objekt*.
 
 ## Schema
 

@@ -36,23 +36,21 @@ parametrar och returvärden från förra veckan.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 2 Vecka 3 i Torus* och
-   se videorna *Inmatning och felhantering* och *Villkor och
-   styrstrukturer* här i modulen. Frågorna i materialet är till för att
-   du ska upptäcka vad du behöver fråga om.
-2. **Gå på föreläsningen** (måndag). Den går igenom samma innehåll som
-   videorna och texten, men live och med utrymme för dina frågor.
-3. **Gå på övningen för din grupp:** *Övning inmatning, felhantering och
-   styrstrukturer*. Vi löser problem tillsammans i mindre grupper och går
-   igenom lösningarna. Vi hinner bara ett urval av problemen; resten finns
-   med lösningar på övningens sida så att du kan fortsätta på egen hand.
-4. **Arbeta med** *Laboration (2) inmatning, felhantering och
-   styrstrukturer* i par. Ni bygger vidare på programmet från laboration
-   1: nu ska användaren mata in värdena och programmet ska tåla felaktig
-   inmatning. På labbpasset finns lärare och assistenter för att hjälpa
-   er när ni fastnar; det mesta av arbetet gör ni på egen tid.
-5. **Vill du fördjupa dig?** Gör *Fördjupande övning inmatning,
-   felhantering och styrstrukturer*.
+1. **Gå på föreläsningen (måndag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning inmatning, felhantering och
+   styrstrukturer*. Vi går igenom veckans innehåll genom att lösa problem
+   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
+   resten finns med lösningar på övningens sida så att du kan fortsätta på
+   egen hand.
+3. **Arbeta med** *Laboration (2) inmatning, felhantering och styrstrukturer*
+   i par. Ni bygger vidare på programmet från laboration 1: nu ska användaren
+   mata in värdena och programmet ska tåla felaktig inmatning. På labbpassen
+   finns lärare och assistenter för att hjälpa er när ni fastnar; det mesta
+   av arbetet gör ni på egen tid.
+4. **Vill du fördjupa dig?** Gör *Fördjupande övning inmatning, felhantering
+   och styrstrukturer*.
 
 ## Schema
 

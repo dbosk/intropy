@@ -38,21 +38,18 @@ programmet måste hantera.
 
 ## Gör så här, i ordning
 
-1. **Förbered dig före föreläsningen.** Gör *Unit 6 Vecka 7 i Torus* (den
-   kan möjligen heta vecka 8, men den handlar om filer) och se videorna
-   här i modulen.
-2. **Gå på föreläsningen.** Den går igenom samma innehåll som videon och
-   texten, men live och med utrymme för dina frågor.
-3. **Gå på övningen för din grupp:** *Övning filer och filhantering*. Vi
-   löser problem tillsammans i mindre grupper och går igenom lösningarna.
-   Vi hinner bara ett urval av problemen; resten finns med lösningar på
-   övningens sida så att du kan fortsätta på egen hand.
-4. **Arbeta med** *Laboration (6) filhantering* i par. På labbpassen finns
-   lärare och assistenter för att hjälpa er när ni fastnar; det mesta av
-   arbetet gör ni på egen tid. Det här är den sista obligatoriska
-   laborationen före datorprovet.
-5. **Vill du fördjupa dig?** Gör *Fördjupande övning filer och
-   filhantering*.
+1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
+   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
+   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+2. **Gå på övningen för din grupp:** *Övning filer och filhantering*. Vi går
+   igenom veckans innehåll genom att lösa problem tillsammans i mindre
+   grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
+   på övningens sida så att du kan fortsätta på egen hand.
+3. **Arbeta med** *Laboration (6) filhantering* i par. Det här är den sista
+   obligatoriska laborationen före datorprovet. På labbpassen finns lärare
+   och assistenter för att hjälpa er när ni fastnar; det mesta av arbetet gör
+   ni på egen tid.
+4. **Vill du fördjupa dig?** Gör *Fördjupande övning filer och filhantering*.
 
 ## Schema
 
