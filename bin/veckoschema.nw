@@ -1,0 +1,1088 @@
+\documentclass[a4paper,oneside,oldfontcommands,article]{memoir}
+\let\subsubsection\subsection
+\let\subsection\section
+\let\section\chapter
+
+\usepackage{noweb}
+\noweboptions{breakcode,longchunks,longxref,swedish}
+
+\usepackage[hyphens]{url}
+\usepackage[colorlinks]{hyperref}
+
+\input{preamble.tex}
+
+\title{%
+  Veckoschema från TimeEdit till Canvas
+}
+\author{%
+  Daniel Bosk
+}
+
+\begin{document}
+\maketitle
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Inledning}
+
+Varje Canvasmodul i kursen inleds med en sida som sammanfattar veckan: vad
+som ska göras, i vilken ordning och vilka schemalagda tillfällen som finns.
+Schemat ändras dock under kursens gång (salar byts, pass flyttas) och det
+finns ett dussin sådana sidor.
+Att hålla dem uppdaterade för hand är både tråkigt och felbenäget.
+Schemat finns redan maskinläsbart som en ICS-kalender från TimeEdit, så vi
+låter ett program, [[<<veckoschema.py>>]], rendera veckans tillfällen till
+Markdown och stoppa in resultatet i sidorna.
+
+Programmet är avsiktligt kursoberoende.
+Det enda det behöver veta är kursens smeknamn i [[nytid]] (exempelvis
+[[prgi26]]); därifrån slår det upp både kalenderns adress och kurskoden
+(exempelvis [[DD1317]]) med [[nytid courses config]].
+På så vis kan samma program användas för nästa kursomgång, eller för en
+annan kurs, utan ändringar i koden.
+
+\subsection{Översikt}
+
+Programmet består av fyra steg som följer på varandra.
+\begin{enumerate}
+  \item Hämta konfiguration (kalenderadress och kurskod) från [[nytid]],
+    om användaren inte angett dem direkt (\cref{sec:config}).
+  \item Läsa ICS-kalendern och plocka ut de händelser som är
+    undervisningstillfällen i kursen (\cref{sec:ics,sec:classify}).
+  \item Välja ut de veckor som sidan handlar om (\cref{sec:weeks}) och
+    rendera dem som Markdown (\cref{sec:render}).
+  \item Antingen skriva resultatet till standard ut, eller skriva in det
+    mellan två markörer i en befintlig Markdownsida (\cref{sec:inplace}).
+\end{enumerate}
+Kommandoradsgränssnittet som knyter ihop stegen beskrivs i \cref{sec:cli}.
+
+Vi använder bara Pythons standardbibliotek.
+[[nytid]] har visserligen egen kod för att läsa kalendrar
+([[nytid.schedules.read_calendar]]), men [[nytid]] är installerat i en egen
+virtuell miljö ([[pipx]]) som systemets [[python3]] inte kan importera från.
+Att i stället anropa [[nytid]] som ett kommando fungerar oavsett hur det är
+installerat.
+Skulle behovet uppstå kan renderingen senare flyttas in i [[nytid]] som ett
+underkommando och då återanvända dess [[event_filter]] och [[format_event]].
+
+Filen tangleras till två filer: själva programmet och dess tester.
+Testerna ligger insprängda efter den kod de testar.
+<<veckoschema.py>>=
+#!/usr/bin/env python3
+"""Render a course's weekly TimeEdit schedule as Markdown.
+
+The ICS URL and course code are looked up with `nytid courses config
+<course>` unless given explicitly.  The rendered schedule is either
+printed or written between `<!-- schema:start -->` and
+`<!-- schema:end -->` markers in existing Markdown pages, whose YAML
+front matter names the weeks to render in a `weeks:` field.
+"""
+import argparse
+import datetime
+import os
+import pathlib
+import re
+import subprocess
+import sys
+import urllib.request
+import zoneinfo
+
+<<constants>>
+<<functions>>
+<<main>>
+
+if __name__ == "__main__":
+    main()
+@
+
+<<[[test_veckoschema.py]]>>=
+import datetime
+import pytest
+
+from veckoschema import *
+
+<<test constants>>
+<<test functions>>
+@
+
+
+\section{Konfiguration från nytid}\label{sec:config}
+
+[[nytid courses config prgi26 ics]] skriver ut raden
+\begin{verbatim}
+ics = https://cloud.timeedit.net/kth/web/staff01/ri6...E.ics
+\end{verbatim}
+det vill säga nyckeln, ett likhetstecken och värdet.
+Vi vill bara ha värdet, så vi delar vid det första likhetstecknet.
+Vi delar vid det \emph{första} eftersom adresser mycket väl kan innehålla
+fler likhetstecken.
+
+Om kommandot misslyckas (kursen finns inte, [[nytid]] är inte installerat)
+vill vi ge ett begripligt felmeddelande i stället för ett spårutskrift, så
+vi fångar båda fallen och kastar ett [[RuntimeError]] med [[nytid]]s eget
+felmeddelande.
+Att låta felet bubbla upp som ett undantag, snarare än att avsluta här, gör
+funktionen återanvändbar från annan kod.
+<<functions>>=
+def course_config(course, key):
+    """Return the value of `key` in nytid's config for `course`.
+
+    Runs `nytid courses config <course> <key>` and strips the
+    `key = ` prefix from its output.  Raises `RuntimeError` when the
+    command fails or prints nothing usable.
+    """
+    cmd = ["nytid", "courses", "config", course, key]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    except FileNotFoundError as err:
+        raise RuntimeError("nytid is not installed or not in PATH") from err
+    except subprocess.CalledProcessError as err:
+        raise RuntimeError(
+            f"'{' '.join(cmd)}' failed: {err.stderr.strip() or err.stdout.strip()}"
+        ) from err
+    for line in result.stdout.splitlines():
+        name, sep, value = line.partition("=")
+        if sep and name.strip() == key:
+            return value.strip()
+    raise RuntimeError(f"nytid has no '{key}' for course '{course}'")
+@
+
+Vi testar tolkningen av utskriften genom att byta ut [[subprocess.run]]
+mot en attrapp; vi vill inte att testerna beror på att [[nytid]] finns.
+<<test functions>>=
+class FakeCompleted:
+    def __init__(self, stdout):
+        self.stdout = stdout
+
+
+def test_course_config_strips_key(monkeypatch):
+    def fake_run(cmd, **kwargs):
+        return FakeCompleted("ics = https://example.com/a.ics?x=1\n")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    assert course_config("prgi26", "ics") == "https://example.com/a.ics?x=1"
+
+
+def test_course_config_missing_key(monkeypatch):
+    def fake_run(cmd, **kwargs):
+        return FakeCompleted("code = DD1317\n")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(RuntimeError):
+        course_config("prgi26", "ics")
+@
+
+Testfilen behöver [[subprocess]] för attrappen.
+<<test constants>>=
+import subprocess
+@
+
+
+\section{Att läsa ICS-kalendern}\label{sec:ics}
+
+Kalendern kan komma antingen från nätet eller från en fil.
+Makefilen laddar ner kalendern en gång och skickar sedan filen, så att
+alla sidor renderas från samma ögonblicksbild och så att renderingen går
+att köra utan nätverk.
+Vi skiljer fallen åt på om källan ser ut som en URL.
+<<functions>>=
+def fetch_ics(source):
+    """Return the text of the ICS calendar at `source`, a URL or a path."""
+    if re.match(r"^https?://", source):
+        with urllib.request.urlopen(source) as response:
+            return response.read().decode("utf-8")
+    return pathlib.Path(source).read_text(encoding="utf-8")
+@
+
+\subsection{Radbrytningar och specialtecken}
+
+ICS-formatet (RFC 5545) bryter långa rader efter 75 tecken och inleder
+fortsättningsraden med ett blanksteg eller en tabb.
+Innan vi kan tolka något måste vi därför \enquote{veckla ut} raderna igen
+genom att ta bort varje radbrytning som följs av blanktecken.
+Det måste ske \emph{före} all annan tolkning eftersom brytningen kan hamna
+mitt i ett nyckelord eller mitt i en URL.
+<<functions>>=
+def unfold(text):
+    """Join folded ICS lines (RFC 5545 section 3.1)."""
+    return re.sub(r"\r?\n[ \t]", "", text)
+@
+
+Textvärden i ICS använder bakstreck för att skydda komma, semikolon och
+radbrytning.
+TimeEdit skriver exempelvis salar som [[D2\, Digital]] och lägger
+radbrytningar i beskrivningen som [[\n]].
+Vi återställer dem till riktiga tecken så att resten av programmet slipper
+tänka på det.
+<<functions>>=
+def unescape(value):
+    """Undo ICS text escaping of commas, semicolons and newlines."""
+    return (
+        value.replace("\\n", "\n")
+        .replace("\\N", "\n")
+        .replace("\\,", ",")
+        .replace("\\;", ";")
+        .replace("\\\\", "\\")
+    )
+@
+
+<<test functions>>=
+def test_unfold_joins_continuation_lines():
+    assert unfold("SUMMARY:Före\r\n läsning\n") == "SUMMARY:Föreläsning\n"
+
+
+def test_unescape():
+    assert unescape("D2\\, Digital\\nrad") == "D2, Digital\nrad"
+@
+
+\subsection{Tidpunkter}
+
+TimeEdit anger tider i UTC ([[DTSTART:20260901T080000Z]]), men vi vill visa
+lokal tid.
+Vi konverterar därför till kursens tidszon.
+En del kalendrar använder i stället [[DTSTART;TZID=Europe/Stockholm:...]]
+eller heldagshändelser [[DTSTART;VALUE=DATE:20261030]] (helgdagar i vår
+kalender).
+Vi hanterar [[TZID]] för generalitetens skull, men heldagshändelser är
+aldrig undervisning, så dem signalerar vi med [[None]] så att anroparen
+kan hoppa över dem.
+<<functions>>=
+def parse_datetime(params, value, tz):
+    """Return an aware `datetime` for an ICS DTSTART/DTEND in zone `tz`.
+
+    `params` are the property parameters (e.g. `TZID=...`), `value`
+    the raw value.  Returns `None` for all-day (`VALUE=DATE`) values.
+    """
+    if "VALUE=DATE" in params or len(value) == 8:
+        return None
+    if value.endswith("Z"):
+        moment = datetime.datetime.strptime(value, "%Y%m%dT%H%M%SZ")
+        moment = moment.replace(tzinfo=datetime.timezone.utc)
+    else:
+        moment = datetime.datetime.strptime(value, "%Y%m%dT%H%M%S")
+        match = re.search(r"TZID=([^;:]+)", params)
+        zone = zoneinfo.ZoneInfo(match.group(1)) if match else tz
+        moment = moment.replace(tzinfo=zone)
+    return moment.astimezone(tz)
+@
+
+<<test functions>>=
+STOCKHOLM = zoneinfo.ZoneInfo("Europe/Stockholm")
+
+
+def test_parse_datetime_utc_to_local():
+    moment = parse_datetime("", "20260901T080000Z", STOCKHOLM)
+    assert moment.hour == 10 and moment.tzinfo == STOCKHOLM
+
+
+def test_parse_datetime_all_day_is_none():
+    assert parse_datetime(";VALUE=DATE", "20261030", STOCKHOLM) is None
+@
+
+<<test constants>>=
+import zoneinfo
+@
+
+\subsection{Händelser}
+
+Varje händelse ligger mellan [[BEGIN:VEVENT]] och [[END:VEVENT]] och består
+av rader på formen [[NAMN;PARAMETRAR:VÄRDE]].
+Vi delar texten vid [[BEGIN:VEVENT]] och tolkar varje del rad för rad till
+en ordbok från egenskapsnamn till par av parametrar och värde.
+Bara de fem egenskaper vi behöver plockas ut; händelser utan starttid
+(heldagshändelser) kastas som sagt bort.
+
+Vi representerar en händelse som en enkel ordbok i stället för en klass.
+Det räcker gott: händelserna skapas på ett ställe, läses på två och ändras
+aldrig.
+<<functions>>=
+def parse_events(text, tz):
+    """Parse ICS `text` into a list of event dicts.
+
+    Each dict has the keys `start`, `end` (aware datetimes in `tz`),
+    `summary`, `location` and `description` (unescaped strings).
+    All-day events are dropped.
+    """
+    events = []
+    for block in unfold(text).split("BEGIN:VEVENT")[1:]:
+        <<collect the properties of one event>>
+        <<turn the properties into an event dict>>
+    return events
+@
+
+Egenskapsnamnet slutar vid första semikolon eller kolon; parametrarna är
+det som eventuellt står mellan namnet och kolonet.
+Vi behåller parametrarna som råtext eftersom [[parse_datetime]] bara
+söker i dem.
+<<collect the properties of one event>>=
+props = {}
+for line in block.splitlines():
+    match = re.match(r"^([A-Z-]+)((?:;[^:]*)?):(.*)$", line)
+    if match:
+        name, params, value = match.groups()
+        props[name] = (params, value)
+@
+
+En händelse utan [[DTSTART]] är inte något vi kan schemalägga, och en
+heldagshändelse ger [[None]] från [[parse_datetime]]; båda hoppas över.
+Saknas [[DTEND]] (förekommer för punkthändelser) låter vi slutet vara
+lika med starten.
+<<turn the properties into an event dict>>=
+if "DTSTART" not in props:
+    continue
+start = parse_datetime(*props["DTSTART"], tz)
+if start is None:
+    continue
+end_params, end_value = props.get("DTEND", props["DTSTART"])
+events.append(
+    {
+        "start": start,
+        "end": parse_datetime(end_params, end_value, tz) or start,
+        "summary": unescape(props.get("SUMMARY", ("", ""))[1]),
+        "location": unescape(props.get("LOCATION", ("", ""))[1]),
+        "description": unescape(props.get("DESCRIPTION", ("", ""))[1]),
+    }
+)
+@
+
+Testerna använder ett litet kalenderutdrag som härmar TimeEdits utskrift:
+en föreläsning, en laboration för halva klassen, en Excelhändelse från en
+annan del av kursen, en helgdag och en händelse från en annan kurs.
+<<test constants>>=
+SAMPLE_ICS = """BEGIN:VCALENDAR
+BEGIN:VEVENT
+DTSTART:20261006T060000Z
+DTEND:20261006T080000Z
+SUMMARY:Föreläsning\\, DD1317
+LOCATION:D2\\, Digital
+DESCRIPTION:https://www.kth.se/places/room/id/abc \\nDaniel Bosk \\nGr
+ undläggande lärarledd undervisning\\, hybrid \\nDD1317 Helklass \\nCINEK
+ \\nID 1019784
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261008T130000Z
+DTEND:20261008T150000Z
+SUMMARY:Datorlaboration\\, DD1317
+LOCATION:4V4Gul (Gul)\\, 4V6 Bru (Brun)
+DESCRIPTION:Daniel Bosk \\nHjälpsession \\nDD1317 grupp A\\, DD1317 grupp F
+ \\, DD1317 grupp B\\, DD1317 grupp D\\, DD1317 grupp C\\, DD1317 grupp E \\nC
+ INEK\\nID 1
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261012T080000Z
+DTEND:20261012T100000Z
+SUMMARY:Datorlaboration\\, DD1317
+LOCATION:Q11
+DESCRIPTION:Joel Smedberg \\nRedovisning Excel \\nDD1317 grupp G \\nCINEK\\nID 2
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261030
+DTEND;VALUE=DATE:20261031
+SUMMARY:Allhelgonaafton
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261007T080000Z
+DTEND:20261007T100000Z
+SUMMARY:Föreläsning\\, DD1310
+DESCRIPTION:ID 3
+END:VEVENT
+END:VCALENDAR
+"""
+@
+
+<<test functions>>=
+def test_parse_events_drops_all_day_and_unfolds():
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    assert [e["summary"] for e in events] == [
+        "Föreläsning, DD1317",
+        "Datorlaboration, DD1317",
+        "Datorlaboration, DD1317",
+        "Föreläsning, DD1310",
+    ]
+    lecture = events[0]
+    assert lecture["start"].hour == 8 and lecture["end"].hour == 10
+    assert lecture["location"] == "D2, Digital"
+    assert "Grundläggande lärarledd undervisning, hybrid" in lecture["description"]
+@
+
+
+\section{Från händelse till undervisningstillfälle}\label{sec:classify}
+
+Kalendern innehåller mer än kursens undervisning: bibliotekets
+introduktioner, helgdagar, tentamensdagar och lärarens egna bokningar.
+Dessutom innehåller den undervisning i kursen som inte hör till den sida
+vi renderar, i vårt fall Excelmomentet som ges av en annan lärare de
+första veckorna.
+Vi behöver därför både \emph{filtrera} händelserna och \emph{tolka} den
+fritext TimeEdit lägger i beskrivningen.
+
+\subsection{Beskrivningens rader}
+
+TimeEdits beskrivning består av rader av olika slag, i den här ordningen:
+länkar till salarna, lärare, ett fritextsyfte, en lista över grupper,
+programkoder och ett ID.
+Till exempel:
+\begin{verbatim}
+https://www.kth.se/places/room/id/563b45b8-...
+Daniel Bosk
+Hjälpsession
+DD1317 grupp A, DD1317 grupp F, DD1317 grupp B
+CINEK
+ID 1019935
+\end{verbatim}
+Raderna saknar etiketter, så vi känner igen dem på deras form:
+länkar börjar med [[http]], gruppraden börjar med kurskoden, ID-raden med
+[[ID]] och programkoderna är korta versaler (eventuellt med siffror, som
+[[LAB2]]).
+Det som blir kvar är lärare och syfte.
+Lärarnamn och syften går inte att skilja åt på formen
+(\enquote{Redovisning Excel} ser ut som ett namn), men ordningen är stabil:
+finns två rader kvar är den första läraren och den sista syftet, finns
+bara en är det syftet.
+Läraren kan nämligen saknas (obemannade pass), men det gör inte syftet.
+<<constants>>=
+PROGRAMME_LINE = re.compile(r"^[A-Z0-9]{2,8}(\s*,\s*[A-Z0-9]{2,8})*$")
+@
+<<functions>>=
+def describe(description, code):
+    """Split a TimeEdit description into `(teacher, purpose, groups)`.
+
+    `groups` is the raw group line (starting with `code`) or an empty
+    string; `teacher` is empty when no teacher line is present.
+    """
+    groups = ""
+    remaining = []
+    for line in description.split("\n"):
+        line = line.strip()
+        if not line or line.startswith("http") or re.match(r"^ID \d+$", line):
+            continue
+        if line.startswith(code + " "):
+            groups = line
+        elif PROGRAMME_LINE.match(line):
+            continue
+        else:
+            remaining.append(line)
+    if len(remaining) >= 2:
+        return remaining[0], remaining[-1], groups
+    if remaining:
+        return "", remaining[0], groups
+    return "", "", groups
+@
+
+<<test functions>>=
+def test_describe_full_description():
+    teacher, purpose, groups = describe(
+        "https://kth.se/x \nDaniel Bosk \nHjälpsession \n"
+        "DD1317 grupp A, DD1317 grupp B \nCINEK\nID 5",
+        "DD1317",
+    )
+    assert (teacher, purpose) == ("Daniel Bosk", "Hjälpsession")
+    assert groups == "DD1317 grupp A, DD1317 grupp B"
+
+
+def test_describe_without_teacher():
+    teacher, purpose, groups = describe(
+        "Se videoföreläsning Excel \nDD1317 Helklass \nCINEK\nID 6", "DD1317"
+    )
+    assert (teacher, purpose, groups) == (
+        "",
+        "Se videoföreläsning Excel",
+        "DD1317 Helklass",
+    )
+@
+
+\subsection{Grupper}
+
+Klassen är delad i två halvor som har egna övnings- och labbpass.
+TimeEdit räknar upp grupperna en och en, i en till synes slumpmässig
+ordning: \enquote{DD1317 grupp A, DD1317 grupp F, DD1317 grupp B, \dots}.
+För studenten är \enquote{grupp A--F} mycket lättare att läsa.
+Vi plockar därför ut gruppbokstäverna, sorterar dem och skriver dem som
+ett intervall om de är sammanhängande (vilket de i praktiken alltid är)
+och annars som en lista.
+Helklass anges av TimeEdit som \enquote{Helklass}; saknas gruppraden helt
+antar vi också helklass, eftersom det är det säkra antagandet för
+studenten (hellre komma på ett pass i onödan än missa det).
+<<constants>>=
+WHOLE_CLASS = "helklass"
+@
+<<functions>>=
+def group_label(groups):
+    """Return a short label such as `grupp A–F` or `helklass`."""
+    letters = sorted(set(re.findall(r"grupp (\w+)", groups)))
+    if not letters:
+        return WHOLE_CLASS
+    if all(len(x) == 1 for x in letters):
+        first, last = letters[0], letters[-1]
+        if ord(last) - ord(first) == len(letters) - 1:
+            return f"grupp {first}–{last}" if len(letters) > 1 else f"grupp {first}"
+    return "grupp " + ", ".join(letters)
+@
+
+<<test functions>>=
+def test_group_label_range():
+    groups = "DD1317 grupp A, DD1317 grupp F, DD1317 grupp B, DD1317 grupp D"
+    assert group_label(groups + ", DD1317 grupp C, DD1317 grupp E") == "grupp A–F"
+
+
+def test_group_label_gaps_and_whole_class():
+    assert group_label("DD1317 grupp A, DD1317 grupp C") == "grupp A, C"
+    assert group_label("DD1317 grupp G") == "grupp G"
+    assert group_label("DD1317 Helklass") == "helklass"
+    assert group_label("") == "helklass"
+@
+
+\subsection{Salar}
+
+[[LOCATION]] räknar upp salarna, till exempel [[D2, Digital]] för en
+hybridföreläsning eller [[4V4Gul (Gul), 4V6 Bru (Brun), E36]] för
+labbsalarna.
+\enquote{Digital} är TimeEdits ord för att passet också ges på Zoom; för
+studenterna heter det Zoom, så vi översätter.
+Övriga salsnamn lämnar vi som de är, eftersom det är de namnen studenterna
+söker efter på KTH:s kartor.
+<<constants>>=
+ROOM_NAMES = {"Digital": "Zoom"}
+@
+<<functions>>=
+def room_label(location):
+    """Return the rooms in `location` as a readable comma-separated list."""
+    rooms = [room.strip() for room in location.split(",") if room.strip()]
+    return ", ".join(ROOM_NAMES.get(room, room) for room in rooms)
+@
+
+<<test functions>>=
+def test_room_label_translates_digital():
+    assert room_label("D2, Digital") == "D2, Zoom"
+    assert room_label("") == ""
+@
+
+\subsection{Tillfällets slag}
+
+[[SUMMARY]] är på formen \enquote{Datorlaboration, DD1317}: slaget av
+tillfälle följt av kurskoden.
+Slaget före kommatecknet är vad vi vill visa, men några av TimeEdits ord
+är inte de vi använder mot studenterna.
+\enquote{Datorlaboration} kallar vi labb och \enquote{Kontrollskrivning}
+är kursens datorprov.
+Ord som inte finns i tabellen visas oförändrade, så en ny sorts tillfälle
+i schemat visas ändå (om än med TimeEdits ord).
+
+Redovisningar bokas i TimeEdit som \enquote{Datorlaboration}, eftersom det
+för lokalbokningen är samma sak: ett pass i datorsal.
+För studenten är det dock ett helt annat slags tillfälle, med bokad tid
+och krav på närvaro, så vi låter ett syfte som börjar med
+\enquote{Redovisning} bestämma slaget.
+Resten av syftet (\enquote{boka tid i kalendern i Canvas}) behålls, medan
+ordet som blev slaget tas bort så att det inte skrivs två gånger.
+<<constants>>=
+KIND_LABELS = {
+    "Datorlaboration": "Labb",
+    "Kontrollskrivning": "Datorprov",
+}
+PURPOSE_KINDS = ["Redovisning"]
+@
+<<functions>>=
+def kind_label(summary, purpose=""):
+    """Return `(kind, purpose)` for the event in `summary`.
+
+    The kind is the student-facing name of the event type in `summary`,
+    unless `purpose` starts with one of `PURPOSE_KINDS`, in which case
+    that word becomes the kind and is removed from the returned purpose.
+    """
+    for word in PURPOSE_KINDS:
+        if purpose.lower().startswith(word.lower()):
+            rest = purpose[len(word) :].lstrip(" ,.:;-–—")
+            return word, rest
+    kind = summary.split(",")[0].strip()
+    return KIND_LABELS.get(kind, kind), purpose
+@
+
+<<test functions>>=
+def test_kind_label_translates_and_keeps_unknown():
+    assert kind_label("Datorlaboration, DD1317", "Hjälpsession") == (
+        "Labb",
+        "Hjälpsession",
+    )
+    assert kind_label("Frågestund, DD1317", "") == ("Frågestund", "")
+
+
+def test_kind_label_redovisning_from_purpose():
+    kind, purpose = kind_label(
+        "Datorlaboration, DD1317", "Redovisning, boka tid i kalendern i Canvas."
+    )
+    assert (kind, purpose) == ("Redovisning", "boka tid i kalendern i Canvas.")
+@
+
+\subsection{Urval och tolkning}
+
+Nu kan vi sätta ihop delarna.
+Ett tillfälle hör till kursen om kurskoden står i [[SUMMARY]]; det räcker
+för att sålla bort bibliotekets, helgdagarnas och andra kursers händelser.
+Därefter tar vi bort de tillfällen vars beskrivning matchar
+[[exclude]]-uttrycket (Excelmomentet).
+Att låta uteslutningen vara ett reguljärt uttryck över hela beskrivningen,
+snarare än en lista med syften, gör att den också fångar lärarnamn eller
+gruppnamn utan att programmet behöver veta något om kursen.
+
+Resultatet är en lista med \enquote{tillfällen}: händelserna kompletterade
+med de tolkade fälten.
+<<functions>>=
+def sessions(events, code, exclude=None):
+    """Return the teaching sessions of course `code` among `events`.
+
+    Events whose description matches the regex `exclude` are dropped.
+    Each session is the event dict extended with `kind`, `teacher`,
+    `purpose`, `groups` and `rooms`.
+    """
+    result = []
+    for event in events:
+        if code not in event["summary"]:
+            continue
+        if exclude and re.search(exclude, event["description"]):
+            continue
+        teacher, purpose, groups = describe(event["description"], code)
+        kind, purpose = kind_label(event["summary"], purpose)
+        result.append(
+            {
+                **event,
+                "kind": kind,
+                "teacher": teacher,
+                "purpose": purpose,
+                "groups": group_label(groups),
+                "rooms": room_label(event["location"]),
+            }
+        )
+    return sorted(result, key=lambda session: session["start"])
+@
+
+<<test functions>>=
+def test_sessions_filters_course_and_exclude():
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    found = sessions(events, "DD1317", exclude="Excel")
+    assert [(s["kind"], s["groups"]) for s in found] == [
+        ("Föreläsning", "helklass"),
+        ("Labb", "grupp A–F"),
+    ]
+    assert found[1]["purpose"] == "Hjälpsession"
+    assert found[1]["rooms"] == "4V4Gul (Gul), 4V6 Bru (Brun)"
+
+
+def test_sessions_without_exclude_keeps_excel():
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    assert len(sessions(events, "DD1317")) == 3
+@
+
+
+\section{Att välja veckor}\label{sec:weeks}
+
+Varje sida handlar om en eller flera veckor.
+Vi anger veckor som ISO-veckor med årtal, till exempel [[2026w41]], och
+tillåter intervall och listor: [[2026w47-48,2027w02]].
+Årtalet är obligatoriskt.
+Det vore bekvämare att skriva bara [[41]], men kursen går över ett
+årsskifte (projektet redovisas i januari) och då blir \enquote{vecka 2}
+tvetydigt.
+Ett litet krav på skribenten är billigare än en felaktig sida.
+<<constants>>=
+WEEK_SPEC = re.compile(r"^(\d{4})w(\d{1,2})(?:-(\d{1,2}))?$")
+@
+<<functions>>=
+def parse_weeks(spec):
+    """Return the list of `(year, week)` pairs described by `spec`.
+
+    `spec` is a comma-separated list of `YYYYwWW` or `YYYYwWW-WW`,
+    e.g. `2026w47-48,2027w02`.  Raises `ValueError` on bad syntax.
+    """
+    weeks = []
+    for part in spec.split(","):
+        match = WEEK_SPEC.match(part.strip())
+        if not match:
+            raise ValueError(f"bad week specification '{part}', expected YYYYwWW")
+        year, first, last = match.groups()
+        for week in range(int(first), int(last or first) + 1):
+            weeks.append((int(year), week))
+    return weeks
+@
+
+Urvalet är sedan en enkel jämförelse mot tillfällets ISO-vecka.
+<<functions>>=
+def in_weeks(session, weeks):
+    """Return whether `session` starts in one of the `(year, week)` pairs."""
+    year, week, _ = session["start"].isocalendar()
+    return (year, week) in weeks
+@
+
+<<test functions>>=
+def test_parse_weeks_ranges_and_lists():
+    assert parse_weeks("2026w41") == [(2026, 41)]
+    assert parse_weeks("2026w47-48, 2027w02") == [
+        (2026, 47),
+        (2026, 48),
+        (2027, 2),
+    ]
+
+
+def test_parse_weeks_requires_year():
+    with pytest.raises(ValueError):
+        parse_weeks("41")
+
+
+def test_in_weeks_uses_iso_week():
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    lecture = sessions(events, "DD1317")[0]
+    assert in_weeks(lecture, [(2026, 41)])
+    assert not in_weeks(lecture, [(2026, 40)])
+@
+
+
+\section{Rendering till Markdown}\label{sec:render}
+
+Sidan läses av förstaårsstudenter på mobilen, så vi vill ha en kompakt
+lista i stället för en bred tabell: en punkt per dag och under den en punkt
+per tillfälle.
+Raden för ett tillfälle innehåller tid, slag, grupp, salar och syfte, i
+den ordningen, eftersom det är den ordning studenten behöver informationen
+i: \enquote{när, vad, är det mitt pass, var, och vad ska vi göra}.
+Delar som saknas utelämnas i stället för att lämna tomma streck.
+
+Tiderna skrivs precis som de står i TimeEdit, utan akademisk kvart.
+Att lägga på en kvart vore fel för datorprovet, vars exakta tid ges av
+Ladok, och studenterna möter ändå samma tider i TimeEdit och KTH Social.
+En mening om kvarten hör hemma i sidans prosa, inte i programmet.
+
+Veckodagar och datum skrivs på svenska med hårdkodade namn.
+Att förlita sig på [[locale]] skulle kräva att det svenska språkpaketet
+finns installerat där programmet körs, vilket inte går att räkna med.
+<<constants>>=
+DAY_NAMES = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"]
+@
+<<functions>>=
+def format_session(session):
+    """Return one Markdown list item for `session`."""
+    start, end = session["start"], session["end"]
+    parts = [f"{start:%H:%M}–{end:%H:%M} {session['kind']} ({session['groups']})"]
+    if session["rooms"]:
+        parts.append(session["rooms"])
+    if session["purpose"]:
+        parts.append(session["purpose"])
+    return " — ".join(parts)
+@
+
+Dagens rubrik är veckodag och datum i den svenska formen \enquote{Tis 6/10}.
+<<functions>>=
+def format_day(date):
+    """Return a Swedish `Tis 6/10`-style label for `date`."""
+    return f"{DAY_NAMES[date.weekday()]} {date.day}/{date.month}"
+@
+
+Veckor renderas i den ordning de begärdes.
+Om sidan omfattar flera veckor får varje vecka en egen rubrikrad så att
+studenten ser var en vecka slutar och nästa börjar; för en ensam vecka
+vore rubriken bara brus, eftersom sidan redan säger vilken vecka den
+gäller.
+Kursen går över ett årsskifte, så en vecka i ett annat år än den första
+får årtalet utskrivet: \enquote{Vecka 2 (2027)} efter \enquote{Vecka 48}.
+En begärd vecka utan tillfällen skrivs ut explicit.
+Tystnad kunde annars läsas som att programmet missat något, och för
+kursens del är tentaveckorna utan undervisning värda att nämna.
+<<functions>>=
+def render(found, weeks):
+    """Render the sessions `found` for `weeks` as a Markdown list."""
+    lines = []
+    for year, week in weeks:
+        this_week = [s for s in found if s["start"].isocalendar()[:2] == (year, week)]
+        if len(weeks) > 1:
+            label = f"Vecka {week}"
+            if year != weeks[0][0]:
+                label += f" ({year})"
+            lines.append(f"**{label}**")
+            lines.append("")
+        if not this_week:
+            lines.append(f"- Inga schemalagda tillfällen vecka {week}.")
+        <<list the sessions of the week day by day>>
+        lines.append("")
+    return "\n".join(lines).rstrip("\n") + "\n"
+@
+
+Tillfällena är redan sorterade efter starttid, så dagarna kommer i ordning
+om vi bara byter dagrubrik när datumet ändras.
+<<list the sessions of the week day by day>>=
+current_day = None
+for session in this_week:
+    day = session["start"].date()
+    if day != current_day:
+        lines.append(f"- **{format_day(day)}**")
+        current_day = day
+    lines.append(f"  - {format_session(session)}")
+@
+
+<<test functions>>=
+def test_render_single_week():
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    found = sessions(events, "DD1317", exclude="Excel")
+    text = render(found, [(2026, 41)])
+    assert text == (
+        "- **Tis 6/10**\n"
+        "  - 08:00–10:00 Föreläsning (helklass) — D2, Zoom"
+        " — Grundläggande lärarledd undervisning, hybrid\n"
+        "- **Tor 8/10**\n"
+        "  - 15:00–17:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun)"
+        " — Hjälpsession\n"
+    )
+
+
+def test_render_multiple_weeks_marks_empty_weeks():
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    found = sessions(events, "DD1317", exclude="Excel")
+    text = render(found, [(2026, 41), (2026, 42)])
+    assert text.startswith("**Vecka 41**\n\n- **Tis 6/10**")
+    assert "**Vecka 42**\n\n- Inga schemalagda tillfällen vecka 42." in text
+
+
+def test_render_marks_weeks_in_another_year():
+    text = render([], [(2026, 48), (2027, 2)])
+    assert "**Vecka 48**" in text and "**Vecka 2 (2027)**" in text
+@
+
+
+\section{Att skriva in schemat i sidorna}\label{sec:inplace}
+
+Sidorna är vanliga Markdownfiler med YAML-huvud som [[canvaslms]] läser
+för att veta vilken Canvasmodul sidan hör till.
+Vi lägger till ett fält [[weeks]] i huvudet, med samma syntax som
+[[parse_weeks]], så att sidan själv säger vilka veckor den handlar om.
+Då behöver varken Makefilen eller den som kör programmet hålla reda på
+kopplingen mellan sidor och veckor, och en sida kan flyttas till en annan
+vecka genom att ändra en rad i sidan.
+[[canvaslms]] bryr sig inte om fält det inte känner till.
+
+Schemat skrivs mellan två HTML-kommentarer i sidan:
+\begin{verbatim}
+<!-- schema:start -->
+...
+<!-- schema:end -->
+\end{verbatim}
+HTML-kommentarer syns inte i Canvas men överlever både Markdown och
+Canvas HTML-konvertering, så markörerna finns kvar när sidan nästa gång
+ska uppdateras.
+Allt utanför markörerna är handskriven text som programmet inte rör.
+<<constants>>=
+START_MARKER = "<!-- schema:start -->"
+END_MARKER = "<!-- schema:end -->"
+WEEKS_FIELD = re.compile(r"^weeks:\s*(\S+)\s*$", re.MULTILINE)
+@
+
+Att läsa [[weeks]] ur huvudet gör vi med ett reguljärt uttryck i stället
+för en YAML-tolk, eftersom fältet är en enda rad och vi då slipper ett
+beroende utanför standardbiblioteket.
+Vi begränsar sökningen till huvudet (texten före det andra [[---]]) så att
+ordet [[weeks:]] i brödtexten inte kan råka tolkas som fältet.
+<<functions>>=
+def page_weeks(text):
+    """Return the `weeks:` value from the YAML front matter of `text`.
+
+    Raises `ValueError` when the front matter or the field is missing.
+    """
+    if not text.startswith("---"):
+        raise ValueError("page has no YAML front matter")
+    end = text.find("\n---", 3)
+    if end < 0:
+        raise ValueError("unterminated YAML front matter")
+    match = WEEKS_FIELD.search(text[:end])
+    if not match:
+        raise ValueError("front matter has no 'weeks:' field")
+    return match.group(1)
+@
+
+Själva utbytet kräver att båda markörerna finns exakt en gång och i rätt
+ordning.
+Hellre än att gissa vad en sida med saknade eller dubbla markörer menar,
+avbryter vi med ett fel: det är en sida som någon har redigerat sönder
+och det ska upptäckas, inte döljas.
+<<functions>>=
+def replace_block(text, block):
+    """Return `text` with the content between the schedule markers
+    replaced by `block`.  Raises `ValueError` if the markers are missing,
+    duplicated or out of order.
+    """
+    if text.count(START_MARKER) != 1 or text.count(END_MARKER) != 1:
+        raise ValueError("page must contain exactly one start and one end marker")
+    start = text.index(START_MARKER) + len(START_MARKER)
+    end = text.index(END_MARKER)
+    if end < start:
+        raise ValueError("end marker precedes start marker")
+    return text[:start] + "\n" + block + text[end:]
+@
+
+Filen skrivs bara om innehållet faktiskt ändrats.
+Makefilen använder filens tidsstämpel för att avgöra om sidan behöver
+skickas till Canvas igen; skrev vi filen varje gång skulle varje körning
+utlösa en onödig uppladdning av alla sidor.
+<<functions>>=
+def update_page(path, found):
+    """Write the schedule for the page at `path` between its markers.
+
+    Returns `True` if the file was changed.
+    """
+    path = pathlib.Path(path)
+    text = path.read_text(encoding="utf-8")
+    weeks = parse_weeks(page_weeks(text))
+    block = render([s for s in found if in_weeks(s, weeks)], weeks)
+    updated = replace_block(text, block)
+    if updated == text:
+        return False
+    path.write_text(updated, encoding="utf-8")
+    return True
+@
+
+<<test constants>>=
+SAMPLE_PAGE = """---
+title: Veckoöversikt
+weeks: 2026w41
+---
+Prosa före.
+
+<!-- schema:start -->
+gammalt innehåll
+<!-- schema:end -->
+
+Prosa efter.
+"""
+@
+<<test functions>>=
+def test_page_weeks_reads_front_matter_only():
+    assert page_weeks(SAMPLE_PAGE) == "2026w41"
+    with pytest.raises(ValueError):
+        page_weeks("Ingen YAML\nweeks: 2026w41\n")
+
+
+def test_replace_block_keeps_surroundings():
+    updated = replace_block(SAMPLE_PAGE, "nytt\n")
+    assert "Prosa före." in updated and "Prosa efter." in updated
+    assert "gammalt innehåll" not in updated
+    assert "<!-- schema:start -->\nnytt\n<!-- schema:end -->" in updated
+
+
+def test_replace_block_rejects_broken_markers():
+    with pytest.raises(ValueError):
+        replace_block(SAMPLE_PAGE.replace(END_MARKER, ""), "x\n")
+
+
+def test_update_page_is_idempotent(tmp_path):
+    page = tmp_path / "vecka.md"
+    page.write_text(SAMPLE_PAGE, encoding="utf-8")
+    events = parse_events(SAMPLE_ICS, STOCKHOLM)
+    found = sessions(events, "DD1317", exclude="Excel")
+    assert update_page(page, found) is True
+    assert "Tis 6/10" in page.read_text(encoding="utf-8")
+    assert update_page(page, found) is False
+@
+
+
+\section{Kommandoradsgränssnittet}\label{sec:cli}
+
+Programmet har två arbetssätt: skriva schemat för givna veckor till
+standard ut (för att titta på det) eller uppdatera en eller flera sidor på
+plats (det Makefilen gör).
+Vi kräver precis ett av [[--weeks]] och [[--in-place]].
+
+Kursens smeknamn tas i första hand från flaggan, i andra hand från
+miljövariabeln [[COURSE]], som Makefilen sätter, och sist från ett
+standardvärde.
+Kalenderadress och kurskod slås upp i [[nytid]] bara när de inte angetts;
+Makefilen skickar den nedladdade kalenderfilen med [[--ics]] så att alla
+sidor renderas från samma ögonblicksbild.
+<<constants>>=
+DEFAULT_COURSE = "prgi26"
+DEFAULT_EXCLUDE = "Excel"
+DEFAULT_TZ = "Europe/Stockholm"
+@
+<<main>>=
+def parse_args(argv=None):
+    """Return the parsed command line arguments."""
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument(
+        "--course",
+        default=os.environ.get("COURSE", DEFAULT_COURSE),
+        help="nytid course nickname used to look up ICS URL and course code",
+    )
+    parser.add_argument("--ics", help="ICS URL or file; default from nytid")
+    parser.add_argument("--code", help="course code in SUMMARY; default from nytid")
+    parser.add_argument(
+        "--exclude",
+        default=DEFAULT_EXCLUDE,
+        help="drop events whose description matches this regex",
+    )
+    parser.add_argument("--tz", default=DEFAULT_TZ, help="time zone for output")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--weeks", help="weeks to print, e.g. 2026w47-48,2027w02")
+    mode.add_argument(
+        "--in-place", nargs="+", metavar="PAGE", help="Markdown pages to update"
+    )
+    return parser.parse_args(argv)
+@
+
+Huvudprogrammet samlar alla förutsägbara fel ([[RuntimeError]] från
+[[nytid]], [[ValueError]] från veckor och sidor, [[OSError]] från filer
+och nät) och rapporterar dem på en rad med avslutningskod 1.
+Ett spårutskrift hjälper inte den som kör [[make]]; ett filnamn och en
+mening gör det.
+<<main>>=
+def main(argv=None):
+    """Run the command line program."""
+    args = parse_args(argv)
+    try:
+        <<resolve calendar and course code>>
+        <<print or update>>
+    except (RuntimeError, ValueError, OSError) as err:
+        print(f"veckoschema: {err}", file=sys.stderr)
+        sys.exit(1)
+@
+
+<<resolve calendar and course code>>=
+ics = args.ics or course_config(args.course, "ics")
+code = args.code or course_config(args.course, "code")
+tz = zoneinfo.ZoneInfo(args.tz)
+found = sessions(parse_events(fetch_ics(ics), tz), code, args.exclude)
+@
+
+Vid uppdatering på plats rapporterar vi varje sida på standard fel, så att
+den som kör [[make]] ser vilka sidor som ändrades utan att utskriften
+blandas med eventuellt schema på standard ut.
+Ett fel i en sida avbryter körningen med filnamnet i meddelandet.
+<<print or update>>=
+if args.weeks:
+    sys.stdout.write(render(found, parse_weeks(args.weeks)))
+else:
+    for page in args.in_place:
+        try:
+            changed = update_page(page, found)
+        except ValueError as err:
+            raise ValueError(f"{page}: {err}") from err
+        status = "updated" if changed else "unchanged"
+        print(f"veckoschema: {page}: {status}", file=sys.stderr)
+@
+
+Slutligen ett test av hela kedjan från kommandorad till fil, med
+kalendern given som fil så att [[nytid]] inte behövs.
+<<test functions>>=
+def test_main_updates_page_from_ics_file(tmp_path, capsys):
+    ics = tmp_path / "schema.ics"
+    ics.write_text(SAMPLE_ICS, encoding="utf-8")
+    page = tmp_path / "vecka.md"
+    page.write_text(SAMPLE_PAGE, encoding="utf-8")
+    main(["--ics", str(ics), "--code", "DD1317", "--in-place", str(page)])
+    assert "Föreläsning (helklass)" in page.read_text(encoding="utf-8")
+    assert "updated" in capsys.readouterr().err
+
+
+def test_main_prints_weeks(tmp_path, capsys):
+    ics = tmp_path / "schema.ics"
+    ics.write_text(SAMPLE_ICS, encoding="utf-8")
+    main(["--ics", str(ics), "--code", "DD1317", "--weeks", "2026w41"])
+    assert capsys.readouterr().out.startswith("- **Tis 6/10**")
+@
+
+\end{document}
