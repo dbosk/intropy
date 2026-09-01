@@ -23,16 +23,20 @@ VECKOSCHEMA?=	bin/veckoschema.py
 # Canvas modules in course order (one per line); one page goes first in each.
 MODULES_FILE?=	canvas-modules.txt
 
-PAGES+=		modules/helloworld/vecka.md
-PAGES+=		modules/variables/vecka.md
-PAGES+=		modules/conditionals/vecka.md
-PAGES+=		modules/iterations/vecka.md
-PAGES+=		modules/classes/vecka.md
-PAGES+=		modules/containers/vecka.md
-PAGES+=		modules/files/vecka.md
-PAGES+=		modules/graphics/vecka.md
-PAGES+=		modules/overview/vecka-datorprov.md
-PAGES+=		modules/project/vecka.md
+# Week pages get their schedule block filled by veckoschema.py ...
+WEEK_PAGES+=	modules/helloworld/vecka.md
+WEEK_PAGES+=	modules/variables/vecka.md
+WEEK_PAGES+=	modules/conditionals/vecka.md
+WEEK_PAGES+=	modules/iterations/vecka.md
+WEEK_PAGES+=	modules/classes/vecka.md
+WEEK_PAGES+=	modules/containers/vecka.md
+WEEK_PAGES+=	modules/files/vecka.md
+WEEK_PAGES+=	modules/graphics/vecka.md
+WEEK_PAGES+=	modules/overview/vecka-datorprov.md
+WEEK_PAGES+=	modules/project/vecka.md
+# ... while these are pushed as they are.
+PAGES+=		modules/overview/pythondelen.md
+PAGES+=		${WEEK_PAGES}
 
 ${ICS}:
 	curl -fsS "${ICS_URL}" -o $@.tmp && mv $@.tmp $@
@@ -42,7 +46,7 @@ ${VECKOSCHEMA}: $(dir ${VECKOSCHEMA})veckoschema.nw
 
 .PHONY: schedule
 schedule: ${ICS} ${VECKOSCHEMA}
-	python3 ${VECKOSCHEMA} --course ${COURSE} --ics ${ICS} --in-place ${PAGES}
+	python3 ${VECKOSCHEMA} --course ${COURSE} --ics ${ICS} --in-place ${WEEK_PAGES}
 
 .PHONY: update-schedule
 update-schedule:
