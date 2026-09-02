@@ -102,20 +102,30 @@
 % didactic_mint.  (Proposed upstream as \runpython[stdin=...],
 % dbosk/didactic#26.)
 \begin{pycode}
-import os, pty, select, subprocess
+import os, pty, select, subprocess, time
 
-def runpython_terminal(module, answers, interpreter="python3"):
+def runpython_terminal(module, answers, interpreter="python3", timeout=10):
     # Run from the program's own directory, so the transcript shows the
     # command the student types there: "python3 pannkakor.py".
     cwd, name = os.path.split(module)
     cmd = [interpreter, name]
+    env = dict(os.environ, TERM="dumb", NO_COLOR="1", PYTHON_COLORS="0",
+               PYTHONUTF8="1")
     master, slave = pty.openpty()
     proc = subprocess.Popen(cmd, stdin=slave, stdout=slave, stderr=slave,
-                            close_fds=True, cwd=cwd or None)
+                            close_fds=True, cwd=cwd or None, env=env)
     os.close(slave)
     out = b""
     pending = list(answers)
+    deadline = time.monotonic() + timeout
     while True:
+        # A program that waits for input we never supply (or never exits)
+        # must not hang the build: give up after `timeout` seconds and say so
+        # in the transcript.
+        if time.monotonic() > deadline and proc.poll() is None:
+            proc.kill()
+            out += f"\n[avbrutet efter {timeout} s]".encode()
+            break
         ready, _, _ = select.select([master], [], [], 0.2)
         if master in ready:
             try:
@@ -138,7 +148,7 @@ def runpython_terminal(module, answers, interpreter="python3"):
                 pass
             break
     os.close(master)
-    text = out.decode().replace("\r\n", "\n").replace("\r", "")
+    text = out.decode(errors="replace").replace("\r\n", "\n").replace("\r", "")
     transcript = "$ " + " ".join(cmd) + "\n" + text.strip("\n")
     didactic_mint(transcript)
 \end{pycode}
