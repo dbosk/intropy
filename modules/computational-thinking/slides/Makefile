@@ -15,12 +15,24 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/pannkakor.py
+# The dishwashing pseudocode is tangled too, so the notes can show the
+# fully assembled algorithm (\inputminted) next to its refined form.  The
+# root chunks carry no filename, so the generic [[...]] rule cannot apply.
+EXAMPLES+=	examples/handdisk.txt examples/handdisk-funktion.txt
 
 contents.tex: contents.nw noweb_lexer.py
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+examples/handdisk.txt: contents.nw
+	@mkdir -p ${@D}
+	notangle -R'diska allt' $< > $@
+
+examples/handdisk-funktion.txt: contents.nw
+	@mkdir -p ${@D}
+	notangle -R'diska allt, med funktion' $< > $@
 
 .PHONY: examples
 examples: ${EXAMPLES}

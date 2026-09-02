@@ -74,6 +74,9 @@
   % consistently calls them "steg".
   \crefname{enumi}{steg}{steg}%
   \Crefname{enumi}{Steg}{Steg}%
+  % The prose refers back to the NE footnote by number.
+  \crefname{footnote}{fotnot}{fotnoterna}%
+  \Crefname{footnote}{Fotnot}{Fotnoterna}%
 }
 
 \usepackage[marginparmargin=outer]{didactic}
@@ -89,3 +92,56 @@
 \ProvideTranslation{swedish}{LO}{lm}
 \ProvideTranslation{swedish}{Learning objective}{Lärandemål}
 \ProvideTranslation{swedish}{Learning objectives}{Lärandemål}
+
+% \runpythonterminal{file}{answer}: run a program that reads from the
+% keyboard, the way a student would in a terminal.  didactic's \runpython
+% gives the program no stdin, so input() would die with EOFError.  This
+% runs it under a pseudo-terminal instead, types the answer when the
+% program asks, and typesets the transcript exactly as it appears on
+% screen -- command line, prompt, typed answer, output -- through
+% didactic_mint.  (Proposed upstream as \runpython[stdin=...],
+% dbosk/didactic#26.)
+\begin{pycode}
+import os, pty, select, subprocess
+
+def runpython_terminal(module, answers, interpreter="python3"):
+    # Run from the program's own directory, so the transcript shows the
+    # command the student types there: "python3 pannkakor.py".
+    cwd, name = os.path.split(module)
+    cmd = [interpreter, name]
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(cmd, stdin=slave, stdout=slave, stderr=slave,
+                            close_fds=True, cwd=cwd or None)
+    os.close(slave)
+    out = b""
+    pending = list(answers)
+    while True:
+        ready, _, _ = select.select([master], [], [], 0.2)
+        if master in ready:
+            try:
+                chunk = os.read(master, 4096)
+            except OSError:
+                break
+            if not chunk:
+                break
+            out += chunk
+        elif pending and proc.poll() is None:
+            os.write(master, (pending.pop(0) + "\n").encode())
+        elif proc.poll() is not None:
+            try:
+                while True:
+                    chunk = os.read(master, 4096)
+                    if not chunk:
+                        break
+                    out += chunk
+            except OSError:
+                pass
+            break
+    os.close(master)
+    text = out.decode().replace("\r\n", "\n").replace("\r", "")
+    transcript = "$ " + " ".join(cmd) + "\n" + text.strip("\n")
+    didactic_mint(transcript)
+\end{pycode}
+\NewDocumentCommand{\runpythonterminal}{mm}{%
+  \pyc{runpython_terminal('#1', ['#2'])}%
+}
