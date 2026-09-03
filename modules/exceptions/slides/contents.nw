@@ -3,7 +3,7 @@
 \section[Särfall]{När programmet går sönder}
 \label{sec:krasch}
 
-Förra veckans program räknade alltid rätt, av ett skäl vi inte tänkte på:
+Våra tidigare program räknade alltid rätt, av ett skäl vi inte tänkte på:
 vi bestämde själva vad de skulle räkna på.  Nu när användaren matar in
 värdena har vi tappat den kontrollen.  Användaren skriver vad hon vill,
 och en del av det hon kan skriva går helt enkelt inte att räkna med.
@@ -131,7 +131,8 @@ Ordet är väl valt: det är inte fel på datorn, och oftast inte heller på
 programmet.  Det är ett \emph{fall} som instruktionen inte täcker.  Att
 omvandla en sträng till ett heltal är en fullt begriplig sak att be om,
 så länge strängen består av siffror; \enquote{nittiofyra} är det särfall
-där begäran inte går att uppfylla.
+där begäran inte går att uppfylla --- i alla fall inte med
+\mintinline{python}{int}.
 
 \ltnote{%
   Relevanta lärandemål: \cref{ExcLOException}.
@@ -181,12 +182,12 @@ avsnitt åt att läsa dem.
   meddelandet till något.
 }
 
-Felutskriften kallas \foreignlanguage{english}{traceback}, och den svarar
-på tre frågor.
+Felutskriften kallas \emph{spårutskrift}
+(\foreignlanguage{english}{traceback}), och den svarar på tre frågor.
 
 \begin{frame}
   \only<presentation>{%
-    \begin{remark}[Vad en traceback säger]
+    \begin{remark}[Vad en spårutskrift säger]
       \begin{description}
         \item[Var] vilken fil och vilken rad som inte gick att utföra.
         \item[Vilken sorts fel] namnet före kolon, till exempel
@@ -196,7 +197,7 @@ på tre frågor.
     \end{remark}%
   }%
   \only<article>{%
-    \begin{remark}[Vad en traceback säger]
+    \begin{remark}[Vad en spårutskrift säger]
       Överst står \emph{var} felet uppstod: vilken fil och vilken rad
       som inte gick att utföra, med raden själv utskriven.  Nederst står
       \emph{vilken sorts fel} det var --- namnet före kolonet, till
@@ -217,19 +218,39 @@ precis den rad vi ska titta på.
 Att det alltid ser ut så är lättare att se om vi tittar på flera fel
 bredvid varandra.
 
+Tre helt olika misstag, i tur och ordning.
+
 \begin{frame}[fragile]
-  \begin{example}[Tre olika fel]
+  \begin{example}[Ett värde som inte går att tolka]
     \label{ex:tre-fel}
-    Tre helt olika misstag, i tur och ordning:
+    Bokstäver där ett tal väntades:
     \begin{minted}{text}
 >>> int("a")
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ValueError: invalid literal for int() with base 10: 'a'
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Division med noll]
+    \label{ex:tre-fel-noll}
+    En räkning som inte går att utföra:
+    \begin{minted}{text}
 >>> 5 / 0
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 ZeroDivisionError: division by zero
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett namn som inte finns]
+    \label{ex:tre-fel-namn}
+    Ett felstavat namn:
+    \begin{minted}{text}
 >>> prynt(3)
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
@@ -278,7 +299,7 @@ var, och det ska vi snart använda.
 \label{sec:fanga}
 
 Att programmet avbryts är inte alltid orimligt --- ett program som inte
-kan göra sitt jobb ska inte låtsas att det kan.  Men tracebacken är
+kan göra sitt jobb ska inte låtsas att det kan.  Men spårutskriften är
 skriven för den som skrivit programmet, inte för den som använder det.
 Användaren som skrev \enquote{nittiofyra} har inte gjort något brottsligt;
 hon har missförstått frågan, och det enda hon behöver är att få veta det.
@@ -288,7 +309,7 @@ hon har missförstått frågan, och det enda hon behöver är att få veta det.
     \label{ovn:fanga}
     Ni ska ändra programmet så att användaren som svarar
     \enquote{nittiofyra} får veta vad hon ska göra i stället, utan
-    traceback.  Vad behöver programmet kunna göra som det inte kan i
+    spårutskrift.  Vad behöver programmet kunna göra som det inte kan i
     dag?
   \end{exercise}
 \end{frame}
@@ -333,9 +354,7 @@ innehåller \emph{två} rader, och att felet uppstår på den första av dem.
   \begin{exercise}
     \label{ovn:hoppas-over}
     Användaren svarar \enquote{nittiofyra}.  Vilka av programmets
-    utskrifter kommer, och i vilken ordning?  Tänk särskilt på raden
-    \mintinline{python}{print(f"Då är du ...")} inuti
-    \mintinline{python}{try}-blocket.
+    utskrifter kommer, och i vilken ordning?
   \end{exercise}
 \end{frame}
 
@@ -375,7 +394,7 @@ is appropriate for the exception and continues from there}, och att de
 därför \enquote{could not cope properly with try-catch blocks containing
 more than one command}\autocite[343]{RashkovitsLavy2012}.  Deras studier
 gällde Java, så resultatet överförs med viss försiktighet till Python;
-mekanismen är dock densamma, och hur vi kontrollerat påståendet står i
+mekanismen är dock densamma; det vetenskapliga underlaget finns i
 \cref{app:nyborjare}.
 
 \ltnote{%
@@ -542,7 +561,7 @@ medelålder, och frågar därför om två tal.
 <<[[average.py]]>>=
 try:
     <<räkna ut medelåldern>>
-<<ta hand om felen, ett i taget>>
+<<ta hand om felen>>
 @
 \end{frame}
 
@@ -557,7 +576,15 @@ print(f"Medelåldern är {total / people:.1f} år.")
 @
 \end{frame}
 
-Nu kan två olika saker gå fel, och de kräver olika svar.  Skriver
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:tva-fel}
+    Vilka fel kan uppstå i de tre raderna ovan?  Och vad ska
+    \mintinline{python}{except}-delen göra åt vart och ett av dem?
+  \end{exercise}
+\end{frame}
+
+Två olika saker kan gå fel, och de kräver olika svar.  Skriver
 användaren bokstäver blir det ett \mintinline{python}{ValueError} som
 förut.  Svarar hon att de är noll personer blir det ett
 \mintinline{python}{ZeroDivisionError}.  Att be henne \enquote{svara med
@@ -567,7 +594,7 @@ siffror} vore i det andra fallet både obegripligt och osant --- hon
 
 \begin{frame}[fragile]
   Varje sorts fel får ett eget svar, och sist ett skyddsnät:
-<<ta hand om felen, ett i taget>>=
+<<ta hand om felen>>=
 except ValueError:
     print("Svara med siffror, till exempel 84.")
 except ZeroDivisionError:
@@ -615,7 +642,7 @@ grenarna under den skulle aldrig köras.
   --- och prosan mellan dem behöver plats.
 }
 
-Skyddsnätet sist är bekvämt, och det är också farligt.  Vad händer om vi
+Skyddsnätet sist är bekvämt, men det är också farligt.  Vad händer om vi
 tar bort de specifika grenarna och bara behåller det allmänna?
 
 \begin{frame}
@@ -655,7 +682,7 @@ Användaren gjorde ingenting fel.  Felet är vårt stavfel, ett
 \mintinline{python}{prynt} i \cref{ex:tre-fel} --- men eftersom
 \mintinline{python}{except Exception} fångar allt hamnade det i grenen
 som var skriven för användarens misstag, och programmet anklagade henne
-för något hon inte gjort.  Värre: utan traceback får \emph{vi} heller
+för något hon inte gjort.  Värre: utan spårutskrift får \emph{vi} heller
 aldrig veta att stavfelet finns.  Ett allmänt
 \texttt{except} döljer alltså inte bara felet för
 användaren utan också för den som ska laga det.
@@ -676,8 +703,8 @@ ovanliga, \enquote{even though there are many opportunities for them to
 occur}\autocite[83]{EbertCastor2015}, och att erfarna utvecklare ibland
 fångar allt med flit när de vet att felet inte kan inträffa.  Regeln är
 alltså inte \enquote{aldrig}, utan: fånga det ni vet hur ni ska svara på,
-och låt resten synas.  \Cref{app:catchall} beskriver hur vi kontrollerat
-det.
+och låt resten synas.  \Cref{app:catchall} ger det vetenskapliga
+underlaget.
 
 \begin{frame}
   \only<presentation>{%
@@ -934,9 +961,9 @@ och det som vår egen \mintinline{python}{age} kastar när årtalet ligger i
 framtiden.  Särfallet uppstod inuti funktionen men fångades utanför den:
 när ingen tar hand om ett särfall där det uppstår \emph{sprider det sig}
 uppåt till den som anropade, och därifrån vidare, tills någon fångar det
---- eller tills programmet tar slut och tracebacken skrivs ut.
+--- eller tills programmet tar slut och spårutskriften skrivs ut.
 
-Tracebacken i \cref{ex:tre-fel} listade bara en rad, för där uppstod
+Spårutskriften i \cref{ex:tre-fel} listade bara en rad, för där uppstod
 felet direkt.  Uppstår det djupare ner listar Python hela kedjan av
 anrop, underst det som gick fel.  Därav namnet: den \emph{spårar tillbaka}
 vägen dit.
@@ -976,7 +1003,7 @@ vägen dit.
 
 Ett särfall är ett fall en instruktion inte täcker, och det avbryter
 körningen där det uppstår.  Fångar vi det inte avbryts hela programmet
-och Python skriver en traceback, som säger var felet uppstod, vilken
+och Python skriver en spårutskrift, som säger var felet uppstod, vilken
 sorts fel det var och vad som var fel.  Fångar vi det med
 \mintinline{python}{try} och \texttt{except} hoppas resten av
 \mintinline{python}{try}-blocket över och körningen fortsätter i den
