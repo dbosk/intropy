@@ -25,6 +25,7 @@ SRC+=		ltnotes.bib
 EXAMPLES+=	examples/age.py
 EXAMPLES+=	examples/age-try.py
 EXAMPLES+=	examples/age-catchall.py
+EXAMPLES+=	examples/age-isdigit.py
 EXAMPLES+=	examples/average.py
 EXAMPLES+=	examples/age-again.py
 EXAMPLES+=	examples/age-raise.py

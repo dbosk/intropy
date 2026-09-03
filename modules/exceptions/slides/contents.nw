@@ -1,6 +1,6 @@
 \mode*
 
-\section{När programmet går sönder}
+\section[Särfall]{När programmet går sönder}
 \label{sec:krasch}
 
 Förra veckans program räknade alltid rätt, av ett skäl vi inte tänkte på:
@@ -150,7 +150,7 @@ där begäran inte går att uppfylla.
   designval, inte ett forskningsresultat.
 }
 
-\section{Att läsa ett felmeddelande}
+\section[Felmeddelandet]{Att läsa ett felmeddelande}
 \label{sec:felmeddelande}
 
 Felutskriften ovan är det enda programmet säger om vad som gick fel, och
@@ -274,7 +274,7 @@ var, och det ska vi snart använda.
   skyller det på användaren.
 }
 
-\section{Att fånga ett särfall}
+\section[Fånga]{Att fånga ett särfall}
 \label{sec:fanga}
 
 Att programmet avbryts är inte alltid orimligt --- ett program som inte
@@ -403,7 +403,124 @@ mekanismen är dock densamma, och hur vi kontrollerat påståendet står i
   Lavys studenter oftast fallerade på \parencite[343]{RashkovitsLavy2012}.
 }
 
-\section{Flera sorters fel}
+% Article-only heading: a \subsection would give the Berlin theme's
+% headline a second row of miniframes on every slide in the deck, for
+% the sake of one subsection --- and the extra row makes the
+% section-divider frames overflow.  The notes, which are 23 pages and
+% want the navigation, get the heading; the slides do not need it.
+\mode<article>{%
+  \subsection{Att titta efter först --- eller be om ursäkt efteråt}
+  \label{sec:titta-forst}%
+}
+
+Många svarar på \cref{ovn:fanga} med en annan idé, och det är en bra
+idé: kontrollera svaret \emph{innan} vi omvandlar det.  Verktyget finns
+--- \mintinline{python}{str.isdigit()} säger om en sträng bara består av
+siffror --- och ni har redan använt det i inmatningsföreläsningen.  Där
+såg ni också att det är en sträng kontroll: den vänder bort både
+\mintinline{text}|-5| och \mintinline{text}|1.75|, fast båda är tal.
+Frågan här är inte om kontrollen är sträng, utan varför den är det ---
+och vad det säger om vem som egentligen borde få avgöra saken.
+
+\begin{frame}[fragile]
+  Samma uppgift, men med en kontroll i stället för
+  \mintinline{python}{try}:
+<<[[age-isdigit.py]]>>=
+THIS_YEAR = 2026
+
+answer = input("Vilket år är du född? ")
+if answer.isdigit():
+    print(f"Då är du {THIS_YEAR - int(answer)} år.")
+else:
+    print("Årtalet måste skrivas med siffror, till exempel 1994.")
+@
+\end{frame}
+
+För \enquote{nittiofyra} beter sig de två programmen precis likadant.
+Men de är inte likvärdiga, och skillnaden syns först när svaret ligger i
+gränslandet.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:isdigit}
+    Användaren skriver \mintinline{text}|+1994| --- med plustecken.
+    \mintinline{python}{int} godtar det och ger talet 1994.  Vad gör
+    programmet ovan, och vad hade programmet med
+    \mintinline{python}{try} gjort?  Och den viktigare frågan: vem av
+    dem är det som bestämmer vad som räknas som ett årtal?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett årtal som kontrollen underkänner]
+    \label{ex:age-isdigit}
+    Vi svarar \mintinline{text}|+1994|:
+    \runpython[transcript, stdin={+1994}]{examples/age-isdigit.py}
+  \end{example}
+\end{frame}
+
+Kontrollen underkänner ett svar som \mintinline{python}{int} hade
+godtagit --- och det är svaret på frågan om vem som bestämmer.  Med
+kontrollen är det \emph{vi}: \mintinline{python}{isdigit} är inte
+\mintinline{python}{int}:s regel utan vår egen, och den råkar vara en
+annan.  Skillnaden är inte ett slarvfel på just den raden.  För att
+kontrollen ska stämma måste vi skriva om \mintinline{python}{int}:s
+regler --- tecken, mellanslag, allt --- och sedan hålla vår kopia i takt
+med dem.  Vi har alltså skrivit ner samma kunskap på två ställen, vilket
+är precis vad DRY varnar för; och ska programmet en dag ta emot
+decimaltal finns det inte ens någon \mintinline{python}{isdigit} att
+kopiera.
+
+Konstruktionen \mintinline{python}{try} slipper det, därför att den
+frågar den som vet: den låter \mintinline{python}{int} själv avgöra, och
+tar hand om svaret om det blev nej.  Kontrollera först när villkoret är
+\emph{ert eget} --- att årtalet inte får ligga i framtiden, till exempel
+--- och låt \mintinline{python}{try} sköta det som är
+\mintinline{python}{int}:s ensak.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Var beslutet om svaret duger fattas --- i
+  vår egen kontroll eller hos \mintinline{python}{int}.
+
+  \textbf{Vad som hålls invariant}: Uppgiften, meddelandet och
+  användarens svar.
+
+  Avsnittet finns för att \cref{ovn:fanga} \emph{bjuder in} svaret
+  \enquote{kolla om det är siffror}, och ett try-first-moment som inte
+  följs upp lämnar den studenten utan besked.  Här får svaret sitt
+  bemötande: det är rätt tänkt, det fungerar för det typiska felet, och
+  det går sönder i gränsfallen.
+
+  Kontrasten är byggd så att den inte kan avfärdas som ett hittepå-fall.
+  \mintinline{text}|+1994| är valt därför att skillnaden är
+  \emph{verklig} --- \mintinline{python}{int} godtar strängen, och det
+  gör den även för inledande blanksteg och för negativa tal.
+
+  Att kontrollen är sträng är däremot \emph{inte} poängen här, och får
+  inte framställas som en upptäckt: inmatningsföreläsningen har redan
+  visat att \mintinline{python}{isdigit} vänder bort
+  \mintinline{text}|-5| och \mintinline{text}|1.75|.  Avsnittet bygger
+  därför vidare på det i stället för att avslöja det igen --- vore
+  strängheten nyheten skulle momentet falla platt för den som just sett
+  den --- och flyttar frågan ett steg: \emph{varför} skiljer sig
+  reglerna, och vem borde få bestämma?  Det är den frågan
+  \cref{ovn:isdigit} ställer i sin andra hälft, och den kritiska aspekt
+  som ska urskiljas är att kontrollen \emph{duplicerar} en regel som
+  redan finns, inte att den är illa avvägd.
+
+  Argumentet knyts till DRY, som är belagt i bilaga E till
+  \emph{Algoritmiskt tänkande}, och görs därför inte om här.  Ordningen
+  --- \mintinline{python}{try} först, kontrollen efteråt --- är vald med
+  avsikt: hade kontrollen kommit först hade den framstått som det
+  normala och \mintinline{python}{try} som undantaget, vilket är tvärtom
+  mot hur Python skrivs.
+}
+
+\section[Flera fel]{Flera sorters fel}
 \label{sec:flera}
 
 Hittills har bara en sorts fel kunnat uppstå.  Så snart programmet gör
@@ -601,7 +718,7 @@ det.
   av didactic och kommer ur samma källa som koden.
 }
 
-\section{Ett begripligt meddelande}
+\section[Meddelandet]{Ett begripligt meddelande}
 \label{sec:begripligt}
 
 Att fånga särfallet är halva arbetet.  Den andra halvan är vad
@@ -679,7 +796,7 @@ andra meddelandet går att agera på.
   vidare och inte åtgärdas av användaren.
 }
 
-\section{Att fråga igen}
+\section[Fråga igen]{Att fråga igen}
 \label{sec:igen}
 
 Ett begripligt meddelande är bra, men programmet i \cref{ex:age-try} ger
@@ -746,7 +863,7 @@ nyttigt.
   avsnitten ligger i den här ordningen.
 }
 
-\section{Att kasta särfall vidare}
+\section[Kasta vidare]{Att kasta särfall vidare}
 \label{sec:kasta}
 
 Ett sista steg.  Hittills har särfallen uppstått inuti Pythons egna
@@ -844,7 +961,7 @@ vägen dit.
   förklarat på den plats där förklaringen betyder något.
 }
 
-\section{Sammanfattning}
+\section[Sammanfattning]{Sammanfattning}
 \label{sec:sammanfattning}
 
 Ett särfall är ett fall en instruktion inte täcker, och det avbryter
