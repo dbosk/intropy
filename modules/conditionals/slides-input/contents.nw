@@ -1,0 +1,694 @@
+\mode*
+
+\section{Ett program som bara kan en sak}
+\label{sec:ett-program}
+
+Förra veckan skrev vi program med variabler och egna funktioner.  Ett
+sådant program räknar och skriver ut --- men det räknar på värden som vi
+själva har skrivit in i koden.  Vi börjar med ett av dem, en liten lek med
+åldrar, och ser vad den kan och inte kan.
+
+Funktionerna är de vanliga: en som räknar ut åldern ur ett födelseår, och
+en som skriver ut leken.  Det är samma slags funktioner som i
+föreläsningen \emph{Funktioner}, så vi går inte igenom dem igen.
+
+\begin{frame}[fragile]
+  \begin{example}[Åldersleken]
+    \label{ex:alder}
+    Funktionerna ser ut så här:
+<<funktioner för åldersleken>>=
+THIS_YEAR = 2026
+
+
+def age(birthyear):
+    """Räknar ut hur gammal den som föddes birthyear är i år."""
+    return THIS_YEAR - birthyear
+
+
+def age_game(name, birthyear):
+    """Skriver ut lite skoj om ålder."""
+    print(f"Hej {name}!")
+    print(f"Du är {age(birthyear)} år gammal.")
+    print(f"Om tio år är du {age(birthyear) + 10} år.")
+@
+  \end{example}
+\end{frame}
+
+Och så använder vi dem.  Namnet och födelseåret står i koden, och sedan
+körs leken.
+
+\begin{frame}[fragile]
+  \begin{example}[Åldersleken, hela programmet]
+    Sist i filen står värdena och anropet:
+<<[[alder.py]]>>=
+<<funktioner för åldersleken>>
+
+
+name = "Daniel"
+birthyear = 1985
+
+age_game(name, birthyear)
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Vi kör det]
+    Vi skriver \mintinline{text}|python3 alder.py| i terminalen:
+    \runpython[transcript]{examples/alder.py}
+  \end{example}
+\end{frame}
+
+Programmet fungerar.  Men det gör samma sak varje gång: det hälsar på
+Daniel, född 1985, hur många gånger vi än kör det.  Vill vi köra leken
+för någon annan måste vi öppna filen och ändra i koden --- och då är det
+inte längre ett program vi kan ge bort.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ex:vad-maste-andras}
+    Du vill att programmet ska fungera för vem som helst som kör det,
+    utan att de öppnar filen och ändrar i koden.  Vad behöver programmet
+    kunna som det inte kan nu?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead}.
+
+  \foreignlanguage{english}{Try-first}: frågan i
+  \cref{ex:vad-maste-andras} ställs innan \mintinline{python}{input} har
+  nämnts, och den pekar inte ut vad som är kritiskt --- den säger bara
+  vad programmet ska klara.  Svaren visar om studenterna redan urskiljer
+  att ett program kan ta emot något \emph{under körningen}, eller om de
+  bara ser koden som en text som ändras mellan körningarna.
+
+  \cref{ex:alder} är medvetet ett program från förra veckan.  Vad som
+  varierar genom hela föreläsningen är hur programmet får sina värden
+  (skrivna i koden, inlästa, inlästa och omvandlade); vad som hålls
+  invariant är funktionerna och utskrifterna.  Att hålla programmet
+  invariant är vad som gör inmatningen urskiljbar
+  \parencite[45--47]{Marton2015}.
+}
+
+Det programmet behöver är ett sätt att \emph{fråga}: att stanna, vänta på
+att den som kör programmet skriver något, och sedan räkna vidare med det
+svaret.
+
+\section{Inmatning}
+\label{sec:inmatning}
+
+\subsection{Att läsa in text}
+
+I Python heter frågan \mintinline{python}{input}.  Den skriver ut en
+uppmaning, väntar tills användaren tryckt \textsc{retur}, och lämnar
+tillbaka det som skrevs.  Som all annan utmatning från en funktion måste
+vi ta hand om svaret --- vi lägger det i en variabel.
+
+\begin{frame}
+  \begin{center}
+    \mintinline[fontsize=\Large]{python}|variabel = input("Fråga: ")|
+  \end{center}
+\end{frame}
+
+Uppmaningen är frivillig.  Vi kan skriva ut frågan med
+\mintinline{python}{print} i stället och låta \mintinline{python}{input}
+bara vänta.  Skillnaden syns i terminalen: skickar vi med frågan till
+\mintinline{python}{input} hamnar markören på samma rad som frågan, och
+användaren skriver sitt svar direkt efter den.
+
+\begin{frame}[fragile]
+  \begin{example}[Frågan som argument]
+    Svaret skrivs på samma rad som frågan:
+    \begin{minted}{python}
+name = input("Vad heter du? ")
+print(f"Hej {name}!")
+    \end{minted}
+  \end{example}
+
+  \pause
+
+  \begin{example}[Frågan som egen utskrift]
+    Samma sak, men frågan skrivs ut för sig:
+    \begin{minted}{python}
+print("Vad heter du?")
+name = input()
+print(f"Hej {name}!")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Lägg märke till mellanslaget sist i \mintinline{text}|"Vad heter du? "|.
+Utan det klistras svaret fast i frågetecknet.  Det är en petitess, men
+det är den sortens petitess som avgör om ett program känns färdigt eller
+inte, och vi återkommer till den i \cref{sec:anvandarvanligt}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOPrompt}.
+
+  \textbf{Kontrast}: vad som varierar är var frågan skrivs ut --- som
+  argument till \mintinline{python}{input} eller som ett eget
+  \mintinline{python}{print}.  Vad som hålls invariant är programmet i
+  övrigt och det användaren ser sig göra.  Kontrasten ska urskilja att
+  uppmaningen är ett \emph{argument}, inte en del av inläsningen: det är
+  samma \mintinline{python}{input} i båda fallen.  Den lägger också
+  grunden för utformningsfrågan i \cref{sec:anvandarvanligt}, där
+  mellanslaget och radbrytningen blir det som varierar.
+}
+
+Var man slår upp vad en inbyggd funktion gör är värt att veta.  Pythons
+egen dokumentation listar dem alla, och \mintinline{python}{input} står
+där bland de andra.\footnote{\label{fn:builtins}%
+  \emph{Built-in Functions}, Python Documentation.
+  \url{https://docs.python.org/3/library/functions.html} (hämtad
+  2026-09-03).}
+
+\begin{frame}
+  \begin{figure}
+    \centering
+    \includegraphics[width=.95\linewidth,height=.72\textheight,%
+      keepaspectratio]{figs/docs-builtins.png}
+    \caption{De inbyggda funktionerna i Pythons dokumentation.}
+    \label{fig:docs-builtins}
+  \end{figure}
+\end{frame}
+
+\subsection{Vad är det vi får tillbaka?}
+
+Nu har vi ett sätt att fråga.  Innan vi bygger om åldersleken ska vi se
+efter vad frågan egentligen ger oss --- för det är här nästan alla går
+fel första gången.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:gissa-plus}
+    Programmet frågar efter en ålder och påstår sig vara ett år äldre.
+    Vad skrivs ut om användaren svarar \mintinline{text}|17|?
+<<[[alder-fel.py]]>>=
+age = input("Hur gammal är du? ")
+print(f"Då är jag ett år äldre, jag är {age + 1} år.")
+@
+  \end{exercise}
+\end{frame}
+
+Det skrivs inte ut något alls.  Programmet avbryts med ett felmeddelande:
+
+\begin{frame}[fragile]
+  \begin{example}[Vad som faktiskt händer]
+    Terminalen svarar så här:
+    \begin{minted}{text}
+$ python3 alder-fel.py
+Hur gammal är du? 17
+Traceback (most recent call last):
+  File "alder-fel.py", line 2, in <module>
+    print(f"Då är jag ett år äldre, jag är {age + 1} år.")
+                                            ~~~~^~~
+TypeError: can only concatenate str (not "int") to str
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Felmeddelandet säger vad som är fel: \mintinline{python}{age} är en
+\mintinline{python}{str}, en sträng, och en sträng går inte att lägga
+ihop med ett heltal.  Användaren skrev visserligen siffror --- men
+\mintinline{python}{input} bryr sig inte om \emph{vad} som skrevs.  Den
+lämnar alltid tillbaka en sträng.
+
+Att det här är ett av de vanligaste misstagen bland nybörjare är inte
+något vi hittat på --- hur påståendet kontrollerats mot forskningen står
+i \cref{app:missuppfattningar}, och hur man kontrollerar ett påstående i
+allmänhet i \cref{app:verifiera}.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[\texttt{input()}]
+      \begin{itemize}
+        \item Returnerar \emph{alltid} en sträng.
+        \item Även när användaren skriver siffror.
+        \item Vill vi ha ett tal måste vi omvandla själva.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[\texttt{input()}]
+      \mintinline{python}{input} returnerar alltid en sträng, även när
+      användaren skriver siffror.  Vill vi räkna med svaret måste vi
+      omvandla det själva.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOConvert}.
+
+  \foreignlanguage{english}{Try-first}: \cref{ex:gissa-plus} frågar efter
+  \emph{utskriften}, inte efter typen, så frågan pekar inte ut den
+  kritiska aspekten.  Den riktar sig mot en belagd missuppfattning: att
+  tal som läses in från terminalen automatiskt blir heltal
+  \parencite{GuoMarkelZhang2020}.  Samma sak står i
+  antimönsterkatalogen som \emph{missing type conversion}
+  \parencite{Bosse2021Antipatterns}.
+
+  Att svaret kommer som ett \emph{felmeddelande} och inte som ett konstigt
+  värde är avsiktligt utnyttjat: här kraschar programmet direkt, medan
+  samma missuppfattning i andra lägen ger tyst fel resultat
+  (att multiplicera en sträng med ett tal är ett giltigt uttryck).
+  Kraschen är
+  alltså den snällaste varianten, och den varianten kommer först.
+}
+
+Det som saknas är en \emph{typkonvertering}: en funktion som tar ett
+värde av en typ och ger tillbaka motsvarande värde av en annan.  Vi har
+sett dem tidigare i kursen; nu behöver vi dem.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Typkonvertering]
+      \begin{itemize}
+        \item \mintinline{python}{int(x)} ger heltalet
+        \item \mintinline{python}{float(x)} ger flyttalet
+        \item \mintinline{python}{str(x)} ger textsträngen
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Typkonvertering]
+      \mintinline{python}{int(x)} ger heltalet, \mintinline{python}{float(x)}
+      flyttalet och \mintinline{python}{str(x)} textsträngen som svarar mot
+      \mintinline{python}{x}.
+    \end{remark}%
+  }
+\end{frame}
+
+\subsection{Var hör omvandlingen hemma?}
+
+Med \mintinline{python}{int} kan vi rätta programmet.  Men det finns två
+ställen att sätta in den på, och de ger olika program.
+
+\begin{frame}[fragile]
+  \begin{example}[Omvandla vid användningen]
+    Här står strängen kvar i variabeln:
+    \begin{minted}[highlightlines=2]{python}
+age = input("Hur gammal är du? ")
+print(f"Då är jag ett år äldre, jag är {int(age) + 1} år.")
+    \end{minted}
+  \end{example}
+
+  \pause
+
+  \begin{example}[Omvandla vid inläsningen]
+    Här läggs talet i variabeln direkt:
+    \begin{minted}[highlightlines=1]{python}
+age = int(input("Hur gammal är du? "))
+print(f"Då är jag ett år äldre, jag är {age + 1} år.")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Båda skriver ut samma sak.  Skillnaden är vad som ligger i
+\mintinline{python}{age} efteråt: en sträng i det första fallet, ett tal
+i det andra.  Ska åldern användas mer än en gång vinner det andra ---
+annars måste vi skriva \mintinline{python}{int(age)} varje gång, och en
+dag glömmer vi det på ett ställe.  Att låta variabeln innehålla det den
+heter, en ålder och inte en textrad, är också det som gör resten av
+programmet lättare att läsa.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOConvert}.
+
+  \textbf{Kontrast}: vad som varierar är \emph{var} omvandlingen står ---
+  vid inläsningen eller vid användningen.  Vad som hålls invariant är
+  programmets utskrift, som är exakt densamma.  Kontrasten ska urskilja
+  att typkonverteringen är en operation på ett \emph{värde} och kan
+  placeras var som helst där värdet finns, och att valet av plats bestämmer
+  vad variabeln innehåller.  Eftersom utskriften är identisk kan
+  skillnaden inte upptäckas i utmatningen: det är just poängen, och det
+  är därför resonemanget om upprepning (varje användning måste omvandla)
+  får bära valet.
+
+  Argumentet \enquote{annars måste vi skriva \mintinline{python}{int(age)}
+  varje gång} är \foreignlanguage{english}{DRY} i miniatyr; principen
+  namnges i föreläsningen \emph{Algoritmiskt tänkande} och används här
+  utan att namnges om.
+}
+
+\section{Datatyper och operationer}
+\label{sec:datatyper}
+
+Missuppfattningen som fällde programmet var inte egentligen en
+missuppfattning om \mintinline{python}{input}.  Den var en
+missuppfattning om \emph{typer}: att det som ser ut som ett tal är ett
+tal.  Så låt oss titta närmare på vad typen egentligen bestämmer.
+
+\subsection{Samma tecken, olika typ}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:plus-tva-typer}
+    De två programmen skiljer sig på ett enda ställe.  Vad skriver de ut?
+<<[[strang-plus.py]]>>=
+x, y = "3", "4"
+print(x + y)
+<<[[tal-plus.py]]>>=
+x, y = 3, 4
+print(x + y)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Det första programmet skriver
+    \runpython[transcript]{examples/strang-plus.py}
+    och det andra
+    \runpython[transcript]{examples/tal-plus.py}
+  \end{example}
+\end{frame}
+
+Samma tecken på skärmen, samma operator, olika resultat.  För strängar
+betyder \mintinline{python}{+} \enquote{sätt ihop}, för tal betyder det
+\enquote{addera}.  Det är alltså inte operatorn som avgör vad som händer,
+utan \emph{typen} hos det den arbetar på --- och typen syns inte i
+tecknen.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOTypes}.
+
+  \textbf{Kontrast}: vad som varierar är operandernas typ; vad som hålls
+  invariant är deras utseende (\mintinline{python}{3} och
+  \mintinline{python}{4}), operatorn och programmets form.  Kontrasten
+  ska urskilja aspekten \emph{typ} som något skilt från värdets utseende.
+  Exemplet är hämtat ur den egna artikeln om missuppfattningar, där det
+  är det centrala kontrastparet för objektet \enquote{ett värdes typ är
+  oberoende av hur värdet ser ut}.
+
+  Kontrasten kommer före generaliseringen till andra operatorer nedan:
+  den som ännu inte urskilt att typen finns kan inte se den som gemensam
+  för flera operatorer \parencite[45--47]{Marton2015}.
+}
+
+Samma sak gäller de andra operatorerna.  Multiplikation mellan två tal är
+multiplikation; multiplikation mellan en sträng och ett tal upprepar
+strängen.  Och division finns i två varianter, som ger olika typ tillbaka.
+
+\begin{frame}[fragile]
+  \begin{example}[Heltalsdivision och vanlig division]
+    Programmet visar tre sätt att dela:
+<<[[heltalsdivision.py]]>>=
+def divide(a, b):
+    """Skriver ut de tre sätten att dela a med b."""
+    print(f"{a} / {b} == {a / b}")
+    print(f"{a} // {b} == {a // b}")
+    print(f"{a} % {b} == {a % b}")
+
+
+divide(7, 2)
+print()
+divide(10, 5)
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi det får vi
+    \runpython[transcript]{examples/heltalsdivision.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till \mintinline{python}{10 / 5}: svaret är
+\mintinline{python}{2.0}, inte \mintinline{python}{2}.  Operatorn
+\mintinline{python}{/} ger alltid ett flyttal, även när divisionen går
+jämnt ut, medan \mintinline{python}{//} ger heltalet och
+\mintinline{python}{%} resten.  Det är samma sak vi räknade i skolan som
+\enquote{7 delat med 2 är 3, rest 1}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOTypes}.
+
+  \textbf{Generalisering}: vad som hålls invariant är att typen styr
+  resultatet; vad som varierar är operatorn (\mintinline{python}{+},
+  \mintinline{python}{*}, \mintinline{python}{/} mot
+  \mintinline{python}{//}) och därmed också resultatets typ.  Att
+  \mintinline{python}{/} ger flyttal även vid jämn division är valt som
+  andra värde i dimensionen just för att det inte går att gissa ur
+  utseendet --- det andra anropet \mintinline{python}{divide(10, 5)}
+  finns bara för den kontrasten.  Nybörjares fel vid heltalsdivision och
+  typomvandling är belagda som bland de vanligaste
+  \parencite{Gobil2009Errors}.
+}
+
+\begin{frame}[fragile]
+  \begin{remark}[Operationer på tal]
+    De aritmetiska operatorerna är fem:
+    \begin{itemize}
+      \item \mintinline{python}|a + b|, \mintinline{python}|a - b| och
+        \mintinline{python}|a * b| som väntat,
+      \item \mintinline{python}|a / b| som alltid ger ett flyttal,
+      \item \mintinline{python}|a // b| som ger heltalsdivisionen och
+        \mintinline{python}|a % b| som ger resten,
+      \item \mintinline{python}|a ** b| som ger \(a^b\).
+    \end{itemize}
+  \end{remark}
+\end{frame}
+
+\subsection{Operationer och metoder på strängar}
+
+Strängar har sina egna operationer.  Två av dem känner vi igen till
+utseendet, och det är just därför de är värda att titta på.
+
+\begin{frame}[fragile]
+  \begin{example}[Vad man kan göra med en sträng]
+    Programmet gör fem saker med ett och samma ord:
+<<[[strangoperationer.py]]>>=
+word = "pannkaka"
+
+print(word + "smet")
+print(word * 2)
+print(word[0])
+print(word[0:4])
+print(len(word))
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Utskriften blir
+    \runpython[transcript]{examples/strangoperationer.py}
+  \end{example}
+\end{frame}
+
+Här står \mintinline{python}{+} för sammanslagning och
+\mintinline{python}{*} för upprepning, precis som vi såg.  De två
+sista är nya: \mintinline{python}{word[0]} ger ett enskilt tecken och
+\mintinline{python}{word[0:4]} en delsträng.  Räkningen börjar på noll,
+så \mintinline{python}{word[0]} är det \emph{första} tecknet.  Vi
+återkommer till indexering när vi kommer till listor; här räcker det att
+veta att den finns.
+
+Utöver operatorerna har en sträng \emph{metoder} --- funktioner som hör
+till strängen själv och skrivs efter en punkt.  Vi tar de tre vi snart
+får användning för.
+
+\begin{frame}[fragile]
+  \begin{example}[Tre användbara strängmetoder]
+    Vi låtsas att användaren har skrivit \mintinline{text}|17| med några
+    extra mellanslag:
+<<[[strangmetoder.py]]>>=
+answer = "  17  "
+
+print(answer.strip())
+print(answer.strip().isdigit())
+print("fem".isdigit())
+print("anna".capitalize())
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver
+    \runpython[transcript]{examples/strangmetoder.py}
+  \end{example}
+\end{frame}
+
+Metoden \mintinline{python}{strip} klipper bort mellanslag i början och
+slutet, \mintinline{python}{capitalize} gör första bokstaven stor, och
+\mintinline{python}{isdigit} svarar på en fråga: består strängen bara av
+siffror?  Svaret \mintinline{python}{True} eller
+\mintinline{python}{False} är ett värde av ännu en datatyp, den
+\emph{booleska}, och den är hela nästa föreläsnings ämne.  Att vi kan
+\emph{fråga} en sträng om den ser ut som ett tal är det som gör att
+programmet kan låta bli att omvandla det som inte går att omvandla.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOTypes,InputLOConvert}.
+
+  Metoderna presenteras inte som en katalog utan som tre verktyg med ett
+  syfte: att granska det användaren skrev.  \mintinline{python}{isdigit}
+  är den som bär mest --- den återkommer i nästa föreläsning som villkoret
+  i den slinga som frågar om igen tills svaret går att använda --- och
+  den introducerar den booleska typen \emph{i ett sammanhang} i stället
+  för som en definition utan användning.
+
+  Den tidigare versionen av materialet listade ett tiotal strängmetoder på
+  en bild.  Listan är borttagen: ingen av dem användes någonstans, och en
+  uppräkning utan variation ger inget att urskilja.  Referensen finns i
+  dokumentationen (\cref{fn:builtins}), som är där man ska leta ändå.
+}
+
+\section{Vårt program igen}
+\label{sec:vart-program}
+
+Nu har vi allt vi behöver för att göra åldersleken interaktiv.
+Funktionerna är oförändrade --- det är bara de tre sista raderna som ska
+bytas ut.
+
+\begin{frame}[fragile]
+  Programmet blir alltså funktionerna från förut, följt av frågorna och
+  anropet:
+<<[[alder-input.py]]>>=
+<<funktioner för åldersleken>>
+
+
+<<fråga efter namn och födelseår>>
+age_game(name, birthyear)
+@
+  \pause
+
+  Namnet får vi som det är; födelseåret ska räknas med, så det omvandlas
+  vid inläsningen:
+<<fråga efter namn och födelseår>>=
+name = input("Vad heter du? ")
+birthyear = int(input(f"Hej {name}, vilket år föddes du? "))
+@
+\end{frame}
+
+Sätter vi ihop bitarna och kör programmet får vi en riktig dialog: två
+frågor, två svar, och en uträkning som beror på svaren.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i drift]
+    Vi svarar \enquote{Daniel} och \enquote{1985}:
+    \runpython[transcript, stdin={Daniel}, stdin={1985}]%
+      {examples/alder-input.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{InputLORead,InputLOConvert,InputLOPrompt}.
+
+  \textbf{Fusion}: här används inläsning, typkonvertering och
+  utformningen av frågan samtidigt, i det program som föreläsningen
+  startade i.  Kontrasten mot \cref{ex:alder} är fullständig: samma
+  funktioner, samma utskrifter, bara källan till värdena är en annan.
+
+  Utmatningen körs med didactic-paketets
+  \mintinline{latex}{\runpython[transcript, stdin={...}]}, som kör den
+  tanglade filen under en pseudoterminal och svarar på frågorna.  Koden
+  på bilden och dialogen under den kommer därför ur samma källa och kan
+  inte glida isär.
+}
+
+\subsection{Att fråga så att någon förstår}
+\label{sec:anvandarvanligt}
+
+Ett interaktivt program har en användare, och användaren ser bara det
+programmet skriver ut.  Två program kan räkna exakt likadant och ändå
+vara olika lätta att använda.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad är fel med de här frågorna, som program betraktade?  Programmet
+    fungerar --- det är användaren som inte gör det.
+    \begin{minted}{python}
+x = input("x:")
+y = input("y")
+print(f"{x} {y}")
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+Frågorna säger inte vad de vill ha.  \mintinline{text}|"x:"| talar om att
+programmet vill ha något, men inte vad, inte i vilken enhet och inte i
+vilken form; den andra frågan saknar dessutom både kolon och mellanslag,
+så svaret klistras fast i frågan.  Och utskriften till sist säger inte
+vad de två värdena var.  Vi kan rätta allt tre med bara text.
+
+\begin{frame}[fragile]
+  \begin{example}[Samma program, begripligt]
+    Frågorna säger vad de vill ha, och svaret säger vad det svarar på:
+    \begin{minted}{python}
+length = input("Hur lång är du (cm)? ")
+weight = input("Hur mycket väger du (kg)? ")
+print(f"Du är {length} cm lång och väger {weight} kg.")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Tre regler räcker långt.  Fråga efter en sak i taget.  Skriv ut enheten i
+frågan, inte i huvudet.  Och upprepa i svaret vad frågan gällde, så att
+den som läser utskriften vet vad talet betyder.  Lägg märke till vad
+rättelsen kostade: ingenting annat än text --- ingen ny konstruktion,
+ingen extra rad kod.  Det är i den andan principen
+\foreignlanguage{english}{KISS}
+(\foreignlanguage{english}{Keep It Simple, Stupid}) ska läsas, den som
+fick namn i föreläsningen \emph{Funktioner}: den billigaste lösning som
+duger är oftast den rätta.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOPrompt}.
+
+  \textbf{Kontrast}: vad som varierar är enbart texten i frågorna och i
+  utskriften; vad som hålls invariant är att programmet läser två värden
+  och skriver ut dem.  Kontrasten ska urskilja att användbarheten sitter
+  i utformningen och inte i beräkningen --- de två programmen räknar
+  identiskt.  Övningen ställs före rättelsen så att studenterna själva
+  får namnge felen; att be dem \enquote{granska ett program} är dessutom
+  ett av kursens lärandemål i sig (Lo11).
+
+  % TODO(orchestrator): när föreläsningen \emph{Funktioner} har lagt in
+  % sina KISS-poster i ltnotes.bib, ersätt hänvisningen ovan med
+  % \parencite{kissOrigin} här och lägg motsvarande post i ltnotes.bib.
+  \foreignlanguage{english}{KISS} namnges här men beläggs inte om: både
+  ursprunget och att det är etablerad praxis är belagt i föreläsningen
+  \emph{Funktioner} (modulen \emph{Funktioner och variabler}).
+}
+
+\subsection{Och om användaren inte svarar som vi tänkt?}
+
+Programmet är interaktivt, begripligt --- och skört.  Svarar användaren
+\mintinline{text}|fem| i stället för \mintinline{text}|5| kraschar
+\mintinline{python}{int} med ett \mintinline{python}{ValueError}, precis
+som \mintinline{python}{age + 1} gjorde nyss.
+
+\begin{frame}[fragile]
+  \begin{example}[Det som inte går att omvandla]
+    Så här ser det ut när användaren skriver bokstäver:
+    \begin{minted}{text}
+>>> int("fem")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid literal for int() with base 10: 'fem'
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Att ta hand om sådant --- att fånga felet i stället för att krascha ---
+är vad \mintinline{python}{try} och \mintinline{python}{except} är till
+för, och det är ämnet för modulen om \emph{felhantering}.  Vi kommer
+också att se ett annat sätt att komma runt problemet i nästa
+föreläsning: att först \emph{fråga} strängen om den ser ut som ett tal,
+med \mintinline{python}{isdigit}, och fråga om igen om den inte gör det.
+
+\ltnote{%
+  Den här delen är avsiktligt bara en hänvisning.  Särfall och
+  \mintinline{python}{try}/\mintinline{python}{except} hör till modulen om
+  felhantering; att ta upp dem här skulle betyda att två konstruktioner
+  varierar samtidigt --- inläsningen och undantagshanteringen --- och
+  ingen av dem skulle bli urskiljbar.  Hänvisningen finns ändå med
+  eftersom studenterna \emph{möter} kraschen så snart de kör sina egna
+  program, och en obesvarad krasch är inte en produktiv sådan.
+}
