@@ -1,0 +1,869 @@
+\mode*
+
+\section{När programmet går sönder}
+\label{sec:krasch}
+
+Förra veckans program räknade alltid rätt, av ett skäl vi inte tänkte på:
+vi bestämde själva vad de skulle räkna på.  Nu när användaren matar in
+värdena har vi tappat den kontrollen.  Användaren skriver vad hon vill,
+och en del av det hon kan skriva går helt enkelt inte att räkna med.
+Frågan i det här kapitlet är vad programmet ska göra då.
+
+Vi utgår från ett litet program som frågar efter ett födelseår och
+räknar ut åldern.  Det är samma slags program som i inmatningsavsnittet,
+nedbantat till det som är intressant här.
+
+\begin{frame}[fragile]
+  Programmet frågar, räknar och hälsar:
+<<[[age.py]]>>=
+THIS_YEAR = 2026
+
+birthyear = int(input("Vilket år är du född? "))
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+print("Trevligt att träffas!")
+@
+\end{frame}
+
+Kör vi programmet och svarar med ett årtal fungerar allt som väntat.
+
+\begin{frame}[fragile]
+  \begin{example}[En körning som går bra]
+    \label{ex:age-ok}
+    Vi svarar \enquote{1994} på frågan:
+    \runpython[transcript, stdin={1994}]{examples/age.py}
+  \end{example}
+\end{frame}
+
+Men användaren vet inte att vi vill ha siffror.  Hon kan lika gärna
+skriva årtalet med bokstäver --- och det är ett fullt rimligt svar på
+frågan \enquote{vilket år är du född?}.  Innan ni läser vidare: vad tror
+ni händer?
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:krasch}
+    Vad skriver programmet ut om användaren svarar
+    \enquote{nittiofyra} i stället för \enquote{1994}?  Skriv ner
+    både vad ni tror att programmet skriver ut och i vilken ordning.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan svaret visas,
+  och den pekar avsiktligt \emph{inte} ut vilken aspekt som är den
+  kritiska.  Den ber om två saker --- vad som skrivs ut och i vilken
+  ordning --- eftersom det är ordningen som avslöjar om studenten tror
+  att programmet fortsätter efteråt.  Den som svarar \enquote{ett
+  felmeddelande, och sedan Trevligt att träffas} har just den
+  föreställning som resten av avsnittet ska bryta.  Att låta bli att
+  fråga \enquote{fortsätter programmet?} är avsiktligt: den frågan
+  skulle ge bort svaret \parencite[13]{Marton2015}.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma program, ett annat svar]
+    \label{ex:age-krasch}
+    Nu svarar vi \enquote{nittiofyra}:
+    \runpython[transcript, stdin={nittiofyra}]{examples/age.py}
+  \end{example}
+\end{frame}
+
+Jämför de två körningarna.  Programmet är detsamma, raderna är desamma
+och de körs i samma ordning.  Det enda som skiljer är vad användaren
+skrev --- och ändå slutar de två körningarna på helt olika sätt.  Två
+saker är värda att lägga märke till.
+
+Det första är att programmet \emph{avbröts}.  Hälsningen \enquote{Trevligt
+att träffas!} står på sista raden och skrevs aldrig ut, trots att den
+inte har någonting med årtalet att göra.  När något går fel fortsätter
+alltså inte programmet till nästa rad: det slutar där och då.  Det andra
+är att programmet inte tystnade.  Det skrev ut något --- och det som står
+där är inte ett gnäll utan en beskrivning.  Vi återkommer till den i
+\cref{sec:felmeddelande}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Användarens inmatning
+  (\enquote{1994} respektive \enquote{nittiofyra}).
+
+  \textbf{Vad som hålls invariant}: Programmet, dess rader och deras
+  ordning.
+
+  Kontrasten ska urskilja aspekten \emph{avbrott}: att körningen slutar
+  mitt i, inte att den skriver något annat.  Därför har programmet en
+  sista rad som är oberoende av årtalet --- utan den skulle utebliven
+  utmatning kunna förklaras med att beräkningen misslyckades, och
+  avbrottet skulle inte gå att urskilja.  De två körningarna står i två
+  \foreignlanguage{english}{frames} efter varandra så att de kan jämföras
+  utan att den första behöver återskapas ur minnet
+  \parencite[45--47]{Marton2015}.
+
+  Båda körningarna typsätts med didactic-paketets
+  \mintinline{latex}{\runpython[transcript, stdin={...}]}, som kör den
+  tanglade \texttt{examples/age.py} under en pseudoterminal och fångar
+  både utskrifter och felutskrifter.  Felmeddelandet i materialet är
+  alltså producerat av programmet självt och kan inte glida isär från
+  koden.
+}
+
+Det som hände har ett namn.  När Python stöter på något som gör att en
+instruktion inte går att utföra --- att omvandla \enquote{nittiofyra} till
+ett heltal, att dividera med noll, att använda ett namn som inte finns
+--- så \emph{uppstår ett särfall}.
+
+\begin{frame}
+  \begin{definition}[Särfall]
+    \label{def:sarfall}
+    Ett \emph{särfall}
+    (\foreignlanguage{english}{exception}) är en situation där en
+    instruktion inte går att utföra.  När ett särfall uppstår avbryts
+    körningen på den raden.  Tas särfallet inte om hand avbryts hela
+    programmet, och de rader som skulle ha kommit efter körs aldrig.
+  \end{definition}
+\end{frame}
+
+Ordet är väl valt: det är inte fel på datorn, och oftast inte heller på
+programmet.  Det är ett \emph{fall} som instruktionen inte täcker.  Att
+omvandla en sträng till ett heltal är en fullt begriplig sak att be om,
+så länge strängen består av siffror; \enquote{nittiofyra} är det särfall
+där begäran inte går att uppfylla.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException}.
+
+  Definitionen kommer \emph{efter} de två körningarna, inte före: det är
+  kontrasten som gör avbrottet urskiljbart, och en definition som ges
+  innan variationen upplevts har inget att fästa i.
+
+  Stycket efter definitionen är riktat mot en tolkning som är lätt att
+  hamna i när ett program plötsligt slutar med en röd textmassa --- att
+  något är trasigt --- och som gör felmeddelandet till något att blunda
+  för i stället för att läsa.  Vi har inte hittat den föreställningen
+  belagd som en katalogiserad missuppfattning i litteraturen (se
+  \cref{app:nyborjare}), så materialet påstår ingenting om hur vanlig
+  den är; ordvalet \enquote{särfall} och stycket om det är ett
+  designval, inte ett forskningsresultat.
+}
+
+\section{Att läsa ett felmeddelande}
+\label{sec:felmeddelande}
+
+Felutskriften ovan är det enda programmet säger om vad som gick fel, och
+den säger faktiskt allt vi behöver.  Men den ser avskräckande ut, och det
+är lätt att avfärda den som obegriplig.  Att felmeddelanden är svåra för
+nybörjare är väl belagt: de utgör \enquote{a major impediment to novice
+student learning}\autocite{Prather2017CEM}.  Därför ägnar vi ett helt
+avsnitt åt att läsa dem.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:lasa}
+    Titta på felutskriften i \cref{ex:age-krasch} en gång till.  Vilka
+    olika saker står det i den?  Försök dela upp den i delar och sätt
+    ord på vad varje del berättar.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOTraceback}.
+
+  \foreignlanguage{english}{Try-first}: uppgiften säger inte att
+  utskriften har tre delar, och räknar inte upp dem.  Den ber
+  studenterna att själva urskilja strukturen i något de redan har
+  framför sig.  Svaren visar vilka som redan läser felmeddelanden och
+  vilka som ser dem som en enda odelbar textmassa; de senare behöver
+  generaliseringen i \cref{ex:tre-fel} innan de kan använda
+  meddelandet till något.
+}
+
+Felutskriften kallas \foreignlanguage{english}{traceback}, och den svarar
+på tre frågor.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Vad en traceback säger]
+      \begin{description}
+        \item[Var] vilken fil och vilken rad som inte gick att utföra.
+        \item[Vilken sorts fel] namnet före kolon, till exempel
+          \mintinline{python}{ValueError}.
+        \item[Vad som var fel] beskrivningen efter kolon.
+      \end{description}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Vad en traceback säger]
+      Överst står \emph{var} felet uppstod: vilken fil och vilken rad
+      som inte gick att utföra, med raden själv utskriven.  Nederst står
+      \emph{vilken sorts fel} det var --- namnet före kolonet, till
+      exempel \mintinline{python}{ValueError} --- och efter kolonet
+      \emph{vad} som var fel, i klartext.
+    \end{remark}%
+  }
+\end{frame}
+
+Läser vi utskriften i \cref{ex:age-krasch} med de tre frågorna i handen
+säger den: på rad 3 i \texttt{age.py}, i anropet
+\mintinline{python}{int(input(...))}, uppstod ett
+\mintinline{python}{ValueError}, därför att \enquote{nittiofyra} inte är
+något \mintinline{python}{int} kan tolka som ett tal i bas 10.  Det är
+inte en klagan.  Det är en ganska exakt felanmälan, och den pekar ut
+precis den rad vi ska titta på.
+
+Att det alltid ser ut så är lättare att se om vi tittar på flera fel
+bredvid varandra.
+
+\begin{frame}[fragile]
+  \begin{example}[Tre olika fel]
+    \label{ex:tre-fel}
+    Tre helt olika misstag, i tur och ordning:
+    \begin{minted}{text}
+>>> int("a")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ValueError: invalid literal for int() with base 10: 'a'
+>>> 5 / 0
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+ZeroDivisionError: division by zero
+>>> prynt(3)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'prynt' is not defined
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Formen är identisk i alla tre.  Det som skiljer dem åt är bara namnet på
+raden längst ner och texten efter kolonet: \mintinline{python}{ValueError}
+när ett värde har fel innehåll, \mintinline{python}{ZeroDivisionError} när
+vi delar med noll, \mintinline{python}{NameError} när vi använt ett namn
+som inte finns --- där är det för övrigt inte användaren som gjort fel
+utan programmeraren, som stavat \mintinline{python}{print} fel.  Namnet
+är alltså inte bara en etikett: det säger vilken \emph{sorts} fel det
+var, och det ska vi snart använda.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOTraceback}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: Vilket fel som uppstår, och därmed namnet
+  och beskrivningen.
+
+  \textbf{Vad som hålls invariant}: Tracebackens form --- tre rader,
+  samma ordning, samma platser för var, vilken sort och vad.
+
+  De tre exemplen fanns i den tidigare versionen av materialet som tre
+  separata bilder utan text emellan.  De står nu i \emph{ett} exempel,
+  eftersom generaliseringen kräver att de upplevs samtidigt: formen kan
+  bara urskiljas som gemensam om instanserna är juxtaponerade
+  \parencite[46]{Marton2015}.  Ordningen kontrast före generalisering är
+  medveten --- \cref{ex:age-ok,ex:age-krasch} urskiljer först
+  \emph{att} ett fel avbryter, sedan generaliserar
+  \cref{ex:tre-fel} \emph{formen} hos beskedet.
+
+  \mintinline{python}{NameError}-exemplet är valt för att felet där
+  ligger hos programmeraren och inte hos användaren.  Det behövs som
+  förberedelse: kontrasten i \cref{sec:flera} bygger på att ett
+  allmänt \mintinline{python}{except} sväljer just ett sådant fel och
+  skyller det på användaren.
+}
+
+\section{Att fånga ett särfall}
+\label{sec:fanga}
+
+Att programmet avbryts är inte alltid orimligt --- ett program som inte
+kan göra sitt jobb ska inte låtsas att det kan.  Men tracebacken är
+skriven för den som skrivit programmet, inte för den som använder det.
+Användaren som skrev \enquote{nittiofyra} har inte gjort något brottsligt;
+hon har missförstått frågan, och det enda hon behöver är att få veta det.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:fanga}
+    Ni ska ändra programmet så att användaren som svarar
+    \enquote{nittiofyra} får veta vad hon ska göra i stället, utan
+    traceback.  Vad behöver programmet kunna göra som det inte kan i
+    dag?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,ExcLOMessage}.
+
+  \foreignlanguage{english}{Try-first} av designtyp: frågan ber om vad
+  som \emph{saknas}, inte om syntax.  Poängen är att studenterna själva
+  ska formulera behovet av att fortsätta köra efter ett fel, eftersom
+  det är den egenskap \mintinline{python}{try} har och en
+  \mintinline{python}{if}-sats inte har.  Många kommer att föreslå en
+  kontroll före omvandlingen (\enquote{kolla om det är siffror}); det
+  svaret är värdefullt att få upp, eftersom det leder rakt in i
+  \cref{rem:try-vs-if}.
+}
+
+Python har en konstruktion för just det.  Vi märker ut de instruktioner
+som kan gå fel med \mintinline{python}{try}, och säger med
+\mintinline{python}{except} vad som ska hända om de gör det.
+
+\begin{frame}[fragile]
+  Vi lägger de riskabla raderna i ett \mintinline{python}{try}-block och
+  ger \mintinline{python}{ValueError} ett eget svar:
+<<[[age-try.py]]>>=
+THIS_YEAR = 2026
+
+try:
+    birthyear = int(input("Vilket år är du född? "))
+    print(f"Då är du {THIS_YEAR - birthyear} år.")
+except ValueError:
+    print("Årtalet måste skrivas med siffror, till exempel 1994.")
+print("Trevligt att träffas!")
+@
+\end{frame}
+
+Innan vi kör det: lägg märke till att \mintinline{python}{try}-blocket
+innehåller \emph{två} rader, och att felet uppstår på den första av dem.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:hoppas-over}
+    Användaren svarar \enquote{nittiofyra}.  Vilka av programmets
+    utskrifter kommer, och i vilken ordning?  Tänk särskilt på raden
+    \mintinline{python}{print(f"Då är du ...")} inuti
+    \mintinline{python}{try}-blocket.
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Med \mintinline{python}{try} och
+    \mintinline{python}{except}]
+    \label{ex:age-try}
+    Samma svar som förut, \enquote{nittiofyra}:
+    \runpython[transcript, stdin={nittiofyra}]{examples/age-try.py}
+  \end{example}
+\end{frame}
+
+Tre saker hände, och alla tre är värda att stanna vid.  Åldersutskriften
+inuti \mintinline{python}{try}-blocket kom \emph{inte}: när felet uppstod
+på raden före hoppade Python direkt till
+\mintinline{python}{except}-blocket och lämnade resten av
+\mintinline{python}{try}-blocket okört.  I stället kom vårt eget
+meddelande.  Och därefter kom hälsningen \enquote{Trevligt att träffas!},
+som ligger utanför blocket --- programmet kraschade alltså inte, det
+fortsatte.
+
+\begin{frame}
+  \begin{remark}[\mintinline{python}{try} tar inte bort felet]
+    \label{rem:try-vs-if}
+    Felet uppstår precis som förut.  Det
+    \mintinline{python}{try} gör är att ge oss ett ställe att ta emot
+    det på, i stället för att programmet avbryts.  Resten av
+    \mintinline{python}{try}-blocket körs \emph{inte}: körningen hoppar
+    till \mintinline{python}{except} och fortsätter därifrån.
+  \end{remark}
+\end{frame}
+
+Det är just den här punkten som brukar sitta löst.  I en studie av
+studenter som gått en hel programmeringsutbildning fann Rashkovits och
+Lavy att många \enquote{had not assimilated the fact that once an
+exception is thrown, the program jumps to the closest catch clause that
+is appropriate for the exception and continues from there}, och att de
+därför \enquote{could not cope properly with try-catch blocks containing
+more than one command}\autocite[343]{RashkovitsLavy2012}.  Deras studier
+gällde Java, så resultatet överförs med viss försiktighet till Python;
+mekanismen är dock densamma, och hur vi kontrollerat påståendet står i
+\cref{app:nyborjare}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Om de riskabla raderna står i ett
+  \mintinline{python}{try}-block eller inte.
+
+  \textbf{Vad som hålls invariant}: Programmets uppgift, användarens
+  svar (\enquote{nittiofyra}) och den sista hälsningsraden.
+
+  Kontrasten mot \cref{ex:age-krasch} ska urskilja aspekten
+  \emph{fångat kontra ofångat}.  Att svaret och sista raden hålls
+  identiska är det som gör att skillnaden går att tillskriva
+  \mintinline{python}{try} och ingenting annat.
+
+  \mintinline{python}{try}-blocket har medvetet \emph{två} rader, med
+  felet på den första.  Ett enradigt block hade gjort exemplet enklare
+  men hade gjort den kritiska aspekten --- att resten av blocket hoppas
+  över --- osynlig, eftersom det inte hade funnits någon rest.
+  \Cref{ovn:hoppas-over} ställs före körningen just för att den frågan
+  ska hinna bli en förutsägelse.  Detta är den aspekt Rashkovits och
+  Lavys studenter oftast fallerade på \parencite[343]{RashkovitsLavy2012}.
+}
+
+\section{Flera sorters fel}
+\label{sec:flera}
+
+Hittills har bara en sorts fel kunnat uppstå.  Så snart programmet gör
+mer än en sak blir det flera.  Vi utökar exemplet: nu räknar vi ut en
+medelålder, och frågar därför om två tal.
+
+\begin{frame}[fragile]
+  Programmet läser två tal och dividerar:
+<<[[average.py]]>>=
+try:
+    <<räkna ut medelåldern>>
+<<ta hand om felen, ett i taget>>
+@
+\end{frame}
+
+Själva räknandet är tre rader: fråga, fråga, dividera och skriv ut.
+
+\begin{frame}[fragile]
+  De riskabla raderna är de som omvandlar och dividerar:
+<<räkna ut medelåldern>>=
+total = int(input("Hur många år är ni tillsammans? "))
+people = int(input("Hur många är ni? "))
+print(f"Medelåldern är {total / people:.1f} år.")
+@
+\end{frame}
+
+Nu kan två olika saker gå fel, och de kräver olika svar.  Skriver
+användaren bokstäver blir det ett \mintinline{python}{ValueError} som
+förut.  Svarar hon att de är noll personer blir det ett
+\mintinline{python}{ZeroDivisionError}.  Att be henne \enquote{svara med
+siffror} vore i det andra fallet både obegripligt och osant --- hon
+\emph{gjorde} det.  Alltså ger vi varje sorts fel sitt eget
+\mintinline{python}{except}.
+
+\begin{frame}[fragile]
+  Varje sorts fel får ett eget svar, och sist ett skyddsnät:
+<<ta hand om felen, ett i taget>>=
+except ValueError:
+    print("Svara med siffror, till exempel 84.")
+except ZeroDivisionError:
+    print("Ni måste vara minst en person.")
+except Exception as err:
+    print(f"Något oväntat gick fel: {err}")
+@
+\end{frame}
+
+Python provar \mintinline{python}{except}-grenarna uppifrån och ner och
+tar den första som passar.  Eftersom \mintinline{python}{Exception} är
+det allmänna namnet --- det passar på i stort sett allt --- måste den
+grenen stå \emph{sist}.  Står den först tar den allt, och de två
+grenarna under den skulle aldrig köras.
+
+\begin{frame}[fragile]
+  \begin{example}[Två personer, noll av dem]
+    \label{ex:average}
+    Vi svarar \enquote{84} och sedan \enquote{0}:
+    \runpython[transcript, stdin={84}, stdin={0}]{examples/average.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,ExcLOMessage}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: Vilket särfall som uppstår, och därmed
+  vilken gren som körs.
+
+  \textbf{Vad som hålls invariant}: Konstruktionen
+  \mintinline{python}{try}/\mintinline{python}{except} och programmets
+  uppgift.
+
+  Exemplet byter uppgift (medelålder i stället för ålder) men stannar
+  inom samma område, så att bytet inte i sig blir en dimension som
+  varierar.  Skälet till bytet är att två \emph{olika} särfall behövs
+  för att grenordningen ska bli en fråga över huvud taget, och
+  åldersprogrammet har bara ett.
+
+  Programmet är dekomponerat i tre chunkar snarare än visat i ett
+  stycke, eftersom \mintinline{python}{try}-delen och grenarna hör till
+  två olika resonemang --- vad som kan gå fel respektive vad vi svarar
+  --- och prosan mellan dem behöver plats.
+}
+
+Skyddsnätet sist är bekvämt, och det är också farligt.  Vad händer om vi
+tar bort de specifika grenarna och bara behåller det allmänna?
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:catchall}
+    Ett program fångar alla särfall med en enda gren,
+    \mintinline{python}{except Exception}.  Användaren svarar helt
+    korrekt på frågan.  Kan programmet ändå påstå att hon svarat fel?
+    Hur i så fall?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  I det här programmet står det \mintinline{python}{THIS_YAER} på en
+  rad där det borde ha stått \mintinline{python}{THIS_YEAR}:
+<<[[age-catchall.py]]>>=
+THIS_YEAR = 2026
+
+try:
+    birthyear = int(input("Vilket år är du född? "))
+    print(f"Då är du {THIS_YAER - birthyear} år.")
+except Exception as err:
+    print(f"Årtalet måste skrivas med siffror: {err}")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett korrekt svar som får skulden]
+    \label{ex:catchall}
+    Användaren svarar \enquote{1994}, alltså precis rätt:
+    \runpython[transcript, stdin={1994}]{examples/age-catchall.py}
+  \end{example}
+\end{frame}
+
+Användaren gjorde ingenting fel.  Felet är vårt stavfel, ett
+\mintinline{python}{NameError} av samma slag som
+\mintinline{python}{prynt} i \cref{ex:tre-fel} --- men eftersom
+\mintinline{python}{except Exception} fångar allt hamnade det i grenen
+som var skriven för användarens misstag, och programmet anklagade henne
+för något hon inte gjort.  Värre: utan traceback får \emph{vi} heller
+aldrig veta att stavfelet finns.  Ett allmänt
+\mintinline{python}{except} döljer alltså inte bara felet för
+användaren utan också för den som ska laga det.
+
+Det är ingen liten sak, och den är väl känd.  Ett alltför allmänt
+\foreignlanguage{english}{catch}-block är \enquote{a well-known bad smell
+in programs that use exceptions}\autocite[83]{EbertCastor2015} --- alltså
+en känd dålig vana, inte en smaksak.  Att den är lätt att falla i syns
+också hos studenter: Rashkovits och Lavy fann att av 56 studenter använde
+23 ingen felhantering alls, medan 25 använde den illa, det vill säga
+\enquote{used only Exception class or did not use hierarchy of
+exceptions}\autocite[183]{RashkovitsLavy2011}.
+
+Samtidigt ska påståendet inte dras för långt.  Samma studie som kallar
+det en känd dålig vana fann också att de \emph{buggar} som faktiskt
+uppstår ur alltför allmänna \foreignlanguage{english}{catch}-block är
+ovanliga, \enquote{even though there are many opportunities for them to
+occur}\autocite[83]{EbertCastor2015}, och att erfarna utvecklare ibland
+fångar allt med flit när de vet att felet inte kan inträffa.  Regeln är
+alltså inte \enquote{aldrig}, utan: fånga det ni vet hur ni ska svara på,
+och låt resten synas.  \Cref{app:catchall} beskriver hur vi kontrollerat
+det.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Fånga det ni kan svara på]
+      \begin{itemize}
+        \item Ett \mintinline{python}{except} per sorts fel ni vet hur
+          ni ska bemöta.
+        \item De specifika först, det allmänna sist eller inte alls.
+        \item Ett fel ni inte väntade er är information --- göm det
+          inte.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Fånga det ni kan svara på]
+      Skriv ett \mintinline{python}{except} för varje sorts fel ni vet
+      hur ni ska bemöta, med de specifika först och det allmänna sist
+      eller inte alls.  Ett fel ni inte väntade er är information om
+      programmet --- göm det inte.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,ExcLOMessage}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Hur specifik
+  \mintinline{python}{except}-grenen är.
+
+  \textbf{Vad som hålls invariant}: Programmets uppgift och det
+  \emph{korrekta} svaret \enquote{1994}.
+
+  Att användarens svar hålls korrekt är hela poängen med exemplet.  Ett
+  felaktigt svar hade gjort utfallet tvetydigt --- meddelandet hade ju
+  varit sant --- och den kritiska aspekten, att grenen fångar fel den
+  inte var skriven för, hade inte gått att urskilja.  Stavfelet
+  \mintinline{python}{THIS_YAER} är valt framför ett påhittat undantag
+  därför att det är en realistisk nybörjarbugg och därför att
+  \mintinline{python}{NameError} redan är bekant från
+  \cref{ex:tre-fel}.
+
+  \Cref{ovn:catchall} ställs före exemplet och formuleras som en
+  möjlighetsfråga (\enquote{kan programmet ändå?}) i stället för att
+  avslöja mekanismen.  Att materialet kan visa exakt det utfall som
+  påstås --- och inte bara påstå det --- beror på att utmatningen körs
+  av didactic och kommer ur samma källa som koden.
+}
+
+\section{Ett begripligt meddelande}
+\label{sec:begripligt}
+
+Att fånga särfallet är halva arbetet.  Den andra halvan är vad
+programmet säger sedan, och där är det lätt att stanna för tidigt.  Det
+enklaste är att skriva ut felet som det är: \mintinline{python}{print(err)}.
+Jämför de två meddelandena.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{example}[Två svar på samma fel]
+      \label{ex:tva-meddelanden}
+      \begin{description}
+        \item[Felet självt] \enquote{invalid literal for int() with
+          base 10: 'nittiofyra'}
+        \item[Vårt meddelande] \enquote{Årtalet måste skrivas med
+          siffror, till exempel 1994.}
+      \end{description}
+    \end{example}%
+  }%
+  \only<article>{%
+    \begin{example}[Två svar på samma fel]
+      \label{ex:tva-meddelanden}
+      Felet självt säger \enquote{invalid literal for int() with base
+      10: 'nittiofyra'}.  Vårt eget meddelande säger \enquote{Årtalet
+      måste skrivas med siffror, till exempel 1994.}
+    \end{example}%
+  }
+\end{frame}
+
+Det första är sant, men det är skrivet till en programmerare: det är på
+engelska, det nämner \mintinline{python}{int} och bas 10, som användaren
+aldrig har hört talas om, och det säger ingenting om vad hon ska göra.
+Det andra namnger vad programmet ville ha, i användarens ord, och visar
+ett exempel.  Skillnaden är inte artighet utan användbarhet --- det
+andra meddelandet går att agera på.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Ett meddelande användaren kan använda]
+      \begin{itemize}
+        \item Säg vad programmet ville ha, inte vilken funktion som
+          klagade.
+        \item Skriv det på användarens språk.
+        \item Ge ett exempel på ett svar som fungerar.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Ett meddelande användaren kan använda]
+      Ett användbart felmeddelande säger vad programmet ville ha ---
+      inte vilken funktion som klagade --- på användarens språk, och
+      gärna med ett exempel på ett svar som fungerar.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOMessage}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Vem meddelandet är skrivet för.
+
+  \textbf{Vad som hålls invariant}: Felet, programmet och tillfället.
+
+  Aspekten som ska urskiljas är \emph{mottagaren}.  De två meddelandena
+  står bredvid varandra i ett och samma exempel eftersom skillnaden
+  annars måste återskapas ur minnet.  Avsnittet bär veckomålet om
+  begripliga utskrifter även när något går fel, och är därför det enda i
+  kapitlet som inte handlar om mekanik alls.
+
+  \mintinline{python}{print(err)} har medvetet fått vara kvar som
+  skyddsnätets utskrift i \cref{ex:average}: där \emph{är} mottagaren en
+  programmerare, eftersom ett oväntat fel är något som ska rapporteras
+  vidare och inte åtgärdas av användaren.
+}
+
+\section{Att fråga igen}
+\label{sec:igen}
+
+Ett begripligt meddelande är bra, men programmet i \cref{ex:age-try} ger
+ändå upp: användaren får veta vad hon skulle ha skrivit, och sedan är det
+för sent.  Eftersom vi nu kan fortsätta köra efter ett fel kan vi också
+fråga om.  Det gör vi med en \mintinline{python}{while}-slinga runt
+\mintinline{python}{try}-blocket.
+
+\begin{frame}[fragile]
+  Vi frågar om och om igen tills omvandlingen lyckas:
+<<[[age-again.py]]>>=
+THIS_YEAR = 2026
+
+while True:
+    try:
+        birthyear = int(input("Vilket år är du född? "))
+        break
+    except ValueError:
+        print("Årtalet måste skrivas med siffror, till exempel 1994.")
+
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+@
+\end{frame}
+
+Lägg märke till var \mintinline{python}{break} står: sist i
+\mintinline{python}{try}-blocket, efter omvandlingen.  Går omvandlingen
+fel hoppar körningen till \mintinline{python}{except} och når aldrig
+\mintinline{python}{break} --- alltså snurrar slingan ett varv till.
+Lyckas den körs \mintinline{python}{break} och vi är ute.  Det är samma
+egenskap som i \cref{rem:try-vs-if}, nu använd till något nyttigt.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett försök till]
+    \label{ex:age-again}
+    Användaren svarar först \enquote{nittiofyra}, sedan \enquote{1994}:
+    \runpython[transcript, stdin={nittiofyra},
+      stdin={1994}]{examples/age-again.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,ExcLOMessage}.
+
+  \textbf{Variationsmönster}: Fusion.
+
+  \textbf{Vad som varierar}: Både felhanteringen och styrflödet, samtidigt.
+
+  \textbf{Vad som hålls invariant}: Uppgiften och meddelandet.
+
+  Här möts två saker som studenterna sett var för sig: att
+  \mintinline{python}{except} fångar och att
+  \mintinline{python}{while} upprepar.  \mintinline{python}{while}
+  behandlas som känt --- det hör till inmatningsföreläsningens
+  veckomål och gås igenom där --- så exemplet lägger ingen tid på
+  slingan i sig.
+
+  Placeringen av \mintinline{python}{break} är den kritiska aspekten och
+  är därför utpekad i prosan i stället för att lämnas åt läsaren: den
+  hänger på att resten av \mintinline{python}{try}-blocket hoppas över,
+  som är den aspekt \cref{sec:fanga} redan urskilt.  Att kunna hänvisa
+  tillbaka till \cref{rem:try-vs-if} i stället för att förklara om är
+  hela skälet till att avsnitten ligger i den här ordningen.
+}
+
+\section{Att kasta särfall vidare}
+\label{sec:kasta}
+
+Ett sista steg.  Hittills har särfallen uppstått inuti Pythons egna
+funktioner --- det var \mintinline{python}{int} som klagade.  Men våra
+egna funktioner kan också råka ut för fall de inte kan hantera, och då
+har de samma möjlighet: att säga ifrån i stället för att svara fel.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:raise}
+    En funktion \mintinline{python}{age(birthyear)} ska räkna ut en
+    ålder.  Någon anropar den med årtalet 2100.  Funktionen kan omöjligt
+    ge ett vettigt svar.  Vad borde den göra --- och varför räcker det
+    inte att den skriver ut ett felmeddelande själv?
+  \end{exercise}
+\end{frame}
+
+Att skriva ut ett meddelande räcker inte, av två skäl: funktionen måste
+ändå returnera \emph{något}, och den vet inte i vilket sammanhang den
+anropas --- kanske ska programmet fråga om, kanske avbryta, kanske
+försöka något annat.  Beslutet hör hemma hos den som anropar.  Alltså
+\emph{kastar} funktionen ett särfall med \mintinline{python}{raise} och
+låter anroparen bestämma.
+
+\begin{frame}[fragile]
+  Funktionen vägrar orimliga årtal, och anroparen tar hand om det:
+<<[[age-raise.py]]>>=
+THIS_YEAR = 2026
+
+
+def age(birthyear):
+    """Räknar ut åldern; kastar ValueError för årtal i framtiden."""
+    if birthyear > THIS_YEAR:
+        raise ValueError(f"{birthyear} har inte inträffat än")
+    return THIS_YEAR - birthyear
+
+
+try:
+    birthyear = int(input("Vilket år är du född? "))
+    print(f"Då är du {age(birthyear)} år.")
+except ValueError as err:
+    print(f"Det där årtalet fungerar inte: {err}")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett årtal som inte har inträffat]
+    \label{ex:age-raise}
+    Användaren svarar \enquote{2100}:
+    \runpython[transcript, stdin={2100}]{examples/age-raise.py}
+  \end{example}
+\end{frame}
+
+Det som gör exemplet värt att titta noga på är att \emph{samma}
+\mintinline{python}{except ValueError} tar hand om två helt olika fel:
+det som \mintinline{python}{int} kastar när användaren skriver bokstäver,
+och det som vår egen \mintinline{python}{age} kastar när årtalet ligger i
+framtiden.  Särfallet uppstod inuti funktionen men fångades utanför den:
+när ingen tar hand om ett särfall där det uppstår \emph{sprider det sig}
+uppåt till den som anropade, och därifrån vidare, tills någon fångar det
+--- eller tills programmet tar slut och tracebacken skrivs ut.
+
+Tracebacken i \cref{ex:tre-fel} listade bara en rad, för där uppstod
+felet direkt.  Uppstår det djupare ner listar Python hela kedjan av
+anrop, underst det som gick fel.  Därav namnet: den \emph{spårar tillbaka}
+vägen dit.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLORaise,ExcLOTraceback}.
+
+  \textbf{Variationsmönster}: Fusion.
+
+  \textbf{Vad som varierar}: Var särfallet uppstår (i Pythons kod eller
+  i vår egen) och var det fångas (i samma funktion eller hos anroparen).
+
+  \textbf{Vad som hålls invariant}: Typen \mintinline{python}{ValueError}
+  och den enda \mintinline{python}{except}-grenen.
+
+  Att \emph{en} gren fångar båda felen är avsiktligt: det binder ihop
+  \enquote{kasta} och \enquote{fånga} till en mekanism i stället för två,
+  och det gör spridningen synlig utan att något behöver ritas.
+
+  \Cref{ovn:raise} frågar varför en utskrift inte räcker snarare än hur
+  \mintinline{python}{raise} skrivs.  Frågan riktar sig mot en vana
+  studenterna redan hunnit skaffa sig --- att låta funktionen själv
+  skriva ut och fortsätta --- och Rashkovits och Lavy pekar ut just
+  hanteringen längre upp i anropskedjan som en av de svåraste
+  aspekterna \parencite[350]{RashkovitsLavy2012}.  Avsnittet är
+  medvetet kort: veckomålet kräver att kunna \emph{fånga}, inte att
+  designa egna särfallsklasser.
+
+  Stycket om tracebackens kedja ligger här och inte i
+  \cref{sec:felmeddelande}, eftersom en flerradig traceback först nu har
+  ett anrop att peka på.  Namnet \enquote{traceback} blir därmed
+  förklarat på den plats där förklaringen betyder något.
+}
+
+\section{Sammanfattning}
+\label{sec:sammanfattning}
+
+Ett särfall är ett fall en instruktion inte täcker, och det avbryter
+körningen där det uppstår.  Fångar vi det inte avbryts hela programmet
+och Python skriver en traceback, som säger var felet uppstod, vilken
+sorts fel det var och vad som var fel.  Fångar vi det med
+\mintinline{python}{try} och \mintinline{python}{except} hoppas resten av
+\mintinline{python}{try}-blocket över och körningen fortsätter i den
+gren som passar --- den första uppifrån.  Därför skriver vi en gren per
+sorts fel vi vet hur vi ska bemöta, med det allmänna
+\mintinline{python}{Exception} sist eller inte alls, och därför skriver vi
+meddelanden som användaren kan göra något med.  Och kan vår egen funktion
+inte svara vettigt kastar den själv ett särfall vidare till den som kan
+bestämma vad som ska hända.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException,ExcLOTraceback,ExcLOCatch,%
+  ExcLOMessage,ExcLORaise}.
+
+  Sammanfattningen står som löpande text och inte som punktlista, dels
+  för att anteckningarna ska läsa som text hela vägen, dels för att
+  ordningen i stycket är densamma som kapitlets och därför fungerar som
+  en repetition av vägen genom det.
+}
