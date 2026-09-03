@@ -2,12 +2,16 @@
 all: notes.pdf slides.pdf
 
 LATEXFLAGS+=	-shell-escape
+# The example programs' terminal sessions are run and embedded with
+# PythonTeX (didactic's \runpython[transcript]), so code and output cannot
+# drift apart.
+TEX_PYTHONTEX=	yes
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
 # from it (the examples/ directory is all generated files).  noweb.mk
-# provides the weave (tominted, so the PDFs need the Pygments lexer
-# classes in ${NOWEB_LEXER} at compile time) and the tangle rules.
+# provides the weave (tominted, which finds its bundled Pygments lexer
+# itself) and the tangle rules.  See modules/CLAUDE.md for the pattern.
 
 # Teaching examples must match the slides byte for byte: no #line
 # directives in the tangled C++.
@@ -15,14 +19,20 @@ NOTANGLEFLAGS.cpp=
 
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
+SRC+=		sokprotokoll.tex
+# The appendices \input the generated hit-list tables; a regenerated table
+# must trigger a rebuild even when no .tex source changed.
+SRC+=		$(wildcard litteratursokning/*-full.tex)
+SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/hello.py
 EXAMPLES+=	examples/hello.cpp
 EXAMPLES+=	examples/hello.sh
 EXAMPLES+=	examples/hello-name.py
 EXAMPLES+=	examples/hello-function.py
+EXAMPLES+=	examples/hello-error.py
 
-contents.tex: contents.nw noweb_lexer.py
+contents.tex: contents.nw
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
@@ -40,13 +50,13 @@ examples: ${EXAMPLES}
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
-notes.pdf slides.pdf: ${SRC} ${EXAMPLES} noweb_lexer.py
+notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
 
 
 .PHONY: clean
 clean:
 	${RM} notes.pdf slides.pdf
-	${RM} contents.tex noweb_lexer.py
+	${RM} contents.tex
 	${RM} ${EXAMPLES}
 
 
