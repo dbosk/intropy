@@ -1,0 +1,934 @@
+\mode*
+
+\section{Ett program som ska välja}
+\label{sec:ett-program}
+
+Vi ska bygga ett program åt en sängbutik.  Den som kommer in svarar på
+två frågor --- hur lång hon är och hur mycket hon väger --- och får veta
+vilken säng och vilken madrass som passar.  Innan vi skriver en rad kod
+tittar vi på vad det färdiga programmet ska göra.
+
+\begin{frame}[fragile]
+  \begin{example}[Målet]
+    \label{ex:malet}
+    Så här ska en körning se ut.  Lägg märke till första svaret:
+    \runpython[transcript, stdin={hundraattio}, stdin={180}, stdin={70}]%
+      {examples/bed.py}
+  \end{example}
+\end{frame}
+
+Tre saker i den körningen kan inte våra program hittills.  Svaret beror
+på vad användaren skrev --- olika längder ger olika sängar.  Programmet
+skriver bara ut \emph{ett} av besked\-en, inte alla.  Och när svaret inte
+gick att använda frågade det om igen, i stället för att krascha.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ex:vad-saknas}
+    Ett program körs uppifrån och ner, en rad i taget, och gör exakt
+    likadant varje gång.  Vad behöver ett program kunna för att kunna
+    bete sig som i \cref{ex:malet}?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBranch,CondLOLoop}.
+
+  Föreläsningen börjar i \emph{målet}, som i föreläsningen
+  \emph{Algoritmiskt tänkande}: körningen visas innan någon konstruktion
+  har namngivits, så att studenterna har något att förklara innan de får
+  förklaringen.  \cref{ex:vad-saknas} pekar inte ut vad som saknas ---
+  den beskriver bara vad programmet gör --- så svaren visar vilka av de
+  tre nyheterna (val, exakt en gren, upprepning) studenterna själva kan
+  urskilja ur en körning.
+
+  Sängexemplet är valt för att båda konstruktionerna ryms i det:
+  rekommendationen är en kedja av val, och omfrågningen en upprepning.
+  Det gör att programmet kan hållas invariant genom hela föreläsningen
+  medan konstruktionerna varieras.
+}
+
+Båda sakerna --- att välja och att göra om --- styrs av ett
+\emph{villkor}: ett påstående som är antingen sant eller falskt just nu.
+Så vi börjar med villkoren.
+
+\section{Villkor}
+\label{sec:villkor}
+
+\subsection{Jämförelser ger sant eller falskt}
+
+Vi har använt uttryck som räknar: \mintinline{python}{3 + 5} ger
+\mintinline{python}{8}.  Ett villkor är också ett uttryck, men det räknar
+inte --- det \emph{jämför}.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:vad-blir-jamforelsen}
+    Vi vet vad \mintinline{python}{print(3 + 5)} skriver ut.  Vad skriver
+    de här raderna ut?
+    \begin{minted}{python}
+print(3 < 5)
+print(3 > 5)
+print(3 == 5)
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+Svaren är \mintinline{python}{True}, \mintinline{python}{False} och
+\mintinline{python}{False}.  En jämförelse ger alltså ett värde, precis
+som en addition --- men av en annan typ.  Typen har bara två värden och
+kallas den \emph{booleska} typen, efter George Boole.
+
+\begin{frame}
+  \begin{definition}[Den booleska typen]
+    Typen \mintinline{python}{bool} har exakt två värden,
+    \mintinline{python}{True} och \mintinline{python}{False}.  Alla
+    jämförelser ger ett av dem.
+  \end{definition}
+\end{frame}
+
+Jämförelseoperatorerna är sex, och fem av dem känner vi igen från
+matematiken.
+
+\begin{frame}[fragile]
+  \begin{remark}[Jämförelser]
+    De sex jämförelserna är:
+    \begin{itemize}
+      \item \mintinline{python}|a < b| och \mintinline{python}|a > b|,
+      \item \mintinline{python}|a <= b| och \mintinline{python}|a >= b|
+        för \(\leq\) och \(\geq\),
+      \item \mintinline{python}|a == b| för \enquote{lika med} och
+        \mintinline{python}|a != b| för \enquote{skilt från}.
+    \end{itemize}
+  \end{remark}
+\end{frame}
+
+Den sjätte, \mintinline{python}{==}, är den som ställer till det.  I
+matematiken skriver vi likhet med ett likhetstecken; i Python betyder
+ett likhetstecken något helt annat.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:ett-eller-tva}
+    Vad händer när det här programmet körs?
+    \begin{minted}{python}
+x = 3
+
+if x = 3:
+    print("ja")
+    \end{minted}
+  \end{exercise}
+
+  \pause
+
+  \begin{example}[Svaret]
+    Programmet kör inte alls:
+    \begin{minted}{text}
+$ python3 ett-likhetstecken.py
+  File "ett-likhetstecken.py", line 3
+    if x = 3:
+       ^^^^^
+SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Ett likhetstecken är en \emph{tilldelning}: det stoppar ett värde i en
+variabel.  Två likhetstecken är en \emph{jämförelse}: de frågar om två
+värden är lika.  Att skriva \mintinline{python}{x = 3} i ett villkor är
+alltså att stoppa in ett värde där programmet väntade sig en fråga, och
+Python vägrar.  Det är den snälla varianten --- i många andra språk är
+det tillåtet, och då blir felet tyst.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBoolean}.
+
+  \foreignlanguage{english}{Try-first}: \cref{ex:ett-eller-tva} frågar
+  vad som \emph{händer}, inte vad skillnaden mellan operatorerna är, så
+  frågan pekar inte ut den kritiska aspekten.  Den riktar sig mot ett
+  belagt antimönster: att använda ett likhetstecken där en jämförelse
+  avses, eftersom \enquote{using only an equals sign} läses som en
+  jämförelse \parencite{Bosse2021Antipatterns}.  Missuppfattningen har en
+  spegelbild som är minst lika vanlig: att \emph{läsa} en tilldelning som
+  ett påstående om likhet, som avgör om programmet får köra vidare
+  \parencite{Plass2015Variables}.  Det är också en av de aspekter kursens
+  diagnostiska frågor mäter.
+
+  \textbf{Kontrast}: vad som varierar är antalet likhetstecken; vad som
+  hålls invariant är resten av programmet.  Att Python ger ett
+  syntaxfel gör kontrasten omedelbart synlig, och det är därför exemplet
+  körs som ett program och inte diskuteras i ord.
+}
+
+\subsection{Att sätta ihop villkor}
+
+Ofta beror ett beslut på mer än en sak.  Då sätter vi ihop flera
+jämförelser med de booleska operatorerna \mintinline{python}{and},
+\mintinline{python}{or} och \mintinline{python}{not}.
+
+\begin{frame}[fragile]
+  \begin{example}[Två villkor i taget]
+    Uttrycken kan kombineras som vilka andra uttryck som helst:
+    \begin{minted}{python}
+print(3 < 5 and 5 < 7)
+print(3 < 5 or 5 > 7)
+print(not 3 < 5)
+    \end{minted}
+  \end{example}
+
+  \pause
+
+  \begin{example}[Utmatning]
+    Raderna skriver ut \mintinline{python}{True},
+    \mintinline{python}{True} och \mintinline{python}{False}.
+  \end{example}
+\end{frame}
+
+Operatorerna beter sig som orden gör i vardagsspråket.
+\mintinline{python}{and} kräver att båda leden är sanna,
+\mintinline{python}{or} nöjer sig med ett av dem, och
+\mintinline{python}{not} vänder på svaret.  Sanningstabellerna säger
+samma sak, uttömmande.
+
+\begin{frame}[fragile]
+  Varje ruta säger vad operatorn ger för raden och kolumnen:
+  \begin{center}
+    \begin{tabular}{rll}
+      \toprule
+      \texttt{and} & \texttt{True} & \texttt{False} \\
+      \midrule
+      \texttt{True} & \texttt{True} & \texttt{False} \\
+      \texttt{False} & \texttt{False} & \texttt{False} \\
+      \bottomrule
+    \end{tabular}
+    \qquad
+    \begin{tabular}{rll}
+      \toprule
+      \texttt{or} & \texttt{True} & \texttt{False} \\
+      \midrule
+      \texttt{True} & \texttt{True} & \texttt{True} \\
+      \texttt{False} & \texttt{True} & \texttt{False} \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{frame}
+
+Nu till den fälla som är svårast att se, just för att den låter så rätt
+när man läser villkoret högt.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:eller-fallan}
+    Båda programmen frågar om \mintinline{python}{x} skiljer sig från
+    \mintinline{python}{a} eller från \mintinline{python}{b}.  Alla tre
+    är lika med \mintinline{python}{5}.  Vad skriver de ut?
+<<[[olika.py]]>>=
+x, a, b = 5, 5, 5
+
+if x != a or x != b:
+    print("x skiljer sig från a eller b")
+<<[[olika-fel.py]]>>=
+x, a, b = 5, 5, 5
+
+if x != a or b:
+    print("x skiljer sig från a eller b")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Det första programmet skriver ingenting, vilket är rätt:
+    \runpython[transcript]{examples/olika.py}
+    Det andra påstår att talen skiljer sig åt:
+    \runpython[transcript]{examples/olika-fel.py}
+  \end{example}
+\end{frame}
+
+Skillnaden är vad som står till höger om \mintinline{python}{or}.  I det
+första programmet står en hel jämförelse,
+\mintinline{python}{x != b}.  I det andra står bara
+\mintinline{python}{b} --- talet fem, som Python räknar som sant
+eftersom det inte är noll.  Villkoret blir därmed sant oavsett vad
+\mintinline{python}{x} är.  Regeln är att varje led av
+\mintinline{python}{or} och \mintinline{python}{and} måste vara en
+\emph{fullständig} jämförelse; vardagsspråkets \enquote{x är inte lika
+med a eller b} går inte att skriva av ordagrant.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBoolean}.
+
+  \textbf{Kontrast}: vad som varierar är enbart högerledet i
+  \mintinline{python}{or} --- en hel jämförelse eller ett bart värde;
+  vad som hålls invariant är värdena, operatorn och utskriften.
+  Kontrastparet är hämtat ur den egna artikeln om missuppfattningar och
+  riktar sig mot en belagd nybörjarmissuppfattning: att kedja villkor
+  som \mintinline{python}{if x != a or b}, som läses naturligt på
+  engelska \parencite{GuoMarkelZhang2020}.  Kursens diagnostiska frågor
+  mäter just den aspekten.
+
+  Att det \emph{felaktiga} programmet skriver ut något och det korrekta
+  ingenting är valt med flit: den vanliga intuitionen är att fel kod
+  tiger.  Här måste studenten läsa villkoret för att förstå utskriften,
+  och kan inte gissa sig till svaret ur att det står något på skärmen.
+}
+
+\section{Förgrening: att välja väg}
+\label{sec:forgrening}
+
+Med villkor kan vi äntligen välja.  Konstruktionen heter
+\mintinline{python}{if}, och den ser ut så här: villkoret, ett kolon, och
+sedan de rader som ska köras \emph{indragna} under.
+
+\begin{frame}[fragile]
+  \begin{center}
+    \begin{minted}[fontsize=\large]{python}
+if villkor:
+    print("villkoret var sant")
+else:
+    print("villkoret var falskt")
+    \end{minted}
+  \end{center}
+\end{frame}
+
+Två program med samma kod och olika värde på en variabel visar vad
+konstruktionen gör.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:varmt-kallt}
+    Programmen är identiska så när som på första raden.  Vad skriver
+    vart och ett ut?
+<<[[temp-varmt.py]]>>=
+temperature = 30
+
+if temperature > 20:
+    print("Det är varmt.")
+else:
+    print("Det är kallt.")
+
+print("Ta hand om dig!")
+<<[[temp-kallt.py]]>>=
+temperature = 10
+
+if temperature > 20:
+    print("Det är varmt.")
+else:
+    print("Det är kallt.")
+
+print("Ta hand om dig!")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Det första programmet skriver
+    \runpython[transcript]{examples/temp-varmt.py}
+    och det andra
+    \runpython[transcript]{examples/temp-kallt.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till två saker.  Bara \emph{en} av de två utskrifterna kommer
+--- aldrig båda, aldrig ingen.  Och \enquote{Ta hand om dig!} skrivs ut i
+båda fallen: ett falskt villkor avslutar inte programmet, det väljer bara
+väg.  Efter förgreningen fortsätter programmet med nästa rad, precis som
+vanligt.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBranch,CondLOTrace}.
+
+  \textbf{Kontrast}: vad som varierar är villkorets sanningsvärde
+  (temperaturen); vad som hålls invariant är hela programmet i övrigt.
+  Kontrasten ska urskilja två kritiska aspekter samtidigt, och den sista
+  utskriften är den som bär dem båda: exakt en gren körs, och
+  exekveringen fortsätter efteråt.
+
+  De två aspekterna svarar mot två belagda missuppfattningar.  Den
+  första är att ett falskt villkor avslutar programmet när det inte
+  finns någon \mintinline{python}{else}-gren
+  \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}; den andra att
+  både \mintinline{python}{if}- och \mintinline{python}{else}-grenen
+  körs, även när villkoret är sant \parencite{MisconceptionsSurvey2017}.
+  Båda mäts av kursens diagnostiska frågor.  Kontrastparet är hämtat ur
+  den egna artikeln om missuppfattningar, som visar precis det här
+  paret för samma två missuppfattningar.
+}
+
+\subsection{Fler än två vägar}
+
+Ofta räcker inte två alternativ.  Då sätter vi in fler villkor med
+\mintinline{python}{elif}, som är kortform för \enquote{annars, om}.
+
+\begin{frame}[fragile]
+  \begin{example}[Tre alternativ i stället för två]
+    Samma program med ett villkor till:
+<<[[temp-elif.py]]>>=
+temperature = 5
+
+if temperature > 20:
+    print("Det är varmt.")
+elif temperature > 0:
+    print("Det är svalt.")
+else:
+    print("Det är minusgrader.")
+
+print("Ta hand om dig!")
+@
+  \end{example}
+
+  \pause
+
+  \begin{example}[Utmatning]
+    Programmet skriver
+    \runpython[transcript]{examples/temp-elif.py}
+  \end{example}
+\end{frame}
+
+Regeln är densamma: exakt en gren körs, och sedan fortsätter programmet.
+Det som är nytt är hur grenen väljs.  Villkoren prövas \emph{uppifrån och
+ner}, och det första som är sant vinner --- resten prövas inte ens.  För
+\mintinline{python}{temperature = 5} är det första villkoret falskt, det
+andra sant, och därför skrivs \enquote{Det är svalt.} ut.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBranch}.
+
+  \textbf{Generalisering}: vad som hålls invariant är regeln --- exakt
+  en gren körs och programmet fortsätter --- medan formen varieras från
+  två grenar till tre.  Enligt variationsteorin måste kontrasten komma
+  först: den som ännu inte urskilt att bara en gren körs kan inte se det
+  som gemensamt för två- och tregrenade förgreningar
+  \parencite[45--47]{Marton2015}.  Därför ligger
+  \cref{ex:varmt-kallt} före det här exemplet, och därför varieras här
+  bara antalet grenar.
+}
+
+\subsection{Ordningen är en del av villkoret}
+
+Att villkoren prövas uppifrån och ner är inte en teknisk detalj.  Det är
+skillnaden mellan ett program som fungerar och ett som inte gör det.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:fodelsear-ordning}
+    Programmet ska säga något olika till tre åldersgrupper.  Vad svarar
+    det den som är född 1990?
+<<[[fodelsear-fel.py]]>>=
+year = int(input("Vilket år föddes du? "))
+
+if year < 2000:
+    print("Du är i hyfsad form ändå.")
+elif year < 1995:
+    print("Du är gammal och grå!")
+else:
+    print("Du är ung och fräsch! Än så länge!")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Den som är född 1990 får det mellersta beskedet, inte det första:
+    \runpython[transcript, stdin={1990}]{examples/fodelsear-fel.py}
+  \end{example}
+\end{frame}
+
+Villkoret \mintinline{python}{year < 1995} prövas aldrig, eftersom
+\mintinline{python}{year < 2000} redan var sant.  Andra grenen är
+alltså oåtkomlig för alla årtal under 1995 --- den kan bara nås av dem
+som villkoret ovanför redan har fångat, och det finns inga sådana.
+Rättelsen är inte att ändra villkoren utan att byta ordning på dem: det
+snävaste villkoret först.
+
+\begin{frame}[fragile]
+  \begin{example}[Samma villkor, annan ordning]
+    Bara de två första grenarna har bytt plats:
+<<[[fodelsear.py]]>>=
+year = int(input("Vilket år föddes du? "))
+
+if year < 1995:
+    print("Du är gammal och grå!")
+elif year < 2000:
+    print("Du är i hyfsad form ändå.")
+else:
+    print("Du är ung och fräsch! Än så länge!")
+@
+  \end{example}
+
+  \pause
+
+  \begin{example}[Utmatning]
+    Nu svarar programmet som det var tänkt:
+    \runpython[transcript, stdin={1990}]{examples/fodelsear.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBranch,CondLOTrace}.
+
+  \textbf{Kontrast}: vad som varierar är ordningen mellan två grenar;
+  vad som hålls invariant är villkoren, grenarnas innehåll och
+  inmatningen.  Kontrasten ska urskilja att \emph{ordningen} hör till
+  villkoret: den andra grenens verkliga villkor är
+  \mintinline{python}{year < 1995} \emph{och inte} den föregåendes.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs på det felaktiga
+  programmet, och det felaktiga programmet visas först.  Att låta
+  studenterna \emph{först} se ett program som ser rimligt ut och sedan
+  upptäcka att det svarar fel är att spåra exekveringen för hand av eget
+  behov --- vilket är \cref{CondLOTrace}.
+
+  Exemplet är det gamla materialets \enquote{funkar inte som tänkt,
+  varför?}-bild, behållen därför att den fungerar; det som lagts till är
+  att båda versionerna nu \emph{körs}, så att skillnaden finns i
+  utmatningen och inte bara i resonemanget.
+}
+
+\subsection{Exakt en gren --- och vad som händer sen}
+
+En förgrening behöver inte skriva ut något.  Ofta \emph{väljer} den
+i stället ett värde som programmet använder efteråt.
+
+\begin{frame}[fragile]
+  \begin{example}[Att välja ett värde]
+    Båda grenarna sätter samma variabel, och utskriften kommer efter
+    förgreningen:
+<<[[temp-fusion.py]]>>=
+temperature = 30
+
+if temperature > 20:
+    advice = "shorts"
+else:
+    advice = "en jacka"
+
+print(f"Ta på dig {advice}.")
+@
+  \end{example}
+
+  \pause
+
+  \begin{example}[Utmatning]
+    Programmet skriver
+    \runpython[transcript]{examples/temp-fusion.py}
+  \end{example}
+\end{frame}
+
+För att förutsäga utskriften måste man hålla två saker i huvudet
+samtidigt: vilken gren som körs, och att programmet fortsätter till
+raden efteråt med det värde grenen satte.  Det är precis så vi kommer
+att använda förgreningar i sängprogrammet.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBranch,CondLOTrace}.
+
+  \textbf{Fusion}: de två kritiska aspekterna --- vilken gren som körs
+  och att exekveringen fortsätter --- varieras nu tillsammans, eftersom
+  utskriften efter förgreningen beror på båda.  Ingen av dem går att
+  hoppa över: den som tror att båda grenarna körs får fel värde, och den
+  som tror att programmet slutar vid en falsk gren får ingen utskrift
+  alls.  Mönstret är hämtat ur den egna artikeln om missuppfattningar,
+  som föreslår exakt den här fusionen efter kontrast och generalisering.
+}
+
+\section{Vårt program}
+\label{sec:vart-program}
+
+Nu kan vi bygga sängprogrammet.  Vi tar det uppifrån och ner: först
+helheten, sedan bitarna.
+
+\begin{frame}[fragile]
+  Programmet består av tre delar --- funktionerna som väljer säng och
+  madrass, en funktion som frågar efter ett tal, och huvudprogrammet:
+<<[[bed.py]]>>=
+<<funktioner för sängrekommendationen>>
+
+
+<<fråga efter ett heltal>>
+
+
+<<huvudprogrammet för sängrekommendationen>>
+@
+\end{frame}
+
+De två rekommendationerna är var sin kedja av villkor.  Varje funktion
+svarar på precis en fråga och lämnar tillbaka ett svar; det är samma
+uppdelning i ansvar som föreläsningen \emph{Funktioner} kallade
+\foreignlanguage{english}{single responsibility}.
+
+\begin{frame}[fragile]
+  Sängen beror på längden och madrassen på vikten, var för sig:
+<<funktioner för sängrekommendationen>>=
+def bed(length):
+    """Ger sängen som passar den som är length centimeter lång."""
+    if length < 130:
+        return "barnsäng"
+    elif length < 200:
+        return "vuxensäng på 200 cm"
+    elif length < 220:
+        return "vuxensäng på 220 cm"
+    else:
+        return "specialbeställd säng"
+
+
+def hardness(weight):
+    """Ger madrassen som passar den som väger weight kilo."""
+    if weight < 50:
+        return "mjuk"
+    elif weight < 80:
+        return "medelhård"
+    elif weight < 120:
+        return "hård"
+    else:
+        return "special"
+@
+\end{frame}
+
+Lägg märke till att villkoren står i stigande ordning, snävast först ---
+annars hade vi fått samma fel som med födelseåren.  Lägg också märke
+till att grenarna inte skriver ut något: de \emph{returnerar} ett värde,
+och den som anropar funktionen bestämmer vad som ska hända med det.
+
+Huvudprogrammet frågar, räknar ut rekommendationerna och skriver ut dem.
+Det sista beskedet är en förgrening av samma slag som med kläderna:
+madrassen \enquote{special} finns inte i lager, så den får ett eget
+svar.
+
+\begin{frame}[fragile]
+  Två frågor, två rekommendationer och ett sista val:
+<<huvudprogrammet för sängrekommendationen>>=
+length = ask_number("Hur lång är du (cm)? ")
+weight = ask_number("Hur mycket väger du (kg)? ")
+
+print(f"Du behöver en {bed(length)}.")
+
+mattress = hardness(weight)
+
+if mattress == "special":
+    print("Vi har ingen madrass som passar dig i lager.")
+else:
+    print(f"Du trivs nog bäst på en {mattress} madrass.")
+@
+\end{frame}
+
+En bit fattas: funktionen \mintinline{python}{ask_number}, den som
+frågade om igen när svaret inte var ett tal.  För den behöver vi den
+andra styrstrukturen.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOBranch}.
+
+  Programmet byggs med stegvis förfining, som i föreläsningen
+  \emph{Algoritmiskt tänkande}: helheten först, sedan varje namngivet
+  steg för sig.  Att \mintinline{python}{ask_number} lämnas odefinierad
+  här är avsiktligt --- det gör att slingan i \cref{sec:slingor} har ett
+  \emph{syfte} när den införs i stället för att vara en konstruktion
+  utan användning, och det är samma motiv som i det gamla materialet, där
+  sängprogrammet också delades i två pass.
+
+  Det gamla programmet avslutade sig själv med
+  \mintinline{python}{sys.exit()} i två av grenarna.  Det är borttaget:
+  det införde en tredje konstruktion (att avbryta programmet) mitt i den
+  bild som ska urskilja förgreningen, och det gav bränsle åt just den
+  missuppfattning \cref{ex:varmt-kallt} arbetar emot --- att ett villkor
+  kan avgöra om programmet fortsätter över huvud taget
+  \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}.
+}
+
+\section{Slingor: att göra om}
+\label{sec:slingor}
+
+En förgrening väljer väg \emph{en gång}.  Ibland vill vi i stället göra
+om något, så länge ett villkor gäller.  Konstruktionen heter
+\mintinline{python}{while} och ser nästan likadan ut som
+\mintinline{python}{if}.
+
+\begin{frame}[fragile]
+  \begin{center}
+    \begin{minted}[fontsize=\large]{python}
+while villkor:
+    print("så länge villkoret är sant")
+print("när det inte längre är det")
+    \end{minted}
+  \end{center}
+\end{frame}
+
+Skillnaden mot \mintinline{python}{if} är ett enda ord --- och det ordet
+avgör om raderna körs en gång eller många.
+
+\begin{frame}[fragile]
+  \begin{example}[Att räkna ner]
+    Programmet räknar ner till noll:
+<<[[nedrakning.py]]>>=
+n = 3
+
+while n > 0:
+    print(f"n = {n}")
+    n -= 1
+
+print("Klart!")
+@
+  \end{example}
+
+  \pause
+
+  \begin{example}[Utmatning]
+    Utskriften blir
+    \runpython[transcript]{examples/nedrakning.py}
+  \end{example}
+\end{frame}
+
+Villkoret prövas \emph{före} varje varv, aldrig mitt i.  Programmet
+frågar \enquote{är \mintinline{python}{n} större än noll?}, kör de
+indragna raderna om svaret är ja, och frågar sedan igen.  När svaret
+blir nej hoppar det över de indragna raderna och fortsätter med
+\enquote{Klart!}.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ex:utan-minskning}
+    Vad händer om raden \mintinline{python}{n -= 1} tas bort?
+  \end{exercise}
+\end{frame}
+
+Då blir \mintinline{python}{n} kvar på 3, villkoret förblir sant, och
+programmet skriver \mintinline{text}|n = 3| tills någon avbryter det.
+Slingan tar slut bara om något \emph{inuti} den ändrar det villkoret
+prövar.  Det är slingans hela mekanik i en mening, och den vanligaste
+orsaken till ett program som hänger sig.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOLoop,CondLOTrace}.
+
+  \textbf{Kontrast}: vad som varierar är om kroppen ändrar den variabel
+  villkoret prövar; vad som hålls invariant är slingan och villkoret.
+  Kontrasten ska urskilja att villkoret prövas om, mot värdet som det är
+  \emph{just då} --- inte mot värdet det hade när slingan började.
+  Antimönstret är belagt: en styrvariabel som aldrig ändras ger en
+  oändlig slinga eftersom villkorets resultat inte heller kan ändras
+  \parencite{Bosse2021Antipatterns}.  Att slingor, och särskilt
+  spårningen av dem, hör till det svåraste för nybörjare är belagt
+  \parencite{Eckert2022Loops}.
+
+  Frågan ställs som ett tankeexperiment och inte som ett program som
+  körs, av praktiska skäl: ett program som aldrig tar slut går inte att
+  visa i en körning.
+}
+
+\subsection{En gång, eller så länge?}
+
+\mintinline{python}{if} och \mintinline{python}{while} tar samma sorts
+villkor, och det är lätt att ta fel på vilken man behöver.  Skillnaden
+är inte subtil: den avgör svaret.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:rabatt}
+    En vara som kostar minst 50 kronor ska få 20 kronor i rabatt.  De
+    två programmen skiljer sig på ett ord.  Vad skriver de ut?
+<<[[rabatt-if.py]]>>=
+price = 100
+
+if price >= 50:
+    price = price - 20
+
+print(price)
+<<[[rabatt-while.py]]>>=
+price = 100
+
+while price >= 50:
+    price = price - 20
+
+print(price)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Det första programmet ger rabatten en gång:
+    \runpython[transcript]{examples/rabatt-if.py}
+    Det andra ger den om och om igen, tills priset kommit under 50:
+    \runpython[transcript]{examples/rabatt-while.py}
+  \end{example}
+\end{frame}
+
+Båda programmen tar slut --- slingan är inte oändlig, för kroppen ändrar
+priset --- men bara det ena räknar rätt.  Frågan man ska ställa sig
+innan man väljer konstruktion är alltså: ska det här göras \emph{en
+gång} om villkoret gäller, eller \emph{om och om igen} så länge det
+gäller?
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOLoop}.
+
+  \textbf{Kontrast}: vad som varierar är konstruktionen,
+  \mintinline{python}{if} eller \mintinline{python}{while}; vad som hålls
+  invariant är uppgiften, villkoret, kroppen och startvärdet.
+  Kontrasten ska urskilja aspekten \emph{en gång} kontra \emph{så länge
+  villkoret gäller}.  Antimönstret att ta till en upprepning där ett val
+  räcker är belagt \parencite{Bosse2021Antipatterns}, och exemplet är
+  hämtat ur den egna artikeln om missuppfattningar.
+
+  Att båda programmen terminerar är valt med flit.  Vore
+  \mintinline{python}{while}-varianten en oändlig slinga skulle felet
+  framstå som ett hängningsfel, och studenten skulle lära sig fel läxa:
+  det som är fel här är \emph{resultatet}, inte att programmet inte tar
+  slut.  Detsamma gäller i föreläsningen \emph{Algoritmiskt tänkande},
+  där samma skillnad ställs i vardagstermer (\enquote{om smeten är för
+  tjock} mot \enquote{så länge smeten är för tjock}).
+}
+
+Slingor är inte bara till för att räkna ner.  Ofta vet vi inte alls hur
+många varv det blir --- det beror på vad som händer under körningen.
+
+\begin{frame}[fragile]
+  \begin{example}[Gissa talet]
+    Programmet frågar tills gissningen är ett av tre tal:
+<<[[gissa.py]]>>=
+guess = int(input("Gissa ett av mina favorittal: "))
+
+while guess != 2 and guess != 3 and guess != 5:
+    guess = int(input("Fel, gissa igen: "))
+
+print(f"Rätt, {guess} är ett av mina favorittal!")
+@
+  \end{example}
+
+  \pause
+
+  \begin{example}[En körning]
+    Med gissningarna 7, 4 och 3 blir det tre varv:
+    \runpython[transcript, stdin={7}, stdin={4}, stdin={3}]%
+      {examples/gissa.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till villkoret: tre fullständiga jämförelser, sammanbundna
+med \mintinline{python}{and}.  Att skriva
+\mintinline{python}{guess != 2 and 3 and 5} vore samma fälla som förut.
+
+\subsection{Att fråga om igen}
+\label{sec:fraga-om-igen}
+
+Nu har vi allt som behövs för att fylla i hålet i sängprogrammet: en
+fråga som ställs om tills svaret går att använda.  Men börja med att
+fundera på hur det skulle se ut \emph{utan} slinga.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ex:utan-slinga}
+    Programmet ska fråga efter en längd och inte gå vidare förrän svaret
+    består av siffror.  Hur skulle du skriva det med bara
+    \mintinline{python}{if}?  Hur många gånger tål ditt program att
+    användaren svarar fel?
+  \end{exercise}
+\end{frame}
+
+Med bara förgreningar måste varje ny chans skrivas ut för hand.
+
+\begin{frame}[fragile]
+  \begin{example}[Två extra chanser, och sedan?]
+    Varje omfrågning är en egen kopia:
+<<[[fraga-utan-slinga.py]]>>=
+answer = input("Hur lång är du (cm)? ")
+
+if not answer.isdigit():
+    answer = input("Svara med siffror. Hur lång är du (cm)? ")
+
+if not answer.isdigit():
+    answer = input("Svara med siffror. Hur lång är du (cm)? ")
+
+print(f"Du är {int(answer)} cm lång.")
+@
+  \end{example}
+\end{frame}
+
+Programmet ger två extra chanser och kraschar på den tredje.  Vill vi ge
+fem chanser skriver vi av samma tre rader tre gånger till, och ska
+frågan formuleras om måste vi ändra på alla ställena --- eller missa ett.
+Det är precis vad principen \foreignlanguage{english}{DRY}
+(\foreignlanguage{english}{Don't Repeat Yourself}) varnar för: varje
+kunskap i ett program ska stå på ett enda ställe\autocite{HuntThomas1999}.
+Föreläsningen \emph{Algoritmiskt tänkande} går igenom både principen och
+dess förbehåll.
+
+Slingan skriver samma sak en gång, och ger obegränsat många chanser.
+
+\begin{frame}[fragile]
+  \begin{example}[Med slinga]
+    Frågan står på ett enda ställe:
+<<fråga efter ett heltal>>=
+def ask_number(question):
+    """Frågar tills svaret bara innehåller siffror, och ger talet."""
+    answer = ""
+
+    while not answer.isdigit():
+        answer = input(question)
+
+    return int(answer)
+@
+  \end{example}
+\end{frame}
+
+Två detaljer är värda att stanna vid.  Variabeln
+\mintinline{python}{answer} sätts till den tomma strängen \emph{före}
+slingan --- annars finns det inget för villkoret att pröva första
+gången.  Och den tomma strängen innehåller inga siffror, så villkoret är
+sant och första varvet körs: frågan ställs.  Att villkoret prövas redan
+före första varvet är alltså inte en teknikalitet utan det som får
+programmet att fråga över huvud taget.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CondLOLoop,CondLORobust,CondLOTrace}.
+
+  \textbf{Kontrast}: vad som varierar är om omfrågningen skrivs ut per
+  gång eller uttrycks som en slinga; vad som hålls invariant är
+  uppgiften och villkoret.  Kontrasten ska urskilja att upprepningen
+  ligger i \emph{källkoden} och inte i vad som utförs --- samma
+  urskiljning som \foreignlanguage{english}{DRY} handlar om i
+  föreläsningen \emph{Algoritmiskt tänkande}.
+
+  Att slingvariabeln måste initieras före slingan är en belagd
+  nybörjarmissuppfattning: att skriva
+  \mintinline{python}{while i <= 100} utan att ha satt
+  \mintinline{python}{i}, i tron att den sätts och räknas upp av sig
+  själv \parencite{GuoMarkelZhang2020}.  Här faller initieringen ut ur
+  uppgiften i stället för att påpekas: utan
+  \mintinline{python}{answer = ""} kraschar programmet direkt.
+
+  Funktionen gör en enda sak, och den är därför användbar två gånger i
+  sängprogrammet.  Det är samma \foreignlanguage{english}{single
+  responsibility} som föreläsningen \emph{Funktioner} namnger.
+  % TODO(orchestrator): när föreläsningen \emph{Funktioner} har lagt in
+  % sina SRP- och KISS-poster i ltnotes.bib, lägg \parencite{martinSRP}
+  % här och \parencite{kissOrigin} vid KISS-omnämnandet i
+  % modules/conditionals/slides-input/contents.nw.
+}
+
+Med \mintinline{python}{ask_number} på plats är sängprogrammet komplett,
+och det är just den versionen vi körde i \cref{ex:malet}.  Den som
+svarar \enquote{hundraåttio} får frågan igen i stället för ett
+felmeddelande.
+
+\subsection{Det som slingan inte klarar}
+
+Omfrågningen bygger på att vi kan \emph{fråga} strängen om den ser ut som
+ett tal.  Det fungerar för hela positiva tal, men
+\mintinline{python}{isdigit} svarar nej på \mintinline{text}|-5| och på
+\mintinline{text}|1.75|, som ändå är fullt rimliga svar på andra frågor.
+Att i stället låta programmet \emph{försöka} omvandla och ta hand om
+felet när omvandlingen misslyckas är vad \mintinline{python}{try} och
+\mintinline{python}{except} är till för --- ämnet för modulen om
+\emph{felhantering}.
+
+\ltnote{%
+  Kontrollen med \mintinline{python}{isdigit} är medvetet den enklaste
+  som duger för uppgiften i exemplet, i \foreignlanguage{english}{KISS}-
+  anda: den kräver ingen ny konstruktion och kan läsas högt.  Att den
+  inte täcker negativa tal eller decimaltal sägs ut i stället för att
+  döljas, eftersom nästa modul behöver bristen som motiv --- och
+  eftersom studenterna annars upptäcker den i labben och drar slutsatsen
+  att materialet hade fel.
+}
