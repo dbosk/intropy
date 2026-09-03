@@ -134,7 +134,15 @@ Gotchas: latexmk under `-use-make` may not rerun biber after new bib keys
 (`biber --output-directory ltxobj ltxobj/notes`, touch a source, make
 again); a stuck "gave an error in previous invocation … Nothing to do"
 needs `rm ltxobj/notes.fdb_latexmk`; a killed run leaves `ltxobj/_minted`
-that hangs the next one (`rm -rf ltxobj/_minted`).
+that hangs the next one (`rm -rf ltxobj/_minted`). The make-driven
+latexmk can also stop before the final passes: if the last
+`ltxobj/<job>.log` still says "Rerun to get cross-references right",
+"There were undefined references" or "Please (re)run Biber", run biber
+and `pdflatex … -output-directory=ltxobj <job>.tex` by hand until it does
+not (on slides the symptom is blank table-of-contents frames at every
+section and subsection, which didactic adds). Never combine `\pause` and
+`\runpython` in one frame: the overlays re-execute the body and shift
+PythonTeX's instance numbering for every later transcript.
 
 The **makefiles submodule must be on the `tominted-default-weave`
 lineage** (currently 1571556; it makes the highlighted weave the default).
