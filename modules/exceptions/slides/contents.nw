@@ -416,7 +416,11 @@ mekanismen är dock densamma, och hur vi kontrollerat påståendet står i
 Många svarar på \cref{ovn:fanga} med en annan idé, och det är en bra
 idé: kontrollera svaret \emph{innan} vi omvandlar det.  Verktyget finns
 --- \mintinline{python}{str.isdigit()} säger om en sträng bara består av
-siffror --- och ni har redan använt det i inmatningsföreläsningen.
+siffror --- och ni har redan använt det i inmatningsföreläsningen.  Där
+såg ni också att det är en sträng kontroll: den vänder bort både
+\mintinline{text}|-5| och \mintinline{text}|1.75|, fast båda är tal.
+Frågan här är inte om kontrollen är sträng, utan varför den är det ---
+och vad det säger om vem som egentligen borde få avgöra saken.
 
 \begin{frame}[fragile]
   Samma uppgift, men med en kontroll i stället för
@@ -441,8 +445,9 @@ gränslandet.
     \label{ovn:isdigit}
     Användaren skriver \mintinline{text}|+1994| --- med plustecken.
     \mintinline{python}{int} godtar det och ger talet 1994.  Vad gör
-    programmet ovan?  Och vad hade programmet med
-    \mintinline{python}{try} gjort?
+    programmet ovan, och vad hade programmet med
+    \mintinline{python}{try} gjort?  Och den viktigare frågan: vem av
+    dem är det som bestämmer vad som räknas som ett årtal?
   \end{exercise}
 \end{frame}
 
@@ -455,13 +460,16 @@ gränslandet.
 \end{frame}
 
 Kontrollen underkänner ett svar som \mintinline{python}{int} hade
-godtagit.  Det är inte ett slarvfel i just den här raden utan följden av
-något mer allmänt: \mintinline{python}{isdigit} är inte samma regel som
-\mintinline{python}{int}.  För att kontrollen ska stämma måste vi skriva
-om \mintinline{python}{int}:s regler --- tecken, mellanslag, allt --- och
-hålla vår kopia i takt med dem.  Det är precis det DRY varnar för, och
-för decimaltal finns det inte ens någon \mintinline{python}{isdigit} att
-utgå ifrån.
+godtagit --- och det är svaret på frågan om vem som bestämmer.  Med
+kontrollen är det \emph{vi}: \mintinline{python}{isdigit} är inte
+\mintinline{python}{int}:s regel utan vår egen, och den råkar vara en
+annan.  Skillnaden är inte ett slarvfel på just den raden.  För att
+kontrollen ska stämma måste vi skriva om \mintinline{python}{int}:s
+regler --- tecken, mellanslag, allt --- och sedan hålla vår kopia i takt
+med dem.  Vi har alltså skrivit ner samma kunskap på två ställen, vilket
+är precis vad DRY varnar för; och ska programmet en dag ta emot
+decimaltal finns det inte ens någon \mintinline{python}{isdigit} att
+kopiera.
 
 Konstruktionen \mintinline{python}{try} slipper det, därför att den
 frågar den som vet: den låter \mintinline{python}{int} själv avgöra, och
@@ -490,10 +498,19 @@ tar hand om svaret om det blev nej.  Kontrollera först när villkoret är
   Kontrasten är byggd så att den inte kan avfärdas som ett hittepå-fall.
   \mintinline{text}|+1994| är valt därför att skillnaden är
   \emph{verklig} --- \mintinline{python}{int} godtar strängen, och det
-  gör den även för inledande blanksteg och för negativa tal --- och
-  därför att felet pekar åt det oväntade hållet: kontrollen är för
-  \emph{sträng}, inte för slapp.  Ett exempel där kontrollen släppte
-  igenom skräp hade bekräftat förväntningen i stället för att bryta den.
+  gör den även för inledande blanksteg och för negativa tal.
+
+  Att kontrollen är sträng är däremot \emph{inte} poängen här, och får
+  inte framställas som en upptäckt: inmatningsföreläsningen har redan
+  visat att \mintinline{python}{isdigit} vänder bort
+  \mintinline{text}|-5| och \mintinline{text}|1.75|.  Avsnittet bygger
+  därför vidare på det i stället för att avslöja det igen --- vore
+  strängheten nyheten skulle momentet falla platt för den som just sett
+  den --- och flyttar frågan ett steg: \emph{varför} skiljer sig
+  reglerna, och vem borde få bestämma?  Det är den frågan
+  \cref{ovn:isdigit} ställer i sin andra hälft, och den kritiska aspekt
+  som ska urskiljas är att kontrollen \emph{duplicerar} en regel som
+  redan finns, inte att den är illa avvägd.
 
   Argumentet knyts till DRY, som är belagt i bilaga E till
   \emph{Algoritmiskt tänkande}, och görs därför inte om här.  Ordningen
