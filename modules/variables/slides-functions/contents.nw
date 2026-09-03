@@ -1,0 +1,871 @@
+\mode*
+
+\section{Varför funktioner?}
+\label{sec:varfor-funktioner}
+
+I modulen om algoritmiskt tänkande delade vi upp handdisken i namngivna
+delalgoritmer: i stället för att skriva ut disknings\-stegen tre gånger
+--- för glasen, för besticken och för tallrikarna --- skrev vi dem en gång
+och hänvisade till namnet.  Vi kallade en sådan namngiven delalgoritm för
+en \emph{funktion}.  Nu ska vi göra samma sak i Python, och innan vi gör
+det är det värt att veta vad vi tror att vi vinner på det.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad vinner man på funktioner?]
+    Sant eller falskt?
+    \begin{enumerate}
+      \item Programmet blir snabbare att exekvera.
+      \item Programmet blir enklare att läsa.
+      \item Programmet kan bli kortare.
+      \item Det blir lättare att få en överblick över programmet.
+      \item Programmet blir mer användarvänligt.
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOWhy}.
+
+  \foreignlanguage{english}{Try-first} i diagnostisk form.  Påståendena
+  är valda så att svaren avslöjar vilken sorts vinst studenten redan
+  urskiljer: två av dem (läsbarhet, överblick) gäller \emph{läsaren},
+  ett (kortare) gäller \emph{källkoden}, och två gäller något funktioner
+  inte handlar om --- exekveringshastighet och användarvänlighet.  Den
+  som svarar ja på de senare två har ännu inte skilt programmets form
+  från dess beteende, och det är just den skillnaden avsnittet vilar på.
+  Frågan pekar inte ut vilka påståenden som är de avvikande
+  \parencite[13]{Marton2015}.
+}
+
+Låt oss se problemet i ett program.  Det här räknar ut åldern på två
+personer --- samma sak som i förra modulen, men nu för fler än en.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad upprepas?]
+    Vad står två gånger, och vad måste ni ändra om hälsningen ska
+    lyda \enquote{Hejsan} i stället?
+<<[[age-repeat.py]]>>=
+"""Åldersberäkning för två personer."""
+
+THIS_YEAR = 2026
+
+name = "Daniel"
+birthyear = 1985
+print(f"Hej, {name}!")
+age = THIS_YEAR - birthyear
+print(f"Du är {age} år gammal.")
+
+name = "Urban"
+birthyear = 1950
+print(f"Hej, {name}!")
+age = THIS_YEAR - birthyear
+print(f"Du är {age} år gammal.")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut:
+    \runpython{examples/age-repeat.py}
+  \end{example}
+\end{frame}
+
+Tre rader står två gånger, ordagrant.  Ska hälsningen ändras måste båda
+kopiorna ändras --- och ändrar vi bara den ena får vi ett program som
+hälsar på två olika sätt utan att någon har bestämt det.  Det är den
+risken principen \emph{DRY} varnar för: varje kunskap i ett program ska
+stå på ett enda ställe\autocite{HuntThomas1999}.  Vi mötte den i modulen
+om algoritmiskt tänkande, där också belägget för att den är en bra
+princip redovisas.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOWhy,FuncLODecompose}.
+
+  Programmet är en avsiktlig återanvändning av förra modulens
+  åldersexempel, utvidgat till två personer.  Att exemplet är bekant är
+  poängen: den enda nya aspekten är upprepningen, och allt annat hålls
+  invariant.  Övningen frågar efter vad som måste ändras och inte efter
+  vad som är fel, så att den upptäckt studenten ska göra --- att en
+  ändring måste göras på två ställen --- inte redan står i frågan.
+
+  DRY namnges här och beläggs inte om: det är gjort i modulen
+  \emph{Algoritmiskt tänkande}, bilaga E, och posten
+  \parencite{HuntThomas1999} är kopierad därifrån med sin
+  proveniensanteckning.
+}
+
+
+\section{Egna funktioner}
+\label{sec:egna-funktioner}
+
+En funktion i Python skrivs med nyckelordet \mintinline{python}{def},
+följt av funktionens namn och, inom parentes, dess \emph{parametrar}.
+Stegen står indragna under, och det värde funktionen ska lämna tillbaka
+anges med \mintinline{python}{return}.
+
+\begin{frame}[fragile]
+  \begin{example}[En funktion som adderar]
+    Två rader räknar ut samma sak, på två sätt:
+<<[[add.py]]>>=
+def add(x, y):
+    """Returnerar summan av x och y."""
+    return x + y
+
+
+print(f"2 + 3 = {2 + 3}")
+print(f"2 + 3 = {add(2, 3)}")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    De två raderna ger samma svar:
+    \runpython{examples/add.py}
+  \end{example}
+\end{frame}
+
+Att skriva en funktion för addition är förstås onödigt --- Python kan
+redan addera.  Poängen med exemplet är att jämföra: uttrycket
+\mintinline{python}{2 + 3} och anropet \mintinline{python}{add(2, 3)} ger
+samma värde och kan stå på samma ställen.  Ett funktionsanrop \emph{är}
+ett uttryck med ett värde.
+
+\subsection{En funktion är inte en variabel}
+
+I förra modulen såg vi att en tilldelning beräknar sitt högerled en gång,
+med de värden som gäller just då.  Det är därför det här programmet inte
+gör vad man kanske hoppades.
+
+\begin{frame}[fragile]
+  \begin{example}[Med en variabel]
+    Vi vill ha summan av \mintinline{python}{a} och
+    \mintinline{python}{b} --- men vilken summa får vi?
+<<[[sum-variable.py]]>>=
+a = 1
+b = 2
+x = a + b
+a = 2
+b = 3
+
+print(f"x = {x}")
+@
+  \end{example}
+
+  \pause
+
+  \begin{remark}
+    Programmet skriver ut
+    \runpython{examples/sum-variable.py}
+    --- summan av de \emph{första} värdena.
+  \end{remark}
+\end{frame}
+
+I matematiken skriver vi \(y = kx + m\) och menar ett samband som gäller
+för varje \(x\).  Det sambandet finns i Python också, men det är inte en
+variabel som bär det --- det är en funktion.
+
+\begin{frame}[fragile]
+  \begin{example}[Med en funktion]
+    Samma summa, men som ett samband som går att använda om och om igen:
+<<[[sum-function.py]]>>=
+def total(a, b):
+    """Returnerar summan av a och b."""
+    return a + b
+
+
+print(f"total(1, 2) = {total(1, 2)}")
+print(f"total(2, 3) = {total(2, 3)}")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Nu får vi ett svar per anrop:
+    \runpython{examples/sum-function.py}
+  \end{example}
+\end{frame}
+
+Skillnaden är värd att stanna vid.  En variabel håller \emph{ett} värde,
+räknat en gång.  En funktion håller en \emph{beräkning}, som utförs på
+nytt varje gång den anropas, med de argument anropet ger den.  Det är
+funktionen, inte variabeln, som motsvarar matematikens \(y(x)\).
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLODefine,FuncLOCall}.
+
+  \textbf{Kontrast} mellan de två programmen.  Vad som varierar: om
+  sambandet uttrycks som en tilldelning eller som en funktion.  Vad som
+  hålls invariant: själva uttrycket \mintinline{python}{a + b} och de
+  värden det används med.  Kontrasten ska urskilja aspekten
+  \emph{typ av objekt ett namn hänvisar till} --- data eller funktion ---
+  som forskningsartikeln om missuppfattningar pekar ut som en kritisk
+  aspekt.  Den riktar sig mot den belagda missuppfattningen att en
+  variabel kan hålla en hel uträkning som räknas om när den behövs
+  \parencite{Kohn2017VariableEvaluation}, och den ligger här därför att
+  \emph{funktionen} är det som ger studenten det beteende hon väntade
+  sig av variabeln.
+
+  Kodparet är hämtat från missuppfattningsartikelns kontrastmönster för
+  funktioners funktionalitet; det första programmet är detsamma som i
+  förra modulen, vilket gör kontrasten till en repetition med ett enda
+  nytt led.
+}
+
+\subsection{Ett anrop måste skrivas ut}
+
+En funktionsdefinition säger vad som \emph{ska} göras, inte att det ska
+göras nu.  Kroppen körs först vid ett anrop --- och därför gör det här
+programmet ingenting alls.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skrivs ut?]
+    Det första programmet definierar en funktion:
+<<[[defined-only.py]]>>=
+def greet(name):
+    """Skriver ut en hälsning till name."""
+    print(f"Hej, {name}!")
+@
+    Det andra definierar samma funktion och gör en sak till:
+<<[[defined-and-called.py]]>>=
+def greet(name):
+    """Skriver ut en hälsning till name."""
+    print(f"Hej, {name}!")
+
+
+greet("Ada")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Det första programmet skriver inte ut någonting alls: kroppen nås
+    aldrig.  Det andra skriver ut
+    \runpython{examples/defined-and-called.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOCall}.
+
+  \textbf{Kontrast.}  Vad som varierar: om anropet finns.  Vad som hålls
+  invariant: funktionen och dess kropp.  Kontrasten ska urskilja att
+  \emph{definiera} och \emph{anropa} är två skilda handlingar.  Den
+  riktar sig mot ett dokumenterat antimönster hos CS1-studenter: en
+  funktion skapas men anropas aldrig, varför det arbete programmet
+  skulle utföra uteblir \parencite{Bosse2021Antipatterns}.
+  Mönstret är hämtat ur forskningsartikeln om missuppfattningar,
+  avsnittet om att definiera variabler och funktioner.
+}
+
+Att kroppen körs vid anropet har en följd till.  Python läser filen
+uppifrån och ned, precis som förra modulen visade, och namnet
+\mintinline{python}{greet} finns inte förrän raden med
+\mintinline{python}{def} har körts.  Ett anrop \emph{ovanför}
+definitionen misslyckas därför med \mintinline{python}{NameError}: namnet
+är okänt när anropet nås.  Definitionerna står därför först i filen och
+huvudprogrammet sist.
+
+\subsection{Att lämna tillbaka ett värde}
+
+En funktion kan göra två helt olika saker med sitt resultat: skriva ut
+det, eller lämna tillbaka det.  Det låter likt, och det är det inte.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vilket program går att bygga vidare på?]
+    Den ena funktionen returnerar sitt resultat, den andra skriver ut
+    det.  Sista raden är densamma.  Vad skriver de ut?
+<<[[return-value.py]]>>=
+def double(x):
+    """Returnerar det dubbla värdet av x."""
+    return 2 * x
+
+
+print(double(4))
+@
+<<[[print-value.py]]>>=
+def double(x):
+    """Skriver ut det dubbla värdet av x."""
+    print(2 * x)
+
+
+print(double(4))
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Det första programmet skriver ut
+    \runpython{examples/return-value.py}
+    och det andra
+    \runpython{examples/print-value.py}
+  \end{example}
+\end{frame}
+
+Den andra funktionen skriver visserligen ut det dubbla värdet --- därav
+åttan --- men den lämnar inte tillbaka något, och en funktion utan
+\mintinline{python}{return} lämnar tillbaka \mintinline{python}{None}.
+Det är den yttre \mintinline{python}{print} som skriver ut
+\mintinline{python}{None}: det var allt den fick.  Slutsatsen är att det
+som syns i terminalen inte är samma sak som det programmet har fått tag
+i --- och det är bara det senare man kan räkna vidare på.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOCall}.
+
+  \textbf{Kontrast.}  Vad som varierar: om funktionen returnerar eller
+  skriver ut sitt resultat.  Vad som hålls invariant: beräkningen och
+  anropet.  Kontrasten ska urskilja att en utskrift går till
+  \emph{användaren} medan ett returvärde går till \emph{programmet}.
+  Den riktar sig mot två belagda missuppfattningar: att en funktion
+  returnerar det den ska av sig själv \parencite{KumarVeerasamy2016},
+  och att en \mintinline{python}{print}-sats sist i kroppen fungerar som
+  en \mintinline{python}{return}-sats
+  \parencite{MisconceptionsSurvey2017}.  Att \mintinline{python}{None}
+  skrivs ut i utmatningen är avsiktligt: det gör den uteblivna
+  returen synlig i stället för bara frånvarande.
+}
+
+Det är också värt att veta \emph{när} en funktion tar slut.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad hinner köras?]
+    De två funktionerna innehåller samma två satser, i olika ordning:
+<<[[return-ends.py]]>>=
+def report():
+    return "klar"
+    print("arbetar")
+
+
+print(report())
+@
+<<[[return-last.py]]>>=
+def report():
+    print("arbetar")
+    return "klar"
+
+
+print(report())
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Den första skriver ut
+    \runpython{examples/return-ends.py}
+    och den andra
+    \runpython{examples/return-last.py}
+  \end{example}
+\end{frame}
+
+En \mintinline{python}{return}-sats gör två saker: den lämnar tillbaka ett
+värde \emph{och} avslutar funktionen på fläcken.  Raden efter
+\mintinline{python}{return} i det första programmet körs aldrig.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOCall}.
+
+  \textbf{Kontrast.}  Vad som varierar: de två satsernas ordning.  Vad
+  som hålls invariant: satserna själva och funktionens namn.  Kontrasten
+  ska urskilja att \mintinline{python}{return} \emph{avslutar} anropet,
+  och inte bara lämnar tillbaka ett värde.  Aspekten är värd sin egen
+  kontrast: i en analys av över 3\,000 fritextsvar från 617
+  CS1-studenter nämnde de sällan ordet \mintinline{python}{return} alls,
+  och ännu mer sällan att det avslutar funktionen
+  \parencite{Esche2025Return}.  En aspekt som studenterna inte nämner
+  kan vi inte utgå från att de urskiljer.
+}
+
+
+\section{Parametrar, argument och namn}
+\label{sec:parametrar}
+
+Orden är lätta att blanda ihop, så låt oss skilja dem åt.  En
+\emph{parameter} är namnet i funktionens huvud; ett \emph{argument} är
+värdet som skickas in vid anropet.  Parametern är alltså ett namn som
+får sitt värde av anropet --- en tilldelning som någon annan gör åt en.
+
+\begin{frame}[fragile]
+  \begin{example}[En välkomsttext]
+    Funktionen har två parametrar:
+<<funktionen [[welcome]]>>=
+def welcome(name, origin):
+    """Returnerar en välkomsttext till name som rest från origin."""
+    return f"Välkommen {name}, du som rest ända från {origin}!"
+@
+    Programmet anropar den två gånger, med samma två värden:
+<<[[welcome.py]]>>=
+<<funktionen [[welcome]]>>
+
+
+print(welcome("Daniel", "Kungsängen"))
+print(welcome("Kungsängen", "Daniel"))
+@
+  \end{example}
+
+  \pause
+
+  \begin{exercise}
+    Blir de två utskrifterna lika?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Anropen ger olika resultat:
+    \runpython{examples/welcome.py}
+  \end{example}
+\end{frame}
+
+Argumenten paras ihop med parametrarna \emph{i ordning}: det första
+argumentet blir \mintinline{python}{name}, det andra
+\mintinline{python}{origin}.  Byter vi plats på dem byter vi alltså
+betydelse, och Python kan inte upptäcka det --- båda värdena är strängar,
+och båda går utmärkt att sätta in i texten.  Ett anrop med argumenten i
+fel ordning är därför ett fel som inte kraschar, bara ljuger.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOScope}.
+
+  \textbf{Kontrast.}  Vad som varierar: argumentens ordning.  Vad som
+  hålls invariant: funktionen, argumenten och antalet argument.
+  Kontrasten ska urskilja att kopplingen argument--parameter är
+  positionell.  Exemplet är valt så att båda argumenten har samma typ:
+  hade det ena varit ett tal hade felet gett ett undantag, och den
+  kritiska aspekten hade dolts av felmeddelandet.  Mönstret är
+  forskningsartikelns kontrast för argumentordning, med kursens eget
+  välkomstexempel.
+}
+
+\subsection{Funktionens namn är dess egna}
+
+Parametrarna heter \mintinline{python}{name} och
+\mintinline{python}{origin} inuti funktionen.  Måste variablerna utanför
+heta likadant?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Spelar det roll vad de heter utanför?]
+    Samma funktion som nyss, med två olika huvudprogram:
+<<[[scope-same-names.py]]>>=
+<<funktionen [[welcome]]>>
+
+
+name = "Daniel"
+origin = "Kungsängen"
+print(welcome(name, origin))
+@
+<<[[scope-other-names.py]]>>=
+<<funktionen [[welcome]]>>
+
+
+traveller = "Daniel"
+home_town = "Kungsängen"
+print(welcome(traveller, home_town))
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    De två programmen skriver ut
+    \runpython{examples/scope-same-names.py}
+    respektive
+    \runpython{examples/scope-other-names.py}
+  \end{example}
+\end{frame}
+
+Utskrifterna är identiska.  Funktionens parametrar är dess \emph{egna}
+namn: de finns bara inuti funktionen, och vad huvudprogrammets variabler
+heter angår dem inte.  Det är därför en funktion går att flytta till ett
+annat program utan att man behöver döpa om något.  Det är också därför
+en tilldelning inuti en funktion inte ändrar någonting utanför den.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOScope}.
+
+  \textbf{Kontrast.}  Vad som varierar: huvudprogrammets variabelnamn.
+  Vad som hålls invariant: funktionen, argumenten och utmatningen.
+  Kontrasten ska urskilja \emph{räckvidd}: att namnen i funktionen och
+  namnen utanför är oberoende av varandra.  Att det första programmet
+  låter dem sammanfalla är avsiktligt --- undervisning som bara visar
+  det fallet kan inte skilja de två namnrymderna åt, eftersom de aldrig
+  varierar oberoende.  Mönstret är forskningsartikelns kontrast för
+  identifierares räckvidd.  Fleury intervjuade 23 nybörjare om
+  parameteröverföring och fann att de konstruerar egna regler för hur
+  lokala och globala namn hänger ihop --- en av dem uppfinner i praktiken
+  dynamisk räckvidd: när en procedur stöter på ett namn som varken är
+  lokalt eller en parameter, letar den vidare i den procedur som anropade
+  den \parencite[s.~285]{Fleury1991}.  Studien är liten, kvalitativ och
+  gjord i Pascal, så den motiverar att aspekten tas upp, inte ett
+  påstående om hur många som bär regeln.  En fullständig behandling av
+  räckvidd hör till en senare modul; här stannar vi vid att namnen är
+  skilda.
+
+  Funktionen skrivs inte ut en gång till i något av programmen; båda
+  hänvisar till den som ett namngivet steg.  Det som hålls invariant är
+  därmed invariant också i källan --- det står en enda gång --- och de två
+  huvudprogrammen ryms bredvid varandra, vilket en kontrast kräver
+  \parencite[45--47]{Marton2015}.
+}
+
+\subsection{Standardvärden}
+
+Ibland har en parameter ett värde som nästan alltid är rätt.  Då kan
+funktionen ange ett \emph{standardvärde}, och den som anropar slipper
+skriva ut det.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad kan förenklas?]
+    Den här funktionen kräver alltid ett argument:
+<<[[hello.py]]>>=
+def hello(who):
+    """Skriver ut en hälsning till who."""
+    print(f"Hello, {who}!")
+
+
+hello("World")
+hello("Daniel")
+@
+    Vad skulle ni vilja slippa skriva?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Med standardvärde]
+    Parametern får ett värde i funktionshuvudet:
+<<[[hello-default.py]]>>=
+def hello(who="World"):
+    """Skriver ut en hälsning till who; utan argument hälsas World."""
+    print(f"Hello, {who}!")
+
+
+hello()
+hello("Daniel")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    De två programmen skriver ut samma sak:
+    \runpython{examples/hello.py}
+    respektive
+    \runpython{examples/hello-default.py}
+  \end{example}
+\end{frame}
+
+Standardvärdet används bara när argumentet utelämnas.  Ges det, vinner
+argumentet.  Ett standardvärde är alltså inte ett sätt att göra en
+parameter valfri i största allmänhet --- det är ett sätt att säga
+\enquote{det här är det vanliga fallet}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOScope}.
+
+  \textbf{Kontrast.}  Vad som varierar: om parametern har ett
+  standardvärde.  Vad som hålls invariant: funktionen, det andra
+  anropet och utmatningen.  Att utmatningen är oförändrad är själva
+  poängen: det första anropet ser olika ut i källkoden men gör samma
+  sak, vilket urskiljer standardvärdet som en egenskap hos
+  \emph{gränssnittet} och inte hos beräkningen.
+
+  Materialet är hämtat från grenen med defaultparametrar och infogat
+  här i stället för i en egen deck, så att parametrar, argument och
+  standardvärden behandlas på ett ställe.
+}
+
+\subsection{Docstrings}
+
+Varje funktion ovan har haft en sträng först i kroppen.  Den kallas en
+\foreignlanguage{english}{docstring} och är till för den som ska
+\emph{använda} funktionen utan att läsa dess kropp.  Konventionen för hur
+den skrivs står i PEP~257\autocite{pep257}: en rad som sammanfattar vad
+funktionen gör, skriven som en uppmaning eller ett påstående och avslutad
+med punkt.
+
+\begin{frame}[fragile]
+  \begin{example}[Två temperaturomvandlingar]
+    Två funktioner, var och en med sin docstring:
+<<[[degrees.py]]>>=
+def fahrenheit(degrees_celsius):
+    """Returnerar temperaturen degrees_celsius i grader Fahrenheit."""
+    return degrees_celsius * 9 / 5 + 32
+
+
+def celsius(degrees_fahrenheit):
+    """Returnerar temperaturen degrees_fahrenheit i grader Celsius."""
+    return (degrees_fahrenheit - 32) * 5 / 9
+
+
+print(f"20 grader C = {fahrenheit(20)} grader F")
+print(f"65 grader F = {celsius(65)} grader C")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut:
+    \runpython{examples/degrees.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till vad docstringarna säger och inte säger.  De säger vad
+funktionen \emph{ger}, uttryckt i parametern --- inte hur den räknar.
+Den som ska använda \mintinline{python}{fahrenheit} behöver veta att den
+tar grader Celsius och ger grader Fahrenheit; formeln är funktionens
+ensak, och kan bytas ut utan att någon användare av funktionen berörs.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLODocstring}.
+
+  Docstringarna har funnits med i varje exempel från början, utan att
+  namnges, och namnges först här.  Det generella \enquote{dokumentera
+  dina funktioner} har då konkreta fall att fästa vid
+  \parencite[45--47]{Marton2015}.  Temperaturexemplet är valt därför att
+  formeln är oväsentlig för den som anropar: docstringens uppgift ---
+  att säga vad funktionen ger utan att säga hur --- blir synlig först
+  när kroppen innehåller något man kan låta bli att läsa.
+}
+
+
+\section{Att dela upp ett program i funktioner}
+\label{sec:dela-upp}
+
+Nu tillbaka till programmet som upprepade sig.  Vi har verktyget; frågan
+är vilka funktioner vi ska dela upp det i.
+
+\begin{frame}
+  \begin{exercise}[Vilka funktioner?]
+    Vilka funktioner skulle ni dela upp åldersprogrammet i, och vad
+    skulle var och en ta emot och lämna tillbaka?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLODecompose}.
+
+  \foreignlanguage{english}{Try-first}: frågan avslöjar inte hur många
+  funktioner det ska bli, eller att en av dem ska räkna och en annan
+  skriva ut.  Svaren visar vilka som redan urskiljer att
+  \enquote{räkna ut åldern} och \enquote{hälsa} är olika sorters arbete
+  --- det vill säga vilka som redan tillämpar
+  ansvarsuppdelning innan den fått namn.
+}
+
+I modulen om algoritmiskt tänkande letade vi efter \emph{verben}: att
+knäcka, att vispa, att diska.  Samma knep fungerar här.  Programmet
+hälsar, och det räknar ut en ålder.  Det blir två funktioner.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i överblick]
+    Först en överblick, sedan varje del för sig:
+<<[[age-funcs.py]]>>=
+<<vad programmet gör>>
+
+<<vilket år det är>>
+
+
+<<funktionen som räknar ut åldern>>
+
+
+<<funktionen som hälsar>>
+
+
+<<huvudprogrammet: två personer>>
+@
+  \end{example}
+\end{frame}
+
+Åldersberäkningen är den enklaste delen: den tar ett födelseår och lämnar
+tillbaka en ålder.  Lägg märke till att den inte skriver ut något ---
+den räknar, och överlåter åt någon annan att bestämma vad svaret ska
+användas till.
+
+\begin{frame}[fragile]
+  \begin{example}[Räkna ut åldern]
+    En funktion som bara räknar:
+<<funktionen som räknar ut åldern>>=
+def age(birthyear):
+    """Returnerar åldern i år för den som föddes år birthyear."""
+    return THIS_YEAR - birthyear
+@
+  \end{example}
+\end{frame}
+
+Hälsningen är den andra delen.  Den skriver ut, och den använder
+åldersfunktionen för att få tag i talet.
+
+\begin{frame}[fragile]
+  \begin{example}[Hälsa på en person]
+    En funktion som bara skriver ut:
+<<funktionen som hälsar>>=
+def greet(name, birthyear):
+    """Hälsar på name och skriver ut hur gammal personen är."""
+    print(f"Hej, {name}!")
+    print(f"Du är {age(birthyear)} år gammal.")
+@
+  \end{example}
+\end{frame}
+
+Huvudprogrammet blir då två rader --- en per person.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Det som var femton rader blir två anrop:
+<<huvudprogrammet: två personer>>=
+greet("Daniel", 1985)
+greet("Urban", 1950)
+@
+  \end{example}
+\end{frame}
+
+Och de två återstående delarna är desamma som förut: en docstring och en
+konstant.
+
+\begin{frame}[fragile]
+  \begin{example}[Beskrivning och konstant]
+    Överst i filen:
+<<vad programmet gör>>=
+"""Åldersberäkning, uppdelad i funktioner."""
+@
+    och årtalet som konstant:
+<<vilket år det är>>=
+THIS_YEAR = 2026
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Hela programmet, hopsatt]
+    Sätter vi in varje förfining där dess namn står får vi:
+    \inputminted{python}{examples/age-funcs.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet gör exakt det gamla gjorde:
+    \runpython{examples/age-funcs.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLODecompose,FuncLODefine}.
+
+  \textbf{Kontrast} mot \enquote{Vad upprepas?} i
+  \cref{sec:varfor-funktioner}.  Vad som varierar: programmets
+  uppdelning.  Vad som hålls invariant: utmatningen, som visas efter
+  båda versionerna så att likheten kan avläsas och inte behöver tros på.
+  Kontrasten ska urskilja att uppdelningen ändrar \emph{källkoden} och
+  inte \emph{beteendet} --- samma aspekt som frågan först i modulen
+  prövade, nu i sin generaliserade form.
+
+  \textbf{Fusion}: den hopsatta versionen kräver att studenten läser
+  definition, anrop, parameter, returvärde och räckvidd samtidigt
+  \parencite{Marton2015}.
+}
+
+\subsection{Tre principer med namn}
+
+Uppdelningen ovan följde tre tumregler som är värda att kunna vid namn,
+för ni kommer att möta dem i kodgranskning och i litteraturen resten av
+kursen.
+
+Den första har ni redan mött.  \emph{DRY}
+(\foreignlanguage{english}{Don't Repeat Yourself}) säger att varje
+kunskap i ett program ska ha en enda, entydig representation i
+systemet\autocite{HuntThomas1999}.  Hälsningen stod två gånger; nu står
+den en gång, i \mintinline{python}{greet}.  Att det är en bra princip
+--- och vilka förbehåll som gäller --- redovisas i modulen
+\emph{Algoritmiskt tänkande}, bilaga E.
+
+Den andra förklarar varför det blev \emph{två} funktioner och inte en.
+\emph{SRP}, principen om ett enda ansvar
+(\foreignlanguage{english}{Single Responsibility Principle}), säger att
+en modul aldrig ska ha mer än ett skäl att
+ändras\autocite[ch.~8]{Martin2003Agile}.  Att räkna ut en ålder och att
+hälsa på någon är två olika sorters arbete: ändras hälsningens
+formulering rör det bara \mintinline{python}{greet}, och ändras sättet
+att räkna ut åldern rör det bara \mintinline{python}{age}.  Vad som
+räknas som \emph{ett} ansvar är däremot en bedömningsfråga --- erfarna
+utvecklare är mätbart oense om den, och Martin skrev själv senare om
+formuleringen därför att \enquote{ett skäl att ändras} inte säger
+\emph{vems} skäl.  Använd den därför som en fråga att ställa om en
+funktion --- \enquote{vad skulle få den här att behöva ändras?} --- och
+inte som ett facit.  \Cref{app:srp} redovisar både beläggen och
+kritiken.
+
+Den tredje säger varför vi stannade där.  \emph{KISS}
+(\foreignlanguage{english}{Keep It Simple, Stupid}) säger att man ska
+välja den enklaste lösning som gör jobbet.  Vi kunde ha brutit ut
+utskrifterna i egna funktioner, eller gjort året till en parameter --- men
+ingenting i programmet krävde det, och varje extra funktion är en till
+sak att läsa.  Att enkelhet är ett designvärde är väl underbyggt: det har
+argumenterats sedan 1970-talet, på två skilda grunder --- våra huvuden är
+små\autocite{Dijkstra1972Humble}, och en enkel lösning är en vars fel man
+kan se\autocite[s.~81]{Hoare1981Emperor}.  Två förbehåll hör till:
+en del av komplexiteten sitter i problemet självt och går inte att
+förenkla bort\autocite{Brooks1987Silver}, och ingen har ännu ett
+pålitligt sätt att \emph{mäta} hur enkel en bit kod är.  Slagordet
+brukar tillskrivas Kelly Johnson vid Lockheeds Skunk Works, men den
+tillskrivningen är folklore --- uttrycket står i tryck redan 1958, i
+sammanhang utan minsta koppling till flyg.  \Cref{app:kiss} visar hur vi
+tog reda på det, och är värd att läsa som ett exempel på hur det ser ut
+när ett påstående inte håller.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Tre principer]
+      \begin{description}
+        \item[DRY] varje kunskap på ett enda ställe
+        \item[SRP] en funktion, ett ansvar --- ett skäl att ändras
+        \item[KISS] den enklaste lösning som gör jobbet
+      \end{description}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Tre principer]
+      DRY säger att varje kunskap i programmet ska stå på ett enda
+      ställe; SRP att en funktion ska ha ett ansvar, det vill säga ett
+      skäl att ändras; och KISS att man ska välja den enklaste lösning
+      som gör jobbet.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLODecompose}.
+
+  Principerna namnges \emph{efter} att materialet har tillämpat dem, och
+  var och en fästs vid en synlig egenskap hos uppdelningen: DRY vid att
+  hälsningen bara står en gång, SRP vid att det blev två funktioner och
+  inte en, KISS vid att det inte blev fler.  Ordningen konkret före
+  abstrakt är densamma som i förra modulen
+  \parencite[45--47]{Marton2015}.
+
+  Att namnge en princip är två faktapåståenden --- vem den härrör från
+  och att den är etablerad --- och båda kräver belägg.  KISS visar varför
+  de måste skiljas åt: etableringen håller, upphovsuppgiften gör det inte,
+  och den student-riktade texten säger båda delarna.  DRY är belagt i
+  modulen \emph{Algoritmiskt tänkande}, bilaga E, och citeras här utan
+  ny sökning.  SRP och KISS beläggs i \cref{app:srp,app:kiss}, en gång
+  för hela kursen; senare moduler hänvisar hit.  Den student-riktade
+  texten hålls kort med avsikt: namn, en mening, och var i materialet
+  principen just tillämpades.
+
+  Förbehållet om SRP står i brödtexten och inte bara i bilagan.  Det är
+  ett resultat av motsökningen, och det ändrar hur principen ska
+  användas: som en fråga att ställa om en funktion, inte som ett
+  kriterium som avgör saken.  Att lägga det i en bilaga hade gjort
+  undervisningen mer tvärsäker än underlaget tillåter.
+}
+
+Med det har vi verktyget som resten av kursen bygger på.  Nästa modul
+låter programmen prata med den som kör dem, och fatta egna beslut --- och
+båda de sakerna blir funktioner.

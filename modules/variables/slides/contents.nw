@@ -1,0 +1,1044 @@
+\mode*
+
+\section{Ett pythonprogram}
+\label{sec:pythonprogram}
+
+Förra modulen slutade med ett program.  Vi utvecklade det genom stegvis
+förfining: vi skrev först en grov överblick med namngivna steg och
+förfinade sedan varje steg tills allt kunde uttryckas i Python.  Men vi
+sa aldrig vad datorn sedan \emph{gör} med den texten.  Det är den frågan
+den här modulen börjar i, för svaret bestämmer hur allt annat ska läsas.
+
+Vi tar ett litet program som exempel.  Det räknar ut hur gammal någon är,
+och det använder just de byggstenar modulen handlar om.  Läs det, och
+svara på frågan innan vi kör det.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    Läs programmet och skriv ner, rad för rad, vad det skriver ut.
+    \inputminted{python}{examples/age.py}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOExecution,VarLOAssignment}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan något av
+  modulens begrepp har namngivits, och den pekar inte ut vad som är
+  kritiskt --- det är studenterna som ska urskilja det
+  \parencite[13]{Marton2015}.  Programmet är valt så att en spårning rad
+  för rad avslöjar tre saker på en gång: att raderna utförs i ordning,
+  att \mintinline{python}{birthyear} tilldelas två gånger och att den
+  andra tilldelningen \emph{ersätter} den första.  Svaren fungerar
+  därför som ett diagnostiskt förtest: den som svarar \enquote{1985} på
+  den sista utskriften har ännu inte urskilt att en tilldelning ersätter,
+  och den som svarar med två värden bär missuppfattningen att en variabel
+  kan hålla flera värden samtidigt
+  \parencite[tabell~A.1, nr~9, s.~359]{Sorva2012Dissertation}.
+
+  Programmet är samma exempel som i kursens inspelade videogenomgång, med
+  två ändringar: årtalet är en konstant --- vilket bär avsnittet om
+  konstanter --- och stavfelen i utskrifterna är rättade.
+}
+
+Vi kan svara på frågan genom att köra programmet.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmets utmatning]
+    Kör vi det i terminalen skriver det ut:
+    \runpython{examples/age.py}
+  \end{example}
+\end{frame}
+
+Två saker i den utmatningen är värda att stanna vid.  Den första är
+\emph{ordningen}: raderna kommer i samma ordning som
+\mintinline{python}{print}-satserna står i filen.  Den andra är den sista
+raden.  Där står ett annat födelseår än det som stod högst upp i
+programmet --- fast vi bara skrev \mintinline{python}{birthyear} en gång
+till.  Datorn har alltså inte två födelseår att välja mellan; den har
+ett, och det senaste vinner.
+
+Det är egentligen hela hemligheten med hur ett program körs.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Hur ett program körs]
+      \begin{itemize}
+        \item Datorn läser programmet uppifrån och ned.
+        \item Den utför en sats i taget, och blir klar med den innan
+          nästa börjar.
+        \item Varje sats arbetar med de värden som gäller \emph{just då}.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Hur ett program körs]
+      Datorn läser programmet uppifrån och ned och utför en sats i taget.
+      Den blir klar med en sats innan nästa börjar, och varje sats
+      arbetar med de värden som gäller just då.
+    \end{definition}%
+  }
+\end{frame}
+
+Det låter självklart, men det är det inte.  Programmet ser ut som en text
+där allt står samtidigt, och det är lätt att läsa det som en beskrivning
+av hur saker \emph{förhåller sig} i stället för vad som \emph{händer, i
+tur och ordning}.  Att satserna utförs en i taget, i ordning, är därför
+något att öva in --- inte något att ta för givet.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOExecution}.
+
+  Avsnittet riktar sig mot två belagda svårigheter.  Den ena är att
+  nybörjare har svårt med satsernas följdordning
+  \parencite[tabell~A.1, nr~23, s.~360]{Sorva2012Dissertation}; den
+  andra är att programmet läses som statisk text där raderna är
+  verksamma samtidigt, det Pea kallar parallellism-buggen
+  \parencite[s.~27]{pea1986}.  Sorva formulerar samma sak som att
+  somliga inte ser att ett program har en dynamisk tillvaro utöver sin
+  statiska \parencite[s.~235]{Sorva2012Dissertation}.  Definitionen ovan
+  är formulerad så att den motsäger båda: \enquote{en sats i taget} och
+  \enquote{de värden som gäller just då}.
+}
+
+\subsection{Att följa exekveringen}
+
+Att läsa ett program uppifrån och ned med papper och penna --- att
+\emph{spåra} det --- är en färdighet ni kommer att ha nytta av hela
+kursen.  Man skriver upp variablerna i en tabell, går igenom en rad i taget och
+ändrar tabellen när en rad ändrar något.  Det finns också verktyg som gör
+det åt en.  Python Tutor\footnote{\url{https://pythontutor.com/}} kör ett
+program ett steg i taget och visar vilken rad som står i tur och vilka
+värden variablerna har just då.  Använd det när ett program gör något
+annat än ni väntade er: kör det där, steg för steg, och leta upp den rad
+där er förväntan och programmet skiljer sig åt.
+
+\begin{frame}
+  \begin{exercise}[Spåra själv]
+    Kör programmet ovan i Python Tutor.  Vid vilken rad ändras
+    \mintinline{python}{birthyear}, och vad står det i
+    \mintinline{python}{age} precis innan den raden?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOExecution}.
+
+  Övningen ber inte studenten att bekräfta definitionen utan att avläsa
+  ett \emph{tillstånd} vid en bestämd tidpunkt, vilket bara går om man
+  urskiljer att programmet har olika tillstånd vid olika rader.
+  Verktyget nämns som verktyg, inte som ett påstående om
+  inlärningseffekt: kursen använder det, och det är allt som sägs här.
+}
+
+\subsection{Programmet som förfinade steg}
+
+Programmet ovan är kort nog att läsa i ett svep.  Längre program är det
+inte, och därför presenterar vi dem i den här kursen på samma sätt som i
+förra modulen: som namngivna steg som förfinas var för sig.  Vårt
+åldersprogram ser då ut så här i överblick.
+
+\begin{frame}[fragile]
+  \begin{example}[Åldersprogrammet i överblick]
+    Fem steg, i den ordning de utförs:
+<<[[age.py]]>>=
+<<vad programmet gör>>
+
+<<vilket år det är>>
+
+<<vem programmet handlar om>>
+
+<<hälsa och räkna ut åldern>>
+
+<<räkna baklänges till ett annat födelseår>>
+@
+  \end{example}
+\end{frame}
+
+Varje namn står för ett steg vi ännu inte har skrivit ut.  Vi förfinar
+dem i tur och ordning under resten av modulen: utskrifterna i
+\cref{sec:utskrifter}, tilldelningen och typerna i \cref{sec:variabler},
+konstanten och namnen i \cref{sec:namn} och kommentaren i
+\cref{sec:kommentarer}.  Det är samma arbetssätt som i förra modulen ---
+grovt först, sedan detaljerat.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOExecution}.
+
+  Ordningen är vald för att koppla ihop modulerna.  Studenterna har just
+  lärt sig läsa \LA{}namn\RA{}-notationen; här möter de den igen, nu på
+  ett program de redan har spårat i hopsatt form.  Att den hopsatta
+  versionen kommer \emph{först} och överblicken sedan är medvetet: det
+  är den hopsatta versionen datorn kör, och avsnittets objekt för
+  lärande är exekveringsordningen.  Överblicken tillför en andra
+  läsning av samma program, inte en ny sanning om det.
+}
+
+
+\section{Utskrifter}
+\label{sec:utskrifter}
+
+Ett program som inte säger något är svårt att ha nytta av.  Det första
+steget vi förfinar är därför utskriften.  Ni har redan sett
+\mintinline{python}{print} i \enquote{Hello, World!}: den skriver ut sina
+argument på skärmen och byter rad.
+
+\begin{frame}[fragile]
+  \begin{example}[Att skriva ut text]
+    Det enklaste anropet tar en sträng:
+    \begin{minted}{python}
+print("Hej!")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Texten inom citattecken kallas en \emph{sträng}
+(\foreignlanguage{english}{string}).  Men vi vill sällan skriva ut fast
+text; vi vill skriva ut text \emph{med värden i}.  Vad händer om vi
+sätter ett variabelnamn mitt i en sträng?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Två utskrifter]
+    Vad skriver de här raderna ut?  Är det någon skillnad mellan dem?
+    \begin{minted}{python}
+name = "Daniel"
+print("Hej, {name}!")
+print(f"Hej, {name}!")
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+Skillnaden är det lilla \mintinline{python}{f} före citattecknet.  Utan
+det är strängen bara text, och klamrarna skrivs ut som de står:
+\enquote{Hej, \{name\}!}.  Med det är strängen en \emph{f-sträng}
+(\foreignlanguage{english}{formatted string literal}), och då byts allt
+inom klamrar ut mot värdet av det som står där: \enquote{Hej, Daniel!}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOOutput}.
+
+  \textbf{Kontrast.}  Vad som varierar: ett enda tecken,
+  \mintinline{python}{f} före citattecknet.  Vad som hålls invariant:
+  strängen, variabeln och anropet.  Kontrasten ska urskilja att det är
+  \emph{f-et}, inte klamrarna, som gör att värdet sätts in --- en
+  förväxling som annars ger utskrifter med klamrarna kvar.
+  \foreignlanguage{english}{Try-first}: frågan ställs före förklaringen,
+  och den pekar inte ut vilken av raderna som är den avvikande.
+}
+
+Inuti klamrarna får det stå vad som helst som har ett värde --- inte bara
+ett variabelnamn utan också en beräkning.  Med det kan vi förfina
+utskrifterna i vårt program.
+
+\begin{frame}[fragile]
+  \begin{example}[Hälsa och räkna ut åldern]
+    Två utskrifter med en beräkning emellan:
+<<hälsa och räkna ut åldern>>=
+print(f"Hej, {name}!")
+
+age = THIS_YEAR - birthyear
+print(f"Du är {age} år gammal.")
+@
+  \end{example}
+\end{frame}
+
+Lägg märke till att beräkningen står \emph{före} utskriften.  Den måste
+göra det: utskriften använder \mintinline{python}{age}, och den har
+ingenting att skriva ut förrän satsen som ger \mintinline{python}{age}
+ett värde har körts.  Uppifrån och ned, en sats i taget.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Läsbar utmatning]
+      \begin{itemize}
+        \item Skriv ut hela meningar, inte lösryckta tal.
+        \item Säg vad talet betyder: \enquote{Du är 41 år gammal}, inte
+          \enquote{41}.
+        \item f-strängen låter texten och värdet stå tillsammans i
+          källkoden, så det syns hur utskriften blir.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Läsbar utmatning]
+      Den som kör programmet ser bara utmatningen, aldrig koden.  Skriv
+      därför ut hela meningar i stället för lösryckta tal, och säg vad
+      talet betyder: \enquote{Du är 41 år gammal} i stället för
+      \enquote{41}.  f-strängen hjälper till här, eftersom texten och
+      värdet står tillsammans redan i källkoden --- man ser hur
+      utskriften kommer att se ut.
+    \end{remark}%
+  }
+\end{frame}
+
+
+\section{Variabler och datatyper}
+\label{sec:variabler}
+
+Nu till modulens kärna.  I förra modulen sa vi att en variabel är
+\enquote{något som hänvisar till något som kan variera}, och att en
+algoritm bär ett tillstånd som ändras medan den körs.  I Python blir det
+konkret: en variabel är ett \emph{namn}, och namnet håller ett
+\emph{värde}.  Vi ger namnet ett värde med en \emph{tilldelning}.
+
+\begin{frame}[fragile]
+  \begin{example}[Tilldelningar]
+    Tre namn får varsitt värde:
+    \begin{minted}{python}
+name = "Daniel"
+birthyear = 1985
+vat = 0.25
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Likhetstecknet ser ut som i matematiken, men det betyder något annat, och
+den skillnaden är den vanligaste källan till förvirring i hela modulen.
+Låt oss ta reda på vad det betyder genom att pröva.
+
+\subsection{Vad en tilldelning gör}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skrivs ut?]
+    De två programmen skiljer sig på två rader.  Vad skriver vart och
+    ett av dem ut?
+<<[[state-keep.py]]>>=
+a = 1
+b = 2
+x = a + b
+print(f"x = {x}")
+@
+    Och samma program, med två rader tillagda:
+<<[[state-change.py]]>>=
+a = 1
+b = 2
+x = a + b
+a = 2
+b = 3
+print(f"x = {x}")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Det vänstra programmet skriver ut
+    \runpython{examples/state-keep.py}
+    och det med de tillagda raderna skriver ut
+    \runpython{examples/state-change.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOAssignment}.
+
+  \textbf{Kontrast.}  Vad som varierar: om \mintinline{python}{a} och
+  \mintinline{python}{b} tilldelas nya värden efter att
+  \mintinline{python}{x} har beräknats.  Vad som hålls invariant: allt
+  annat --- namnen, de ursprungliga värdena, beräkningen och utskriften.
+  Kontrasten ska urskilja att \mintinline{python}{x = a + b}
+  \emph{beräknar} ett värde vid sin egen rad och lagrar resultatet, i
+  motsats till att beskriva ett samband som fortsätter gälla.  Den
+  riktar sig mot den belagda missuppfattningen att en variabel håller
+  hela uträkningen och räknas ut först när den behövs
+  \parencite{Kohn2017VariableEvaluation}; samma missuppfattning finns
+  dokumenterad som att en tilldelning läses som en ekvation som datorn
+  ska lösa \parencite[s.~17]{Plass2015Variables}.
+
+  Kodparet är hämtat från missuppfattningsartikelns mönster för
+  \foreignlanguage{english}{statefulness}; det är oförändrat utom att
+  utskriften använder f-sträng.
+}
+
+Programmen ger samma svar, och det är själva poängen.  Tilldelningen
+\mintinline{python}{x = a + b} betyder inte \enquote{\(x\) är summan av
+\(a\) och \(b\), nu och för alltid}.  Den betyder: \emph{beräkna
+högerledet med de värden som gäller just nu, och lägg resultatet i}
+\(x\).  När \mintinline{python}{a} och \mintinline{python}{b} sedan
+ändras rör det inte \mintinline{python}{x} --- beräkningen är redan
+gjord.
+
+Vill vi ha ett nytt värde i \mintinline{python}{x} får vi räkna om det.
+Regeln gäller lika mycket när värdena är strängar.
+
+\begin{frame}[fragile]
+  \begin{example}[Samma sak med strängar]
+    Här ändras \mintinline{python}{name} efter att meddelandet byggts:
+<<[[state-greeting.py]]>>=
+name = "Ada"
+greeting = "Hej"
+message = f"{greeting}, {name}!"
+name = "Beda"
+print(message)
+@
+    Och här byggs meddelandet om efter ändringen:
+<<[[state-recompute.py]]>>=
+name = "Ada"
+greeting = "Hej"
+message = f"{greeting}, {name}!"
+name = "Beda"
+message = f"{greeting}, {name}!"
+print(message)
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Det första programmet skriver ut
+    \runpython{examples/state-greeting.py}
+    och det andra
+    \runpython{examples/state-recompute.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOAssignment}.
+
+  \textbf{Generalisering.}  Vad som hålls invariant: regeln att
+  högerledet beräknas ur de värden som gäller just då.  Vad som
+  varierar: typen (sträng i stället för heltal), namnen, och --- i det
+  andra programmet --- om beräkningen görs om efter ändringen.  Att
+  generaliseringen kommer efter kontrasten och inte före följer Marton
+  \parencite[45--47]{Marton2015}: den som ännu inte urskilt en aspekt
+  kan inte heller känna igen den i ett nytt sammanhang.
+
+  Exempelparet är hämtat från missuppfattningsartikelns
+  generaliseringsmönster för samma aspekt, översatt till svenska
+  hälsningar.
+}
+
+Nu kan vi säga vad en tilldelning gör.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Tilldelning]
+      \begin{itemize}
+        \item \mintinline{python}{namn = uttryck} beräknar uttrycket med
+          de värden som gäller just då.
+        \item Resultatet lagras under namnet i vänsterledet.
+        \item Det gamla värdet är borta: en variabel håller ett värde,
+          aldrig flera.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Tilldelning]
+      En tilldelning \mintinline{python}{namn = uttryck} beräknar
+      uttrycket i högerledet med de värden som gäller just då och lagrar
+      resultatet under namnet i vänsterledet.  Variabelns tidigare värde
+      är därmed borta: en variabel håller ett värde, aldrig flera.
+    \end{definition}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOAssignment}.
+
+  Sista punkten är med för att motsäga en egen, belagd missuppfattning:
+  att en variabel kan hålla flera värden samtidigt eller
+  \enquote{minns} sina gamla
+  \parencite[tabell~A.1, nr~9, s.~359]{Sorva2012Dissertation}.  Den
+  syns i förtestet i \cref{sec:pythonprogram}: den som svarar att den
+  sista utskriften visar både 1985 och det nya året bär den.
+}
+
+\subsection{Tilldelning är inte likhet}
+
+Att tilldelningen har en riktning --- från höger till vänster --- gör en
+sak möjlig som ser omöjlig ut i matematiken.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Går det?]
+    Den andra raden ser ut som en ekvation utan lösning.  Vad skriver
+    programmet ut?
+<<[[increment.py]]>>=
+x = 5
+x = x + 1
+
+print(x)
+@
+    Och vad skriver det här programmet ut?
+<<[[compare.py]]>>=
+x = 5
+
+print(x == x + 1)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Det första programmet räknar upp:
+    \runpython{examples/increment.py}
+    Det andra jämför:
+    \runpython{examples/compare.py}
+  \end{example}
+\end{frame}
+
+Läst som en ekvation är \(x = x + 1\) olöslig, och det är precis så raden
+ser ut.  Läst som en tilldelning är den vardaglig: ta det värde
+\mintinline{python}{x} har just nu, lägg till ett, och lägg tillbaka
+resultatet i \mintinline{python}{x}.  Det andra programmet visar vad den
+matematiska läsningen faktiskt motsvarar i Python:
+\mintinline{python}{==} \emph{jämför} två värden, och den jämförelsen är
+förstås falsk.  Ett likhetstecken tilldelar; två jämför.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOAssignment}.
+
+  \textbf{Kontrast.}  Vad som varierar: operatorn, ett eller två
+  likhetstecken.  Vad som hålls invariant: uttrycket
+  \mintinline{python}{x + 1} och variabelns värde.  Kontrasten riktar
+  sig mot den missuppfattning Kohn dokumenterar: att
+  \mintinline{python}{x = x + 1} uppfattas som rentav omöjligt, eftersom
+  raden läses som en ekvation
+  \parencite{Kohn2017VariableEvaluation}.  Mönstret är hämtat från
+  missuppfattningsartikelns avsnitt om variabler i matematiken kontra
+  programmeringen.  Att också visa \mintinline{python}{==} här är
+  medvetet, trots att jämförelser hör hemma i modulen om
+  styrstrukturer: kontrasten kräver att den matematiska läsningen får en
+  egen plats i språket, annars går den inte att skilja från
+  tilldelningen \parencite[45--47]{Marton2015}.
+}
+
+\subsection{Datatyper}
+
+Alla värden är inte av samma slag, och vad man kan göra med ett värde
+beror på vilket slag det är.  Vi har redan sett tre.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Tre datatyper]
+      \begin{description}
+        \item[\mintinline{python}{int}] heltal:
+          \mintinline{python}{1985}, \mintinline{python}{-3}
+        \item[\mintinline{python}{float}] flyttal:
+          \mintinline{python}{3.14}, \mintinline{python}{0.25}
+        \item[\mintinline{python}{str}] strängar:
+          \mintinline{python}{"Daniel"}, \mintinline{python}{"5"}
+      \end{description}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Tre datatyper]
+      Ett heltal (\mintinline{python}{int}) skrivs utan decimalpunkt:
+      \mintinline{python}{1985}, \mintinline{python}{-3}.  Ett flyttal
+      (\mintinline{python}{float}) skrivs med decimalpunkt:
+      \mintinline{python}{3.14}, \mintinline{python}{0.25}.  En sträng
+      (\mintinline{python}{str}) skrivs inom citattecken:
+      \mintinline{python}{"Daniel"}, \mintinline{python}{"5"}.
+    \end{definition}%
+  }
+\end{frame}
+
+Lägg märke till de två sista exemplen: \mintinline{python}{5} och
+\mintinline{python}{"5"} ser nästan lika ut, men de är inte samma sak.
+Vad skiljer dem?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Fem eller \enquote{fem}?]
+    Programmet lägger ihop ett värde med sig självt, två gånger.  Vad
+    skriver det ut?
+<<[[string-number.py]]>>=
+text = "5"
+number = 5
+
+print(text + text)
+print(number + number)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Samma operator, två olika resultat:
+    \runpython{examples/string-number.py}
+  \end{example}
+\end{frame}
+
+Operatorn \mintinline{python}{+} betyder olika saker för olika typer: för
+tal betyder den addition, för strängar betyder den \enquote{sätt ihop}.
+Talet \(5\) och strängen \enquote{5} är alltså inte utbytbara --- de
+beter sig olika, fast de ser likadana ut på skärmen.  Det är värt att
+komma ihåg till nästa modul, när programmen börjar läsa in värden från
+tangentbordet: det som kommer in därifrån är alltid text, även när det
+ser ut som ett tal.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOTypes}.
+
+  \textbf{Kontrast.}  Vad som varierar: värdets typ, tal eller sträng.
+  Vad som hålls invariant: operatorn, uttrycket och utskriften.
+  Kontrasten ska urskilja \emph{typ} som en egen aspekt av ett värde.
+  Missuppfattningen är belagd: Guo och medförfattare dokumenterar att
+  inläst numerisk data ofta antas vara tal fast den fortfarande är en
+  sträng, och att operatorer som \mintinline{python}{+} då tyst utför
+  strängoperationer i stället för aritmetik
+  \parencite{GuoMarkelZhang2020}.
+
+  Att exemplet stannar vid \mintinline{python}{+} och inte visar
+  \mintinline{python}{int(input(...))} är medvetet: inmatning hör till
+  nästa modul, och kontrasten blir renare när bara typen varierar.
+}
+
+Också för tal beror resultatet på vad man ber om.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Tre sorters division]
+    Vad skriver de tre raderna ut, och vilken typ har varje svar?
+<<[[division.py]]>>=
+x = 7
+
+print(x / 2)
+print(x // 2)
+print(x % 2)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Tre olika svar på samma division:
+    \runpython{examples/division.py}
+  \end{example}
+\end{frame}
+
+Den vanliga divisionen \mintinline{python}{/} ger alltid ett flyttal ---
+även \mintinline{python}{4 / 2} ger \mintinline{python}{2.0}, inte
+\mintinline{python}{2}.  Heltalsdivisionen \mintinline{python}{//} ger
+kvoten som heltal, och \mintinline{python}{%} ger resten.  Väljer man
+\mintinline{python}{/} där man menade \mintinline{python}{//} får man ett
+decimaltal där man väntade sig ett heltal, och det brukar märkas först i
+utskriften.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOTypes}.
+
+  \textbf{Generalisering} av aspekten \emph{typ}: det kritiska värdet ---
+  att typen avgör vad en operator gör --- hålls invariant, medan
+  operanderna nu är av samma typ och det i stället är \emph{operatorn}
+  som varierar.  Att \mintinline{python}{/} ger flyttal även vid jämn
+  division pekas ut uttryckligen, eftersom det är den enda av de tre
+  reglerna som inte går att gissa sig till ur exemplet.
+}
+
+\subsection{Att konvertera mellan typer}
+
+Ibland behöver vi ett värde av en annan typ än den vi har.  Vill vi sätta
+ihop en sträng med ett tal med \mintinline{python}{+} går det inte:
+Python vägrar, i stället för att gissa vad vi menade.
+
+\begin{frame}[fragile]
+  \begin{example}[Det som inte fungerar]
+    Den sista raden avbryter programmet:
+    \begin{minted}[highlightlines=3]{python}
+name = "Daniel"
+age = 41
+print("Du är " + age + " år.")
+    \end{minted}
+  \end{example}
+
+  \pause
+
+  \begin{remark}
+    Felmeddelandet lyder
+    \mintinline{text}|TypeError: can only concatenate str|
+    \mintinline{text}|(not "int") to str|.  Läs det som det står: det
+    säger vilken typ som fanns och vilken som behövdes.
+  \end{remark}
+\end{frame}
+
+Det finns två utvägar.  Den ena är att göra om talet till en sträng med
+\mintinline{python}{str}; den andra --- och den vi använder i den här
+kursen --- är att låta f-strängen sköta det.
+
+\begin{frame}[fragile]
+  \begin{example}[Två sätt som fungerar]
+    De två raderna gör samma sak:
+<<[[concat.py]]>>=
+age = 41
+
+print("Du är " + str(age) + " år.")
+print(f"Du är {age} år.")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Utskrifterna är ordagrant identiska:
+    \runpython{examples/concat.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOTypes,VarLOOutput}.
+
+  \textbf{Kontrast.}  Vad som varierar: hur talet förs in i texten ---
+  explicit konvertering med \mintinline{python}{str} eller en f-sträng.
+  Vad som hålls invariant: utskriftens innehåll, vilket utmatningen
+  visar är ordagrant detsamma.  Kontrasten ska urskilja att f-strängen
+  \emph{konverterar åt en}, vilket är skälet till att kursen använder
+  den.  Den felande varianten visas först, som det problem lösningen
+  svarar mot.
+}
+
+Vi kan nu förfina det sista beräknande steget i vårt program.
+
+\begin{frame}[fragile]
+  \begin{example}[Räkna baklänges]
+    Vilket födelseår hade gett åldern 25 i år?
+<<räkna baklänges till ett annat födelseår>>=
+birthyear = THIS_YEAR - 25
+age = THIS_YEAR - birthyear
+
+print(f"Om du var född {birthyear} vore du {age} år gammal.")
+@
+  \end{example}
+\end{frame}
+
+Här ser vi tilldelningen på jobbet.  Både \mintinline{python}{birthyear}
+och \mintinline{python}{age} hade redan värden; nu får de nya, och de
+gamla är borta.  Det är därför den sista utskriften i programmets
+utmatning inte innehåller 1985.
+
+
+\section{Variabelnamn och konstanter}
+\label{sec:namn}
+
+Två av stegen i vårt program är fortfarande oförfinade, och båda handlar
+om \emph{namn}.  Innan vi skriver dem: vilken roll spelar namnet
+egentligen?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Spelar namnet någon roll?]
+    De två programmen räknar ut vad en vara kostar med moms.  Skriver de
+    ut samma sak?
+<<[[naming-clear.py]]>>=
+price = 100
+vat = 0.25
+total = price * (1 + vat)
+
+print(f"Att betala: {total} kr")
+@
+    Och det andra:
+<<[[naming-opaque.py]]>>=
+a = 100
+b = 0.25
+c = a * (1 + b)
+
+print(f"Att betala: {c} kr")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Det första programmet skriver ut
+    \runpython{examples/naming-clear.py}
+    och det andra
+    \runpython{examples/naming-opaque.py}
+  \end{example}
+\end{frame}
+
+Datorn bryr sig inte om vad variablerna heter.  Namnet är till för
+\emph{oss}, och det märks när man ska svara på en fråga om programmet: i
+det första ser man direkt att \(0{,}25\) är en momssats; i det andra
+måste man räkna ut det.  Men namnet är bara ett löfte --- och ingenting
+hindrar oss från att bryta det.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett namn som ljuger]
+    Vad står det i \mintinline{python}{total} när programmet är klart?
+<<[[naming-lying.py]]>>=
+price = 100
+vat = 0.25
+total = price
+
+print(f"Att betala: {total} kr")
+@
+  \end{example}
+
+  \pause
+
+  \begin{remark}
+    Programmet skriver ut
+    \runpython{examples/naming-lying.py}
+    --- priset utan moms.  Namnet \mintinline{python}{total} gör
+    ingenting åt saken; det är bara ett namn.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLONames}.
+
+  \textbf{Kontrast} mellan de två första programmen.  Vad som varierar:
+  variabelnamnen.  Vad som hålls invariant: satserna, värdena och
+  utmatningen.  Kontrasten ska urskilja att namnet inte påverkar
+  \emph{vad programmet gör}, bara vad läsaren förstår.
+
+  Det tredje programmet skärper kontrasten: där \emph{motsäger} namnet
+  värdet.  Det riktar sig mot en belagd missuppfattning --- att namnets
+  betydelse har makt över variabelns värde.  Sleeman och medförfattare
+  observerade att elva elever trodde att en inläsning till en variabel
+  med ett meningsfullt namn fick programmet att välja ett värde efter
+  namnets betydelse \parencite[s.~11]{Sleeman1984}, och översikten över
+  missuppfattningar förtecknar samma sak med exemplet att värdet i
+  \mintinline{python}{largest} antas vara större än värdet i
+  \mintinline{python}{smallest}, \enquote{although variable names are
+  arbitrary} \parencite[s.~1:5]{MisconceptionsSurvey2017}.
+  Undervisning som bara visar väl valda namn kan inte skilja namnet från
+  syftet, eftersom de två då aldrig varierar oberoende av varandra ---
+  därför visas här ett namn som ljuger.  Mönstret är hämtat från
+  missuppfattningsartikelns avsnitt om att definiera variabler och
+  funktioner.
+}
+
+Två regler måste namnen följa, och resten är konvention.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Regler för namn]
+      \begin{itemize}
+        \item Ett namn får inte börja med en siffra.
+        \item Stora och små bokstäver är olika: \mintinline{python}{x} är
+          inte \mintinline{python}{X}.
+        \item Vissa ord är reserverade av språket och går inte att
+          använda som namn.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Regler för namn]
+      Ett namn får inte börja med en siffra, och stora och små bokstäver
+      räknas som olika tecken --- \mintinline{python}{x} och
+      \mintinline{python}{X} är två skilda variabler.  Därtill är ett
+      antal ord reserverade av språket självt och går inte att använda
+      som namn.
+    \end{remark}%
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Reserverade ord]
+    De här orden hör till språket och kan inte vara variabelnamn:
+    \begin{minted}{python}
+False   None    True    and     as      assert  async   await
+break   class   continue        def     del     elif    else
+except  finally for     from    global  if      import  in
+is      lambda  nonlocal        not     or      pass    raise
+return  try     while   with    yield
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\subsection{Konstanter}
+
+En del värden ska inte ändras medan programmet kör.  Årtalet i vårt
+program är ett sådant; momssatsen i exemplet ovan är ett annat.  Python
+har ingen konstruktion som \emph{hindrar} oss från att ändra dem --- till
+skillnad från många andra språk --- men det finns en konvention, och den
+står i PEP~8\autocite{pep8}: en konstant skrivs med versaler och
+understreck.
+
+\begin{frame}[fragile]
+  \begin{example}[Årets årtal, som konstant]
+    Konventionen säger versaler:
+<<vilket år det är>>=
+THIS_YEAR = 2026
+@
+  \end{example}
+
+  \pause
+
+  \begin{remark}
+    Versalerna hindrar ingenting.  De är ett meddelande till läsaren:
+    \enquote{det här värdet är tänkt att stå still}.
+  \end{remark}
+\end{frame}
+
+Med konstanten på plats kan vi förfina steget som säger vem programmet
+handlar om.  De två variablerna där är av motsatt slag: de är just det
+som är tänkt att bytas ut.
+
+\begin{frame}[fragile]
+  \begin{example}[Vem programmet handlar om]
+    Två variabler med små bokstäver, för de ska ändras:
+<<vem programmet handlar om>>=
+name = "Daniel"
+birthyear = 1985
+@
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLONames}.
+
+  \textbf{Kontrast} mellan de två sista kodstyckena.  Vad som varierar:
+  om värdet är tänkt att stå still eller bytas ut, och därmed
+  skrivsättet.  Vad som hålls invariant: att båda är vanliga
+  tilldelningar --- Python behandlar dem exakt likadant.  Kontrasten ska
+  urskilja att versalerna är en \emph{utsaga om avsikten}, inte en
+  spärr; poängen går förlorad om konstanten visas ensam.
+}
+
+
+\section{Kommentarer och PEP 8}
+\label{sec:kommentarer}
+
+Det sista steget i programmet är det enda som datorn inte bryr sig om
+alls.
+
+\begin{frame}[fragile]
+  \begin{center}
+    \mintinline[fontsize=\huge]{python}|#|
+  \end{center}
+\end{frame}
+
+Allt som står efter ett brädgårdstecken på en rad hoppar Python över.
+Kommentarer är alltså text som bara människor läser --- och just därför
+är det värt att fundera på vad de ska innehålla.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vilken kommentar hjälper?]
+    De två programmen räknar ut samma sak.  Vilken av kommentarerna
+    säger dig något du inte redan kunde läsa ur koden?
+<<[[comment-what.py]]>>=
+# Multiplicera priset med 1.25.
+price = 100
+total = price * 1.25
+
+print(f"Att betala: {total} kr")
+@
+    Och den andra varianten:
+<<[[comment-why.py]]>>=
+# Momssatsen står som eget namn: den ändras oftare än koden gör.
+VAT = 0.25
+price = 100
+total = price * (1 + VAT)
+
+print(f"Att betala: {total} kr")
+@
+  \end{exercise}
+\end{frame}
+
+Den första kommentaren säger vad raden gör, och det står redan på raden.
+Den andra säger något koden inte kan säga: varför momssatsen har fått ett
+eget namn i stället för att stå inbakad i uttrycket.  Skriv kommentarer
+som svarar på \emph{varför}, inte på \emph{vad} --- det senare säger
+koden bättre själv, och till skillnad från kommentaren kan koden inte bli
+inaktuell utan att någon märker det.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOComments}.
+
+  \textbf{Kontrast.}  Vad som varierar: kommentarens innehåll ---
+  omskrivning av koden eller skälet bakom ett designval.  Vad som hålls
+  invariant: vad programmet räknar ut och skriver ut.  Kontrasten ska
+  urskilja att en kommentars värde ligger i vad den \emph{tillför},
+  inte i att den finns.  Ett vanligt sätt att undervisa kommentarer ---
+  \enquote{kommentera din kod} --- varierar bara mängden kommentarer och
+  kan därför inte urskilja den aspekten.
+
+  Kommentaren i det andra programmet är formulerad som ett skäl inne i
+  programmet (varför värdet fått ett namn) och inte som ett påstående om
+  världen (vilken momssats som gäller): ett faktapåstående i ett exempel
+  åldras, och exemplet skulle då lära ut motsatsen till sin egen poäng.
+}
+
+Vår sista förfining är därför en kommentar som säger vad programmet är
+till för.
+
+\begin{frame}[fragile]
+  \begin{example}[Vad programmet gör]
+    En rad som säger vad filen innehåller:
+<<vad programmet gör>>=
+"""Ett program som räknar ut hur gammal någon är."""
+@
+  \end{example}
+
+  \pause
+
+  \begin{remark}
+    Den här sortens kommentar, en sträng först i filen, kallas
+    \foreignlanguage{english}{docstring} och har en egen konvention,
+    PEP~257\autocite{pep257}.  Vi återkommer till den när vi skriver
+    egna funktioner.
+  \end{remark}
+\end{frame}
+
+Nu är varje namn i överblicken förfinat, och programmet är komplett.
+
+\begin{frame}[fragile]
+  \begin{example}[Hela programmet, hopsatt]
+    Sätter vi in varje förfining där dess namn står får vi tillbaka
+    programmet vi började med:
+    \inputminted{python}{examples/age.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOExecution}.
+
+  \textbf{Fusion}: det hopsatta programmet innehåller allt modulen har
+  behandlat --- exekveringsordning, tilldelning, typer, utskrift,
+  konstant, namn och kommentar --- och studenten ska nu kunna läsa det
+  med alla aspekter samtidigt \parencite{Marton2015}.  Att det är
+  \emph{samma} program som i förtestet först i modulen är avsikten:
+  frågan \enquote{vad skrivs ut?} kan ställas om, och skillnaden mellan
+  svaren är det modulen har lärt ut.
+}
+
+\subsection{PEP 8}
+
+Reglerna vi har följt --- versaler för konstanter, små bokstäver och
+understreck för variabler --- är inte påhittade här.  De står i PEP~8,
+Pythongemenskapens stilguide\autocite{pep8}, tillsammans med resten:
+fyra blanksteg i indrag, mellanslag runt operatorer, högst 79 tecken per
+rad.  Ni behöver inte kunna dem utantill.  Ni behöver veta att de finns
+och följa dem, av samma skäl som vi valde beskrivande namn: koden ska gå
+att läsa för någon annan än den som skrev den.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[PEP 8]
+      \begin{itemize}
+        \item Pythongemenskapens stilguide.
+        \item Konstanter med versaler; variabler med små bokstäver och
+          understreck.
+        \item Fyra blanksteg i indrag, mellanslag runt operatorer, högst
+          79 tecken per rad.
+        \item Verktyg som \texttt{pycodestyle} och \texttt{black}
+          kontrollerar och rättar formateringen åt er.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[PEP 8]
+      PEP~8 är Pythongemenskapens stilguide.  Den säger bland annat att
+      konstanter skrivs med versaler och variabler med små bokstäver och
+      understreck, att indrag görs med fyra blanksteg, att operatorer
+      omges av mellanslag och att en rad inte bör vara längre än 79
+      tecken.  Verktyg som \texttt{pycodestyle} och \texttt{black}
+      kontrollerar och rättar formateringen åt er, så det är ingenting
+      att lära sig utantill.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOComments,VarLONames}.
+
+  PEP~8 införs sist, efter att materialet har följt dess regler i fem
+  avsnitt utan att namnge dem.  Ordningen är avsiktlig: konventionen är
+  först meningsfull när man sett vad den är till för, och det generella
+  påståendet \enquote{följ PEP~8} har då konkreta fall att fästa vid
+  \parencite[45--47]{Marton2015}.  Att stilguiden är gemenskapens egen,
+  och att den säger det som står här, är kontrollerat mot primärkällan;
+  hur det gick till beskrivs i \cref{app:verifiera}.
+}
+
+Med det är modulens program färdigt --- och nästa steg är att sluta
+skriva program som en enda lång följd av satser.  Det tar vi i nästa
+föreläsning, om funktioner.
