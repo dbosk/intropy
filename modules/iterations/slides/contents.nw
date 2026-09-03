@@ -1,0 +1,1376 @@
+\mode*
+
+% Convention in this deck: every program that is meant to work is a code
+% chunk tangled into examples/, and most of them are also run during the
+% build with \runpython, so the shown output cannot drift from the code.
+% (The five that are not run either print fifty identical lines or need
+% interactive input that adds nothing to the point being made.)
+% Snippets that are deliberately broken --- an infinite loop, a missing
+% base case, a non-iterable after "in" --- are plain minted blocks, so
+% that examples/ only ever holds programs that run.
+
+\section{Att upprepa sig --- eller inte}
+\label{sec:upprepa}
+
+En dator är inte särskilt smart, men den är outtröttlig.  Det den är bäst
+på är att göra samma sak om och om igen utan att tröttna, klaga eller
+tappa räkningen.  Hittills har våra program gjort varje sak en gång; från
+och med nu ska vi låta dem göra saker många gånger.  Vi börjar med den
+enklaste tänkbara uppgiften.
+
+\begin{frame}
+  \begin{exercise}[Skriv ett program]
+    \label{ex:hej-femtio}
+    Vi vill skriva ut \enquote{hej} femtio gånger.  Skriv ett program som
+    gör det.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: samtliga.
+
+  Materialet är genomgående byggt så att en fråga kommer före
+  förklaringen.  Att det lönar sig är ett påstående med belägg och
+  förbehåll; det prövas i \cref{app:produktivt}.  Två saker därifrån styr
+  hur frågorna är skrivna här.
+
+  Den första: vinsten kommer inte av att svaret skjuts upp, utan av att
+  studentens eget försök sedan ställs mot det riktiga svaret --- skjuts
+  bara svaret upp, utan den jämförelsen, försvinner effekten
+  \parencite[296]{LoiblRummel2013}.  Därför följs varje fråga i det här
+  materialet omedelbart av svaret \emph{och} av en uttalad kontrast, och
+  därför står de kontrasterade programmen på samma bild.
+
+  Den andra: effekten uteblir när materialet kräver att många delar hålls
+  i huvudet samtidigt \parencite{Ashman2020}, och den vänder för
+  nybörjare med mycket låga förkunskaper \parencite{Fyfe2014}.  Därför är
+  frågorna korta och konkreta --- två till sju rader kod --- och därför
+  ställs de bara om ämnen veckan har förutsättningar för.  Frågan här
+  bygger på funktioner och \mintinline{python}{print} från vecka 38.
+}
+
+Nästan alla börjar likadant, och det är inte fel: skriv utskriften, och
+skriv den igen, och igen.  Programmet nedan gör precis det som efterfrågas.
+
+\begin{frame}[fragile]
+  \begin{solution}[En lösning som fungerar]
+    Den ser ut så här:
+    \begin{minted}{python}
+print("hej")
+print("hej")
+print("hej")
+...
+print("hej")
+    \end{minted}
+  \end{solution}
+\end{frame}
+
+Programmet fungerar, men det är femtio rader långt, och femtio rader är
+just precis vad vi inte vill skriva.  Värre är att raderna måste ändras
+\emph{tillsammans}: ska hälsningen bli \enquote{hej!} måste alla femtio
+ändras, och den som glömmer en får ett program som säger två olika saker.
+Det vi vill är att säga \emph{en} gång vad som ska göras, och en gång hur
+många gånger.  Det är precis vad en \emph{slinga} gör.
+
+\begin{frame}[fragile]
+  \begin{solution}[Samma sak, sagt en gång]
+    Med en \mintinline{python}{for}-slinga blir det två rader:
+<<[[hej.py]]>>=
+for gång in range(50):
+    print("hej")
+@
+  \end{solution}
+\end{frame}
+
+Två rader i stället för femtio, och --- viktigare --- \emph{en} plats att
+ändra på.  Att varje kunskap i ett program ska stå på ett enda ställe är
+en namngiven princip: \emph{DRY}, \foreignlanguage{english}{Don't Repeat
+Yourself}\autocite{HuntThomas1999}.  Att det är en bra princip, och vilka
+förbehåll som gäller, är belagt i kursens material \emph{Algoritmiskt
+tänkande}, bilaga E; vi återanvänder svaret här i stället för att pröva
+det på nytt.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOFor}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om upprepningen är utskriven eller uttryckt
+  en gång.
+  \textbf{Vad som hålls invariant}: vad programmet gör --- femtio
+  utskrifter av \enquote{hej}.
+
+  Kontrasten ska urskilja \emph{upprepning som konstruktion} innan någon
+  enskild slinga har fått en betydelse.  Den utskrivna versionen visas
+  först och behålls avsiktligt: hade vi öppnat med
+  \mintinline{python}{for} hade studenten inget att jämföra med, och
+  induktion ur ett enda fall gör ingen aspekt urskiljbar
+  \parencite[45--47]{Marton2015}.  DRY namnges här därför att kontrasten
+  redan har gjort principens innebörd synlig; belägget ligger i
+  \emph{Algoritmiskt tänkande} och görs inte om.
+}
+
+Slingan är inte det enda sättet.  Det finns tre former av upprepning i
+den här kursen, och veckan handlar om att kunna alla tre och välja mellan
+dem.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{remark}[Tre sätt att upprepa]
+      \begin{itemize}
+        \item \mintinline{python}{for} --- en gång för varje element i en
+          samling.
+        \item \mintinline{python}{while} --- så länge ett villkor gäller.
+        \item Rekursion --- funktionen anropar sig själv på ett mindre
+          problem.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Tre sätt att upprepa]
+      Vi kommer att se tre former.  En \mintinline{python}{for}-slinga gör
+      något en gång för varje element i en samling.  En
+      \mintinline{python}{while}-slinga upprepar så länge ett villkor
+      gäller.  Och en \emph{rekursiv} funktion anropar sig själv på ett
+      mindre problem tills problemet är så litet att svaret är känt.
+      Alla tre kan lösa \cref{ex:hej-femtio}; vilken som passar bäst beror
+      på problemet, och det är den frågan vi återkommer till i
+      \cref{sec:valja}.
+    \end{remark}%
+  }
+\end{frame}
+
+De samlingar en \mintinline{python}{for}-slinga går igenom är oftast
+\emph{listor} och \emph{tupler}.  Hur man skapar dem, lägger till, tar
+bort, söker och sorterar hör till modulens material \emph{Listor} och
+\emph{Tupler}; här behöver vi bara kunna läsa en lista och gå igenom den.
+
+\ltnote{%
+  Arbetsfördelning inom modulen: det här materialet äger
+  \emph{upprepningen} --- \mintinline{python}{for},
+  \mintinline{python}{while}, rekursion och valet mellan dem --- medan
+  behållarna själva behandlas i \emph{Listor} och \emph{Tupler}.  Därför
+  används en lista här bara som \enquote{det vi går igenom}: ett
+  listuttryck, \mintinline{python}{len} och indexering, inget mer.  Utan
+  den gränsen skulle samma innehåll läras ut två gånger, med risk för att
+  de två framställningarna glider isär.
+}
+
+\section{\texttt{for}: en gång för varje element}
+\label{sec:for}
+
+En \mintinline{python}{for}-slinga läses ofta som \enquote{gör det här
+femtio gånger}, och för \mintinline{python}{range(50)} stämmer det.  Men
+det är inte vad slingan gör, och skillnaden är just den som brukar ställa
+till det.  Låt oss börja med att ta reda på vad som egentligen upprepas.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad upprepas?]
+    \label{ex:vad-upprepas}
+    Två program, och båda går igenom samma lista.  Vad skriver de ut?
+    Först det ena:
+<<[[loop_text.py]]>>=
+for x in [10, 20, 30]:
+    print("Hej")
+@
+    och sedan det andra:
+<<[[loop_variabel.py]]>>=
+for x in [10, 20, 30]:
+    print(x)
+@
+  \end{exercise}
+\end{frame}
+
+Det första programmet skriver \enquote{Hej} tre gånger --- tre likadana
+rader, och listan syns inte till i utmatningen.  Det andra skriver
+\mintinline{python}{10}, \mintinline{python}{20} och
+\mintinline{python}{30}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Utmatningen]
+    Det första programmet ger:
+    \runpython{examples/loop_text.py}
+
+    Och det andra:
+    \runpython{examples/loop_variabel.py}
+  \end{solution}
+\end{frame}
+
+Skillnaden mellan de två utmatningarna säger vad slingan faktiskt gör.
+Det som upprepas är \emph{kroppen} --- raderna under
+\mintinline{python}{for} --- och för varje varv får slingvariabeln
+\mintinline{python}{x} ett nytt värde: först \mintinline{python}{10}, sedan
+\mintinline{python}{20}, sedan \mintinline{python}{30}.  Det första
+programmet kör kroppen precis lika många gånger som det andra; det råkar
+bara inte använda \mintinline{python}{x}, så alla varv ser likadana ut.
+Utmatningen är alltså inte det som upprepas, den är bara ett spår av det.
+
+\begin{frame}[fragile]
+  \begin{definition}[\texttt{for}-slinga]
+    \label{def:for}
+    Formen är
+    \begin{minted}{python}
+for variabel in samling:
+    # kroppen: körs en gång per element
+    \end{minted}
+    Kroppen körs en gång för varje element i samlingen, och varje varv
+    tilldelas \mintinline{python}{variabel} nästa element.
+  \end{definition}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOFor}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om kroppen använder slingvariabeln.
+  \textbf{Vad som hålls invariant}: slingan, samlingen och antalet varv.
+
+  Kontrasten riktar sig mot missuppfattningen att det som upprepas är den
+  text som syns i terminalen, snarare än kroppen med en ombunden
+  slingvariabel.  Att slingor bär dokumenterade missuppfattningar hos
+  nybörjare är belagt \parencite{Eckert2022Loops}, och ett besläktat fel
+  --- att antalet varv bestäms av hur mycket data som finns --- beskrevs
+  redan i en intervjustudie från 1984 \parencite[16]{Sleeman1984}.  Att
+  just den här formuleringen \emph{inte} står ordagrant i någon av
+  källorna redovisas i
+  \cref{app:missuppfattningar}; kontrasten står ändå, eftersom den gör
+  ombindningen synlig för alla.
+
+  \foreignlanguage{english}{Try-first}: frågan i
+  \cref{ex:vad-upprepas} pekar inte ut vad studenten ska titta på, så
+  svaren visar vem som redan urskiljer ombindningen.  De två programmen
+  visas samtidigt, inte efter varandra, eftersom kontrasten ska upplevas
+  simultant \parencite[45--47]{Marton2015}.
+}
+
+\subsection{Vilka rader hör till slingan?}
+\label{sec:indrag}
+
+Om det är kroppen som upprepas blir nästa fråga vilka rader kroppen
+består av.  I Python avgörs det av \emph{indraget}, och ingenting annat.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Var slutar slingan?]
+    \label{ex:indrag}
+    De två programmen har samma tre rader, i samma ordning.  Vad skriver
+    de ut?  Först:
+<<[[inuti.py]]>>=
+for x in [1, 2, 3]:
+    print(x)
+    print("---")
+@
+    och sedan:
+<<[[efter.py]]>>=
+for x in [1, 2, 3]:
+    print(x)
+print("---")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Utmatningen]
+    Med indraget hör raden till kroppen och körs tre gånger:
+    \runpython{examples/inuti.py}
+
+    Utan indraget står den efter slingan och körs en gång:
+    \runpython{examples/efter.py}
+  \end{solution}
+\end{frame}
+
+Raden som står intill slingan hör alltså inte till den bara för att den
+står nära.  Den hör till slingan om, och bara om, den är indragen under
+\mintinline{python}{for}-raden.  Det är samma regel som för
+\mintinline{python}{if} och för funktionskroppar från de föregående
+veckorna --- Python använder indraget överallt där andra språk använder
+klammerparenteser --- men den är lättare att missa i en slinga, eftersom
+det är svårare att se när något körs tre gånger än när det körs en gång.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOFor}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: indraget på den sista raden.
+  \textbf{Vad som hålls invariant}: alla tre satserna, och deras ordning.
+
+  Aspekten är slingans \emph{utsträckning}.  Missuppfattningen att kod
+  intill slingan hör till den är gammal och väl dokumenterad
+  \parencite[15]{Sleeman1984}, och den finns kvar i senare inventeringar
+  \parencite[360]{Sorva2012Dissertation}.  Citaten står i
+  \cref{app:missuppfattningar}.
+
+  Programmen körs på plats i stället för att utmatningen skrivs av.  Det
+  gör att kontrasten inte kan glida isär från koden, och det är också
+  själva poängen studenten ska ta med sig: kör programmet i stället för
+  att gissa.
+}
+
+\subsection{Samma slinga över olika samlingar}
+\label{sec:generalisering}
+
+Så länge vi bara har gått igenom en lista kan man tro att listan är det
+väsentliga.  Det är den inte.  Slingan bryr sig inte om \emph{vad} den
+går igenom, bara att det går att gå igenom ett element i taget.
+
+\begin{frame}[fragile]
+  \begin{example}[Tre samlingar, samma slinga]
+    \label{ex:tre-samlingar}
+    Listan från förut:
+    \inputminted{python}{examples/loop_variabel.py}
+
+    Ett \mintinline{python}{range} som ger samma tal:
+<<[[loop_range.py]]>>=
+for x in range(10, 40, 10):
+    print(x)
+@
+
+    Och en sträng:
+<<[[loop_strang.py]]>>=
+for tecken in "abc":
+    print(tecken)
+@
+  \end{example}
+\end{frame}
+
+De två första skriver ut exakt samma sak, trots att den ena går igenom en
+lista och den andra ett \mintinline{python}{range}.  Det tredje går
+igenom en \emph{sträng}, och då är elementen strängens tecken: först
+\mintinline{python}|"a"|, sedan \mintinline{python}|"b"|, sedan
+\mintinline{python}|"c"|.
+
+\begin{frame}[fragile]
+  \begin{solution}[Utmatningarna]
+    Först \mintinline{python}{range}-versionen:
+    \runpython{examples/loop_range.py}
+
+    Och sedan strängen:
+    \runpython{examples/loop_strang.py}
+  \end{solution}
+\end{frame}
+
+En sträng är alltså inte en odelbar klump text, utan en \emph{följd av
+tecken} --- och en följd går att gå igenom precis som en lista.  Det är
+värt att stanna vid, för det öppnar en hel klass av program: allt man kan
+göra med en lista av värden kan man göra med tecknen i en sträng.  Vi
+använder det i \cref{sec:valja} för att räkna ut siffersumman av ett tal.
+
+\begin{frame}[fragile]
+  \begin{remark}[Vad kan stå efter \texttt{in}?]
+    Något som går att gå igenom --- en lista, en tupel, ett
+    \mintinline{python}{range}, en sträng.  Ett ensamt tal går inte:
+    \begin{minted}{python}
+for i in 100:
+    print(i)
+    \end{minted}
+    ger \mintinline{text}|TypeError: 'int' object is not iterable|.  Vill
+    vi ha hundra varv får vi be om hundra tal, med
+    \mintinline{python}{range(100)}.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOFor,IterLOString}.
+
+  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- kroppen körs
+  en gång per element, och slingvariabeln binds om varje varv.
+  \textbf{Vad som varierar}: samlingens \emph{slag} (lista,
+  \mintinline{python}{range}, sträng).
+
+  Listversionen är ordagrant den från \cref{ex:vad-upprepas}, och
+  \mintinline{python}{range}-versionen är vald så att den ger \emph{samma}
+  utmatning: då kan skillnaden i utmatning inte förväxlas med skillnaden i
+  samling.  Strängen varierar därefter elementens slag, och gör
+  \cref{IterLOString} till en följd av generaliseringen snarare än till ett
+  eget påstående.  Att missuppfattningar om slingor är knutna till hur
+  slingan är \emph{representerad} \parencite{Eckert2022Loops} är just
+  skälet att variera ytformen och hålla innebörden fast.
+
+  \mintinline{python}{for i in 100} är en dokumenterad missuppfattning
+  \parencite[4]{GuoMarkelZhang2020} och visas därför som felkod, med
+  felmeddelandet utskrivet: felmeddelandet är det studenten faktiskt
+  kommer att möta.
+}
+
+\subsection{Slingor i slingor}
+\label{sec:nastlade}
+
+Kroppen i en slinga är vanlig kod, och vanlig kod får innehålla en slinga.
+Det låter oskyldigt, men det är steget där många tappar tråden, så vi tar
+det med ett exempel där resultatet syns direkt: multiplikationstabellen.
+
+\begin{frame}
+  \begin{exercise}[Multiplikationstabellen]
+    \label{ex:multtabell}
+    Skriv ut multiplikationstabellen för talen 1 till 9: en rad per tal,
+    och på raden talets produkter med 1 till 9.  Hur många produkter blir
+    det sammanlagt?
+  \end{exercise}
+\end{frame}
+
+Tabellen har nio rader, och varje rad har nio tal.  Det ger nio varv för
+raderna, och inuti varje sådant varv nio varv för talen på raden --- alltså
+åttioen produkter.  Den yttre slingan går igenom raderna, den inre går
+igenom en rad, och den inre körs \emph{om från början} för varje varv i
+den yttre.
+
+\begin{frame}[fragile]
+  \begin{solution}[Multiplikationstabellen]
+    Två slingor, den ena inuti den andra:
+<<[[multtable.py]]>>=
+"""Skriver ut multiplikationstabellen 1--9."""
+
+for x in range(1, 10):
+    for y in range(1, 10):
+        print(f"{x * y:4d}", end="")
+    print()
+@
+  \end{solution}
+\end{frame}
+
+Två detaljer gör utskriften läsbar.  \mintinline{python}|end=""| säger åt
+\mintinline{python}{print} att inte byta rad, så produkterna hamnar efter
+varandra på samma rad, och \mintinline{python}{:4d} lägger ut varje tal på
+fyra teckens bredd så att kolumnerna står rakt.  Radbytet sköts i stället
+av \mintinline{python}{print()} sist i den yttre kroppen --- utanför den
+inre slingan, men innanför den yttre.
+
+\begin{frame}[fragile]
+  \begin{example}[Tabellen]
+    Kör vi programmet får vi:
+    \runpython{examples/multtable.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOFor}.
+
+  Nästlade slingor pekas ut som särskilt svåra för nybörjare
+  \parencite{Eckert2022Loops}; se \cref{app:missuppfattningar}.  Övningen
+  ställer därför frågan \enquote{hur många produkter blir det
+  sammanlagt?} innan koden visas: svaret 81 kan bara ges av den som
+  urskiljt att den inre slingan körs om från början för varje varv i den
+  yttre, och ett svar som 18 avslöjar att slingorna uppfattas som
+  sidoordnade.
+
+  Placeringen av \mintinline{python}{print()} --- innanför den yttre men
+  utanför den inre kroppen --- knyter tillbaka till indragsregeln i
+  \cref{sec:indrag} i stället för att införa något nytt.  Exemplet är
+  medvetet nedbantat jämfört med den äldre versionen med kolumnhuvuden och
+  avdelande streck: formateringen var där mer kod än nästlingen, och drog
+  uppmärksamheten från den aspekt som ska urskiljas.
+}
+
+\section{\texttt{while}: så länge villkoret gäller}
+\label{sec:while}
+
+En \mintinline{python}{for}-slinga behöver veta vad den ska gå igenom
+innan den börjar.  Ibland vet vi inte det: vi vet bara när vi ska sluta.
+Då använder vi \mintinline{python}{while}, som ni mötte i förra veckans
+material om inmatning och felhantering.  Här ska vi titta på det som gör
+att den ibland aldrig slutar.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad gör programmet?]
+    \label{ex:while-utan}
+    Läs programmet och avgör vad det gör:
+    \begin{minted}{python}
+i = 0
+while i < 3:
+    print(i)
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+Många läser det som \enquote{skriv ut 0, 1 och 2}, och det är en rimlig
+läsning av vad någon \emph{ville} skriva.  Men programmet skriver ut
+\mintinline{python}{0}, om och om igen, för alltid.  Villkoret
+\mintinline{python}{i < 3} prövas om före varje varv, och ingenting i
+kroppen ändrar \mintinline{python}{i}, så villkoret som var sant första
+gången är sant varje gång.
+
+\begin{frame}[fragile]
+  \begin{solution}[Den saknade raden]
+    Slingan slutar först när något i kroppen ändrar det villkoret tittar
+    på:
+<<[[rakna.py]]>>=
+i = 0
+while i < 3:
+    print(i)
+    i += 1
+@
+
+    Och nu tar den slut:
+    \runpython{examples/rakna.py}
+  \end{solution}
+\end{frame}
+
+Det här är en av de vanligaste anledningarna till att ett program
+\enquote{hänger sig}.  Skriv därför alltid
+\mintinline{python}{while}-slingan i tre delar och kontrollera alla tre:
+något sätts \emph{före} slingan, något prövas \emph{i villkoret}, och
+något ändras \emph{i kroppen} så att villkoret till slut blir falskt.
+Saknas den tredje delen slutar slingan aldrig.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOWhile}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om kroppen ändrar variabeln som villkoret
+  prövar.
+  \textbf{Vad som hålls invariant}: initieringen, villkoret och
+  utskriften.
+
+  Aspekten är att en \mintinline{python}{while}-slinga bara slutar om
+  kroppen kan göra villkoret falskt.  Felet finns katalogiserat som
+  antimönstret \emph{control variable is not changed} i riktig CS1-kod
+  \parencite[111]{Bosse2021Antipatterns}, och att nybörjare skriver
+  \mintinline{python}{while i <= 100} utan att först ge
+  \mintinline{python}{i} ett värde är dokumenterat
+  \parencite[4]{GuoMarkelZhang2020}; se \cref{app:missuppfattningar}.  Det
+  är också aspekt 31 i kursens diagnostiska för- och eftertest om
+  upprepningar, så
+  \cref{ex:while-utan} fungerar som ett förtest: den som svarar
+  \enquote{0, 1, 2} har inte urskiljt aspekten ännu.
+
+  Den trasiga versionen körs inte i materialet --- den skulle aldrig ta
+  slut --- utan visas som kod med svaret i texten.  Därför är det den enda
+  varianten i avsnittet som inte finns som ett tanglat program.
+}
+
+\subsection{Upprepa eller välja?}
+\label{sec:upprepa-eller-valja}
+
+Innan man väljer \emph{vilken} slinga är det värt att fråga om det
+behövs en slinga alls.  Att göra något \emph{en gång om} ett villkor
+gäller och att göra det \emph{så länge} villkoret gäller ser nästan
+likadant ut i koden, och betyder helt olika saker.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Rabatten]
+    \label{ex:rabatt}
+    Varor som kostar minst 50 kronor ska få 20 kronor i rabatt.  Vad
+    skriver de två programmen ut?  Först:
+<<[[rabatt_while.py]]>>=
+pris = 100
+while pris >= 50:
+    pris = pris - 20
+print(pris)
+@
+    och sedan:
+<<[[rabatt_if.py]]>>=
+pris = 100
+if pris >= 50:
+    pris = pris - 20
+print(pris)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Utmatningen]
+    Med \mintinline{python}{while}:
+    \runpython{examples/rabatt_while.py}
+
+    Med \mintinline{python}{if}:
+    \runpython{examples/rabatt_if.py}
+  \end{solution}
+\end{frame}
+
+Båda programmen tar slut --- kroppen ändrar ju \mintinline{python}{pris},
+så villkoret blir till sist falskt --- men bara det ena gör det som
+efterfrågades.  \mintinline{python}{while} drar av tjugo kronor gång på
+gång så länge priset ligger kvar över femtio, och landar på
+\mintinline{python}{40}.  \mintinline{python}{if} drar av dem en gång, och
+ger det \mintinline{python}{80} vi ville ha.  Felet är alltså inte att
+slingan hänger sig, utan att svaret blir fel.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{remark}[Slinga eller förgrening?]
+      \begin{itemize}
+        \item En gång, om villkoret gäller: \mintinline{python}{if}.
+        \item Om och om igen, så länge villkoret gäller:
+          \mintinline{python}{while}.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Slinga eller förgrening?]
+      Frågan att ställa sig är hur många gånger handlingen ska utföras.
+      Ska den utföras \emph{en gång} om villkoret gäller är det en
+      förgrening, \mintinline{python}{if}.  Ska den utföras \emph{om och om
+      igen} så länge villkoret gäller är det en upprepning,
+      \mintinline{python}{while}.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOWhile,IterLOChoose}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: konstruktionen (\mintinline{python}{while}
+  eller \mintinline{python}{if}).
+  \textbf{Vad som hålls invariant}: uppgiften, villkoret, kroppen och
+  utskriften.
+
+  Aspekten ligger \emph{före} slingans mekanik: utförs handlingen en gång
+  eller upprepas den?  Antimönstret \emph{use of a repetition structure
+  where a selection should be} är katalogiserat i CS1-kod, med följden att
+  resultatet blir fel \parencite[79]{Bosse2021Antipatterns}; se
+  \cref{app:missuppfattningar}.  Talen är valda så att båda programmen
+  terminerar --- annars hade kontrasten handlat om oändliga slingor, som
+  \cref{sec:while} redan avhandlat, i stället för om vad konstruktionen
+  \emph{betyder}.  Det är aspekt 32 i kursens diagnostiska för- och
+  eftertest om upprepningar.
+}
+
+Innan vi lämnar \mintinline{python}{while} är det värt att lösa
+\cref{ex:hej-femtio} en gång till, nu med den andra slingan.
+
+\begin{frame}[fragile]
+  \begin{solution}[Femtio hej, med \texttt{while}]
+    Vi räknar själva:
+<<[[hej_while.py]]>>=
+antal = 50
+while antal > 0:
+    print("hej")
+    antal -= 1
+@
+  \end{solution}
+\end{frame}
+
+Fyra rader i stället för två, och vi får själva sköta räknaren: sätta den
+före, pröva den i villkoret och minska den i kroppen.  Det
+\mintinline{python}{for} gjorde åt oss får vi här göra för hand --- vilket
+är precis varför \mintinline{python}{for} är förstahandsvalet när antalet
+varv är känt.
+
+\section{Rekursion: funktionen som anropar sig själv}
+\label{sec:rekursion}
+
+Det finns ett tredje sätt att upprepa, och det använder ingen slinga alls.
+Från veckan om funktioner vet ni att en funktion får anropa andra
+funktioner.  Frågan är vad som händer om den anropar sig själv.
+
+\begin{frame}
+  \begin{exercise}[Kan en funktion anropa sig själv?]
+    \label{ex:rekursion-fraga}
+    En funktion får anropa vilken funktion som helst.  Får den anropa sig
+    själv?  Och om den får --- hur skulle ni använda det för att skriva ut
+    \enquote{hej} femtio gånger?
+  \end{exercise}
+\end{frame}
+
+Svaret är ja, den får det, och det är precis så man gör.  Tanken är att
+lösa ett litet mindre problem varje gång: att skriva ut \enquote{hej}
+femtio gånger är att skriva ut det en gång, och sedan skriva ut det
+fyrtionio gånger.
+
+\begin{frame}[fragile]
+  \begin{solution}[Femtio hej, med rekursion]
+    Funktionen anropar sig själv med ett mindre antal:
+<<[[hej_rekursion.py]]>>=
+def skriv_ut(meddelande, antal_gånger):
+    """Skriver ut meddelande så många gånger."""
+    if antal_gånger <= 0:
+        return
+
+    print(meddelande)
+    skriv_ut(meddelande, antal_gånger - 1)
+
+
+skriv_ut("hej", 50)
+@
+  \end{solution}
+\end{frame}
+
+Två saker gör att det fungerar.  Det rekursiva anropet sker på ett
+\emph{mindre} problem --- \mintinline{python}{antal_gånger - 1} i stället
+för \mintinline{python}{antal_gånger} --- så vi närmar oss något.  Och det
+finns ett \emph{basfall}: när \mintinline{python}{antal_gånger} har nått
+noll returnerar funktionen utan att anropa sig själv igen, och kedjan tar
+slut.
+
+\begin{frame}[fragile]
+  \begin{remark}[Utan basfall]
+    Tar vi bort de två raderna som avbryter
+    \begin{minted}{python}
+def skriv_ut(meddelande, antal_gånger):
+    """Skriver ut meddelande så många gånger."""
+    print(meddelande)
+    skriv_ut(meddelande, antal_gånger - 1)
+    \end{minted}
+    slutar funktionen aldrig anropa sig själv, och Python avbryter till
+    sist med felmeddelandet
+    \mintinline{text}|RecursionError: maximum recursion depth exceeded|.
+  \end{remark}
+\end{frame}
+
+Basfallet spelar samma roll för rekursionen som ändringen av räknaren
+gjorde för \mintinline{python}{while}-slingan: det är det som gör att
+upprepningen kan ta slut.  Skillnaden är att en
+\mintinline{python}{while}-slinga utan avslut snurrar tyst i all evighet,
+medan rekursionen ger ett felmeddelande --- varje pågående anrop tar plats
+i minnet, och till slut är platsen slut.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Rekursion]
+      \begin{itemize}
+        \item Ett \emph{basfall}: det minsta problemet, som löses direkt.
+        \item Ett \emph{rekursivt anrop}: samma funktion, på ett mindre
+          problem.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Rekursion]
+      En funktion är \emph{rekursiv} om den anropar sig själv.  För att den
+      ska ta slut behöver den två delar: ett \emph{basfall}, det minsta
+      problemet, vars svar ges direkt utan något nytt anrop; och ett
+      \emph{rekursivt anrop} på ett \emph{mindre} problem, så att varje
+      anrop kommer närmare basfallet.
+    \end{definition}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLORecursion}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om basfallet finns.
+  \textbf{Vad som hålls invariant}: funktionen, anropet och det mindre
+  problemet.
+
+  Kontrasten ska urskilja \emph{basfallet} som en egen aspekt, och den
+  ställs bredvid \mintinline{python}{while}-kontrasten i \cref{sec:while}
+  med avsikt: samma kritiska aspekt --- att upprepningen måste kunna ta
+  slut --- i två skepnader.  Det ger en generalisering över
+  konstruktionerna utan att någon ny aspekt införs.
+
+  \Cref{ex:hej-femtio} löses här för tredje gången, med samma uppgift och
+  samma utmatning som i \cref{sec:upprepa,sec:while}.  Den invariansen är
+  vad som gör jämförelsen i \cref{sec:valja} möjlig: där varieras
+  konstruktionen medan uppgiften hålls fast.  Rekursionen presenteras som
+  ett tredje \emph{sätt att upprepa}, inte som ett svårare ämne; någon
+  utsaga om att rekursion skulle vara särskilt svår görs medvetet inte,
+  eftersom den inte är belagd här.
+}
+
+\subsection{Rekursion som räknar ut något}
+\label{sec:fakultet}
+
+Funktionen \mintinline{python}{skriv_ut} lämnar inget svar ifrån sig; den
+skriver bara ut.  Rekursionen kommer till sin rätt först när varje anrop
+\emph{returnerar} något som anroparen räknar vidare på.  Fakulteten är det
+klassiska exemplet, och den är definierad rekursivt redan i matematiken:
+\(n! = n \cdot (n-1)!\), med \(1! = 1\).
+
+\begin{frame}[fragile]
+  \begin{example}[Fakultet]
+    \label{ex:fakultet}
+    Definitionen översatt rakt av:
+<<[[fakultet.py]]>>=
+"""Beräknar fakulteten n! = 1 * 2 * ... * n."""
+
+
+def fakultet(n):
+    """Returnerar n!, för n >= 0."""
+    if n < 0:
+        raise ValueError("fakultet kräver n >= 0")
+
+    if n <= 1:
+        return 1
+
+    return n * fakultet(n - 1)
+
+
+print(f"5! = {fakultet(5)}")
+@
+  \end{example}
+\end{frame}
+
+Läs sista raden i funktionen som definitionen läses:
+\mintinline{python}{fakultet(5)} är \mintinline{python}{5} gånger
+\mintinline{python}{fakultet(4)}, som i sin tur är
+\mintinline{python}{4} gånger \mintinline{python}{fakultet(3)}, och så
+vidare ned till \mintinline{python}{fakultet(1)}, som är
+\mintinline{python}{1} utan att fråga vidare.  Först när det innersta
+anropet har svarat kan de yttre räkna klart, och multiplikationerna sker
+på vägen tillbaka upp.
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatningen]
+    Programmet skriver ut:
+    \runpython{examples/fakultet.py}
+  \end{example}
+\end{frame}
+
+Kontrollen av negativa tal är inte pynt, men den skyddar mot något annat
+än man först tror.  Basfallet \mintinline{python}{n <= 1} fångar nämligen
+även negativa tal: utan kontrollen skulle
+\mintinline{python}{fakultet(-1)} svara \mintinline{python}{1}, direkt och
+utan ett enda rekursivt anrop.  Programmet skulle alltså inte hänga sig ---
+det skulle svara \emph{fel}, och göra det tyst.  Med kontrollen får den som
+anropar funktionen med ett negativt tal ett begripligt
+\mintinline{python}{ValueError} i stället för ett svar som ser rimligt ut.
+Det är felhanteringen från förra veckan, använd för att skilja ett omöjligt
+anrop från ett giltigt.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLORecursion}.
+
+  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Vad som hålls invariant}: basfall och rekursivt anrop på ett
+  mindre problem.
+  \textbf{Vad som varierar}: om anropet lämnar ett värde ifrån sig eller
+  bara har en sidoeffekt.
+
+  \mintinline{python}{skriv_ut} och \mintinline{python}{fakultet} är
+  medvetet lika i formen och olika i just det draget, så att studenten kan
+  urskilja returvärdet som en aspekt av det rekursiva anropet snarare än
+  som en egenskap hos rekursion i allmänhet.  Fakultetsexemplet är hämtat
+  från kursens tidigare material om rekursion; det behölls därför att den
+  matematiska definitionen redan är rekursiv och därmed ger den
+  \enquote{mindre problem}-strukturen gratis.
+
+  Det andra exemplet i det materialet, binärsökning i en lista, är inte
+  med här: det förutsätter listoperationer som modulens material
+  \emph{Listor} äger, och sökning behandlas där.
+}
+
+\section{Att välja upprepning}
+\label{sec:valja}
+
+Nu har vi tre sätt att lösa samma uppgift.  Låt oss lägga dem bredvid
+varandra innan vi frågar vilket som är bäst.
+
+\begin{frame}[fragile]
+  \begin{example}[Femtio hej, tre gånger]
+    \label{ex:tre-satt}
+    Sida vid sida ser de ut så här:
+    \begin{columns}[t]
+      \begin{column}{0.34\columnwidth}
+        Med \mintinline{python}{for}:
+        \inputminted[fontsize=\scriptsize]{python}{examples/hej.py}
+
+        Med \mintinline{python}{while}:
+        \inputminted[fontsize=\scriptsize]{python}{examples/hej_while.py}
+      \end{column}
+      \begin{column}{0.64\columnwidth}
+        Med rekursion:
+        \inputminted[fontsize=\scriptsize]{python}%
+          {examples/hej_rekursion.py}
+      \end{column}
+    \end{columns}
+  \end{example}
+\end{frame}
+
+Alla tre gör exakt samma sak.  Ändå är de olika långa, och det säger något:
+uppgiften \enquote{gör det här ett känt antal gånger} passar
+\mintinline{python}{for} som hand i handske, medan de andra två måste
+bokföra antalet själva.  Men uppgiften är också specialkonstruerad.  Låt
+oss ta ett problem där valet inte är lika självklart.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOChoose}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: konstruktionen.
+  \textbf{Vad som hålls invariant}: uppgiften och utmatningen, ordagrant.
+
+  De tre programmen är samma filer som tanglades i
+  \cref{sec:upprepa,sec:while,sec:rekursion}; de visas här igen i sin
+  helhet i stället för att skrivas av, så att jämförelsen inte kan glida
+  isär från koden.  De ligger bredvid varandra på en och samma bild
+  eftersom kontrasten ska upplevas simultant och inte återskapas ur minnet
+  \parencite[45--47]{Marton2015}.
+}
+
+\subsection{Siffersumman, tre gånger}
+\label{sec:siffersumma}
+
+Siffersumman av ett tal är summan av dess siffror: \(123\) har
+siffersumman \(1 + 2 + 3 = 6\).  Uppgiften är att fråga användaren efter
+ett positivt heltal och skriva ut dess siffersumma.\footnote{%
+  Idén till uppgiften kommer från Olle Bälter.}
+
+\begin{frame}
+  \begin{exercise}[Siffersumman]
+    \label{ex:siffersumma}
+    Låt användaren mata in ett positivt heltal och skriv ut talets
+    siffersumma.  Vilken sorts upprepning är lämplig, och varför?
+  \end{exercise}
+\end{frame}
+
+Frågan har inget enda svar, och det är poängen: vilken upprepning som
+passar beror på hur man tänker sig problemet.  Vi bygger programmet i tre
+delar, en för varje angreppssätt, och sätter ihop dem till sist.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i sin helhet]
+    \label{ex:siffersumma-helhet}
+    Det består av tre funktioner och en huvuddel:
+<<[[siffersumma.py]]>>=
+"""Beräknar siffersumman för ett tal, på tre sätt."""
+
+
+<<siffersumma med rekursion>>
+
+
+<<siffersumma med while>>
+
+
+<<siffersumma med for>>
+
+
+<<fråga efter ett tal och skriv ut siffersumman>>
+@
+  \end{example}
+\end{frame}
+
+Ser man talet som \enquote{sista siffran, plus siffersumman av resten} är
+problemet rekursivt redan i formuleringen.  Sista siffran får vi med
+\mintinline{python}|heltal % 10|, och resten med heltalsdivisionen
+\mintinline{python}|heltal // 10| --- \mintinline{python}|123 // 10| är
+\mintinline{python}{12}.  Basfallet är talet som inte har några siffror
+kvar.
+
+\begin{frame}[fragile]
+  \begin{solution}[Rekursivt]
+    Sista siffran plus siffersumman av resten:
+<<siffersumma med rekursion>>=
+def siffersumma_rekursivt(heltal):
+    """Returnerar siffersumman för heltal (int)."""
+    if heltal <= 0:
+        return 0
+
+    return heltal % 10 + siffersumma_rekursivt(heltal // 10)
+@
+  \end{solution}
+\end{frame}
+
+Samma tanke går att skriva med en slinga.  Vi vet inte i förväg hur många
+siffror talet har, bara att vi ska hålla på tills det inte finns några
+kvar --- och \enquote{tills} är \mintinline{python}{while}.  Det vi i
+rekursionen lämnade till anroparen att summera får vi nu samla ihop själva,
+i en variabel.
+
+\begin{frame}[fragile]
+  \begin{solution}[Med \texttt{while}]
+    Vi plockar av en siffra i taget tills talet är slut:
+<<siffersumma med while>>=
+def siffersumma_while(heltal):
+    """Returnerar siffersumman för heltal (int)."""
+    summan = 0
+
+    while heltal > 0:
+        summan += heltal % 10
+        heltal = heltal // 10
+
+    return summan
+@
+  \end{solution}
+\end{frame}
+
+Det tredje sättet byter angreppssätt helt.  I stället för att räkna med
+talet gör vi om det till en \emph{sträng}, och en sträng är ju en följd av
+tecken som går att gå igenom med \mintinline{python}{for}
+(\cref{sec:generalisering}).  Då är siffrorna redan uppdelade åt oss; vi
+behöver bara omvandla varje tecken tillbaka till ett tal.
+
+\begin{frame}[fragile]
+  \begin{solution}[Med \texttt{for}]
+    Talet som en följd av tecken:
+<<siffersumma med for>>=
+def siffersumma_for(heltal):
+    """Returnerar siffersumman för heltal (int)."""
+    summan = 0
+
+    for siffra in str(heltal):
+        summan += int(siffra)
+
+    return summan
+@
+  \end{solution}
+\end{frame}
+
+Kvar är huvuddelen: fråga efter talet och skriva ut svaret.  De tre
+funktionerna ger samma svar, så vilken vi anropar spelar ingen roll för
+resultatet.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvuddelen]
+    Vi frågar och skriver ut:
+<<fråga efter ett tal och skriv ut siffersumman>>=
+talet = int(input("Ett positivt heltal: "))
+print(f"Siffersumman för {talet} är {siffersumma_for(talet)}.")
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[En körning]
+    Så här ser det ut i terminalen:
+    \runpython[transcript, stdin=123]{examples/siffersumma.py}
+  \end{example}
+\end{frame}
+
+Tre lösningar på samma problem, och ingen av dem är fel.  Det som skiljer
+är hur man har valt att se på talet: som ett tal man plockar siffror ur
+(rekursivt eller med \mintinline{python}{while}), eller som en följd av
+tecken man går igenom (med \mintinline{python}{for}).  Valet av upprepning
+följer alltså av angreppssättet, inte tvärtom.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{remark}[Vilken upprepning?]
+      \begin{description}
+        \item[\texttt{for}] när det finns en samling att gå igenom,
+          eller ett känt antal varv.
+        \item[\texttt{while}] när ett villkor avgör när det tar slut.
+        \item[Rekursion] när problemet innehåller ett mindre exemplar av
+          sig självt.
+      \end{description}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Vilken upprepning?]
+      Tre tumregler, i den ordning man brukar pröva dem.  Finns det en
+      samling att gå igenom, eller ett känt antal varv, är
+      \mintinline{python}{for} enklast: den sköter både räknaren och
+      avslutet.  Avgörs slutet i stället av ett villkor som vi inte kan
+      räkna ut i förväg --- att användaren svarar rätt, att talet är slut
+      --- är det \mintinline{python}{while}.  Och innehåller problemet ett
+      mindre exemplar av sig självt, så att lösningen på det stora kan
+      uttryckas med lösningen på det lilla, är rekursion det som ligger
+      närmast formuleringen.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOChoose,IterLOString,IterLORecursion}.
+
+  \textbf{Variationsmönster}: Fusion.
+  \textbf{Vad som varierar samtidigt}: angreppssättet (talet som tal eller
+  som teckenföljd) och upprepningsformen.
+  \textbf{Vad som hålls invariant}: problemet och svaret.
+
+  Här möts modulens aspekter för första gången i ett och samma problem, och
+  det är avsikten: valet av upprepning går inte att göra utan att samtidigt
+  ha bestämt sig för hur problemet ska ses.  \mintinline{python}{for}-
+  varianten är dessutom den fusion som gör \cref{IterLOString} användbar
+  --- strängen som följd av tecken är där inte en kuriositet utan det som
+  löser uppgiften.
+
+  Tumreglerna kommer sist, efter de tre lösningarna, och inte före: en
+  generalisering blir meningsfull först när det finns variation att avläsa
+  den ur \parencite[45--47]{Marton2015}.  Programmet är ett enda tanglat
+  program med tre funktioner, så de tre lösningarna kan inte glida isär
+  från varandra eller från körningen.
+}
+
+\section{Inmatning som frågar om igen}
+\label{sec:inmatning}
+
+Det sista vi ska göra den här veckan är att sätta ihop upprepningen med
+inmatningen och felhanteringen från förra veckan.  Problemet är gammalt:
+användaren skriver något som inte går att använda, och programmet ska då
+fråga igen i stället för att krascha.
+
+\begin{frame}
+  \begin{exercise}[Fråga tills det blir rätt]
+    \label{ex:fraga-igen}
+    Skriv en funktion som frågar användaren efter ett heltal och
+    returnerar det --- men som frågar om igen, i stället för att krascha,
+    om användaren skriver något annat.
+  \end{exercise}
+\end{frame}
+
+En lösning som ofta dyker upp bygger på att funktionen anropar sig själv
+när det gick fel.  Det är inte orimligt tänkt: \enquote{fråga igen}
+låter ju som \enquote{gör om det jag just gjorde}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Ett första försök]
+    Går det fel frågar funktionen sig själv igen:
+<<[[fraga_rekursivt.py]]>>=
+"""Frågar efter ett heltal --- men gör det på fel sätt."""
+
+
+def fråga_tal(fråga):
+    """Frågar tills användaren matar in ett heltal."""
+    try:
+        return int(input(fråga))
+    except ValueError:
+        print("Det var inget heltal, försök igen.")
+        fråga_tal(fråga)
+
+
+tal = fråga_tal("Ett heltal: ")
+print(f"Du matade in {tal}.")
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}[Vad händer?]
+    \label{ex:fraga-rekursivt-fraga}
+    Användaren skriver först \enquote{hej} och sedan \enquote{5}.  Vad
+    skriver programmet ut på sista raden?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Körningen]
+    Så här går det:
+    \runpython[transcript, stdin=hej, stdin=5]{examples/fraga_rekursivt.py}
+  \end{solution}
+\end{frame}
+
+Funktionen frågar mycket riktigt om igen, och användaren svarar 5.
+Men svaret kommer aldrig fram.  Det inre anropet \emph{returnerar}
+\mintinline{python}{5} --- till det yttre anropet, som kastar bort värdet
+och själv tar slut utan någon \mintinline{python}{return}.  En funktion
+som tar slut utan \mintinline{python}{return} lämnar
+\mintinline{python}{None} ifrån sig, och det är det som skrivs ut.  Felet
+är alltså inte rekursionen i sig, utan att det rekursiva anropets svar
+inte skickas vidare.
+
+Det går att laga --- skriv \mintinline{python}|return fråga_tal(fråga)| --- men
+det är värt att fråga sig om rekursion är rätt verktyg här.  Problemet
+innehåller inget mindre exemplar av sig självt; det finns inget som blir
+mindre för varje varv.  Det vi vill säga är \enquote{håll på tills det
+lyckas}, och det är precis vad \mintinline{python}{while} säger.
+
+\begin{frame}[fragile]
+  \begin{solution}[Med en slinga]
+    Vi upprepar tills inmatningen går att använda:
+<<[[fraga_tal.py]]>>=
+"""Frågar efter ett heltal tills användaren svarar begripligt."""
+
+
+def fråga_tal(fråga):
+    """Frågar tills användaren matar in ett heltal, returnerar det."""
+    while True:
+        try:
+            return int(input(fråga))
+        except ValueError:
+            print("Det var inget heltal, försök igen.")
+
+
+tal = fråga_tal("Ett heltal: ")
+print(f"Du matade in {tal}.")
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen]
+    Med samma svar som förut:
+    \runpython[transcript, stdin=hej, stdin=5]{examples/fraga_tal.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{while True} ser ut som en oändlig slinga, och är det
+också --- villkoret blir aldrig falskt.  Det som avslutar den är i stället
+\mintinline{python}{return}, som lämnar hela funktionen så snart
+\mintinline{python}{int} lyckats.  Går det fel körs
+\mintinline{python}{except}-grenen, slingan börjar om, och frågan ställs
+igen.
+
+Funktionen är värd att lägga på minnet, för mönstret återkommer i varje
+program som har en användare.  Den gör dessutom \emph{en} sak --- frågar
+tills svaret går att använda --- och det är därför den går att återanvända:
+den vet ingenting om vad talet ska användas till.  Att en funktion bör ha
+ett enda ansvar är en namngiven princip, \emph{SRP},
+\foreignlanguage{english}{single responsibility principle}.  Till skillnad
+från DRY i \cref{sec:upprepa} har vi ännu inte kontrollerat vare sig var
+namnet kommer ifrån eller hur väl principen är belagd; \cref{app:verifiera}
+säger var i kursen det ska göras.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{IterLOInput,IterLOChoose,IterLORecursion}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: hur upprepningen uttrycks (rekursivt anrop
+  eller \mintinline{python}{while}).
+  \textbf{Vad som hålls invariant}: uppgiften, felhanteringen och
+  funktionens gränssnitt.
+
+  Det rekursiva försöket är inget halmstrå: att låta funktionen anropa sig
+  själv i stället för att lägga anropet i en slinga är ett mönster vi ser i
+  studenternas egna lösningar i den här kursen.  Det visas därför först,
+  och körs, så att felet upptäcks i utmatningen (\enquote{None}) i stället
+  för att påstås i texten --- \foreignlanguage{english}{try-first} med
+  frågan i \cref{ex:fraga-rekursivt-fraga} ställd innan körningen.
+
+  Att lösningen \emph{går} att laga sägs uttryckligen, så att kontrasten
+  inte läses som \enquote{rekursion är fel}.  Den aspekt som ska urskiljas
+  är i stället valet i \cref{IterLOChoose}: rekursion passar när problemet
+  innehåller ett mindre exemplar av sig självt, och det gör inte det här
+  problemet.
+
+  SRP namnges men beläggs inte här; principen introduceras och beläggs i
+  \emph{Funktioner} (vecka 38), och \cref{app:verifiera} anger var.
+}
+
+\subsection{Allt på en gång: ett gissningsspel}
+\label{sec:gissningsspel}
+
+Till sist ett program som använder veckans alla delar samtidigt: en
+\mintinline{python}{for}-slinga som räknar försöken, en
+\mintinline{python}{while}-slinga som frågar tills svaret går att använda,
+en förgrening som avgör om gissningen var rätt, och funktioner som håller
+isär delarna.
+
+\begin{frame}[fragile]
+  \begin{example}[Gissningsspelet i sin helhet]
+    \label{ex:guess}
+    Programmet består av två funktioner:
+<<[[guess.py]]>>=
+"""Ett litet gissningsspel."""
+
+import random
+
+MAX_TAL = 10
+ANTAL_FÖRSÖK = 5
+
+
+<<fråga efter en giltig gissning>>
+
+
+<<spela en omgång>>
+
+
+spela_omgång()
+@
+  \end{example}
+\end{frame}
+
+Två konstanter styr spelet: det hemliga talet ligger mellan
+\mintinline{python}{0} och \mintinline{python}{MAX_TAL}, och användaren
+får \mintinline{python}{ANTAL_FÖRSÖK} gissningar på sig.  Att de står som
+namngivna konstanter högst upp, i stället för som siffror inne i koden,
+gör att spelets svårighetsgrad går att ändra på ett enda ställe --- samma
+DRY-resonemang som i \cref{sec:upprepa}.
+
+Den första funktionen är samma mönster som
+\mintinline{python}|fråga_tal| i början av \cref{sec:inmatning}, byggt
+vidare: den heter något annat, tar reda på vilket försök i ordningen det
+är, och prövar ett krav till --- gissningen ska också ligga inom det
+tillåtna intervallet.  Båda kraven hör till samma ansvar, att lämna ifrån
+sig en gissning som går att använda, så de hör hemma i samma funktion.
+
+\begin{frame}[fragile]
+  \begin{solution}[Att fråga efter en gissning]
+    Vi frågar tills svaret är både ett heltal och inom intervallet:
+<<fråga efter en giltig gissning>>=
+def fråga_gissning(försök):
+    """Frågar tills användaren matar in ett tal mellan 0 och MAX_TAL."""
+    while True:
+        try:
+            gissning = int(input(f"Gissning {försök}: "))
+        except ValueError:
+            print("Det var inget heltal.")
+            continue
+
+        if 0 <= gissning <= MAX_TAL:
+            return gissning
+
+        print(f"Gissa mellan 0 och {MAX_TAL}.")
+@
+  \end{solution}
+\end{frame}
+
+Här dyker \mintinline{python}{continue} upp: det hoppar direkt till nästa
+varv i slingan, utan att köra resten av kroppen.  Utan det skulle
+intervallkontrollen efter \mintinline{python}{except}-grenen köras på en
+\mintinline{python}{gissning} som aldrig blev satt.
+
+Själva omgången är en \mintinline{python}{for}-slinga över försöken.  Att
+den är en \mintinline{python}{for} och inte en \mintinline{python}{while}
+är ett medvetet val: antalet försök är känt i förväg.
+
+\begin{frame}[fragile]
+  \begin{solution}[Att spela en omgång]
+    Vi ger användaren ett bestämt antal försök:
+<<spela en omgång>>=
+def spela_omgång():
+    """Spelar en omgång; returnerar True om användaren gissade rätt."""
+    talet = random.randint(0, MAX_TAL)
+
+    for försök in range(1, ANTAL_FÖRSÖK + 1):
+        if fråga_gissning(försök) == talet:
+            print(f"Rätt, på {försök} försök!")
+            return True
+
+    print(f"Tyvärr, talet var {talet}.")
+    return False
+@
+  \end{solution}
+\end{frame}
+
+Lägg märke till att \mintinline{python}{return} avslutar hela funktionen,
+och därmed också slingan: gissar användaren rätt på tredje försöket körs
+inget fjärde varv.  Kommer slingan däremot ända igenom sina fem varv har
+användaren inte gissat rätt, och raderna efter slingan körs.  Det är
+samma indragsregel som i \cref{sec:indrag}, nu med en
+\mintinline{python}{for}-slinga inuti en funktion.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{IterLOFor,IterLOWhile,IterLOInput,IterLOChoose}.
+
+  \textbf{Variationsmönster}: Fusion.
+  \textbf{Vad som varierar samtidigt}: de två slingornas roller --- den
+  yttre räknar försök, den inre säkrar inmatningen --- och funktionernas
+  uppdelning.
+  \textbf{Vad som hålls invariant}: konstruktionerna själva, som var och en
+  redan är urskild.
+
+  Programmet är veckans avslutande helhet och innehåller ingenting nytt
+  utom \mintinline{python}{continue}.  Att en \mintinline{python}{for} och
+  en \mintinline{python}{while} sitter i varandra utan att vara nästlade i
+  samma funktion är det som ska urskiljas: valet av upprepning görs per
+  delproblem, inte per program.  \mintinline{python}{import random}
+  används som redan känd kod; moduler och import behandlas i modulens
+  material om paket och moduler.
+
+  Den äldre versionen av det här exemplet returnerade
+  \mintinline{python}{attempt} i stället för gissningen och kunde använda
+  en obunden variabel efter slingan.  Båda felen är lagade här; ett
+  exempel som ska visa hur man gör bör inte innehålla fel som inte är
+  poängen.
+}
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{summary}
+      \begin{itemize}
+        \item \mintinline{python}{for} går igenom en samling, ett element i
+          taget.
+        \item Indraget avgör vilka rader som upprepas.
+        \item \mintinline{python}{while} upprepar tills villkoret blir
+          falskt --- något i kroppen måste kunna göra det.
+        \item Rekursion behöver ett basfall och ett mindre problem.
+        \item Valet följer av hur problemet ses.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}
+      Veckans tre upprepningar löser samma slags uppgift på tre sätt.  En
+      \mintinline{python}{for}-slinga kör sin kropp en gång per element i
+      en samling, och indraget avgör vilka rader kroppen består av.  En
+      \mintinline{python}{while}-slinga upprepar så länge villkoret gäller,
+      vilket kräver att något i kroppen kan göra det falskt.  En rekursiv
+      funktion anropar sig själv på ett mindre problem och behöver ett
+      basfall för att ta slut.  Vilken av dem som passar följer av hur man
+      väljer att se på problemet --- och en sträng, sedd som en följd av
+      tecken, går att gå igenom precis som vilken annan samling som helst.
+    \end{summary}%
+  }
+\end{frame}

@@ -1,6 +1,33 @@
 \documentclass[ignoreframetext]{beamer}
 \input{preamble.tex}
 
+% beamer takes the names of its own theorem environments (example,
+% definition, solution, ...) from the translator package, which resolves to
+% English when babel is loaded with several languages.  Say which language
+% this deck is in, or the slides read "Example"/"Solution" while the notes
+% read "Exempel"/"Lösningsförslag".
+\uselanguage{Swedish}
+\languagepath{Swedish}
+
+% contents.tex is woven from contents.nw; noweb.sty defines the chunk
+% markup macros the weave emits.  The [minted] option makes the chunks
+% render through minted (the weave runs tominted).
+\usepackage[minted]{noweb}
+\noweboptions{breakcode,nomargintag,noxref}
+% The chunk cross-referencing apparatus (sub-page tags, defines/uses
+% lists) is for the notes; on slides it is noise, and beamer overlays
+% re-execute frame bodies so the sub-page labels would be multiply
+% defined.  Gut it here; the notes keep it.
+\def\sublabel#1{}
+\def\subpageref#1{}
+\def\nwindexdefn#1#2#3{}
+\def\nwindexuse#1#2#3{}
+\def\nwidentdefs#1{}
+\def\nwidentuses#1{}
+\def\nwused#1{}
+\def\nwnotused#1{}
+\def\nwalsodefined#1{}
+
 \usetheme{Berlin}
 \setbeamertemplate{footline}%{miniframes theme}
 {%
@@ -81,6 +108,21 @@
   \end{block}
 }
 
+% beamer declares `solution` alongside theorem and lemma, so its body is
+% set in italics.  In this deck a solution's body is prose introducing a
+% code chunk, so it must look like the other blocks.  \ProvideDocument-
+% Environment would be a no-op here (beamer got there first), hence
+% \DeclareDocumentEnvironment.
+\DeclareDocumentEnvironment{solution}{o}{%
+  \IfValueTF{#1}{%
+    \begin{block}{\translate{Solution}: #1}
+  }{%
+    \begin{block}{\translate{Solution}}
+  }
+}{%
+  \end{block}
+}
+
 \ProvideDocumentEnvironment{exercise}{o}{%
   \setbeamercolor{block body}{bg=yellow!10,fg=black}
   \setbeamercolor{block title}{bg=yellow,fg=black}
@@ -111,6 +153,8 @@
 \mode<all>
 \input{contents.tex}
 \mode*
+%
+%%% REFERENCES %%%
 
 %\begin{frame}[allowframebreaks]
 %  \printbibliography
