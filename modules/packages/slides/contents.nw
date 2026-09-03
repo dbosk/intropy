@@ -285,6 +285,17 @@ accidental clashes with a user's global
 variables}\autocite[kap.~6.1]{PyDocModules}.  Modulens namn och våra
 egna kan alltså inte krocka, för de bor på olika ställen.
 
+Felet i \cref{ex:age-bare} är för övrigt ett av de allra vanligaste
+nybörjare får.  I en studie av över \num{300000} versioner av
+nybörjares Pythonfunktioner var \mintinline{python}{NameError} det
+vanligaste körtidsfelet, kring tio procent av alla misslyckade försök
+oavsett uppgift\autocite[541]{SmithRixner2019}, och i en annan samling
+på 1,6 miljoner inlämningar var det det näst vanligaste felmeddelandet
+över huvud taget\autocite[avsnitt~2.1]{Pritchard2015}.  Vad namnfelen
+berodde på säger ingen av studierna --- ett stavfel ger samma
+meddelande --- så hur många av dem som var just ett utelämnat modulnamn
+vet vi inte; det vetenskapliga underlaget finns i \cref{app:moduler}.
+
 \begin{frame}
   \only<presentation>{%
     \begin{remark}[Vad \texttt{import} ger programmet]
@@ -337,7 +348,11 @@ egna kan alltså inte krocka, för de bor på olika ställen.
   tanglade filen; felmeddelandet är inte påstått utan producerat.  Att
   \mintinline{python}{NameError} redan är bekant från
   \emph{Felhantering} gör att uppmärksamheten kan ligga på \emph{varför}
-  namnet saknas.
+  namnet saknas.  Stycket om hur vanligt felet är stöder sig på de två
+  frekvensstudier \cref{app:moduler} fann
+  \parencite[541]{SmithRixner2019}\parencite[avsnitt~2.1]{Pritchard2015};
+  att de inte anger orsakerna sägs ut i prosan, så att siffran inte
+  läses som ett belägg för just det utelämnade modulnamnet.
 }
 
 % Article-only heading: a \subsection would give the Berlin theme's
@@ -1028,12 +1043,14 @@ fil \emph{skuggar} bibliotekets modul.  Det gäller alla filer i
 katalogen, inte bara den som körs: en fil \texttt{random.py} bredvid
 tärningsprogrammet hade skuggat \mintinline{python}{random} för det.
 
-Python har sedan version 3.13 sett problemet så ofta att felmeddelandet
-föreslår lösningen: byt namn på filen.  Ett program som \emph{använder}
-statistik får heta något annat än \texttt{statistics.py}.  När ni får
-ett \mintinline{python}{AttributeError} eller
+Sedan version 3.13 föreslår Python själv lösningen i felmeddelandet: byt
+namn på filen.  Döp alltså inte ett program som \emph{använder}
+statistik till \texttt{statistics.py}.  När ni får ett
+\mintinline{python}{AttributeError} eller
 \mintinline{python}{ImportError} från en modul ni vet fungerar, titta
-på filnamnen i katalogen.
+på filnamnen i katalogen.  Hur vanligt misstaget är hos nybörjare vet vi
+inte --- det vetenskapliga underlaget, eller snarare bristen på det,
+finns i \cref{app:moduler}.
 
 \begin{frame}
   \only<presentation>{%
@@ -1094,9 +1111,11 @@ ifred --- och låta bli att lämna in.
 
   Materialet påstår \emph{inte} att misstaget är vanligt hos nybörjare:
   kursens sammanställning över missuppfattningar täcker inte moduler,
-  och ingen sökning har gjorts, så formuleringen stannar vid att Python
-  självt sett problemet ofta nog att ge ett råd i felmeddelandet ---
-  vilket körningen visar snarare än påstår.
+  och den tvåsidiga sökningen i \cref{app:moduler} fann ingen studie av
+  nybörjare och moduler alls --- bara två frekvensstudier där importfel
+  är några procent av misslyckandena, i miljöer utan filer där
+  skuggning inte ens kan inträffa.  Formuleringen stannar därför vid vad
+  körningen visar: att Python självt ger ett råd i felmeddelandet.
 }
 
 \section[PyPI]{Paket från andra}
@@ -1324,24 +1343,50 @@ föreläsningen \emph{Funktioner}, bilaga C.
 \section[Sammanfattning]{Sammanfattning}
 \label{sec:sammanfattning}
 
-En modul är en fil med Pythonkod, och \mintinline{python}{import} gör
-den tillgänglig för ett program.  Skriver vi
-\mintinline{python}{import m} får programmet namnet
-\mintinline{python}{m}, och funktionerna nås som
-\mintinline{python}{m.f}.  Skriver vi
-\mintinline{python}{from m import f} får programmet namnet
-\mintinline{python}{f} direkt, och med
-\mintinline{python}{import m as n} väljer vi namnet själva.  Stjärnan
-låter vi bli, eftersom den döljer varifrån namnen kommer.  Att
-importera en modul \emph{kör} den,
-så en moduls provkörning läggs i \mintinline{python}{main()} bakom
-villkoret \mintinline{python}|if __name__ == "__main__":|.  Python letar
-efter modulen först i programmets egen katalog, så en egen fil får inte
-heta som en modul vi importerar.  Innan vi skriver en funktion frågar vi
-om den redan finns: i standardbiblioteket, vars dokumentation vi kan
-läsa både på webben och med \mintinline{python}{help}, eller på PyPI,
-varifrån paket installeras med \texttt{python3 -m pip install} --- när
-det behövs, och inte annars.
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{summary}
+      \begin{itemize}
+        \item En modul är en fil med Pythonkod;
+          \mintinline{python}{import} gör den tillgänglig.
+        \item \mintinline{python}{import m} ger namnet
+          \mintinline{python}{m}; \mintinline{python}{from m import f}
+          ger \mintinline{python}{f}; \mintinline{python}{as} låter oss
+          välja.  Stjärnan låter vi bli.
+        \item Import \emph{kör} modulen: provkörningen i
+          \mintinline{python}{main()} bakom
+          \mintinline{python}|if __name__ == "__main__":|.
+        \item Python letar först i programmets katalog: döp inte en fil
+          som en modul ni importerar.
+        \item Finns det redan?  Standardbiblioteket först, PyPI sedan
+          --- och bara när det behövs.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}
+      En modul är en fil med Pythonkod, och \mintinline{python}{import}
+      gör den tillgänglig för ett program.  Skriver vi
+      \mintinline{python}{import m} får programmet namnet
+      \mintinline{python}{m}, och funktionerna nås som
+      \mintinline{python}{m.f}.  Skriver vi
+      \mintinline{python}{from m import f} får programmet namnet
+      \mintinline{python}{f} direkt, och med
+      \mintinline{python}{import m as n} väljer vi namnet själva.
+      Stjärnan låter vi bli, eftersom den döljer varifrån namnen kommer.
+      Att importera en modul \emph{kör} den, så en moduls provkörning
+      läggs i \mintinline{python}{main()} bakom villkoret
+      \mintinline{python}|if __name__ == "__main__":|.  Python letar
+      efter modulen först i programmets egen katalog, så en egen fil får
+      inte heta som en modul vi importerar.  Innan vi skriver en
+      funktion frågar vi om den redan finns: i standardbiblioteket, vars
+      dokumentation vi kan läsa både på webben och med
+      \mintinline{python}{help}, eller på PyPI, varifrån paket
+      installeras med \texttt{python3 -m pip install} --- när det
+      behövs, och inte annars.
+    \end{summary}%
+  }
+\end{frame}
 
 \ltnote{%
   Relevanta lärandemål: \cref{PkgLOSplit,PkgLOImport,PkgLOMain,%
