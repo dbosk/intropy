@@ -1,4 +1,8 @@
-SUBDIR+=		slides
+SUBDIR+=		slides-lists
+SUBDIR+=		slides-tuples
+SUBDIR+=		slides-example-guess
+SUBDIR+=		slides-sets-stacks-queues
+SUBDIR+=		slides-dicts
 SUBDIR_GOALS=	all clean distclean
 
 HTML_FILES= 	lecture.html exercise.html

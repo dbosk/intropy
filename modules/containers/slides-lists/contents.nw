@@ -1,0 +1,1096 @@
+\mode*
+
+% Videogenomgångar som följer den här föreläsningen:
+%   Behållare: Listor            https://youtu.be/KDbJf2isNNI
+%   Behållare: Listor, del 1     https://youtu.be/67lZGGZeIJ4
+%   Behållare: Listor, del 2     https://youtu.be/kkZ3VHNawaQ
+% Se README.md för länkarna till FeedbackFruits.
+
+\section{Listor}
+\label{sec:listor}
+
+Hittills har varje variabel burit ett värde: ett tal, en sträng, ett
+sanningsvärde.  Det räcker långt --- men bara så länge vi vet på förhand
+hur många värden programmet ska hålla reda på.  Så snart antalet
+varierar, eller är stort, tar den lösningen slut.
+
+\begin{frame}
+  \begin{exercise}
+    Ni ska skriva ett program som håller reda på namnen på alla
+    studenter i en kurs.  Hur gör ni det med bara variabler?  Hur många
+    variabler behöver ni --- och vad gör ni när ytterligare en student
+    registrerar sig?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOCreate}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan listan har
+  nämnts.  Den är avsiktligt formulerad utan att peka ut den kritiska
+  aspekten (att antalet värden kan variera under körningen); det är just
+  den aspekten svaren ska visa om studenterna redan urskiljer
+  \parencite[13]{Marton2015}.  Den som svarar
+  \enquote{[[namn1]], [[namn2]], \dots} har sett problemet men inte
+  lösningen, och är därmed redo för listan.
+}
+
+Svaret är att vi inte kan.  Vi kan skriva
+\mintinline{python}{namn1}, \mintinline{python}{namn2},
+\mintinline{python}{namn3} --- men antalet namn bestäms när programmet
+\emph{körs}, inte när det skrivs, och variabelnamn måste skrivas ut i
+koden.  Vi behöver i stället \emph{en} variabel som håller \emph{många}
+värden.  En sådan behållare kallas i Python för en \emph{lista}.
+
+\mode<presentation>{%
+\begin{frame}
+  \centering\huge\texttt{var = [item0, \dots, itemN]}
+\end{frame}
+}
+
+Hakparenteserna skapar listan, kommatecknen skiljer elementen åt, och
+tilldelningen ger hela listan ett namn.  Elementen ligger i den ordning
+vi skrev dem, och vi kommer åt ett enskilt element genom att skriva dess
+\emph{index} inom hakparenteser efter listans namn.
+
+\begin{frame}[fragile]
+  Vi provar med tre namn:
+<<[[namnlista.py]]>>=
+names = ["Adam", "Bertil", "Cesar"]
+print(names[0])
+print(names[1])
+print(names[2])
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/namnlista.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till att det \emph{första} elementet har index~0, inte~1.
+Listan har tre element, och de har index 0, 1 och 2 --- det största
+indexet är alltså ett mindre än antalet element.  Att skriva
+\mintinline{python}{names[3]} ger felet
+\mintinline{text}|IndexError: list index out of range|, för det finns
+inget fjärde element.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOCreate}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: indexet (0, 1, 2 och det obefintliga 3).
+  \textbf{Vad som hålls invariant}: listan och programmet i övrigt.
+
+  Att räkna från noll är en aspekt studenterna inte mött utanför
+  programmeringen, och missuppfattningar om just listreferenser och
+  listindex är dokumenterade hos nybörjare
+  \parencite{KumarVeerasamy2016}.  Kontrasten görs därför mot det index
+  som \emph{inte} finns, direkt efter dem som finns, i stället för att
+  bara påstå att index börjar på noll.  Mönstret är hämtat ur
+  missuppfattningsartikelns egen analys, där samma kritiska aspekt
+  varieras med index [[len(a)]] mot index [[len(a) - 1]].
+}
+
+Antalet element behöver vi ofta veta, och det är sällan vi kan räkna dem
+i förväg --- listan kan ju ha byggts upp under körningen.
+\mintinline{python}{len} ger antalet.
+
+\begin{frame}[fragile]
+  Funktionen \mintinline{python}{len} svarar på hur många element listan
+  har:
+<<[[langd.py]]>>=
+names = ["Adam", "Bertil", "Cesar"]
+print(f"Det finns {len(names)} namn i listan {names}.")
+print(f"Sista elementet är {names[len(names) - 1]}.")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/langd.py}
+  \end{example}
+\end{frame}
+
+\subsection{Skivning}
+\label{sec:skivning}
+
+Ibland vill vi inte ha ett element utan en \emph{del} av listan: de tre
+första, alla utom det sista, vartannat.  Det gör vi med \emph{skivning}
+(\foreignlanguage{english}{slicing}), som skrivs som ett index med ett
+kolon i.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad tror ni \mintinline{python}{names[0:2]} ger, om
+    \mintinline{python}{names} är listan med Adam, Bertil och Cesar?
+    Två element eller tre?  Och vilka?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Vi provar oss fram:
+<<[[skivning.py]]>>=
+names = ["Adam", "Bertil", "Cesar", "David"]
+print(names[0:2])
+print(names[1:3])
+print(names[:2])
+print(names[2:])
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/skivning.py}
+  \end{example}
+\end{frame}
+
+Skivan \mintinline{python}{names[a:b]} innehåller elementen från och med
+index~\(a\) till men \emph{inte} med index~\(b\).  Det ser till en
+början egendomligt ut, men gör två saker enkla: antalet element i skivan
+är \(b - a\), och \mintinline{python}{names[:k]} tillsammans med
+\mintinline{python}{names[k:]} är hela listan, utan överlapp och utan
+lucka.  Utelämnar vi det första talet menas början av listan, och
+utelämnar vi det andra menas slutet.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOCreate}.
+
+  \textbf{Variationsmönster}: kontrast, med flera värden samtidigt.
+  \textbf{Vad som varierar}: skivans gränser --- båda utsatta, den
+  första utelämnad, den andra utelämnad.
+  \textbf{Vad som hålls invariant}: listan.
+
+  De fyra skivorna visas i \emph{samma} utskrift så att kontrasten kan
+  upplevas samtidigt och inte behöver återskapas ur minnet
+  \parencite[45--47]{Marton2015}.  Den kritiska aspekten är den
+  \emph{halvöppna} gränsen: att den övre gränsen ligger utanför skivan.
+  Förutsägelsefrågan före exemplet är formulerad så att den inte
+  avslöjar den aspekten, utan bara ber om ett antal och en uppräkning.
+}
+
+\subsection{Att läsa dokumentationen}
+\label{sec:listdok}
+
+Listor kan mycket mer än så här, och det mesta av det kommer ni aldrig
+att få se på en föreläsning.  Det behövs inte heller: allt står i
+Pythons dokumentation, och att slå upp det där är en färdighet i sig.
+
+\begin{frame}
+  \includegraphics[width=\columnwidth]{figs/docs-lists.png}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Slå upp listor i Pythons dokumentation och ta reda på vad
+    \mintinline{python}{count} och \mintinline{python}{index} gör.
+    Skriv sedan ett program som med hjälp av dem svarar på hur många
+    gånger talet 12 finns i en lista, och var det förekommer första
+    gången.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLODocs}.
+
+  Att hitta och läsa dokumentationen är ett eget veckomål, inte en
+  utfyllnad.  Övningen är därför formulerad som en uppgift som
+  \emph{inte} går att lösa med det som visats på bilderna: både
+  [[count]] och [[index]] är medvetet ogenomgångna.  Uppgiften är
+  samtidigt en \foreignlanguage{english}{try-first}-fråga inför
+  sökavsnittet (\cref{sec:sokning}), där [[in]] införs --- studenten som
+  hittat [[index]] själv har redan börjat urskilja skillnaden mellan
+  \enquote{finns det?} och \enquote{var finns det?}.
+}
+
+\section{Att ändra en lista}
+\label{sec:andra}
+
+En lista är inte huggen i sten.  Vi kan byta ut ett element, och vi kan
+lägga till och ta bort element medan programmet kör --- det är hela
+poängen med att slippa skriva ut variabelnamnen i koden.
+
+\begin{frame}[fragile]
+  Ett element byts ut genom tilldelning till dess index:
+<<[[byt.py]]>>=
+names = ["Adam", "Bertil", "Cesar"]
+names[1] = "Beda"
+print(names)
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/byt.py}
+  \end{example}
+\end{frame}
+
+Att lägga till ett element är däremot inte en tilldelning: index~3 finns
+ju inte, så \mintinline{python}{names[3] = "David"} ger samma
+\mintinline{text}|IndexError| som förut.  I stället ber vi listan själv
+att växa, med en \emph{metod}: ett namn vi skriver efter listan och en
+punkt.
+
+\begin{frame}[fragile]
+  Ett element i taget med \mintinline{python}{append}, flera på en gång
+  med \mintinline{python}{extend}:
+<<[[extend_lists.py]]>>=
+names = ["Adam", "Bertil", "Cesar"]
+names.append("David")
+names.extend(["Erik", "Filip", "Gustav"])
+print(names)
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/extend_lists.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad blir skillnaden om vi skriver
+    \mintinline{python}{names.append(["Erik", "Filip"])} i stället för
+    \mintinline{python}{names.extend(["Erik", "Filip"])}?  Hur många
+    element har listan efteråt i de två fallen?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOModify}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: metoden ([[append]] respektive [[extend]]).
+  \textbf{Vad som hålls invariant}: listan, argumentet och allt annat i
+  programmet.
+
+  Kontrasten riktar sig mot föreställningen att en lista bara kan
+  innehålla \enquote{enkla} värden: [[append]] med en lista som argument
+  ger en lista \emph{i} listan, och det är just den möjligheten som gör
+  frågan värd att ställa.  Svaret ges i prosan efteråt så att
+  förutsägelsen hinner formuleras först.
+}
+
+Skillnaden är att \mintinline{python}{append} lägger till \emph{ett}
+element --- vad som helst, även en hel lista --- medan
+\mintinline{python}{extend} lägger till elementen \emph{ur} det den får.
+Efter \mintinline{python}{append} har listan fyra element, varav det
+sista självt är en lista med två element; efter
+\mintinline{python}{extend} har den fem.  Att en lista kan innehålla
+listor är alltså inte en egendomlighet utan en följd av att element kan
+vara vad som helst.
+
+Motsatsen till att lägga till är att ta bort.  Här finns två sätt, och
+skillnaden mellan dem är värd att lägga på minnet.
+
+\begin{frame}[fragile]
+  Ta bort ett känt \emph{värde} med \mintinline{python}{remove}, och ett
+  känt \emph{index} med \mintinline{python}{pop}:
+<<[[ta_bort.py]]>>=
+names = ["Adam", "Bertil", "Cesar", "David"]
+names.remove("Bertil")
+print(names)
+
+last = names.pop()
+print(f"Tog bort {last}, kvar är {names}.")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/ta_bort.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{remove} letar upp det första elementet som är lika
+med värdet och tar bort det; \mintinline{python}{pop} tar bort elementet
+på ett index och \emph{lämnar tillbaka} det, så att vi kan använda det
+till något.  Utan argument tar \mintinline{python}{pop} det sista.  Det
+sistnämnda återkommer i modulen om stackar och köer.
+
+\subsection{Två namn på samma lista}
+\label{sec:aliasering}
+
+Nu kommer den del av listorna som ställer till mest besvär, och det är
+inte för att den är svår utan för att den är osynlig.  Vi börjar med en
+fråga.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad skrivs ut på sista raden?
+    \begin{minted}{python}
+a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOAlias}.
+
+  \foreignlanguage{english}{Try-first}, diagnostiskt.  Den som svarar
+  \([1, 2, 3]\) läser tilldelningen som en \emph{kopiering} --- vilket
+  den till synes är för tal och strängar, som är det enda studenterna
+  mött hittills.  Frågan pekar inte ut att det skulle finnas två fall;
+  att uppdelningen finns är just vad de ska urskilja
+  \parencite[89]{Marton2015}.  Aliasering är inte en av de
+  missuppfattningar kursens missuppfattningsunderlag dokumenterar, så
+  designen vilar här på Pythons dokumenterade semantik och på att
+  kontrasten kan köras: båda halvorna skrivs ut av samma program.
+}
+
+Svaret \mintinline{python}{[1, 2, 3]} ligger nära till hands, och det är
+ett rimligt svar: hittills har en tilldelning betytt \enquote{ta värdet
+och lägg det i den nya lådan}.  Men för listor gäller något annat.
+\mintinline{python}{b = a} skapar ingen ny lista --- den ger den
+\emph{befintliga} listan ytterligare ett namn.  Efteråt finns det två
+namn men bara en lista, och en ändring genom det ena namnet syns
+självklart genom det andra.
+
+\begin{frame}[fragile]
+  Samma program två gånger; enda skillnaden står på andra raden:
+<<[[alias.py]]>>=
+a = [1, 2, 3]
+b = a
+b.append(4)
+print(f"a = {a}, b = {b}, a is b: {a is b}")
+
+c = [1, 2, 3]
+d = c.copy()
+d.append(4)
+print(f"c = {c}, d = {d}, c is d: {c is d}")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/alias.py}
+  \end{example}
+\end{frame}
+
+Med \mintinline{python}{b = a} finns en lista och två namn; med
+\mintinline{python}{d = c.copy()} finns två listor, och ändringen i den
+ena lämnar den andra i fred.  Operatorn \mintinline{python}{is} svarar
+på just den frågan: \emph{är det samma lista?}  Den ska inte förväxlas
+med \mintinline{python}{==}, som svarar på om listorna \emph{innehåller
+detsamma}.
+
+\begin{frame}[fragile]
+  Två listor kan vara lika utan att vara samma:
+<<[[likhet.py]]>>=
+a = [1, 2, 3]
+b = a
+c = [1, 2, 3]
+print(f"a == b: {a == b}, a is b: {a is b}")
+print(f"a == c: {a == c}, a is c: {a is c}")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/likhet.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOAlias}.
+
+  \textbf{Variationsmönster}: kontrast, i två steg.
+  \textbf{Vad som varierar}: först hur den andra listan kommer till
+  ([[b = a]] mot [[d = c.copy()]]), sedan vilken fråga vi ställer om
+  två listor ([[==]] mot [[is]]).
+  \textbf{Vad som hålls invariant}: listornas innehåll, som är detsamma
+  i alla fyra fallen.
+
+  Att hålla innehållet invariant är hela poängen: så länge innehållet
+  också varierar går det att svara rätt av fel skäl.  Här kan
+  \([1, 2, 3]\) inte skilja fallen åt, utan bara identiteten kan det.
+  De två paren står i samma program och samma utskrift, så att
+  jämförelsen kan göras på plats \parencite[45--47]{Marton2015}.
+
+  Medvetet uppskjutet: att [[copy]] är en \emph{ytlig} kopia, och att en
+  lista av listor därför fortfarande delar sina inre listor.  Det hör
+  hemma i modulen om klasser, där sammansatta objekt behandlas.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    En funktion tar emot en lista och gör
+    \mintinline{python}{lst.append(0)} på den.  Syns ändringen hos den
+    som anropade funktionen?  Och vad händer om funktionen i stället gör
+    \mintinline{python}{lst = lst + [0]}?
+  \end{exercise}
+\end{frame}
+
+Den första ändringen syns, den andra inte.  \mintinline{python}{append}
+ändrar den lista som skickades in --- funktionen och anroparen har två
+namn på samma lista.  \mintinline{python}{lst = lst + [0]} bygger
+däremot en \emph{ny} lista och låter det lokala namnet peka på den; den
+inskickade listan är orörd.  Det är samma skillnad som mellan
+\mintinline{python}{b = a} och \mintinline{python}{d = c.copy()}, nu
+sedd genom ett funktionsanrop.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOAlias}.
+
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- om
+  operationen ändrar den befintliga listan eller skapar en ny.
+  \textbf{Vad som varierar}: kontexten, från två namn i samma
+  ordning till namn i olika räckvidder (parameter och argument).
+
+  Generaliseringen ligger efter kontrasten, inte före: den som ännu inte
+  urskilt att det \emph{finns} två fall kan inte heller se att de är
+  desamma i en ny kontext \parencite[45--47]{Marton2015}.  Aliasering
+  genom parametrar är dessutom den form som gör mest skada i
+  laborationerna, eftersom felet syns långt från det ställe där det
+  begicks.
+}
+
+\section{Att gå igenom en lista}
+\label{sec:iteration}
+
+Att gå igenom en följd av värden med \mintinline{python}{for} känner ni
+sedan modulen om upprepningar.  Listan är den behållare
+\mintinline{python}{for} oftast går igenom, och två saker är värda att
+säga om just den kombinationen.
+
+\begin{frame}[fragile]
+  Vi kan gå igenom \emph{elementen}, eller \emph{indexen}:
+<<[[genomgang.py]]>>=
+names = ["Adam", "Bertil", "Cesar"]
+
+for name in names:
+    print(name)
+
+for index in range(len(names)):
+    print(f"{index}: {names[index]}")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/genomgang.py}
+  \end{example}
+\end{frame}
+
+Den första formen ger oss elementen, en i taget; den andra ger oss
+indexen, och elementen får vi slå upp själva.  Behöver vi bara
+elementen är den första formen både kortare och svårare att skriva fel.
+Behöver vi \emph{numret} också --- för att skriva ut en numrerad lista,
+eller för att kunna ändra elementet --- behöver vi indexet.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOIterate}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: vad slingvariabeln får --- elementet eller
+  indexet.
+  \textbf{Vad som hålls invariant}: listan och utskriftens innehåll.
+
+  Sektionen lär inte ut [[for]]; den förutsätts från modulen om
+  upprepningar.  Det som urskiljs här är den behållarspecifika
+  aspekten: att [[for]] över en lista ger \emph{elementen}, inte
+  positionerna, till skillnad från [[for]] över [[range]].
+  Missuppfattningen att slingvariabeln skulle vara ett index (eller
+  omvänt) är svår att se utan att båda formerna står bredvid varandra
+  och ger samma resultat.
+}
+
+Nu till fällan.  Eftersom en lista kan ändras, går det att ändra den
+\emph{medan} vi går igenom den --- och då räknar Python vidare i en
+lista som inte längre ser ut som när slingan började.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Programmet ska ta bort alla nollor ur listan.  Vad skrivs ut?
+    \begin{minted}{python}
+numbers = [1, 0, 0, 2]
+for number in numbers:
+    if number == 0:
+        numbers.remove(number)
+print(numbers)
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOIterate,ListLOAlias}.
+
+  \foreignlanguage{english}{Try-first}, diagnostiskt.  Exemplet är valt
+  så att det \emph{nästan} fungerar: en av nollorna blir kvar, i stället
+  för att programmet kraschar.  Ett kraschande exempel skulle peka ut
+  att något är fel; det här gör det inte, och tvingar därmed studenten
+  att själv urskilja att slingan och listan hänger ihop.  Frågan säger
+  inte heller vad som ska urskiljas, bara vad programmet var tänkt att
+  göra \parencite[13]{Marton2015}.
+}
+
+\begin{frame}[fragile]
+  Vi kör och tittar på vad som verkligen händer:
+<<[[andra_under.py]]>>=
+numbers = [1, 0, 0, 2]
+
+for number in numbers:
+    print(f"tittar på {number}, listan är {numbers}")
+    if number == 0:
+        numbers.remove(number)
+
+print(f"resultat: {numbers}")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/andra_under.py}
+  \end{example}
+\end{frame}
+
+En nolla blev kvar.  \mintinline{python}{for} håller reda på var i
+listan den är med ett index som räknas upp för varje varv.  När den
+första nollan tas bort flyttar sig alla senare element ett steg framåt,
+men indexet räknas ändå upp --- och elementet som hamnade på den lediga
+platsen hoppas över.  Programmet kraschar inte och säger inte ifrån; det
+ger bara fel svar.
+
+Botemedlet är att inte ändra den lista vi går igenom.  Antingen går vi
+igenom en kopia, eller så bygger vi upp en ny lista med det vi vill
+behålla.
+
+\begin{frame}[fragile]
+  Två sätt att göra rätt:
+<<[[andra_ratt.py]]>>=
+numbers = [1, 0, 0, 2]
+for number in numbers.copy():
+    if number == 0:
+        numbers.remove(number)
+print(numbers)
+
+numbers = [1, 0, 0, 2]
+kept = []
+for number in numbers:
+    if number != 0:
+        kept.append(number)
+print(kept)
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/andra_ratt.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOIterate,ListLOAlias}.
+
+  \textbf{Variationsmönster}: kontrast, med två värden i samma
+  dimension.
+  \textbf{Vad som varierar}: vilken lista slingan går igenom --- den
+  som ändras, en kopia av den, eller en annan lista än den som byggs.
+  \textbf{Vad som hålls invariant}: uppgiften, listan och villkoret.
+
+  Fusion med \cref{sec:aliasering}: [[numbers.copy()]] är samma
+  operation som skilde [[b = a]] från [[d = c.copy()]], nu använd för
+  ett annat ändamål.  Att lösningen faller ut ur en aspekt som redan
+  urskilts är avsikten --- den som inte såg aliaseringen ser heller
+  ingen skillnad mellan de två slingorna här.
+}
+
+\subsection{En ny lista ur en gammal}
+\label{sec:listbyggare}
+
+Det andra sättet ovan --- gå igenom en lista och bygga upp en ny --- är
+så vanligt att Python har en kortare skrivning för det.
+
+\mode<presentation>{%
+\begin{frame}
+  \centering\huge\texttt{var = [f(x) for x in lst]}
+\end{frame}
+}
+
+\begin{frame}[fragile]
+  Samma sak, skrivet på två sätt:
+<<[[listbyggare.py]]>>=
+names = ["anna", "cissi"]
+
+capitalized = []
+for name in names:
+    capitalized.append(name.capitalize())
+print(capitalized)
+
+capitalized = [name.capitalize() for name in names]
+print(capitalized)
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/listbyggare.py}
+  \end{example}
+\end{frame}
+
+Konstruktionen kallas \emph{listbyggare}
+(\foreignlanguage{english}{list comprehension}).  Den läses bakifrån:
+\enquote{för varje \mintinline{python}{name} i
+\mintinline{python}{names}, ta \mintinline{python}{name.capitalize()}}.
+Resultatet är alltid en \emph{ny} lista; originalet lämnas orört, vilket
+gör den till ett tryggt verktyg i just de lägen där slingan över den
+egna listan gick fel.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOIterate}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: skrivsättet.
+  \textbf{Vad som hålls invariant}: programmet --- de två formerna ger
+  bevisligen samma utskrift, vilket är själva argumentet för att de är
+  utbytbara.
+
+  Slingformen visas först och listbyggaren sedan, inte tvärtom: den som
+  inte redan kan läsa slingan har inget att känna igen listbyggaren
+  \emph{som}.  Att båda står i samma program och ger samma två rader
+  gör likheten iakttagbar i stället för påstådd.
+}
+
+\section{Sökning och sortering}
+\label{sec:sokning}
+
+Med en lista full av data följer genast två frågor: \emph{finns det
+här?} och \emph{i vilken ordning?}
+
+\mode<presentation>{%
+\begin{frame}
+  \centering\huge\texttt{item in list}
+\end{frame}
+}
+
+Operatorn \mintinline{python}{in} går igenom listan åt oss och svarar
+\mintinline{python}{True} eller \mintinline{python}{False}.  Vi behöver
+alltså varken skriva slingan eller jämförelsen själva.
+
+\begin{frame}[fragile]
+  Ett litet sökprogram:
+<<[[isin.py]]>>=
+names = ["Adam", "Bertil", "Caesar"]
+
+name = input("Namn att söka efter: ")
+
+if name in names:
+    print(f"Hittade {name} bland {names}.")
+else:
+    print(f"Hittade INTE {name} bland {names}.")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Vi kör programmet och svarar \enquote{Bertil}:
+    \runpython[transcript, stdin={Bertil}]{examples/isin.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}[search.py]
+    Skriv ett program som först låter användaren mata in ett antal namn,
+    ett i taget, och därefter låter hen söka bland de inmatade namnen.
+    Båda delarna ska avslutas med en blankrad.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOSearch,ListLOModify}.
+
+  Uppgiften ges innan lösningen visas, och den är avsiktligt större än
+  en enskild konstruktion: den kräver att listan byggs upp under
+  körningen (\cref{ListLOModify}) och söks igenom (\cref{ListLOSearch}),
+  alltså två aspekter samtidigt.  Det är \foreignlanguage{english}{fusion}
+  i variationsteorins mening, och den ligger därför sist i avsnittet.
+  Lösningen utvecklas sedan med stegvis förfining, i samma notation som
+  infördes i modulen om algoritmiskt tänkande.
+}
+
+Vi bygger lösningen uppifrån och ner.  Programmet har två faser, och de
+märks tydligt i namnen på stegen.
+
+\begin{frame}[fragile]
+  Överblicken först:
+<<[[search.py]]>>=
+"""Program om sökning i lista"""
+
+<<läs in ett namn>>
+
+
+def main():
+    """Huvudprogrammet"""
+    <<bygg upp namnlistan>>
+
+    <<sök bland namnen>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Båda faserna frågar användaren efter ett namn, och båda vill jämföra
+namn utan att bry sig om stora och små bokstäver.  Det är samma sak på
+två ställen --- så vi skriver det en gång, som en funktion.
+
+\begin{frame}[fragile]
+  Inläsningen blir en egen funktion:
+<<läs in ett namn>>=
+def input_name():
+    """Läser in ett namn från användaren och returnerar det i sökbar form."""
+    return input("Ange namn: ").casefold()
+@
+  \pause
+
+  \begin{remark}
+    Att skriva samma sak på två ställen är den vanligaste källan till
+    fel: rättar man det ena glömmer man det andra.  Principen att inte
+    upprepa sig kallas \foreignlanguage{english}{DRY}.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOSearch}.
+
+  Principen \foreignlanguage{english}{DRY} namnges här, där materialet
+  faktiskt tillämpar den, i enlighet med kursens beslut att namnge de
+  principer materialet praktiserar.  Belägget för att principen är
+  etablerad och härrör från Hunt och Thomas redovisas i bilaga~E i
+  \emph{Algoritmiskt tänkande} \parencite{HuntThomas1999} och görs inte
+  om här.
+}
+
+\begin{frame}[fragile]
+  Första fasen läser namn tills användaren svarar med en blankrad:
+<<bygg upp namnlistan>>=
+names = []
+
+print(
+    "Nu bygger vi upp namndatabasen. Ange namn. "
+    "Ange tom sträng för att gå vidare."
+)
+
+name = input_name()
+while name:
+    names.append(name)
+    name = input_name()
+@
+\end{frame}
+
+Villkoret \mintinline{python}{while name} är kort för \enquote{så länge
+namnet inte är den tomma strängen}: en tom sträng är falsk i Python,
+alla andra strängar är sanna.
+
+\begin{frame}[fragile]
+  Andra fasen söker, tills användaren svarar med en blankrad igen:
+<<sök bland namnen>>=
+print(
+    "Nu ska vi söka bland namnen. Skriv namn för att söka. "
+    "Skriv blankrad för att avsluta."
+)
+
+name = input_name()
+while name:
+    if name in names:
+        print(f"Hittade {name.capitalize()} i namndatabasen.")
+    else:
+        print(f"Hittade INTE {name.capitalize()} i namndatabasen")
+
+    name = input_name()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Hela programmet]
+    Sätter vi ihop bitarna får vi:
+    \lstexample{python}{examples/search.py}
+  \end{example}
+\end{frame}
+
+\subsection{Att söka efter en del av ett namn}
+\label{sec:delsokning}
+
+\mintinline{python}{in} svarar bara på om ett element finns, exakt som
+det står.  Riktiga sökningar är sällan så stränga --- vi vill kunna
+skriva \enquote{ada} och hitta \enquote{adam}.
+
+\begin{frame}
+  \begin{exercise}[partial\textunderscore{}search.py]
+    Ändra programmet så att vi kan söka efter \emph{delar} av namn, och
+    så att det skriver ut alla namn som matchar.  Vad ska funktionen
+    lämna tillbaka när ingenting matchar?
+  \end{exercise}
+\end{frame}
+
+Nu räcker det inte med ett ja eller nej: vi vill ha \emph{alla} namn som
+passar.  Sökningen blir därför en egen funktion som lämnar tillbaka en
+lista --- tom om ingenting matchade.
+
+\begin{frame}[fragile]
+  Sökfunktionen bygger upp en lista med träffarna:
+<<sök efter delsträng>>=
+def partial_search(substring, strings):
+    """Söker efter substring i strängarna i strings."""
+    result = []
+    for string in strings:
+        if substring in string:
+            result.append(string)
+
+    return result
+@
+  \pause
+
+  \begin{remark}
+    Funktionen nämner varken namn eller telefonbok.  Den fungerar på
+    vilken lista av strängar som helst --- och kan därför återanvändas i
+    stället för att skrivas om.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOSearch}.
+
+  Här namnges inget nytt begrepp; anmärkningen pekar ut att funktionen
+  har \emph{ett} ansvar och inga onödiga antaganden om sina data.  Det
+  är samma DRY-princip som ovan, sedd från andra hållet: en funktion
+  som inte antar något om vad listan innehåller behöver bara skrivas en
+  gång.  Principerna om ett ansvar per funktion
+  (\foreignlanguage{english}{SRP}) och att hålla lösningen enkel
+  (\foreignlanguage{english}{KISS}) namnges och beläggs i kursens modul
+  om funktioner; här återanvänds bara namnen.
+
+  Lägg märke till att [[in]] används på en \emph{sträng} inne i
+  funktionen och på en \emph{lista} i föregående version.  Det är
+  medvetet: samma operator, olika behållare.  Att strängen är en följd
+  av tecken som går att gå igenom hör hemma i modulen om upprepningar,
+  och tas därför inte upp här.
+}
+
+\begin{frame}[fragile]
+  Resten av programmet ändras bara i sökfasen:
+<<[[partial_search.py]]>>=
+"""Program om sökning i lista"""
+
+<<läs in ett namn>>
+
+
+<<sök efter delsträng>>
+
+
+def main():
+    """Huvudprogrammet"""
+    <<bygg upp namnlistan>>
+
+    <<sök efter delar av namnen>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Den nya sökfasen skriver ut alla träffar:
+<<sök efter delar av namnen>>=
+print(
+    "Nu ska vi söka bland namnen. Skriv namn för att söka. "
+    "Skriv blankrad för att avsluta."
+)
+
+name = input_name()
+while name:
+    result = partial_search(name, names)
+
+    if result:
+        print(f"Hittade '{name}' i namndatabasen: ")
+        for match in result:
+            print(match.capitalize())
+    else:
+        print(f"Hittade INTE '{name}' i namndatabasen")
+
+    name = input_name()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Hela programmet]
+    Sätter vi ihop bitarna får vi:
+    \lstexample{python}{examples/partial_search.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOSearch}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: sökningens stränghet --- exakt likhet mot
+  delsträng --- och därmed vad sökningen lämnar tillbaka (ett
+  sanningsvärde mot en lista med träffar).
+  \textbf{Vad som hålls invariant}: programmets struktur; bara ett av
+  de namngivna stegen byts ut.
+
+  Att bara \emph{ett} steg byts ut är avsikten med den stegvisa
+  förfiningen här: de två programmen delar chunkar, så skillnaden
+  mellan dem är precis det som varierar.  Den tidigare versionen
+  återanvänds inte som text utan som kod --- båda programmen tanglas ur
+  samma källa och kan därför inte glida isär.
+}
+
+\subsection{Sortering}
+\label{sec:sortering}
+
+Den andra frågan var ordningen.  \mintinline{python}{sorted} lämnar
+tillbaka en \emph{ny} lista i ordning, och listans egen metod
+\mintinline{python}{sort} sorterar listan \emph{på plats}.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad skiljer de två raderna åt, tror ni?
+    \begin{minted}{python}
+names = sorted(names)
+names.sort()
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Vi provar båda på samma lista:
+<<[[sortera.py]]>>=
+names = ["Bertil", "Ada", "Cissi"]
+print(sorted(names))
+print(names)
+
+names.sort()
+print(names)
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/sortera.py}
+  \end{example}
+\end{frame}
+
+Efter \mintinline{python}{sorted} är listan oförändrad --- ordningen
+finns bara i den nya listan vi fick tillbaka.  Efter
+\mintinline{python}{sort} är listan själv omordnad, och det finns ingen
+ny lista; metoden lämnar inte tillbaka något.  Det är samma skillnad som
+mellan att ändra en lista och att bygga en ny, nu i sorteringens tappning.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOSearch,ListLOAlias}.
+
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- om
+  operationen ändrar den befintliga listan eller lämnar tillbaka en ny.
+  \textbf{Vad som varierar}: operationen (kopiering, tillägg,
+  sortering).
+
+  Aspekten urskildes i \cref{sec:aliasering} och möts här för tredje
+  gången.  Den vanliga följdmissen --- [[names = names.sort()]], som
+  ger [[None]] --- kommer ur att aspekten inte urskilts, inte ur att
+  [[sort]] är svårt.  Därför sägs det uttryckligen att metoden inte
+  lämnar tillbaka något.
+}
+
+Sorteringen behöver veta vad som kommer före vad.  För tal är det
+storleken och för strängar bokstavsordningen --- men \enquote{bokstavs\-%
+ordning} är inte riktigt vad datorn använder.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad är förväntat resultat, och varför?
+    \begin{minted}{python}
+numbers = ["2", "1", "3"]
+print(sorted(numbers))
+
+numbers.extend(["13", "12", "11"])
+print(sorted(numbers))
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Vi kör och ser efter:
+<<[[strang_sortering.py]]>>=
+numbers = ["2", "1", "3"]
+print(sorted(numbers))
+
+numbers.extend(["13", "12", "11"])
+print(sorted(numbers))
+
+print(sorted([2, 1, 3, 13, 12, 11]))
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/strang_sortering.py}
+  \end{example}
+\end{frame}
+
+Strängarna sorteras tecken för tecken, och \enquote{1} kommer före
+\enquote{2} --- så \mintinline{python}{"11"} hamnar före
+\mintinline{python}{"2"}.  Sorteringen är inte fel; den sorterar
+strängar som strängar.  Vill vi ha talordning måste vi ha tal i listan.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLOSearch}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: elementens \emph{typ} --- strängar eller
+  tal.
+  \textbf{Vad som hålls invariant}: värdena och sorteringsanropet.
+
+  Exemplet kommer från OLI-materialet och behålls för att det ger fel
+  svar av rätt skäl.  Sista raden med heltalslistan tillkommer här: utan
+  den kan studenten bara konstatera att något är konstigt, med den kan
+  hon se \emph{vad} som skilde fallen åt.  Detta är samtidigt en
+  generalisering av typbegreppet från modulen om variabler --- att
+  [["2"]] och [[2]] är olika värden --- till en ny kontext.
+}
+
+Ibland vill vi ha en annan ordning än den självklara.  Då talar vi om
+för \mintinline{python}{sorted} vad den ska sortera \emph{efter}.
+
+\begin{frame}[fragile]
+  En annan nyckel, och omvänd ordning:
+<<[[sorterings_nyckel.py]]>>=
+names = ["Bertil", "Ada", "Cissi"]
+print(sorted(names, key=len))
+print(sorted(names, reverse=True))
+print(min(names), max(names))
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/sorterings_nyckel.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Läs \mintinline{bash}|pydoc3 sorted| och ta reda på vad
+    \mintinline{python}{key} kan vara mer än \mintinline{python}{len}.
+    Sortera sedan listan med namn efter \emph{sista} bokstaven.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ListLODocs,ListLOSearch}.
+
+  Avsnittet avslutas med samma slags dokumentationsuppgift som inledde
+  materialet (\cref{sec:listdok}), nu med en uppgift som kräver att
+  studenten läser om [[key]] och själv kommer på att en egen funktion
+  kan skickas in.  Att uppgiften ligger sist är avsiktligt: den
+  förutsätter både funktioner och sortering, och är därför en rimlig
+  \foreignlanguage{english}{fusion} att skicka med hem.
+}

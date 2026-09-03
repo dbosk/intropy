@@ -1,0 +1,537 @@
+\mode*
+
+% Kursens läsförståelseövning "Dokumentation om olika behållare" på
+% FeedbackFruits hör till den här modulen; se README.md för länken.
+% Modulen har ingen egen videogenomgång.
+
+\section{Mängder}
+\label{sec:mangder}
+
+Ibland är frågan inte \enquote{vilket element ligger var?} utan bara
+\enquote{vilka olika finns här?}  Ett program som läser in namnen på alla
+som deltagit i en tenta vill veta \emph{vilka} som deltagit, inte hur
+många gånger var och en råkade skrivas in.
+
+\begin{frame}
+  \begin{exercise}
+    Ni har en lista med namn där somliga förekommer flera gånger.  Hur
+    tar ni bort dubbletterna med det ni kan hittills?  Hur mycket
+    arbete blir det för datorn om listan har tiotusen namn?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOSet,ContLOChoose}.
+
+  \foreignlanguage{english}{Try-first}, diagnostiskt.  Den första frågan
+  har ett svar studenterna kan ge med listan de redan kan; den andra
+  frågan är den som gör mängden motiverad, och den pekar inte ut vad
+  som är kritiskt utan ber bara om en uppskattning.  Den som svarar
+  \enquote{för varje namn kollar jag om det redan finns i den nya
+  listan} har byggt just den lösning vars kostnad
+  \cref{sec:mangdval} sedan jämför med mängdens.
+}
+
+Lösningen med listor blir en slinga med ett
+\mintinline{python}{if name not in result} inuti --- och den måste söka
+igenom hela resultatet för varje namn.  Python har en behållare som gör
+detta i stället för oss, och som dessutom gör det snabbt: \emph{mängden}
+(\foreignlanguage{english}{set}).  Den skrivs som en uppslagslista, fast
+utan värden.
+
+\begin{frame}[fragile]
+  Samma sex tal, i en lista och i en mängd:
+<<[[mangder.py]]>>=
+numbers = [1, 2, 2, 3, 3, 3]
+unique = {1, 2, 2, 3, 3, 3}
+
+print(numbers)
+print(unique)
+print(len(numbers), len(unique))
+
+print(set(numbers))
+
+print({1, 2, 2, 3} == {3, 2, 1})
+print([1, 2, 2, 3] == [3, 2, 1])
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/mangder.py}
+  \end{example}
+\end{frame}
+
+Mängden behöll ett exemplar av varje tal, och den brydde sig inte om i
+vilken ordning vi skrev dem.  Har vi redan en lista behöver vi inte
+skriva om den: \mintinline{python}{set(numbers)} gör om listan till en
+mängd, och där har vi svaret på frågan vi började med --- att ta bort
+dubbletterna är en rad, inte en slinga.  Två mängder är lika när de innehåller
+samma saker; två listor är lika först när de innehåller samma saker i
+samma ordning.  Det är samma skillnad som mellan att fråga \enquote{vilka
+var med?} och \enquote{i vilken ordning kom de?}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOSet}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: behållarens sort.
+  \textbf{Vad som hålls invariant}: elementen, deras antal och den
+  ordning de skrevs i.
+
+  De två sista raderna är kontrastens skarpaste del: samma jämförelse,
+  samma innehåll, olika svar.  Den som bara sett den första halvan
+  (dubbletterna försvann) kan fortfarande tro att en mängd är en lista
+  som råkar rensa dubbletter; likhetsjämförelsen visar att också
+  \emph{ordningen} har försvunnit ur bilden, och att det inte är en
+  bieffekt utan vad en mängd \emph{är}.
+
+  Att mängden saknar index nämns i prosan efteråt i stället för att
+  visas med ett fel.  Ett [[unique[0]]] hade varierat en andra
+  dimension (hur man kommer åt ett element) samtidigt som den första
+  ännu urskiljs.
+}
+
+Eftersom ordningen inte finns går det heller inte att skriva
+\mintinline{python}{unique[0]}: en mängd har inga platser att indexera.
+Det vi kan göra är att fråga om något finns, lägga till, ta bort --- och
+jämföra mängder med varandra.
+
+\begin{frame}[fragile]
+  De vanliga mängdoperationerna, med Pythons skrivsätt:
+<<[[mangdoperationer.py]]>>=
+python = {"ada", "beda", "cissi"}
+java = {"beda", "david"}
+
+print("ada" in python)
+
+print(sorted(python | java))
+print(sorted(python & java))
+print(sorted(python - java))
+
+python.add("erik")
+python.discard("ada")
+print(sorted(python))
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/mangdoperationer.py}
+  \end{example}
+\end{frame}
+
+Tecknen är de vanliga från mängdläran: \(\cup\) blir
+\mintinline{python}{|}, \(\cap\) blir \mintinline{python}{&} och
+mängddifferens blir \mintinline{python}{-}.  De svarar på frågor vi
+annars hade skrivit slingor för: vilka kan båda språken, vilka kan bara
+det ena, hur ser hela gruppen ut.  Lägg märke till att varje utskrift går
+genom \mintinline{python}{sorted}: en mängd har ingen ordning, så utan
+sortering är det inte ens säkert att två körningar av samma program
+skriver ut elementen i samma ordning.
+
+\begin{frame}
+  \includegraphics[width=\columnwidth]{figs/docs-sets.png}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Slå upp mängder i Pythons dokumentation.  Vad gör
+    \mintinline{python}{symmetric_difference}, och vad är skillnaden
+    mellan \mintinline{python}{remove} och
+    \mintinline{python}{discard}?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLODocs,ContLOSet}.
+
+  Den andra frågan är vald därför att svaret --- att [[remove]] ger ett
+  fel när elementet saknas och [[discard]] inte gör det --- är samma
+  aspekt som i modulen om uppslagslistor skilde [[phone[name]]] från
+  [[phone.get(name)]].  Studenten möter alltså ett bekant val i en ny
+  behållare, vilket är en generalisering, men den görs som en
+  uppgift i stället för som ett påstående så att igenkänningen blir
+  studentens egen.
+}
+
+\subsection{Varför en mängd är snabb}
+\label{sec:mangdval}
+
+Tillbaka till frågan om tiotusen namn.  Att söka i en lista betyder att
+gå igenom den tills man hittar rätt, så arbetet växer med listans längd.
+En mängd räknar i stället om elementet till en plats direkt.  Det står i
+Pythons egen sammanställning av hur mycket arbete varje operation
+kostar\autocite{PythonTimeComplexity}: \enquote{x in s} är \(O(n)\) för
+en lista, men \(O(1)\) i genomsnitt för en mängd.  Förbehållet ska sägas
+ut: det gäller CPython och det gäller genomsnittsfallet --- i värsta
+fall är också mängden \(O(n)\).
+
+\begin{frame}[fragile]
+  \begin{remark}[Att fråga kostar olika mycket]
+    Frågan \mintinline{python}{x in behållare} kostar arbete som växer
+    med antalet element i en lista, men i genomsnitt lika mycket oavsett
+    antalet i en mängd.\footnote{\label{fn:komplexitet}%
+      \emph{TimeComplexity}, Pythons wiki.
+      \url{https://wiki.python.org/moin/TimeComplexity} (hämtad
+      2026-09-03).  Siffrorna gäller CPython och genomsnittsfallet.}
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOChoose,ContLOSet}.
+
+  Prestandapåståendet är ett faktapåstående och beläggs därför med en
+  primärkälla i stället för med en tidtagning; en mätning hade sagt
+  något om den här datorn, inte om datastrukturen.  Förbehållen står i
+  brödtexten och inte bara i bilagan: en siffra utan förbehåll är just
+  den sortens påstående studenterna ska lära sig att inte lita på.
+
+  Avsnittet ligger \emph{efter} kontrasten och operationerna, inte före.
+  Prestanda är ett skäl att välja mängden, men det är inte det som gör
+  mängden urskiljbar; hade det kommit först hade det blivit ett
+  påstående att tro på i stället för en förklaring till något redan
+  sett.
+}
+
+\section{Stackar och köer}
+\label{sec:stackar}
+
+Nästa fråga är en annan: inte \enquote{finns det?} utan \enquote{vilket
+tar jag härnäst?}  Och den frågan har mer än ett rimligt svar.
+
+\begin{frame}
+  \begin{exercise}
+    Ni diskar för hand.  Den smutsiga disken läggs i diskhon, och ni tar
+    upp en sak i taget för att diska den.  Vilken sak får ni tag på ---
+    den som lades i först eller den som lades i sist?  Och hur skulle ni
+    \emph{vilja} ha det?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOStack,ContLOQueue}.
+
+  \foreignlanguage{english}{Try-first} med en vardagssituation, och en
+  medveten återanvändning: handdisken är samma exempel som i modulen om
+  algoritmiskt tänkande, där den användes för att urskilja upprepning
+  och funktioner.  Här varieras kontexten inte alls --- den hålls
+  invariant --- medan frågan är ny, vilket gör att uppmärksamheten
+  hamnar på ordningen och ingenting annat.
+
+  Att frågan har två led (vad som händer, och vad man skulle vilja) är
+  det som gör den till en kontrast redan innan koden visas: studenten
+  formulerar själv båda ordningarna.
+}
+
+Ur diskhon får vi det som lades i sist, för det ligger överst.  Det
+kallas en \emph{stack} --- sist in, först ut --- och en lista är redan en
+stack: \mintinline{python}{append} lägger på toppen och
+\mintinline{python}{pop} tar därifrån.
+
+\begin{frame}[fragile]
+  En stack av en vanlig lista:
+<<[[pile.py]]>>=
+pile = []
+pile.append(1)
+pile.append(2)
+pile.append(3)
+print(f"pile = {pile}")
+
+while pile:
+    print(f"pile.pop() = {pile.pop()}")
+    print(f"pile = {pile}")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/pile.py}
+  \end{example}
+\end{frame}
+
+Men i kön till kassan vill vi ha den andra ordningen: den som ställde sig
+först ska betjänas först.  Det kallas en \emph{kö} --- först in, först ut.
+
+\begin{frame}[fragile]
+  Samma program, med en kö i stället:
+<<[[queue.py]]>>=
+import collections
+
+q = collections.deque()
+q.append(1)
+q.append(2)
+q.append(3)
+print(f"q = {q}")
+
+while q:
+    print(f"q.popleft() = {q.popleft()}")
+    print(f"q = {q}")
+@
+  \pause
+
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/queue.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOStack,ContLOQueue}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: vilken ände elementen tas ur, och därmed
+  behållaren.
+  \textbf{Vad som hålls invariant}: programmets form, elementen och
+  ordningen de lades in i.
+
+  De två programmen är avsiktligt nästan tecken för tecken lika, så att
+  det enda som skiljer i utskriften --- ordningen --- inte kan förklaras
+  av något annat.  Att båda skriver ut behållaren efter varje uttag gör
+  ordningen synlig steg för steg i stället för bara i slutresultatet.
+}
+
+Kön är alltså inte en lista, utan en \mintinline{python}{deque} ur
+modulen \mintinline{python}{collections}.  Frågan är varför --- en lista
+har ju \mintinline{python}{pop(0)}, som tar det första elementet.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Varför använder vi \mintinline{python}{collections.deque} för kön i
+    stället för en vanlig lista med \mintinline{python}{pop(0)}?  Tänk
+    på vad som måste hända med de andra elementen när det första
+    försvinner.
+  \end{exercise}
+\end{frame}
+
+Tar vi bort det första elementet ur en lista måste alla de andra flyttas
+ett steg framåt, och det arbetet växer med listans längd.  En
+\mintinline{python}{deque} är byggd för att kunna lägga till och ta bort
+i \emph{båda} ändarna billigt.  Pythons dokumentation säger det rakt
+ut\autocite{PythonCollections}: listor är optimerade för operationer som
+inte ändrar längden, och \mintinline{python}{pop(0)} kostar \(O(n)\) i
+minnesflyttar, medan \mintinline{python}{deque} klarar båda ändarna på
+konstant tid\autocite{PythonTimeComplexity}.
+
+\begin{frame}
+  \includegraphics[width=\columnwidth]{figs/docs-deque.png}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOQueue,ContLOChoose}.
+
+  Frågan ställs innan svaret ges, och den innehåller ledtråden
+  (\enquote{vad måste hända med de andra elementen}) utan att ge svaret.
+  Det är en avvägning: en helt öppen fråga hade få kunnat besvara utan
+  att veta hur en lista är byggd inuti, och en fråga ingen kan svara på
+  lär inte ut något.  Ledtråden pekar på mekanismen, inte på slutsatsen.
+
+  Påståendet om kostnaden beläggs med Pythons egen dokumentation, som
+  formulerar det i just de termerna.
+}
+
+\subsection{Att diska med en stack och en kö}
+\label{sec:diska}
+
+Handdisken behöver båda.  Disken i hon ligger i en hög --- en stack ---
+medan den sköljda disken torkar i den ordning den sköljdes --- en kö.
+
+\begin{frame}
+  \begin{exercise}[diska.py]
+    Skriv ett program som diskar: allt läggs först i diskhon, sedan
+    diskas en sak i taget och läggs i sköljhon, och till sist torkas
+    sakerna.  Vilken behållare passar för diskhon, och vilken för det
+    som väntar på att torkas?
+  \end{exercise}
+\end{frame}
+
+Vi bygger programmet uppifrån och ner.  Överblicken är de tre faserna.
+
+\begin{frame}[fragile]
+  Programmets tre faser:
+<<[[diska.py]]>>=
+"""Ett program som diskar med en stack och en kö"""
+
+import collections
+
+
+<<diska allt>>
+
+
+if __name__ == "__main__":
+    diska(["tallrik", "glas", "gaffel", "kastrull"])
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Diskhon är en stack och sköljkön en kö:
+<<diska allt>>=
+def diska(disk):
+    """Diskar sakerna i disk och skriver ut vad som händer."""
+    <<fyll diskhon>>
+    <<diska ur diskhon och lägg i sköljkön>>
+    <<torka det som sköljts>>
+@
+  \pause
+
+<<fyll diskhon>>=
+diskho = []
+skoljko = collections.deque()
+
+for sak in disk:
+    diskho.append(sak)
+    print(f"Lägger {sak} i diskhon: {diskho}")
+@
+\end{frame}
+
+Disken diskas i omvänd ordning mot hur den lades i --- den översta först
+--- och läggs sedan i sköljkön, där den ställer sig sist.
+
+\begin{frame}[fragile]
+  Ur stacken, in i kön:
+<<diska ur diskhon och lägg i sköljkön>>=
+while diskho:
+    sak = diskho.pop()
+    skoljko.append(sak)
+    print(f"Diskar {sak}, sköljkön är nu {list(skoljko)}")
+@
+  \pause
+
+  Och ur kön i den ordning de sköljdes:
+<<torka det som sköljts>>=
+while skoljko:
+    sak = skoljko.popleft()
+    print(f"Torkar {sak}")
+@
+\end{frame}
+
+Nu är varje namngivet steg förfinat ända ner till Python.  Sätter vi
+ihop bitarna --- ersätter varje \LA{}namn\RA{} med sin förfining --- får
+vi ett helt, körbart program.
+
+\begin{frame}[fragile]
+  \begin{example}[Hela programmet]
+    Sätter vi ihop bitarna får vi:
+    \lstexample{python}{examples/diska.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython{examples/diska.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{ContLOStack,ContLOQueue,ContLOChoose}.
+
+  \textbf{Variationsmönster}: fusion.
+  \textbf{Vad som varieras samtidigt}: stackens ordning, köns ordning
+  och valet mellan dem --- i ett och samma program, där de två
+  behållarna står bredvid varandra och gör olika saker med samma
+  föremål.
+
+  Kontrasten i \cref{sec:stackar} visade ordningarna var för sig; här
+  måste båda hållas i huvudet samtidigt för att utskriften ska gå att
+  förutsäga.  Att exemplet är handdisken från modulen om algoritmiskt
+  tänkande är avsiktligt: samma vardagssituation, nu med behållare
+  i stället för med numrerade steg, så att det som varierar är
+  beskrivningsnivån och inte uppgiften.
+
+  Notera att programmet skriver ut [[list(skoljko)]] och inte
+  [[skoljko]].  Det är ett medvetet val: en [[deque]] skriver ut sig
+  själv som [[deque([...])]], vilket hade lagt en ny sak att förklara
+  mitt i utskriften.
+}
+
+\section{Att välja behållare}
+\label{sec:valja}
+
+Nu finns alla behållarna på bordet, och den fråga som återstår är den
+som återkommer i varje program ni skriver: vilken ska jag ta?
+
+\begin{frame}
+  \begin{exercise}
+    Vilken behållare skulle ni välja, och varför?  De studenter som
+    är anmälda till en kurs; deras betyg; ordningen de lämnade in
+    laborationen i; datumet en laboration lämnades in; de kurskoder som
+    förekommer i ett schema.
+  \end{exercise}
+\end{frame}
+
+Svaret följer inte av vad datan \emph{är} utan av vad programmet ska
+\emph{göra} med den.  Ska något slås upp på ett namn: uppslagslista.
+Ska något besvaras med ja eller nej om medlemskap, utan dubbletter:
+mängd.  Spelar ordningen roll och ska innehållet ändras: lista.  Är
+antalet delar givet av vad saken är: tupel.  Ska elementen tas ut i
+omvänd ordning mot hur de lades in: stack --- och i samma ordning: kö.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Välj efter operationen]
+      \begin{itemize}
+        \item Slå upp på ett namn: uppslagslista.
+        \item Finns det, utan dubbletter: mängd.
+        \item Ordning och ändringar: lista.
+        \item Fast antal delar som hör ihop: tupel.
+        \item Sist in först ut: stack.  Först in först ut: kö.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Välj efter operationen]
+      Behållaren väljs efter vilka operationer programmet behöver, inte
+      efter vad datan handlar om.  Samma studenter kan lika gärna ligga
+      i en lista, i en mängd eller som nycklar i en uppslagslista --- det
+      beror på om programmet ska räkna upp dem i ordning, fråga om någon
+      är med, eller slå upp något som hör till var och en.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOChoose}.
+
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: kriteriet --- vilka operationer
+  programmet behöver.
+  \textbf{Vad som varierar}: datan, från personer till betyg till
+  datum.
+
+  Uppgiftens fem fall är valda så att de täcker fem olika svar utan att
+  något av dem är entydigt givet av datatypen; \enquote{de studenter som
+  är anmälda} kan försvaras som lista, mängd eller nycklar, och det är
+  motiveringen som prövas, inte svaret.  Att välja den enklaste
+  behållare som klarar de operationer man behöver är principen
+  \foreignlanguage{english}{KISS}, som namnges och beläggs i kursens
+  modul om funktioner.
+
+  Sammanfattningen kommer sist och inte först: en tabell över behållare
+  i början av modulen hade varit en generalisering utan föregående
+  variation, och den som ännu inte urskilt vad som skiljer behållarna
+  åt kan inte läsa en sådan tabell som något annat än en lista att
+  memorera.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Pythons modul \mintinline{python}{collections} innehåller fler
+    behållare än \mintinline{python}{deque}.  Slå upp
+    \mintinline{python}{Counter} i dokumentationen.  Vilken av
+    uppgifterna ovan blir enklare med den, och varför?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLODocs,ContLOChoose}.
+
+  Modulen avslutas med en uppgift som kräver en behållare som inte
+  gåtts igenom alls.  Det är avsikten: veckans mål är att kunna hitta
+  och läsa dokumentationen och använda den för att lösa problem man inte
+  sett förut, och det målet prövas bara av en uppgift vars svar inte
+  står på någon bild.  [[Counter]] är valt för att den löser en av
+  uppgifterna ovan (antalet förekomster) på en rad, så att belöningen
+  för att ha läst dokumentationen är omedelbar.
+}
