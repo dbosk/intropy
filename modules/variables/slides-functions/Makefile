@@ -13,6 +13,9 @@ TEX_PYTHONTEX=	yes
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
+# The appendix \inputs the generated hit-list table; a regenerated table
+# must trigger a rebuild even when no .tex source changed.
+SRC+=		$(wildcard litteratursokning/*.tex)
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/age-repeat.py examples/age-funcs.py
