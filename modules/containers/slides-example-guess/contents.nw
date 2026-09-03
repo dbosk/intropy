@@ -1,0 +1,431 @@
+\mode*
+
+% Videogenomgång som följer den här föreläsningen:
+%   Behållare: Gissningsspel   https://youtu.be/3V6oejJNMyY
+% Se README.md för länken till FeedbackFruits.
+%
+% Programmet är omskrivet mot videons version: samma uppdelning i
+% funktioner och samma resultatlista, men utan lambda (som inte gåtts
+% igenom), på svenska, och med ett frivilligt startvärde till
+% slumpgeneratorn så att körningen i anteckningarna går att upprepa.
+
+\section{Ett gissningsspel}
+\label{sec:gissning}
+
+Vi har nu behållare, upprepningar, funktioner och felhantering.  Var och
+en har vi mött för sig.  Det som återstår är att använda dem samtidigt,
+och det gör vi bäst genom att bygga ett program som behöver alla fyra.
+
+\begin{frame}
+  \begin{exercise}[guess.py]
+    Skriv ett gissningsspel.  Datorn tänker på ett tal, och du gissar
+    tills du hittar rätt eller tar slut på försök.  Spelet spelas i
+    flera omgångar, och programmet ska till sist räkna ut hur många
+    försök du behövde i genomsnitt.
+
+    Vad behöver programmet komma ihåg medan det körs, och när kan det
+    räkna ut genomsnittet?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{GuessLOAccumulate,GuessLOCombine}.
+
+  \foreignlanguage{english}{Try-first}, och den andra frågan är den
+  viktiga: genomsnittet går inte att räkna ut förrän alla omgångar är
+  spelade, så programmet måste \emph{spara} resultaten under tiden.  Det
+  är just det en behållare är till för, och det är den insikten som
+  motiverar listan i ett program där studenten annars kunde ha nöjt sig
+  med en räknare.
+
+  Frågan säger inte att det behövs en lista.  Den som svarar
+  \enquote{en summa och ett antal} har hittat en fungerande lösning som
+  \emph{inte} behöver behållare --- och det svaret är värt att ta upp:
+  listan behövs först när vi vill kunna säga något mer om resultaten än
+  genomsnittet, vilket \cref{sec:resultat} kommer tillbaka till.
+}
+
+Genomsnittet kan räknas ut först när alla omgångar är spelade, så
+programmet måste komma ihåg resultaten under tiden.  Vi bygger det
+uppifrån och ner: först överblicken, sedan varje del för sig.
+
+\begin{frame}[fragile]
+  Programmet som helhet:
+<<[[guess.py]]>>=
+"""Ett gissningsspel som minns hur många försök varje omgång tog."""
+
+import random
+import sys
+
+<<konstanter>>
+
+
+<<läs in en gissning>>
+
+
+<<spela en omgång>>
+
+
+<<huvudprogrammet>>
+
+
+<<starta programmet>>
+@
+\end{frame}
+
+Spelets regler --- vilket intervall talet ligger i, hur många omgångar
+och hur många försök per omgång --- skriver vi som konstanter högst upp.
+Då står de på ett ställe, och den som vill ändra spelet behöver inte
+leta i koden.
+
+\begin{frame}[fragile]
+  Reglerna, samlade:
+<<konstanter>>=
+INTERVAL = (0, 10)
+NUM_OF_ROUNDS = 3
+MAX_ATTEMPTS = 3
+@
+  \pause
+
+  \begin{remark}
+    Intervallet är en tupel och inte en lista: det är två tal som hör
+    ihop och som inte ska ändras var för sig medan spelet pågår.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOCombine}.
+
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: kriteriet för att välja tupel ---
+  ett fast antal delar som hör ihop och inte ändras var för sig.
+  \textbf{Vad som varierar}: kontexten, från koordinater och namn i
+  tupelmodulen till spelets intervall här.
+
+  Att motivera valet i en anmärkning i stället för att bara skriva
+  parenteser är avsikten: valet av behållare är ett av veckans mål, och
+  ett program där varje val är motiverat är den enda plats där målet
+  kan tränas i sitt sammanhang.
+
+  Att konstanterna står samlade och namngivna, i stället för som tal
+  inuti koden, är samma sak sagt om magiska tal --- det tas upp i
+  kursens modul om funktioner och namnges inte om här.
+}
+
+\subsection{Att läsa in en gissning}
+\label{sec:inlasning}
+
+Användaren skriver vad som helst: bokstäver, tomma rader, tal utanför
+intervallet.  Programmet ska inte krascha av det, utan fråga om igen.
+
+\begin{frame}
+  \begin{exercise}
+    Vad kan användaren skriva som gör att
+    \mintinline{python}{int(input("Gissa: "))} kraschar?  Och vad kan
+    hen skriva som \emph{inte} kraschar men ändå är fel?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOValidate}.
+
+  \foreignlanguage{english}{Try-first} i två led, och de två leden
+  motsvarar precis de två fall funktionen måste hantera: det som ger ett
+  \emph{undantag} och det som ger ett \emph{giltigt värde med fel
+  innebörd}.  Den skillnaden är kritisk och lätt att missa --- ett
+  program som bara har [[try]]/[[except]] tar hand om det första fallet
+  och släpper igenom det andra.  Frågan pekar inte ut skillnaden, den
+  ber bara om exempel på båda sorterna.
+}
+
+Två olika saker kan gå fel, och de kräver olika slags kontroll.
+\enquote{Sju} går inte att göra om till ett tal alls, och ger ett
+undantag som vi måste fånga.  \(42\) går utmärkt att göra om till ett
+tal --- men ligger utanför intervallet, och det märks bara om vi
+frågar efter det.
+
+\begin{frame}[fragile]
+  Funktionen frågar om igen tills båda kontrollerna går igenom:
+<<läs in en gissning>>=
+def input_guess(interval):
+    """Läser in en gissning i interval; frågar om igen tills den duger."""
+    while True:
+        try:
+            guess = int(input(f"Vilket tal tänker jag på? {interval}: "))
+        except ValueError:
+            print("Det där var inget heltal.")
+            continue
+
+        if interval[0] <= guess <= interval[1]:
+            return guess
+
+        print(f"Gissningen måste ligga i intervallet {interval}.")
+@
+\end{frame}
+
+Funktionen tar intervallet som parameter i stället för att läsa
+konstanten direkt.  Det gör den återanvändbar --- den fungerar för
+vilket intervall som helst --- och det gör den möjlig att pröva utan att
+resten av spelet är på plats.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOValidate,GuessLOCombine}.
+
+  Att funktionen tar intervallet som parameter i stället för att
+  använda konstanten är ett tillfälle att peka ut att en funktion med
+  ett tydligt ansvar och utan dolda beroenden går att återanvända och
+  att pröva --- principerna \foreignlanguage{english}{SRP} och
+  \foreignlanguage{english}{KISS}, som namnges och beläggs i kursens
+  modul om funktioner.
+
+  Prosan efteråt säger \emph{varför} valet är gjort, inte bara att det
+  är gjort.  Det är skillnaden mellan att visa kod och att lära ut
+  design, och det är den delen studenterna annars hoppar över.
+}
+
+\subsection{Att spela en omgång}
+\label{sec:omgang}
+
+En omgång är en upprepning med ett bestämt antal varv, och den ska
+lämna tillbaka \emph{hur många försök som gick åt} --- det är det
+huvudprogrammet ska samla på.
+
+\begin{frame}[fragile]
+  Omgången räknar sina egna försök:
+<<spela en omgång>>=
+def ask_question(answer, max_attempts):
+    """Frågar tills answer gissas; returnerar antalet försök som gick åt."""
+    for attempt in range(1, max_attempts + 1):
+        guess = input_guess(INTERVAL)
+
+        if guess == answer:
+            return attempt
+
+        if guess < answer:
+            print("För lågt.")
+        else:
+            print("För högt.")
+
+    return max_attempts + 1
+@
+  \pause
+
+  \begin{remark}
+    Misslyckas alla försök lämnas \mintinline{python}{max_attempts + 1}
+    tillbaka --- ett tal som inte kan vara ett riktigt antal försök, så
+    att huvudprogrammet kan skilja fallen åt.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOCombine}.
+
+  Att en misslyckad omgång ger [[max_attempts + 1]] är ett designval
+  som är värt att peka ut för studenten: funktionen måste kunna säga
+  \enquote{det gick inte} med samma sorts värde som den annars lämnar
+  tillbaka.  Alternativen --- att lämna tillbaka [[None]], eller att
+  skriva ut misslyckandet inne i funktionen --- diskuteras inte här,
+  eftersom det skulle variera en dimension (hur fel rapporteras) som
+  hör hemma i modulen om undantag.
+
+  Att slingan använder [[range(1, max_attempts + 1)]] och inte
+  [[range(max_attempts)]] är för att [[attempt]] ska vara det tal vi
+  vill lämna tillbaka.  Det är ett litet exempel på att indexets
+  startpunkt är ett val och inte en naturlag.
+}
+
+\subsection{Att samla resultaten}
+\label{sec:resultat}
+
+Nu kan huvudprogrammet spela sina omgångar.  För varje omgång får det
+ett tal tillbaka, och det talet ska sparas.
+
+\begin{frame}[fragile]
+  Listan växer med en post per omgång:
+<<huvudprogrammet>>=
+def main():
+    """Huvudprogrammet"""
+    results = []
+
+    for round_number in range(1, NUM_OF_ROUNDS + 1):
+        print(f"Omgång {round_number}!")
+
+        answer = random.randint(INTERVAL[0], INTERVAL[1])
+        attempts = ask_question(answer, MAX_ATTEMPTS)
+        results.append(attempts)
+
+        if attempts > MAX_ATTEMPTS:
+            print(f"Tyvärr, talet var {answer}.")
+        else:
+            print("Snyggt gissat!")
+
+    <<sammanfatta resultaten>>
+@
+\end{frame}
+
+När alla omgångar är spelade har vi en lista med ett tal per omgång, och
+då --- men inte förr --- går genomsnittet att räkna ut.
+
+\begin{frame}[fragile]
+  Sammanfattningen använder hela listan:
+<<sammanfatta resultaten>>=
+average = sum(results) / len(results)
+print(f"Försöken per omgång: {results}")
+print(f"Du behövde i genomsnitt {average:.2f} försök.")
+print(f"Bästa omgången tog {min(results)} försök.")
+@
+  \pause
+
+  \begin{remark}
+    Här syns varför resultaten sparades i en lista och inte bara
+    summerades: genomsnittet hade räckt med en summa och en räknare, men
+    den bästa omgången kräver att alla talen finns kvar.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{GuessLOAccumulate,GuessLOCombine}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: vilken fråga vi ställer om resultaten ---
+  genomsnittet, som en summa och en räknare klarar, respektive den
+  bästa omgången, som kräver att alla värden finns kvar.
+  \textbf{Vad som hålls invariant}: programmet och den insamlade datan.
+
+  Det är den här kontrasten som svarar på
+  \foreignlanguage{english}{try-first}-frågan i början av modulen, där
+  svaret \enquote{en summa och ett antal} lämnades öppet.  Att svaret
+  ges först här, när skillnaden går att se i kod, i stället för direkt
+  när frågan ställdes, är avsiktligt: påståendet \enquote{du behöver en
+  lista} är lätt att säga och svårt att tro på, medan
+  [[min(results)]] är svårt att göra utan en.
+
+  Raden [[min(results)]] är alltså inte en utfyllnad; den är hela skälet
+  till att behållaren finns i programmet.
+}
+
+\subsection{Att kunna köra om samma spel}
+\label{sec:slump}
+
+Programmet är nästan färdigt.  Det som återstår är starten --- och där
+finns ett problem som inte har med gissningar att göra.
+
+\begin{frame}
+  \begin{exercise}
+    Programmet slumpar fram sitt tal.  Hur testar man ett program som
+    beter sig olika varje gång det körs?  Och hur skulle ni kunna visa
+    en körning i en lärobok?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOReproduce}.
+
+  \foreignlanguage{english}{Try-first} om ett problem studenterna
+  faktiskt har i laborationerna men sällan får satt ord på: att
+  slumpen gör ett program omöjligt att jämföra med ett facit.  Frågan
+  är ställd så att den inte avslöjar att det finns en lösning
+  inbyggd i språket.
+
+  Att materialet tar upp sitt eget problem --- hur en körning ska kunna
+  visas i anteckningarna --- är avsiktligt.  Körningen längre ner är
+  producerad med just den lösningen, så påståendet går att kontrollera
+  på plats i stället för att bara läsas.
+}
+
+En slumpgenerator är inte slumpmässig på riktigt: den räknar fram en
+följd av tal ur ett \emph{startvärde}.  Samma startvärde ger samma följd,
+varje gång --- Pythons dokumentation säger det rakt ut, och tillägger att
+generatorn just därför inte duger till
+kryptografi\autocite{PythonRandom}.  Utan startvärde tar Python sitt
+från klockan eller från operativsystemets slumpkälla, så att spelet blir
+nytt varje gång --- men vi låter den som startar programmet ange ett
+startvärde om hen vill.
+
+\begin{frame}[fragile]
+  Ett frivilligt startvärde på kommandoraden:
+<<starta programmet>>=
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        random.seed(int(sys.argv[1]))
+
+    main()
+@
+  \pause
+
+  \begin{remark}
+    Utan argument spelas ett nytt spel varje gång.  Med
+    \mintinline{bash}|python3 guess.py 42| spelas exakt samma spel som
+    förra gången argumentet var 42.
+  \end{remark}
+\end{frame}
+
+\begin{frame}[fragile]
+  Vi matar programmet med gissningarna från en fil för att kunna visa
+  en körning:
+<<[[guess.in]]>>=
+5
+8
+10
+sju
+42
+5
+1
+5
+6
+7
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[En körning]
+    Så här ser det ut med startvärdet 42 och gissningarna ovan:
+    \runpython[transcript, args={42}, stdinfile={examples/guess.in}]{examples/guess.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOReproduce,GuessLOCombine}.
+
+  \textbf{Variationsmönster}: fusion.
+  \textbf{Vad som varieras samtidigt}: alla programmets delar --- listan
+  som samlar, slingorna som driver, funktionerna som delar upp och
+  felhanteringen som fångar \enquote{sju}.  Körningen är den enda plats
+  där de syns tillsammans i arbete.
+
+  Inmatningsfilen är tanglad ur samma källa som programmet, och
+  utskriften körs vid varje kompilering.  Det betyder att en ändring i
+  programmet som gör körningen orimlig syns direkt i materialet, och att
+  studenten kan reproducera exakt samma körning på sin egen dator.  Det
+  är samtidigt en illustration av vad startvärdet är till för --- det
+  påstås inte, det används.
+}
+
+\begin{frame}
+  \begin{exercise}
+    Ändra spelet så att det också säger hur många omgångar du klarade
+    på första försöket.  Vilken del av programmet behöver du ändra ---
+    och vilken behöver du inte röra?
+  \end{exercise}
+\end{frame}
+
+Svaret på den andra frågan är poängen med uppdelningen: bara
+sammanfattningen behöver ändras.  Inläsningen, omgången och
+huvudslingan vet ingenting om vilka frågor som ställs om resultaten, och
+därför kan vi ställa en ny fråga utan att röra dem.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOCombine,GuessLOAccumulate}.
+
+  Uppgiften prövar om uppdelningen har blivit begriplig som en
+  \emph{egenskap} hos programmet och inte bara som en följd av att
+  materialet råkade presentera det i bitar.  Den andra frågan ---
+  vad man \emph{inte} behöver röra --- är den som skiljer de två
+  förståelserna åt, och den kan inte besvaras genom att gissa.
+
+  Att svaret ges i prosan direkt efteråt är nödvändigt: uppgiften
+  lämnas inte obesvarad, och kontrasten mellan \enquote{ändra en rad}
+  och \enquote{ändra överallt} är det studenten ska ta med sig.
+}
