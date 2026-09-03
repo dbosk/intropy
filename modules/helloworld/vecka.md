@@ -1,12 +1,12 @@
 ---
-title: 'Veckoöversikt: Terminalen och "Hello World!"'
-regex: '^Veckoöversikt: Terminalen och "Hello World!"$'
+title: 'Veckoöversikt: Terminalen, programmeringens grunder och "Hello World!"'
+regex: '^Veckoöversikt: Terminalen, programmeringens grunder och "Hello World!"$'
 published: true
 front_page: false
 editing_roles: teachers
 weeks: 2026w37
 modules:
-  - module: '^Terminalen och "Hello World!"$'
+  - module: '^Terminalen, programmeringens grunder och "Hello World!"$'
     position: 1
 ---
 Den här veckan (vecka 37) börjar kursens *Pythondel*. Innan vi kan
@@ -38,7 +38,9 @@ Varje vecka har en egen sida som den här överst i sin modul.
 1. **Gå på föreläsningen** (onsdag): introduktion till terminalen,
    filsystemet och textredigerare. Den ges live så att du kan ställa frågor;
    kan du inte komma finns inspelningen och anteckningarna på föreläsningens
-   sida här i modulen.
+   sida här i modulen.  Föreläsningen inleder också programmeringens
+   grunder med *algoritmiskt tänkande*; se sidan *Föreläsning:
+   Algoritmiskt tänkande* i modulen.
 2. **Gå på labbpasset för din grupp** direkt efter föreläsningen (onsdag
    eller torsdag): det är en hjälpsession för att få igång din arbetsmiljö.
    Arbeta med *Laboration (0) kom igång med Hello World* och markera den som

@@ -36,6 +36,7 @@ WEEK_PAGES+=	modules/overview/vecka-datorprov.md
 WEEK_PAGES+=	modules/project/vecka.md
 # ... while these are pushed as they are.
 PAGES+=		modules/overview/pythondelen.md
+PAGES+=		modules/computational-thinking/lecture.md
 PAGES+=		${WEEK_PAGES}
 
 ${ICS}:

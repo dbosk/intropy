@@ -27,7 +27,7 @@ programmeringsuppgift som avgör ditt betyg på kursen. Se sidan
 
 | Vecka | Modul i Canvas | Moment |
 |-------|----------------|--------|
-| 37 | Terminalen och "Hello World!" | Laboration 0 |
+| 37 | Terminalen, programmeringens grunder och "Hello World!" | Laboration 0 |
 | 38 | Funktioner och variabler | Laboration 1 |
 | 39 | Inmatning, felhantering och styrstrukturer | Laboration 2 |
 | 40 | Upprepningar, listor och moduler | Laboration 3 |
@@ -75,7 +75,7 @@ Pythondelen ska kunna
 
 Vecka för vecka är målen följande.
 
-**Vecka 37, Terminalen och "Hello World!":**
+**Vecka 37, Terminalen, programmeringens grunder och "Hello World!":**
 
 - styra datorn från terminalen och hitta i filsystemet,
 - installera Python och en textredigerare eller IDE och skriva program i

@@ -16,8 +16,8 @@ problem i delproblem som var och en löses av en *funktion*. Det sättet att
 tänka, att bryta ner ett problem i hanterbara delar, är kursens röda tråd
 och kommer igen varje vecka.
 
-Innan du börjar bör du ha gjort klart förra veckans modul *Terminalen och
-"Hello World!"*: du ska kunna köra ett pythonprogram från terminalen och
+Innan du börjar bör du ha gjort klart förra veckans modul *Terminalen,
+programmeringens grunder och "Hello World!"*: du ska kunna köra ett pythonprogram från terminalen och
 redigera det i din textredigerare.
 
 ## Efter veckan ska du kunna
