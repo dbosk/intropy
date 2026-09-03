@@ -23,7 +23,7 @@ EXAMPLES+=	examples/pannkakor.py
 # root chunks carry no filename, so the generic [[...]] rule cannot apply.
 EXAMPLES+=	examples/handdisk.txt examples/handdisk-funktion.txt
 
-contents.tex: contents.nw noweb_lexer.py
+contents.tex: contents.nw
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
@@ -43,13 +43,13 @@ examples: ${EXAMPLES}
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
-notes.pdf slides.pdf: ${SRC} ${EXAMPLES} noweb_lexer.py
+notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
 
 
 .PHONY: clean
 clean:
 	${RM} notes.pdf slides.pdf
-	${RM} contents.tex noweb_lexer.py
+	${RM} contents.tex
 	${RM} ${EXAMPLES}
 
 
