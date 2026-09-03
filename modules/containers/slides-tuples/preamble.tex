@@ -1,32 +1,37 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[swedish]{babel}
+\usepackage[british,english,swedish]{babel}
 \usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
 
-\usepackage[natbib,style=alphabetic,maxbibnames=99]{biblatex}
-\addbibresource{slides.bib}
+\usepackage[
+  natbib,
+  style=verbose,
+  citestyle=verbose,
+  singletitle=false,
+  maxbibnames=99,
+]{biblatex}
+\addbibresource{ltnotes.bib}
 
 \usepackage[all]{foreign}
 \renewcommand{\foreignfullfont}{}
 \renewcommand{\foreignabbrfont}{}
 
-\usepackage{newclude}
-\usepackage{import}
-
 \usepackage[strict]{csquotes}
-\usepackage[single]{acro}
 
-\usepackage{subcaption}
+\usepackage{graphicx}
 
-\usepackage[noend]{algpseudocode}
-\usepackage{xparse}
+% minted v3+ (TeX Live 2024+) auto-detects the output directory; the old
+% [outputdir=...] package option is an error there.
+\usepackage{minted}
+\setminted{autogobble,fontsize=\footnotesize}
 
-\let\email\texttt
-
-\usepackage[outputdir=ltxobj]{minted}
-\setminted{autogobble,linenos,mathescape,python3,fontsize=\small}
-
-\usepackage{pythontex}
+% PythonTeX runs the tangled example programs and embeds their real output,
+% so the code on the slide and the output below it cannot drift apart.
+% pythontex runs from ltxobj (the outputdir); workingdir=.. moves it up to
+% the deck directory so examples/... resolves.
+\usepackage[makestderr]{pythontex}
 \setpythontexoutputdir{.}
 \setpythontexworkingdir{..}
 
@@ -34,10 +39,47 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{amsthm}
-\usepackage{thmtools}
-\usepackage[unq]{unique}
-\DeclareMathOperator{\powerset}{\mathcal{P}}
+\usepackage{thmtools,thm-restate}
 
-\usepackage[binary-units]{siunitx}
+\makeatletter
+\@ifclassloaded{beamer}
+  {\relax}
+  {\usepackage[colorlinks]{hyperref}}
+\makeatother
+% cleveref ships Swedish names; activate them with the language option.
+% (cleveref reads its language from its own package options, not from
+% babel's.)  No [capitalize]: Swedish typography wants lowercase mid-sentence
+% references (use \Cref for a sentence-initial one).
+\usepackage[swedish]{cleveref}
+% cleveref's Swedish names still call the appendix type "Appendix", but
+% memoir and babel call it "Bilaga".  Align cleveref with them, in an
+% \AtBeginDocument hook registered after cleveref's own (from the swedish
+% option) so ours wins.
+\AtBeginDocument{%
+  \crefname{appendix}{bilaga}{bilagor}%
+  \Crefname{appendix}{Bilaga}{Bilagor}%
+  \crefname{footnote}{fotnot}{fotnoterna}%
+  \Crefname{footnote}{Fotnot}{Fotnoterna}%
+}
 
-\usepackage[capitalize]{cleveref}
+\usepackage[marginparmargin=outer]{didactic}
+\ProvideSemanticEnv{lo}{Learning Objective}
+  [style=definition,numbered=yes]
+  {LO}{LO}
+  {Learning objective}{Learning objectives}
+\ProvideTranslation{british}{Learning Objective}{Learning Objective}
+\ProvideTranslation{british}{LO}{LO}
+\ProvideTranslation{british}{Learning objective}{Learning objective}
+\ProvideTranslation{british}{Learning objectives}{Learning objectives}
+\ProvideTranslation{swedish}{Learning Objective}{Lärandemål}
+\ProvideTranslation{swedish}{LO}{lm}
+\ProvideTranslation{swedish}{Learning objective}{Lärandemål}
+\ProvideTranslation{swedish}{Learning objectives}{Lärandemål}
+
+% Guard for Greek letters that may reach the .tex through generated tables
+% or through prose typed elsewhere.
+\DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}
+\DeclareUnicodeCharacter{03BB}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
