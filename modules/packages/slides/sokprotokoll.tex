@@ -1,0 +1,457 @@
+\chapter{Att kontrollera ett påstående}
+\label{app:verifiera}
+
+Det här materialet gör, som allt undervisningsmaterial, en rad
+påståenden.  De flesta går att pröva vid datorn: att en modul körs när
+den importeras ser ni själva genom att köra \texttt{use\_hello.py}, och
+att en fil som heter \texttt{statistics.py} skuggar modulen med samma
+namn ser ni genom att döpa om en fil.  Men några av påståendena handlar
+om vad andra har sagt eller visat, och dem kan ingen körning avgöra:
+\begin{enumerate}
+  \item att det är bra att inte upprepa sig i ett program --- principen
+    \emph{DRY} --- och att den kommer från Hunt och Thomas
+    (\cref{sec:tva-program});
+  \item att en modul, liksom en funktion, bör ha ett enda ansvar ---
+    \emph{SRP} --- och att principen är Robert C. Martins
+    (\cref{sec:modul});
+  \item att den enklaste lösning som duger är att föredra ---
+    \emph{KISS} --- och att uttrycket tillskrivs Kelly Johnson
+    (\cref{sec:kiss});
+  \item att Python gör det materialet säger att det gör: att en modul
+    är en fil, att \mintinline{python}{import} kör den, att programmets
+    katalog söks före standardbiblioteket, och så vidare
+    (\cref{sec:modul,sec:main,sec:stdlib,sec:pypi});
+  \item att studenter bygger egna regler för var ett namn letas upp,
+    vilket \cref{sec:modul} är utformat mot;
+  \item att namnfel är det vanligaste körtidsfelet hos nybörjare
+    (\cref{sec:modul}) --- och, som en fråga som prövades och fick ett
+    nekande svar, att moduler och import är en belagd svårighet för
+    nybörjare (\cref{sec:skugga}).
+\end{enumerate}
+Hur vet man om sådant stämmer?  Samma fråga möter er varje gång ni läser
+en lärobok, en webbsida eller ett svar från en språkmodell --- och varje
+gång ni själva ska skriva en rapport.  Den här bilagan sammanfattar
+arbetsgången och visar i \cref{tab:paastaenden} var vart och ett av
+påståendena är kontrollerat; \cref{app:moduler} visar arbetsgången
+genomförd på det sista påståendet.  Arbetsgången beskrivs utförligare i
+bilagan med samma namn i föreläsningen \emph{Algoritmiskt tänkande}, och
+de tre principerna har redan prövats mot litteraturen i tidigare
+föreläsningar; det görs inte om här.
+
+\section{Gör påståendet till en fråga}
+
+Ett påstående går att kontrollera först när det är tydligt vad som skulle
+kunna visa att det är \emph{fel}.  Formulera det därför som en fråga med
+ett svar.  \enquote{Kommer DRY från Hunt och Thomas?} kan besvaras med ja
+eller nej; \enquote{moduler är viktiga} kan det inte, eftersom
+\enquote{viktigt} är ett omdöme och inte ett faktum.  Ofta döljer sig
+flera påståenden i ett: \enquote{SRP är Martins etablerade princip} är
+två frågor --- \emph{vems} är den, och är den \emph{etablerad} --- och
+de kräver olika slags källor.
+
+\section{Välj rätt sorts källa}
+
+Olika frågor besvaras av olika källor.
+\begin{description}
+  \item[Uppslagsverk] för vad ett ord \emph{betyder}.
+  \item[Primärkällan] för var en idé \emph{kommer ifrån}, och för ett
+    specifikt resultat.  För vad ett programspråk \emph{gör} är
+    primärkällan språkets egen dokumentation --- och programmet självt:
+    ett påstående om vad Python gör kontrolleras genom att köra Python.
+  \item[Översikter] (\foreignlanguage{english}{reviews}) för om något är
+    \emph{etablerat}, eller för vad forskningen \emph{sammantaget}
+    säger.
+  \item[Enskilda studier] för ett specifikt resultat --- med förbehållet
+    att en enskild studie bara visar att något observerats en gång, i en
+    viss population.
+\end{description}
+Var man hittar dem: universitetsbibliotekets söktjänst, och databaser som
+Scopus, Web of Science, IEEE Xplore, DBLP (datalogi) och OpenAlex
+(öppen).  I kursens bilagor används kommandoradsverktyget
+\texttt{scholar}\footnote{Paketet \texttt{scholarcli} på PyPI:
+  \url{https://pypi.org/project/scholarcli/}.}, som ställer samma fråga
+till flera databaser på en gång och sparar allt som hände i en
+\emph{session}.  Det är för övrigt ett paket av just det slag
+\cref{sec:pypi} handlar om.
+
+\section{Sök så att du kan ha fel}
+
+Den som söker på namn hon redan känner till hittar det hon väntar sig.
+Sök därför \emph{ämnesdrivet} --- på begrepp, inte författare.  Några
+praktiska regler:
+\begin{itemize}
+  \item Håll frågorna korta.  Flera korta frågor slår en lång.
+  \item Ställ \emph{samma} frågor i alla databaser, översatta till varje
+    databas frågespråk.
+  \item Sök också efter \emph{invändningar}: lägg till ord som
+    \enquote{critique}, \enquote{limitations} eller \enquote{justified}.
+    Ett påstående som överlevt en motsökning är värt mer än ett som
+    aldrig prövats, och en invändning som hittas blir ett
+    \emph{förbehåll} i svaret, inte ett nederlag.  Bilaga C i
+    föreläsningen \emph{Funktioner} är ett sådant fall: motsökningen
+    visade att KISS fanns i tryck före den som brukar få äran, och
+    därför står det \emph{tillskrivs} i \cref{sec:kiss}.
+  \item Räkna med att databasernas rankning missar somligt.  Då hämtas
+    källan som \emph{känt dokument}: man vet att den finns och slår upp
+    den direkt.  Det är i sin ordning, bara det sägs --- alla
+    Pythonkällor i det här materialet är hämtade så.
+\end{itemize}
+
+\section{Läs i fulltext, och skriv ner hur}
+
+En träff i en databas är inte ett belägg.  Sammanfattningen
+(\foreignlanguage{english}{abstract}) räcker inte heller: den säger vad
+författarna vill ha sagt, inte vad de visat.  Läs hela texten och leta
+upp \emph{det ställe} som styrker påståendet --- ett ordagrant citat med
+sidnummer.  Hittar ni inget sådant ställe stöder källan inte påståendet,
+hur passande titeln än är.  Räkna aldrig en källa ni inte läst.  Det
+gäller också källor ni ärvt: en post som redan står i litteraturlistan
+är inte kontrollerad förrän ni själva läst stället.  Fleurys studie av
+vilka regler nybörjare bygger för var ett namn letas upp fanns i kursens
+sammanställning med bara sammanfattningen läst; för det här materialet
+lästes hela artikeln, och citatet i \cref{sec:modul} är hämtat ur dess
+tabell~2.
+
+Skriv sedan ner hur ni gick till väga, så att någon annan kan följa
+spåret.  I det här materialet står den anteckningen som en kommentar
+ovanför varje post i litteraturlistans källfil, med fasta fält:
+\begin{description}
+  \item[\texttt{CLAIM}] vilket påstående källan ska styrka;
+  \item[\texttt{FOUND-VIA}] hur den hittades --- sökfråga och databas,
+    eller \enquote{känt dokument};
+  \item[\texttt{PICKED}] varför just den, framför andra träffar;
+  \item[\texttt{QUOTE}] det ordagranna citatet, med sida;
+  \item[\texttt{VERIFIED}] att fulltexten lästs, och var;
+  \item[\texttt{COUNTER}] motsökningen och vad den gav;
+  \item[\texttt{DATE}] när.
+\end{description}
+Det tar ett par minuter per källa, och det är det enda som gör det
+möjligt att om ett år svara på frågan \enquote{hur vet du det?}
+
+\section{Dra slutsatsen --- med förbehåll}
+
+Svaret skrivs ut tillsammans med det som talar emot.  Förbehållen är
+inte svagheter i svaret; de \emph{är} svaret, och de avgör hur
+påståendet får användas i materialet.  Två exempel ur det här
+materialet.  Beläggen för KISS visar att Kelly Johnson \emph{använde}
+uttrycket, inte att han myntade det, och därför står det
+\enquote{tillskrivs} i \cref{sec:kiss}.  Och Fleury studerade
+procedurer i Pascal, inte moduler i Python; därför säger \cref{sec:modul}
+att kontrasten mellan \mintinline{python}{typed_input.input_int} och
+ett naket \mintinline{python}{input_int} är byggd \emph{mot samma slags}
+regler som hon fann, inte att just den regeln är belagd.
+
+Ett påstående kan också få strykas.  Det ligger nära till hands att
+skriva att nybörjare \emph{ofta} döper sina filer till samma namn som en
+modul (\cref{sec:skugga}), eller mer allmänt att moduler och import är
+något nybörjare har svårt för.  Kursens sammanställning över
+dokumenterade missuppfattningar täcker inte moduler, så frågan söktes
+tvåsidigt för den här föreläsningen (\cref{app:moduler}).  Sökningen
+fann ingen studie av nybörjare och moduler över huvud taget; det
+närmaste den fann var två studier av hur ofta olika fel förekommer i
+nybörjares program, och i dem är importfel några procent av alla
+misslyckanden.  Påståendet står därför inte i materialet.  Det som står
+är vad körningen visar --- att Python sedan version 3.13 föreslår ett
+nytt filnamn i själva felmeddelandet --- och det enda empiriska
+materialet lutar sig mot är att namnfel är det vanligaste körtidsfelet,
+sagt med förbehållet att studierna inte anger vad namnfelen berodde på.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Materialets påståenden, och var vart och ett är
+    kontrollerat.}
+  \label{tab:paastaenden}
+  \footnotesize
+  \begin{tabular}{@{}p{0.44\linewidth}p{0.48\linewidth}@{}}
+    \toprule
+    Påstående & Kontrollerat \\
+    \midrule
+    Att inte upprepa sig i ett program är en bra princip, och den
+      härrör från Hunt och Thomas (DRY)
+      & Redan belagt i \emph{Algoritmiskt tänkande}, bilaga E; posten
+        är kopierad därifrån med sin proveniensanteckning \\
+    SRP härrör från Robert C. Martin, och är en etablerad praktik
+      & Redan belagt i \emph{Funktioner}, bilaga B \\
+    KISS tillskrivs Kelly Johnson, och enkelhet är ett etablerat
+      designvärde
+      & Redan belagt i \emph{Funktioner}, bilaga C \\
+    Vad en modul är, vad \mintinline{python}{import} gör, vad
+      \mintinline{python}{__name__} innehåller, var Python letar efter
+      moduler, vad \texttt{\_\_pycache\_\_} är, vad ett paket är, vad
+      \texttt{pip} och virtuella miljöer gör, och vad PyPI är
+      & Primärkällor: Pythons egen handledning och biblioteksreferens
+        samt PyPI:s egen sida, hämtade och lästa 2026-09-03; beteendet
+        bekräftat genom att bygget kör exempelprogrammen under Python
+        3.13 \\
+    Studenter bygger egna regler för var ett namn letas upp
+      & Återanvänt från forskningsartikeln om missuppfattningar via
+        \emph{Funktioner}; fulltexten läst på nytt för det här
+        materialet \\
+    Kontrast måste upplevas samtidigt, och en uppgift som pekar ut
+      den kritiska aspekten lämnar inget att urskilja
+      & Andrahandskälla: Martons bok, citerad som i kursens övriga
+        material \\
+    Namnfel är det vanligaste körtidsfelet hos nybörjare i Python
+      & \Cref{app:moduler}: två frekvensstudier, lästa i fulltext; ja,
+        med förbehållet att orsakerna inte är kända \\
+    Moduler och import är en belagd svårighet för nybörjare; de döper
+      ofta filer till samma namn som en modul
+      & \Cref{app:moduler}: tvåsidig sökning; \emph{inte belagt},
+        påståendet struket \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{En anmärkning om språkmodeller}
+
+Sökningen i \cref{app:moduler} gav ett par hundra träffar, och en
+språkmodell användes för att \emph{sortera} dem --- hör träffen till
+ämnet över huvud taget, och åt vilket håll pekar den? --- så att
+gallringen kunde granskas.  Lägg märke till arbetsfördelningen: modellen
+sorterade, men varje källa som citeras är läst och vald av en människa.
+Den här bilagan råkar innehålla ett bra exempel på varför.  Den enda
+träff modellen ville behålla som en studie av \enquote{importer, moduler
+och namnrymder} visade sig, när artikeln lästes, handla om variabler,
+slingor och funktioner --- ordet \enquote{modul} förekommer inte i den.
+Modellen hade gissat utifrån sammanfattningen.  Det material ni läser är
+för övrigt delvis skrivet med hjälp av en språkmodell, och samma regel
+gäller då: modellen får hitta, sortera och formulera, men varje källa och
+varje citat är kontrollerat mot originalet, och det är människan som
+står till svars för innehållet.  Använd gärna språkmodeller för att hitta
+och sortera; låt dem aldrig vara det sista ledet.
+
+\chapter{Är moduler och import en belagd svårighet för nybörjare?}
+\label{app:moduler}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Materialet är byggt kring tre kontraster om moduler: att namnen i en
+modul nås genom modulens namn (\cref{sec:modul}), att modulen körs när
+den importeras (\cref{sec:main}) och att en egen fil kan skugga en
+modul i standardbiblioteket (\cref{sec:skugga}).  Det vore bekvämt att
+motivera dem med att \enquote{nybörjare brukar ha svårt för det här}.
+Kursens sammanställning över dokumenterade missuppfattningar säger
+ingenting om moduler, så påståendet fick sökas från början.  Frågan som
+ska besvaras är: \emph{är moduler, import och namnrymder en belagd
+svårighet för nybörjare --- och hur vanliga är de fel som hör till dem?}
+Den andra halvan av frågan är där för att en svårighet kan visa sig på
+två sätt i litteraturen: som en studerad missuppfattning, eller som ett
+fel som räknats.
+
+\section{Metod}
+\label{sec:mod-metod}
+
+Arbetsgången är den i \cref{app:verifiera}: \emph{finn},
+\emph{verifiera}, \emph{registrera}.  Frågan söktes ämnesdrivet och
+tvåsidigt den 3 september 2026 med verktyget \texttt{scholar}.  Två
+stödfrågor sökte belägg för att svårigheten finns: S1 med modulernas
+egna begrepp (importsats, namnrymd, modulsystem) tillsammans med
+nybörjare och missuppfattningar, S2 med de felnamn Python ger när en
+import gått fel tillsammans med nybörjare och felmeddelanden.  Två
+motfrågor sökte arbeten som säger motsatsen eller kvalificerar: M1 med
+samma modulbegrepp tillsammans med ord för \enquote{lätt} och
+\enquote{ingen svårighet}, och M2 efter studier som räknar hur ofta
+olika fel förekommer hos nybörjare, eftersom en sådan studie kan visa
+att importfel är ovanliga.  Varje fråga ställdes till alla databaser
+som var i drift: OpenAlex, DBLP, Web of Science och arXiv.  IEEE Xplore
+hade förbrukat sin dagskvot, Semantic Scholar avvisade sin nyckel och
+Scopus var inte tillgängligt; ingen av dem finns därför som kolumn.
+\Cref{tab:mod-queries} visar frågorna och antalet träffar per databas.
+
+Databasernas frågespråk krävde översättning: den booleska strängen
+skickades som den var till OpenAlex och arXiv, Web of Science fick den
+som \texttt{TS=(\dots)}, och DBLP --- som bara indexerar titlar och
+kräver att varje ord förekommer --- fick korta ordlistor med samma
+begrepp.  Ordet \enquote{modul} är dessutom tvetydigt: i
+utbildningslitteraturen betyder det oftast en kursdel, och en sökning på
+bara \enquote{module} drunknar i sådana träffar.  Därför använder S1 de
+snävare uttrycken, med risken att en studie som talar om
+\enquote{bibliotek} eller \enquote{API} i stället missas; M1 tar med
+\enquote{code reuse} för att fånga en del av det.
+
+Träffarna sorterades av en språkmodell mot en skriven forskningsfråga
+och lästes sedan: varje träff modellen ville behålla, och varje
+frekvensstudie, lästes i fulltext.  Modellen taggade fritt; taggarna
+fördes över till de fyra fasta kategorierna (stöder, kvalificerar,
+angränsande, felträff) med en regel, och två avgöranden ändrades efter
+läsning --- se \cref{sec:mod-resultat}.
+
+% Author's note (verification and reproduction): session
+% packages-novice-modules (support S1-S2, counter M1-M2, each on
+% openalex, arxiv and wos, plus the DBLP keyword rows D1-D9); the
+% per-provider counts in tab:mod-queries are the "# Results" lines of the
+% per-provider CSV runs, 2026-09-03.  Classification: `scholar llm
+% context` with the research question, then `scholar llm classify
+% --no-examples --no-enrich -n 260`, model github_copilot/gpt-5.4 (254
+% papers, 250 unique).  The model tagged freely; a script mapped every
+% discarded row with a tag containing "adjacent" to adjacent-subtopic and
+% every other discarded row to off-topic-false-hit, keeping the model's
+% own tags and confidence (91 adjacent, 160 off-topic before the human
+% overrides).  Human decisions: Pritchard2015 and SmithRixner2019 kept
+% (qualifies-claim, theme felfrekvens), VanDerHeyden2025 discarded
+% (adjacent-subtopic) after full-text reading.  Hit-list table generated
+% with `scholar sessions export packages-novice-modules -f table
+% --bearing-only --lang sv --label sok-moduler --track "moduler och
+% import hos nybörjare" --theme felfrekvens=felfrekvens -o
+% litteratursokning/moduler-full`.  Bib keys: Pritchard2015,
+% SmithRixner2019, VanDerHeyden2025.
+\begin{table}[p]
+  \begin{sidecaption}{Sökfrågor och antal träffar per databas, 3
+    september 2026, verktyget \texttt{scholar}.  S = stödfråga,
+    M = motfråga, D = samma begrepp som kort ordlista till DBLP.
+    Databaser: OpenAlex (OA; inte \foreignlanguage{english}{open
+    access}), DBLP, Web of Science (WoS), arXiv.  Högst 40 träffar
+    hämtades per databas och fråga, så 40 betyder \enquote{minst 40}.
+    Frågan visas i den booleska form som skickades till OpenAlex och
+    arXiv; Web of Science fick samma sträng som
+    \texttt{TS=(\dots)}.}[tab:mod-queries]
+    \centering\footnotesize
+    \begin{tabular}{@{}lp{0.46\linewidth}rrrr@{}}
+      \toprule
+      & Nyckelord & OA & DBLP & WoS & arXiv \\
+      \midrule
+      S1 & (\enquote{import statement} \textsc{or} \enquote{importing
+        modules} \textsc{or} \enquote{module system} \textsc{or}
+        namespace \textsc{or} namespaces) \textsc{and} (novice
+        \textsc{or} novices \textsc{or} \enquote{introductory
+        programming} \textsc{or} CS1) \textsc{and} (misconception
+        \textsc{or} misconceptions \textsc{or} difficulties \textsc{or}
+        errors)
+        & 40 & --- & 0 & 0 \\
+      S2 & python \textsc{and} (novice \textsc{or} novices \textsc{or}
+        \enquote{introductory programming} \textsc{or} CS1) \textsc{and}
+        (\enquote{error messages} \textsc{or} \enquote{common errors}
+        \textsc{or} \enquote{runtime errors} \textsc{or} \enquote{error
+        types}) \textsc{and} (NameError \textsc{or} ImportError
+        \textsc{or} ModuleNotFoundError \textsc{or} import)
+        & 39 & --- & 0 & 0 \\
+      M1 & (modules \textsc{or} \enquote{import statement} \textsc{or}
+        namespaces \textsc{or} \enquote{code reuse}) \textsc{and}
+        (novice \textsc{or} novices \textsc{or} students \textsc{or}
+        CS1) \textsc{and} (easy \textsc{or} \enquote{no difficulty}
+        \textsc{or} straightforward \textsc{or} \enquote{well
+        understood} \textsc{or} trivial)
+        & 40 & --- & 40 & 40 \\
+      M2 & python \textsc{and} (novice \textsc{or} novices \textsc{or}
+        students \textsc{or} \enquote{introductory programming}
+        \textsc{or} CS1) \textsc{and} (error \textsc{or} errors)
+        \textsc{and} (frequency \textsc{or} \enquote{most common}
+        \textsc{or} \enquote{most frequent} \textsc{or} distribution
+        \textsc{or} taxonomy)
+        & 40 & --- & 24 & 2 \\
+      D1 & novice import misconceptions & --- & 0 & --- & --- \\
+      D2 & namespace novice programming & --- & 0 & --- & --- \\
+      D3 & python modules students & --- & 0 & --- & --- \\
+      D4 & python novice errors & --- & 1 & --- & --- \\
+      D5 & python error messages novices & --- & 0 & --- & --- \\
+      D6 & code reuse novices & --- & 0 & --- & --- \\
+      D7 & modules novices programming & --- & 0 & --- & --- \\
+      D8 & novice errors frequency & --- & 0 & --- & --- \\
+      D9 & common errors novice programmers & --- & 3 & --- & --- \\
+      \bottomrule
+    \end{tabular}
+  \end{sidecaption}
+\end{table}
+
+\section{Resultat}
+\label{sec:mod-resultat}
+
+\paragraph{Finns det studier av nybörjare och moduler?}
+Nej.  S1 gav träffar bara i OpenAlex, och ingen av dem handlar om
+moduler, import eller namnrymder; Web of Science, arXiv och DBLP gav
+noll.  Det enda arbete sorteringen ville behålla som en sådan studie,
+en kartläggning av Python-nybörjares fel för ett handledningssystem,
+visade sig vid läsning avgränsa sig till tre begrepp: \enquote{we focus
+on three programming concepts: variables, loops, and functions since
+they appear as challenging concepts for
+novices}\autocite[226]{VanDerHeyden2025}.  Ordet modul förekommer inte i
+artikeln, och den räknas därför som angränsande och listas inte i
+\cref{tab:sok-moduler}.
+
+\paragraph{Hur vanliga är importfel?}
+Ovanliga, men inte obefintliga.  Två studier räknar fel i stora
+samlingar av nybörjares Pythonprogram.  Pritchard analyserade
+felmeddelandena i 1,6 miljoner inlämningar till kursen CS Circles, av
+vilka \enquote{about 640000 resulted in an
+error}\autocite[avsnitt~2]{Pritchard2015}.  De fem vanligaste var två
+syntaxfel, ett indenteringsfel, \mintinline{python}{EOFError} --- och
+som näst vanligast, med \num{97186} förekomster,
+\mintinline{python}{NameError} med meddelandet \enquote{name 'NAME' is
+not defined}\autocite[avsnitt~2.1]{Pritchard2015}.  Inget importfel finns
+bland de vanliga; fel från moduler dyker upp först längre ner i
+fördelningen: \enquote{Less frequently we start to see errors from
+Python modules, such \texttt{ValueError: math domain error} within the
+\texttt{sqrt} function of the \texttt{math} module.  While this is the
+only module taught on the site, users have occasionally submitted code
+using other common modules like \texttt{time}, \texttt{random} and
+\texttt{functools}}\autocite[avsnitt~3]{Pritchard2015}.
+
+Smith och Rixner undersökte \num{336906} versioner av åtta funktioner
+skrivna av studenter i tre nätkurser, och redovisar orsaken till varje
+misslyckat försök per feltyp.  \mintinline{python}{ImportError} står
+för mellan 1,1 och 4,5 procent av misslyckandena beroende på uppgift,
+i genomsnitt 2,6 procent; \mintinline{python}{NameError} ligger på
+mellan 7,6 och 11,7 procent\autocite[tabell~3, s.~540]{SmithRixner2019}.
+Författarna sammanfattar: \enquote{runtime errors were the next most
+common reason for failure (35.82\%), with the biggest contributors being
+NameErrors (10.02\%), and TypeErrors (8.92\%)}, och \enquote{the rate of
+occurrence of NameErrors was nearly always close to 10\%.  Clearly,
+students often encountered NameErrors regardless of the problem they
+were solving}\autocite[541]{SmithRixner2019}.  Båda felen rättas
+dessutom snabbt: importfel och namnfel var lösta inom en version i 75,6
+respektive 75,2 procent av fallen\autocite[541]{SmithRixner2019}.
+
+\paragraph{Motsökningen.}
+M1 gav fyrtio träffar i tre av databaserna, men orden \enquote{easy} och
+\enquote{straightforward} drar till sig det mesta, och ingen träff säger
+något om nybörjare och moduler åt något håll.  M2 gav de två
+frekvensstudierna ovan, som alltså kom ur motsökningen och inte ur
+stödsökningen --- vilket är poängen med att söka åt båda hållen.
+
+\section{Diskussion}
+\label{sec:mod-diskussion}
+
+Tre förbehåll gör svaret svagare än siffrorna ser ut.
+
+Det första är att ingen studie mäter \emph{förståelse} av moduler.  Det
+som finns är räkningar av felmeddelanden, och ett felmeddelande säger
+inte varför det uppstod.  Ett \mintinline{python}{NameError} kan bero på
+ett stavfel, en variabel som aldrig tilldelades --- eller på att en
+funktion ur en importerad modul anropades utan modulens namn framför,
+som i \cref{ex:age-bare}.  Hur stor del av de tio procenten som är det
+senare vet ingen, och materialet säger därför bara att namnfel är
+vanliga, inte varför.
+
+Det andra är miljöerna.  CS Circles lär ut en enda modul, så att fel
+från moduler är sällsynta där är delvis en följd av kursens upplägg.
+Smith och Rixners studenter skrev enstaka funktioner i en
+webbläsare, utan filer på en egen dator; att en egen fil skuggar en
+biblioteksmodul (\cref{sec:skugga}) kan inte ens inträffa i den
+miljön.  Att importfel är få i de här datamängderna säger alltså lite
+om en kurs där studenterna själva skriver moduler i filer.
+
+Det tredje är sökordens täckning.  Att ordet \enquote{modul} betyder
+kursdel i den mesta utbildningslitteraturen tvingade fram snäva
+uttryck i S1, och en studie som i stället talar om bibliotek eller
+programmeringsgränssnitt kan ha missats.  En omsökning med den
+vokabulären vore nästa steg om frågan blir viktig.
+
+\section{Slutsats}
+\label{sec:mod-slutsats}
+
+Nej --- det är inte belagt att moduler, import eller namnrymder är en
+svårighet för nybörjare: ingen studie som undersöker saken hittades,
+och de två frekvensstudier som hittades visar importfel som några
+procent av misslyckandena, i miljöer där moduler knappt förekom.
+Materialet påstår därför ingenting om hur vanliga misstagen i
+\cref{sec:modul,sec:main,sec:skugga} är; kontrasterna där är
+designval.  Det enda empiriska materialet lutar sig mot är att
+\mintinline{python}{NameError} är det vanligaste körtidsfelet hos
+nybörjare i Python, och det sägs med förbehållet att studierna inte
+anger vad namnfelen berodde på.
+
+\bigskip
+\noindent
+\Cref{tab:sok-moduler} listar de träffar som rör påståendet.
+
+\input{litteratursokning/moduler-full}

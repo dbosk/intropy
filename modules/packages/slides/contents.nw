@@ -1,0 +1,1399 @@
+\mode*
+
+\section[Två program]{Samma funktion i två program}
+\label{sec:tva-program}
+
+I föreläsningen \emph{Felhantering} lärde vi oss att fråga om igen tills
+användaren skrivit något som går att använda, och i materialet om
+upprepningar blev den slingan en funktion: en som frågar efter ett heltal
+och inte ger sig förrän den fått ett.  Här är den igen, i ett program vi
+känner --- det som räknar ut åldern ur födelseåret.
+
+\begin{frame}[fragile]
+  Programmet definierar funktionen och använder den sedan:
+<<[[age.py]]>>=
+"""Räknar ut åldern ur födelseåret."""
+
+THIS_YEAR = 2026
+
+
+<<funktionen [[input_int]]>>
+
+
+birthyear = input_int("Vilket år är du född? ")
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+@
+\end{frame}
+
+Funktionen är densamma som förut: en slinga som frågar, försöker omvandla
+svaret och frågar igen om det inte gick.
+
+\begin{frame}[fragile]
+  Funktionen frågar tills omvandlingen lyckas:
+<<funktionen [[input_int]]>>=
+def input_int(prompt):
+    """Frågar tills användaren matar in ett heltal, returnerar det."""
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Det var inget heltal, försök igen.")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet frågar om igen]
+    \label{ex:age}
+    Vi svarar \enquote{nittiofyra}, sedan \enquote{1994}:
+    \runpython[transcript, chdir, stdin={nittiofyra},
+      stdin={1994}]{examples/age.py}
+  \end{example}
+\end{frame}
+
+Så långt är allt som förut.  Nu skriver vi nästa program.  Det ska slå
+några tärningar, och också det behöver fråga användaren efter ett heltal
+--- hur många tärningar.  Funktionen finns ju redan, så vi kopierar den.
+
+\begin{frame}[fragile]
+  Tärningsprogrammet behöver samma funktion, så vi kopierar den dit:
+<<[[dice.py]]>>=
+"""Slår några tärningar."""
+
+import random
+
+
+<<funktionen [[input_int]]>>
+
+
+count = input_int("Hur många tärningar? ")
+for i in range(count):
+    print(f"Tärning {i + 1}: {random.randint(1, 6)}")
+@
+\end{frame}
+
+Lägg märke till hur programmet står skrivet ovan.  Notationen med
+namngivna steg låter oss skriva funktionen \emph{en} gång och hänvisa
+till den från två program.  Men det är bara i de här anteckningarna.  I
+de två filerna \texttt{age.py} och \texttt{dice.py} står funktionen
+utskriven i sin helhet, i var och en --- datorn ser två kopior.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:tredje}
+    Ni skriver ett tredje program som också ska fråga efter ett heltal.
+    Vad gör ni med \mintinline{python}{input_int}?  Och vad händer den
+    dag ni vill byta ut meddelandet \enquote{Det var inget heltal, försök
+    igen.}?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOSplit}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan lösningen
+  visas, och den säger inte att funktionen kan läggas i en egen fil ---
+  det är den kritiska aspekten studenterna själva ska formulera.  Den
+  andra halvan av frågan, om meddelandet, är där för att svaret
+  \enquote{kopiera en gång till} ska kosta något redan i tanken: tre
+  kopior är tre ställen att ändra på.  Den som svarar \enquote{jag
+  kopierar} har inte gjort fel; det är precis vad \cref{sec:tva-program}
+  själv gjorde, och det är kostnaden som ska bli synlig.
+
+  Att \texttt{dice.py} visar funktionen som en hänvisning
+  ([[<<funktionen [[input_int]]>>]]) och inte utskriven är avsiktligt:
+  notationen gör att upprepningen \emph{inte} syns på bilden, och prosan
+  pekar ut att den ändå finns i filerna.  Det förbereder poängen med
+  moduler --- de gör på riktigt det notationen bara låtsas göra.
+}
+
+Den tredje kopian går snabbt att göra.  Det är ändringen som gör ont: ska
+meddelandet bytas måste det bytas på tre ställen, och glömmer vi ett har
+vi tre program som inte längre beter sig likadant.  Samma kunskap --- hur
+man frågar efter ett heltal --- står nu på tre ställen, vilket är precis
+vad principen \emph{DRY}, \foreignlanguage{english}{Don't Repeat
+Yourself}, varnar för\autocite{HuntThomas1999}; det vetenskapliga
+underlaget finns i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.
+Funktioner löste problemet \emph{inom} ett program: kroppen skrivs en gång
+och anropas många.  Nu behöver vi samma sak \emph{mellan} program --- en
+plats där funktionen skrivs en gång, och som programmen kan hänvisa till.
+
+\section[Modul]{En egen modul}
+\label{sec:modul}
+
+Den platsen är en fil.  Vi lägger funktionen i en egen fil och låter
+programmen hämta den därifrån.  En fil med Pythonkod som andra program
+kan hämta kallas en \emph{modul} (\foreignlanguage{english}{module}), och
+vi har redan använt flera: \mintinline{python}{random} och
+\mintinline{python}{math} är moduler.  Skillnaden är att den här skriver
+vi själva.
+
+\begin{frame}[fragile]
+  Funktionen flyttar till en egen fil, [[typed_input.py]]:
+<<[[typed_input.py]]>>=
+"""Inmatning som frågar om tills svaret går att använda."""
+
+
+<<funktionen [[input_int]]>>
+
+
+<<provkör modulen>>
+@
+\end{frame}
+
+Filen börjar, som en funktion, med en docstring som säger vad den är till
+för.  Sedan följer funktionen --- ordagrant den vi hade --- och sist en
+provkörning, som vi återkommer till i \cref{sec:main}.  Ingenting annat.
+Modulen vet ingenting om åldrar eller tärningar; den kan en sak, att fråga
+efter ett heltal, och det är just därför båda programmen kan använda den.
+Att en modul, liksom en funktion, bör ha ett enda ansvar är principen
+\emph{SRP}, \foreignlanguage{english}{single responsibility
+principle}\autocite[ch.~8]{Martin2003Agile}; det vetenskapliga underlaget
+finns i föreläsningen \emph{Funktioner}, bilaga B.
+
+\begin{frame}
+  \begin{definition}[Modul]
+    \label{def:modul}
+    En \emph{modul} (\foreignlanguage{english}{module}) är en fil med
+    Pythonkod.  Modulens namn är filnamnet utan \texttt{.py}.  Ett
+    program hämtar en modul med \mintinline{python}{import} och kan
+    sedan använda det modulen definierar.
+  \end{definition}
+\end{frame}
+
+Så säger också Pythons egen handledning: \enquote{A module is a file
+containing Python definitions and statements.  The file name is the
+module name with the suffix \texttt{.py}
+appended.}\autocite[kap.~6]{PyDocModules}  Modulen heter alltså
+\mintinline{python}{typed_input}, och så hämtar programmet den.
+
+\begin{frame}[fragile]
+  Programmet hämtar modulen och når funktionen genom modulens namn:
+<<[[age-import.py]]>>=
+"""Räknar ut åldern ur födelseåret."""
+
+import typed_input
+
+THIS_YEAR = 2026
+
+birthyear = typed_input.input_int("Vilket år är du född? ")
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma program, funktionen i en modul]
+    \label{ex:age-import}
+    Samma svar som förut, \enquote{nittiofyra} och sedan
+    \enquote{1994}:
+    \runpython[transcript, chdir, stdin={nittiofyra},
+      stdin={1994}]{examples/age-import.py}
+  \end{example}
+\end{frame}
+
+Jämför med \cref{ex:age}.  Programmet frågar, klagar och räknar precis
+som förut; för användaren är de två programmen omöjliga att skilja åt.
+Det enda som ändrats är var funktionen står: i \texttt{age.py} stod den
+i samma fil, i \texttt{age-import.py} står den i en annan fil som
+programmet hämtar.  Och \texttt{dice.py} kan hämta \emph{samma} fil.
+Ändrar vi meddelandet i \texttt{typed\_input.py} ändras det för båda ---
+det var det vi ville.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOSplit}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Var funktionen är definierad --- i
+  programmets egen fil (\cref{ex:age}) eller i en modul
+  (\cref{ex:age-import}).
+
+  \textbf{Vad som hålls invariant}: Programmets uppgift, funktionens
+  kropp, användarens svar och utmatningen.
+
+  Kontrasten ska urskilja aspekten \emph{modul}: att koden kan stå i en
+  annan fil utan att programmet beter sig annorlunda.  Därför körs de
+  två programmen med exakt samma inmatning och ställs som två exempel
+  som kan jämföras rad för rad \parencite[45--47]{Marton2015}.  Att
+  modulen tanglas ur samma chunk som funktionen i \texttt{age.py}
+  ([[<<funktionen [[input_int]]>>]]) garanterar att kroppen är ordagrant
+  densamma; skillnaden kan inte ligga där.
+
+  Exemplet är valt för kontinuitet med de föregående föreläsningarna:
+  åldersprogrammet är \emph{Felhanterings} exempel, funktionen är
+  materialets om upprepningar.  Modulen är dessutom precis den som
+  laborationen ber om, så föreläsningen övar exakt den färdighet
+  laborationen kräver utan att lösa laborationens uppgift --- den
+  handlar om vilka funktioner modulen ska ha, inte om hur en modul görs.
+
+  SRP namnges men beläggs inte om: både ursprunget och att det är en
+  etablerad praktik är belagt i föreläsningen \emph{Funktioner}, bilaga
+  B, och posten är kopierad därifrån med sin proveniensanteckning
+  \parencite[ch.~8]{Martin2003Agile}.
+}
+
+Titta på anropet: modulens namn, en punkt, funktionens namn.  Så har ni
+skrivit förut, i \mintinline{python}{random.randint(1, 6)} och i
+\mintinline{python}{math.sqrt(2)}, utan att vi sagt varför punkten
+behövs.  Nu är det dags.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:utan-prefix}
+    Vi behåller raden \mintinline{python}{import typed_input} men
+    skriver anropet som \mintinline{python}{input_int("Vilket år ...")},
+    utan \mintinline{python}{typed_input.} framför.  Vad händer när
+    programmet körs?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Samma program, men anropet nämner inte modulen:
+<<[[age-bare.py]]>>=
+"""Räknar ut åldern ur födelseåret --- eller försöker."""
+
+import typed_input
+
+THIS_YEAR = 2026
+
+birthyear = input_int("Vilket år är du född? ")
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Namnet finns inte]
+    \label{ex:age-bare}
+    Programmet hinner inte ens fråga:
+    \runpython[transcript, chdir]{examples/age-bare.py}
+  \end{example}
+\end{frame}
+
+Ett \mintinline{python}{NameError}, av samma slag som när ett namn är
+felstavat: så vitt programmet vet finns det inget som heter
+\mintinline{python}{input_int}.  Det trots att raden
+\mintinline{python}{import typed_input} står kvar --- och trots att
+funktionen finns i modulen.  Det som hände är värt att vara noga med.
+\mintinline{python}{import typed_input} ger vårt program \emph{ett} nytt
+namn: \mintinline{python}{typed_input}.  Funktionen
+\mintinline{python}{input_int} hör till modulen, inte till vårt program,
+och vi når den genom modulens namn: \mintinline{python}{typed_input}
+punkt \mintinline{python}{input_int}.  Varje modul har sin egen
+\emph{namnrymd} (\foreignlanguage{english}{namespace}), sina egna namn,
+och handledningen säger varför det är bra: \enquote{the author of a
+module can use global variables in the module without worrying about
+accidental clashes with a user's global
+variables}\autocite[kap.~6.1]{PyDocModules}.  Modulens namn och våra
+egna kan alltså inte krocka, för de bor på olika ställen.
+
+Felet i \cref{ex:age-bare} är för övrigt ett av de allra vanligaste
+nybörjare får.  I en studie av över \num{300000} versioner av
+nybörjares Pythonfunktioner var \mintinline{python}{NameError} det
+vanligaste körtidsfelet, kring tio procent av alla misslyckade försök
+oavsett uppgift\autocite[541]{SmithRixner2019}, och i en annan samling
+på 1,6 miljoner inlämningar var det det näst vanligaste felmeddelandet
+över huvud taget\autocite[avsnitt~2.1]{Pritchard2015}.  Vad namnfelen
+berodde på säger ingen av studierna --- ett stavfel ger samma
+meddelande --- så hur många av dem som var just ett utelämnat modulnamn
+vet vi inte; det vetenskapliga underlaget finns i \cref{app:moduler}.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Vad \texttt{import} ger programmet]
+      \begin{itemize}
+        \item \mintinline{python}{import typed_input} ger programmet ett
+          namn: \mintinline{python}{typed_input}.
+        \item Det modulen definierar nås genom det namnet:
+          \mintinline{python}{typed_input.input_int}.
+        \item Modulens namn och programmets egna kan inte krocka.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Vad \texttt{import} ger programmet]
+      \mintinline{python}{import typed_input} ger programmet ett enda
+      nytt namn, \mintinline{python}{typed_input}.  Det modulen
+      definierar nås genom det namnet,
+      \mintinline{python}{typed_input.input_int}, och modulens egna namn
+      kan därför inte krocka med programmets.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOImport}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Om anropet nämner modulen
+  (\mintinline{python}{typed_input.input_int}) eller inte
+  (\mintinline{python}{input_int}).
+
+  \textbf{Vad som hålls invariant}: Importraden, modulen och resten av
+  programmet.
+
+  Kontrasten ska urskilja aspekten \emph{namnrymd}: att importen ger
+  programmet modulens \emph{namn}, inte modulens \emph{innehåll}.
+  Studenter bygger egna regler för var ett namn letas upp; Fleury fann
+  hos nybörjare i Pascal regeln att en procedur som inte hittar ett namn
+  hos sig själv \enquote{next searches for a declaration of the name in
+  the procedure that called it} \parencite[tabell~2, s.~285]{Fleury1991}.
+  Den regel \cref{ovn:utan-prefix} är byggd för att avslöja är av samma
+  slag --- att ett namn som finns i en importerad modul hittas var det än
+  används --- men Fleury studerade procedurer, inte moduler, och
+  materialet påstår därför inte att just den regeln är belagd; kontrasten
+  är ett designval som riktar sig mot familjen av sådana regler.
+
+  Frågan ställs före körningen så att den hinner bli en förutsägelse,
+  och körningen visar ett verkligt \mintinline{python}{NameError} ur den
+  tanglade filen; felmeddelandet är inte påstått utan producerat.  Att
+  \mintinline{python}{NameError} redan är bekant från
+  \emph{Felhantering} gör att uppmärksamheten kan ligga på \emph{varför}
+  namnet saknas.  Stycket om hur vanligt felet är stöder sig på de två
+  frekvensstudier \cref{app:moduler} fann
+  \parencite[541]{SmithRixner2019}\parencite[avsnitt~2.1]{Pritchard2015};
+  att de inte anger orsakerna sägs ut i prosan, så att siffran inte
+  läses som ett belägg för just det utelämnade modulnamnet.
+}
+
+% Article-only heading: a \subsection would give the Berlin theme's
+% headline a second row of miniframes on every slide, for the sake of
+% two subsections --- and the extra row makes the section-divider frames
+% overflow.  The notes get the headings; the slides do not need them.
+\mode<article>{%
+  \subsection{Tre sätt att skriva import}
+  \label{sec:tre-satt}%
+}
+
+Att skriva modulens namn framför varje anrop är tydligt: den som läser
+programmet ser var funktionen kommer ifrån.  Men det blir långt när
+funktionen används ofta.  Python har därför två varianter till, och vi
+skriver samma program med var och en.
+
+\begin{frame}[fragile]
+  Vi kan hämta \emph{funktionen} i stället för modulen:
+<<[[age-from.py]]>>=
+"""Räknar ut åldern ur födelseåret."""
+
+from typed_input import input_int
+
+THIS_YEAR = 2026
+
+birthyear = input_int("Vilket år är du född? ")
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+@
+\end{frame}
+
+Nu gick anropet utan modulnamn framför --- jämför med \cref{ex:age-bare}.
+Skillnaden ligger helt i importraden: \mintinline{python}{from
+typed_input import input_int} ger programmet namnet
+\mintinline{python}{input_int} direkt, i stället för namnet
+\mintinline{python}{typed_input}.  Programmet ser ut precis som
+\texttt{age.py} gjorde, minus funktionskroppen.
+
+\begin{frame}[fragile]
+  Eller ge modulen ett kortare namn i vårt program:
+<<[[age-as.py]]>>=
+"""Räknar ut åldern ur födelseåret."""
+
+import typed_input as ti
+
+THIS_YEAR = 2026
+
+birthyear = ti.input_int("Vilket år är du född? ")
+print(f"Då är du {THIS_YEAR - birthyear} år.")
+@
+\end{frame}
+
+Med \mintinline{python}{as} väljer vi själva vilket namn modulen ska ha
+hos oss: \enquote{\foreignlanguage{english}{the name following
+\texttt{as} is bound directly to the imported
+module}}\autocite[kap.~6]{PyDocModules}.  Modulen heter
+fortfarande \mintinline{python}{typed_input} i sin fil; det är bara vårt
+program som kallar den \mintinline{python}{ti}.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Tre former, tre namn]
+      \begin{description}
+        \item[\mintinline{python}{import typed_input}] ger namnet
+          \mintinline{python}{typed_input}; anropa
+          \mintinline{python}{typed_input.input_int(...)}.
+        \item[\mintinline{python}{from typed_input import input_int}]
+          ger namnet \mintinline{python}{input_int}; anropa
+          \mintinline{python}{input_int(...)}.
+        \item[\mintinline{python}{import typed_input as ti}] ger namnet
+          \mintinline{python}{ti}; anropa
+          \mintinline{python}{ti.input_int(...)}.
+      \end{description}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Tre former, tre namn]
+      De tre formerna skiljer sig i vilket namn programmet får, och
+      därmed i hur anropet skrivs:
+      \begin{description}
+        \item[\mintinline{python}{import typed_input}] ger namnet
+          \mintinline{python}{typed_input}; anropet skrivs
+          \mintinline{python}{typed_input.input_int(...)}.
+        \item[\mintinline{python}{from typed_input import input_int}]
+          ger namnet \mintinline{python}{input_int}; anropet skrivs
+          \mintinline{python}{input_int(...)}.
+        \item[\mintinline{python}{import typed_input as ti}] ger namnet
+          \mintinline{python}{ti}; anropet skrivs
+          \mintinline{python}{ti.input_int(...)}.
+      \end{description}
+    \end{remark}%
+  }
+\end{frame}
+
+Vilken form ska man välja?  Den första är standardvalet: den som läser
+programmet ser vid varje anrop var funktionen kommer ifrån.  Den andra
+passar när ett fåtal namn används många gånger.  Den tredje är till för
+långa modulnamn, och en del förkortningar är så etablerade att alla
+använder dem --- den som ritar diagram skriver
+\mintinline{python}{import matplotlib.pyplot as plt}, aldrig något
+annat.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOImport}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: Importradens form, och därmed hur anropet
+  skrivs.
+
+  \textbf{Vad som hålls invariant}: Programmet, modulen, funktionen och
+  beteendet.
+
+  De tre programmen är avsiktligt identiska så när som på importraden
+  och anropet, så att det enda som kan urskiljas är kopplingen mellan
+  dem: formen bestämmer namnet.  Formerna står på tre bilder efter
+  varandra och sammanfattas sedan i \emph{en} anmärkning, eftersom
+  generaliseringen kräver att de tre upplevs tillsammans
+  \parencite[46]{Marton2015}.  Ordningen --- \mintinline{python}{import}
+  först, sedan \mintinline{python}{from}, sist \mintinline{python}{as}
+  --- följer kontrasten i \cref{ovn:utan-prefix}:
+  \mintinline{python}{from} är svaret på frågan \enquote{hur får jag
+  namnet utan prefix?}, och den frågan har studenterna just ställt sig.
+
+  Formerna körs inte var för sig: utmatningen är densamma som i
+  \cref{ex:age-import}, och en körning till skulle inte tillföra någon
+  variation.  Den gamla versionen av materialet visade de tre formerna
+  på en och samma bild utan att köra någon av dem; här har de fått var
+  sin bild och ett fullständigt, tanglat program var.
+}
+
+\mode<article>{%
+  \subsection{Stjärnan}
+  \label{sec:stjarnan}%
+}
+
+Det finns en fjärde form, och den ser bekväm ut:
+\mintinline{python}{from typed_input import *} hämtar \emph{alla} namn
+modulen definierar, utan att räkna upp dem.  Vi tar två små moduler för
+att se vad den kostar.
+
+\begin{frame}[fragile]
+  Två moduler, för två geometriska figurer:
+<<[[circle.py]]>>=
+"""En cirkel."""
+
+import math
+
+
+def area(radius):
+    """Returnerar arean av en cirkel med radien radius."""
+    return math.pi * radius**2
+<<[[square.py]]>>=
+"""En kvadrat."""
+
+
+def area(side):
+    """Returnerar arean av en kvadrat med sidan side."""
+    return side**2
+@
+\end{frame}
+
+Båda definierar en funktion \mintinline{python}{area}, och det är inget
+konstigt med det: var och en bor i sin egen namnrymd.  Nu ett program som
+hämtar båda med stjärnan.
+
+\begin{frame}[fragile]
+  Programmet hämtar allt ur båda modulerna och räknar ut en area:
+<<[[areas-star.py]]>>=
+"""Räknar ut en area --- men vilken?"""
+
+from circle import *
+from square import *
+
+print(area(1))
+@
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:stjarna}
+    Vilket tal skriver programmet ut?  Och hur ser man det i programmet?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Vilken area?]
+    \label{ex:areas-star}
+    Körningen svarar:
+    \runpython[transcript, chdir]{examples/areas-star.py}
+  \end{example}
+\end{frame}
+
+Det blev kvadratens area.  Den andra importraden hämtade ett namn
+\mintinline{python}{area} som skrev över det första, utan ett ord ---
+hade raderna stått i omvänd ordning hade svaret blivit \(\pi\).  Och
+svaret på den andra frågan är: det ser man inte.  Ingenting i anropet
+\mintinline{python}{area(1)} säger var funktionen kommer ifrån; den som
+läser programmet måste veta vad båda modulerna innehåller för att gissa
+rätt.  Med modulnamnen framför är det inget att gissa på.
+
+\begin{frame}[fragile]
+  Med modulernas namn framför finns båda areorna kvar:
+<<[[areas.py]]>>=
+"""Räknar ut två areor."""
+
+import circle
+import square
+
+print(circle.area(1))
+print(square.area(1))
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Båda areorna]
+    \label{ex:areas}
+    Nu syns det i varje anrop vilken area som menas:
+    \runpython[transcript, chdir]{examples/areas.py}
+  \end{example}
+\end{frame}
+
+Pythons handledning avråder från stjärnan av just det skälet: \enquote{In
+most cases Python programmers do not use this facility since it
+introduces an unknown set of names into the interpreter, possibly hiding
+some things you have already defined.}\autocite[kap.~6]{PyDocModules}
+Det gäller inte bara namn från andra moduler --- också en funktion ni
+själva definierat i programmet kan skrivas över av en stjärnimport
+längre ner.  Använd de tre formerna ovan.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOImport}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Importformen --- stjärna eller modulnamn.
+
+  \textbf{Vad som hålls invariant}: De två modulerna och anropet
+  \mintinline{python}{area(1)}.
+
+  Kontrasten ska urskilja två aspekter samtidigt: att stjärnan
+  \emph{döljer} varifrån ett namn kommer, och att en senare import
+  \emph{skriver över} en tidigare utan besked.  Modulerna är därför
+  byggda så att båda definierar samma namn med olika betydelse, och
+  argumentet \mintinline{python}{1} är valt för att de två svaren (1 och
+  \(\pi\)) ska vara omöjliga att förväxla.  \Cref{ovn:stjarna} ställs
+  som två frågor, där den andra --- \enquote{hur ser man det?} --- är den
+  viktiga: svaret \enquote{det ser man inte} är själva argumentet mot
+  stjärnan, och det ska studenterna själva komma fram till.
+
+  Geometrimodulerna är ett avsteg från åldersexemplet, med avsikt: för
+  att namnen ska krocka behövs två moduler som definierar samma namn,
+  och det har inmatningsexemplet ingen naturlig anledning till.  De två
+  modulerna står på samma bild eftersom det är likheten i namn som ska
+  ses.
+}
+
+\section[Import kör]{Vad händer när en modul importeras?}
+\label{sec:main}
+
+Modulen \texttt{typed\_input.py} innehåller hittills bara definitioner:
+en docstring, en funktion och en provkörning vi inte tittat på.  Men en
+modul är en fil med Pythonkod, och Pythonkod \emph{körs}.  Vi tar en
+modul som gör mer än att definiera.
+
+\begin{frame}[fragile]
+  En modul som hälsar, och som provar sig själv sist:
+<<[[hello.py]]>>=
+"""En modul som hälsar."""
+
+
+def hello(name):
+    """Skriver ut en hälsning till name."""
+    print(f"Hej, {name}!")
+
+
+hello("modulen själv")
+@
+\end{frame}
+
+Den som skrev modulen ville prova att funktionen fungerade, och lade
+därför ett anrop sist i filen.  Kör vi filen direkt gör den precis det.
+
+\begin{frame}[fragile]
+  \begin{example}[Modulen körd som program]
+    \label{ex:hello}
+    Filen körs som vilket program som helst:
+    \runpython[transcript, chdir]{examples/hello.py}
+  \end{example}
+\end{frame}
+
+Nu använder ett annat program modulen.
+
+\begin{frame}[fragile]
+  Ett program som hämtar modulen och hälsar på någon:
+<<[[use_hello.py]]>>=
+"""Använder modulen hello."""
+
+import hello
+
+hello.hello("Ada")
+@
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:import-kor}
+    Vad skriver programmet ovan ut när det körs, och i vilken ordning?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Två hälsningar]
+    \label{ex:use-hello}
+    Så här gick det:
+    \runpython[transcript, chdir]{examples/use_hello.py}
+  \end{example}
+\end{frame}
+
+Två hälsningar, och den första kom innan vårt program hunnit göra
+någonting.  Det är provkörningen sist i \texttt{hello.py} som kördes ---
+när modulen importerades.  \mintinline{python}{import} gör nämligen inte
+bara namnen tillgängliga: den \emph{kör} filen, uppifrån och ner.  Raden
+\mintinline{python}{def hello(name):} definierar en funktion; raden
+\mintinline{python}{hello("modulen själv")} anropar den.  Handledningen
+säger det rakt ut: \enquote{A module can contain executable statements
+as well as function definitions. [\ldots] They are executed only the
+\emph{first} time the module name is encountered in an import statement.
+(They are also run if the file is executed as a
+script.)}\autocite[kap.~6.1]{PyDocModules}
+
+Så modulen körs i båda fallen: när den importeras och när den startas
+direkt.  Provkörningen vill vi bara ha i det andra fallet.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:veta}
+    Hur skulle modulen kunna veta om den körs direkt eller importeras?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOMain}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Hur modulen startas --- direkt
+  (\cref{ex:hello}) eller genom import (\cref{ex:use-hello}).
+
+  \textbf{Vad som hålls invariant}: Modulen och dess sista rad.
+
+  Kontrasten ska urskilja att \mintinline{python}{import} \emph{kör}
+  filen, inte bara läser av vilka namn den definierar.  \Cref{ovn:import-kor}
+  ber om utskrifterna \emph{och deras ordning}, eftersom det är
+  ordningen som avslöjar när modulen kördes: den som svarar \enquote{bara
+  Hej, Ada} tror att import läser utan att köra, och den som svarar
+  rätt ordning har redan urskilt aspekten.  Modulen \texttt{hello.py} är
+  ett eget litet exempel, i stället för en variant av
+  \texttt{typed\_input.py}, därför att en importerad modul måste heta
+  något bestämt i programmet som importerar den: två versioner av samma
+  modul skulle behöva två namn, och kontrasten skulle drunkna i
+  namnbyten.  Den gamla versionen av materialet visade samma sak som
+  \texttt{good\_module.py} och \texttt{bad\_module.py}; namnen är bytta
+  eftersom de gav bort svaret innan frågan var ställd
+  \parencite[13]{Marton2015}.
+
+  \Cref{ovn:veta} är en designfråga: den ber om ett \emph{behov} --- att
+  modulen kan skilja de två fallen åt --- innan mekanismen visas.
+  Svaret \enquote{det kan den inte} är rimligt och leder rakt in i
+  nästa exempel, som visar att Python faktiskt talar om det.
+}
+
+Python talar om det.  I varje modul finns en variabel
+\mintinline{python}{__name__} som Python sätter innan filen körs, och
+dess värde beror på hur filen startades.  En modul som bara skriver ut
+sitt namn visar det.
+
+\begin{frame}[fragile]
+  Modulen skriver ut vad den heter:
+<<[[whoami.py]]>>=
+"""Skriver ut sitt eget namn."""
+
+print(f"Jag heter {__name__}")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Ett program som bara importerar den:
+<<[[use_whoami.py]]>>=
+"""Importerar modulen whoami."""
+
+import whoami
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körd direkt]
+    \label{ex:whoami}
+    Vi kör modulen som ett program:
+    \runpython[transcript, chdir]{examples/whoami.py}
+  \end{example}
+
+  \begin{example}[Importerad]
+    \label{ex:use-whoami}
+    Vi kör programmet som importerar den:
+    \runpython[transcript, chdir]{examples/use_whoami.py}
+  \end{example}
+\end{frame}
+
+Importerad heter modulen det den heter: \mintinline{python}{whoami},
+filnamnet utan \texttt{.py}.  Körd direkt heter den i stället
+\mintinline{python}{__main__} --- oavsett vad filen heter.  Det är
+Pythons sätt att säga \enquote{du är huvudprogrammet}.  Handledningen
+beskriver det så: när filen körs direkt körs koden \enquote{just as if
+you imported it, but with the \texttt{\_\_name\_\_} set to
+\mintinline{python}|"__main__"|}\autocite[kap.~6.1.1]{PyDocModules}.  Med
+det kan modulen själv avgöra saken.  Nu kan vi fylla i provkörningen i
+\texttt{typed\_input.py}.
+
+\begin{frame}[fragile]
+  Provkörningen körs bara när filen är huvudprogrammet:
+<<provkör modulen>>=
+def main():
+    """Provkör input_int."""
+    number = input_int("Ett heltal, tack: ")
+    print(f"Du skrev {number}.")
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Provkörningen ligger i en funktion \mintinline{python}{main}, och den
+anropas bara om \mintinline{python}{__name__} är
+\mintinline{python}|"__main__"| --- alltså bara när filen körs direkt.
+Importeras modulen är villkoret falskt, anropet hoppas över, och det enda
+som händer är att funktionerna definieras.
+
+\begin{frame}[fragile]
+  \begin{example}[Modulen körd direkt]
+    \label{ex:typed-input-direct}
+    Nu kan vi prova modulen utan att skriva ett program till.  Vi svarar
+    \enquote{x} och sedan \enquote{7}:
+    \runpython[transcript, chdir, stdin={x},
+      stdin={7}]{examples/typed_input.py}
+  \end{example}
+\end{frame}
+
+Jämför med \cref{ex:age-import}: där importerades samma modul, och
+provkörningen syntes inte till --- programmet ställde bara sin egen
+fråga.  Samma fil, två sätt att starta den, två beteenden, och det är
+villkoret sist i filen som avgör.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Modulen körs vid import]
+      \begin{itemize}
+        \item \mintinline{python}{import} kör hela filen, uppifrån och
+          ner.
+        \item \mintinline{python}{__name__} är
+          \mintinline{python}|"__main__"| bara när filen körs direkt.
+        \item Lägg provkörningen i \mintinline{python}{main()} och
+          anropa den bakom \mintinline{python}|if __name__ == "__main__":|.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Modulen körs vid import]
+      \mintinline{python}{import} kör hela filen, uppifrån och ner.
+      Variabeln \mintinline{python}{__name__} är
+      \mintinline{python}|"__main__"| bara när filen körs direkt.  Lägg
+      därför modulens provkörning i en funktion
+      \mintinline{python}{main()}, och anropa den bara om
+      \mintinline{python}{__name__} är \mintinline{python}|"__main__"|.
+      Då körs den när ni provar modulen, men inte när ett program
+      importerar den.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOMain}.
+
+  \textbf{Variationsmönster}: Kontrast, sedan fusion.
+
+  \textbf{Vad som varierar}: Hur \texttt{whoami.py} startas; sedan, i
+  \texttt{typed\_input.py}, om provkörningen står bakom villkoret eller
+  inte.
+
+  \textbf{Vad som hålls invariant}: Filen självt i det första fallet;
+  modulen och programmet som importerar den i det andra.
+
+  \texttt{whoami.py} isolerar en enda aspekt --- värdet av
+  \mintinline{python}{__name__} --- och de två körningarna står på samma
+  bild för att kunna jämföras utan att återskapas ur minnet
+  \parencite[45--47]{Marton2015}.  Först därefter sätts villkoret in i
+  \texttt{typed\_input.py}, där både \cref{ex:typed-input-direct} (körd
+  direkt, provkörningen syns) och den tidigare \cref{ex:age-import}
+  (importerad, provkörningen syns inte) redan finns att peka på.
+  Provkörningen har sitt eget namngivna steg,
+  [[<<provkör modulen>>]], så att modulen kunde visas i sin helhet i
+  \cref{sec:modul} utan att villkoret behövde förklaras där; nu fylls
+  steget i på den plats där förklaringen betyder något.  Det är också
+  därför modulen bara finns i \emph{en} version: \cref{ex:age-import}
+  körde redan den färdiga modulen, och kontrasten importerad/direkt
+  behöver inte en oskyddad variant av samma fil, eftersom
+  \texttt{hello.py} redan visat vad som händer utan villkoret.
+}
+
+\section[Standardbiblioteket]{Moduler som följer med Python}
+\label{sec:stdlib}
+
+Vi har använt \mintinline{python}{random} sedan gissningsspelet och
+\mintinline{python}{math} sedan cirkeln, utan att någon av oss skrivit
+dem.  De är moduler precis som \mintinline{python}{typed_input}, med den
+skillnaden att de följer med Python.  Tillsammans utgör de
+\emph{standardbiblioteket} (\foreignlanguage{english}{the standard
+library}), och det är stort: \enquote{Python's standard library is very
+extensive [\ldots] as well as modules written in Python that provide
+standardized solutions for many problems that occur in everyday
+programming.}\autocite{PyDocStdlib}  Det ändrar frågan man ställer sig
+innan man skriver en funktion.  Frågan är inte längre bara \enquote{hur
+skriver jag det här?} utan först \enquote{finns det redan?}  Om det
+finns är det skrivet, testat och dokumenterat av någon annan --- och att
+skriva en egen kopia är samma upprepning som i \cref{sec:tva-program},
+fast av kod som redan finns på datorn.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:hitta}
+    Ni behöver kvadratroten ur ett tal, medelvärdet av en lista med tal,
+    och dagens datum.  Vilka moduler löser det?  Och hur tar ni reda på
+    det, om ni inte vet?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOStdlib}.
+
+  \foreignlanguage{english}{Try-first}: den andra frågan är den viktiga.
+  Den första har svar (\mintinline{python}{math},
+  \mintinline{python}{statistics}, \mintinline{python}{datetime}) som en
+  del studenter kan och andra inte, och det är avsiktligt --- de som
+  inte kan svaren måste formulera hur de skulle ta reda på dem, och det
+  är den färdighet veckomålet nämner: att använda moduler \emph{genom
+  att läsa deras dokumentation}.  Att modulerna är tre är för att svaret
+  \enquote{jag googlar} ska visa sig otillräckligt: det leder till tre
+  olika sidor av olika kvalitet, medan dokumentationens innehållsförteckning
+  leder till alla tre.
+}
+
+Svaret på den andra frågan är dokumentationen.  Pythons dokumentation
+har en del som heter \emph{The Python Standard Library}, och den är en
+innehållsförteckning över alla moduler, sorterad efter ämne: tal och
+matematik, text, datum och tid, filer, och så vidare.  Där hittar man
+\mintinline{python}{math} under \emph{Numeric and Mathematical Modules},
+\mintinline{python}{statistics} strax bredvid och
+\mintinline{python}{datetime} under \emph{Data Types}.  Varje moduls
+sida har samma uppbyggnad: först vad modulen är till för, sedan varje
+funktion med sin \emph{signatur} --- namnet och parametrarna --- en
+beskrivning av vad den gör och ofta ett exempel.  Det är signaturen och
+beskrivningen ni läser för att veta hur funktionen anropas.
+
+Samma text finns inbyggd i Python.  Funktionen \mintinline{python}{help}
+skriver ut dokumentationen för det man ger den, direkt i terminalen.
+
+\begin{frame}[fragile]
+  Vi slår upp kvadratroten utan att lämna terminalen:
+<<[[lookup.py]]>>=
+"""Slår upp dokumentationen för en funktion."""
+
+import math
+
+help(math.sqrt)
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Dokumentationen i terminalen]
+    \label{ex:lookup}
+    Utskriften är samma text som på webben:
+    \runpython[transcript, chdir, tty=false]{examples/lookup.py}
+  \end{example}
+\end{frame}
+
+Första raden är signaturen: \mintinline{python}{sqrt} tar ett argument
+\mintinline{python}{x}.  Andra raden säger vad den gör.  Mer behöver man
+inte veta för att anropa den.  Och medelvärdet finns färdigt i modulen
+\mintinline{python}{statistics}.
+
+\begin{frame}[fragile]
+  Medelvärdet räknar vi inte ut själva:
+<<[[mean.py]]>>=
+"""Medelvärdet av några tal."""
+
+import statistics
+
+print(statistics.mean([3, 5, 10]))
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett medelvärde]
+    \label{ex:mean}
+    Programmet svarar:
+    \runpython[transcript, chdir]{examples/mean.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:random-docs}
+    Slå upp modulen \mintinline{python}{random} i dokumentationen och
+    ta reda på hur man väljer ett slumpmässigt element ur en lista, och
+    hur man blandar en lista.  Skriv sedan ett program som drar ett namn
+    ur en lista med namn.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOStdlib}.
+
+  Övningen är formulerad så att den \emph{inte} går att lösa med det
+  som visats: varken \mintinline{python}{random.choice} eller
+  \mintinline{python}{random.shuffle} nämns i materialet, på samma sätt
+  som listföreläsningens övning om \mintinline{python}{count} och
+  \mintinline{python}{index}.  Uppslagningen är hela poängen.  Att
+  \mintinline{python}{random} valdes framför en okänd modul är för att
+  studenterna redan vet att modulen finns och har använt
+  \mintinline{python}{randint} ur den; det som är nytt är att den
+  innehåller mer än de sett, och att dokumentationen är vägen dit.
+
+  \mintinline{python}{help} visas med den tanglade \texttt{lookup.py}
+  och körs av didactic, så att utskriften är den Python själv ger; den
+  tas med eftersom terminalen alltid är närmare än webbläsaren, och
+  eftersom den visar att dokumentationen inte är en separat text utan
+  hör till koden.
+}
+
+\mode<article>{%
+  \subsection{När filen heter som modulen}
+  \label{sec:skugga}%
+}
+
+Ett program som räknar ut medelvärden är ett statistikprogram, så ett
+naturligt namn på filen vore \texttt{statistics.py}.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:skugga}
+    Ni sparar programmet ovan\only<article>{ (\cref{ex:mean})} som
+    \texttt{statistics.py} och kör det.  Vad händer?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Samma program, i en fil som heter \texttt{statistics.py}:
+<<[[statistics.py]]>>=
+"""Medelvärdet av några tal."""
+
+import statistics
+
+print(statistics.mean([3, 5, 10]))
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Filen som skuggar modulen]
+    \label{ex:shadow}
+    Programmet är ordagrant detsamma\only<article>{ som i
+    \cref{ex:mean}}; bara filnamnet är nytt:
+    \runpython[transcript, chdir, breaklines]{examples/shadow/statistics.py}
+  \end{example}
+\end{frame}
+
+Läs spårutskriften nerifrån.  Modulen \mintinline{python}{statistics}
+saknar \mintinline{python}{mean} --- vilket är sant, för den modul som
+importerades är inte standardbibliotekets utan vår egen fil.  Titta på
+raderna ovanför: \mintinline{python}{import statistics} på rad 1 ledde
+till \texttt{statistics.py} rad 3, alltså tillbaka in i samma fil.
+Python letar efter moduler på flera ställen i tur och ordning, och det
+första stället är katalogen som programmet ligger i: \enquote{The
+directory containing the script being run is placed at the beginning of
+the search path, ahead of the standard library path.  This means that
+scripts in that directory will be loaded instead of modules of the same
+name in the library directory.}\autocite[kap.~6.1.2]{PyDocModules}  Vår
+fil \emph{skuggar} bibliotekets modul.  Det gäller alla filer i
+katalogen, inte bara den som körs: en fil \texttt{random.py} bredvid
+tärningsprogrammet hade skuggat \mintinline{python}{random} för det.
+
+Sedan version 3.13 föreslår Python själv lösningen i felmeddelandet: byt
+namn på filen.  Döp alltså inte ett program som \emph{använder}
+statistik till \texttt{statistics.py}.  När ni får ett
+\mintinline{python}{AttributeError} eller
+\mintinline{python}{ImportError} från en modul ni vet fungerar, titta
+på filnamnen i katalogen.  Hur vanligt misstaget är hos nybörjare vet vi
+inte --- det vetenskapliga underlaget, eller snarare bristen på det,
+finns i \cref{app:moduler}.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Var Python letar]
+      \begin{itemize}
+        \item Först i programmets egen katalog, sedan i
+          standardbiblioteket, sist bland installerade paket.
+        \item En egen fil med en moduls namn skuggar modulen.
+        \item Döp aldrig en fil till samma namn som en modul ni
+          importerar.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Var Python letar]
+      Python letar efter en modul först i programmets egen katalog,
+      sedan i standardbiblioteket och sist bland installerade paket.  En
+      egen fil med en moduls namn skuggar därför modulen.  Döp aldrig
+      en fil till samma namn som en modul ni importerar.
+    \end{remark}%
+  }
+\end{frame}
+
+När ni tittar i katalogen ser ni för övrigt något nytt: en katalog
+\texttt{\_\_pycache\_\_} som Python skapat.  Där sparar Python en
+översatt form av varje importerad modul för att slippa göra om arbetet
+nästa gång\autocite[kap.~6.1.3]{PyDocModules}.  Den kan ni lämna
+ifred --- och låta bli att lämna in.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOImport}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Filens namn.
+
+  \textbf{Vad som hålls invariant}: Programmets innehåll, ordagrant.
+
+  Kontrasten ska urskilja aspekten \emph{sökväg}: att filnamnet i sig
+  påverkar vad \mintinline{python}{import} hittar.  Programmet är
+  därför identiskt med \cref{ex:mean} ner till tecknet --- en enda
+  förändring, filnamnet, och ett helt annat utfall.  Övningen säger
+  inte att något går fel; den frågar bara vad som händer.
+
+  Modulen \mintinline{python}{statistics} valdes framför
+  \mintinline{python}{random} eller \mintinline{python}{math} av två
+  skäl.  \mintinline{python}{math} går inte att skugga, eftersom den är
+  inbyggd i tolken och söks före sökvägen; exemplet hade inte gått att
+  köra.  \mintinline{python}{random} går att skugga, men en fil
+  \texttt{random.py} i katalogen bryter också systemets egna
+  felrapportering (Ubuntus \texttt{apport} importerar
+  \mintinline{python}{random} när den ska rapportera felet) och gav en
+  spårutskrift dubbelt så lång, med fel som inte var poängen.  Att
+  filnamnet \texttt{statistics.py} är ett rimligt namn på ett
+  statistikprogram gör dessutom misstaget trovärdigt.  Filen tanglas
+  till en egen katalog, \texttt{examples/shadow/}, så att den bara
+  skuggar modulen för sig själv och inte för \texttt{mean.py} bredvid.
+
+  Materialet påstår \emph{inte} att misstaget är vanligt hos nybörjare:
+  kursens sammanställning över missuppfattningar täcker inte moduler,
+  och den tvåsidiga sökningen i \cref{app:moduler} fann ingen studie av
+  nybörjare och moduler alls --- bara två frekvensstudier där importfel
+  är några procent av misslyckandena, i miljöer utan filer där
+  skuggning inte ens kan inträffa.  Formuleringen stannar därför vid vad
+  körningen visar: att Python självt ger ett råd i felmeddelandet.
+}
+
+\section[PyPI]{Paket från andra}
+\label{sec:pypi}
+
+Standardbiblioteket är stort men inte oändligt.  Den som vill lösa
+ekvationer symboliskt, rita diagram eller träna en modell hittar
+ingenting för det där.  Men någon annan har skrivit det, och delar med
+sig.  Platsen där de gör det är \emph{PyPI}, \foreignlanguage{english}{the
+Python Package Index}: \enquote{a repository of software for the Python
+programming language}, där \enquote{package authors use PyPI to
+distribute their software}\autocite{PyPI}.  När det här skrevs fanns där
+över 880\,000 projekt.
+
+\begin{frame}
+  \centering
+  \includegraphics[width=0.98\linewidth, height=0.85\textheight,
+    keepaspectratio]{figs/pypi.png}
+\end{frame}
+
+Det man hämtar därifrån kallas \emph{paket}
+(\foreignlanguage{english}{package}).  Ordet används på två sätt, och
+båda kommer att dyka upp.  I Pythons egen terminologi är ett paket en
+katalog med flera moduler som hör ihop: \enquote{Packages are a way of
+structuring Python's module namespace by using \mkbibquote{dotted module
+names}}\autocite[kap.~6.4]{PyDocModules} --- det är därför det heter
+\mintinline{python}{matplotlib.pyplot}.  På PyPI är ett paket det man
+installerar: ett projekt med ett namn och ett versionsnummer, som kan
+innehålla en modul eller hundratals.  För oss räcker det att veta att det
+är paket man installerar, och moduler man importerar.
+
+\begin{frame}
+  \begin{definition}[Paket]
+    \label{def:paket}
+    Ett \emph{paket} (\foreignlanguage{english}{package}) är en samling
+    moduler som hör ihop.  Paket är det man installerar; moduler är det
+    man importerar.
+  \end{definition}
+\end{frame}
+
+Installationen sköts av programmet \texttt{pip}, som följer med Python:
+\enquote{You can install, upgrade, and remove packages using a program
+called \texttt{pip}.  By default \texttt{pip} will install packages from
+the Python Package Index.}\autocite[kap.~12]{PyDocVenv}  Varje projekt
+på PyPI har en sida som säger vad projektet gör, och överst på den står
+kommandot som installerar det.
+
+\begin{frame}
+  \centering
+  \includegraphics[width=0.98\linewidth, height=0.85\textheight,
+    keepaspectratio]{figs/pypi-scipy.png}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Installation]
+    \label{ex:pip}
+    Vi installerar paketet \texttt{sympy}, för symbolisk matematik, från
+    terminalen:
+    \begin{minted}{console}
+$ python3 -m pip install sympy
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Formen \texttt{python3 -m pip} i stället för bara \texttt{pip} är
+avsiktlig: den ser till att paketet installeras för just den Python ni
+kör, vilket spelar roll på en dator med flera versioner.  När
+installationen är klar importeras paketet som vilken modul som helst.
+
+\begin{frame}[fragile]
+  Vi låter \texttt{sympy} lösa en andragradsekvation:
+<<[[symalg.py]]>>=
+"""Löser en andragradsekvation symboliskt."""
+
+import sympy
+
+x = sympy.symbols("x")
+equation = x**2 - 4
+print(f"Faktorisering: {sympy.factor(equation)}")
+print(f"Rötter: {sympy.solve(equation, x)}")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Symbolisk räkning]
+    \label{ex:symalg}
+    Paketet räknar med \(x\) som symbol, inte som tal:
+    \runpython[transcript, chdir]{examples/symalg.py}
+  \end{example}
+\end{frame}
+
+Från programmets sida är det ingen skillnad mot
+\mintinline{python}{statistics}: \mintinline{python}{import}, modulens
+namn, punkt, funktion.  Skillnaden är bara att modulen inte fanns på
+datorn förrän vi installerade den --- och det betyder att den som ska
+köra ert program också måste installera den.  Skriv därför alltid ner
+vilka paket ett program behöver.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOPyPI}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: Var modulen kommer ifrån --- egen fil,
+  standardbiblioteket eller ett installerat paket.
+
+  \textbf{Vad som hålls invariant}: Hur modulen används i programmet
+  (\mintinline{python}{import}, modulnamn, punkt, funktion).
+
+  Sekvensen egen modul, standardbibliotek, PyPI är föreläsningens
+  ryggrad: samma mekanism i tre kontexter, i ordning efter hur nära
+  studenten källan står.  \texttt{symalg.py} är kvar från den gamla
+  versionen av materialet (den inspelade föreläsningen följer den), men
+  nedkortad till det som är poängen --- att räkna med en symbol är något
+  standardbiblioteket inte kan.  Installationskommandot visas som en
+  statisk terminalrad och körs inte av bygget, eftersom en installation
+  kräver nätverk och ändrar systemet; \texttt{sympy} måste finnas
+  installerat där materialet byggs för att \cref{ex:symalg} ska kunna
+  köras.
+}
+
+\mode<article>{%
+  \subsection{Ett eget bibliotek för varje projekt}
+  \label{sec:venv}%
+}
+
+Ett problem uppstår så snart man har fler än ett projekt.  Handledningen
+beskriver det: \enquote{If application A needs version 1.0 of a
+particular module but application B needs version 2.0, then the
+requirements are in conflict and installing either version 1.0 or 2.0
+will leave one application unable to run.}\autocite[kap.~12]{PyDocVenv}
+Lösningen är att ge varje projekt en egen uppsättning installerade paket,
+en \emph{virtuell miljö} (\foreignlanguage{english}{virtual
+environment}): \enquote{a self-contained directory tree that contains a
+Python installation for a particular version of Python, plus a number of
+additional packages}\autocite[kap.~12]{PyDocVenv}.
+
+\begin{frame}[fragile]
+  \begin{example}[En virtuell miljö]
+    \label{ex:venv}
+    Vi skapar en miljö i projektets katalog, aktiverar den och
+    installerar i den:
+    \begin{minted}{console}
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ python3 -m pip install sympy
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Så länge miljön är aktiverad --- det syns på \texttt{(.venv)} först på
+raden --- installerar \texttt{pip} i den, och \texttt{python3} hittar
+det som installerats där.  För den här kursens laborationer räcker det
+gott att installera direkt; men den dag ni har två projekt som vill ha
+olika versioner av samma paket är det här ni ska leta.
+
+\mode<article>{%
+  \subsection{Och när ska man låta bli?}
+  \label{sec:kiss}%
+}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:numpy}
+    Ni ska räkna ut medelvärdet av tre tal.  En kamrat säger att
+    \texttt{numpy} har en funktion för det.  Installerar ni
+    \texttt{numpy}?
+  \end{exercise}
+\end{frame}
+
+Nej.  \mintinline{python}{statistics.mean} finns redan, och
+\mintinline{python}{sum(values) / len(values)} är en rad.  Ett
+installerat paket är något varje användare av programmet måste
+installera, något som kan sluta fungera när en ny version kommer, och
+något att hålla reda på.  Det är värt det när paketet gör något som
+inte går att göra annars --- som \texttt{sympy} ovan --- och inte värt
+det för en rad.  Att välja den enklaste lösning som duger är principen
+\emph{KISS}, \foreignlanguage{english}{Keep It Simple, Stupid}, som
+tillskrivs flygplanskonstruktören Kelly
+Johnson\autocite{Rich1995Johnson,Popik2019KISS}; det vetenskapliga
+underlaget --- inklusive varför det heter \emph{tillskrivs} --- finns i
+föreläsningen \emph{Funktioner}, bilaga C.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Först fråga, sedan installera]
+      \begin{itemize}
+        \item Finns det i standardbiblioteket?  Använd det.
+        \item Är det en rad?  Skriv raden.
+        \item Annars: hitta paketet på PyPI, läs dess sida, installera
+          med \texttt{python3 -m pip install}.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Först fråga, sedan installera]
+      Finns det i standardbiblioteket, använd det.  Är det en rad, skriv
+      raden.  Annars: hitta paketet på PyPI, läs dess sida, och
+      installera med \texttt{python3 -m pip install}.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOPyPI,PkgLOStdlib}.
+
+  \foreignlanguage{english}{Try-first}: \cref{ovn:numpy} är en
+  ja/nej-fråga med ett fel svar som är lockande --- kamraten har ju
+  rätt i att funktionen finns.  Att medelvärdet redan räknats ut med
+  \mintinline{python}{statistics.mean} i \cref{ex:mean} är
+  förutsättningen: studenten har sett den enklare lösningen och ska nu
+  välja den aktivt.  Kontrasten mot \cref{ex:symalg} bär argumentet:
+  \texttt{sympy} gör något standardbiblioteket inte kan,
+  \texttt{numpy} skulle här göra något det redan gör.
+
+  KISS namnges men beläggs inte om: både att uttrycket tillskrivs Kelly
+  Johnson och att enkelhet är ett etablerat men kvalificerat ideal är
+  belagt i föreläsningen \emph{Funktioner}, bilaga C, och posterna är
+  kopierade därifrån med sina proveniensanteckningar
+  \parencite{Rich1995Johnson,Popik2019KISS,LockheedMartinJohnson}.
+  Ordet \enquote{tillskrivs} är inte en stilfråga: beläggen visar att
+  Johnson använde uttrycket, inte att han myntade det.
+}
+
+\section[Sammanfattning]{Sammanfattning}
+\label{sec:sammanfattning}
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{summary}
+      \begin{itemize}
+        \item En modul är en fil med Pythonkod;
+          \mintinline{python}{import} gör den tillgänglig.
+        \item \mintinline{python}{import m} ger namnet
+          \mintinline{python}{m}; \mintinline{python}{from m import f}
+          ger \mintinline{python}{f}; \mintinline{python}{as} låter oss
+          välja.  Stjärnan låter vi bli.
+        \item Import \emph{kör} modulen: provkörningen i
+          \mintinline{python}{main()} bakom
+          \mintinline{python}|if __name__ == "__main__":|.
+        \item Python letar först i programmets katalog: döp inte en fil
+          som en modul ni importerar.
+        \item Finns det redan?  Standardbiblioteket först, PyPI sedan
+          --- och bara när det behövs.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}
+      En modul är en fil med Pythonkod, och \mintinline{python}{import}
+      gör den tillgänglig för ett program.  Skriver vi
+      \mintinline{python}{import m} får programmet namnet
+      \mintinline{python}{m}, och funktionerna nås som
+      \mintinline{python}{m.f}.  Skriver vi
+      \mintinline{python}{from m import f} får programmet namnet
+      \mintinline{python}{f} direkt, och med
+      \mintinline{python}{import m as n} väljer vi namnet själva.
+      Stjärnan låter vi bli, eftersom den döljer varifrån namnen kommer.
+      Att importera en modul \emph{kör} den, så en moduls provkörning
+      läggs i \mintinline{python}{main()} bakom villkoret
+      \mintinline{python}|if __name__ == "__main__":|.  Python letar
+      efter modulen först i programmets egen katalog, så en egen fil får
+      inte heta som en modul vi importerar.  Innan vi skriver en
+      funktion frågar vi om den redan finns: i standardbiblioteket, vars
+      dokumentation vi kan läsa både på webben och med
+      \mintinline{python}{help}, eller på PyPI, varifrån paket
+      installeras med \texttt{python3 -m pip install} --- när det
+      behövs, och inte annars.
+    \end{summary}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{PkgLOSplit,PkgLOImport,PkgLOMain,%
+  PkgLOStdlib,PkgLOPyPI}.
+
+  Sammanfattningen står som löpande text och inte som punktlista, dels
+  för att anteckningarna ska läsa som text hela vägen, dels för att
+  ordningen i stycket är densamma som kapitlets och därför fungerar som
+  en repetition av vägen genom det.
+}
