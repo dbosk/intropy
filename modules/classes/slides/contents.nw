@@ -1,0 +1,1742 @@
+\mode*
+
+\section{Två exempel}
+\label{sec:tva-exempel}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{ClassLOObject,ClassLOAttributes,ClassLOEncapsulation} och
+  \cref{ClassLORepresentation}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: implementeringsmetod (uppslagslista
+  respektive klass).
+
+  \textbf{Vad som hålls invariant}: problemet (en telefonbok med
+  kontakter) och funktionaliteten (lagra och hämta uppgifter).
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \Cref{ClassLOObject}: genom att se samma problem löst både med
+      och utan klasser kan studenterna urskilja vad en klass \emph{är} i
+      kontrast till vad den \emph{inte} är.
+    \item \Cref{ClassLOAttributes}: kontrasten visar att klasser ger
+      struktur genom attribut och metoder, vilket gör koden mer
+      organiserad.
+    \item \Cref{ClassLOEncapsulation}: jämförelsen visar hur klasser
+      möjliggör inkapsling (privata attribut, kontrollerad åtkomst), som
+      saknas i lösningen med uppslagslistor.
+    \item \Cref{ClassLORepresentation}: samma data i två representationer
+      är just det val som lärandemålet gäller.  Att uppslagslistan är
+      fullt tillräcklig så länge varje person bara har ett telefonnummer
+      hör till kontrasten: klassen betalar sig först när datan växer.
+  \end{itemize}
+
+  \textbf{Varför denna variation fungerar}: vi varierar
+  implementeringsmetoden medan vi håller problemet invariant; det som
+  varierar mot en invariant bakgrund är det som kan urskiljas
+  \parencite{MartonPang2006}.  Det gör fördelarna med klasser
+  urskiljbara, eftersom studenterna kan se exakt vad som förändras
+  (kodstruktur, felhantering, datasäkerhet) när klasser införs.  Att
+  börja med en bekant lösning med uppslagslistor ger en konkret
+  referenspunkt för jämförelsen.
+
+  \textbf{Pedagogisk sekvens}: vi följer kontrastmönstret genom att först
+  visa vad klasser \emph{inte} är (uppslagslistan) innan vi visar vad de
+  \emph{är} (klassen).  För att urskilja något måste man erfara vad det
+  är i kontrast till vad det inte är; kontrast slår induktion
+  \parencite[45--47]{Marton2015}.
+}
+
+I det här kapitlet utforskar vi objektorienterad programmering genom att
+jämföra två olika sätt att lösa samma problem: med och utan klasser.
+Genom att se skillnaderna konkret kan vi bättre förstå vilka fördelar
+klasser erbjuder.
+
+\subsection{Utan klasser}
+
+Vi börjar med att titta på ett enkelt program för en telefonbok, skrivet
+utan att använda klasser.  Men innan ni ser vår lösning: skriv en egen.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:telefonbok}
+    Skriv ett program som lagrar ett par telefonnummer för några personer
+    och låter användaren hämta dem.  Programmet ska kunna:
+    \begin{itemize}
+      \item visa alla kontaktnamn i telefonboken;
+      \item be användaren skriva ett namn, så skriver programmet ut
+        motsvarande telefonnummer;
+      \item fortsätta fråga efter namn tills användaren trycker retur på
+        en tom rad, och då avsluta.
+    \end{itemize}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Vi följer \foreignlanguage{english}{try-first pedagogy} genom att be
+  studenterna försöka implementera telefonboken själva innan vi visar
+  vår lösning.  Det aktiverar deras förkunskaper om uppslagslistor och
+  skapar ett kunskapsgap som gör den efterföljande kontrasten med klasser
+  mer meningsfull.  När de senare ser vår lösning med uppslagslistor
+  \emph{och} den med klasser kan de jämföra alla tre (sin egen, vår med
+  uppslagslista, vår med klass), vilket berikar kontrastmönstret.
+}
+
+Vi kan använda en uppslagslista för att lagra namn och telefonnummer.
+Programmet består av tre delar: lagra numren, skriva ut alla namn och
+sedan fråga efter namn tills användaren tröttnar.
+
+\begin{frame}[fragile]
+  \begin{example}[En telefonbok med en uppslagslista]
+    \label{ex:phonebook}
+    Programmet i sin helhet, med två steg kvar att förfina:
+<<[[phonebook.py]]>>=
+"""En enkel telefonbok"""
+
+
+def main():
+    """Huvudprogram"""
+    <<lagra telefonnumren i en uppslagslista>>
+    for name in phonebook:
+        print(name, end=" ")
+    name = input("Who's phone number? ")
+    while name != "":
+        <<slå upp och skriv ut numret>>
+        name = input("Who's phone number? ")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+De två namngivna stegen är de som handlar om själva datan: hur vi lagrar
+numren och hur vi slår upp ett.  Med en uppslagslista är båda en rad
+eller två.
+
+\begin{frame}[fragile]
+  \begin{example}[Lagra och slå upp med en uppslagslista]
+    \label{ex:phonebook-data}
+    Namnet är nyckel och numret är värde:
+<<lagra telefonnumren i en uppslagslista>>=
+phonebook = {"adam": "0701234567", "bertil": "0721234567"}
+phonebook["cesar"] = "0731234567"
+@
+    Att slå upp ett nummer är då bara att indexera med namnet:
+<<slå upp och skriv ut numret>>=
+print(f"{name} has phone number {phonebook[name]}.")
+@
+  \end{example}
+\end{frame}
+
+Detta är en ganska enkel lösning.  Men vad händer om vi vill lagra mer
+information om varje person?  Kanske vill vi ha både telefonnummer och
+adress?
+
+\ltnote{%
+  \textbf{Variationsmönster}: Separation.
+
+  Vi varierar nu \emph{komplexiteten} i datastrukturen (enkla strängvärden
+  till nästlade uppslagslistor med flera fält) medan vi håller metoden
+  med uppslagslistor invariant.  Separationen hjälper studenterna att
+  urskilja att uppslagslistan har inneboende begränsningar som blir
+  synliga först när kraven växer.
+
+  \textbf{Koppling till lärandemål}: detta förbereder
+  \cref{ClassLOEncapsulation} genom att visa smärtpunkterna med
+  oinkapslade data: ingen struktur tvingas fram, felbenägen åtkomst via
+  nycklar, ingen validering.
+}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:adresser}
+    Hur skulle ni ändra programmet ovan för att även lagra adresser?
+    Tänk igenom strukturen innan ni läser vidare.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \foreignlanguage{english}{Try-first} igen: studenterna förutsäger eller
+  försöker innan de ser lösningen med nästlade uppslagslistor.  Det
+  skapar en produktiv kamp som belyser designutmaningarna, vilket gör dem
+  mer mottagliga för den klassbaserade lösningen senare.
+}
+
+Ett första försök skulle kunna vara att använda en nästlad uppslagslista,
+där varje person får en egen uppslagslista med olika fält.
+\texttt{phonebook.py} hade vi tidigare; vårt förbättrade program lägger
+vi i \texttt{contacts.py}.  Programmets delar är desamma som förut ---
+det som skiljer är hur kontakterna lagras och slås upp.
+
+\begin{frame}[fragile]
+  \begin{example}[En telefonbok med nästlade uppslagslistor]
+    \label{ex:contacts}
+    Samma delar som i \texttt{phonebook.py}, men andra förfiningar:
+<<[[contacts.py]]>>=
+"""En enkel telefonbok"""
+
+
+def main():
+    """Huvudprogram"""
+    <<lagra kontakterna i en nästlad uppslagslista>>
+    <<skriv ut alla namn>>
+    name = input("Who's contacts? ")
+    while name != "":
+        <<slå upp och skriv ut kontaktuppgifterna>>
+        name = input("Who's contacts? ")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Nästlade uppslagslistor]
+    \label{ex:contacts-data}
+    Varje person får en egen uppslagslista:
+<<lagra kontakterna i en nästlad uppslagslista>>=
+phonebook = {
+    "adam": {
+        "phone": "0701234567",
+        "address": "Gatan 1, Orten",
+    },
+    "bertil": {
+        "address": "Gatan 2, Orten",
+    },
+    "cesar": {
+        "phone": "0731234567",
+    },
+}
+@
+  \end{example}
+\end{frame}
+
+Nu har vi en mer komplicerad datastruktur.  Jämför med
+\cref{ex:phonebook-data}: varje person representeras av en uppslagslista
+med nycklarna \mintinline{python}{"phone"} och
+\mintinline{python}{"address"}.  Notera att inte alla personer har alla
+fält ifyllda.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:keyerror}
+    Vad händer om ni försöker läsa ett fält som inte finns för en person?
+    Vilket fel får ni?
+  \end{exercise}
+\end{frame}
+
+Svaret är att vi får ett \mintinline{python}{KeyError}.  Det måste vi
+hantera när vi läser informationen, på det sätt som föreläsningen
+\emph{Felhantering} beskriver.  Låt oss se hur koden för att läsa
+informationen blir.
+
+\begin{frame}[fragile]
+  \begin{example}[Slå upp i nästlade uppslagslistor]
+    \label{ex:contacts-lookup}
+    Namnen skrivs ut som förut, med en ny rad efteråt:
+<<skriv ut alla namn>>=
+for name in phonebook:
+    print(name, end=" ")
+print()
+@
+    Varje fält kan saknas, så varje fält får en egen felhantering:
+<<slå upp och skriv ut kontaktuppgifterna>>=
+try:
+    phone = phonebook[name]["phone"]
+except KeyError:
+    phone = "no phone number"
+
+try:
+    address = phonebook[name]["address"]
+except KeyError:
+    address = "no address"
+
+print(f"{name} has phone number {phone} and lives at {address}.")
+@
+  \end{example}
+\end{frame}
+
+Som ni ser blev koden ganska omständlig.  Vi måste använda
+\mintinline{python}{try} och \mintinline{python}{except} för varje fält
+vi vill läsa, eftersom vi inte vet om fältet finns.  Jämför med den enda
+raden i \cref{ex:phonebook-data}.  Det här blir snabbt svårläst och
+repetitivt.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:problem}
+    Vilka problem ser ni med det här sättet?  Tänk på:
+    \begin{itemize}
+      \item Vad händer om ni skriver fel nyckelnamn i uppslagslistan?
+      \item Hur vet andra programmerare vilka fält som finns?
+      \item Vad händer om ni vill lägga till validering, till exempel
+        kontrollera att telefonnumret har rätt format?
+    \end{itemize}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \foreignlanguage{english}{Try-first}: studenterna identifierar
+  problemen själva innan vi uttryckligen säger dem.  Denna kritiska
+  reflektion över uppslagslistan förbereder marken för att förstå
+  \emph{varför} klasser är fördelaktiga; studenter som upptäcker problem
+  själva är mer motiverade att lära sig lösningen.
+
+  \textbf{Kontrastmönstret fullbordas}: vi har nu visat en enkel
+  uppslagslista (fungerar) och en komplex uppslagslista (problematisk).
+  Därefter introducerar vi klasser för att kontrastera mot båda.
+  Smärtpunkterna blir motivationen.
+}
+
+Låt oss nu se hur klasser kan hjälpa oss att lösa dessa problem på ett
+mer elegant och strukturerat sätt.
+
+\subsection{Med klasser}
+
+\ltnote{%
+  \textbf{Kontrastmönstret, andra halvan}: nu visar vi vad klasser
+  \emph{är} genom att kontrastera dem med vad de \emph{inte} är
+  (uppslagslistorna ovan).
+
+  \textbf{Koppling till lärandemål}:
+  \begin{itemize}
+    \item \Cref{ClassLOObject}: koden visar både klassdefinitionen
+      \emph{och} skapandet av objekt, vilket gör skillnaden tydlig
+      genom kontrast.
+    \item \Cref{ClassLOAttributes}: vi ser strukturerade attribut (mot
+      lösa nycklar) och metoder (mot fristående funktioner).
+    \item \Cref{ClassLOEncapsulation}: privata attribut med
+      \mintinline{python}{__} kontrasterar mot den öppna åtkomsten i
+      uppslagslistan.
+  \end{itemize}
+
+  \textbf{Vad som hålls invariant}: problemdomänen (kontakthantering)
+  och den nödvändiga funktionaliteten.  Invariansen är avgörande: genom
+  att hålla \emph{vad} konstant kan studenterna fokusera på att urskilja
+  \emph{hur} (implementeringsmetoden).
+
+  Klassen presenteras som i den litterära programmeringens anda: först
+  helheten med namngivna delar, sedan varje del där den behövs i
+  resonemanget.  Delarna som resonemanget inte behöver (metoderna för de
+  övriga attributen) visas ändå, så att det tanglade programmet är
+  fullständigt.
+}
+
+Nu ska vi se samma funktionalitet implementerad med hjälp av klasser.
+Istället för att använda nästlade uppslagslistor skapar vi en
+\mintinline{python}{Person}-klass som innehåller all information om en
+person --- och bara det.  Vi börjar med helheten: klassen består av en
+konstruktor, metoder för namnet, metoder för de övriga attributen och
+några dundermetoder, och sist i filen ligger ett testprogram.
+
+\begin{frame}[fragile]
+  \begin{example}[En klass för personer]
+    \label{ex:person}
+    Filen \texttt{person.py} i sin helhet, med delarna namngivna:
+<<[[person.py]]>>=
+"""Class for a person"""
+
+
+class Person:
+    """Class for a person"""
+
+    <<konstruktorn för [[Person]]>>
+
+    <<metoder för namnet>>
+
+    <<fler metoder för namnet>>
+
+    <<metoder för de övriga attributen>>
+
+    <<dundermetoder för jämförelse och felsökning>>
+
+
+<<testprogram för [[Person]]>>
+@
+  \end{example}
+\end{frame}
+
+Konstruktorn är metoden \mintinline{python}{__init__}, som körs när ett
+objekt skapas.  Den tar emot uppgifterna om personen och sparar dem.
+
+\begin{frame}[fragile]
+  \begin{example}[Konstruktorn]
+    \label{ex:person-konstruktor}
+    Konstruktorn initierar alla attribut:
+<<konstruktorn för [[Person]]>>=
+def __init__(self, first_name, last_name, birthday, address, phone):
+    """first_name: string with first name.
+    last_name: string with last name.
+    birthday: string with birthday,
+    address: string or Adress object with address.
+    phone: string with phone number"""
+    self.__first_name = first_name
+    self.__last_name = last_name
+    self.__birthday = birthday
+    self.__address = address
+    self.__phone = phone
+@
+  \end{example}
+\end{frame}
+
+Här har vi definierat en \mintinline{python}{Person}-klass med en
+\mintinline{python}{__init__}-metod som initierar alla attribut.  Varje
+attribut lagras som en privat variabel (notera de dubbla understrecken).
+Så här skapar testprogrammet en person:
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet]
+    \label{ex:person-main}
+    Testprogrammet skapar en person och använder den sedan på olika sätt:
+<<testprogram för [[Person]]>>=
+def main():
+    """Test program"""
+    person = Person(
+        "Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "okänt"
+    )
+    <<skriv ut personen>>
+    <<byt namn på personen>>
+    <<jämför och sortera personer>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:understreck}
+    Varför tror ni att attributen börjar med dubbla understreck
+    (\mintinline{python}{__})?  Vad betyder det i Python?
+  \end{exercise}
+\end{frame}
+
+De dubbla understrecken gör attributen privata, vilket innebär att de
+inte kan nås direkt från utsidan av klassen.\footnote{\label{fn:mangling}%
+  Strängt taget finns inga privata attribut i Python.  Ett namn som
+  \mintinline{python}{__phone} skrivs om till
+  \mintinline{python}{_Person__phone} (\foreignlanguage{english}{name
+  mangling}), så den som vet det kan komma åt attributet ändå.  Se
+  avsnittet \emph{Private Variables} i Pythons handledning,
+  \url{https://docs.python.org/3/tutorial/classes.html\#private-variables}
+  (hämtad 2026-09-03).}
+Detta kallas inkapsling (\foreignlanguage{english}{encapsulation}) och
+är en viktig princip i objektorienterad programmering; det
+vetenskapliga underlaget finns i \cref{app:inkapsling}.
+
+Låt oss nu jämföra hur vi skapar och använder kontakter med de två olika
+metoderna.  Telefonboken med klasser lägger vi i
+\texttt{contacts\_class.py}; den har samma delar som \texttt{contacts.py}
+i \cref{ex:contacts}.
+
+\begin{frame}[fragile]
+  \begin{example}[En telefonbok med personobjekt]
+    \label{ex:contacts-class}
+    Programmet importerar klassen från \texttt{person.py}:
+<<[[contacts_class.py]]>>=
+"""En enkel telefonbok"""
+
+import person
+
+
+def main():
+    """Huvudprogram"""
+    <<lagra kontakterna som personobjekt>>
+    <<skriv ut alla namn>>
+    name = input("Who's contacts? ")
+    while name != "":
+        <<fråga efter namn och skriv ut personens uppgifter>>
+        name = input("Who's contacts? ")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Kontakter som personobjekt]
+    \label{ex:contacts-class-data}
+    Varje person är nu ett \mintinline{python}{Person}-objekt:
+<<lagra kontakterna som personobjekt>>=
+phonebook = {
+    "adam": person.Person(
+        "Adam", "Adamsson", "1985-01-01", "Gatan 1, Orten", "0701234567"
+    ),
+    "bertil": person.Person(
+        "Bertil", "Bertilsson", "1990-01-01", "Gatan 2, Orten", "okänt"
+    ),
+    "cesar": person.Person(
+        "Cesar", "Cesarsson", "1995-01-01", "okänt", "0731234567"
+    ),
+}
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:jamfor-skapa}
+    Jämför koden för att skapa personer i de två
+    exemplen\only<article>{, \cref{ex:contacts-data,ex:contacts-class-data}}.
+    Vilka skillnader ser ni?  Vilket sätt tycker ni är tydligare, och
+    varför?
+  \end{exercise}
+\end{frame}
+
+Noterar ni att koden för att skapa personer är tydligare med klasser?
+Vi ser direkt vilka argument som behövs, och i vilken ordning.  Med
+uppslagslistor är det lätt att göra fel eller glömma ett fält.  Dessutom
+ser vi här att datat gäller en person
+(\mintinline{python}{person.Person}).
+
+Nu ska vi titta på hur \mintinline{python}{Person}-klassen definierar
+metoder för att hämta information.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:lasa-instans}
+    Hur tror ni att vi kan läsa information från en
+    \mintinline{python}{Person}-instans?  Tänk på hur vi gjorde det med
+    uppslagslistor innan: \mintinline{python}{phonebook["adam"]["phone"]}.
+  \end{exercise}
+\end{frame}
+
+Vi behöver definiera metoder (exempelvis \mintinline{python}{get_name}
+nedan) som låter oss läsa ut attributen.
+
+\begin{frame}[fragile]
+  \begin{example}[Metoder för namnet]
+    \label{ex:person-namn}
+    En metod som sätter ihop namnet, och en dundermetod som gör att
+    objektet kan skrivas ut:
+<<metoder för namnet>>=
+def get_name(self):
+    """Returns the full name as a concatenation"""
+    return self.__first_name + " " + self.__last_name
+
+def __str__(self):
+    """Returnerar en strängrepresentation lämpligt för utskrift"""
+    return self.get_name()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Skriva ut personen]
+    \label{ex:person-print}
+    Testprogrammet använder båda metoderna:
+<<skriv ut personen>>=
+print(
+    f"{person.get_name()} har telefonnummer {person.get_phone()} "
+    f"och bor på adressen {person.get_address()}"
+)
+print(
+    f"{person} har telefonnummer {person.get_phone()} "
+    f"och bor på adressen {person.get_address()}"
+)
+@
+  \end{example}
+\end{frame}
+
+Detta är ett exempel på inkapsling.  Vi har attribut,
+\mintinline{python}{__first_name} och \mintinline{python}{__last_name},
+som vi kan läsa ut med en metod \mintinline{python}{get_name()}.  Men
+vi kan inte komma åt attributen direkt utanför klassen.
+
+Vi får skriva liknande metoder för de andra attributen.  De är alla
+lika enkla: de returnerar attributets värde.
+
+\begin{frame}[fragile]
+  \begin{example}[Metoder för de övriga attributen]
+    \label{ex:person-getters}
+    En läsmetod per attribut:
+<<metoder för de övriga attributen>>=
+def get_birthday(self):
+    """Return birthday"""
+    return self.__birthday
+
+def get_address(self):
+    """Return address"""
+    return self.__address
+
+def get_phone(self):
+    """Returns phone number"""
+    return self.__phone
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:varfor-privat}
+    Varför tror ni att det är bra att inte kunna komma åt attributen
+    direkt?  Vad skulle kunna gå fel om vi tillät det?
+  \end{exercise}
+\end{frame}
+
+Genom att använda metoder för att läsa och skriva attribut kan vi
+kontrollera hur data hanteras.  Vi kan lägga till validering, loggning
+eller andra funktioner utan att ändra hur användare av klassen
+interagerar med den.  Vi kan också förhindra att en programmerare
+oavsiktligt ändrar ett attribut på ett sätt som bryter klassens interna
+logik.  Det förhindrar många möjliga buggar.
+
+Metoden som byter namn är ett exempel: den tar emot ett helt namn och
+delar själv upp det i för- och efternamn, så att de två attributen
+alltid hänger ihop.  Den hör hemma bland namnmetoderna, tillsammans med
+läsmetoderna för för- och efternamn.
+
+\begin{frame}[fragile]
+  \begin{example}[En metod som ändrar attribut]
+    \label{ex:person-change-name}
+    Sista ordet blir efternamn, resten förnamn:
+<<fler metoder för namnet>>=
+def get_first_name(self):
+    """Returns the first name"""
+    return self.__first_name
+
+def get_last_name(self):
+    """Returns the last name"""
+    return self.__last_name
+
+def change_name(self, name):
+    """Takes a concatenated name, sets last and first names"""
+    names = name.split()
+    # Shorthand for the last element in the list
+    self.__last_name = names[-1]
+    # names[:-1] all elements except the last
+    self.__first_name = " ".join(names[:-1])
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Byta namn på personen]
+    \label{ex:person-rename}
+    Testprogrammet byter namn och skriver ut igen:
+<<byt namn på personen>>=
+person.change_name("Margareta Engström")
+print(f"{person} bor på adressen {person.get_address()}")
+print(person.get_first_name())
+print(person.get_last_name())
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:tva-objekt}
+    Antag att vi har skapat två personer, \mintinline{python}{person} och
+    \mintinline{python}{person2}, och anropar
+    \mintinline{python}{person.change_name("Margareta Engström")}.
+    Vad händer med \mintinline{python}{person2}?
+  \end{exercise}
+\end{frame}
+
+Ingenting.  Metoden \mintinline{python}{change_name} står visserligen
+skriven en gång, i klassen, men varje anrop gäller det objekt som står
+före punkten: \mintinline{python}{self} i metoden är just
+\mintinline{python}{person}, och \mintinline{python}{person2} har sina
+egna attribut som ingen rört.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOSelf,ClassLOObject}.
+
+  \Cref{ovn:tva-objekt} är ett tillägg mot en belagd missuppfattning:
+  att en metod, eftersom den bara står skriven en gång i klassen, verkar
+  på alla objekt eller på klassen som helhet.  Nybörjare har svårt att
+  se klassen som en mall för objekt och ser den i stället som en
+  samling av dem, vars metoder kan ändra, lägga till och ta bort
+  objekten \parencite{Ragonis2005OOP}; att studenter saknar en
+  grundläggande förståelse av objektbegreppet är ett av fyra teman i
+  en intervjustudie av nybörjare \parencite{Kaczmarczyk2010}.  Frågan är en \emph{fusion}: den kräver
+  att studenten samtidigt ser metoden som en funktion bunden till
+  klassen, klassen som mall (en definition, många objekt) och varje
+  objekt som eget (anropet ändrar ett objekt, inte det andra).  Svaret
+  sägs först efteråt.  Underlaget för missuppfattningen finns i
+  \cref{app:missuppfattningar}.
+}
+
+I \cref{ex:person-namn} såg vi metoderna \mintinline{python}{get_name()}
+och \mintinline{python}{__str__()}.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:str}
+    Vad tror ni att \mintinline{python}{__str__()}-metoden gör?  Hur
+    skiljer den sig från \mintinline{python}{get_name()}?
+  \end{exercise}
+\end{frame}
+
+Dundermetoden \mintinline{python}{__str__()} är en speciell metod som
+Python anropar automatiskt när vi försöker konvertera objektet till en
+sträng, exempelvis med \mintinline{python}{print()} eller
+\mintinline{python}{str()}.  Det är därför testprogrammet i
+\cref{ex:person-namn} kan skriva \mintinline{python}{f"{person} ..."}.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:dunder}
+    Varför har metoden \mintinline{python}{__str__()} dubbla understreck
+    både före och efter namnet?  Vad tror ni att det indikerar?
+  \end{exercise}
+\end{frame}
+
+Metoder med dubbla understreck på båda sidor kallas dundermetoder,
+\enquote{\foreignlanguage{english}{magic methods}} eller
+\enquote{\foreignlanguage{english}{dunder methods}} på engelska.  Dunder
+är en sammandragning av orden \foreignlanguage{english}{double
+underscore}.  De har speciell betydelse i Python och anropas
+\emph{automatiskt} i vissa situationer; det är så Python låter våra
+egna klasser fungera med språkets operatorer och inbyggda
+funktioner.\footnote{\label{fn:special-methods}%
+  \enquote{This is Python's approach to operator overloading, allowing
+  classes to define their own behavior with respect to language
+  operators.}  Avsnittet \emph{Special method names} i Pythons
+  språkreferens,
+  \url{https://docs.python.org/3/reference/datamodel.html\#special-method-names}
+  (hämtad 2026-09-03).}
+
+Nu kan vi jämföra hur vi läser information med de två metoderna.  Med
+uppslagslistor behövde vi \cref{ex:contacts-lookup}; med klassen räcker
+detta:
+
+\begin{frame}[fragile]
+  \begin{example}[Slå upp med personobjekt]
+    \label{ex:contacts-class-lookup}
+    Metoderna garanterar att det alltid finns ett värde:
+<<fråga efter namn och skriv ut personens uppgifter>>=
+phone = phonebook[name].get_phone()
+address = phonebook[name].get_address()
+print(f"{name} has phone number {phone} and lives at {address}.")
+@
+  \end{example}
+\end{frame}
+
+Vilken skillnad!  Med klasser behöver vi inte hantera
+\mintinline{python}{KeyError} eller kontrollera om fält finns.
+Metoderna \mintinline{python}{get_phone()} och
+\mintinline{python}{get_address()} garanterar att vi alltid får ett
+värde (även om det kan vara strängen \mintinline{python}{"okänt"}).
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:fordelar}
+    Vilka fördelar ser ni med att använda klasser jämfört med
+    uppslagslistor?  Lista minst tre fördelar.
+  \end{exercise}
+\end{frame}
+
+Klassen samlar allt som rör en person --- datan och det man kan göra
+med den --- och ingenting annat.  Att en klass ska ha ett enda ansvar
+kallas \emph{SRP} (\foreignlanguage{english}{single responsibility
+principle}), en princip formulerad av Robert C.
+Martin\autocite{Martin2003Agile}; det vetenskapliga underlaget, med de
+förbehåll som hör till, finns i föreläsningen \emph{Funktioner},
+bilaga~B.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLORepresentation}.
+
+  Kursen praktiserar SRP redan här --- en klass, ett ansvar --- så
+  principen namnges i texten (issue \#265).  Belägget för att principen
+  är Martins, och för att den är etablerad men omstridd, är sökt en gång
+  för alla i föreläsningen \emph{Funktioner}, bilaga~B; det upprepas inte
+  här utan citeras.
+}
+
+
+\section{Klasser och objekt}
+\label{sec:klasser-objekt}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOObject}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: begreppet (klass respektive objekt).
+
+  \textbf{Vad som hålls invariant}: kontexten (personexemplet från
+  föregående avsnitt).
+
+  \textbf{Kritisk aspekt att urskilja}: skillnaden mellan ritningen eller
+  specifikationen (klassen) och de konkreta instanserna (objekten).
+
+  \textbf{Varför detta fungerar}: studenterna har just sett både
+  klassdefinitionen (\mintinline{python}{class Person:}) och skapandet
+  av objekt (\mintinline{python}{person = Person(...)}).  Nu artikulerar
+  vi uttryckligen distinktionen.  De konkreta kodexemplen ger grunden
+  för abstrakt begreppsbildning.
+
+  \textbf{Pedagogisk metod}: \foreignlanguage{english}{try-first}
+  (studenterna formulerar egna definitioner) följt av formella
+  definitioner.  Det hjälper dem att aktivt konstruera förståelse
+  snarare än att passivt ta emot den.
+}
+
+Nu har vi sett ett praktiskt exempel.  Låt oss definiera begreppen klass
+och objekt.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:klass-objekt}
+    Vad är en klass, och vad är ett objekt?  Varför behöver vi två olika
+    begrepp över huvud taget?  Försök att formulera egna definitioner
+    innan ni läser vidare.
+  \end{exercise}
+\end{frame}
+
+I objektorienterad programmering är det viktigt att förstå skillnaden
+mellan en klass och ett objekt.
+\begin{description}
+  \item[Objekt] är instanser av klasser.
+  \item[Klasser] är ritningarna, specifikationerna.
+\end{description}
+
+Klassen är som ritningen av huset: den beskriver hur huset ska se ut,
+vilka rum och färger det ska ha, och så vidare.  Objekten är de faktiska
+husen som byggs enligt ritningen.  Ni kan bygga många hus (objekt) från
+samma ritning (klass), och varje hus kan ha olika färger, inredning och
+så vidare, men grundstrukturen är densamma.
+
+Klassen beskriver vilka data som ska vara med.  Objekten som skapas från
+klassen innehåller den faktiska datan, själva värdena.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{block}{Klass}
+      En klass är en ritning eller specifikation för ett objekt.
+    \end{block}%
+  }
+  \begin{minted}{python}
+    class Class:
+        def __init__(self, something):
+            self.__attribute = something
+
+        def method(self):
+            return self.__attribute
+  \end{minted}
+\end{frame}
+
+I kodexemplet ovan ser vi hur en klass definieras med nyckelordet
+\mintinline{python}{class}.  Lägg märke till parametern
+\mintinline{python}{self} i metoderna.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:self}
+    Vad tror ni att \mintinline{python}{self} betyder?  Varför finns den
+    som första parameter i alla metoder?
+  \end{exercise}
+\end{frame}
+
+\mintinline{python}{self} refererar till det specifika objektet
+(instansen) som metoden anropas på.  Det är Pythons sätt att låta
+metoden veta vilket objekt den arbetar med och komma åt alla attributen
+(och de andra metoderna som finns definierade i klassen).  Anropet
+\mintinline{python}{person.get_name()} är detsamma som
+\mintinline{python}{Person.get_name(person)}: objektet före punkten
+skickas med som första argument, och namnet \mintinline{python}{self} är
+bara en konvention --- men en som all Pythonkod följer.\footnote{%
+  \label{fn:self}%
+  \enquote{Often, the first argument of a method is called self.  This
+  is nothing more than a convention: the name self has absolutely no
+  special meaning to Python.}  Avsnittet \emph{Method Objects} i Pythons
+  handledning,
+  \url{https://docs.python.org/3/tutorial/classes.html\#method-objects}
+  (hämtad 2026-09-03).}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:var-finns-objekten}
+    Vi skapar två objekt från samma klass,
+    \mintinline{python}{objekt1 = Class("some value")} och
+    \mintinline{python}{objekt2 = Class("another value")}.  Var finns de
+    två objekten --- inuti klassen \mintinline{python}{Class}?  Vad
+    händer med \mintinline{python}{objekt1} när \mintinline{python}{objekt2}
+    skapas?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{block}{Objekt}
+      Objekt (plural) är instanser av en klass.
+    \end{block}%
+  }
+  \begin{minted}{python}
+    objekt1 = Class("some value")
+    objekt2 = Class("another value")
+  \end{minted}
+\end{frame}
+
+Här skapar vi två olika objekt från samma klass.  Båda objekten har
+samma struktur (samma metoder och attribut), men de är separata
+instanser som kan ha olika värden i sina attribut.  Klassen håller inte
+reda på dem: inget i \mintinline{python}{Class} vet att
+\mintinline{python}{objekt1} och \mintinline{python}{objekt2} finns, och
+\mintinline{python}{objekt1} påverkas inte alls av att
+\mintinline{python}{objekt2} skapas.  Det är precis som med Pythons
+inbyggda typer: \mintinline{python}{str("hi")} och
+\mintinline{python}{str("bye")} ger två strängar, och typen
+\mintinline{python}{str} har ingen lista över alla strängar i
+programmet.  En klass är en mall, inte en behållare.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOObject}.
+
+  \Cref{ovn:var-finns-objekten} och stycket efter är ett tillägg mot
+  en belagd missuppfattning: att klassen är en samling av sina objekt
+  snarare än en mall för att skapa dem \parencite{Ragonis2005OOP}, eller
+  rentav en databas \parencite{Holland1997}.  Den analys som ligger till
+  grund finns i författarens missuppfattningsprotokoll (klasser).
+  \textbf{Kontrast} mot de inbyggda typerna: vad som varierar är om typen
+  är inbyggd eller egen; vad som hålls invariant är relationen
+  \enquote{anropa typen för att få ett objekt}.  Det visar att klassen
+  är samma sorts sak som \mintinline{python}{str} --- en mall --- och
+  inte ett lager av data.  Frågan ställs innan svaret ges.  Underlaget
+  finns i \cref{app:missuppfattningar}.
+}
+
+
+\subsection{Metoder och attribut}
+\label{sec:metoder-attribut}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOAttributes,ClassLOSelf}.
+
+  \textbf{Variationsmönster}: Separation.
+
+  \textbf{Vad som varierar}: komponenttypen (attribut respektive
+  metoder).
+
+  \textbf{Vad som hålls invariant}: klasskontexten
+  (\mintinline{python}{Person}-klassen) och den övergripande
+  objektstrukturen.
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \Cref{ClassLOAttributes}: attribut är \emph{data} (tillstånd),
+      metoder är \emph{beteende} (funktioner).  Genom att separera
+      begreppen och visa dem var för sig kan studenterna urskilja
+      varje dels roll.
+    \item \Cref{ClassLOSelf}: parametern \mintinline{python}{self}
+      förekommer i \emph{både} attribut och metoder, vilket hjälper
+      studenterna att se den som tråden som förbinder alla delar av ett
+      objekt.
+  \end{itemize}
+
+  \textbf{Varför denna separation fungerar}: vi isolerar kritiska drag
+  från helheten \parencite{MartonPang2006}.  Istället för att visa allt
+  på en gång fokuserar vi på attribut \emph{först}, sedan metoder.
+  Denna systematiska variation avslöjar vilka aspekter som är invarianta
+  (objektinstansen via \mintinline{python}{self}) och vilka som varierar
+  (data respektive beteende).
+
+  \textbf{Notera}: detta förbereder för senare \emph{fusion}, när
+  studenterna måste koordinera attribut och metoder tillsammans i sina
+  egna klassdesigner.
+}
+
+Nu ska vi titta närmare på de två huvudkomponenterna i en klass:
+attribut och metoder.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:attribut-metoder}
+    Vad är skillnaden mellan attribut och metoder i en klass?  Försök att
+    formulera egna definitioner innan ni läser vidare.
+  \end{exercise}
+\end{frame}
+
+Attribut är data som objektet lagrar, medan metoder är funktioner som
+kan arbeta med denna data.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{block}{Attribut}
+      \begin{itemize}
+        \item Är data som tillhör objektet.
+        \item Vanligtvis initierade i \mintinline{python}{__init__}.
+      \end{itemize}
+    \end{block}%
+  }
+  \begin{minted}{python}
+    class Class:
+        def __init__(self, attr):
+            self.__attr = attr
+  \end{minted}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:init}
+    I kodexemplet ovan, vilken metod används för att initiera attributen?
+    Vad tror ni händer när vi skapar ett nytt objekt med
+    \mintinline{python}{Class(attribute)}?
+  \end{exercise}
+\end{frame}
+
+Metoden \mintinline{python}{__init__} anropas automatiskt när vi skapar
+ett nytt objekt.  Det är här vi sätter startvärden för objektets
+attribut.  Titta igen på konstruktorn i vår
+\mintinline{python}{Person}-klass\only<article>{
+(\cref{ex:person-konstruktor})}.  \mintinline{python}{Person}-klassen
+har fem attribut:
+\begin{enumerate}
+  \item \mintinline{python}{__first_name},
+  \item \mintinline{python}{__last_name},
+  \item \mintinline{python}{__birthday},
+  \item \mintinline{python}{__address}, och
+  \item \mintinline{python}{__phone}.
+\end{enumerate}
+Alla lagras som privata attribut.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:publika}
+    Vad är det som gör dem privata?  Kan man göra publika attribut, och
+    hur?
+  \end{exercise}
+\end{frame}
+
+Attributen är privata eftersom de börjar med dubbla understreck
+(\mintinline{python}{__}).  Om vi ville göra dem publika skulle vi helt
+enkelt inte använda några understreck alls.
+
+\begin{frame}[fragile]
+  \begin{example}[En klass med ett publikt attribut]
+    \label{ex:public}
+    Attributet \mintinline{python}{value} har inga understreck:
+<<[[public.py]]>>=
+"""
+An example with classes with public attributes and methods.
+"""
+
+
+class PublicExample:
+    def __init__(self, value):
+        self.value = value  # Public attribute
+
+    def get_value(self):  # Public method
+        return self.value
+
+    def set_value(self, new_value):  # Public method
+        self.value = new_value
+
+
+<<testprogram för [[PublicExample]]>>
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Direkt åtkomst till ett publikt attribut]
+    \label{ex:public-main}
+    Testprogrammet ändrar attributet både via metoden och direkt:
+<<testprogram för [[PublicExample]]>>=
+def main():
+    """Example program"""
+    example = PublicExample(10)
+    print(f"Initial value: {example.get_value()}")
+    example.set_value(20)
+    print(f"Updated value: {example.get_value()}")
+    example.value = 30
+    print(f"Directly modified value: {example.value}")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+Detta hade inte fungerat om vi hade skrivit
+\mintinline{python}{self.__value} istället för
+\mintinline{python}{self.value}.  (Prova!)
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOEncapsulation}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: attributets synlighet (publikt
+  \mintinline{python}{self.value} respektive privat
+  \mintinline{python}{self.__value}).
+
+  \textbf{Vad som hålls invariant}: allt annat i klassens struktur.
+
+  Genom att kontrastera publika och privata attribut kan studenterna
+  urskilja \emph{när} och \emph{varför} man ska använda inkapsling.  Det
+  konkreta exemplet (direkt åtkomst fungerar respektive fungerar inte)
+  gör den abstrakta principen påtaglig.
+
+  \textbf{Notera}: uppmaningen att \enquote{prova} är avgörande ---
+  studenterna erfar begränsningen själva, vilket är kraftfullare än att
+  få den berättad.
+}
+
+Nu ska vi titta på metoder --- funktioner som tillhör objektet.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{block}{Metoder}
+      \begin{itemize}
+        \item Metoder är funktioner som tillhör objektet.
+        \item Dessa används för att interagera med objektet.
+      \end{itemize}
+    \end{block}%
+  }
+  \begin{minted}{python}
+    class Class:
+        def method(self):
+            # do something object related
+  \end{minted}
+\end{frame}
+
+Metoder är som funktioner, men de tillhör ett specifikt objekt och har
+tillgång till objektets attribut genom \mintinline{python}{self}.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:lasa-privat}
+    Hur tror ni att vi kan läsa värdet på ett privat attribut som
+    \mintinline{python}{__first_name} om vi inte kan komma åt det direkt?
+    Varför skulle vi vilja ha privata attribut?
+  \end{exercise}
+\end{frame}
+
+Svaret är att vi skapar metoder (ofta kallade
+\enquote{\foreignlanguage{english}{getters}}) för att läsa attributen.
+Det ger oss kontroll över hur data läses och förhindrar ändringar.  Titta
+igen på metoderna \mintinline{python}{get_name()} och
+\mintinline{python}{__str__()} i
+\mintinline{python}{Person}-klassen\only<article>{
+(\cref{ex:person-namn})}: metoden \mintinline{python}{get_name()}
+kombinerar för- och efternamn till ett fullständigt namn, och läsmetoderna
+i \cref{ex:person-getters} returnerar var sitt attribut.
+
+
+\section{Dundermetoder}
+\label{sec:dundermetoder}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLODunder}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: den specifika dundermetoden
+  (\mintinline{python}{__init__}, \mintinline{python}{__str__},
+  \mintinline{python}{__lt__}, \mintinline{python}{__repr__} och så
+  vidare).
+
+  \textbf{Vad som hålls invariant}: mönstret (dubbla understreck,
+  automatiskt anrop av Python, speciellt beteende).
+
+  \textbf{Kritisk aspekt att urskilja}: studenterna ska inse att
+  dundermetoderna bildar ett \emph{mönster} --- de följer alla samma
+  namnkonvention och syfte (anpassa objektets beteende), men var och en
+  tjänar en specifik funktion.
+
+  \textbf{Varför generalisering fungerar}: genom att visa \emph{flera}
+  dundermetoder i samma kontext (\mintinline{python}{Person}-klassen)
+  kan studenterna se det invarianta mönstret över olika sammanhang.  Det
+  hjälper dem att känna igen när dundermetoder ska tillämpas i nya
+  situationer.
+
+  \textbf{Koppling till lärandemålet}: studenterna ska inte bara
+  memorera enskilda dundermetoder utan förstå den generella principen:
+  när jag vill att mina objekt ska fungera med Pythons inbyggda
+  operationer och funktioner implementerar jag motsvarande dundermetod.
+}
+
+Vi har redan sett några dundermetoder som \mintinline{python}{__init__}
+och \mintinline{python}{__str__}\only<article>{
+(\cref{ex:person-konstruktor,ex:person-namn})}.  Python har många sådana
+\enquote{\foreignlanguage{english}{magic methods}} som låter oss anpassa
+hur våra objekt beter sig i olika situationer.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:print-person}
+    Vad tror ni händer när vi skriver \mintinline{python}{print(person)}?
+  \end{exercise}
+\end{frame}
+
+Python anropar \mintinline{python}{__str__()}-metoden automatiskt, det
+vill säga \mintinline{python}{person.__str__()}.  Det gör att vi kan
+styra hur våra objekt presenteras när de skrivs ut.  Låt oss titta på
+Pythons dokumentation i \cref{doc:dundermetoder} för att se fler
+dundermetoder.
+
+\begin{frame}
+  \begin{figure}[h]
+    \begin{sidecaption}
+      {Utdrag från Pythons dokumentation som visar några vanliga
+      dundermetoder.}[doc:dundermetoder]%
+      \includegraphics[width=\columnwidth,height=0.7\textheight,%
+        keepaspectratio]{figs/docs-special-methods.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+Som ni ser finns det många dundermetoder!  De låter oss definiera hur
+objekt ska bete sig med operatorer som \mintinline{python}{+},
+\mintinline{python}{<}, \mintinline{python}{==}, och så vidare.
+
+Låt oss titta på några konkreta exempel från vår
+\mintinline{python}{Person}-klass: den sista gruppen metoder i
+\cref{ex:person}.
+
+\begin{frame}[fragile]
+  \begin{example}[Dundermetoder för jämförelse och felsökning]
+    \label{ex:person-dunder}
+    Två dundermetoder till:
+<<dundermetoder för jämförelse och felsökning>>=
+def __lt__(self, other):
+    """Returns True if self is younger than other,
+    False otherwise"""
+    # smaller birthday means older
+    return self.get_birthday() > other.get_birthday()
+
+def __repr__(self):
+    """Returns unique representation"""
+    return (
+        f"({self}, {self.get_birthday()}, {self.get_address()}, "
+        f"{self.get_phone()})"
+    )
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Jämföra och sortera personer]
+    \label{ex:person-sort}
+    Testprogrammet skapar en person till, jämför och sorterar:
+<<jämför och sortera personer>>=
+person2 = Person(
+    "Ada", "Bedasdotter", "1990-01-01", "Kiruna", "070-1234567"
+)
+if person < person2:
+    print(f"{person} är yngre än {person2}.")
+else:
+    print(f"{person2} är yngre än {person}.")
+
+lista = [person, person2]
+print(lista)
+lista.sort()
+print(lista)
+@
+  \end{example}
+\end{frame}
+
+Här ser vi flera intressanta dundermetoder:
+\begin{description}
+  \item[\texttt{\_\_lt\_\_}] (\foreignlanguage{english}{less
+    than}) används när vi jämför objekt med \mintinline{python}{<}.
+  \item[\texttt{\_\_repr\_\_}] ger en mer teknisk representation
+    av objektet, ofta användbar för felsökning.  Den ska inte användas
+    på samma sätt som \mintinline{python}{__str__}.  En tumregel är att
+    utskriften från \mintinline{python}{__repr__} ska kunna användas för
+    att särskilja objektet från andra objekt med \emph{exakt samma
+    värden på alla attribut}.  Det är den Python använder när en lista
+    med personer skrivs ut.
+\end{description}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:gt}
+    I koden ovan jämför \mintinline{python}{__lt__} födelsedagar.  Då
+    kunde vi använda \mintinline{python}{person1 < person2} för att
+    jämföra två personer.  Kan vi även använda
+    \mintinline{python}{person1 > person2}?  Hur fungerar det i så fall?
+  \end{exercise}
+\end{frame}
+
+Ja!  Om klassen saknar \mintinline{python}{__gt__} provar Python i
+stället \mintinline{python}{__lt__} med argumenten omkastade:
+\mintinline{python}{person1 > person2} beräknas som
+\mintinline{python}{person2 < person1}.  På samma sätt är
+\mintinline{python}{__le__} och \mintinline{python}{__ge__} varandras
+spegelbilder.\footnote{\label{fn:reflection}%
+  \enquote{\mintinline{python}{__lt__()} and
+  \mintinline{python}{__gt__()} are each other's reflection,
+  \mintinline{python}{__le__()} and \mintinline{python}{__ge__()} are
+  each other's reflection, and \mintinline{python}{__eq__()} and
+  \mintinline{python}{__ne__()} are their own reflection.}  Avsnittet
+  \emph{Basic customization} i Pythons språkreferens,
+  \url{https://docs.python.org/3/reference/datamodel.html\#object.__lt__}
+  (hämtad 2026-09-03).}
+Men \mintinline{python}{<=} får vi inte av \mintinline{python}{<} och
+\mintinline{python}{==} tillsammans: vill vi ha alla sex
+jämförelseoperatorerna definierar vi \mintinline{python}{__eq__} och en
+av de fyra ordningsmetoderna, och låter dekoratorn
+\mintinline{python}{functools.total_ordering} fylla i
+resten.\footnote{\label{fn:total-ordering}%
+  \enquote{Given a class defining one or more rich comparison ordering
+  methods, this class decorator supplies the rest.}
+  \url{https://docs.python.org/3/library/functools.html\#functools.total_ordering}
+  (hämtad 2026-09-03).}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:eq}
+    Vi skapar två personer med exakt samma namn, födelsedag, adress och
+    telefonnummer.  Vad ger \mintinline{python}{person1 == person2}?
+  \end{exercise}
+\end{frame}
+
+\mintinline{python}{False}.  Vår klass har ingen \mintinline{python}{__eq__},
+och då jämför Python \emph{identitet}: två objekt är lika bara om de är
+samma objekt, precis som \mintinline{python}{person1 is
+person2}.\footnote{\label{fn:default-eq}%
+  \enquote{User-defined classes have \mintinline{python}{__eq__()} and
+  \mintinline{python}{__hash__()} methods by default (inherited from the
+  object class); with them, all objects compare unequal (except with
+  themselves)}.  Avsnittet \emph{Basic customization} i Pythons
+  språkreferens,
+  \url{https://docs.python.org/3/reference/datamodel.html\#object.__hash__}
+  (hämtad 2026-09-03).}
+Två objekt med samma attributvärden är alltså två objekt; att ändra det
+ena rör inte det andra.  Vill vi att \mintinline{python}{==} ska jämföra
+innehållet --- säg namn och födelsedag --- definierar vi
+\mintinline{python}{__eq__(self, other)} på samma sätt som
+\mintinline{python}{__lt__}, och låter den returnera
+\mintinline{python}{True} när attributen är lika.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLODunder,ClassLOObject}.
+
+  \Cref{ovn:eq} och svaret är ett tillägg.  Dels täcker det
+  \mintinline{python}{__eq__}, som lärandemålet nämner men som
+  \mintinline{python}{Person} inte implementerar; dels riktar det sig
+  mot en belagd missuppfattning: att ett objekts attribut är dess
+  identitet, så att två objekt inte kan ha samma attributvärden
+  \parencite{Holland1997}.  \textbf{Kontrast}: vad som varierar är om vi
+  har två objekt med lika attribut eller ett objekt med två namn; vad
+  som hålls invariant är attributvärdena.  Att \mintinline{python}{==}
+  utan \mintinline{python}{__eq__} är identitet är belagt i
+  språkreferensen (\cref{fn:default-eq}).  Underlaget för
+  missuppfattningen finns i \cref{app:missuppfattningar}.
+
+  Det ursprungliga påståendet här --- att \mintinline{python}{__lt__}
+  och \mintinline{python}{__eq__} räcker för att få alla andra
+  jämförelseoperatorer gratis --- var fel: \mintinline{python}{<=} och
+  \mintinline{python}{>=} härleds inte, utan kräver
+  \mintinline{python}{functools.total_ordering}.  Texten är rättad mot
+  språkreferensen (\cref{fn:reflection,fn:total-ordering}).
+}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:varfor-jamfora}
+    Varför tror ni att det är användbart att kunna jämföra objekt med
+    operatorer som \mintinline{python}{<} och \mintinline{python}{==}?
+    Ge ett exempel på när det skulle vara praktiskt.
+  \end{exercise}
+\end{frame}
+
+När vi har definierat dessa dundermetoder för jämförelse kan vi även
+sortera en lista med \mintinline{python}{Person}-objekt med funktionen
+\mintinline{python}{sorted()} eller metoden \mintinline{python}{sort()},
+som testprogrammet gör i \cref{ex:person-sort}: sorteringen behöver bara
+\mintinline{python}{<}.
+
+
+\section{Arv}
+\label{sec:arv}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{ClassLOInheritance,ClassLOOverride,ClassLOComposition}.
+
+  \textbf{Variationsmönster}: Kontrast följt av separation.
+
+  \textbf{Först, kontrast mellan två tillvägagångssätt}: kodduplicering
+  (kopiera all kod i \mintinline{python}{Person}) respektive arv (utvidga
+  \mintinline{python}{Person}).
+
+  \textbf{Sedan, separation av arvets aspekter}: ärvda metoder (används
+  som de är), överlagrade metoder (anpassat beteende), nya metoder
+  (tillagd funktionalitet) och \mintinline{python}{super()} (åtkomst
+  till föräldern).
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \Cref{ClassLOInheritance}: arv skapar en
+      \foreignlanguage{english}{is-a}-relation.  \mintinline{python}{PersonNick}
+      \emph{är en} \mintinline{python}{Person} med extra funktioner.
+      Kontrasten mot kodduplicering visar \emph{varför} arv är värdefullt.
+    \item \Cref{ClassLOOverride}: genom att separera ärvda och
+      överlagrade metoder ser studenterna att \mintinline{python}{super()}
+      ger selektiv återanvändning --- vi behåller vad som fungerar och
+      anpassar vad som inte gör det.
+    \item \Cref{ClassLOComposition}: kontrasten mellan
+      \foreignlanguage{english}{is-a} (arv) och
+      \foreignlanguage{english}{has-a} (komposition) hjälper studenterna
+      att välja rätt.
+  \end{itemize}
+
+  \textbf{Varför detta fungerar}: vi börjar med \emph{problemet} (undvika
+  kodduplicering) innan vi introducerar \emph{lösningen} (arv).  Denna
+  motivation-först-ordning skapar ett kunskapsgap som arvet fyller.
+}
+
+Nu ska vi utforska ett av de mest kraftfulla koncepten i objektorienterad
+programmering: arv (\foreignlanguage{english}{inheritance}).
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:personnick}
+    Om ni skulle skapa en \mintinline{python}{PersonNick}-klass som är
+    precis som \mintinline{python}{Person} men också har ett smeknamn,
+    hur skulle ni göra det?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \foreignlanguage{english}{Try-first pedagogy}: studenterna överväger hur
+  problemet kan lösas innan de ser arv.  Många kommer att tänka på
+  kodduplicering, vilket skapar kontrasten mot arv och får dem att
+  uppskatta elegansen i lösningen.
+}
+
+Arv låter oss skapa nya klasser baserade på befintliga klasser, och
+utöka eller modifiera deras funktionalitet --- helt utan kodupprepning.
+Så istället för att kopiera all kod från \mintinline{python}{Person} kan
+vi ärva från den och bara lägga till det nya vi behöver.  Att inte
+upprepa sig är principen \emph{DRY}, \foreignlanguage{english}{don't
+repeat yourself}\autocite{HuntThomas1999}, som föreläsningen
+\emph{Algoritmiskt tänkande} införde; det vetenskapliga underlaget finns
+i den föreläsningens bilaga~E.
+
+\begin{frame}[fragile]
+  \begin{example}[En underklass med smeknamn]
+    \label{ex:person-nick}
+    Klassen bygger på \mintinline{python}{Person}:
+<<[[person_nick.py]]>>=
+"""Class for a person"""
+
+from person import Person
+
+
+class PersonNick(Person):
+    """Class for a person"""
+
+    <<konstruktorn för [[PersonNick]]>>
+
+    <<metoder för smeknamnet>>
+
+    <<överlagrade namnmetoder>>
+
+
+<<testprogram för [[PersonNick]]>>
+@
+  \end{example}
+\end{frame}
+
+Notera syntaxen \mintinline{python}{class PersonNick(Person)}: det
+betyder att \mintinline{python}{PersonNick} ärver från
+\mintinline{python}{Person}.  Vi säger att \mintinline{python}{PersonNick}
+är en \emph{underklass} eller \emph{barnklass}
+(\foreignlanguage{english}{subclass}) till \mintinline{python}{Person},
+och att \mintinline{python}{Person} är \emph{föräldraklass}
+(\foreignlanguage{english}{superclass}) till
+\mintinline{python}{PersonNick}.
+
+\begin{frame}[fragile]
+  \begin{example}[Konstruktorn och smeknamnet]
+    \label{ex:person-nick-init}
+    Konstruktorn tar samma argument som förut, plus ett smeknamn med
+    tomt standardvärde:
+<<konstruktorn för [[PersonNick]]>>=
+def __init__(
+    self, first_name, last_name, birthday, address, phone, nickname=""
+):
+    <<tilldela attributen som [[Person]] redan har>>
+    self.__nick = nickname
+@
+    Smeknamnet får en läs- och en skrivmetod:
+<<metoder för smeknamnet>>=
+def set_nick(self, nick):
+    """Sets nickname"""
+    self.__nick = nick
+
+def get_nick(self):
+    """Returns the nickname"""
+    return self.__nick
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:super-init}
+    Hur ska vi tilldela de attribut som \mintinline{python}{Person} redan
+    har?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Föräldraklassens konstruktor]
+    \label{ex:person-nick-super}
+    Vi låter \mintinline{python}{Person} göra det den redan kan:
+<<tilldela attributen som [[Person]] redan har>>=
+super().__init__(first_name, last_name, birthday, address, phone)
+@
+  \end{example}
+\end{frame}
+
+I \mintinline{python}{__init__} använder vi \mintinline{python}{super()}
+för att anropa föräldraklassens \mintinline{python}{__init__}-metod.
+Det initierar alla attribut från \mintinline{python}{Person}, och sedan
+lägger vi till vårt nya attribut \mintinline{python}{__nick} som
+föräldern inte känner till.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOOverride}.
+
+  \textbf{Variationsmönster}: Separation.
+
+  \textbf{Vad som varierar}: initieringsansvaret (förälderns attribut
+  respektive barnets nya attribut).
+
+  \textbf{Vad som hålls invariant}: initieringskontexten
+  (\mintinline{python}{__init__}-metoden).
+
+  Användningen av \mintinline{python}{super()} demonstrerar selektiv
+  återanvändning.  Vi \emph{duplicerar inte} förälderns initieringskod;
+  vi \emph{anropar} den.  Denna ansvarsfördelning (föräldern hanterar
+  sina attribut, barnet sina egna) är en kritisk aspekt av god
+  objektorienterad design.  I den litterära formen är anropet ett eget
+  namngivet steg i konstruktorn, så att frågan kan ställas innan steget
+  förfinas: \foreignlanguage{english}{try-first}.
+
+  \textbf{Kritisk aspekt}: \mintinline{python}{super()} är bryggan mellan
+  barn och förälder, vilket möjliggör kontrollerad åtkomst till
+  förälderns funktionalitet.
+}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:arvda-metoder}
+    Vilka metoder från \mintinline{python}{Person}-klassen kan
+    \mintinline{python}{PersonNick} använda?  Måste vi skriva om alla
+    metoder?
+  \end{exercise}
+\end{frame}
+
+Nej!  \mintinline{python}{PersonNick} ärver automatiskt alla metoder
+från \mintinline{python}{Person}.  Men vi kan också välja att
+\emph{ersätta} (överlagra, \foreignlanguage{english}{override}) metoder
+om vi vill ändra deras beteende, vilket vi gjorde med
+\mintinline{python}{__init__()}.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{remark}
+      Vi kan även byta ut funktionalitet.
+    \end{remark}%
+  }
+  \begin{example}[Överlagrade namnmetoder]
+    \label{ex:person-nick-override}
+    \mintinline{python}{get_name} byts ut; det gamla namnet nås via
+    \mintinline{python}{super()}:
+<<överlagrade namnmetoder>>=
+def get_name(self):
+    """Returns nickname as name, overloads Person"""
+    if not self.get_nick():
+        return self.get_first_name()
+    return self.get_nick()
+
+def get_full_name(self):
+    """Returns the full name"""
+    return super().get_name()
+@
+  \end{example}
+\end{frame}
+
+Här har vi \emph{överlagrat} metoden \mintinline{python}{get_name()}.
+Nu returnerar den smeknamnet om det finns, annars förnamnet.  Den
+ursprungliga metoden från \mintinline{python}{Person} finns fortfarande
+kvar och kan nås via \mintinline{python}{super()}, vilket vi gör i
+metoden \mintinline{python}{get_full_name()}.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:super-varfor}
+    Varför tror ni att det är användbart att kunna anropa
+    föräldraklassens metod med \mintinline{python}{super()}?  Ge ett
+    exempel på när det skulle vara praktiskt.
+  \end{exercise}
+\end{frame}
+
+Det är användbart när vi vill \emph{utöka} beteendet snarare än att helt
+ersätta det.  Vi kan köra föräldraklassens logik först, och sedan lägga
+till vår egen.  Låt oss se hur klassen används.
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet]
+    \label{ex:person-nick-main}
+    Objektet har metoder från både \mintinline{python}{PersonNick} och
+    \mintinline{python}{Person}:
+<<testprogram för [[PersonNick]]>>=
+def main():
+    """Test program"""
+    person = PersonNick(
+        "Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "okänt"
+    )
+    print(person)
+    person.change_name("Margareta Engström")
+    person.set_nick("Madicken")
+    print(f"{person.get_name()} är född {person.get_birthday()}.")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+Här ser vi hur \mintinline{python}{PersonNick} används i praktiken.
+Objektet \mintinline{python}{person} har tillgång till alla metoder från
+både \mintinline{python}{PersonNick} och \mintinline{python}{Person}:
+\mintinline{python}{change_name} och \mintinline{python}{get_birthday}
+är ärvda, \mintinline{python}{set_nick} är ny och
+\mintinline{python}{get_name} är överlagrad.
+
+Låt oss sammanfatta konceptet arv.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{block}{Arv}
+      \begin{itemize}
+        \item En klass kan ärva en annan klass.
+        \item Den kan då förbättra saker.
+      \end{itemize}
+    \end{block}%
+  }
+  \begin{minted}{python}
+    class Class:
+        def method(self):
+            # do something object related
+
+    class Child(Class):
+        def method(self):
+            """ Better method """
+            return super().method()**2
+  \end{minted}
+\end{frame}
+
+I detta exempel ärver \mintinline{python}{Child} från
+\mintinline{python}{Class} och överlagrar metoden
+\mintinline{python}{method()}.  Den nya metoden anropar först den
+ursprungliga metoden via \mintinline{python}{super()}, och kvadrerar
+sedan resultatet.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:arv-nar}
+    Reflektera över fördelarna med arv: när skulle det vara lämpligt att
+    använda arv?  När skulle det vara bättre att skapa en helt ny klass
+    istället?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOComposition}.
+
+  Reflektionsfrågan ber studenterna generalisera från det konkreta
+  exemplet till abstrakta principer.  Genom att tänka på \emph{när} arv
+  ska användas måste de urskilja den kritiska aspekten: typen av
+  relation mellan klasserna.
+
+  \foreignlanguage{english}{Try-first}: studenterna resonerar om
+  designvalet innan de får regeln.  Det aktiva engagemanget hjälper dem
+  att internalisera principen.
+}
+
+Arv är lämpligt när den nya klassen verkligen \enquote{är en} variant av
+basklassen (en \enquote{\foreignlanguage{english}{is-a}}-relation).
+Till exempel är \mintinline{python}{PersonNick} verkligen en
+\mintinline{python}{Person} med extra funktionalitet.  Om relationen
+istället är \enquote{\foreignlanguage{english}{has-a}} (till exempel att
+en \mintinline{python}{Person} \enquote{har en}
+\mintinline{python}{Address}), då är det bättre att använda
+\emph{komposition} (ett objekt som attribut) istället för arv.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOComposition}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: relationstypen
+  (\foreignlanguage{english}{is-a} respektive
+  \foreignlanguage{english}{has-a}).
+
+  \textbf{Vad som hålls invariant}: målet, återanvändning av kod.
+
+  Genom att kontrastera de två relationerna med konkreta exempel
+  (\mintinline{python}{PersonNick} \emph{är en}
+  \mintinline{python}{Person}, men en \mintinline{python}{Person}
+  \emph{har en} \mintinline{python}{Address}) kan studenterna urskilja
+  när varje mönster är lämpligt.  Kontrasten gör den kritiska aspekten
+  (relationstypen) synlig.  Både arv och komposition ger återanvändning,
+  men \emph{typen} av relation avgör vilket som passar.  Den fulla
+  behandlingen av komposition, med exempel, kommer i materialet om
+  sammansatta klasser.
+}
+
+% The assembled programs belong to the notes only.  A frame wrapped in
+% onlyenv<article> is still typeset by the slides job (\mode* skips the
+% wrapper as text and then meets the frame), so this section is a
+% \mode<article> block without frames.
+\mode<article>{%
+
+\section{All kod i sin helhet}
+\label{sec:all-kod}
+
+Här är all kod från exemplen i kapitlet samlad på ett ställe, i den form
+den tanglas ur källan --- det är de här filerna som körs.
+
+\begin{example}[\texttt{phonebook.py}]
+  Hela programmet:
+  \inputminted{python}{examples/phonebook.py}
+\end{example}
+
+\begin{example}[\texttt{contacts.py}]
+  Hela programmet:
+  \inputminted{python}{examples/contacts.py}
+\end{example}
+
+\begin{example}[\texttt{contacts\_class.py}]
+  Hela programmet:
+  \inputminted{python}{examples/contacts_class.py}
+\end{example}
+
+\begin{example}[\texttt{person.py}]
+  Hela klassen med testprogram:
+  \inputminted{python}{examples/person.py}
+\end{example}
+
+\begin{example}[\texttt{person\_nick.py}]
+  Hela klassen med testprogram:
+  \inputminted{python}{examples/person_nick.py}
+\end{example}
+
+\begin{example}[\texttt{public.py}]
+  Hela programmet:
+  \inputminted{python}{examples/public.py}
+\end{example}
+
+}
