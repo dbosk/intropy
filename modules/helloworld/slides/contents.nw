@@ -1,79 +1,172 @@
-\title{%
-  Hello World!
-}
-\author{Daniel Bosk}
-\institute{%
-  KTH EECS
+\mode*
+
+\section{Vad ett program är}
+\label{sec:program}
+
+I föreläsningens första halva förfinade vi en vardagsalgoritm --- receptet
+på pannkakssmet --- ända ner till ett pythonprogram, [[pannkakor.py]].  Vi
+gjorde allt utom det sista: vi körde det aldrig.  Vi vet alltså vad texten
+i filen betyder för en människa som läser den.  Vad den betyder för datorn
+har vi inte sagt ett ord om.
+
+\begin{frame}
+  \begin{exercise}
+    Ni har en fil med pythonkod på datorn.  Vad tror ni händer med den
+    texten när programmet körs?  Vem, eller vad, läser den?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOProgram,HelloLOExecution}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan något har
+  sagts om processorn, och den pekar avsiktligt inte ut vilken aspekt som
+  är den kritiska --- den frågar bara \enquote{vem läser?}.  Svaren
+  brukar dela sig i två läger, och båda är intressanta att höra innan
+  svaret ges: antingen \enquote{datorn läser den} (vilket döljer att det
+  är ett annat \emph{program} som gör det) eller \enquote{datorn förstår
+  vad jag menar}.  Det senare är Peas \enquote{superbugg}: föreställningen
+  att det sitter ett tänkande medvetande någonstans i språket som tolkar
+  avsikten \parencite{pea1986}.  Hela \cref{sec:program} är byggd för att
+  ta bort det medvetandet ur bilden.
 }
 
-\mode<article>{\maketitle}
+Svaret börjar längre ner i maskinen än man tror.  En dator är i grunden
+tre saker: en \emph{processor} som utför instruktioner, ett \emph{minne}
+som håller data, och annan hårdvara --- skärm, tangentbord, disk --- som
+processorn styr.  Det enda processorn kan göra är att utföra instruktioner
+ur minnet, en i taget.
+
 \mode<presentation>{%
   \begin{frame}
-    \maketitle
+    \begin{block}{Dator}
+      \begin{itemize}
+        \item Processor
+        \item Minne
+        \item Annan hårdvara
+      \end{itemize}
+    \end{block}
   \end{frame}
 }
 
-\mode*
-
-\begin{abstract}
-  \input{abstract.tex}
-\end{abstract}
-
-
-\section{Programmering}
-
-\subsection{Vad är programmering?}
+Och instruktionerna ser inte ut som något vi skulle vilja skriva.  De är
+tal.
 
 \begin{frame}
-  \begin{block}{Dator}
+  \begin{example}[Ett program som processorn kan utföra]
+    \label{ex:maskinkod}
+    Processorn får en följd av siffror:
     \begin{itemize}
-      \item Processor
-      \item Minne
-      \item Annan hårdvara
-    \end{itemize}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \begin{block}{Processorn}
-    \begin{itemize}
-      \item Exekverar maskinkod --- program
-    \end{itemize}
-  \end{block}
-
-  \pause
-
-  \begin{example}
-    \begin{itemize}
-      \item<1-2> 00012000050000020500
-      \item<3-> 0001 2000 0500
-      \item<3-> 0002 0500
+      \item<1-> 00012000000500022000
+      \item<3-> 0001 2000 0005
+      \item<3-> 0002 2000
     \end{itemize}
   \end{example}
+
+  \begin{onlyenv}<2>
+    \begin{exercise}
+      Var slutar den första instruktionen, och var börjar den andra?
+    \end{exercise}
+  \end{onlyenv}
 \end{frame}
+
+Ingenting i siffrorna skiljer instruktionerna åt --- det finns inga
+mellanslag och inga radbrytningar i minnet.  Att den första instruktionen
+är tolv siffror lång och den andra åtta är något processorn vet, därför
+att de fyra första siffrorna säger vilken sorts instruktion det är.  I den
+här (påhittade) processorn betyder \texttt{0001 aaaa vvvv} \enquote{lägg
+talet \texttt{vvvv} i minnescell \texttt{aaaa}}, och \texttt{0002 aaaa}
+\enquote{skriv ut innehållet i minnescell \texttt{aaaa}}.  Programmet i
+\cref{ex:maskinkod} lägger alltså talet 5 i cell 2000 och skriver sedan ut
+det.  Sådana instruktioner kallas \emph{maskinkod}.
+
+Lägg märke till vad processorn \emph{inte} gör.  Den vet inte att 5 är ett
+antal pannkakor, och den vet inte att utskriften ska läsas av en människa.
+Den hämtar en instruktion, utför den, hämtar nästa.  Det finns ingen i
+datorn som gissar vad ni menade: allt som händer är sådant som någon har
+skrivit en instruktion för.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOProgram}.
+
+  \textbf{Kontrast}.  Vad som varierar: samma program som odelad
+  sifferföljd respektive uppdelat i instruktioner.  Vad som hålls
+  invariant: siffrorna själva --- det är exakt samma tjugo tecken.
+  Kontrasten ska urskilja att \emph{struktur} inte finns i texten utan
+  läggs på av den som läser den; det är samma insikt som senare gör det
+  begripligt att Python kan läsa \emph{er} textfil på ett bestämt sätt.
+  Övningen ställs mellan de två uppslagen så att studenterna själva
+  försöker dela upp följden innan uppdelningen visas.
+
+  Sifferexemplet är ett påhittat instruktionsformat, inte en verklig
+  processors.  Det sägs uttryckligen i texten: ett påhittat exempel som
+  utges för att vara verkligt vore ett dåligt föredöme i en kurs som
+  också handlar om att kunna belägga vad man påstår (\cref{app:verifiera}).
+
+  Stycket om vad processorn inte gör är riktat rakt mot Peas superbugg
+  och dess parallellismvariant \parencite{pea1986}: att raderna i ett
+  program skulle vara aktiva samtidigt eller kända av datorn i förväg.
+  Det är också grunden för \cref{sec:fel}: ett felmeddelande är inte en
+  tillrättavisning från ett medvetande, utan platsen där instruktionerna
+  tog slut.
+}
 
 \begin{frame}
-  \begin{block}{Svar}
-    \begin{itemize}
-      \item Programmering är att skriva program.
-    \end{itemize}
-  \end{block}
+  \begin{exercise}
+    Programmet ovan lägger ett tal i minnet och skriver ut det.  Hur
+    många sådana instruktioner tror ni går åt för [[pannkakor.py]]?
+  \end{exercise}
 \end{frame}
 
-
-\subsection{Programmeringsspråk}
+Gissningen spelar mindre roll än poängen: det är många, och ingen av dem
+säger något om pannkakor.  Att skriva ett program direkt i maskinkod går,
+men det är ohanterligt för allt utom det allra minsta.  Därför skriver vi i
+stället i ett språk gjort för människor --- och låter en dator sköta
+översättningen till maskinkod.
 
 \begin{frame}
-  \begin{block}{Programmeringsspråk}
-    \begin{itemize}
-      \item Ett språk för människor att skriva datorprogram.
-    \end{itemize}
-  \end{block}
+  \only<presentation>{%
+    \begin{definition}[Program och programmeringsspråk]
+      \begin{itemize}
+        \item Ett \emph{program} är en följd av instruktioner som en dator
+          utför.
+        \item Ett \emph{programmeringsspråk} är ett språk att skriva
+          program i, gjort för att människor ska kunna skriva och läsa
+          dem.
+        \item Processorn utför bara maskinkod.  Något måste alltså alltid
+          stå emellan.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Program och programmeringsspråk]
+      Ett \emph{program} är en följd av instruktioner som en dator utför.
+      Ett \emph{programmeringsspråk} är ett språk att skriva program i,
+      gjort för att människor ska kunna skriva och läsa dem.  Eftersom
+      processorn bara utför maskinkod måste något alltid stå emellan det
+      vi skriver och det processorn utför.
+    \end{definition}%
+  }
 \end{frame}
+
+Vad det \enquote{något} är visar sig vara olika saker i olika språk --- och
+det är den skillnaden vi ska urskilja härnäst.
+
+
+\section{Samma hälsning i tre språk}
+\label{sec:tre-sprak}
+
+Vad är då det minsta programmet man kan skriva?  Sedan sjuttiotalet är
+traditionen att det första programmet man skriver i ett nytt språk skriver
+ut hälsningen \enquote{Hello, World!} och inget mer.  Traditionen kommer
+från Brian Kernighans handledningar och från läroboken \emph{The C
+Programming Language}\autocite{KernighanRitchie1978}; hur vi kontrollerat
+det står i \cref{app:hello-world}.  Vi gör likadant, och skriver samma
+hälsning i tre språk.
 
 \begin{frame}[fragile]
   \begin{example}[Python]
-    Ett program som skriver ut en hälsning:
+    Hela programmet är en rad:
 <<[[hello.py]]>>=
 print("Hello, World!")
 @
@@ -81,8 +174,29 @@ print("Hello, World!")
 
   \pause
 
+  \begin{exercise}
+    Samma hälsning, skriven i C++, ser ut som på nästa bild.  Vad skiljer
+    de två filerna åt --- och vad måste hända med var och en av dem innan
+    processorn kan utföra den?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOProgram}.
+
+  \foreignlanguage{english}{Try-first} i två led.  Den första delen av
+  frågan (\enquote{vad skiljer dem åt?}) är lätt och ska besvaras med
+  syntax --- semikolon, klamrar, [[#include]].  Den andra delen
+  (\enquote{vad måste hända med var och en?}) är den kritiska aspekten,
+  och den nämns inte som sådan; om den nämndes vore uppgiften löst innan
+  den ställts \parencite[13]{Marton2015}.  Skillnaden mellan de
+  två svaren är också poängen med hela avsnittet: det man ser är inte det
+  som betyder något.
+}
+
+\begin{frame}[fragile]
   \begin{example}[C++]
-    Samma program i C++:
+    Samma program i C++ tar fler rader:
 <<[[hello.cpp]]>>=
 #include <iostream>
 using namespace std;
@@ -95,115 +209,332 @@ int main(void) {
   \end{example}
 \end{frame}
 
-\begin{frame}
-  \begin{remark}
-    \begin{itemize}
-      \item C++ måste översättas till maskinkod!
-      \item Python läses av ett program (maskinkod), och det programmet
-        exekverar koden.
-    \end{itemize}
-  \end{remark}
-\end{frame}
+Det syns en hel del skillnader: semikolon, klamrar, en rad som börjar med
+[[#include]], en funktion som heter [[main]].  Men de skillnaderna är
+språkens klädsel.  Den skillnad som betyder något syns inte i filerna alls,
+utan i vad man gör med dem.
+
+C++-filen måste först \emph{översättas} till maskinkod.  Det gör ett
+program som kallas kompilator, och resultatet är en ny fil --- färdig
+maskinkod --- som processorn sedan kan utföra direkt.  Vi kör alltså aldrig
+[[hello.cpp]]; vi kör resultatet av att översätta den.
+
+Pythonfilen översätts inte i förväg.  I stället startar vi ett program som
+\emph{redan} är maskinkod --- pythontolken --- och ger den vår fil att
+läsa.  Tolken läser en sats i taget och gör det satsen säger.  Vår fil är
+alltså inte något processorn utför; den är indata till ett program som
+processorn utför.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOProgram,HelloLOExecution}.
+
+  \textbf{Kontrast} mellan [[hello.py]] och [[hello.cpp]].  Vad som
+  varierar: språket, och därmed vägen från text till maskinkod
+  (översättning i förväg respektive tolkning under körning).  Vad som
+  hålls invariant: uppgiften --- exakt samma hälsning, exakt samma
+  utmatning.  Att uppgiften hålls invariant är hela poängen: bara då
+  hamnar uppmärksamheten på vägen och inte på vad programmen gör.
+
+  Att det finns \emph{två} skillnader (syntax och väg) är avsiktligt och
+  hanteras genom att texten namnger den ointressanta först och avfärdar
+  den.  Annars varierar två dimensioner samtidigt, och den kritiska
+  riskerar att skymmas av den iögonfallande.
+}
+
+Det tredje språket är ett vi redan har på skärmen.
 
 \begin{frame}[fragile]
-  \begin{example}[Terminalen]
-    Även i terminalen kan vi skriva program:
+  \begin{example}[Skalet]
+    Även raderna vi skriver i terminalen är ett språk:
 <<[[hello.sh]]>>=
-echo "Hello World!"
+echo "Hello, World!"
 @
   \end{example}
 
   \pause
 
-  \begin{remark}
-    \begin{itemize}
-      \item Bash läser varje rad och exekverar olika program.
-      \item Dessa program är redan konverterade till maskinkod.
-    \end{itemize}
-  \end{remark}
+  \begin{exercise}
+    Var är maskinkoden den här gången?
+  \end{exercise}
 \end{frame}
 
+Skalet --- programmet som visar prompten och tar emot det vi skriver ---
+läser en rad i taget och startar de program raden nämner.  [[echo]] är ett
+sådant program, redan översatt till maskinkod.  Skalet utför alltså inte
+utskriften självt; det ser till att någon annan gör det.
 
-\section{Köra Python}
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Tre språk, tre vägar till maskinkod]
+      \begin{itemize}
+        \item C++: översätts i förväg av en kompilator.  Vi kör resultatet.
+        \item Python: läses under körningen av tolken, som är maskinkod.
+        \item Skalet: startar färdiga program, som är maskinkod.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Tre språk, tre vägar till maskinkod]
+      C++-programmet översätts i förväg av en kompilator, och det är
+      resultatet vi kör.  Pythonprogrammet läses under körningen av
+      tolken, som själv är maskinkod.  Skalets rader startar färdiga
+      program, som också är maskinkod.  Vägen skiljer sig, men änden är
+      densamma: någonstans finns alltid maskinkod, för det är det enda
+      processorn kan utföra.
+    \end{remark}%
+  }
+\end{frame}
 
-\subsection{Terminalen}
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOProgram}.
+
+  \textbf{Generalisering} med [[hello.sh]] som tredje fall.  Vad som
+  hålls invariant: den kritiska aspekten --- att något som redan är
+  maskinkod alltid står emellan.  Vad som varierar: hur det något är
+  ordnat (kompilator i förväg, tolk under körningen, färdiga program som
+  startas).  Först kontrast, sedan generalisering
+  \parencite[45--47]{Marton2015}.
+
+  Skalet är valt som tredje fall därför att studenterna redan sitter i
+  det på laborationen: det gör generaliseringen till något de kan pröva
+  samma eftermiddag i stället för att bara läsa om.  Frågan \enquote{var
+  är maskinkoden?} är samma fråga som i de två tidigare fallen, ställd en
+  tredje gång --- det är just upprepningen av frågan över varierande
+  kontexter som är generaliseringen.
+}
+
+
+\section{Att köra Python}
+\label{sec:kora-python}
+
+Vi har sagt att pythontolken läser vår fil.  Men tolken behöver inte någon
+fil alls för att köra: den kan lika gärna läsa det vi skriver direkt.
+
+\begin{frame}
+  \begin{exercise}
+    Ni skriver \mintinline{bash}{python3} i terminalen, utan filnamn, och
+    trycker på retur.  Vad tror ni händer?
+  \end{exercise}
+\end{frame}
 
 \begin{frame}
   \begin{figure}
     \centering
-    \includegraphics[height=0.8\textheight]{figs/python-terminal.png}
-    \caption{Ett kodexempel i Python som skriver ut \enquote{hello world!} i
-    terminalen.}
+    \includegraphics[width=0.95\linewidth,height=0.75\textheight,%
+      keepaspectratio]{figs/python-terminal.png}
+    \caption{Pythontolken startad utan filnamn.  Efter versionsraderna
+      kommer prompten \texttt{>{}>{}>}, och varje sats vi skriver utförs
+      så snart vi tryckt på retur.}
+    \label{fig:python-interaktivt}
   \end{figure}
 \end{frame}
 
+Utan filnamn startar tolken \emph{interaktivt}: den skriver ut sin version,
+sedan prompten \mintinline{text}|>>>|, och väntar.  Varje sats vi skriver
+utförs så snart vi tryckt på retur, och sedan kommer prompten tillbaka.
+Det är ett samtal.
 
-\subsection{Andra gränssnitt}
+Med filnamn är det inget samtal.  Då läser tolken satserna ur filen i
+stället för från tangentbordet, utför dem en i taget uppifrån och ner, och
+avslutar när filen är slut.
+
+\begin{frame}[fragile]
+  \begin{example}[Att köra filen]
+    Så här ser det ut i terminalen:
+    \runpython[transcript]{examples/hello.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOExecution,HelloLOTools}.
+
+  \textbf{Kontrast} mellan \cref{fig:python-interaktivt} och terminalsessionen
+  ovan.  Vad som varierar: varifrån tolken hämtar satserna --- från
+  tangentbordet eller ur en fil.  Vad som hålls invariant: tolken, och
+  det faktum att satserna utförs en i taget i den ordning de kommer.
+  Kontrasten ska urskilja att \emph{tolken} är samma program i båda
+  fallen; det är det som gör \enquote{Python} till något annat än
+  \enquote{fönstret jag skriver i}, vilket \cref{sec:redigeraren} sedan
+  bygger vidare på.
+
+  Sessionen körs av didactic-paketets
+  \mintinline{latex}{\runpython[transcript]} via PythonTeX: den tanglade
+  \texttt{examples/hello.py} körs på riktigt under en pseudoterminal, och
+  hela sessionen --- kommandorad, utskrift, prompt --- typsätts ur samma
+  källa som koden.  I en föreläsning om vad som händer när man kör sin fil
+  vore en handskriven \enquote{utmatning} en dålig sak att visa upp: den
+  kan glida isär från programmet utan att någon märker det.
+}
+
+\subsection{Redigeraren är inte Python}
+\label{sec:redigeraren}
+
+Ni kommer sällan att skriva era program direkt i terminalen.  Ni skriver
+dem i en textredigerare eller en \ac{IDE}, och många av dem har en knapp
+som kör programmet åt er.  Det gör det lätt att blanda ihop två saker.
+
+\begin{frame}
+  \begin{exercise}
+    Ni har skrivit [[hello.py]] i en textredigerare och trycker på
+    \enquote{kör}.  Vilket program är det som utför er kod?
+  \end{exercise}
+\end{frame}
 
 \begin{frame}
   \begin{figure}
     \centering
-    \includegraphics[height=0.8\textheight]{figs/idle.jpg}
-    \caption{Kod och körning av pythonkod i Idle.}
+    \includegraphics[width=0.95\linewidth,height=0.7\textheight,%
+      keepaspectratio]{figs/idle.jpg}
+    \caption{IDLE, som följer med Python.}
+    \label{fig:idle}
   \end{figure}
 \end{frame}
 
 \begin{frame}
   \begin{figure}
     \centering
-    \includegraphics[height=0.8\textheight]{figs/codium.png}
-    \caption{Gränssnittet till VSCodium (öppen källkodsvariant av Visual Studio
-    Code).}
+    \includegraphics[width=0.95\linewidth,height=0.7\textheight,%
+      keepaspectratio]{figs/codium.png}
+    \caption{VSCodium, öppen källkodsvariant av Visual Studio Code.}
+    \label{fig:codium}
   \end{figure}
 \end{frame}
 
 \begin{frame}
   \begin{figure}
     \centering
-    \includegraphics[height=0.8\textheight]{figs/atom.png}
-    \caption{Gränssnittet för Atom.}
+    \includegraphics[width=0.95\linewidth,height=0.7\textheight,%
+      keepaspectratio]{figs/pycharm.png}
+    \caption{PyCharm.}
+    \label{fig:pycharm}
   \end{figure}
 \end{frame}
 
+De tre ser helt olika ut, och ingen av dem är Python.  Alla tre gör samma
+två saker: de sparar er text i en fil, och när ni trycker på \enquote{kör}
+startar de pythontolken åt er --- samma [[python3]] som i terminalen, med
+samma filnamn.  Skillnaden mot terminalen är att ni inte ser kommandot.
+
 \begin{frame}
-  \begin{figure}
-    \centering
-    \includegraphics[height=0.8\textheight]{figs/pycharm.png}
-    \caption{Gränssnittet för PyCharm.}
-  \end{figure}
+  \only<presentation>{%
+    \begin{remark}[Tre olika saker]
+      \begin{itemize}
+        \item Redigeraren: skriver och sparar texten.
+        \item Filen: texten på disken.  Bara text.
+        \item Tolken: programmet som läser filen och utför satserna.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Tre olika saker]
+      Redigeraren skriver och sparar texten.  Filen är texten på disken,
+      ingenting annat.  Tolken är programmet som läser filen och utför
+      satserna.  Byter ni redigerare byter ni bara den första av de tre.
+    \end{remark}%
+  }
 \end{frame}
+
+Därav också en praktisk sak som kostar många den första kvarten på
+laborationen: tolken läser \emph{filen på disken}, inte det ni ser på
+skärmen.  Har ni ändrat och inte sparat kör ni den gamla versionen.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOTools}.
+
+  \textbf{Generalisering}.  Vad som varierar: redigeraren
+  (\cref{fig:idle,fig:codium,fig:pycharm}) --- utseende, tillverkare,
+  knappar.  Vad som hålls invariant: filen, tolken och kommandot som
+  startas.  Mönstret ska urskilja att \enquote{Python} inte är fönstret
+  man skriver i.  Att bilderna \emph{inte} varieras i något annat
+  avseende (samma sorts skärmdump, ingen kod i fokus) är avsiktligt: det
+  enda som ska sticka ut är att de är olika program.
+
+  Bilden av Atom är borttagen ur den här versionen.  Atom lades ner 2022,
+  och en nybörjare som känner igen namnet från en föreläsning och laddar
+  ner en avvecklad redigerare är sämre hjälpt än en som aldrig hört talas
+  om den.
+
+  Den avslutande anmärkningen om osparade ändringar är inte en
+  \enquote{tips och tricks}-parentes utan samma kritiska aspekt en gång
+  till: den fungerar bara om man skiljer filen från det man ser i
+  fönstret.  Den är också det vanligaste konkreta symptomet på
+  sammanblandningen under laborationen.
+}
 
 
 \section{Hello World!}
+\label{sec:hello-world}
+
+Nu kan vi skriva vårt eget program.  Det första är det vi redan sett.
 
 \begin{frame}[fragile]
-  \begin{example}
-    Programmet från tidigare:
+  \begin{example}[Programmet från tidigare]
+    Hela [[hello.py]]:
     \inputminted{python}{examples/hello.py}
   \end{example}
 
   \pause
 
-  \begin{example}
-    Vi kan låta en variabel hålla namnet:
+  \begin{exercise}
+    Hur skulle ni få programmet att hälsa på \emph{er} i stället för på
+    världen --- utan att skriva om utskriftsraden varje gång namnet
+    ändras?
+  \end{exercise}
+\end{frame}
+
+Namnet ska alltså kunna variera medan resten står kvar.  Det var precis
+vad vi kallade en \emph{variabel} i föreläsningens första halva, där
+antalet personer i pannkaksreceptet varierade medan stegen stod stilla.
+I Python ger vi variabeln ett namn och ett värde med ett likhetstecken,
+och plockar in värdet i utskriften med ett \(f\) framför strängen.
+
+\begin{frame}[fragile]
+  \begin{example}[Med en variabel]
+    Namnet ligger i en variabel:
 <<[[hello-name.py]]>>=
 # Skriver ut "Hello" + namnet till skärmen
 name = "World"
-print(f"Hello {name}!")
+print(f"Hello, {name}!")
 @
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}
-    Samma program som nyss:
-    \inputminted{python}{examples/hello-name.py}
   \end{example}
 
   \pause
 
-  \begin{example}[Funktioner]
-    Med en funktion kan vi återanvända utskriften:
+  \begin{exercise}
+    Hur skulle ni hälsa på tre personer utan att skriva utskriftsraden tre
+    gånger?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOWrite}.
+
+  \textbf{Kontrast} mellan [[hello.py]] och [[hello-name.py]].  Vad som
+  varierar: om det som skrivs ut står i utskriftsraden eller i en
+  variabel.  Vad som hålls invariant: utmatningen --- båda skriver ut
+  samma hälsning.  Att utmatningen är identisk är avsiktligt: då kan
+  variabeln inte förväxlas med \enquote{något som ändrar vad programmet
+  gör}, utan urskiljs som ett annat sätt att säga samma sak.
+
+  Kopplingen bakåt till pannkaksreceptets \(n\) är
+  \textbf{generalisering} av begreppet variabel över en ny kontext
+  (ett namn i stället för ett antal, Python i stället för svenska).
+  Begreppet definieras inte om här --- den fulla behandlingen, med
+  tilldelning och tillstånd, hör hemma i modulen om funktioner och
+  variabler vecka 38.
+
+  Formatsträngen introduceras utan förklaring av vad en sträng är.  Det
+  är medvetet: den kritiska aspekten här är att något kan bytas ut, inte
+  hur strängar fungerar.  Typerna kommer i sin egen modul.
+}
+
+Att skriva samma rad tre gånger vore möjligt --- men vi vet redan vad man
+gör i stället.  I första halvan gav vi en grupp steg ett namn och
+hänvisade till namnet; i Python heter det en \emph{funktion}.
+
+\begin{frame}[fragile]
+  \begin{example}[Med en funktion]
+    Utskriften får ett namn, och namnet används:
 <<[[hello-function.py]]>>=
 def print_hello(name):
     """Skriver ut till skärmen"""
@@ -214,3 +545,151 @@ print_hello("World")
 @
   \end{example}
 \end{frame}
+
+Raderna som börjar med [[def]] definierar funktionen; de \emph{utför} den
+inte.  Först på sista raden händer något: där anropas [[print_hello]] med
+\mintinline{python}|"World"| som det [[name]] funktionen ska hälsa på.
+Vill vi hälsa på tre personer skriver vi tre anrop, inte tre utskrifter.
+
+\begin{frame}[fragile]
+  \begin{example}[Att köra det]
+    Programmet gör precis det första programmet gjorde:
+    \runpython[transcript]{examples/hello-function.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOWrite,HelloLOExecution}.
+
+  \textbf{Kontrast} mellan [[hello-name.py]] och [[hello-function.py]].
+  Vad som varierar: om utskriften står på plats eller är namngiven och
+  anropad.  Vad som hålls invariant: utmatningen, återigen --- och den
+  visas körd, så att invariansen inte behöver tas på tro.
+
+  Att en [[def]]-rad inte utför något är kursens första möte med
+  aspekten \emph{exekveringsordning är inte textordning}, som är en av de
+  bäst belagda missuppfattningarna: nybörjare läser programmet som
+  statisk text och antar att satserna --- även de i funktionskroppar ---
+  utförs i den ordning de står \parencite[19]{Sleeman1984}, eller att
+  flera rader är aktiva samtidigt \parencite{pea1986}.
+  Samma sak beskrivs som att studenten inte ser att programmet har en
+  dynamisk tillvaro utöver sin statiska
+  \parencite[235]{Sorva2012Dissertation}.  Här \emph{namnges} aspekten
+  bara; kontrasten som urskiljer den (samma utmatning, olika textordning)
+  ligger i modulen om funktioner
+  och variabler, och prövas i kursens diagnosfrågor om läsordning.
+}
+
+
+\section{När det blir fel}
+\label{sec:fel}
+
+Det som säkert kommer att hända på laborationen är att något inte
+fungerar.  Det är värt att titta på i förväg, för Pythons svar när något
+går fel är den mest användbara texten ni kommer att läsa den här veckan
+--- och den som lättast avfärdas som obegriplig.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett program med ett stavfel]
+    Någon har skrivit stort \texttt{N} på sista raden:
+<<[[hello-error.py]]>>=
+name = "World"
+print("Den här raden hinner köras.")
+print(f"Hello, {Name}!")
+@
+  \end{example}
+
+  \pause
+
+  \begin{exercise}
+    Vad skriver programmet ut?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOError,HelloLOExecution}.
+
+  \foreignlanguage{english}{Try-first}: frågan är \enquote{vad skriver
+  programmet ut?}, inte \enquote{vilket fel är det?}.  Skillnaden är
+  avsiktlig.  Den som svarar \enquote{ingenting, det är ju fel} har
+  urskilt att programmet stannar men inte att det stannar \emph{där} ---
+  och det är den aspekten hela avsnittet handlar om.  Frågan pekar alltså
+  inte ut den kritiska aspekten, den ger den bara tillfälle att komma
+  fram i svaren \parencite[89]{Marton2015}.
+
+  Programmet är ett riktigt, tanglat exempel som körs i bygget: den
+  visade utmatningen \emph{är} vad Python svarar, inte en
+  efterhandsskriven återgivning.  Felet är valt till ett stavfel i ett
+  variabelnamn snarare än ett syntaxfel, eftersom ett syntaxfel stoppar
+  programmet innan \emph{något} hunnit köras --- och då försvinner den
+  aspekt som exemplet ska visa: att programmet hann en bit.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Pythons svar]
+    Så här ser det ut:
+    \runpython[transcript]{examples/hello-error.py}
+  \end{example}
+\end{frame}
+
+Det viktigaste står först: den första utskriften kom.  Programmet körde
+alltså rad ett och rad två, och stannade på rad tre.  Det är inte hela
+filen som \enquote{är fel} --- det är en rad, och Python säger vilken.
+
+Resten av meddelandet svarar på två frågor till.  Vilken sorts fel är det?
+\texttt{NameError} betyder att ett namn användes utan att ha fått något
+värde.  Och vilket namn?  \texttt{Name} --- som ingenstans har tilldelats
+något, till skillnad från [[name]] med litet \texttt{n}.  Python skiljer på
+stora och små bokstäver.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Läs felmeddelandet nerifrån och upp]
+      \begin{itemize}
+        \item Sista raden: vilken sorts fel, och vilket namn eller värde.
+        \item Raden över: vilken fil och vilken rad.
+        \item Utskriften före: hur långt programmet hann.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Läs felmeddelandet nerifrån och upp]
+      Sista raden säger vilken sorts fel det är och vilket namn eller
+      värde det gäller.  Raden över säger vilken fil och vilken rad.  Och
+      det som skrevs ut innan felet säger hur långt programmet hann.  Tre
+      frågor, tre svar --- och alla tre står där varje gång.
+    \end{remark}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{HelloLOError,HelloLOExecution}.
+
+  Avsnittet finns för att den första veckans hinder till stor del är
+  verktygshinder, inte begreppshinder.  Att svårigheten att förstå
+  kompilatorns och tolkens felmeddelanden är ett verkligt hinder för
+  nybörjare är belagt \parencite{Prather2017CEM}, och samma studie ger
+  också skälet att öva på dem: efter förbättrade meddelanden läser de
+  flesta studenter dem och gör verkningsfulla ändringar.  Slutsatsen
+  för undervisningen är inte att undvika felmeddelanden utan att
+  \emph{läsa dem på föreläsningen}, en gång, i lugn och ro, innan
+  studenten möter sitt första ensam.  Beläggen redovisas i
+  \cref{app:felmeddelanden}.
+
+  Ordningen nerifrån och upp är vald därför att den sista raden är den som
+  besvarar frågan \enquote{vad är fel?}, medan en nybörjare som läser
+  uppifrån möter en spårningslista som ser ut som brus.  Ordningen är en
+  läsanvisning, inte ett påstående om verktyget.
+
+  \textbf{Fusion}: exemplet kräver alla tre aspekterna samtidigt ---
+  att satserna utförs en i taget i ordning (\cref{HelloLOExecution}), att
+  det är tolken som utför dem och rapporterar (\cref{HelloLOProgram}) och
+  att filen är den som lästes (\cref{HelloLOTools}).  Att integrationen
+  är ett eget steg, och inte följer gratis av delarna, är belagt
+  \parencite{Huang2024Composition}.
+}
+
+Med det är ni framme vid laborationen.  Där ska ni installera Python och en
+redigerare, skriva [[hello.py]] själva, spara den och köra den från
+terminalen --- och när något går fel har ni sett vad Python säger och vet
+var ni ska titta.
