@@ -2,27 +2,77 @@
 
 \section{Två exempel}
 
-I det här kapitlet kommer vi att utforska objektorienterad programmering 
-genom att jämföra två olika sätt att lösa samma problem: med och utan 
-klasser. Genom att se skillnaderna konkret kan vi bättre förstå vilka 
+\ltnote{%
+  \textbf{Lärandemål som behandlas i detta avsnitt:}
+  \begin{enumerate}
+    \item LO1: Förklara skillnaden mellan en klass och ett objekt
+    \item LO2: Skapa klasser med attribut och metoder
+    \item LO5: Använda inkapsling för att skydda data
+  \end{enumerate}
+
+  \textbf{Variationsmönster: Kontrast}
+
+  \textbf{Vad som varierar}: Implementeringsmetod (dict-baserad vs klassbaserad)
+
+  \textbf{Vad som hålls invariant}: Problemet (telefonboks-/kontakthantering)
+  och funktionaliteten (lagra och hämta information)
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \textbf{LO1}: Genom att se samma problem löst både med och utan
+      klasser kan studenter urskilja vad en klass ÄR kontra vad den INTE är.
+    \item \textbf{LO2}: Kontrasten visar att klasser ger struktur genom
+      attribut och metoder, vilket gör koden mer organiserad.
+    \item \textbf{LO5}: Jämförelsen visar hur klasser möjliggör inkapsling
+      (privata attribut, kontrollerad åtkomst), vilket saknas i den
+      dict-baserade lösningen.
+  \end{itemize}
+
+  \textbf{Varför denna variation fungerar}: Enligt Marton \& Pang (2006)
+  varierar vi implementeringsmetoden medan vi håller problemet invariant.
+  Detta gör FÖRDELARNA med klasser urskiljbara eftersom studenter kan se
+  EXAKT vad som förändras (kodstruktur, felhantering, datasäkerhet) när
+  man introducerar klasser. Att börja med en bekant dict-baserad lösning
+  skapar en konkret referenspunkt för jämförelse.
+
+  \textbf{Pedagogisk sekvens}: Vi följer kontrastmönstret genom att först
+  visa vad klasser INTE är (dict-metoden) innan vi visar vad de ÄR
+  (klassmetoden). Detta följer variationsteorins princip att ``för att
+  urskilja något måste man erfara vad det är kontra vad det inte är.''
+}
+
+I det här kapitlet kommer vi att utforska objektorienterad programmering
+genom att jämföra två olika sätt att lösa samma problem: med och utan
+klasser. Genom att se skillnaderna konkret kan vi bättre förstå vilka
 fördelar klasser erbjuder.
 
 \subsection{Utan klasser}
 
-Vi börjar med att titta på ett enkelt program för en telefonbok, skrivet 
+Vi börjar med att titta på ett enkelt program för en telefonbok, skrivet
 utan att använda klasser.
 \begin{exercise}
-  Skriv ett program som lagrar ett par telefonnummer för några personer och 
+  Skriv ett program som lagrar ett par telefonnummer för några personer och
   låter användaren hämta dem.
   Programmet ska kunna:
   \begin{itemize}
     \item Visa alla kontaktnamn i telefonboken.
-    \item Be användaren skriva ett namn så skriver programmet ut motsvarande 
+    \item Be användaren skriva ett namn så skriver programmet ut motsvarande
       telefonnummer.
     \item Fortsätta fråga efter namn tills användaren trycker Enter på en tom rad.
       Då avslutar programmet.
   \end{itemize}
 \end{exercise}
+
+\ltnote{%
+  Vi följer \foreignlanguage{english}{try-first pedagogy} genom att be
+  studenter försöka implementera telefonboken själva innan vi visar vår
+  lösning. Detta aktiverar deras förkunskaper om dict och skapar ett
+  kunskapsgap som gör den efterföljande kontrasten med klasser mer
+  meningsfull. När de senare ser vår dict-baserade lösning OCH den
+  klassbaserade lösningen kan de jämföra alla tre tillvägagångssätten
+  (sitt eget, vårt med dict, vårt med klasser), vilket berikar
+  kontrastmönstret.
+}
 
 Vi kan använda en uppslagslista för att lagra namn och telefonnummer.
 
@@ -31,14 +81,35 @@ Vi kan använda en uppslagslista för att lagra namn och telefonnummer.
   \inputminted[linenos]{python}{examples/phonebook.py}
 \end{frame}
 
-Detta är en ganska enkel lösning. Men vad händer om vi vill lagra mer 
-information om varje person? Kanske vill vi ha både telefonnummer och 
+Detta är en ganska enkel lösning. Men vad händer om vi vill lagra mer
+information om varje person? Kanske vill vi ha både telefonnummer och
 adress?
 
+\ltnote{%
+  \textbf{Variationsmönster: Separation}
+
+  Vi varierar nu KOMPLEXITETEN i datastrukturen (enkla strängvärden
+  $\rightarrow$ nästlade dict med flera fält) medan vi håller den
+  dict-baserade metoden invariant. Denna separation hjälper studenter att
+  urskilja att dict-metoden har inneboende begränsningar som endast blir
+  synliga när kraven växer.
+
+  \textbf{Koppling till lärandemål}: Detta förbereder studenter för LO5
+  (inkapsling) genom att visa SMÄRTPUNKTERNA med oinkapslade data: ingen
+  strukturgenomtvingning, felbenägen nyckelåtkomst, brist på validering.
+}
+
 \begin{exercise}
-  Hur skulle du modifiera programmet ovan för att även lagra adresser? 
+  Hur skulle du modifiera programmet ovan för att även lagra adresser?
   Tänk igenom strukturen innan du fortsätter läsa.
 \end{exercise}
+
+\ltnote{%
+  \foreignlanguage{english}{Try-first pedagogy} igen: Studenter förutsäger/
+  försöker innan de ser lösningen med nästlade dict. Detta skapar produktiv
+  kamp som belyser designutmaningarna, vilket gör dem mer mottagliga för
+  den klassbaserade lösningen senare.
+}
 
 Ett första försök skulle kunna vara att använda en nästlad uppslagslista, 
 där varje person får en uppslagslista med olika fält. Låt oss titta på hur det 
@@ -82,18 +153,57 @@ snabbt svårläst och repetitivt.
   \begin{itemize}
     \item Vad händer om du skriver fel nyckelnamn i uppslagslistan?
     \item Hur vet andra programmerare vilka fält som finns tillgängliga?
-    \item Vad händer om du vill lägga till validering (t.ex. kontrollera 
+    \item Vad händer om du vill lägga till validering (t.ex. kontrollera
           att telefonnumret har rätt format)?
   \end{itemize}
 \end{exercise}
 
-Låt oss nu se hur klasser kan hjälpa oss att lösa dessa problem på ett 
+\ltnote{%
+  \foreignlanguage{english}{Try-first}: Studenter identifierar problem
+  själva innan vi uttryckligen säger dem. Denna kritiska reflektion över
+  dict-metoden förbereder marken för att förstå VARFÖR klasser är
+  fördelaktiga. Studenter som upptäcker problem själva är mer motiverade
+  att lära sig lösningen.
+
+  \textbf{Fullbordande av kontrastmönstret}: Vi har nu visat:
+  \begin{enumerate}
+    \item Enkel dict-metod (fungerar)
+    \item Komplex dict-metod (problematisk)
+  \end{enumerate}
+  Därefter introducerar vi klasser för att kontrastera båda dessa.
+  Smärtpunkterna blir lärandemotivationen.
+}
+
+Låt oss nu se hur klasser kan hjälpa oss att lösa dessa problem på ett
 mer elegant och strukturerat sätt.
 
 \subsection{Med klasser}
 
-Nu ska vi se samma funktionalitet implementerad med hjälp av klasser. 
-Istället för att använda nästlade uppslagslistor skapar vi en 
+\ltnote{%
+  \textbf{Kontrastmönster (andra halvan)}: Nu visar vi vad klasser ÄR
+  genom att kontrastera dem med vad de INTE är (dict-metoderna som visats
+  tidigare).
+
+  \textbf{Koppling till lärandemål}:
+  \begin{itemize}
+    \item \textbf{LO1 (klass vs objekt)}: Koden visar både klassdefinitionen
+      OCH objektskapande, vilket gör skillnaden tydlig genom kontrast.
+    \item \textbf{LO2 (attribut och metoder)}: Vi ser strukturerade
+      attribut (kontra lösa dict-nycklar) och metoder (kontra fristående
+      funktioner).
+    \item \textbf{LO5 (inkapsling)}: Privata attribut med
+      \mintinline{python}{__} kontrasterar med den öppna dict-åtkomsten
+      som visades tidigare.
+  \end{itemize}
+
+  \textbf{Vad som hålls invariant}: Problemdomänen (kontakthantering) och
+  den nödvändiga funktionaliteten. Denna invarians är avgörande---genom
+  att hålla VAD konstant kan studenter fokusera på att urskilja HUR
+  (implementeringsmetoden).
+}
+
+Nu ska vi se samma funktionalitet implementerad med hjälp av klasser.
+Istället för att använda nästlade uppslagslistor skapar vi en
 \mintinline{python}{Person}-klass som innehåller all information om en person.
 
 \begin{frame}[fragile]
@@ -229,7 +339,33 @@ eller kontrollera om fält finns. Metoderna \mintinline{python}{get_phone()} och
 
 \section{Klasser och objekt}
 
-Nu har vi sett ett praktiskt exempel. Låt oss definiera begreppen klass och 
+\ltnote{%
+  \textbf{Lärandemål}: LO1 (Förklara skillnaden mellan en klass och ett
+  objekt)
+
+  \textbf{Variationsmönster: Kontrast}
+
+  \textbf{Vad som varierar}: Konceptet (klass vs objekt)
+
+  \textbf{Vad som hålls invariant}: Kontexten (Person-exemplet från
+  föregående avsnitt)
+
+  \textbf{Kritisk aspekt att urskilja}: Skillnaden mellan ritningen/
+  specifikationen (klassen) och de konkreta instanserna (objekten).
+
+  \textbf{Varför detta fungerar}: Studenter har precis sett både
+  klassdefinitionen (\mintinline{python}{class Person:}) och
+  objektskapandet (\mintinline{python}{person = Person(...)}). Nu
+  artikulerar vi uttryckligen distinktionen. De konkreta kodexemplen ger
+  grunden för abstrakt begreppsbildning.
+
+  \textbf{Pedagogisk metod}: \foreignlanguage{english}{Try-first}
+  (studenter formulerar egna definitioner) följt av formella definitioner.
+  Detta hjälper dem att aktivt konstruera förståelse snarare än att
+  passivt ta emot den.
+}
+
+Nu har vi sett ett praktiskt exempel. Låt oss definiera begreppen klass och
 objekt.
 
 \begin{exercise}
@@ -308,7 +444,39 @@ kan ha olika värden i sina attribut.
 
 \subsection{Metoder och attribut}
 
-Nu ska vi titta närmare på de två huvudkomponenterna i en klass: attribut 
+\ltnote{%
+  \textbf{Lärandemål}: LO2 (Skapa klasser med attribut och metoder), LO3
+  (Förstå och använda parametern self)
+
+  \textbf{Variationsmönster: Separation}
+
+  \textbf{Vad som varierar}: Komponenttypen (attribut vs metoder)
+
+  \textbf{Vad som hålls invariant}: Klasskontexten (Person-klassen) och
+  den övergripande objektstrukturen
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \textbf{LO2}: Attribut är DATA (tillstånd), metoder är BETEENDE
+      (funktioner). Genom att separera dessa koncept och visa dem
+      individuellt kan studenter urskilja rollen för varje del.
+    \item \textbf{LO3}: Parametern \mintinline{python}{self} förekommer i
+      BÅDE attribut och metoder, vilket hjälper studenter se den som
+      tråden som förbinder alla delar av ett objekt.
+  \end{itemize}
+
+  \textbf{Varför denna separation fungerar}: Enligt Marton \& Pang (2006)
+  isolerar vi kritiska drag från helheten. Istället för att visa allt på
+  en gång fokuserar vi på attribut FÖRST, sedan metoder. Denna
+  systematiska variation avslöjar vilka aspekter som är invarianta
+  (objektinstansen via \mintinline{python}{self}) och vilka som varierar
+  (data vs beteende).
+
+  \textbf{Notera}: Detta förbereder för senare FUSION när studenter måste
+  koordinera attribut och metoder tillsammans i sina egna klassdesigner.
+}
+
+Nu ska vi titta närmare på de två huvudkomponenterna i en klass: attribut
 och metoder.
 
 \begin{exercise}
@@ -375,9 +543,27 @@ understreck alls.
   \inputminted[highlightlines={7,21-22}]{python}{examples/public.py}
 \end{frame}
 
-Detta hade inte fungerat om vi hade skrivit \mintinline{python}{self.__value} 
+Detta hade inte fungerat om vi hade skrivit \mintinline{python}{self.__value}
 istället för \mintinline{python}{self.value}.
 (Prova!)
+
+\ltnote{%
+  \textbf{Variationsmönster: Kontrast}
+
+  \textbf{Vad som varierar}: Attributsynlighet (publikt
+  \mintinline{python}{self.value} vs privat
+  \mintinline{python}{self.__value})
+
+  \textbf{Vad som hålls invariant}: Allt annat i klassstrukturen
+
+  \textbf{Koppling till LO5 (inkapsling)}: Genom att kontrastera publika
+  och privata attribut kan studenter urskilja NÄR och VARFÖR man ska
+  använda inkapsling. Det konkreta exemplet (direkt åtkomst fungerar vs
+  fungerar inte) gör den abstrakta principen påtaglig.
+
+  \textbf{Notera}: Övningen att ``prova'' är avgörande---studenter erfar
+  begränsningen själva, vilket är kraftfullare än att bli berättad om den.
+}
 
 Nu ska vi titta på metoder---funktioner som tillhör objektet.
 
@@ -426,8 +612,36 @@ kombinerar för- och efternamn till ett fullständigt namn.
 
 \section{Dundermetoder}
 
-Vi har redan sett några dundermetoder som \mintinline{python}{__init__} 
-och \mintinline{python}{__str__}. Python har många sådana \enquote{\foreignlanguage{english}{magic methods}} 
+\ltnote{%
+  \textbf{Lärandemål}: LO4 (Implementera dundermetoder)
+
+  \textbf{Variationsmönster: Generalisering}
+
+  \textbf{Vad som varierar}: Den specifika dundermetoden
+  (\mintinline{python}{__init__}, \mintinline{python}{__str__},
+  \mintinline{python}{__lt__}, \mintinline{python}{__repr__}, etc.)
+
+  \textbf{Vad som hålls invariant}: Mönstret (dubbla understreck,
+  automatiskt anrop av Python, speciellt beteende)
+
+  \textbf{Kritisk aspekt att urskilja}: Studenter ska inse att
+  dundermetoder bildar ett MÖNSTER---de följer alla samma namnkonvention
+  och syfte (anpassa objektbeteende), men varje tjänar en specifik
+  funktion.
+
+  \textbf{Varför generalisering fungerar}: Genom att visa FLERA
+  dundermetoder i samma kontext (Person-klassen) kan studenter se det
+  invarianta mönstret över olika sammanhang. Detta hjälper dem att
+  känna igen när man ska tillämpa dundermetoder i nya situationer.
+
+  \textbf{Koppling till LO4}: Studenter måste inte bara memorera
+  individuella dundermetoder utan förstå den generella principen: ``När
+  jag vill att mina objekt ska fungera med Pythons inbyggda
+  operationer/funktioner implementerar jag motsvarande dundermetod.''
+}
+
+Vi har redan sett några dundermetoder som \mintinline{python}{__init__}
+och \mintinline{python}{__str__}. Python har många sådana \enquote{\foreignlanguage{english}{magic methods}}
 som låter oss anpassa hur våra objekt beter sig i olika situationer.
 
 \begin{frame}[fragile]
@@ -518,14 +732,61 @@ sortera en lista med \mintinline{python}{Person}-objekt med funktionen
 
 \section{Arv}
 
-Nu ska vi utforska ett av de mest kraftfulla koncepten i objektorienterad 
+\ltnote{%
+  \textbf{Lärandemål}: LO6 (Skapa underklasser med arv), LO7 (Överlagra
+  metoder och använda super()), LO8 (Avgöra när man ska använda arv
+  kontra komposition)
+
+  \textbf{Variationsmönster: Kontrast + Separation}
+
+  \textbf{Först: Kontrastera två tillvägagångssätt}:
+  \begin{enumerate}
+    \item Kodduplicering (kopiera all Person-kod)
+    \item Arv (utvidga Person)
+  \end{enumerate}
+
+  \textbf{Sedan: Separation av arvaspecter}:
+  \begin{itemize}
+    \item Ärvda metoder (används som de är)
+    \item Överlagrade metoder (anpassat beteende)
+    \item Nya metoder (tillagd funktionalitet)
+    \item Användning av \mintinline{python}{super()} (åtkomst till förälder)
+  \end{itemize}
+
+  \textbf{Kritiska aspekter att urskilja}:
+  \begin{itemize}
+    \item \textbf{LO6}: Arv skapar en \foreignlanguage{english}{``is-a''}%
+      -relation. PersonNick ÄR EN Person med extra funktioner. Kontrasten
+      med kodduplicering visar VARFÖR arv är värdefullt.
+    \item \textbf{LO7}: Genom att separera ärvda vs överlagrade metoder ser
+      studenter att \mintinline{python}{super()} ger selektiv återanvändning%
+      ---vi behåller vad som fungerar, anpassar vad som inte gör det.
+    \item \textbf{LO8}: Kontrasten mellan \foreignlanguage{english}{``is-a''}
+      (arv) och \foreignlanguage{english}{``has-a''} (komposition) hjälper
+      studenter att välja lämpligt.
+  \end{itemize}
+
+  \textbf{Varför detta fungerar}: Vi börjar med PROBLEMET (undvika
+  kodduplicering) innan vi introducerar LÖSNINGEN (arv). Detta
+  motivations-först-tillvägagångssätt skapar ett kunskapsgap som arv
+  fyller.
+}
+
+Nu ska vi utforska ett av de mest kraftfulla koncepten i objektorienterad
 programmering: arv (\foreignlanguage{english}{inheritance}).
 
 \begin{exercise}
-  Om du skulle skapa en \mintinline{python}{PersonNick}-klass som är 
-  precis som \mintinline{python}{Person} men också har ett smeknamn, hur skulle 
+  Om du skulle skapa en \mintinline{python}{PersonNick}-klass som är
+  precis som \mintinline{python}{Person} men också har ett smeknamn, hur skulle
   du göra det?
 \end{exercise}
+
+\ltnote{%
+  \foreignlanguage{english}{Try-first pedagogy}: Studenter överväger hur
+  man löser problemet innan de ser arv. Många kommer att tänka på
+  kodduplicering, vilket skapar kontrasten med arv. Detta får dem att
+  uppskatta elegansen i arvlösningen.
+}
 
 Arv låter oss skapa nya klasser baserade på befintliga klasser, och utöka eller 
 modifiera deras funktionalitet---helt utan kodupprepning.
@@ -558,14 +819,34 @@ till \mintinline{python}{PersonNick}.
   \inputminted[linenos,firstline=9,lastline=10]{python}{examples/person_nick.py}
 \end{frame}
 
-I \mintinline{python}{__init__} använder vi \mintinline{python}{super()} 
-för att anropa föräldraklassens \mintinline{python}{__init__}-metod. Detta 
-initierar alla attribut från \mintinline{python}{Person}, och sedan lägger vi 
-till vårt nya attribut \mintinline{python}{__nick} som föräldern inte känner 
+I \mintinline{python}{__init__} använder vi \mintinline{python}{super()}
+för att anropa föräldraklassens \mintinline{python}{__init__}-metod. Detta
+initierar alla attribut från \mintinline{python}{Person}, och sedan lägger vi
+till vårt nya attribut \mintinline{python}{__nick} som föräldern inte känner
 till.
 
+\ltnote{%
+  \textbf{Variationsmönster: Separation}
+
+  \textbf{Vad som varierar}: Initieringsansvaret (förälderns attribut vs
+  barnets nya attribut)
+
+  \textbf{Vad som hålls invariant}: Initieringskontexten
+  (\mintinline{python}{__init__}-metoden)
+
+  \textbf{Koppling till LO7}: Användningen av \mintinline{python}{super()}
+  demonstrerar selektiv återanvändning. Vi DUPLICERAR INTE förälderns
+  initieringskod; vi ANROPAR den. Denna ansvarsfördelning (föräldern
+  hanterar sina attribut, barnet hanterar sina egna) är en kritisk
+  aspekt av god OOP-design.
+
+  \textbf{Kritisk aspekt}: \mintinline{python}{super()} är bryggan mellan
+  barn och förälder, vilket möjliggör kontrollerad åtkomst till
+  föräldrafunktionalitet.
+}
+
 \begin{exercise}
-  Vilka metoder från \mintinline{python}{Person}-klassen kan 
+  Vilka metoder från \mintinline{python}{Person}-klassen kan
   \mintinline{python}{PersonNick} använda? Måste vi skriva om alla metoder?
 \end{exercise}
 
@@ -642,17 +923,48 @@ ursprungliga metoden via \mintinline{python}{super()}, och kvadrerar sedan
 resultatet.
 
 \begin{exercise}
-  Reflektera över fördelarna med arv: När skulle det vara lämpligt att 
+  Reflektera över fördelarna med arv: När skulle det vara lämpligt att
   använda arv? När skulle det vara bättre att skapa en helt ny klass istället?
 \end{exercise}
 
-Arv är lämpligt när den nya klassen verkligen \enquote{är en} variant av 
-basklassen (\enquote{\foreignlanguage{english}{is-a}} relation). Till exempel är 
-\mintinline{python}{PersonNick} verkligen en \mintinline{python}{Person} med 
-extra funktionalitet. Om relationerna istället är \enquote{\foreignlanguage{english}{has-a}} 
-(till exempel en \mintinline{python}{Person} \enquote{har en} 
-\mintinline{python}{Address}), då är det bättre att använda komposition 
+\ltnote{%
+  \textbf{Koppling till LO8}: Denna reflektionsfråga ber studenter att
+  generalisera från det konkreta exemplet till abstrakta principer. Genom
+  att tänka på NÄR man ska använda arv måste de urskilja den kritiska
+  aspekten: typen av relation mellan klasser.
+
+  \foreignlanguage{english}{Try-first}: Studenter resonerar om
+  designval innan de får regeln. Detta aktiva engagemang hjälper dem att
+  internalisera principen.
+}
+
+Arv är lämpligt när den nya klassen verkligen \enquote{är en} variant av
+basklassen (\enquote{\foreignlanguage{english}{is-a}} relation). Till exempel är
+\mintinline{python}{PersonNick} verkligen en \mintinline{python}{Person} med
+extra funktionalitet. Om relationerna istället är \enquote{\foreignlanguage{english}{has-a}}
+(till exempel en \mintinline{python}{Person} \enquote{har en}
+\mintinline{python}{Address}), då är det bättre att använda komposition
 (ett objekt som attribut) istället för arv.
+
+\ltnote{%
+  \textbf{Variationsmönster: Kontrast}
+
+  \textbf{Vad som varierar}: Relationstypen
+  (\foreignlanguage{english}{``is-a''} vs
+  \foreignlanguage{english}{``has-a''})
+
+  \textbf{Vad som hålls invariant}: Målet med kodåteranvändning
+
+  \textbf{Koppling till LO8}: Genom att kontrastera dessa två relationer
+  med konkreta exempel (PersonNick ÄR EN Person, men Person HAR EN
+  Address) kan studenter urskilja när varje designmönster är lämpligt.
+  Kontrasten gör den kritiska aspekten (relationstyp) synlig.
+
+  \textbf{Varför detta fungerar}: Både arv och komposition uppnår
+  kodåteranvändning, men TYPEN av relation avgör vilket som är lämpligt.
+  Genom att hålla målet invariant och variera relationen kan studenter
+  urskilja denna kritiska distinktion.
+}
 
 \begin{onlyenv}<article>
 

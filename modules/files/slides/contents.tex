@@ -2,76 +2,346 @@
 
 \section{Vad är en fil?}
 
-\begin{frame}
-  \begin{definition}<1,3>[Primärminne]
-    \begin{itemize}
-      \item Datorns arbetsminne.
-      \item Exekverande program (processer) och data (variabler) lagras här.
-      \item Flyktigt minne.
-      \item Snabbt: storleksordning nanosekunder.
-    \end{itemize}
-  \end{definition}
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOPersistence}
 
-  \begin{definition}<2,3>[Sekundärminne]
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Typ av minne (primär vs sekundär), egenskaper
+  (flyktigt vs oflyktigt, snabbt vs långsamt).
+
+  \textbf{Vad som hålls invariant}: Behovet att lagra data.
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOPersistence}:
+  \begin{itemize}
+    \item \textbf{Persistens som koncept}: Primärminne försvinner vid avstängning
+      (flyktigt), sekundärminne består (oflyktigt). Studenten måste urskilja att
+      filer löser problemet med datapersistens.
+    \item \textbf{Avvägning hastighet/permanens}: Primärminne snabbt men temporärt,
+      sekundärminne långsammare men permanent. Förståelse för när varje typ behövs.
+  \end{itemize}
+
+  \textbf{Pedagogisk sekvens}: Parallella definitioner (sida vid sida med
+  \mintinline{latex}{\textbytext} i presentation-läge,
+  \mintinline{latex}{\textbytext*} i article-läge) skapar direkt spatial kontrast
+  mellan minnestyperna \parencite{MartonPang2006}. Studenter kan omedelbart jämföra egenskaper
+  (flyktigt/oflyktigt, snabbt/långsamt). Därefter koppla till konkret erfarenhet
+  (Python-program försvinner, bilder består) innan varför-frågan. Progression:
+  konkret $\rightarrow$ konceptuell förståelse.
+}
+
+\subsection{Primärminne och sekundärminne}
+
+\begin{frame}
+  \begin{exercise}
+    Tänk på ett Python-program du har skrivit. När du kör programmet skapas
+    variabler med värden. Vad händer med dessa värden när:
     \begin{itemize}
-      \item Långsammare minne: storleksordning mikro- till millisekunder.
-      \item Oflyktigt.
-      \item Icke-exekverande program och data (filer) lagras här.
+      \item Programmet avslutas?
+      \item Datorn stängs av?
     \end{itemize}
-  \end{definition}
+    Hur skulle du kunna bevara data mellan programkörningar?
+  \end{exercise}
 \end{frame}
 
+\ltnote{%
+  \textbf{Try-first pedagogik}: Denna övning aktiverar studenters förförståelse
+  och skapar en diagnostisk möjlighet. Studenter som svarar \enquote{allt
+  försvinner} har redan urskilt flyktighetsaspekten. De som föreslår
+  \enquote{spara till fil} visar att de intuitivt förstår lösningen.
+
+  \textbf{Varför try-first här}: Enligt \textcite{MartonPang2006} behöver
+  studenter erfara variation innan generaliseringar blir meningsfulla. Genom att
+  först låta dem reflektera över problemet (data försvinner) skapas en kontext
+  för de efterföljande definitionerna av primär- och sekundärminne.
+}
+
+\begin{frame}[fragile]
+  \mode<presentation>{%
+    \textbytext{%
+      \begin{definition}[Primärminne]
+        Datorns arbetsminne där exekverande program (processer) och data (variabler)
+        lagras. Detta är flyktigt minne med mycket snabb åtkomst (storleksordning
+        nanosekunder).
+      \end{definition}
+    }{%
+      \begin{definition}[Sekundärminne]
+        Oflyktigt minne där icke-exekverande program och data (filer) lagras.
+        Långsammare åtkomst än primärminne (storleksordning mikro- till millisekunder).
+      \end{definition}
+    }
+  }
+  \mode<article>{%
+    \textbytext*{%
+      \begin{definition}[Primärminne]
+        Datorns arbetsminne där exekverande program (processer) och data (variabler)
+        lagras. Detta är flyktigt minne med mycket snabb åtkomst (storleksordning
+        nanosekunder).
+      \end{definition}
+    }{%
+      \begin{definition}[Sekundärminne]
+        Oflyktigt minne där icke-exekverande program och data (filer) lagras.
+        Långsammare åtkomst än primärminne (storleksordning mikro- till millisekunder).
+      \end{definition}
+    }
+  }
+\end{frame}
+
+\mode<article>{%
+När ett Python-program körs finns alla variabler och data i datorns
+\emph{primärminne} (även kallat RAM eller arbetsminne). Detta minne är mycket
+snabbt --- åtkomsttider mäts i nanosekunder --- vilket gör att programmet kan
+arbeta effektivt med data. Men primärminnet har en avgörande begränsning: det
+är \emph{flyktigt}. När programmet avslutas, eller när datorn stängs av,
+försvinner allt innehåll i primärminnet.
+
+Detta skapar ett problem: Hur kan vi \emph{bevara} data mellan programkörningar?
+Hur kan vi \emph{dela} data mellan olika program? Hur kan vi hantera
+\emph{större} mängder data än vad som får plats i primärminnet?
+
+Svaret är \emph{sekundärminne} --- oflyktigt lagringsutrymme som bevarar
+information även när datorn är avstängd. Detta kan vara en hårddisk, SSD, eller
+annan lagringsmedia. Sekundärminnet är långsammare än primärminnet (åtkomsttider
+i mikro- till millisekunder), men det är persistent och kan lagra mycket större
+mängder data.
+}
+
+\subsection{Vad är en fil?}
+
+En \emph{fil} är en namngiven samling data som lagras i sekundärminnet. Vi har
+alla erfarenhet av filer från vår dagliga datoranvändning: Python-program
+(\texttt{.py}-filer), bilder (\texttt{.jpg}, \texttt{.png}), dokument
+(\texttt{.pdf}, \texttt{.docx}), och så vidare. Faktum är att de
+Python-program vi skriver själva är lagrade som textfiler på hårddisken.
+
 \begin{frame}
-  \begin{block}{Filer}
-    \begin{itemize}
-      \item Vi har erfarenhet av filer.
-      \item Våra program är sparade i filer.
-    \end{itemize}
-  \end{block}
+  \begin{example}[Pythonprogram]
+    Filer med \texttt{.py}-ändelse innehåller Python-kod som kan exekveras av
+    Python-interpretatorn.
+  \end{example}
 
   \pause
 
-  \begin{example}
-    \begin{itemize}
-      \item Pythonprogram,
-      \item bilder,
-      \item dokument,
-      \item \etc
-    \end{itemize}
+  \begin{example}[Bilder]
+    Filer med ändelser som \texttt{.jpg} eller \texttt{.png} innehåller
+    bilddata som kan visas av bildvisningsprogram.
+  \end{example}
+
+  \pause
+
+  \begin{example}[Dokument]
+    Filer med ändelser som \texttt{.pdf} eller \texttt{.docx} innehåller
+    textdokument som kan läsas av dokumentläsare.
   \end{example}
 \end{frame}
 
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOPersistence}
+
+  \textbf{Variationsmönster}: Generalisering
+
+  \textbf{Vad som varierar}: Problemtyp (persistens, datautbyte, skalbarhet).
+
+  \textbf{Vad som hålls invariant}: Lösningen (använda filer).
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOPersistence}: Studenten måste
+  urskilja att \emph{samma verktyg} (filer) löser \emph{olika problem}. Detta
+  gör filernas grundläggande värde urskiljbart --- de är inte bara för lagring,
+  utan för persistens, kommunikation, och skalbarhet.
+
+  \textbf{Pedagogisk sekvens}: Visa tre konkreta exempel FÖRST (variation i
+  problemtyp), sedan generalisera till de tre användningsområdena i en remark.
+  Studenter erfar variationen innan principen artikuleras
+  \parencite{MartonPang2006}.
+}
+
 \begin{frame}
-  \begin{remark}
-    \begin{itemize}
-      \item Behövs för att minnas mellan körningarna.
-      \item Behövs för att överföra data mellan program.
-      \item Behövs för att hantera kopiösa mängder data.
-    \end{itemize}
+  \begin{exercise}
+    Vi vet nu att filer lagras i sekundärminnet. Men \emph{varför} skulle vi
+    vilja använda filer i våra program? Tänk på tre olika situationer där filer
+    kan vara användbara.
+  \end{exercise}
+\end{frame}
+
+\begin{frame}
+  \mode<presentation>{%
+    \begin{example}[Spara spelets progress]
+      Spel måste minnas poäng, nivå, och achievements mellan spelsessioner
+      --- löses genom att spara data i en fil.
+    \end{example}
+  }
+  \mode<article>{%
+    \begin{example}[Spara spelets progress]
+      Ett spel behöver komma ihåg spelarens poäng, nivå, och upplåsta achievements
+      mellan olika spelsessioner. När spelaren stänger ner programmet och startar
+      det igen nästa dag ska all progress finnas kvar. Detta löses genom att
+      spara data i en fil på hårddisken.
+    \end{example}
+  }
+\end{frame}
+
+\begin{frame}
+  \mode<presentation>{%
+    \begin{example}[Dela data mellan program]
+      Program kan dela data via filer utan att köra samtidigt
+      --- filen fungerar som brygga mellan program.
+    \end{example}
+  }
+  \mode<article>{%
+    \begin{example}[Dela data mellan program]
+      Ett program genererar en lista med e-postadresser från en databas och
+      sparar dem i en fil. Ett annat program läser sedan filen och skickar ut
+      nyhetsbrev till alla adresser. Programmen behöver aldrig köra samtidigt
+      --- filen fungerar som brygga mellan dem.
+    \end{example}
+  }
+\end{frame}
+
+\begin{frame}
+  \mode<presentation>{%
+    \begin{example}[Bearbeta stora datamängder]
+      SCB:s namnstatistik läses rad för rad istället för att ladda allt
+      i minnet --- skalbarhet för miljontals poster.
+    \end{example}
+  }
+  \mode<article>{%
+    \begin{example}[Bearbeta stora datamängder]
+      SCB:s namnstatistik innehåller miljontals namnposter. Att ladda allt i
+      primärminnet samtidigt skulle kräva enorma mängder RAM. Istället läser
+      programmet filen rad för rad, bearbetar varje post, och behåller bara
+      resultatet i minnet.
+    \end{example}
+  }
+\end{frame}
+
+\begin{frame}
+  \begin{remark}[Varför filer behövs]
+    Filer behövs för \emph{persistens} (minnas data mellan körningar),
+    \emph{datautbyte} (överföra data mellan program), och \emph{skalbarhet}
+    (hantera stora mängder data som inte får plats i primärminnet samtidigt).
   \end{remark}
 \end{frame}
+
+De tre exemplen ovan illustrerar de viktigaste användningsområdena för filer.
+Mönstret är tydligt: samma verktyg (filer) löser fundamentalt olika problem.
+Detta är varför filhantering är så centralt i programmering.
 
 
 \section{Hur använder vi filer?}
 
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOOperations}, \cref{FilesLOContextMgr}, \cref{FilesLOFileTypes}
+
+  \textbf{Variationsmönster}: Generalisering + Kontrast + Separation
+
+  \textbf{Generalisering från terminal-I/O}: Filoperationer följer samma princip
+  som \mintinline{python}{print()}/\mintinline{python}{input()} --- strukturera
+  data för ett syfte. Invariant: I/O-mönstret. Varierar: Destination (terminal vs
+  fil). Kritisk skillnad: Filer kräver explicit öppning/stängning, terminalen inte.
+
+  \textbf{Kontrast för} \cref{FilesLOContextMgr}: Resurshanteringsmetod
+  (\mintinline{python}{open()}/\mintinline{python}{close()} manuellt vs
+  \mintinline{python}{with} automatiskt). Invariant: Filoperationerna. Varierar:
+  Ansvaret för stängning. Studenten måste urskilja att \mintinline{python}{with}
+  garanterar stängning även vid fel.
+
+  \textbf{Separation för} \cref{FilesLOOperations} \textbf{och}
+  \cref{FilesLOFileTypes}: Läsa vs skriva (olika operationer, samma fil).
+  Text vs binär (olika datatyper, samma operationer). Varje dimension separat
+  urskiljbar.
+
+  \textbf{Pedagogisk sekvens}: Dokumentation först (aktivera förförståelse) $\to$
+  visa manuell metod (explicit vad som händer) $\to$ introducera
+  \mintinline{python}{with} (kontrast gör värdet tydligt) $\to$ läsa/skriva
+  (båda riktningar) $\to$ filtyper (ytterligare dimension) \parencite{Marton2015}.
+}
+
+Nu när vi förstår \emph{varför} filer behövs är det dags att lära oss
+\emph{hur} vi använder dem i Python.
+
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-files.png}
+  \begin{exercise}
+    Vad behöver vi göra extra för filer som vi inte behövde göra för
+    \mintinline{python}{print()} och \mintinline{python}{input()}?
+
+    Tänk på att terminalen alltid är tillgänglig, men filer\ldots?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentation för filhantering visar grundläggande filoperationer}[fig:docs-files]
+      \includegraphics[width=0.7\textwidth]{figs/docs-files.png}
+    \end{sidecaption}
+  \end{figure}
 \end{frame}
 
 \subsection{Öppna och stänga}
 
-\begin{frame}[fragile]
-  \begin{minted}[numbers=none,fontsize=\Large]{python}
-file = open("filename", "r")
-print(file.read())
-file.close()
-  \end{minted}
+Innan vi kan arbeta med en fil måste vi \emph{öppna} den. Detta ger oss ett filobjekt som vi kan använda för att läsa eller skriva data. När vi är färdiga måste vi också \emph{stänga} filen för att frigöra systemresurser och säkerställa att all data verkligen skrivs till disken.
+
+\begin{frame}
+  \begin{exercise}
+    Vi behöver alltså två operationer: \enquote{öppna} och \enquote{stänga}.
+    Hur bör dessa implementeras?
+
+    Tänk på: \mintinline{python}{print()} är en funktion som alltid skriver
+    till terminalen. Men för filer behöver vi kunna specificera \emph{vilken}
+    fil. Bör \mintinline{python}{open()} vara en funktion eller metod?
+    Bör \mintinline{python}{close()} vara en funktion eller metod?
+  \end{exercise}
 \end{frame}
+
+Svaret på frågan ovan är att \mintinline{python}{open()} är en \emph{funktion}: den tar emot filnamnet (och eventuellt ett läge) som argument och \emph{returnerar} ett filobjekt. Stängning är däremot en \emph{metod} på just det filobjektet --- vi skriver \mintinline{python}{fil.close()}, eftersom det är den specifika filen vi vill stänga. Detta är en naturlig konsekvens av att \mintinline{python}{open()} måste få veta \emph{vilken} fil vi menar, medan \mintinline{python}{close()} alltid handlar om en fil vi redan har öppnat.
+
+Det finns två sätt att hantera öppning och stängning: manuellt med \mintinline{python}{open()} och \mintinline{python}{close()}, eller automatiskt med \mintinline{python}{with}-satsen. Låt oss först titta på den manuella metoden för att förstå vad som egentligen händer, sedan ska vi se varför \mintinline{python}{with}-satsen är det bättre alternativet.
+
+\ltnote{%
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Resurshanteringsmetod (manuell
+  \mintinline{python}{open()}/\mintinline{python}{close()} vs
+  \mintinline{python}{with}-sats).
+
+  \textbf{Vad som hålls invariant}: Själva filoperationerna
+  (\mintinline{python}{read()}, \mintinline{python}{write()}).
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOOperations} \textbf{och}
+  \cref{FilesLOContextMgr}:
+  \begin{itemize}
+    \item \textbf{Resurshantering krävs}: Filer är systemresurser som måste
+      frigöras explicit. Till skillnad från vanliga variabler räcker det inte
+      att objektet försvinner --- \mintinline{python}{close()} måste anropas.
+    \item \textbf{Kontexthanterare löser problemet}: \mintinline{python}{with}
+      garanterar att \mintinline{python}{close()} anropas automatiskt när blocket
+      lämnas, även om ett exception uppstår. Detta följer mönstret
+      \enquote{resurshantering som syntax}.
+  \end{itemize}
+
+  \textbf{Pedagogisk sekvens}: Visa explicit metod först för att göra problemet
+  synligt (glömma \mintinline{python}{close()}, undantag), sedan
+  \mintinline{python}{with} som lösning. Kontrasten gör värdet av
+  kontexthanterare urskiljbart \parencite{MartonPang2006}.
+}
 
 \begin{frame}[fragile]
   \begin{example}[open\textunderscore close.py, del 1]
+    Manuell filhantering med \mintinline{python}{open()} och \mintinline{python}{close()}:
     \inputminted[firstline=3,lastline=16,firstnumber=3]{python}{examples/open_close.py}
   \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    Vad händer om ett exception uppstår mellan \mintinline{python}{open()} och
+    \mintinline{python}{close()}?
+
+    Hur kan vi garantera att filen alltid stängs korrekt, även om något går fel
+    under bearbetningen?
+  \end{exercise}
 \end{frame}
 
 %\begin{frame}
@@ -79,128 +349,467 @@ file.close()
 %\end{frame}
 
 \begin{frame}[fragile]
-  \begin{minted}[numbers=none,fontsize=\Large]{python}
-with open("filename", "r") as file:
-  print(file.read())
-  \end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
   \begin{example}[open\textunderscore close.py, del 2]
+    Automatisk filhantering med \mintinline{python}{with}-satsen:
     \inputminted[firstline=17,lastline=27,firstnumber=17]{python}{examples/open_close.py}
   \end{example}
 \end{frame}
 
+\begin{frame}
+  \mode<presentation>{%
+    \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+      \begin{itemize}
+        \item \mintinline{python}{with}: Filen stängs \emph{alltid}, även vid exception
+        \item Manuell hantering: Risk att filen lämnas öppen vid fel
+        \item \mintinline{python}{with} implementerar kontexthanterare-protokollet
+        \item Automatisk \mintinline{python}{close()} när blocket lämnas
+      \end{itemize}
+    \end{remark}
+  }
+  \mode<article>{%
+    \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+      Båda metoderna fungerar när allt går som planerat. Men
+      \mintinline{python}{with}-satsen har en avgörande fördel: den garanterar
+      att filen \emph{alltid} stängs korrekt, även om ett exception uppstår.
+
+      Med manuell hantering riskerar vi att filen lämnas öppen om något går fel
+      mellan \mintinline{python}{open()} och \mintinline{python}{close()}.
+      \mintinline{python}{with}-satsen implementerar kontexthanterare-protokollet
+      och anropar \mintinline{python}{close()} automatiskt när blocket lämnas.
+    \end{remark}
+  }
+\end{frame}
+
+\begin{frame}
+  \begin{remark}[Koppling till terminal-I/O]
+    Filoperationer följer samma princip som
+    \mintinline{python}{print()}/\mintinline{python}{input()}: strukturera data
+    för ett syfte. Skillnaden är destinationen (fil istället för terminal) och
+    att filer kräver explicit öppning och stängning.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  \textbf{Placering av generalisering}: Denna remark kommer \emph{efter} att
+  studenter har sett konkreta exempel på filhantering med
+  \mintinline{python}{open()}, \mintinline{python}{close()}, och
+  \mintinline{python}{with}. Enligt variationsteori måste exempel föregå
+  generaliseringar för att mönstret ska bli urskiljbart
+  \parencite{MartonPang2006}.
+}
+
 \subsection{Läsa och skriva}
 
-\begin{frame}[fragile]
-  \begin{example}<+->[write\textunderscore file.py]
-    \inputminted[firstline=5,lastline=9,firstnumber=5]{python}{examples/write_file.py}
-  \end{example}
+Nu när vi vet hur vi öppnar och stänger filer ska vi titta på de grundläggande operationerna: att läsa data från en fil och att skriva data till en fil. Precis som \mintinline{python}{input()} läser från terminalen och \mintinline{python}{print()} skriver till terminalen, används \mintinline{python}{file.read()} för att läsa från en fil och \mintinline{python}{file.write()} för att skriva till en fil.
 
-  \begin{example}<+->[read\textunderscore file.py]
-    \inputminted[firstline=5,lastline=11,firstnumber=5]{python}{examples/read_file.py}
-  \end{example}
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOOperations}
+
+  \textbf{Variationsmönster}: Separation + Generalisering
+
+  \textbf{Separation av operationsriktning}: Varierar operation (read vs write)
+  och filläge (\mintinline{python}{"r"} vs \mintinline{python}{"w"}).
+  Invariant: Filhanteringsmönster (öppna-operera-stäng). Studenten måste urskilja
+  att läsning och skrivning är duala operationer med samma struktur men motsatt
+  datariktning.
+
+  \textbf{Generalisering från terminal-I/O}: \mintinline{python}{file.read()}
+  motsvarar \mintinline{python}{input()}, \mintinline{python}{file.write()}
+  motsvarar \mintinline{python}{print()}. Samma princip, olika destination.
+
+  \textbf{Separation av granularitet}: Flera läsmetoder för
+  \cref{FilesLOOperations}: \mintinline{python}{file.read()} (hela filen),
+  \mintinline{python}{for line in file} (rad för rad). Olika granularitet,
+  samma underliggande operation. Studenten väljer metod baserat på datastruktur
+  och minnesbegränsningar.
+
+  \textbf{Pedagogisk sekvens}: Skrivning först (skapar data), sedan läsning
+  (konsumerar data). Detta ger konkret innehåll att arbeta med och gör
+  operationernas syfte tydligt \parencite{Marton2015}.
+
+  \textbf{Bildframväxt över flera frames}: Läsmetoderna byggs upp stegvis ---
+  först \mintinline{python}{read()} (hela filen), sedan radvis iteration, och
+  slutligen visas de sida vid sida för att stödja valövningen nedan.
+  Upprepningen av samma kodutsnitt är avsiktlig: kontrasten mellan metoderna
+  blir urskiljbar först när båda syns samtidigt \parencite{MartonPang2006}.
+}
+
+\begin{frame}[fragile]
+  \begin{uncoverenv}<+->
+    \begin{example}[write\textunderscore file.py]
+      Skriva text till en fil med \mintinline{python}{write()}:
+      \inputminted[firstline=31,lastline=36,firstnumber=31]{python}{examples/write_file.py}
+    \end{example}
+  \end{uncoverenv}
+
+  \begin{uncoverenv}<+->
+    \begin{example}[read\textunderscore file.py]
+      Läsa hela filinnehållet med \mintinline{python}{read()}:
+      \inputminted[firstline=23,lastline=29,firstnumber=23]{python}{examples/read_file.py}
+    \end{example}
+  \end{uncoverenv}
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}<+->[write\textunderscore file.py]
-    \inputminted[firstline=5,lastline=9,firstnumber=5]{python}{examples/write_file.py}
-  \end{example}
+  \begin{uncoverenv}<+->
+    \begin{example}[write\textunderscore file.py]
+      Skriva text till en fil:
+      \inputminted[firstline=31,lastline=36,firstnumber=31]{python}{examples/write_file.py}
+    \end{example}
+  \end{uncoverenv}
 
   \begin{example}[read\textunderscore file.py]
-    \inputminted[firstline=16,lastline=20,firstnumber=5,highlightlines={7-8}]{python}{examples/read_file.py}
+    Iterera över filen rad för rad:
+    \inputminted[firstline=16,lastline=20,firstnumber=16,highlightlines={18-19}]{python}{examples/read_file.py}
   \end{example}
 \end{frame}
 
+\begin{frame}
+  \begin{exercise}
+    Vi har sett två sätt att läsa från filer: \mintinline{python}{file.read()}
+    (hela filen) och iteration rad för rad.
+
+    När bör vi använda vilket? Tänk särskilt på SCB-exemplet med miljontals
+    namnposter --- vilket sätt är lämpligast där, och varför?
+  \end{exercise}
+\end{frame}
+
 \begin{frame}[fragile]
-  \begin{example}<+->[read\textunderscore file.py]
-    \inputminted[firstline=5,lastline=11,firstnumber=5,highlightlines={7-10}]{python}{examples/read_file.py}
-  \end{example}
+  \begin{uncoverenv}<+->
+    \begin{example}[read\textunderscore file.py]
+      Läsa hela filen och bearbeta innehållet:
+      \inputminted[firstline=23,lastline=29,firstnumber=23,highlightlines=27]{python}{examples/read_file.py}
+    \end{example}
+  \end{uncoverenv}
 
   \begin{example}[read\textunderscore file.py]
-    \inputminted[firstline=16,lastline=20,firstnumber=5,highlightlines={7-8}]{python}{examples/read_file.py}
+    Iterera rad för rad (mer minneseffektivt):
+    \inputminted[firstline=16,lastline=20,firstnumber=16,highlightlines={18-19}]{python}{examples/read_file.py}
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{example}<+->[write\textunderscore file.py]
-    \inputminted[firstline=5,lastline=9,firstnumber=5,highlightlines=8]{python}{examples/write_file.py}
-  \end{example}
+\begin{frame}
+  \begin{remark}[Val av läsmetod]
+    Använd \mintinline{python}{file.read()} för små filer där hela innehållet
+    behövs samtidigt. Använd iteration (\mintinline{python}{for line in file})
+    för stora filer --- detta är mer minneseffektivt eftersom endast en rad i
+    taget laddas i primärminnet.
+  \end{remark}
+\end{frame}
 
-  \begin{example}<+->[write\textunderscore file.py]
-    \inputminted[firstline=14,lastline=18,firstnumber=5,highlightlines=8]{python}{examples/write_file.py}
-  \end{example}
+\ltnote{%
+  \textbf{Explicit svar på övningsfrågan}: Try-first pedagogik kräver att vi
+  alltid besvarar den ställda frågan explicit. Studenten behöver bekräftelse
+  eller korrigering av sin förutsägelse för att kontrasten ska bli meningsfull.
+}
+
+\begin{frame}[fragile]
+  \begin{uncoverenv}<+->
+    \begin{example}[write\textunderscore file.py]
+      Observera att \mintinline{python}{write()} inte lägger till radbrytningar automatiskt:
+      \inputminted[firstline=31,lastline=36,firstnumber=31,highlightlines={33-34}]{python}{examples/write_file.py}
+    \end{example}
+  \end{uncoverenv}
+
+  \begin{uncoverenv}<+->
+    \begin{example}[write\textunderscore file.py]
+      Använda \mintinline{python}{"a"} för att lägga till i slutet av filen:
+      \inputminted[firstline=5,lastline=9,firstnumber=5,highlightlines=6]{python}{examples/write_file.py}
+    \end{example}
+  \end{uncoverenv}
+\end{frame}
+
+I exemplen ovan ser vi flera viktiga saker. När vi skriver till en fil använder vi \mintinline{python}{file.write()}, som fungerar nästan som \mintinline{python}{print()}, men med en viktig skillnad: \mintinline{python}{write()} lägger \emph{inte} till radbrytningar automatiskt. Om vi vill ha radbrytningar måste vi själva lägga till \mintinline{python}{'\n'}.
+
+När vi läser från en fil kan vi antingen använda \mintinline{python}{file.read()} för att läsa hela innehållet som en enda sträng, eller iterera över filen rad för rad med en \mintinline{python}{for}-loop. Den senare metoden är ofta mer minneseffektiv för stora filer eftersom vi inte behöver ladda allt i minnet samtidigt.
+
+\begin{frame}
+  \begin{remark}[Fillägen]
+    I exemplen ovan såg vi olika lägen när vi öppnade filer:
+    \begin{description}
+      \item[\mintinline{python}{"r"}] Läsning (\foreignlanguage{english}{read})
+      \item[\mintinline{python}{"w"}] Skrivning (\foreignlanguage{english}{write})
+      \item[\mintinline{python}{"a"}] Lägga till i slutet (\foreignlanguage{english}{append})
+    \end{description}
+    Läget avgör vilka operationer som är tillåtna på filen.
+  \end{remark}
 \end{frame}
 
 \subsection{Typer av filer}
 
+Hittills har vi arbetat med textfiler --- filer som innehåller läsbar text. Men inte alla filer är textfiler. Bilder, videor, och komprimerade filer är exempel på \emph{binärfiler} som innehåller data i ett format som inte är direkt läsbart som text.
+
+Python skiljer mellan dessa två typer av filer, och vi måste ange rätt läge när vi öppnar dem.
+
 \begin{frame}
-  \begin{remark}[Två typer av filer]
-    \begin{description}
-      \item[Textfiler] Antar \enquote{läsbara tecken}, rader bryts med 
-        \mintinline{python}{'\n'}.
-      \item[Binärfiler] Ingen struktur.
-    \end{description}
-  \end{remark}
+  \begin{exercise}
+    Varför måste Python skilja mellan textfiler och binärfiler?
+
+    Tänk på vad som händer när Python läser en textfil: varje byte tolkas som
+    en bokstav (teckenkodning). Fungerar det för en bildfil? Vad händer om vi
+    försöker läsa en \texttt{.jpg}-fil som text?
+  \end{exercise}
+\end{frame}
+
+Svaret på frågan ovan är att Python i textläge tolkar varje byte enligt en teckenkodning (oftast UTF-8) för att bygga upp en sträng. För en bildfil fungerar det inte: bytesekvensen i en \texttt{.jpg} följer ingen teckenkodning, så försöket att avkoda den misslyckas typiskt med ett \mintinline{python}{UnicodeDecodeError} --- eller, i värsta fall, ger tyst korrupta data. Det är därför vi måste tala om för Python huruvida en fil ska hanteras som text eller som rå binärdata.
+
+För textfiler använder vi lägena \mintinline{python}{"r"}, \mintinline{python}{"w"}, och \mintinline{python}{"a"}. För binärfiler lägger vi till ett \mintinline{python}{"b"}: \mintinline{python}{"rb"}, \mintinline{python}{"wb"}, \mintinline{python}{"ab"}.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOFileTypes}
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Filtyp (text vs binär) och datastruktur
+  (radbrytningar/tecken vs rå bytes).
+
+  \textbf{Vad som hålls invariant}: Grundläggande filhanteringsoperationer
+  (\mintinline{python}{open()}, \mintinline{python}{read()},
+  \mintinline{python}{write()}, \mintinline{python}{close()}).
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOFileTypes}:
+  \begin{itemize}
+    \item \textbf{Textfilers struktur}: Innehåller läsbara tecken med implicit
+      struktur (radbrytningar \mintinline{python}{'\n'}, teckenkodning).
+      Exempel: källkod, CSV, konfigurationsfiler. Python hanterar
+      teckenkodning automatiskt.
+    \item \textbf{Binärfilers råhet}: Inga antaganden om struktur, ren
+      bytesekvens. Exempel: bilder, video, komprimerade filer. Programmet
+      måste känna till formatspecifikationen.
+    \item \textbf{Lägesval påverkar hantering}: \mintinline{python}{"r"}/\mintinline{python}{"w"}
+      för text (Python hanterar kodning), \mintinline{python}{"rb"}/\mintinline{python}{"wb"}
+      för binär (rå bytes). Fel val ger korrupta data.
+  \end{itemize}
+
+  \textbf{Pedagogisk resurs}: Dokumentationsbild visar alla tillgängliga lägen
+  som referensverktyg för korrekt val.
+}
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentation för \mintinline{python}{open()} visar alla fillägen}[fig:docs-open]
+      \includegraphics[width=0.7\textwidth]{figs/docs-open.png}
+    \end{sidecaption}
+  \end{figure}
 \end{frame}
 
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-open.png}
+  \begin{remark}[Två typer av filer]
+    Dokumentationen visar att Python skiljer mellan två fundamentalt olika filtyper:
+    \begin{description}
+      \item[Textfiler] Använder lägen \mintinline{python}{"r"}, \mintinline{python}{"w"}, \mintinline{python}{"a"}.
+        Antar \enquote{läsbara tecken}, rader bryts med \mintinline{python}{'\n'}.
+      \item[Binärfiler] Lägger till \mintinline{python}{"b"}: \mintinline{python}{"rb"}, \mintinline{python}{"wb"}, \mintinline{python}{"ab"}.
+        Ingen struktur, rå bytes.
+    \end{description}
+  \end{remark}
 \end{frame}
 
 
 \section{Filformat}
 
-\begin{frame}[fragile]
-  \begin{remark}
-    \begin{itemize}
-      \item Att läsa från filer är som att gå i bäcksvarta mörkret.
-      \item Vi måste veta exakt var alla saker finns.
-    \end{itemize}
-  \end{remark}
-\end{frame}
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOCSV}
+
+  \textbf{Variationsmönster}: Generalisering + Kontrast
+
+  \textbf{Generalisering från terminal-I/O}: Precis som \mintinline{python}{print()}
+  kräver formatering (f-strängar, kommatecken mellan argument), kräver filer
+  format för strukturerad data. Invariant: Behovet att strukturera data för
+  ett syfte. Varierar: Destination och varaktighet (terminal vs fil).
+
+  \textbf{Kontrast mellan egna och standardformat}: Varierar komplexitet och
+  robusthet (eget enkelt format vs CSV-standard). Invariant: Målet att lagra
+  tabelldata.
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOCSV}:
+  \begin{itemize}
+    \item \textbf{Struktureringsprincipen}: Rådata i fil är meningslöst utan
+      överenskommet format. Studenten måste urskilja att formatet är en
+      \emph{konvention} mellan skrivare och läsare.
+    \item \textbf{Standardformat överlägset}: Egen parsing fragil (kommatecken
+      i data? citationstecken?). CSV-standarden löser edge cases. Modulen
+      \mintinline{python}{csv} implementerar standarden korrekt.
+    \item \textbf{Separation av format och innehåll}: CSV definierar struktur,
+      inte semantik. Samma format för olika domäner (namn, tal, datum).
+  \end{itemize}
+
+  \textbf{Pedagogisk progression}: Eget enkelt format först (exponerar problemet),
+  sedan CSV som lösning. Kontrasten gör standardformats värde urskiljbart
+  \parencite{MartonPang2006}.
+  Sekvens: SCB-aktivitet (uppleva problemet) $\to$ metafor (artikulera problemet)
+  $\to$ eget format (xy.py) $\to$ CSV-dokumentation $\to$ CSV-implementation.
+}
+
+Att kunna läsa och skriva filer är en sak, men \emph{hur} ska vi strukturera
+informationen i filerna? Detta är en fundamental fråga som vi måste besvara
+varje gång vi arbetar med filer.
 
 \begin{frame}
-  \begin{exercise}[SCB\footnote{Idé: Olle Bälter}]
-    \begin{itemize}
-      \item SCB Namnsök\footnote{%
-          URL: \url{https://www.scb.se/hitta-statistik/sverige-i-siffror/namnsok/}
-        }
-      \item Ladda ner statistikfilen.
-      \item Skriv ett program som gör samma sak som webbsidans funktionalitet.
-    \end{itemize}
-  \end{exercise}
+  \mode<presentation>{%
+    \begin{activity}[SCB]
+      Besök SCB Namnsök\footnote{%
+        URL: \url{https://www.scb.se/hitta-statistik/sverige-i-siffror/namnsok/}
+      }, ladda ner statistikfilen, och skriv ett program som gör samma sak som
+      webbsidans funktionalitet.
+
+      {\small Idé: Olle Bälter}
+    \end{activity}
+  }
+  \mode<article>{%
+    \begin{activity}[SCB]
+      Idé: Olle Bälter\footnote{Ursprunglig övningsidé från Olle Bälter.}
+
+      SCB Namnsök\footnote{%
+        URL: \url{https://www.scb.se/hitta-statistik/sverige-i-siffror/namnsok/}
+      } tillhandahåller statistik om namnfrekvenser i Sverige.
+      Ladda ner statistikfilen och skriv ett program som gör samma sak som
+      webbsidans funktionalitet.
+    \end{activity}
+  }
 \end{frame}
+
+\ltnote{%
+  \textbf{Try-first aktivitet}: SCB-övningen låter studenter \emph{uppleva}
+  problemet med ostrukturerad data innan vi förklarar varför filformat behövs.
+  De kommer att upptäcka att filen har en specifik struktur (CSV) som de måste
+  förstå för att kunna parsa den korrekt. Detta skapar motiverad kontext för
+  efterföljande förklaring om filformat.
+}
+
+\mode<article>{%
+Tänk dig att du får en textfil med tusentals rader text. Var finns
+telefonnumren? Var finns adresserna? Vilka delar hör ihop? Utan en tydlig
+struktur är det som att gå i bäcksvarta mörkret --- vi vet inte var vi ska leta
+efter informationen vi behöver.
+
+Detta problem löser vi med \emph{filformat}: överenskommelser om hur data ska
+organiseras i en fil. Ett filformat är som ett kontrakt mellan programmet som
+skriver filen och programmet som läser den. Båda måste förstå samma struktur
+för att kommunikationen ska fungera.
+
+SCB-övningen ovan är ett utmärkt exempel på varför filformat är viktiga. SCB
+tillhandahåller data om namnfrekvenser i en fil, men för att kunna använda den
+måste vi förstå hur informationen är strukturerad. Var finns namnet? Var finns
+antalet personer? Hur separeras olika poster från varandra?
+}
 
 \subsection{Egna filformat}
 
+Vi kan börja med att skapa våra egna enkla filformat. Låt säga att vi vill spara koordinatpar (x, y) i en fil. En enkel lösning är att skriva ett koordinatpar per rad, med x och y separerade av ett kommatecken.
+
 \begin{frame}[fragile]
   \begin{example}[xy.py]
+    Skriva koordinatpar till fil med eget format:
     \inputminted[firstline=3,lastline=10,firstnumber=3]{python}{examples/xy.py}
   \end{example}
 \end{frame}
 
+I exemplet ovan ser vi hur vi kan skriva koordinatpar till en fil. Varje par skrivs på en egen rad med formatet \texttt{x,y}. Detta är ett enkelt \emph{eget filformat} som vi själva har definierat.
+
 \begin{frame}[fragile]
   \begin{example}[xy.py]
+    Läsa och tolka koordinatpar från fil:
     \inputminted[firstline=12,lastline=26,firstnumber=12]{python}{examples/xy.py}
   \end{example}
 \end{frame}
 
-\subsection{Mer komplexa standarder}
+När vi läser tillbaka filen måste vi tolka strukturen: dela upp varje rad vid kommatecknet, konvertera delarna till tal, och återskapa koordinatparen.
 
 \begin{frame}
-  \includegraphics[width=\columnwidth]{figs/docs-csv.png}
+  \begin{exercise}
+    Detta enkla format fungerar för koordinatpar, men vilka problem kan uppstå?
+
+    Tänk på: Vad händer om vi vill spara personnamn och e-postadresser istället?
+    Kan ett namn innehålla kommatecken (t.ex. \enquote{Andersson, Eva})?
+    Kan en e-postadress innehålla kommatecken? Hur skulle vi hantera
+    citattecken i data?
+  \end{exercise}
 \end{frame}
+
+Detta fungerar för enkla fall, men snabbt blir vårt egendesignade format otillräckligt när data blir mer komplex.
+
+\subsection{Mer komplexa standarder}
+
+Istället för att uppfinna egna format för vanliga behov är det mycket bättre att använda \emph{standardformat} --- välkända och väl testade format som många program förstår. Ett av de vanligaste formaten för tabelldata är CSV (\foreignlanguage{english}{Comma-Separated Values}).
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentation för \mintinline{python}{csv}-modulen visar CSV-hantering}[fig:docs-csv]
+      \includegraphics[width=0.7\textwidth]{figs/docs-csv.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+CSV är ett standardformat som Python har inbyggt stöd för genom \mintinline{python}{csv}-modulen. Fördelen med att använda denna modul istället för att själv dela upp strängar vid kommatecken är att CSV-modulen hanterar alla specialfall korrekt: citattecken, kommatecken inuti fält, olika radbrytningar, och så vidare.
+
+Låt oss se hur vi kan skriva samma koordinatpar-exempel med CSV-formatet:
 
 \begin{frame}[fragile]
   \begin{example}[xy\textunderscore csv.py]
+    Skriva koordinatpar med CSV-modulen:
     \inputminted[firstline=3,lastline=13,firstnumber=3,highlightlines={3,11,13}]{python}{examples/xy_csv.py}
   \end{example}
 \end{frame}
 
+Notera hur vi använder \mintinline{python}{csv.writer()} för att skapa ett skrivare-objekt som tar hand om all formatering åt oss. Vi behöver bara anropa \mintinline{python}{writer.writerow()} med en lista av värden, och CSV-modulen ser till att de skrivs korrekt.
+
 \begin{frame}[fragile]
   \begin{example}[xy\textunderscore csv.py]
+    Läsa CSV-fil med \mintinline{python}{csv.reader()}:
     \inputminted[firstline=15,lastline=26,firstnumber=15,highlightlines={18,20}]{python}{examples/xy_csv.py}
   \end{example}
 \end{frame}
+
+På samma sätt använder vi \mintinline{python}{csv.reader()} för att läsa CSV-filer. Modulen tar hand om all parsning och ger oss en lista av värden för varje rad. Detta är mycket säkrare och mer robust än vår egen implementation med \mintinline{python}{split(',')}.
+
+\begin{frame}
+  \mode<presentation>{%
+    \begin{activity}[Telefonbok med CSV]
+      Skapa ett program som hanterar en telefonbok:
+      \begin{enumerate}
+        \item Läs befintliga kontakter från \texttt{contacts.csv}
+        \item Låt användaren lägga till nya kontakter
+        \item Spara tillbaka till filen
+      \end{enumerate}
+      Tänk på: Vad händer om ett namn innehåller kommatecken?
+      Testa med \enquote{Svensson, Anna} och se hur CSV-modulen hanterar det.
+    \end{activity}
+  }
+  \mode<article>{%
+    \begin{activity}[Telefonbok med CSV]
+      Skapa ett program som hanterar en telefonbok:
+      \begin{enumerate}
+        \item Läs befintliga kontakter från \texttt{contacts.csv}
+        \item Låt användaren lägga till nya kontakter (namn och telefonnummer)
+        \item Spara alla kontakter tillbaka till filen
+      \end{enumerate}
+
+      \textbf{Utmaning}: Vad händer om ett namn innehåller kommatecken, till
+      exempel \enquote{Svensson, Anna}? Testa att lägga till en sådan kontakt
+      och se hur CSV-modulen hanterar det. Jämför med vad som skulle hända om du
+      använde enkel \mintinline{python}{split(',')} istället.
+    \end{activity}
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOOperations}, \cref{FilesLOContextMgr},
+  \cref{FilesLOCSV}.
+  Hands-on aktivitet som integrerar alla lärandemål: det bekanta
+  telefonboksexemplet (dict) utökas med filpersistens, och kommatecken-frågan
+  låter studenten \emph{upptäcka} CSV-modulens robusthet (try-first).
+}
+
+Den viktigaste lärdomen här är att \emph{formatering och struktur är lika viktigt för filer som för terminalutskrift}. Precis som vi måste tänka på hur vi formaterar output med \mintinline{python}{print()}, måste vi tänka på hur vi strukturerar data i filer. Skillnaden är att för filer finns det ofta etablerade standarder vi kan använda, vilket gör våra program mer kompatibla och robusta.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOCSV}.
+  Avslutande generalisering: efter variationen (eget format $\to$ CSV)
+  artikuleras principen att \emph{standardformat är mer robusta än egna
+  format} --- formatet är en konvention mellan skrivare och läsare, och
+  standardmoduler hanterar edge cases som egen parsing missar.
+}

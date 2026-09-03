@@ -7,7 +7,7 @@ def main_write():
     xy_pairs = zip(x_list, y_list)
     with open("xy.txt", "w") as file:
         for x_val, y_val in xy_pairs:
-            file.write(f"{x_val} -> {y_val}\n")
+            file.write(f"{x_val},{y_val}\n")
 
 def main_read():
     """ Reads a file of x, f(x) pairs """
@@ -17,7 +17,7 @@ def main_read():
     any_bad = False
     for line in lines:
         line = line.strip()
-        x_val, y_val = line.split(" -> ")
+        x_val, y_val = line.split(",")
         if f(int(x_val)) != int(y_val):
             print(f"{x_val} -/> {y_val}")
             any_bad = True

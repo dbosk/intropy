@@ -1,0 +1,699 @@
+\mode*
+
+\section{Inköpslistor med klasser}
+
+I detta avsnitt ska vi utforska hur klasser kan användas för att hantera 
+inköpslistor. Detta är ett praktiskt exempel som visar hur vi kan använda 
+klasser för att organisera data och funktionalitet på ett strukturerat sätt.
+
+\subsection{Problemformulering}
+
+\begin{exercise}
+  Skriv ett program som hanterar en inköpslista. Programmet ska kunna:
+  \begin{itemize}
+    \item Lägga till saker på listan
+    \item Lista alla varor
+    \item Bocka av enskilda saker
+    \item Ta bort alla avbockade saker
+  \end{itemize}
+  Vi ska kunna ha flera olika inköpslistor (exempelvis en för mat, en för 
+  andra saker).
+\end{exercise}
+
+\begin{exercise}
+  Innan du fortsätter läsa: Hur skulle du representera en inköpslista?
+  Tänk på vad en inköpslista är i verkligheten och vad den behöver kunna göra.
+\end{exercise}
+
+\subsection{Design och implementation}
+
+Vi kan använda en klass \mintinline{python}{ShoppingList} som lagrar varor 
+i en lämplig datastruktur, har metoder för att lägga till, visa och ta bort 
+varor, och håller koll på vilka varor som är avbockade.
+
+\begin{frame}[fragile]
+  \begin{example}[En enkel inköpslista]
+    Grundläggande klassstruktur med lista:
+    \inputminted[linenos,firstline=3,lastline=14]{python}{examples/shopping.py}
+  \end{example}
+\end{frame}
+
+Här ser vi en grundläggande implementation. Klassen har ett attribut 
+\mintinline{python}{name} för listans namn och ett attribut 
+\mintinline{python}{items} som är en lista av uppslagslistor. Varje vara 
+representeras av en uppslagslista med nycklarna \mintinline{python}{"name"} 
+och \mintinline{python}{"checked"}.
+
+\begin{exercise}
+  Varför använder vi en lista av uppslagslistor istället för bara en lista 
+  av strängar? Vilka fördelar ger det?
+\end{exercise}
+
+Genom att använda uppslagslistor kan vi lagra mer information om varje vara 
+än bara namnet. I detta fall lagrar vi även om varan är avbockad eller inte.
+
+\begin{frame}[fragile]
+  \begin{example}[Fler metoder för ShoppingList]
+    Bocka av och ta bort:
+    \inputminted[linenos,firstline=16,lastline=22]{python}{examples/shopping.py}
+  \end{example}
+\end{frame}
+
+Metoden \mintinline{python}{check_item()} tar ett index och bockar av varan 
+på den positionen. Metoden \mintinline{python}{remove_checked()} använder en 
+list comprehension för att skapa en ny lista som bara innehåller varor som 
+inte är avbockade.
+
+\begin{exercise}
+  Hur skulle du implementera en metod för att bocka av en vara baserat på 
+  varans namn istället för index?
+\end{exercise}
+
+\begin{frame}[fragile]
+  \begin{example}[Användning av ShoppingList]
+    Skapa lista och hantera varor:
+    \inputminted[linenos,firstline=24,lastline=37]{python}{examples/shopping.py}
+  \end{example}
+\end{frame}
+
+\subsection{Flera listor}
+
+\begin{exercise}
+  Hur hanterar vi flera inköpslistor samtidigt?
+  Hur kan vi iterera genom flera listor och visa alla varor?
+\end{exercise}
+
+Vi kan använda en lista av \mintinline{python}{ShoppingList}-objekt. Detta 
+illustrerar ett viktigt koncept: vi kan ha behållare (listor) som innehåller 
+objekt av våra egna klasser.
+
+\begin{frame}[fragile]
+  \begin{example}[Hantera flera listor]
+    Listor av ShoppingList-objekt:
+    \inputminted[linenos,firstline=39,lastline=53]{python}{examples/shopping.py}
+  \end{example}
+\end{frame}
+
+\begin{exercise}
+  Hur skulle du förbättra klassen \mintinline{python}{ShoppingList}?
+  Tänk på:
+  \begin{itemize}
+    \item Hur hanterar vi dubbletter av samma vara?
+    \item Ska vi kunna bocka av en vara flera gånger?
+    \item Vore det bra att ha en \mintinline{python}{__str__}-metod?
+  \end{itemize}
+\end{exercise}
+
+\subsection{Att representera varor: Uppslagslistor eller klass?}
+
+Vi har använt uppslagslistor för att representera varor i vår inköpslista.
+Men är det det bästa sättet? Låt oss undersöka alternativen.
+
+\ltnote{%
+  \textbf{Lärandemål:}
+  \begin{enumerate}
+    \item Studenter ska kunna discernera när man ska använda uppslagslistor
+      vs klasser för datarepresentation
+    \item Studenter ska kunna identifiera avvägningen mellan
+      flexibilitet/enkelhet och struktur/säkerhet
+    \item Studenter ska kunna motivera sitt designval baserat på kontext
+      (programstorlek, komplexitet, teamstorlek)
+  \end{enumerate}
+
+  \textbf{Pedagogisk strategi:}
+
+  Vi introducerar här en viktig designfråga: när ska man använda enklare
+  datastrukturer (uppslagslistor) vs klasser? Detta följer variation theory's
+  contrast pattern: genom att visa samma funktionalitet implementerad på två
+  olika sätt kan studenter discernera den kritiska skillnaden mellan
+  flexibilitet/enkelhet och struktur/säkerhet.
+
+  \textbf{Koppling till lärandemål:} Variationsmönstret (contrast) stödjer
+  direkt mål 1 och 2. Genom att variera implementationsapproach medan
+  funktionaliteten förblir invariant kan studenter discernera de kritiska
+  aspekterna som skiljer dessa val åt.
+
+  Frågan ställs INNAN vi visar lösningen, enligt try-first pedagogy, för att
+  aktivera studenters tänkande om designavvägningar (stödjer mål 3).
+}
+
+\begin{exercise}
+  I vår nuvarande implementation representerar vi varje vara som en
+  uppslagslista: \mintinline{python}{{"name": "mjölk", "checked": False}}.
+
+  Vilka för- och nackdelar finns med detta approach jämfört med att skapa
+  en egen \mintinline{python}{Item}-klass för varorna?
+\end{exercise}
+
+\begin{frame}[fragile]
+  \begin{example}[Nuvarande: Varor som uppslagslistor]
+    Från vår ShoppingList-klass:
+    \inputminted[linenos,firstline=8,lastline=14]{python}{examples/shopping.py}
+  \end{example}
+\end{frame}
+
+Här ser vi att varje vara är en uppslagslista med nycklarna
+\mintinline{python}{"name"} och \mintinline{python}{"checked"}.
+När vi ska använda varan måste vi komma ihåg nyckelnamnen exakt.
+
+\begin{exercise}
+  Vad händer om vi råkar skriva \mintinline{python}{item["namn"]} istället för
+  \mintinline{python}{item["name"]}? Kommer vi upptäcka felet direkt?
+\end{exercise}
+
+Detta är ett vanligt problem med uppslagslistor: stavfel i nyckelnamn upptäcks
+först vid körtid, när koden faktiskt exekveras. Låt oss se hur en
+\mintinline{python}{Item}-klass kan förbättra situationen.
+
+\begin{frame}[fragile]
+  \begin{example}[Alternativ: En Item-klass]
+    En separat klass för varor:
+    \inputminted[linenos,firstline=3,lastline=28]{python}{examples/shopping_with_items.py}
+  \end{example}
+\end{frame}
+
+Nu har vi inkapsling av vara-information i en egen klass. Varje
+\mintinline{python}{Item} har privata attribut och publika egenskaper
+för att läsa dem. Metoden \mintinline{python}{__str__()} gör det enkelt
+att skriva ut varan.
+
+\begin{frame}[fragile]
+  \begin{example}[Uppdaterad ShoppingList]
+    Nu använder ShoppingList Item-objekt:
+    \inputminted[linenos,firstline=31,lastline=54]{python}{examples/shopping_with_items.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till förändringarna:
+\begin{description}
+  \item[add\_item()] Skapar nu \mintinline{python}{Item}-objekt istället för
+    uppslagslistor
+  \item[list\_items()] Använder \mintinline{python}{Item.__str__()} automatiskt
+    för att visa varje vara
+  \item[check\_item()] Anropar \mintinline{python}{item.check()} istället för
+    att ändra uppslagslistan direkt
+  \item[remove\_checked()] Använder \mintinline{python}{item.checked}
+    (egenskap) istället för \mintinline{python}{item["checked"]}
+\end{description}
+
+\begin{frame}
+  \begin{block}{Jämförelse: Uppslagslistor vs Item-klass}
+    \textbf{Med uppslagslistor} (\mintinline{python}{{"name": "...", "checked": False}}):
+    \begin{itemize}
+      \item[+] Snabbt att skriva initialt
+      \item[+] Flexibelt (kan lägga till nycklar dynamiskt)
+      \item[−] Stavfel i nyckelnamn upptäcks sent (körtid)
+      \item[−] Ingen inkapsling av logik
+      \item[−] Ingen IDE-hjälp (autocomplete, typkontroll)
+      \item[−] Svårare att utöka med mer funktionalitet
+    \end{itemize}
+
+    \vspace{0.5em}
+
+    \textbf{Med Item-klass}:
+    \begin{itemize}
+      \item[+] Tydligt interface med metoder
+      \item[+] Stavfel upptäcks tidigt (av IDE/interpreter)
+      \item[+] Kan lägga till validering och logik
+      \item[+] IDE kan ge autocomplete
+      \item[+] Lättare att utöka (nya metoder, nya attribut)
+      \item[−] Mer initial kod att skriva
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\ltnote{%
+  \textbf{Relation till lärandemål:}
+
+  Denna jämförelse adresserar direkt:
+  \begin{itemize}
+    \item \textbf{Mål 1} (när använda uppslagslistor vs klasser): För-/nackdelslistan
+      ger konkreta kriterier för beslutsfattande
+    \item \textbf{Mål 2} (identifiera avvägningar): Kontrasten gör avvägningen
+      mellan flexibilitet/enkelhet och struktur/säkerhet explicit och synlig
+  \end{itemize}
+
+  \textbf{Variationsmönster: Contrast}
+
+  \textbf{Vad varierar:} Hur vi representerar varor (uppslagslista vs klass)
+
+  \textbf{Vad förblir invariant:} Vilken information vi lagrar (namn och
+  avbockningsstatus) och vilken funktionalitet vi behöver
+
+  \textbf{Kritiska aspekter studenter ska discernera (kopplade till mål):}
+  \begin{enumerate}
+    \item Avvägningsstrukturen: flexibilitet/enkelhet vs struktur/säkerhet
+      (Mål 2)
+    \item Kriterier för val: tidpunkt för felupptäckt, IDE-stöd,
+      utökningsbarhet, initial insats (Mål 1)
+    \item Inget universellt \enquote{bättre} val---kontext avgör (Mål 3)
+  \end{enumerate}
+
+  \textbf{Varför denna variation fungerar:} Enligt Marton \& Pang (2006)
+  varierar vi implementationsapproach medan funktionaliteten förblir invariant.
+  Detta gör de kritiska särskiljande egenskaperna (avvägningarna) discernerbara
+  eftersom studenter kan se EXAKT vad som ändras när man byter representation
+  medan allt annat förblir detsamma.
+
+  Utan denna kontrast kan studenter tänka att \enquote{klasser är alltid bättre} eller
+  \enquote{använd det som är enklast}. Jämförelsen sida vid sida tvingar uppmärksamhet
+  på de nyanserade avvägningar som styr verkliga designbeslut.
+}
+
+\begin{exercise}
+  Fundera över när det är lämpligt att använda uppslagslistor och när
+  det är bättre att skapa en egen klass. Några frågor att tänka på:
+  \begin{itemize}
+    \item Hur ofta används denna datastruktur i programmet?
+    \item Behövs metoder som arbetar med datan?
+    \item Är strukturen enkel och stabil, eller kommer den växa?
+  \end{itemize}
+\end{exercise}
+
+\ltnote{%
+  \textbf{Relation till lärandemål:}
+
+  Denna reflektionsövning adresserar direkt \textbf{Mål 3} (motivera designval
+  baserat på kontext). De tre vägledande frågorna operationaliserar den
+  abstrakta avvägningen till konkreta beslutskriterier:
+
+  \begin{description}
+    \item[Hur ofta används...?] → Relaterar till underhållsbörda och felpotential.
+      Mer användning → högre värde av klassstruktur
+    \item[Behövs metoder...?] → Kopplar till \enquote{beteende vs data}-distinktionen.
+      Behov av metoder → klasser blir lämpliga
+    \item[Kommer den växa?] → Framtida komplexitet. Förväntad tillväxt → klasser
+      hanterar förändring bättre
+  \end{description}
+
+  \textbf{Generalisering och transfer:}
+
+  Denna reflektionsfråga hjälper studenter att generalisera från det specifika
+  exemplet (Item-klass för inköpslista) till ett bredare designprincip. Frågorna
+  guidar deras tänkande mot de kritiska faktorerna: återanvändning, behov av
+  beteende (metoder), och förväntad evolution av koden.
+
+  Detta stödjer transfer av kunskap till nya situationer---studenter ska kunna
+  applicera detta designtänkande på andra problem, inte bara inköpslistor.
+
+  \textbf{Bedömningsmöjlighet:} Lyssna efter om studenter nämner kontextuella
+  faktorer (inte bara \enquote{klasser är bättre}). Om de säger \enquote{använd alltid klasser}
+  eller \enquote{använd alltid uppslagslistor}, undersök med motexempel: \enquote{Vad sägs om
+  konfigurationsdata från JSON?} eller \enquote{Vad sägs om ett komplext
+  användarprofilsystem?}
+}
+
+Som tumregel: Om du har en uppslagslista med fast struktur som används på
+många ställen i koden, överväg att göra den till en klass. Klasser ger bättre
+struktur, säkerhet och underhållbarhet---särskilt när programmet växer.
+
+I vårt fall med inköpslistor är \mintinline{python}{Item}-klassen förmodligen
+\enquote{overkill} för ett så enkelt program. Men om vi skulle lägga till
+funktioner som prioritet, kategori, antal, pris, etc., skulle
+\mintinline{python}{Item}-klassen snabbt bli mycket mer värd besväret.
+
+\section{Banksystem med sammansatta klasser}
+
+Nu ska vi bygga ett mer komplext system där flera klasser samverkar. 
+Vi ska skapa ett enkelt banksystem med konton och ägare. Detta exempel 
+illustrerar koncepten komposition och arv.
+
+\subsection{Personklassen}
+
+\begin{exercise}
+  Vi ska bygga ett banksystem. Ett bankkonto behöver information om sin 
+  ägare. Vilka attribut och metoder behöver en klass för att representera 
+  en person ha?
+\end{exercise}
+
+Vi börjar med att skapa en klass för att representera en person. En person 
+har ett namn och en ålder. Senare kan vi också lägga till andra attribut som 
+telefonnummer och adress.
+
+\begin{frame}[fragile]
+  \begin{example}[En enkel personklass]
+    Namn, ålder och strängrepresentation:
+    \inputminted[linenos,firstline=3,lastline=10]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+Denna enkla klass lagrar namn och ålder. Metoden \mintinline{python}{__str__} 
+gör det enkelt att skriva ut personen på ett läsbart sätt.
+
+\begin{exercise}
+  Om vi vill lägga till adressinformation, skulle du lägga till attributen 
+  \mintinline{python}{street}, \mintinline{python}{city} och 
+  \mintinline{python}{zipcode} direkt i Person-klassen, eller skulle du skapa 
+  en separat Address-klass? Motivera ditt val.
+\end{exercise}
+
+\subsection{Komposition: Person med adress}
+
+Vi kan använda \emph{komposition} för att lägga till adresser. Komposition 
+innebär att en klass innehåller objekt av en annan klass. Detta är ofta att 
+föredra framför att lägga till många attribut i en enda klass.
+
+\begin{frame}[fragile]
+  \begin{example}[Adressklass]
+    Gata, stad och postnummer:
+    \inputminted[linenos,firstline=12,lastline=19]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+Nu kan vi uppdatera Person-klassen för att använda Address-klassen:
+
+\begin{frame}[fragile]
+  \begin{example}[Person med adress]
+    Komposition av Address-objekt:
+    \inputminted[linenos,firstline=21,lastline=28]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+\begin{exercise}
+  Vad är fördelarna med att använda komposition (en separat Address-klass) 
+  istället för att lägga till street, city och zipcode som attribut direkt 
+  i Person-klassen?
+\end{exercise}
+
+Fördelarna med komposition inkluderar:
+\begin{itemize}
+  \item \textbf{Återanvändbarhet}: Address-klassen kan användas i andra 
+    sammanhang (företag, skolor, etc.).
+  \item \textbf{Modularitet}: Adresslogik kan ändras utan att påverka 
+    Person-klassen.
+  \item \textbf{Tydlighet}: Det är tydligt att adressen är en sammanhängande 
+    enhet.
+  \item \textbf{Validering}: Vi kan lägga till validering i Address-klassen 
+    (t.ex. kontrollera att postnumret har rätt format).
+\end{itemize}
+
+\subsection{Bankkontot}
+
+\begin{exercise}
+  Nu ska vi skapa själva bankkontot. Vilka attribut och metoder behöver 
+  ett bankkonto ha?
+\end{exercise}
+
+Ett bankkonto behöver hålla reda på vem som äger kontot (en Person) och hur 
+mycket pengar som finns på kontot (saldot). Vi behöver också metoder för att 
+sätta in och ta ut pengar. Uttag ska bara tillåtas om det finns tillräckligt 
+med pengar på kontot.
+
+\begin{frame}[fragile]
+  \begin{example}[Bankkontoklass]
+    Ägare, saldo och insättning:
+    \begin{minted}[fontsize=\small]{python}
+class BankAccount:
+    def __init__(self, owner, initial_balance=0):
+        self.owner = owner  # Ett Person-objekt
+        self.balance = initial_balance
+    
+    def deposit(self, amount):
+        if amount > 0:
+            self.balance += amount
+            return True
+        return False
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Här ser vi ett annat exempel på komposition: ett \mintinline{python}{BankAccount} 
+innehåller ett \mintinline{python}{Person}-objekt.
+
+\begin{exercise}
+  Varför returnerar \mintinline{python}{deposit}-metoden \mintinline{python}{True} 
+  eller \mintinline{python}{False}?
+\end{exercise}
+
+Genom att returnera en boolean kan anroparen veta om insättningen lyckades. 
+Detta gör det möjligt att hantera fel och ge användaren feedback om 
+insättningen inte kunde genomföras (till exempel om beloppet var negativt).
+
+\begin{frame}[fragile]
+  \begin{example}[Ta ut pengar från kontot]
+    Uttag med validering:
+    \begin{minted}{python}
+    def withdraw(self, amount):
+        if 0 < amount <= self.balance:
+            self.balance -= amount
+            return True
+        return False
+    
+    def __str__(self):
+        return f"Konto: {self.owner.name}\nSaldo: {self.balance} kr"
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Metoden \mintinline{python}{withdraw} kontrollerar att beloppet är positivt 
+och att det finns tillräckligt med pengar på kontot innan uttaget görs.
+
+\begin{exercise}
+  Vad händer om vi försöker ta ut mer pengar än vad som finns på kontot?
+  Kan du tänka dig andra sätt att hantera detta?
+\end{exercise}
+
+\begin{frame}[fragile]
+  \begin{example}[Använda banksystemet]
+    Skapa person, konto och transaktioner:
+    \inputminted[linenos,firstline=63,lastline=77]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+\subsection{Arv: Medborgare med personnummer}
+
+Nu ska vi se hur \emph{arv} kan användas för att utöka funktionalitet. 
+Arv innebär att vi skapar en ny klass baserad på en befintlig klass.
+
+\begin{exercise}
+  Om vi vill ha en specialiserad typ av person som också har ett 
+  personnummer, skulle du:
+  \begin{enumerate}[label=\alph*)]
+    \item Lägga till personnummer som attribut i Person-klassen?
+    \item Skapa en helt ny klass med all kod duplicerad?
+    \item Använda arv för att skapa en Citizen-klass som ärver från Person?
+  \end{enumerate}
+  Motivera ditt val.
+\end{exercise}
+
+Vi använder arv för att skapa en \mintinline{python}{Citizen}-klass som ärver 
+från \mintinline{python}{Person}. Detta betyder att \mintinline{python}{Citizen} 
+får alla attribut och metoder från \mintinline{python}{Person}, men kan lägga 
+till eller ändra funktionalitet.
+
+\begin{frame}[fragile]
+  \begin{example}[Medborgare med personnummer]
+    Arv från Person-klassen:
+    \inputminted[linenos,firstline=53,lastline=61]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+Här använder vi \mintinline{python}{super()} för att anropa föräldraklassens 
+metoder. Detta är viktigt för att inte duplicera kod.
+
+\begin{exercise}
+  Vad gör \mintinline{python}{super().__init__(name, age, address)}?
+  Varför är det bra att använda \mintinline{python}{super()} istället för 
+  att duplicera initialiseringskoden?
+\end{exercise}
+
+\mintinline{python}{super()} ger oss tillgång till föräldraklassen. Genom att 
+anropa \mintinline{python}{super().__init__()} säkerställer vi att 
+föräldraklassens initialiseringskod körs. Detta undviker kodduplikation och 
+gör det lättare att underhålla koden.
+
+\begin{frame}[fragile]
+  \begin{example}[Användning av Citizen]
+    Polymorfism i praktiken:
+    \inputminted[linenos,firstline=79,lastline=85]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+Eftersom \mintinline{python}{Citizen} är en \mintinline{python}{Person} 
+(genom arv), kan vi använda den överallt där en \mintinline{python}{Person} 
+förväntas. Detta kallas \emph{polymorfism}.
+
+\begin{exercise}
+  Varför fungerar det att skicka ett \mintinline{python}{Citizen}-objekt till 
+  \mintinline{python}{BankAccount} även om konstruktören förväntar sig en 
+  \mintinline{python}{Person}?
+\end{exercise}
+
+\section{Sammanfattning}
+
+I detta kapitel har vi utforskat praktiska tillämpningar av klasser genom 
+två omfattande exempel: inköpslistor och ett banksystem.
+
+\subsection{Vad har vi lärt oss?}
+
+Genom inköpslistexemplet såg vi:
+\begin{itemize}
+  \item Hur klasser kan organisera relaterad data och funktionalitet
+  \item Hur vi kan använda listor av objekt från våra egna klasser
+  \item Hur metoder kan kapsla in logik för att manipulera data
+\end{itemize}
+
+Genom banksystemet utforskade vi:
+\begin{itemize}
+  \item \textbf{Komposition}: Bygga komplexa system från enklare delar 
+    (Address i Person, Person i BankAccount)
+  \item \textbf{Arv}: Utöka funktionalitet genom att skapa specialiserade 
+    klasser (Citizen från Person)
+  \item \textbf{Polymorfism}: Använda subklasser där basklasser förväntas
+\end{itemize}
+
+\subsection{Designprinciper}
+
+\begin{exercise}
+  Reflektera över de exempel vi har sett. Vilka designprinciper har vi 
+  tillämpat? Hur har dessa principer gjort koden bättre?
+\end{exercise}
+
+Viktiga designprinciper vi har sett:
+
+\begin{description}
+  \item[Inkapsling] Håll data och metoder tillsammans. Varje klass har 
+    tydligt definierad funktionalitet.
+  \item[Abstraktion] Dölj komplexitet bakom enkla gränssnitt. Användaren av 
+    en klass behöver inte veta hur den fungerar invändigt.
+  \item[Återanvändbarhet] Skapa generella, återanvändbara klasser. Address 
+    kan användas i många sammanhang, inte bara för personer.
+  \item[Moduläritet] Dela upp problem i mindre, hanterbara delar. Varje klass 
+    har ett tydligt ansvar.
+  \item[Komposition över arv] Föredra komposition (innehålla objekt) framför 
+    arv när möjligt. Det ger mer flexibilitet.
+\end{description}
+
+\subsection{När ska vi använda klasser?}
+
+\begin{exercise}
+  När är det lämpligt att skapa en klass? När räcker det med enklare 
+  datastrukturer som listor och uppslagslistor?
+\end{exercise}
+
+Klasser är lämpliga när:
+\begin{itemize}
+  \item Du har relaterad data som hör ihop logiskt (person med namn och adress)
+  \item Du behöver metoder som arbetar med denna data
+  \item Du vill inkapsla och skydda data
+  \item Du har komplexa objekt som interagerar med varandra
+  \item Du vill återanvända kod i olika sammanhang
+\end{itemize}
+
+Enklare strukturer räcker när:
+\begin{itemize}
+  \item Du har enkel, temporär data
+  \item Ingen komplex logik behövs
+  \item Data bara ska lagras och läsas, inte manipuleras
+\end{itemize}
+
+\subsection{Komposition vs Arv}
+
+En viktig avvägning i objektorienterad design är när man ska använda 
+komposition respektive arv.
+
+\begin{exercise}
+  I vårt bankexempel: Varför använde vi komposition för Address och Person, 
+  men arv för Citizen?
+\end{exercise}
+
+\begin{frame}[fragile]
+  \begin{block}{Komposition (has-a)}
+    En klass \emph{innehåller} ett objekt av en annan klass.
+    \begin{itemize}
+      \item Person \emph{har} en Address
+      \item BankAccount \emph{har} en Person
+    \end{itemize}
+    
+    Fördelar:
+    \begin{itemize}
+      \item Mer flexibelt
+      \item Lättare att ändra vid körtid
+      \item Tydliga relationer
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{block}{Arv (is-a)}
+    En klass \emph{är en specialisering} av en annan klass.
+    \begin{itemize}
+      \item Citizen \emph{är en} Person (med extra information)
+    \end{itemize}
+    
+    Fördelar:
+    \begin{itemize}
+      \item Återanvänder kod från basklassen
+      \item Polymorfism: kan användas där basklassen förväntas
+      \item Tydlig hierarkisk relation
+    \end{itemize}
+    
+    Nackdelar:
+    \begin{itemize}
+      \item Starkare koppling mellan klasser
+      \item Svårare att ändra senare
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+Tumregel: Föredra komposition, använd arv när du verkligen har en 
+is-a-relation.
+
+\subsection{Nästa steg}
+
+\begin{exercise}[Vidareutveckling]
+  Välj ett av följande projekt och implementera det:
+  \begin{enumerate}
+    \item \textbf{Inköpslistan}: Utöka med:
+      \begin{itemize}
+        \item Prioriteter för varje vara
+        \item Kategorier (mat, hushåll, etc.)
+        \item Möjlighet att exportera/importera från fil
+      \end{itemize}
+    
+    \item \textbf{Banksystemet}: Lägg till:
+      \begin{itemize}
+        \item Olika typer av konton (sparkonto med ränta, lönekonto)
+        \item Transaktionshistorik
+        \item Möjlighet att överföra pengar mellan konton
+      \end{itemize}
+    
+    \item \textbf{Eget projekt}: Skapa ett system för att hantera:
+      \begin{itemize}
+        \item Ett bibliotek med böcker och låntagare
+        \item En skola med studenter, kurser och betyg
+        \item En zoo med djur, burar och skötare
+      \end{itemize}
+  \end{enumerate}
+\end{exercise}
+
+\subsection{Relaterad läsning}
+
+För att fördjupa dina kunskaper om klasser och objektorienterad programmering:
+
+\begin{itemize}
+  \item Python-dokumentationen om klasser: \\
+    \url{https://docs.python.org/3/tutorial/classes.html}
+  
+  \item Specialmetoder (dunder methods): \\
+    \url{https://docs.python.org/3/reference/datamodel.html#special-method-names}
+  
+  \item Design patterns och best practices för objektorienterad programmering
+\end{itemize}
+
+\begin{frame}[fragile]
+  \begin{block}{Slutsats}
+    Klasser är ett kraftfullt verktyg för att organisera och strukturera kod.
+    Genom att använda komposition, arv och inkapsling kan vi bygga komplexa 
+    system från enkla byggstenar.
+    
+    Kom ihåg:
+    \begin{itemize}
+      \item Börja enkelt, utöka vid behov
+      \item Tänk på återanvändbarhet
+      \item Dokumentera dina klasser
+      \item Testa din kod
+    \end{itemize}
+  \end{block}
+\end{frame}
+

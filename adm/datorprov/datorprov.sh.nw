@@ -1,3 +1,17 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{csquotes}
+\usepackage{biblatex}
+\usepackage[colorlinks]{hyperref}
+\usepackage{noweb}
+\usepackage{didactic}
+
+\title{Hantera datorprovet}
+\author{Daniel Bosk}
+
+\begin{document}
+\maketitle
 \tableofcontents
 \clearpage
 
@@ -20,7 +34,7 @@ Mappningen är enligt följande.
 \hline
 \end{tabular}
 \end{center}
-Då är poängen för varje fråga på lärandemål \(n\), \(10^{n-1}\).
+Då är poängen för varje fråga på lärandemål \(n\), \(10^{7-n}\).
 Studenternas resultat ser ut enligt följande.
 \begin{verbatim}
 $ canvaslms submissions -c prgm24 -a Datorprov -l \
@@ -34,7 +48,7 @@ user5@kth.se	3222213
 (Vi kan få [[canvaslms]] genom att köra [[python3 -m pip install canvaslms]] 
 och därefter köra [[canvaslms login]].)
 
-Vi vill ha ett program, [[<<datorprov.sh>>]], som läser vilka moment som 
+Vi vill ha ett program, [[<<[[datorprov.sh]]>>]], som läser vilka moment som 
 studenterna har bonus på och skriver ut en sträng som motsvarar samma ordning 
 som i Datorprovet.
 Då kan vi bara addera dessa för att få fram vilka frågor som studenten uppnått 
@@ -58,13 +72,19 @@ provomgång.
 Detta är skrivet med strukturen att provet finns i varje kursrum i åtanke.
 Vi kör skriptet med följande rad:
 [[./datorprov.sh prgm24 kommando]].
-Kan vi då använda skriptet även när datorprovet finns i ett examinationsrum och 
+Kan vi då använda skriptet även när datorprovet finns i ett examinationsrum och
 bonuspoängen finns i kursrummet?
 Ja, det borde vi kunna, genom att köra följande:
 [[./datorprov.sh "(prgm24|DD1310 LAB2 .2025-08-18.)" kommando]].
-På så vis får vi uppgifterna från examinationsrummet blandade med uppgifterna 
+På så vis får vi uppgifterna från examinationsrummet blandade med uppgifterna
 från kursrummet, precis som om de var i samma rum.
 (Se [[<<klipp ut kolumnerna som är relevanta för [[results]]>>]] nedan.)
+
+Notera att uppgiften \enquote{Betyg datorprovet} ([[BETYG]]) fungerar som ett
+medlemskapsfilter: endast studenter som har denna uppgift anses tillhöra kursen.
+När vi kör med ett regex som matchar flera kurser filtreras studentlistan
+automatiskt så att bara studenter från kursen med [[BETYG]]-uppgiften inkluderas
+i kommandon som~[[P]], [[ickeP]], [[Fx]] och~[[rapportera]].
 
 
 \section{Konfigurationsvariabler}\label{Konfigurationsvariabler}
@@ -85,7 +105,7 @@ Vi har följande konfigurationsvariabler för att kontrollera namnen på de olik
 uppgifterna i Canvas:
 <<konfigurationsvariabler>>=
 DATORPROV="Datorprov"
-BETYG="Betyg datorprov"
+BETYG="Betyg datorprovet"
 BONUS="Bonus:"
 ACKUMULERAD="Ackumulerad datorprovspoäng"
 @ Sedan har vi följande för att kontrollera namnen i resultatutmatningen:
@@ -94,6 +114,20 @@ DP_POINTS="Datorprov"
 BONUS_POINTS="Bonus"
 SUM_POINTS="Datorprov med bonus"
 ACK_POINTS="Ackumulerad datorprovspoäng"
+@
+
+Miljövariabeln~[[DRY_RUN]] styr om kommandon ska köras eller bara skrivas ut.
+Om~[[DRY_RUN=1]], då skrivs kommandona ut utan att köras (för att kunna
+granska dem innan körning).
+Om~[[DRY_RUN]] inte är satt eller är~0, då körs kommandona direkt.
+<<hjälpfunktioner>>=
+run_or_echo() {
+  if [ "${DRY_RUN:-0}" = "1" ]; then
+    echo "$@"
+  else
+    "$@"
+  fi
+}
 @
 
 Slutligen har vi även följande.
@@ -126,7 +160,9 @@ Det vi vill göra är följande.
 <<konfigurationsvariabler>>
 <<konstanter>>
 <<hjälpfunktioner>>
-<<beräknade konstanter>>
+if [ "$course" != "" ]; then
+  <<beräknade konstanter>>
+fi
 
 all() {
   <<kolla om vi har cachat resultat för [[all]], om så, använd det istället>>
@@ -148,9 +184,19 @@ Anledningen till att vi inte will köra [[all]] direkt om inget annat anges
 (vilket vi gjorde i tidigare versioner) är att vi vill kunna köra
 [[source datorprov.sh prgm24]]
 utan att köra något av kommandona.
+Om vi inte anger några argument vill vi skriva ut alla funktioner i filen.
+<<hjälpfunktioner>>=
+list_commands() {
+  grep -E '^\w+\(\)\s*\{' "$1" \
+    | cut -d '(' -f 1
+}
+@
+
 <<kör angivet kommando>>=
 if ! [ $# -eq 0 ]; then
   "$@"
+else
+  list_commands "$0"
 fi
 @ Så nu kan vi köra programmet med
 [[./datorprov.sh prgm24 all]]
@@ -226,7 +272,7 @@ Ackumulerad datorprovspoäng user10@kth.se
 \end{verbatim}
 
 Detta tar ännu längre tid att köra än [[all]].
-Så vi vill ha en cahcad version av detta också.
+Så vi vill ha en cachad version av detta också.
 <<hjälpfunktioner>>=
 results() {
   <<om vi har cachat resultat för [[results]], använd det istället>>
@@ -297,6 +343,20 @@ keep_latest() {
 }
 @
 
+Uppgiften~[[BETYG]] (\enquote{Betyg datorprovet}) fungerar som ett medlemskaps\-filter
+för kursen---om en student har denna uppgift tillhör de kursen vi vill rapportera
+till.
+När vi kör med ett regex som matchar flera kurser (exempelvis
+\verb|"(prgi25|DD1317.*LAB2.*)"|), kommer [[results]] att innehålla studenter
+från alla matchade kurser.
+Funktionen~[[studenter_i_kursen]] returnerar bara de studenter som har
+[[BETYG]]-uppgiften, dvs.\ de som tillhör kursen vi vill rapportera till.
+<<hjälpfunktioner>>=
+studenter_i_kursen() {
+  results | awk -F'\t' -v betyg="$BETYG" '$1==betyg {print $2}'
+}
+@
+
 
 \subsection{Rensa cachade resultat}
 
@@ -313,10 +373,16 @@ efterföljande körningar.
 
 \section{Skapa en lista med alla studenter}
 
-Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter 
+Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter
 genom att hämta dem från filen.
+Men vi vill bara ha studenter som tillhör kursen vi vill rapportera till---inte
+studenter från andra kurser som råkar matcha samma kursregex (exempelvis
+studenter i examinationsrummet).
+Därför filtrerar vi genom~[[studenter_i_kursen]], som bara returnerar studenter
+som har uppgiften~[[BETYG]].
 <<låt [[students]] vara en lista med alla studenter>>=
-students=$(results | cut -f 2 | sort | uniq)
+students=$(results | cut -f 2 | sort | uniq \
+                   | grep -Ff <(studenter_i_kursen))
 @
 
 
@@ -387,21 +453,21 @@ bonus() {
 }
 @
 
-Med rätt ordning menar vi att den första (Programmeringsvänliga program och 
-tilldelningar) ska vara den sista siffran.
+Med rätt ordning menar vi att den första (Programmeringsvänliga program och
+tilldelningar) ska vara den första siffran.
 Därefter kan vi slå ihop raderna till en rad på rätt format med [[tr]].
 <<sätt ihop bonussträngen för [[student]]>>=
-(bonus "${results_cache}" $student "${BONUS} Dela upp ett program"; \
- bonus "${results_cache}" $student \
-  "${BONUS} Använda och konstruera sammansatta datatyper"; \
- bonus "${results_cache}" $student "${BONUS} Konstruera interaktiva program"; \
- bonus "${results_cache}" $student \
-  "${BONUS} Överföra data mellan fil och program"; \
- bonus "${results_cache}" $student \
-  "${BONUS} Utforma och presentera användarvänlig utdata"; \
+(bonus "${results_cache}" $student \
+  "${BONUS} Programmerarvänliga program och tilldelningar"; \
  bonus "${results_cache}" $student "${BONUS} Tillämpa styrstrukturer"; \
  bonus "${results_cache}" $student \
-  "${BONUS} Programmerarvänliga program och tilldelningar") \
+  "${BONUS} Utforma och presentera användarvänlig utdata"; \
+ bonus "${results_cache}" $student \
+  "${BONUS} Överföra data mellan fil och program"; \
+ bonus "${results_cache}" $student "${BONUS} Konstruera interaktiva program"; \
+ bonus "${results_cache}" $student \
+  "${BONUS} Använda och konstruera sammansatta datatyper"; \
+ bonus "${results_cache}" $student "${BONUS} Dela upp ett program") \
 | tr -d '\n'
 @
 
@@ -425,7 +491,7 @@ echo -e "${student}\t${DP_POINTS}\t${points}"
 Då Canvas ibland slänger in en massa decimaler, exempelvis att poängen slutar 
 med \(2.9999999\), då måste vi avrunda det till 3.
 Detta kan vi göra med följande trick\footnote{%
-  \texttt{https://stackoverflow.com/questions/68878409/rounding-floats-to-integer-under-bash}
+  \url{https://stackoverflow.com/questions/68878409/rounding-floats-to-integer-under-bash}
 }.
 Men vi vill bara göra något om det finns poäng.
 Om studenten inte har skrivit provet så är poängen en tom sträng, då hoppar vi 
@@ -515,10 +581,13 @@ Fx() {
 
 Vi vill nu lägga till ett kommando för att lista alla som inte skrev.
 Vi vill då bara lista dem som inte har något resultat på datorprovet.
+Eftersom [[all]] skriver ut kolumnerna som student, uppgift och poäng måste vi
+matcha [[DATORPROV]] i kolumn 2 och tom poäng i kolumn 3.
 <<andra kommandon>>=
 nothing() {
-  results | awk -F'\t' -v assign="$DATORPROV" \
-              '$1==assign && $4=="" {print $2}'
+  all | <<rensa bort CR>> \
+      | awk -F'\t' -v assign="$DATORPROV" \
+            '$2==assign && ($3=="") {print $1}'
 }
 @
 
@@ -592,7 +661,7 @@ fi
 Det här betyder att vi behöver komma ihåg poängen från förra provomgången.
 Vi hade enkelt löst detta om vi hade haft [[--history]] på
 [[canvaslms submissions]]\footnote{
-  \texttt{https://github.com/dbosk/canvaslms/issues/189}
+  \url{https://github.com/dbosk/canvaslms/issues/189}
 }.
 Då hade vi bara kunnat summera alla poäng för en student på den uppgiften.
 
@@ -729,7 +798,7 @@ rapportera() {
     fi
     grade=$(compute_grade ${total_points})
     feedback=$(lo_feedback ${points} ${bonus})
-    canvaslms grade -c "${course}" \
+    run_or_echo canvaslms grade -c "${course}" \
                     -a "${to_assignment}" \
                     -u "${student}" \
                     -g "${grade}" \
@@ -783,7 +852,7 @@ poängen.
 points_ack_stored=$(results | grep -F "${student}" \
                             | grep "${ACKUMULERAD}" \
                             | cut -f 3)
-canvaslms grade -c "${course}" \
+run_or_echo canvaslms grade -c "${course}" \
                 -a "${ACKUMULERAD}" \
                 -u "${student}" \
                 -g "${total_points}" \
@@ -803,7 +872,7 @@ ack_feedback() {
   echo bonus = $bonus
   <<rensa bort ledande nollor från [[bonus]]>>
   echo
-  for lo_num in $(seq 1 7); do
+  for lo_num in $(seq 7 -1 1); do
     echo -n "Lärandemål ${lo_num}," \
             "frågorna $(( (lo_num - 1) * 3 + 1))-$((lo_num * 3)): "
     local lo_points=$((points % 10))
@@ -853,16 +922,24 @@ echo
 
 \subsection{Filtrera ut relevanta studenter}
 
-De studenter som är relevanta är alla som har fått ett nytt resultat---men som 
-inte redan har ett P rapporterat i `Betyg datorprov` ([[BETYG]]), eftersom vi 
-inte vill skriva över ett P med något annat.
-Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och 
+De studenter som är relevanta är alla som har fått ett nytt resultat---men som
+inte redan har ett P rapporterat i \enquote{Betyg datorprovet} ([[BETYG]]),
+eftersom vi inte vill skriva över ett P med något annat.
+Notera att vi vill bara ha deras e-postadresser (första kolumnen från [[P]] och
 [[ickeP]]).
+
+Notera att vi inte behöver filtrera bort studenter från andra kurser här.
+Filtreringen sker redan i~[[<<låt [[students]] vara en lista med alla
+studenter>>]], som filtrerar genom~[[studenter_i_kursen]].
+Därmed innehåller [[P]] och [[ickeP]] redan bara studenter från kursen vi vill
+rapportera till.
 <<filterera ut alla studenter med nya resultat>>=
 (P; ickeP) \
 | cut -f 1 | sort | uniq \
 | <<filtrera bort alla som redan har P som betyg>> \
 | <<filtrera bort alla som inte har uppdaterade resultat>>
+@
+
 <<filtrera bort alla som redan har P som betyg>>=
 grep -v -f <(results \
              | awk -F'\t' -v betyg="$BETYG" \
@@ -919,6 +996,14 @@ Vi vill ha uppgiften (kolumn 2), studentens e-post (kolumn 3) och
 rättningsdatumet (kolumn 5).
 Eftersom datumen inte finns ibland, vill vi i de fallen använda 0000-00-00.
 På så vis kommer det alltid före ett datum.
+
+Notera att vi filtrerar bort [[N/A]]-värden innan vi sorterar datumen.
+Detta behövs eftersom flera uppgifter kan matcha samma söksträng---exempelvis
+matchar [[Datorprov]] både [[Datorprov ]] (med avslutande mellanslag) och
+[[Datorprov för Lucas]].
+Uppgifter utan inlämning har [[N/A]] som datum, och eftersom [[N]] kommer efter
+siffror i ASCII-ordningen (\(78 > 50\)) skulle [[N/A]] annars väljas som
+``senaste datum'' av [[sort -u | tail -n 1]].
 <<hjälpfunktioner>>=
 get_assignment_date() {
   local assignment=$1
@@ -926,8 +1011,8 @@ get_assignment_date() {
   local date=$(results | grep "${student}" \
                        | grep "${assignment}" \
                        | <<rensa bort CR>> \
-                       | cut -f 4 | sort -u | tail -n 1)
-  if [ -z "${date}" ]; then
+                       | cut -f 4 | grep -v "N/A" | sort -u | tail -n 1)
+  if [ -z "${date}" -o "${date}" = "N/A" ]; then
     echo "0000-00-00"
   else
     echo "${date}"
@@ -939,8 +1024,9 @@ local date_dp=$(get_assignment_date "${DATORPROV}" "${student}")
 local date_betyg=$(get_assignment_date "${BETYG}" "${student}")
 @
 
-Av någon anledning får vi med en massa CR (carriage return, 
-\texttt{\textbackslash r}) i resultaten.
+Canvas exporterar ibland data med Windows-radslut (CRLF, \verb|\r\n|),
+vilket ger överflödiga CR-tecken (carriage return, \verb|\r|)
+när vi bearbetar på Unix.
 Dessa vill vi rensa bort.
 <<rensa bort CR>>=
 tr -d '\r'
@@ -994,7 +1080,7 @@ lo_feedback() {
   local bonus=$2
   <<rensa bort ledande nollor från [[bonus]]>>
   local count_full_score=0
-  for lo_num in $(seq 1 7); do
+  for lo_num in $(seq 7 -1 1); do
     local lo_points=$((points % 10))
     local bonus_points=$((bonus % 10))
     if [ ${lo_points} -ge 3 ]; then
@@ -1085,3 +1171,4 @@ Det ger oss följande.
 points_feedback ${lo_points} ${bonus_points}
 @
 
+\end{document}
