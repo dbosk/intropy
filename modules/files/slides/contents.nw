@@ -1,0 +1,1620 @@
+\mode*
+
+\section{Vad är en fil?}
+\label{sec:vad-ar-en-fil}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOPersistence}
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Typ av minne (primär vs sekundär), egenskaper
+  (flyktigt vs oflyktigt, snabbt vs långsamt).
+
+  \textbf{Vad som hålls invariant}: Behovet att lagra data.
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOPersistence}:
+  \begin{itemize}
+    \item \textbf{Persistens som koncept}: Primärminne försvinner vid
+      avstängning (flyktigt), sekundärminne består (oflyktigt).  Studenten
+      måste urskilja att filer löser problemet med datapersistens.
+    \item \textbf{Avvägning hastighet/permanens}: Primärminne snabbt men
+      temporärt, sekundärminne långsammare men permanent.  Förståelse för
+      när varje typ behövs.
+  \end{itemize}
+
+  \textbf{Pedagogisk sekvens}: Parallella definitioner (sida vid sida med
+  \mintinline{latex}{\textbytext} i presentationsläge,
+  \mintinline{latex}{\textbytext*} i artikelläge) skapar direkt spatial
+  kontrast mellan minnestyperna: kontrasten ska upplevas samtidigt, inte
+  återskapas ur minnet \parencite[45--47]{Marton2015}.  Studenter kan
+  omedelbart jämföra egenskaper (flyktigt/oflyktigt, snabbt/långsamt).
+  Därefter koppla till konkret erfarenhet (Python-program försvinner,
+  bilder består) innan varför-frågan.  Progression: konkret
+  \(\rightarrow\) konceptuell förståelse.
+}
+
+\subsection{Primärminne och sekundärminne}
+
+\begin{frame}
+  \begin{exercise}
+    Tänk på ett Python-program du har skrivit.  När du kör programmet
+    skapas variabler med värden.  Vad händer med dessa värden när:
+    \begin{itemize}
+      \item programmet avslutas?
+      \item datorn stängs av?
+    \end{itemize}
+    Hur skulle du kunna bevara data mellan programkörningar?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \textbf{\foreignlanguage{english}{Try-first}}: Denna övning aktiverar
+  studenters förförståelse och skapar en diagnostisk möjlighet.
+  Studenter som svarar \enquote{allt försvinner} har redan urskilt
+  flyktighetsaspekten.  De som föreslår \enquote{spara till fil} visar
+  att de intuitivt förstår lösningen.
+
+  \textbf{Varför \foreignlanguage{english}{try-first} här}: Studenter
+  behöver erfara variation innan generaliseringar blir meningsfulla
+  \parencite{MartonPang2006}.  Genom att först låta dem reflektera över
+  problemet (data försvinner) skapas en kontext för de efterföljande
+  definitionerna av primär- och sekundärminne.
+}
+
+\begin{frame}
+  \mode<presentation>{%
+    \textbytext{%
+      \begin{definition}[Primärminne]
+        Datorns arbetsminne där exekverande program (processer) och data
+        (variabler) lagras.  Detta är flyktigt minne med mycket snabb
+        åtkomst (storleksordning nanosekunder).
+      \end{definition}
+    }{%
+      \begin{definition}[Sekundärminne]
+        Oflyktigt minne där icke-exekverande program och data (filer)
+        lagras.  Långsammare åtkomst än primärminne (storleksordning
+        mikro- till millisekunder).
+      \end{definition}
+    }
+  }
+  \mode<article>{%
+    \textbytext*{%
+      \begin{definition}[Primärminne]
+        Datorns arbetsminne där exekverande program (processer) och data
+        (variabler) lagras.  Detta är flyktigt minne med mycket snabb
+        åtkomst (storleksordning nanosekunder).
+      \end{definition}
+    }{%
+      \begin{definition}[Sekundärminne]
+        Oflyktigt minne där icke-exekverande program och data (filer)
+        lagras.  Långsammare åtkomst än primärminne (storleksordning
+        mikro- till millisekunder).
+      \end{definition}
+    }
+  }
+\end{frame}
+
+\mode<article>{%
+När ett Python-program körs finns alla variabler och data i datorns
+\emph{primärminne} (även kallat RAM eller arbetsminne).  Detta minne är
+mycket snabbt --- en åtkomst tar i storleksordningen hundra nanosekunder
+--- vilket gör att programmet kan arbeta effektivt med data.  Men
+primärminnet har en avgörande begränsning: det är \emph{flyktigt}.  När
+programmet avslutas, eller när datorn stängs av, försvinner allt innehåll
+i primärminnet.
+
+Detta skapar ett problem: Hur kan vi \emph{bevara} data mellan
+programkörningar?  Hur kan vi \emph{dela} data mellan olika program?  Hur
+kan vi hantera \emph{större} mängder data än vad som får plats i
+primärminnet?
+
+Svaret är \emph{sekundärminne} --- oflyktigt lagringsutrymme som bevarar
+information även när datorn är avstängd.  Detta kan vara en hårddisk,
+SSD, eller annan lagringsmedia.  Sekundärminnet är långsammare än
+primärminnet --- en läsning från en SSD tar tiotals mikrosekunder och
+från en hårddisk några millisekunder, mot hundra nanosekunder för
+primärminnet\autocite[kap.~22 och 44]{ArpaciDusseau2025OSTEP} --- men
+det är persistent och kan lagra mycket större mängder data.
+}
+
+\subsection{Varför filer?}
+
+En \emph{fil} är en namngiven samling data som lagras i sekundärminnet.
+Vi har alla erfarenhet av filer från vår dagliga datoranvändning:
+Python-program (\texttt{.py}-filer), bilder (\texttt{.jpg}, \texttt{.png}),
+dokument (\texttt{.pdf}, \texttt{.docx}), och så vidare.  Faktum är att de
+Python-program vi skriver själva är lagrade som textfiler på hårddisken.
+
+\begin{frame}
+  \begin{example}[Pythonprogram]
+    Filer med \texttt{.py}-ändelse innehåller Python-kod som kan
+    exekveras av Python-interpretatorn.
+  \end{example}
+
+  \pause
+
+  \begin{example}[Bilder]
+    Filer med ändelser som \texttt{.jpg} eller \texttt{.png} innehåller
+    bilddata som kan visas av bildvisningsprogram.
+  \end{example}
+
+  \pause
+
+  \begin{example}[Dokument]
+    Filer med ändelser som \texttt{.pdf} eller \texttt{.docx} innehåller
+    textdokument som kan läsas av dokumentläsare.
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOPersistence}
+
+  \textbf{Variationsmönster}: Generalisering
+
+  \textbf{Vad som varierar}: Problemtyp (persistens, datautbyte,
+  skalbarhet).
+
+  \textbf{Vad som hålls invariant}: Lösningen (använda filer).
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOPersistence}: Studenten
+  måste urskilja att \emph{samma verktyg} (filer) löser \emph{olika
+  problem}.  Detta gör filernas grundläggande värde urskiljbart --- de är
+  inte bara för lagring, utan för persistens, kommunikation, och
+  skalbarhet.
+
+  \textbf{Pedagogisk sekvens}: Visa tre konkreta exempel \emph{först}
+  (variation i problemtyp), sedan generalisera till de tre
+  användningsområdena i en anmärkning.  Studenter erfar variationen innan
+  principen artikuleras \parencite{MartonPang2006}.
+}
+
+\begin{frame}
+  \begin{exercise}
+    Vi vet nu att filer lagras i sekundärminnet.  Men \emph{varför}
+    skulle vi vilja använda filer i våra program?  Tänk på tre olika
+    situationer där filer kan vara användbara.
+  \end{exercise}
+\end{frame}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{example}[Spara spelets framsteg]
+      Spel måste minnas poäng, nivå och upplåsta prestationer mellan
+      spelsessioner --- löses genom att spara data i en fil.
+    \end{example}%
+  }%
+  \only<article>{%
+    \begin{example}[Spara spelets framsteg]
+      Ett spel behöver komma ihåg spelarens poäng, nivå och upplåsta
+      prestationer (\foreignlanguage{english}{achievements}) mellan
+      olika spelsessioner.  När spelaren stänger ner programmet och
+      startar det igen nästa dag ska alla framsteg finnas kvar.  Detta
+      löses genom att spara data i en fil på hårddisken.
+    \end{example}%
+  }
+\end{frame}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{example}[Dela data mellan program]
+      Program kan dela data via filer utan att köra samtidigt --- filen
+      fungerar som brygga mellan program.
+    \end{example}%
+  }%
+  \only<article>{%
+    \begin{example}[Dela data mellan program]
+      Ett program genererar en lista med e-postadresser från en databas
+      och sparar dem i en fil.  Ett annat program läser sedan filen och
+      skickar ut nyhetsbrev till alla adresser.  Programmen behöver
+      aldrig köra samtidigt --- filen fungerar som brygga mellan dem.
+    \end{example}%
+  }
+\end{frame}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{example}[Bearbeta stora datamängder]
+      SCB:s namnstatistik läses rad för rad i stället för att ladda allt
+      i minnet --- skalbarhet för hundratusentals rader.
+    \end{example}%
+  }%
+  \only<article>{%
+    \begin{example}[Bearbeta stora datamängder]
+      SCB:s namnstatistik för ett år är hundratusentals rader --- bara
+      efternamnen är över 380\,000.  Att ladda allt i primärminnet
+      samtidigt går för den filen, men inte för alla filer: mätdata och
+      loggar kan vara större än arbetsminnet.  Då läser programmet filen
+      rad för rad, bearbetar varje post, och behåller bara resultatet i
+      minnet.
+    \end{example}%
+  }
+\end{frame}
+
+\begin{frame}
+  \begin{remark}[Varför filer behövs]
+    Filer behövs för \emph{persistens} (minnas data mellan körningar),
+    \emph{datautbyte} (överföra data mellan program), och
+    \emph{skalbarhet} (hantera stora mängder data som inte får plats i
+    primärminnet samtidigt).
+  \end{remark}
+\end{frame}
+
+De tre exemplen ovan illustrerar de viktigaste användningsområdena för
+filer.  Mönstret är tydligt: samma verktyg (filer) löser fundamentalt
+olika problem.  Detta är varför filhantering är så centralt i
+programmering.
+
+
+\section{Hur använder vi filer?}
+\label{sec:anvanda}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLORead}, \cref{FilesLOWrite}, \cref{FilesLOContextMgr},
+  \cref{FilesLOFileTypes}
+
+  \textbf{Variationsmönster}: Generalisering + Kontrast + Separation
+
+  \textbf{Generalisering från terminal-I/O}: Filoperationer följer samma
+  princip som [[print()]]/[[input()]] --- strukturera data för ett syfte.
+  Invariant: I/O-mönstret.  Varierar: Destination (terminal vs fil).
+  Kritisk skillnad: Filer kräver explicit öppning/stängning, terminalen
+  inte.
+
+  \textbf{Kontrast för} \cref{FilesLOContextMgr}: Resurshanteringsmetod
+  ([[open()]]/[[close()]] manuellt vs [[with]] automatiskt).  Invariant:
+  Filoperationerna.  Varierar: Ansvaret för stängning.  Studenten måste
+  urskilja att [[with]] garanterar stängning även vid fel.
+
+  \textbf{Separation för} \cref{FilesLORead} \textbf{och}
+  \cref{FilesLOFileTypes}: Läsa vs skriva (olika operationer, samma fil).
+  Text vs binär (olika datatyper, samma operationer).  Varje dimension
+  separat urskiljbar.
+
+  \textbf{Pedagogisk sekvens}: Dokumentation först (aktivera
+  förförståelse) \(\to\) visa manuell metod (explicit vad som händer)
+  \(\to\) introducera [[with]] (kontrast gör värdet tydligt) \(\to\) vad
+  som händer när filen saknas (felet visas innan det hanteras) \(\to\)
+  läsa/skriva (båda riktningar) \(\to\) filtyper (ytterligare dimension)
+  \parencite{Marton2015}.
+}
+
+Nu när vi förstår \emph{varför} filer behövs är det dags att lära oss
+\emph{hur} vi använder dem i Python.
+
+\begin{frame}
+  \begin{exercise}
+    Vad behöver vi göra extra för filer som vi inte behövde göra för
+    [[print()]] och [[input()]]?
+
+    Tänk på att terminalen alltid är tillgänglig, men filer\ldots?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentationen för filhantering visar de
+      grundläggande filoperationerna.}[fig:docs-files]
+      \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
+        keepaspectratio]{figs/docs-files.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\subsection{Öppna och stänga}
+\label{sec:oppna}
+
+Innan vi kan arbeta med en fil måste vi \emph{öppna} den.  Detta ger oss
+ett filobjekt som vi kan använda för att läsa eller skriva data.  När vi
+är färdiga måste vi också \emph{stänga} filen för att frigöra
+systemresurser och säkerställa att all data verkligen skrivs till
+disken\autocite{PythonTutorialFiles}.
+
+\begin{frame}
+  \begin{exercise}
+    Vi behöver alltså två operationer: \enquote{öppna} och
+    \enquote{stänga}.  Hur bör dessa implementeras?
+
+    Tänk på: [[print()]] är en funktion som alltid skriver till
+    terminalen.  Men för filer behöver vi kunna specificera \emph{vilken}
+    fil.  Bör [[open()]] vara en funktion eller metod?  Bör [[close()]]
+    vara en funktion eller metod?
+  \end{exercise}
+\end{frame}
+
+Svaret på frågan ovan är att [[open()]] är en \emph{funktion}: den tar
+emot filnamnet (och eventuellt ett läge) som argument och
+\emph{returnerar} ett filobjekt.  Stängning är däremot en \emph{metod} på
+just det filobjektet --- vi skriver [[file.close()]], eftersom det är den
+specifika filen vi vill stänga.  Detta är en naturlig konsekvens av att
+[[open()]] måste få veta \emph{vilken} fil vi menar, medan [[close()]]
+alltid handlar om en fil vi redan har öppnat.
+
+Det finns två sätt att hantera öppning och stängning: manuellt med
+[[open()]] och [[close()]], eller automatiskt med [[with]]-satsen.  Låt
+oss först titta på den manuella metoden för att förstå vad som egentligen
+händer, sedan ska vi se varför [[with]]-satsen är det bättre
+alternativet.  Som exempel läser vi ett tal ur en fil: filen innehåller
+bara talet, och programmet ska skriva ut det.
+
+\ltnote{%
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Resurshanteringsmetod (manuell
+  [[open()]]/[[close()]] vs [[with]]-sats).
+
+  \textbf{Vad som hålls invariant}: Själva filoperationerna ([[read()]],
+  omvandlingen med [[int()]]) och uppgiften.
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOContextMgr}:
+  \begin{itemize}
+    \item \textbf{Resurshantering krävs}: Filer är systemresurser som
+      måste frigöras explicit.  Till skillnad från vanliga variabler
+      räcker det inte att objektet försvinner --- [[close()]] måste
+      anropas, annars kan det som skrivits stanna i en buffert och aldrig
+      nå disken \parencite{PythonTutorialFiles}.
+    \item \textbf{Kontexthanterare löser problemet}: [[with]] garanterar
+      att [[close()]] anropas automatiskt när blocket lämnas, även om ett
+      särfall uppstår.  Detta följer mönstret \enquote{resurshantering
+      som syntax}.
+  \end{itemize}
+
+  \textbf{Pedagogisk sekvens}: Visa explicit metod först för att göra
+  problemet synligt (glömma [[close()]], särfall), sedan [[with]] som
+  lösning.  Kontrasten gör värdet av kontexthanterare urskiljbart
+  \parencite[45--47]{Marton2015}.  Den manuella versionen visas
+  \emph{utan} [[try]]/[[finally]]: hade den skyddet inbyggt skulle
+  övningen om vad som händer vid ett särfall redan vara besvarad, och
+  kontrasten mot [[with]] skulle bara gälla längden.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Öppna och stänga för hand]
+    Vi öppnar filen, läser talet och stänger filen igen:
+<<läs talet och stäng för hand>>=
+def read_number_by_hand(filename):
+    """Reads the number in the file, closing the file by hand"""
+    file = open(filename, "r")
+    number = int(file.read())
+    file.close()
+    return number
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    Vad händer om ett särfall (\foreignlanguage{english}{exception})
+    uppstår mellan [[open()]] och [[close()]] --- säg att filen inte
+    innehåller ett tal, så att [[int()]] misslyckas?
+
+    Hur kan vi garantera att filen alltid stängs korrekt, även om något
+    går fel under bearbetningen?
+  \end{exercise}
+\end{frame}
+
+Går [[int()]] fel avbryts funktionen på den raden, precis som vi såg i
+föreläsningen \emph{Felhantering}: raderna efter --- däribland
+[[file.close()]] --- körs aldrig, och filen lämnas öppen.  Vi skulle kunna
+skydda oss med [[try]] och [[finally]], men det är precis den bokföringen
+Python kan göra åt oss.  Pythons dokumentation rekommenderar
+\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs då
+korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
+an exception is raised at some point}}\autocite{PythonTutorialFiles}.
+
+\begin{frame}[fragile]
+  \begin{example}[Med \texttt{with}]
+    Samma uppgift, men [[with]] stänger filen åt oss när blocket lämnas:
+<<läs talet med with>>=
+def read_number(filename):
+    """Reads the number in the file, letting with close it"""
+    with open(filename, "r") as file:
+        number = int(file.read())
+    return number
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+      \begin{itemize}
+        \item [[with]]: Filen stängs \emph{alltid}, även vid särfall.
+        \item Manuell hantering: Risk att filen lämnas öppen vid fel.
+        \item [[with]] använder en \emph{kontexthanterare}
+          (\foreignlanguage{english}{context manager}).
+        \item Automatisk [[close()]] när blocket lämnas.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+      Båda metoderna fungerar när allt går som planerat.  Men
+      [[with]]-satsen har en avgörande fördel: den garanterar att filen
+      \emph{alltid} stängs korrekt, även om ett särfall uppstår.
+
+      Med manuell hantering riskerar vi att filen lämnas öppen om något
+      går fel mellan [[open()]] och [[close()]].  Filobjektet är en
+      \emph{kontexthanterare} (\foreignlanguage{english}{context
+      manager}), och [[with]]-satsen anropar dess [[close()]]
+      automatiskt när blocket lämnas.
+    \end{remark}%
+  }
+\end{frame}
+
+Vi sätter ihop de två funktionerna till ett program som läser samma tal
+på båda sätten, så att vi ser att de ger samma resultat när allt går väl.
+
+\begin{frame}[fragile]
+  Programmet [[open_close.py]] består av de två funktionerna och ett
+  huvudprogram:
+<<[[open_close.py]]>>=
+"""Opening and closing files"""
+
+
+<<läs talet och stäng för hand>>
+
+
+<<läs talet med with>>
+
+
+<<läs talet på båda sätten>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Huvudprogrammet frågar efter filnamnet och läser talet på båda
+    sätten:
+<<läs talet på båda sätten>>=
+def main():
+    """Reads the same number both ways"""
+    filename = input("Vilken fil innehåller talet? ")
+    print("Utan with:", read_number_by_hand(filename))
+    print("Med with:", read_number(filename))
+@
+  \end{example}
+
+  \pause
+
+  \begin{example}[En fil med ett tal]
+    Filen [[tal.txt]] innehåller bara talet:
+<<[[tal.txt]]>>=
+42
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körning]
+    Vi kör programmet och svarar [[tal.txt]] på frågan:
+    \runpython[transcript, stdin={tal.txt}]{examples/open_close.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOContextMgr}.
+
+  Körningen visas med didactic-paketets
+  \mintinline{latex}{\runpython[transcript, stdin={...}]}, som kör det
+  tanglade programmet i dess egen katalog via PythonTeX och sätter hela
+  terminalsessionen med minted; filen [[tal.txt]] tanglas ur samma källa.
+  Kod och utmatning kan därför inte glida isär.  Att båda vägarna ger
+  samma svar är poängen: skillnaden mellan dem syns inte när allt går
+  väl, utan först när något går fel --- vilket är varför kontrasten
+  ställs som fråga innan [[with]] visas.
+}
+
+\begin{frame}
+  \begin{remark}[Koppling till terminal-I/O]
+    Filoperationer följer samma princip som [[print()]]/[[input()]]:
+    strukturera data för ett syfte.  Skillnaden är destinationen (fil i
+    stället för terminal) och att filer kräver explicit öppning och
+    stängning.
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  \textbf{Placering av generalisering}: Denna anmärkning kommer
+  \emph{efter} att studenter har sett konkreta exempel på filhantering
+  med [[open()]], [[close()]] och [[with]].  Enligt variationsteori måste
+  exempel föregå generaliseringar för att mönstret ska bli urskiljbart
+  \parencite{MartonPang2006}.
+}
+
+\subsection{Om filen inte finns}
+\label{sec:saknas}
+
+Programmet ovan frågar användaren efter ett filnamn.  Den som skriver fel
+--- ett stavfel, fel katalog, en fil som aldrig sparades --- ber
+programmet öppna en fil som inte finns.
+
+\begin{frame}
+  \begin{exercise}
+    Vad händer om användaren skriver namnet på en fil som inte finns?
+    Vad får hon se?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Programmet [[read_missing.py]] försöker läsa en fil som inte finns:
+<<[[read_missing.py]]>>=
+"""Reading a file that does not exist"""
+
+with open("finns-inte.txt", "r") as file:
+    print(file.read())
+@
+  \begin{example}[Körning]
+    Körningen avbryts med en spårutskrift:
+    \runpython[transcript]{examples/read_missing.py}
+  \end{example}
+\end{frame}
+
+Programmet kraschar med en spårutskrift
+(\foreignlanguage{english}{traceback}) av den sort vi lärde oss läsa i
+föreläsningen \emph{Felhantering}.  Sista raden säger vilken sorts fel det
+var: [[FileNotFoundError]], det särfall Python använder när
+\enquote{\foreignlanguage{english}{a file or directory is requested but
+doesn't exist}}\autocite{PythonExceptions}.  Det är [[open()]] som kastar
+det, redan innan något har lästs.  Meddelandet är skrivet för
+programmeraren: det talar om vilken fil som saknades, men användaren
+behöver något annat --- en ny chans att skriva rätt.
+
+\begin{frame}
+  \begin{exercise}
+    Hur får vi programmet att fråga efter filnamnet igen, i stället för
+    att krascha?
+  \end{exercise}
+\end{frame}
+
+Svaret är detsamma som när användaren skrev ett årtal med bokstäver i
+föreläsningen \emph{Felhantering}: vi fångar särfallet med [[try]] och
+[[except]], och lägger frågan i en [[while]]-slinga som snurrar tills
+läsningen lyckas.  Det enda nya är vilken sorts fel vi fångar.
+
+\begin{frame}[fragile]
+  \begin{example}[Att läsa talet]
+    Läsningen är som förut, med [[with]]:
+<<läs talet ur filen>>=
+def read_number(filename):
+    """Reads the number in the file"""
+    with open(filename, "r") as file:
+        return int(file.read())
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Att fråga tills filen finns]
+    Huvudprogrammet frågar om och om igen tills [[open()]] lyckas:
+<<fråga tills filen finns>>=
+def main():
+    """Asks again until there is a file with the given name"""
+    while True:
+        filename = input("Vilken fil innehåller talet? ")
+        try:
+            number = read_number(filename)
+            break
+        except FileNotFoundError:
+            print(f"Det finns ingen fil som heter {filename}. Försök igen.")
+    print(f"Talet är {number}")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  Programmet [[ask_for_file.py]] sätter ihop de två:
+<<[[ask_for_file.py]]>>=
+"""Asking for a file name until the file exists"""
+
+
+<<läs talet ur filen>>
+
+
+<<fråga tills filen finns>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett försök till]
+    Användaren skriver först fel namn, sedan rätt:
+    \runpython[transcript, stdin={finns-inte.txt},
+      stdin={tal.txt}]{examples/ask_for_file.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till att felet fångas i [[main]], inte i [[read_number]].
+Funktionen som läser vet inte vad som är rätt att göra när filen saknas
+--- fråga igen, ge upp, använda en annan fil --- så den låter särfallet
+gå vidare till den som anropade, precis som i föreläsningen
+\emph{Felhantering}.  Huvudprogrammet vet, och det är där frågan ställs
+om.  Andra fel hanteras på samma sätt: innehåller filen inte ett tal
+kastar [[int()]] ett [[ValueError]], och en gren till i [[except]] tar
+hand om det.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOMissing}.
+
+  \textbf{Variationsmönster}: Kontrast, sedan fusion.
+
+  \textbf{Vad som varierar}: Om felet tas om hand eller inte; samma
+  inmatning (ett filnamn som inte finns) ger en krasch i
+  [[read_missing.py]] och en ny fråga i [[ask_for_file.py]].
+
+  \textbf{Vad som hålls invariant}: Uppgiften (läs talet ur filen
+  användaren anger) och läsningen själv.
+
+  Kraschen visas \emph{före} lösningen, som körning och inte som
+  påstående: studenten ska se spårutskriften och känna igen den från
+  föreläsningen \emph{Felhantering} innan lösningen kommer.
+  \foreignlanguage{english}{Try-first} i två led: först vad som händer,
+  sedan hur det ska lösas.  Lösningen är samma fusion av [[while]] och
+  [[try]] som avsnittet \enquote{Att fråga igen} i \emph{Felhantering};
+  därför läggs ingen tid på slingan i sig, bara på vilken sorts fel som
+  fångas och \emph{var} --- i huvudprogrammet, som vet vad som ska hända,
+  inte i läsfunktionen.
+
+  Att studenter missförstår felhantering är belagt i föreläsningen
+  \emph{Felhantering}, bilaga B; det här avsnittet gör inget eget
+  påstående om det utan förutsätter mekanismen därifrån.
+}
+
+\subsection{Läsa och skriva}
+\label{sec:lasa-skriva}
+
+Nu när vi vet hur vi öppnar och stänger filer ska vi titta på de
+grundläggande operationerna: att läsa data från en fil och att skriva
+data till en fil.  Precis som [[input()]] läser från terminalen och
+[[print()]] skriver till terminalen, används [[file.read()]] för att
+läsa från en fil och [[file.write()]] för att skriva till en fil.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLORead}, \cref{FilesLOWrite}
+
+  \textbf{Variationsmönster}: Separation + Generalisering
+
+  \textbf{Separation av operationsriktning}: Varierar operation
+  ([[read]] vs [[write]]) och filläge (\mintinline{python}{"r"} vs
+  \mintinline{python}{"w"}).  Invariant: Filhanteringsmönster
+  (öppna--operera--stäng).  Studenten måste urskilja att läsning och
+  skrivning är duala operationer med samma struktur men motsatt
+  datariktning.
+
+  \textbf{Generalisering från terminal-I/O}: [[file.read()]] motsvarar
+  [[input()]], [[file.write()]] motsvarar [[print()]].  Samma princip,
+  olika destination.
+
+  \textbf{Separation av granularitet}: Flera läsmetoder för
+  \cref{FilesLORead}: [[file.read()]] (hela filen), [[for line in file]]
+  (rad för rad).  Olika granularitet, samma underliggande operation.
+  Studenten väljer metod baserat på datastruktur och
+  minnesbegränsningar.
+
+  \textbf{Pedagogisk sekvens}: Skrivning först (skapar data), sedan
+  läsning (konsumerar data).  Detta ger konkret innehåll att arbeta med
+  och gör operationernas syfte tydligt \parencite{Marton2015}.  Varje
+  program är litet nog att visas helt, och körs så att utmatningen syns
+  bredvid koden.
+
+  \textbf{Samma kod två gånger}: Läsmetoderna visas först var för sig,
+  när de införs, och sedan sida vid sida inför valövningen.
+  Upprepningen är avsiktlig: kontrasten mellan metoderna blir urskiljbar
+  först när båda syns samtidigt \parencite[45--47]{Marton2015}.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Skriva två rader]
+    Programmet [[write_text.py]] skriver två rader till filen
+    [[test1.txt]]:
+<<[[write_text.py]]>>=
+"""Writing two lines to a file"""
+
+with open("test1.txt", "w") as file:
+    file.write("Hej\n")
+    file.write("Världen\n")
+@
+  \end{example}
+
+  \begin{example}[Körning]
+    Programmet skriver inget i terminalen --- resultatet finns i filen:
+    \runpython[transcript]{examples/write_text.py}
+  \end{example}
+\end{frame}
+
+Ingenting syns i terminalen; det är ju filen vi skrev till.  För att se
+resultatet får vi läsa filen --- med en texteditor, eller med ett
+program.
+
+\begin{frame}[fragile]
+  \begin{example}[Läsa hela filen]
+    Programmet [[read_all.py]] läser hela filen som en enda sträng med
+    [[read()]]:
+<<[[read_all.py]]>>=
+"""Reading a whole file at once"""
+
+with open("test1.txt", "r") as file:
+    print(file.read())
+@
+  \end{example}
+
+  \begin{example}[Körning]
+    Nu ser vi vad [[write_text.py]] skrev:
+    \runpython[transcript]{examples/read_all.py}
+  \end{example}
+\end{frame}
+
+När vi skriver till en fil använder vi [[file.write()]], som fungerar
+nästan som [[print()]], men med en viktig skillnad: [[write()]] lägger
+\emph{inte} till radbrytningar automatiskt\autocite{PythonTutorialFiles}.
+Om vi vill ha radbrytningar måste vi själva lägga till
+\mintinline{python}{"\n"}, som vi gjorde i [[write_text.py]].  Hade vi
+utelämnat dem hade filen innehållit \mintinline{text}|HejVärlden| på en
+enda rad.
+
+Det andra sättet att läsa är rad för rad.  Innan vi visar det: hur skulle
+ni själva skriva det?
+
+\begin{frame}
+  \begin{exercise}
+    Vi vill skriva ut filen rad för rad, med en [[for]]-slinga direkt
+    över filobjektet.  Skriv slingan.  Vad skrivs ut?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Läsa rad för rad]
+    Programmet [[read_lines.py]] går igenom filen med en [[for]]-slinga:
+<<[[read_lines.py]]>>=
+"""Reading a file line by line"""
+
+with open("test1.txt", "r") as file:
+    for line in file:
+        print(line, end="")
+@
+  \end{example}
+
+  \begin{example}[Körning]
+    Utskriften blir densamma som med [[read()]]:
+    \runpython[transcript]{examples/read_lines.py}
+  \end{example}
+\end{frame}
+
+Varje varv i slingan ger en rad ur filen --- och raden slutar med det
+radbrytningstecken \mintinline{python}{"\n"} som står i filen:
+\enquote{\foreignlanguage{english}{a newline character (\textbackslash{}n)
+is left at the end of the string}}\autocite{PythonTutorialFiles}.
+Skriver vi ut raden med ett vanligt [[print(line)]] lägger [[print]] till
+ännu en radbrytning, och utskriften får en tom rad mellan varje rad.
+Därför [[end=""]]: vi låter filens egna radbrytningar räcka.  Samma
+tecken som vi själva lade dit när vi skrev filen kommer alltså tillbaka
+när vi läser den.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLORead}.
+
+  \foreignlanguage{english}{Try-first}: studenterna skriver slingan själva
+  innan den visas.  Den som skriver [[print(line)]] utan [[end=""]] har
+  inte urskilt att raden bär sin egen radbrytning --- det syns i
+  utskriften som tomma rader, och det är den kontrasten prosan efter
+  bilden förklarar.  Frågan avslöjar inte aspekten (\enquote{tänk på
+  radbrytningen}); den ställs som en ren konstruktionsuppgift.
+
+  Radbrytningarna knyter också skrivningen till läsningen: samma
+  \mintinline{python}{"\n"} som lades dit i [[write_text.py]] kommer
+  tillbaka i [[read_lines.py]].  Det är den första gången materialet
+  visar att formatet är en överenskommelse mellan den som skriver och
+  den som läser --- temat för \cref{sec:filformat}.
+}
+
+\begin{frame}
+  \begin{exercise}
+    Vi har sett två sätt att läsa från filer: [[file.read()]] (hela
+    filen) och iteration rad för rad.
+
+    När bör vi använda vilket?  Tänk på SCB:s namnfil med hundratusentals
+    rader --- vilket sätt passar där, och varför?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Hela filen på en gång]
+    Allt hamnar i en enda sträng i primärminnet:
+    \inputminted{python}{examples/read_all.py}
+  \end{example}
+
+  \begin{example}[Rad för rad]
+    Bara en rad i taget behöver finnas i primärminnet:
+    \inputminted{python}{examples/read_lines.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{remark}[Val av läsmetod]
+    Använd [[file.read()]] för små filer där hela innehållet behövs
+    samtidigt.  Använd iteration ([[for line in file]]) för stora filer
+    --- detta är mer minneseffektivt eftersom endast en rad i taget
+    laddas i primärminnet.
+  \end{remark}
+\end{frame}
+
+Dokumentationen säger samma sak om slingan över filobjektet:
+\enquote{\foreignlanguage{english}{This is memory efficient, fast, and
+leads to simple code}}\autocite{PythonTutorialFiles}.  Om [[read()]]
+utan argument säger den torrt att hela innehållet läses in, och att det
+är vårt problem om filen är dubbelt så stor som datorns minne.
+
+\ltnote{%
+  \textbf{Explicit svar på övningsfrågan}:
+  \foreignlanguage{english}{Try-first} kräver att vi alltid besvarar den
+  ställda frågan explicit.  Studenten behöver bekräftelse eller
+  korrigering av sin förutsägelse för att kontrasten ska bli meningsfull.
+}
+
+Ett sista läge är värt att känna till.  Öppnar vi filen med
+\mintinline{python}{"w"} en gång till töms den först --- allt vi skrev
+förut försvinner.  Vill vi i stället lägga till i slutet av en fil som
+redan finns öppnar vi den med \mintinline{python}{"a"}.
+
+\begin{frame}[fragile]
+  \begin{example}[Lägga till i slutet]
+    Programmet [[write_append.py]] lägger till tre rader sist i filen:
+<<[[write_append.py]]>>=
+"""Appending three lines to the end of a file"""
+
+with open("test1.txt", "a") as file:
+    for i in range(3):
+        file.write(f"i = {i}\n")
+@
+  \end{example}
+
+  \begin{example}[Körning]
+    Inte heller det här programmet skriver något i terminalen:
+    \runpython[transcript]{examples/write_append.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Filen efteråt]
+    Vi läser filen igen med [[read_lines.py]]:
+    \runpython[transcript]{examples/read_lines.py}
+  \end{example}
+\end{frame}
+
+De två raderna från [[write_text.py]] står kvar, och de tre nya kommer
+efter.  Läget avgör alltså inte bara om vi får läsa eller skriva, utan
+också vad som händer med det som redan finns i filen.
+
+\begin{frame}
+  \begin{remark}[Fillägen]
+    I exemplen ovan såg vi olika lägen när vi öppnade filer:
+    \begin{description}
+      \item[\mintinline{python}{"r"}] Läsning
+        (\foreignlanguage{english}{read})
+      \item[\mintinline{python}{"w"}] Skrivning
+        (\foreignlanguage{english}{write}); filen töms först
+      \item[\mintinline{python}{"a"}] Lägga till i slutet
+        (\foreignlanguage{english}{append})
+    \end{description}
+    Läget avgör vilka operationer som är tillåtna på filen.
+  \end{remark}
+\end{frame}
+
+\subsection{Typer av filer}
+\label{sec:typer}
+
+Hittills har vi arbetat med textfiler --- filer som innehåller läsbar
+text.  Men inte alla filer är textfiler.  Bilder, videor och komprimerade
+filer är exempel på \emph{binärfiler} som innehåller data i ett format
+som inte är direkt läsbart som text.
+
+Python skiljer mellan dessa två typer av filer, och vi måste ange rätt
+läge när vi öppnar dem.
+
+\begin{frame}
+  \begin{exercise}
+    Varför måste Python skilja mellan textfiler och binärfiler?
+
+    Tänk på vad som händer när Python läser en textfil: varje byte tolkas
+    som en bokstav (teckenkodning).  Fungerar det för en bildfil?  Vad
+    händer om vi försöker läsa en \texttt{.jpg}-fil som text?
+  \end{exercise}
+\end{frame}
+
+Svaret på frågan ovan är att Python i textläge tolkar filens bytes enligt
+en teckenkodning för att bygga upp en sträng: innehållet
+\enquote{\foreignlanguage{english}{returned as str, the bytes having been
+first decoded}}\autocite{PythonOpen}.  Vilken kodning som används om vi
+inte anger någon beror på datorn, men dokumentationen rekommenderar att
+ange \mintinline{python}{encoding="utf-8"}, som är den moderna de
+facto-standarden\autocite{PythonTutorialFiles}.  För en bildfil fungerar
+avkodningen inte: bytesekvensen i en \texttt{.jpg} följer ingen
+teckenkodning, så försöket att avkoda den misslyckas typiskt med ett
+[[UnicodeDecodeError]] --- eller, i värsta fall, ger tyst korrupta data.
+Det är därför vi måste tala om för Python huruvida en fil ska hanteras
+som text eller som rå binärdata.
+
+För textfiler använder vi lägena \mintinline{python}{"r"},
+\mintinline{python}{"w"} och \mintinline{python}{"a"}.  För binärfiler
+lägger vi till ett \mintinline{python}{"b"}: \mintinline{python}{"rb"},
+\mintinline{python}{"wb"}, \mintinline{python}{"ab"}.  I binärläge får vi
+innehållet som [[bytes]] i stället för [[str]], utan någon
+avkodning\autocite{PythonOpen}.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOFileTypes}
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Filtyp (text vs binär) och datastruktur
+  (radbrytningar/tecken vs råa bytes).
+
+  \textbf{Vad som hålls invariant}: Grundläggande filhanteringsoperationer
+  ([[open()]], [[read()]], [[write()]], [[close()]]).
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOFileTypes}:
+  \begin{itemize}
+    \item \textbf{Textfilers struktur}: Innehåller läsbara tecken med
+      implicit struktur (radbrytningar \mintinline{python}{"\n"},
+      teckenkodning).  Exempel: källkod, CSV, konfigurationsfiler.
+      Python hanterar teckenkodning automatiskt.
+    \item \textbf{Binärfilers råhet}: Inga antaganden om struktur, ren
+      bytesekvens.  Exempel: bilder, video, komprimerade filer.
+      Programmet måste känna till formatspecifikationen.
+    \item \textbf{Lägesval påverkar hantering}:
+      \mintinline{python}{"r"}/\mintinline{python}{"w"} för text (Python
+      hanterar kodning), \mintinline{python}{"rb"}/\mintinline{python}{"wb"}
+      för binär (råa bytes).  Fel val ger korrupta data.
+  \end{itemize}
+
+  \textbf{Pedagogisk resurs}: Dokumentationsbilden visar alla
+  tillgängliga lägen som referensverktyg för korrekt val; att slå upp
+  dem i dokumentationen är en del av \cref{FilesLOFormats}.
+}
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentationen för [[open()]] visar alla
+      fillägen.}[fig:docs-open]
+      \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
+        keepaspectratio]{figs/docs-open.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{remark}[Två typer av filer]
+    Dokumentationen visar att Python skiljer mellan två fundamentalt
+    olika filtyper:
+    \begin{description}
+      \item[Textfiler] Använder lägena \mintinline{python}{"r"},
+        \mintinline{python}{"w"}, \mintinline{python}{"a"}.  Antar
+        \enquote{läsbara tecken}, rader bryts med
+        \mintinline{python}{"\n"}.
+      \item[Binärfiler] Lägger till \mintinline{python}{"b"}:
+        \mintinline{python}{"rb"}, \mintinline{python}{"wb"},
+        \mintinline{python}{"ab"}.  Ingen struktur, råa bytes.
+    \end{description}
+  \end{remark}
+\end{frame}
+
+
+\section{Filformat}
+\label{sec:filformat}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesLOWrite}, \cref{FilesLOFormats}
+
+  \textbf{Variationsmönster}: Generalisering + Kontrast
+
+  \textbf{Generalisering från terminal-I/O}: Precis som [[print()]] kräver
+  formatering (f-strängar, kommatecken mellan argument), kräver filer
+  format för strukturerad data.  Invariant: Behovet att strukturera data
+  för ett syfte.  Varierar: Destination och varaktighet (terminal vs
+  fil).
+
+  \textbf{Kontrast mellan egna och standardformat}: Varierar komplexitet
+  och robusthet (eget enkelt format vs CSV).  Invariant: Målet att lagra
+  tabelldata.
+
+  \textbf{Kritiska aspekter för} \cref{FilesLOFormats}:
+  \begin{itemize}
+    \item \textbf{Struktureringsprincipen}: Rådata i fil är meningslöst
+      utan överenskommet format.  Studenten måste urskilja att formatet
+      är en \emph{konvention} mellan skrivare och läsare.
+    \item \textbf{Standardformat överlägset}: Egen tolkning är skör
+      (kommatecken i data?  citattecken?).  CSV-beskrivningen i RFC~4180
+      löser specialfallen, och modulen [[csv]] följer den.
+    \item \textbf{Separation av format och innehåll}: CSV definierar
+      struktur, inte semantik.  Samma format för olika domäner (namn,
+      tal, datum).
+    \item \textbf{Allt som läses är text}: Det som läses ur en textfil är
+      strängar, även när det ser ut som tal; omvandlingen är
+      programmets sak.  Detta är en belagd missuppfattning
+      \parencite{Bosse2021Antipatterns,GuoMarkelZhang2020}.
+  \end{itemize}
+
+  \textbf{Pedagogisk progression}: Eget enkelt format först (exponerar
+  problemet), sedan CSV som lösning, sedan JSON för det CSV inte klarar.
+  Kontrasten gör standardformatens värde urskiljbart
+  \parencite[45--47]{Marton2015}.  Sekvens: SCB-aktivitet (uppleva
+  problemet) \(\to\) metafor (artikulera problemet) \(\to\) eget format
+  ([[xy.py]]) \(\to\) CSV-dokumentation \(\to\) CSV-implementation
+  ([[xy_csv.py]]) \(\to\) JSON ([[contacts_json.py]]).
+}
+
+Att kunna läsa och skriva filer är en sak, men \emph{hur} ska vi
+strukturera informationen i filerna?  Detta är en fundamental fråga som
+vi måste besvara varje gång vi arbetar med filer.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{activity}[SCB]
+      Besök SCB Namnsök\footnote{URL:
+        \url{https://www.scb.se/hitta-statistik/sverige-i-siffror/namnsok/}
+      }, ladda ner statistikfilen, och skriv ett program som gör samma
+      sak som webbsidans funktionalitet.
+
+      {\small Idé: Olle Bälter}
+    \end{activity}%
+  }%
+  \only<article>{%
+    \begin{activity}[SCB]
+      Idé: Olle Bälter\footnote{Ursprunglig övningsidé från Olle Bälter.}
+
+      SCB Namnsök\footnote{URL:
+        \url{https://www.scb.se/hitta-statistik/sverige-i-siffror/namnsok/}
+      } tillhandahåller statistik om namnfrekvenser i Sverige.  Ladda ner
+      statistikfilen och skriv ett program som gör samma sak som
+      webbsidans funktionalitet.
+    \end{activity}%
+  }
+\end{frame}
+
+\ltnote{%
+  \textbf{\foreignlanguage{english}{Try-first}-aktivitet}: SCB-övningen
+  låter studenter \emph{uppleva} problemet med ostrukturerad data innan
+  vi förklarar varför filformat behövs.  De kommer att upptäcka att filen
+  har en specifik struktur (namn och antal, åtskilda av semikolon) som de
+  måste förstå för att kunna tolka den korrekt.  Detta skapar motiverad
+  kontext för efterföljande förklaring om filformat.
+}
+
+\mode<article>{%
+Tänk dig att du får en textfil med tusentals rader text.  Var finns
+telefonnumren?  Var finns adresserna?  Vilka delar hör ihop?  Utan en
+tydlig struktur är det som att gå i becksvarta mörkret --- vi vet inte
+var vi ska leta efter informationen vi behöver.
+
+Detta problem löser vi med \emph{filformat}: överenskommelser om hur data
+ska organiseras i en fil.  Ett filformat är som ett kontrakt mellan
+programmet som skriver filen och programmet som läser den.  Båda måste
+förstå samma struktur för att kommunikationen ska fungera.
+
+SCB-övningen ovan är ett utmärkt exempel på varför filformat är viktiga.
+SCB tillhandahåller data om namnfrekvenser i en fil, men för att kunna
+använda den måste vi förstå hur informationen är strukturerad.  Var finns
+namnet?  Var finns antalet personer?  Hur separeras olika poster från
+varandra?
+}
+
+\subsection{Egna filformat}
+\label{sec:egna}
+
+Vi kan börja med att skapa våra egna enkla filformat.  Låt säga att vi
+vill spara talpar \((x, y)\) i en fil, där \(y = f(x)\) för någon
+funktion \(f\).  En enkel lösning är att skriva ett par per rad, med
+\(x\) och \(y\) åtskilda av ett kommatecken.
+
+\begin{frame}[fragile]
+  \begin{example}[Skriva talpar i eget format]
+    Vi sparar paren \(x, f(x)\) för \(f(x) = 2x + 3\):
+<<funktionen [[f]]>>=
+def f(x):
+    """The function whose values we save"""
+    return 2 * x + 3
+<<skriv paren till filen>>=
+def write_pairs(filename):
+    """Writes the pairs x, f(x) to the file, one pair per line"""
+    with open(filename, "w") as file:
+        for x in range(10):
+            file.write(f"{x},{f(x)}\n")
+@
+  \end{example}
+\end{frame}
+
+I exemplet ovan ser vi hur vi kan skriva talpar till en fil.  Varje par
+skrivs på en egen rad med formatet \texttt{x,y}.  Detta är ett enkelt
+\emph{eget filformat} som vi själva har definierat.  Filen kommer att
+börja med raderna \mintinline{text}|0,3|, \mintinline{text}|1,5| och
+\mintinline{text}|2,7|.
+
+\begin{frame}
+  \begin{exercise}
+    Filen innehåller raden \mintinline{text}|3,9|.  Vad behöver vi göra
+    för att få tillbaka talen 3 och 9 ur den?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  En funktion tolkar en rad, en annan läser filen och samlar paren i en
+  lista:
+<<tolka en rad>>=
+def parse_pair(line):
+    """Turns a line "x,y" into the pair of numbers (x, y)"""
+    x, y = line.strip().split(",")
+    return int(x), int(y)
+<<läs paren från filen>>=
+def read_pairs(filename):
+    """Reads the pairs in the file into a list"""
+    pairs = []
+    with open(filename, "r") as file:
+        for line in file:
+            pairs.append(parse_pair(line))
+    return pairs
+@
+\end{frame}
+
+När vi läser tillbaka filen måste vi tolka strukturen: ta bort
+radbrytningen med [[strip()]], dela upp raden vid kommatecknet med
+[[split(",")]], och --- inte att glömma --- omvandla delarna till tal
+med [[int()]].  Allt som läses ur en textfil är nämligen strängar, även
+det som ser ut som tal: [[read()]] ger en sträng, och slingan över filen
+ger en sträng per rad\autocite{PythonTutorialFiles}.  Strängen
+\mintinline{python}{"3"} är inte talet 3, precis som med [[input()]] i
+föreläsningen \emph{Inmatning och datatyper}, och jämförelsen
+\mintinline{python}{f(3) == "9"} är falsk hur rätt filen än är.  Paren
+samlar vi i en lista av tupler, den behållare vi känner från
+föreläsningarna \emph{Behållare: Listor} och \emph{Behållare: Tupler}.
+
+Lägg också märke till att det blev två funktioner och inte en:
+[[read_pairs]] läser filen, [[parse_pair]] tolkar en rad.  Det är
+principen om ett enda ansvar, \emph{SRP}
+(\foreignlanguage{english}{Single Responsibility Principle}) --- en modul
+ska aldrig ha mer än ett skäl att ändras\autocite[ch.~8]{Martin2003Agile}.
+Ändras formatet på en rad rör det bara [[parse_pair]]; ändras var paren
+finns rör det bara [[read_pairs]].  Principen namnges och beläggs i
+föreläsningen \emph{Funktioner}, bilaga B, med det förbehåll som står där.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLORead}.
+
+  \foreignlanguage{english}{Try-first}: uppgiften \enquote{få tillbaka
+  talen 3 och 9} ställs innan tolkningen visas, utan att nämna typer.
+  Den som stannar vid [[split(",")]] har inte urskilt att det lästa är
+  strängar.  Det är en dokumenterad missuppfattning: att tal som läses
+  från fil eller terminal antas vara tal fastän de är strängar
+  \parencite{GuoMarkelZhang2020}, katalogiserad som antimönstret
+  \emph{missing type conversion} i nybörjarkod
+  \parencite{Bosse2021Antipatterns}.  Prosan efter bilden säger
+  aspekten ut och knyter den till [[input()]], där studenterna redan mött
+  samma sak.  Källorna är återanvända ur kursens sammanställning av
+  missuppfattningar; vad som kontrollerats står i
+  \cref{app:missuppfattningar}.
+
+  Uppdelningen i [[read_pairs]] och [[parse_pair]] är vald för att kunna
+  namnge SRP där den tillämpas, som föreläsningen \emph{Funktioner} gör;
+  underlaget står där och upprepas inte här.
+}
+
+\begin{frame}[fragile]
+  De fyra funktionerna utgör tillsammans programmets verktyg:
+<<funktionerna för eget format>>=
+<<funktionen [[f]]>>
+
+
+<<skriv paren till filen>>
+
+
+<<tolka en rad>>
+
+
+<<läs paren från filen>>
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Programmet [[xy.py]] består av funktionerna och ett huvudprogram som
+  skriver paren, läser dem tillbaka och jämför:
+<<[[xy.py]]>>=
+"""Saving pairs of numbers in a format of our own"""
+
+FILENAME = "xy.txt"
+
+
+<<funktionerna för eget format>>
+
+
+<<skriv, läs tillbaka och jämför>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Huvudprogrammet jämför varje inläst \(y\) med \(f(x)\):
+<<skriv, läs tillbaka och jämför>>=
+def main():
+    """Writes the pairs, reads them back and compares"""
+    write_pairs(FILENAME)
+    any_bad = False
+    for x, y in read_pairs(FILENAME):
+        if f(x) != y:
+            print(f"{x} -/> {y}")
+            any_bad = True
+    if not any_bad:
+        print("Alla par lästes tillbaka rätt!")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körning]
+    Det vi skrev kom tillbaka:
+    \runpython[transcript]{examples/xy.py}
+  \end{example}
+\end{frame}
+
+Filnamnet står på ett ställe, i [[FILENAME]], så att skrivningen och
+läsningen säkert gäller samma fil.  Att skriva och sedan läsa tillbaka är
+det enklaste sättet att pröva ett format: kommer samma data tillbaka har
+skrivaren och läsaren förstått kontraktet lika.
+
+\begin{frame}
+  \begin{exercise}
+    Detta enkla format fungerar för talpar, men vilka problem kan uppstå?
+
+    Tänk på: Vad händer om vi vill spara personnamn och e-postadresser i
+    stället?  Kan ett namn innehålla kommatecken (t.ex.\ \enquote{Andersson,
+    Eva})?  Kan en e-postadress innehålla kommatecken?  Hur skulle vi
+    hantera citattecken i data?
+  \end{exercise}
+\end{frame}
+
+Detta fungerar för enkla fall, men snabbt blir vårt egendesignade format
+otillräckligt när data blir mer komplex.
+
+\subsection{Standardformatet CSV}
+\label{sec:csv}
+
+I stället för att uppfinna egna format för vanliga behov är det mycket
+bättre att använda \emph{standardformat} --- välkända och väl testade
+format som många program förstår.  Ett av de vanligaste formaten för
+tabelldata är CSV (\foreignlanguage{english}{Comma-Separated Values}):
+Pythons dokumentation kallar det \enquote{\foreignlanguage{english}{the
+most common import and export format for spreadsheets and
+databases}}\autocite{PythonCSV}.  Formatet användes länge utan att vara
+nedskrivet; först 2005 beskrevs det i RFC~4180, som själv påpekar att det
+\enquote{\foreignlanguage{english}{has never been formally
+documented}}\autocite{RFC4180}.  RFC:n är informativ, inte en
+internetstandard, och varianter förekommer --- men den beskriver just de
+specialfall vår egen tolkning inte klarar: fält med kommatecken,
+citattecken eller radbrytningar omges av citattecken.
+
+Att välja ett format som redan finns i stället för att hitta på ett eget
+är \emph{KISS} (\foreignlanguage{english}{Keep It Simple, Stupid}) ---
+den enklaste lösning som gör jobbet.  Uttrycket tillskrivs
+flygplanskonstruktören Kelly Johnson\autocite{Rich1995Johnson}, men
+tillskrivningen är folklore: det står i tryck redan
+1958\autocite{Popik2019KISS}.  Det vetenskapliga underlaget finns i
+föreläsningen \emph{Funktioner}, bilaga C.
+
+\begin{frame}
+  \begin{figure}
+    \begin{sidecaption}{Python-dokumentationen för modulen [[csv]] visar
+      hur CSV-filer läses och skrivs.}[fig:docs-csv]
+      \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
+        keepaspectratio]{figs/docs-csv.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+CSV är ett format som Python har inbyggt stöd för genom modulen [[csv]].
+Fördelen med att använda modulen i stället för att själv dela upp
+strängar vid kommatecken är att den hanterar specialfallen korrekt:
+citattecken, kommatecken inuti fält, olika radbrytningar, och så vidare.
+Modulen är också en gemensam tolk: i stället för att varje program har
+sin egen kopia av [[split(",")]] --- och sina egna buggar i den ---
+använder alla samma.  Det är \emph{DRY}
+(\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
+enda ställe\autocite{HuntThomas1999}, här tillämpat över programgränsen.
+Principen och dess förbehåll står i föreläsningen \emph{Algoritmiskt
+tänkande}, bilaga E.
+
+Låt oss se hur vi kan skriva samma talpar med CSV-formatet:
+
+\begin{frame}[fragile]
+  \begin{example}[Skriva talpar som CSV]
+    Ett [[csv.writer]]-objekt sköter formateringen av varje rad:
+<<skriv paren som CSV>>=
+def write_pairs(filename):
+    """Writes the pairs x, f(x) to the file as CSV"""
+    with open(filename, "w", newline="") as file:
+        writer = csv.writer(file)
+        for x in range(10):
+            writer.writerow([x, f(x)])
+@
+  \end{example}
+\end{frame}
+
+Notera hur vi använder [[csv.writer()]] för att skapa ett skrivarobjekt
+som tar hand om all formatering åt oss.  Vi behöver bara anropa
+[[writer.writerow()]] med en lista av värden, och modulen ser till att de
+skrivs korrekt.  Argumentet \mintinline{python}{newline=""} till
+[[open()]] är vad dokumentationen föreskriver för CSV-filer: modulen
+hanterar radbrytningarna själv, och utan argumentet kan filen få dubbla
+radbrytningar på vissa system\autocite{PythonCSV}.
+
+\begin{frame}[fragile]
+  \begin{example}[Läsa CSV]
+    Ett [[csv.reader]]-objekt ger oss en lista av fält per rad:
+<<läs paren från CSV-filen>>=
+def read_pairs(filename):
+    """Reads the pairs in the file into a list"""
+    pairs = []
+    with open(filename, "r", newline="") as file:
+        for x, y in csv.reader(file):
+            pairs.append((int(x), int(y)))
+    return pairs
+@
+  \end{example}
+\end{frame}
+
+På samma sätt använder vi [[csv.reader()]] för att läsa CSV-filer.
+Modulen tar hand om uppdelningen och ger oss en lista av fält för varje
+rad.  Detta är mycket säkrare och mer robust än vår egen implementation
+med [[split(",")]].  Men lägg märke till att [[int()]] är kvar: modulen
+delar upp raden, men fälten är fortfarande strängar --- vad de betyder
+vet bara vi.
+
+\begin{frame}[fragile]
+  Funktionerna är [[f]] och de två nya; tolkningen av en rad behövs
+  inte längre:
+<<funktionerna för CSV>>=
+<<funktionen [[f]]>>
+
+
+<<skriv paren som CSV>>
+
+
+<<läs paren från CSV-filen>>
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Programmet [[xy_csv.py]] är [[xy.py]] med funktionerna utbytta;
+  huvudprogrammet är detsamma:
+<<[[xy_csv.py]]>>=
+"""Saving pairs of numbers as CSV"""
+
+import csv
+
+FILENAME = "xy.csv"
+
+
+<<funktionerna för CSV>>
+
+
+<<skriv, läs tillbaka och jämför>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körning]
+    Samma resultat som med vårt eget format:
+    \runpython[transcript]{examples/xy_csv.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOFormats}.
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Hur formatet hanteras --- egen tolkning med
+  [[split]] i [[xy.py]], modulen [[csv]] i [[xy_csv.py]].
+
+  \textbf{Vad som hålls invariant}: Funktionen [[f]], huvudprogrammet och
+  jämförelsen, som är \emph{samma} kodstycken i båda programmen (de
+  namngivna stegen återanvänds i källan), samt att [[int()]] behövs i
+  båda.  Att omvandlingen står kvar även med [[csv]] är avsiktligt: den
+  dokumenterade missuppfattningen är att det lästa redan är tal
+  \parencite{GuoMarkelZhang2020}, och modulen ändrar inte det.
+
+  Principerna namnges \emph{efter} att de tillämpats, som i
+  föreläsningen \emph{Funktioner}: SRP vid de två funktionerna i
+  [[xy.py]], KISS vid valet av ett befintligt format, DRY vid den
+  gemensamma modulen.  Deras underlag står i \emph{Funktioner} (bilaga B
+  och C) och \emph{Algoritmiskt tänkande} (bilaga E) och upprepas inte
+  här.
+}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{activity}[Telefonbok med CSV]
+      Skapa ett program som hanterar en telefonbok:
+      \begin{enumerate}
+        \item Läs befintliga kontakter från \texttt{contacts.csv}.
+        \item Låt användaren lägga till nya kontakter.
+        \item Spara tillbaka till filen.
+      \end{enumerate}
+      Testa med namnet \enquote{Svensson, Anna} och se vad som händer.
+    \end{activity}%
+  }%
+  \only<article>{%
+    \begin{activity}[Telefonbok med CSV]
+      Skapa ett program som hanterar en telefonbok:
+      \begin{enumerate}
+        \item Läs befintliga kontakter från \texttt{contacts.csv}.
+        \item Låt användaren lägga till nya kontakter (namn och
+          telefonnummer).
+        \item Spara alla kontakter tillbaka till filen.
+      \end{enumerate}
+
+      Testa att lägga till kontakten \enquote{Svensson, Anna} och se vad
+      som händer i filen och vid nästa inläsning.  Jämför med vad som
+      skulle hända om du använde [[split(",")]] i stället för modulen
+      [[csv]].
+    \end{activity}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLORead}, \cref{FilesLOWrite},
+  \cref{FilesLOContextMgr}, \cref{FilesLOFormats}.
+  Praktisk aktivitet som integrerar lärandemålen: det bekanta
+  telefonboksexemplet (en uppslagslista) utökas med filpersistens, och
+  kommatecknet i namnet låter studenten \emph{upptäcka} modulens
+  robusthet (\foreignlanguage{english}{try-first}).  Uppgiften säger
+  inte vad som ska hända med kommatecknet; det är studentens sak att se
+  det.
+}
+
+\subsection{Nästlade data: JSON}
+\label{sec:json}
+
+Telefonboken är en uppslagslista (\foreignlanguage{english}{dictionary}),
+och i CSV-filen blir den en tabell med två kolumner som vi själva måste
+bygga upp igen rad för rad när vi läser.  Det går, men CSV är gjort för
+tabeller.  Har en person två telefonnummer, eller både adress och
+nummer, får tabellen inte längre plats för strukturen.  Finns det ett
+format som kan spara uppslagslistan som den är --- med listor inuti?
+
+Det finns det: JSON (\foreignlanguage{english}{JavaScript Object
+Notation}), ett \enquote{\foreignlanguage{english}{lightweight,
+text-based, language-independent data interchange format}} som kan
+uttrycka strängar, tal, sanningsvärden och [[null]] samt två sorters
+struktur: objekt (uppslagslistor) och \foreignlanguage{english}{arrays}
+(listor)\autocite{RFC8259}.  Det är en riktig internetstandard, och
+strukturerna kan nästlas hur djupt som helst.  Pythons modul [[json]]
+översätter mellan JSON-text och Pythons egna uppslagslistor, listor,
+strängar och tal\autocite{PythonJSON}.
+
+\begin{frame}[fragile]
+  \begin{example}[Spara och läsa tillbaka en telefonbok]
+    Två funktioner räcker: [[json.dump]] skriver strukturen till filen,
+    [[json.load]] läser den tillbaka:
+<<spara telefonboken>>=
+def save_contacts(contacts, filename):
+    """Saves the phone book (a dictionary) to the file as JSON"""
+    with open(filename, "w") as file:
+        json.dump(contacts, file)
+<<läs tillbaka telefonboken>>=
+def load_contacts(filename):
+    """Reads the phone book back from the file"""
+    with open(filename, "r") as file:
+        return json.load(file)
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Spara, visa och läs tillbaka]
+    Huvudprogrammet sparar telefonboken, visar filens text och läser
+    den tillbaka:
+<<spara, visa och läs tillbaka>>=
+def main():
+    """Saves a phone book, shows the file and reads it back"""
+    contacts = {"Anna": "070-123 45 67", "Bo": "08-12 34 56"}
+    save_contacts(contacts, "contacts.json")
+    with open("contacts.json", "r") as file:
+        print("Filen innehåller:", file.read())
+    print("Inläst:", load_contacts("contacts.json"))
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  Programmet [[contacts_json.py]] sätter ihop delarna:
+<<[[contacts_json.py]]>>=
+"""Saving a phone book as JSON"""
+
+import json
+
+
+<<spara telefonboken>>
+
+
+<<läs tillbaka telefonboken>>
+
+
+<<spara, visa och läs tillbaka>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körning]
+    Filen ser nästan ut som Pythons egen skrivning av uppslagslistan:
+    \runpython[transcript]{examples/contacts_json.py}
+  \end{example}
+\end{frame}
+
+Filens innehåll ser nästan ut som när Python skriver ut en uppslagslista
+--- skillnaden är citattecknen, som i JSON alltid är dubbla --- och det
+inlästa är en riktig uppslagslista igen, med samma nycklar och värden.
+Hela strukturen kom tillbaka utan att vi skrev en enda rad tolkning:
+formatet är standardiserat, så modulen kan göra det åt oss.  Hur ni
+hittar och läser dokumentationen för [[csv]], [[json]] och de andra
+modulerna i standardbiblioteket tas upp i materialet om moduler.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOFormats}, \cref{FilesLOWrite}.
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: Formatet och vad det kan uttrycka --- CSV
+  ger platta tabeller där programmet självt bygger upp strukturen, JSON
+  sparar uppslagslistor och listor, även nästlade, som de är.
+
+  \textbf{Vad som hålls invariant}: Uppgiften (spara telefonboken och
+  läs den tillbaka) och mönstret öppna--operera--stäng med [[with]].
+
+  JSON läggs sist och kort: målet är att kunna läsa och skriva formatet
+  med standardbiblioteket, inte att kunna dess grammatik.  Frågan
+  \enquote{finns det ett format som kan spara uppslagslistan som den
+  är?} ställs i prosan innan svaret, och körningen visar filens text
+  bredvid det inlästa så att likheten med --- och skillnaden mot ---
+  Pythons egen skrivning syns samtidigt \parencite[45--47]{Marton2015}.
+  Att slå upp modulerna i dokumentationen är materialet om modulers sak;
+  här hänvisas dit i stället för att upprepa det.
+}
+
+Den viktigaste lärdomen här är att \emph{formatering och struktur är lika
+viktigt för filer som för terminalutskrift}.  Precis som vi måste tänka
+på hur vi formaterar utmatningen med [[print()]], måste vi tänka på hur
+vi strukturerar data i filer.  Skillnaden är att för filer finns det ofta
+etablerade standarder vi kan använda, vilket gör våra program mer
+kompatibla och robusta.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOFormats}.
+  Avslutande generalisering: efter variationen (eget format \(\to\) CSV
+  \(\to\) JSON) artikuleras principen att \emph{standardformat är mer
+  robusta än egna format} --- formatet är en konvention mellan skrivare
+  och läsare, och standardmoduler hanterar de specialfall egen tolkning
+  missar.  Att CSV är vanligt och att JSON är en standard är
+  faktapåståenden med källor; vad som kontrollerats står i
+  \cref{app:format}.
+}
