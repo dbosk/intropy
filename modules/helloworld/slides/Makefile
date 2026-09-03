@@ -6,8 +6,8 @@ LATEXFLAGS+=	-shell-escape
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
 # from it (the examples/ directory is all generated files).  noweb.mk
-# provides the weave (tominted, so the PDFs need the Pygments lexer
-# classes in ${NOWEB_LEXER} at compile time) and the tangle rules.
+# provides the weave (tominted, which finds its bundled Pygments lexer
+# itself) and the tangle rules.  See modules/CLAUDE.md for the pattern.
 
 # Teaching examples must match the slides byte for byte: no #line
 # directives in the tangled C++.
@@ -22,7 +22,7 @@ EXAMPLES+=	examples/hello.sh
 EXAMPLES+=	examples/hello-name.py
 EXAMPLES+=	examples/hello-function.py
 
-contents.tex: contents.nw noweb_lexer.py
+contents.tex: contents.nw
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
@@ -40,13 +40,13 @@ examples: ${EXAMPLES}
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
-notes.pdf slides.pdf: ${SRC} ${EXAMPLES} noweb_lexer.py
+notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
 
 
 .PHONY: clean
 clean:
 	${RM} notes.pdf slides.pdf
-	${RM} contents.tex noweb_lexer.py
+	${RM} contents.tex
 	${RM} ${EXAMPLES}
 
 
