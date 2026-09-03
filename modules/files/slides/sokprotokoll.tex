@@ -1,0 +1,606 @@
+\chapter{Att kontrollera ett påstående}
+\label{app:verifiera}
+
+Det här materialet gör, som allt undervisningsmaterial, en rad
+påståenden.  De flesta går att pröva vid datorn: att programmet kraschar
+när filen saknas ser ni själva genom att köra det.  Men några av
+påståendena handlar om vad forskningen, dokumentationen eller standarder
+säger, och dem kan ingen körning avgöra:
+\begin{enumerate}
+  \item att nybörjare tar det som läses ur en fil för tal fastän det är
+    strängar, och att materialets kontraster därför måste upplevas
+    samtidigt för att göra skillnaden synlig (\cref{sec:egna,sec:csv});
+  \item att primärminnet nås på nanosekunder och sekundärminnet på
+    mikro- till millisekunder (\cref{sec:vad-ar-en-fil});
+  \item att Pythons filfunktioner gör det materialet säger: att
+    \mintinline{python}{with} stänger filen även vid fel, att
+    \mintinline{python}{write} inte lägger till radbrytningar, att en
+    slinga över filen är minnessnål, att text- och binärläge skiljer sig
+    i avkodningen, och att en saknad fil ger
+    \mintinline{python}{FileNotFoundError}
+    (\cref{sec:oppna,sec:saknas,sec:lasa-skriva,sec:typer});
+  \item att CSV är ett mycket vanligt men aldrig formellt standardiserat
+    format, att modulen \mintinline{python}{csv} tar hand om kommatecken
+    och citattecken i fält, och att JSON är en internetstandard som kan
+    uttrycka nästlade strukturer (\cref{sec:csv,sec:json});
+  \item att DRY, SRP och KISS är etablerade principer med de upphov
+    materialet anger (\cref{sec:egna,sec:csv}).
+\end{enumerate}
+Hur vet man om sådant stämmer?  Samma fråga möter er varje gång ni läser
+en lärobok, en webbsida eller ett svar från en språkmodell --- och varje
+gång ni själva ska skriva en rapport.  Den här bilagan sammanfattar
+arbetsgången; \cref{app:missuppfattningar,app:minne,app:dokumentation,%
+app:format} visar den genomförd på de fyra första påståendena, och
+\cref{tab:paastaaenden-files} sammanfattar frågorna och var svaren står.
+Det femte påståendet är redan kontrollerat i andra föreläsningar och
+görs inte om här.  Arbetsgången beskrivs utförligare i bilagan med samma
+namn i föreläsningen \emph{Algoritmiskt tänkande}.
+
+\section{Gör påståendet till en fråga}
+
+Ett påstående går att kontrollera först när det är tydligt vad som skulle
+kunna visa att det är \emph{fel}.  Formulera det därför som en fråga med
+ett svar.  \enquote{Stänger \mintinline{python}{with} filen även när ett
+fel inträffar?} kan besvaras med ja eller nej; \enquote{filhantering är
+viktigt} kan det inte, eftersom \enquote{viktigt} är ett omdöme och inte
+ett faktum.  Ofta döljer sig flera påståenden i ett: \enquote{CSV är ett
+vanligt standardformat} är två frågor --- är det \emph{vanligt}, och är
+det en \emph{standard} --- och i det här fallet får de olika svar.
+
+\section{Välj rätt sorts källa}
+
+Olika frågor besvaras av olika källor.
+\begin{description}
+  \item[Dokumentationen] för vad ett verktyg \emph{gör}.  Vad
+    \mintinline{python}{open} gör med sitt läge avgörs av Pythons egen
+    dokumentation, inte av en lärobok som återger den.
+  \item[Standarden] för vad ett format \emph{är}.  För CSV och JSON är
+    det de dokument (RFC:er) som beskriver formaten, och deras egen
+    uppgift om vilken status de har.
+  \item[Primärkällan] för var en idé \emph{kommer ifrån}, och för ett
+    specifikt resultat.  Vill man veta vad studenter faktiskt gjorde
+    läser man studien som mätte det.
+  \item[Läroböcker] för storleksordningar och etablerade fakta, med
+    förbehållet att siffrorna är avrundade och beror på maskinen.
+  \item[Översikter] (\foreignlanguage{english}{reviews}) för om något är
+    \emph{etablerat}, eller för vad forskningen \emph{sammantaget}
+    säger.
+\end{description}
+Var man hittar dem: dokumentationen på \url{docs.python.org}, RFC:erna
+hos \url{rfc-editor.org}, och för forskningen universitetsbibliotekets
+söktjänst och databaser som Scopus, Web of Science, IEEE Xplore, DBLP
+(datalogi) och OpenAlex (öppen).  I den här föreläsningen behövdes ingen
+ny litteratursökning: forskningskällorna är återanvända ur kursens
+sammanställning av nybörjares missuppfattningar, och de övriga
+påståendena besvaras av dokument man vet finns och slår upp direkt ---
+\emph{kända dokument}.
+
+\section{Sök så att du kan ha fel}
+
+Den som söker på namn hon redan känner till hittar det hon väntar sig.
+Sök därför \emph{ämnesdrivet} --- på begrepp, inte författare --- och
+sök också efter \emph{invändningar}.  För ett känt dokument gäller
+motsvarigheten: läs också det som talar emot påståendet \emph{i samma
+dokument}.  Både \cref{app:dokumentation,app:format} innehåller sådana
+fall --- dokumentationen som rekommenderar \mintinline{python}{with}
+säger också att standardkodningen beror på datorn, och RFC:n som
+beskriver CSV säger i sin första mening att den inte är någon standard.
+Ett påstående som överlevt en sådan läsning är värt mer än ett som bara
+fått sin bekräftelse.
+
+\section{Läs i fulltext, och skriv ner hur}
+
+En träff i en databas är inte ett belägg, och en titel är det inte
+heller.  Läs hela texten och leta upp \emph{det ställe} som styrker
+påståendet --- ett ordagrant citat med sidnummer eller avsnitt.  Hittar
+ni inget sådant ställe stöder källan inte påståendet.  Räkna aldrig en
+källa ni inte läst: \cref{app:missuppfattningar} innehåller ett fall där
+en källa som tidigare var läst i fulltext inte längre gick att komma åt,
+och det står därför uttryckligen att den inte kontrollerats om.
+
+Skriv sedan ner hur ni gick till väga, så att någon annan kan följa
+spåret.  I det här materialet står den anteckningen som en kommentar
+ovanför varje post i litteraturlistans källfil, med fasta fält:
+\begin{description}
+  \item[\texttt{CLAIM}] vilket påstående källan ska styrka;
+  \item[\texttt{FOUND-VIA}] hur den hittades --- sökfråga och databas,
+    eller \enquote{känt dokument};
+  \item[\texttt{PICKED}] varför just den, framför andra träffar;
+  \item[\texttt{QUOTE}] det ordagranna citatet, med sida;
+  \item[\texttt{VERIFIED}] att fulltexten lästs, och var;
+  \item[\texttt{COUNTER}] motsökningen och vad den gav;
+  \item[\texttt{DATE}] när.
+\end{description}
+Det tar ett par minuter per källa, och det är det enda som gör det
+möjligt att om ett år svara på frågan \enquote{hur vet du det?}
+
+\section{Dra slutsatsen --- med förbehåll}
+
+Svaret skrivs ut tillsammans med det som talar emot.  Alla fyra
+bilagorna svarar \enquote{ja, med förbehåll}
+(\cref{tab:paastaaenden-files}): missuppfattningen är belagd, men en av
+källorna gick inte att läsa om; minnestiderna stämmer som
+storleksordningar, inte som mätvärden för just er dator; dokumentationen
+säger det materialet säger, men standardkodningen beror på datorn; och
+CSV är mycket riktigt vanligt, men ingen standard --- det är JSON.
+Förbehållen är inte svagheter i svaret.  De \emph{är} svaret, och de
+avgör hur påståendet används i materialet: därför står det i
+\cref{sec:csv} att RFC:n är informativ och att varianter förekommer, i
+stället för att CSV kallas standard rakt av.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Påståendena i den här föreläsningen som frågor, och var
+    svaret står.}
+  \label{tab:paastaaenden-files}
+  \begin{tabular}{@{}p{0.52\linewidth}l@{}}
+    \toprule
+    Fråga & Var svaret står \\
+    \midrule
+    Tar nybörjare det som läses ur en fil för tal fastän det är
+      strängar? & \Cref{app:missuppfattningar} \\
+    Måste en kontrast upplevas samtidigt för att kunna urskiljas? &
+      \Cref{app:missuppfattningar} \\
+    Nås primärminnet på nanosekunder och sekundärminnet på mikro- till
+      millisekunder? & \Cref{app:minne} \\
+    Gör Pythons filfunktioner det materialet säger? &
+      \Cref{app:dokumentation} \\
+    Är CSV vanligt, är det en standard, och tar modulen
+      \mintinline{python}{csv} hand om specialfallen?  Är JSON en
+      standard? & \Cref{app:format} \\
+    Är det bra att inte upprepa sig i ett program, och kommer principen
+      \foreignlanguage{english}{DRY} från Hunt och Thomas? &
+      Redan belagt i \emph{Algoritmiskt tänkande}, bilaga E \\
+    Kommer \foreignlanguage{english}{single responsibility} från Robert
+      C. Martin, och \foreignlanguage{english}{KISS} från Kelly Johnson?
+      Är de etablerad praxis? & Redan belagt i \emph{Funktioner},
+      bilaga B och C \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{En anmärkning om språkmodeller}
+
+I andra föreläsningars bilagor gav sökningarna hundratals träffar, och en
+språkmodell användes för att \emph{sortera} dem.  Här gjordes ingen ny
+sökning, så ingen sortering behövdes; men en språkmodell användes för
+att hämta dokumenten, hitta citaten i dem och skriva anteckningarna.
+Lägg märke till arbetsfördelningen: varje citat är hämtat ur källans
+text, inte ur modellens minne, och varje källa ska läsas och godkännas av
+en människa --- hur långt den granskningen kommit står i början av varje
+bilaga.  Använd gärna språkmodeller för att hitta och sortera; låt dem
+aldrig vara det sista ledet.
+
+
+\chapter{Är missuppfattningen belagd?}
+\label{app:missuppfattningar}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Den här föreläsningen är på två ställen byggd kring en sak nybörjare
+brukar missförstå: att det som läses ur en textfil är strängar, även när
+det ser ut som tal.  I \cref{sec:egna} ställs frågan hur man får tillbaka
+talen 3 och 9 ur raden \mintinline{text}|3,9| innan tolkningen visas,
+och i \cref{sec:csv} står omvandlingen med \mintinline{python}{int} kvar
+även när modulen \mintinline{python}{csv} tagit över uppdelningen.  Att
+kontrasterna dessutom visas samtidigt --- de två läsprogrammen sida vid
+sida, filens text bredvid det inlästa --- följer av en teori om lärande.
+Frågan som ska besvaras är: \emph{är missuppfattningen belagd, och
+håller skälet till att kontrasterna visas som de gör?}
+
+\section{Metod}
+\label{sec:miss-metod}
+
+Ingen ny litteratursökning har gjorts för den här föreläsningen.
+Källorna för missuppfattningen är hämtade ur en systematisk genomgång av
+forskningen om nybörjares missuppfattningar som kursens lärare gjort
+inom ett pågående forskningsarbete.  Den genomgången söktes ämnesdrivet
+i flera databaser --- Semantic Scholar, OpenAlex, DBLP, arXiv, Web of
+Science, IEEE Xplore och Scopus --- på frågan vilka missuppfattningar
+nybörjare har i grundläggande programmering, och träffarna sorterades
+först maskinellt och sedan för hand.  Källorna för lärandeteorin är de
+som hela kursen använder i sina lärarnoter.
+
+Att återanvända en källa är inte detsamma som att ha kontrollerat den.
+För varje källa har därför tre saker gjorts om: påståendet har
+formulerats så som \emph{den här} föreläsningen gör det; det ordagranna
+citat föreläsningen stöder sig på har sökts upp igen i källan; och det
+har antecknats vilken nivå kontrollen nådde --- fulltext, enbart
+sammanfattning, eller inte alls.  Anteckningarna står i materialets
+källfil för litteraturlistan, ovanför varje post.
+
+Den här bilagan innehåller därför ingen träfflista och inga sökfrågor:
+det vore att låtsas att en sökning gjorts som inte gjorts.  Vad som står
+här är i stället vilka källor som bär vilket påstående, och hur långt
+kontrollen av dem räcker.
+
+% Author's note (verification and reproduction): no scholar session.
+% Sources reused from ~/devel/edu/research/vt-prog-misconceptions
+% (types.tex; misconceptions.bib) and from the computational-thinking
+% deck's ltnotes.bib.  Re-verification 2026-09-03: Bosse2021Antipatterns
+% re-read in full (arXiv 2104.12542, pdftotext), P_V5 confirmed verbatim;
+% GuoMarkelZhang2020 NOT obtainable (author's copy withdrawn, ACM closed,
+% no OA copy) -- quote carried on the paper's verification of 2026-06-29;
+% Marton2015 pp. 45-47 as verified in the course; MartonPang2006 abstract
+% only (ERIC EJ733793), closed at T&F and HKU hub.  Bib keys:
+% Bosse2021Antipatterns, GuoMarkelZhang2020, Marton2015, MartonPang2006.
+
+\section{Resultat}
+\label{sec:miss-resultat}
+
+\paragraph{Tas det som läses för tal?}  Ja.  Missuppfattningen är
+katalogiserad som ett antimönster i verklig kod från
+grundkursstudenter.  \Textcite{Bosse2021Antipatterns} byggde en katalog
+över 41 antimönster ur 95 missuppfattningar i inlämnad kod, och
+antimönstret \emph{missing type conversion} beskrivs så här:
+\textcquote{Bosse2021Antipatterns}{Failure to convert, when necessary,
+will make the data not be in the proper format so that the program can
+work.  This error will be noticed during program execution}.  Att felet
+gäller just data som läses från fil eller terminal står i den hittills
+största samlingen av nybörjarförklaringar, drygt 16\,000 stycken
+insamlade under tre år på en webbplats för programvisualisering:
+\textcquote{GuoMarkelZhang2020}{When numerical data is read from files
+or terminal input, they often start as strings.  If they are not
+properly converted to numbers, it is still possible to use math
+operators like + and > on them, which will perform string concatenation
+and comparison}.  Det senare är precis vad frågan i \cref{sec:egna} är
+byggd för att avslöja: den som stannar vid \mintinline{python}{split}
+har ett program som ser ut att fungera men jämför strängar med tal.
+
+\paragraph{Måste kontrasten upplevas samtidigt?}  Ja, enligt den teori
+materialet är byggt på.  \Textcite[45--47]{Marton2015} visar att en
+aspekt bara kan urskiljas om den varierar mot en invariant bakgrund, och
+att den variationen måste upplevas samtidigt: \textcquote[46]{Marton2015}{if
+you cannot see the greenness of any of three green, though otherwise
+different, things, you cannot see what they have in common, either}.
+Samma villkor formuleras i den tidskriftsartikel materialets lärarnoter
+sedan tidigare hänvisade till: \textcquote{MartonPang2006}{To discern an
+aspect, the learner must experience potential alternatives, that is,
+variation in a dimension corresponding to that aspect, against the
+background of invariance in other aspects of the same object of
+learning}.  Det är därför de två läsprogrammen i \cref{sec:lasa-skriva}
+visas sida vid sida inför valövningen, och därför körningen i
+\cref{sec:json} visar filens text och det inlästa på samma bild.
+
+\section{Diskussion och begränsningar}
+\label{sec:miss-diskussion}
+
+Tre saker begränsar svaret.
+
+För det första gick en av källorna inte att läsa om.  Studien med
+nybörjarförklaringarna hade tidigare kontrollerats i fulltext i kursens
+genomgång, i författarens egen kopia på webben; den kopian är nu
+tillbakadragen, och förlagets version är stängd.  Citatet ovan bärs
+alltså av den tidigare kontrollen, inte av en ny läsning, och det står
+så i källfilen.  Påståendet vilar därför i första hand på
+antimönsterkatalogen, som lästes om i sin helhet; studien med
+förklaringarna tillför att felet gäller just filer, vilket katalogen inte
+säger ut.
+
+För det andra är den lärandeteoretiska artikeln läst enbart i
+sammanfattning; den är stängd hos förlaget.  Den citeras därför bara för
+det sammanfattningen säger rakt ut --- att urskiljning kräver variation
+mot invarians --- och det skarpare påståendet om samtidighet bärs av
+boken, vars sidor är kontrollerade i kursen.
+
+För det tredje säger ingen av källorna något om hur ofta felet
+förekommer i just den här kursen.  Antimönsterkatalogen bygger på kod från
+en grundkurs i ett annat land, delvis i C; förklaringarna kommer från
+användare av en webbplats, inte från en kurs alls.  Att felet känns igen
+här är inte samma sak som att frekvenserna överförs.  Kursens egna
+diagnostiska frågor finns till för det.
+
+\section{Slutsats}
+\label{sec:miss-slutsats}
+
+Ja, missuppfattningen är belagd, med förbehållet att en av de två
+källorna inte gick att läsa om och att ingen av dem mäter frekvensen i
+den här kursens population.  Att data som läses in inte omvandlas till
+tal är ett katalogiserat antimönster i
+nybörjarkod\autocite{Bosse2021Antipatterns}, och att felet gäller just
+det som läses från filer och terminal står i studenters egna
+förklaringar\autocite{GuoMarkelZhang2020}.  Att kontrasterna visas
+samtidigt följer av variationsteorins villkor för
+urskiljning\autocite[45--47]{Marton2015}, som artikeln materialet
+tidigare hänvisade till formulerar på samma sätt i sin
+sammanfattning\autocite{MartonPang2006}.  Beläggen används till det de
+räcker till: att välja \emph{vilken} fråga som ställs innan tolkningen
+visas, inte till att säga åt studenterna vad de tror.
+
+
+\chapter{Är primärminnet så mycket snabbare?}
+\label{app:minne}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:vad-ar-en-fil} sägs att primärminnet nås i storleksordningen
+nanosekunder och sekundärminnet i mikro- till millisekunder.  Det är ett
+faktapåstående om maskinvara, och det motiverar hela avvägningen mellan
+de två minnena.  Frågan som ska besvaras är: \emph{stämmer
+storleksordningarna?}
+
+\section{Metod}
+\label{sec:minne-metod}
+
+Det här är en fråga om etablerade fakta, så källan är en lärobok, hämtad
+som känt dokument: \emph{Operating Systems: Three Easy Pieces}, en fritt
+publicerad lärobok i operativsystem vars kapitel läses direkt på
+webben\autocite{ArpaciDusseau2025OSTEP}.  Den valdes framför de
+klassiska läroböckerna i datorarkitektur därför att var och en kan
+öppna den och kontrollera citaten; de klassiska böckernas tabeller gick
+inte att läsa i fulltext.  Tre kapitel lästes: det om
+sidersättningspolicyer, där boken räknar på kostnaden för minnes- och
+diskåtkomst, och de om hårddiskar och SSD:er, där komponenttiderna
+anges.
+
+% Author's note (verification and reproduction): no scholar session.
+% Chapters fetched 2026-09-03 from https://pages.cs.wisc.edu/~remzi/OSTEP/
+% (vm-beyondphys-policy.pdf, file-disks.pdf, file-ssd.pdf), read with
+% pdftotext; the passages quoted below are in sec. 22.1, 37.4 and 44.3.
+% Bib key: ArpaciDusseau2025OSTEP.
+
+\section{Resultat}
+\label{sec:minne-resultat}
+
+Boken använder just de storleksordningar materialet anger.  I
+räkneexemplet om genomsnittlig åtkomsttid skriver författarna:
+\textcquote[kap.~22.1]{ArpaciDusseau2025OSTEP}{Assuming the cost of
+accessing memory (\(T_M\)) is around 100 nanoseconds, and the cost of
+accessing disk (\(T_D\)) is about 10 milliseconds}.  Disktiden består av
+komponenter som kapitlet om hårddiskar anger var för sig, bland dem
+\textcquote[kap.~37.4]{ArpaciDusseau2025OSTEP}{The average seek time (4
+milliseconds)}.  För SSD:er är läsningen av en sida
+\textcquote[kap.~44.3]{ArpaciDusseau2025OSTEP}{typically quite fast, 10s
+of microseconds or so}.  Primärminne på hundra nanosekunder,
+sekundärminne på tiotals mikrosekunder till millisekunder: det är
+materialets påstående.
+
+\section{Diskussion och begränsningar}
+\label{sec:minne-diskussion}
+
+Siffrorna är läroboksvärden, inte mätningar.  Bokens minnes- och
+disktider införs som \emph{antaganden} i ett räkneexempel, och
+komponenttiderna anges som typiska värden som beror på tillverkare och
+generation.  En modern SSD kan vara snabbare än tiotals mikrosekunder
+och en gammal hårddisk långsammare än några millisekunder.  Materialet
+säger därför storleksordningar, inte tal, och det är på den nivån
+påståendet är kontrollerat.
+
+\section{Slutsats}
+\label{sec:minne-slutsats}
+
+Ja, storleksordningarna stämmer: hundra nanosekunder för primärminnet
+mot tiotals mikrosekunder (SSD) till millisekunder (hårddisk) för
+sekundärminnet\autocite[kap.~22, 37 och 44]{ArpaciDusseau2025OSTEP},
+med förbehållet att de är avrundade läroboksvärden som varierar med
+maskinen.
+
+
+\chapter{Gör Pythons filfunktioner det materialet säger?}
+\label{app:dokumentation}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Materialet gör en rad påståenden om vad Pythons filfunktioner gör.  I
+\cref{sec:oppna} sägs att filen måste stängas för att det skrivna säkert
+ska nå disken, och att \mintinline{python}{with} stänger den även när ett
+särfall inträffar.  I \cref{sec:saknas} sägs att en saknad fil ger
+\mintinline{python}{FileNotFoundError}.  I \cref{sec:lasa-skriva} sägs
+att \mintinline{python}{write} inte lägger till radbrytningar, att varje
+rad som läses behåller sin radbrytning, att en slinga över filen är
+minnessnål, att \mintinline{python}{read} läser hela filen och att allt
+som läses är strängar.  I \cref{sec:typer} sägs att textläget avkodar
+filens bytes med en teckenkodning medan binärläget ger råa bytes, och
+att standardkodningen beror på datorn.  Frågan som ska besvaras är:
+\emph{stämmer allt detta?}
+
+\section{Metod}
+\label{sec:dok-metod}
+
+Det här är frågor om vad ett verktyg gör, så den avgörande källan är
+Pythons egen dokumentation, hämtad som känt dokument den 3 september
+2026: handledningens avsnitt om att läsa och skriva
+filer\autocite{PythonTutorialFiles}, referensen för
+\mintinline{python}{open}\autocite{PythonOpen} och referensen för de
+inbyggda särfallen\autocite{PythonExceptions}.  Sidorna hämtades som
+text och varje påstående söktes upp i dem ordagrant.  Ingen
+litteratursökning gjordes: dokumentationen är normerande för vad
+funktionerna gör, och en studie som säger något annat skulle beskriva
+ett fel i Python, inte i materialet.
+
+% Author's note (verification and reproduction): no scholar session.
+% Pages fetched with curl 2026-09-03 (tutorial/inputoutput.html,
+% library/functions.html, library/exceptions.html), tags stripped, quotes
+% located with a small Python script (quotes.py in the agent's scratch).
+% Bib keys: PythonTutorialFiles, PythonOpen, PythonExceptions.
+
+\section{Resultat}
+\label{sec:dok-resultat}
+
+\paragraph{Stängning och \mintinline{python}{with}.}  Ja.  Handledningen
+säger att \textcquote{PythonTutorialFiles}{It is good practice to use the
+with keyword when dealing with file objects.  The advantage is that the
+file is properly closed after its suite finishes, even if an exception
+is raised at some point}, och om den som inte gör det:
+\textcquote{PythonTutorialFiles}{If you're not using the with keyword,
+then you should call f.close() to close the file and immediately free up
+any system resources used by it}.  Att det skrivna annars kan utebli står
+i en varning: \textcquote{PythonTutorialFiles}{Calling f.write() without
+using the with keyword or calling f.close() might result in the arguments
+of f.write() not being completely written to the disk, even if the
+program exits successfully}.
+
+\paragraph{En saknad fil.}  Ja.  Referensen definierar
+\mintinline{python}{FileNotFoundError} som det särfall som kastas
+\textcquote{PythonExceptions}{when a file or directory is requested but
+doesn't exist}.  Samma sida förklarar också varför materialets tidigare
+exempelprogram, som fångade \mintinline{python}{EnvironmentError},
+ändrats: det namnet är sedan Python 3.3 bara ett alias för
+\mintinline{python}{OSError}, kvar \textcquote{PythonExceptions}{for
+compatibility with previous versions}.
+
+\paragraph{Läsa och skriva.}  Ja, på alla fyra punkterna.
+\mintinline{python}{write} lägger inte till något:
+\textcquote{PythonTutorialFiles}{f.write(string) writes the contents of
+string to the file, returning the number of characters written}.  Raden
+behåller sin radbrytning: \textcquote{PythonTutorialFiles}{a newline
+character (\textbackslash{}n) is left at the end of the string, and is
+only omitted on the last line of the file if the file doesn't end in a
+newline}.  Slingan är minnessnål: \textcquote{PythonTutorialFiles}{For
+reading lines from a file, you can loop over the file object.  This is
+memory efficient, fast, and leads to simple code}.  Och
+\mintinline{python}{read} utan argument läser allt --- med
+dokumentationens egen brasklapp om att det är vårt problem om filen är
+dubbelt så stor som datorns minne.  Att det lästa är strängar står i
+samma avsnitt: \mintinline{python}{f.read(size)} \textcquote{PythonTutorialFiles}{returns
+it as a string (in text mode) or bytes object (in binary mode)}.
+
+\paragraph{Text och binärt.}  Ja.  Referensen för
+\mintinline{python}{open} säger att \textcquote{PythonOpen}{Files opened
+in binary mode (including 'b' in the mode argument) return contents as
+bytes objects without any decoding.  In text mode (the default, or when
+'t' is included in the mode argument), the contents of the file are
+returned as str, the bytes having been first decoded using a
+platform-dependent encoding or using the specified encoding if given},
+och om lägena att \mintinline{python}{"w"} öppnar
+\textcquote{PythonOpen}{for writing, truncating the file first} medan
+\mintinline{python}{"a"} öppnar \textcquote{PythonOpen}{for writing,
+appending to the end of file if it exists}.
+
+\paragraph{Det som talar emot.}  Ett förbehåll kommer ur samma sidor.
+Materialet säger att textläget \enquote{oftast} använder UTF-8; det gör
+det inte av sig självt.  Referensen säger att
+\textcquote{PythonOpen}{The default encoding is platform dependent
+(whatever locale.getencoding() returns)}, och handledningen att
+\textcquote{PythonTutorialFiles}{Because UTF-8 is the modern de-facto
+standard, encoding="utf-8" is recommended unless you know that you need
+to use a different encoding}.  Materialet säger därför i
+\cref{sec:typer} att kodningen beror på datorn och att dokumentationen
+rekommenderar att ange den.
+
+\section{Diskussion och begränsningar}
+\label{sec:dok-diskussion}
+
+Svaret vilar helt på dokumentationen, som beskriver den aktuella
+utgåvan av Python och kan ändras; datumet står i litteraturlistan.  De
+påståenden materialet gör har varit stabila genom Python 3, men
+standardkodningen är ett exempel på något som är på väg att ändras ---
+dokumentationens rekommendation att alltid ange UTF-8 är just ett tecken
+på det.  Materialets exempelprogram anger ingen kodning, av enkelhet;
+det är ett medvetet val som bilagan här redovisar.
+
+\section{Slutsats}
+\label{sec:dok-slutsats}
+
+Ja, filfunktionerna gör det materialet säger, med förbehållet att
+standardkodningen i textläge beror på datorn och inte alltid är UTF-8.
+Att \mintinline{python}{with} stänger filen även vid fel, att stängningen
+behövs för att det skrivna ska nå disken, att \mintinline{python}{write}
+inte lägger till radbrytningar, att lästa rader behåller sina, att slingan
+över filen är minnessnål och att det lästa är
+strängar\autocite{PythonTutorialFiles}; att en saknad fil ger
+\mintinline{python}{FileNotFoundError}\autocite{PythonExceptions}; och att
+text- och binärläge skiljer sig i avkodningen\autocite{PythonOpen} ---
+allt står i dokumentationen med de ord materialet använder.
+
+
+\chapter{Är CSV och JSON standarder?}
+\label{app:format}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:csv} kallas CSV ett av de vanligaste formaten för
+tabelldata, sägs vara beskrivet men inte standardiserat i RFC~4180, och
+modulen \mintinline{python}{csv} sägs ta hand om kommatecken och
+citattecken inuti fält.  I \cref{sec:json} kallas JSON en
+internetstandard som kan uttrycka nästlade strukturer.  Det är flera
+påståenden i ett, och de kräver olika slags svar.  Frågan som ska
+besvaras är: \emph{är CSV vanligt, är det en standard, tar modulen hand
+om specialfallen --- och är JSON en standard?}
+
+\section{Metod}
+\label{sec:format-metod}
+
+Formaten beskrivs av kända dokument, som hämtades direkt den 3 september
+2026: RFC~4180 för CSV\autocite{RFC4180}, RFC~8259 för
+JSON\autocite{RFC8259}, samt Pythons dokumentation för modulerna
+\mintinline{python}{csv}\autocite{PythonCSV} och
+\mintinline{python}{json}\autocite{PythonJSON}.  Frågan om
+\emph{status} besvaras av dokumenten själva: varje RFC anger i sin
+ingress vilken kategori den tillhör.  Frågan om \emph{utbredning} är
+svårare, för den är empirisk; här användes dokumentationens och RFC:ns
+egna utsagor, och begränsningen i det redovisas nedan.  Ingen
+litteratursökning gjordes.
+
+% Author's note (verification and reproduction): no scholar session.
+% RFCs fetched as plain text from rfc-editor.org and the two
+% docs.python.org pages with curl, 2026-09-03; quotes located verbatim.
+% Bib keys: RFC4180, RFC8259, PythonCSV, PythonJSON.
+
+\section{Resultat}
+\label{sec:format-resultat}
+
+\paragraph{Är CSV vanligt?}  Ja, enligt de källor som beskriver det.
+Pythons dokumentation inleder med att \textcquote{PythonCSV}{The
+so-called CSV (Comma Separated Values) format is the most common import
+and export format for spreadsheets and databases}, och RFC:n att formatet
+\textcquote{RFC4180}{has been used for exchanging and converting data
+between various spreadsheet programs for quite some time.  Surprisingly,
+while this format is very common, it has never been formally
+documented}.
+
+\paragraph{Är CSV en standard?}  Nej.  RFC~4180 säger det själv i
+ingressen: \textcquote{RFC4180}{This memo provides information for the
+Internet community.  It does not specify an Internet standard of any
+kind}.  Dokumentationen drar konsekvensen: \textcquote{PythonCSV}{The
+lack of a well-defined standard means that subtle differences often
+exist in the data produced and consumed by different applications}.  Det
+är därför materialet säger \enquote{beskrivs} om RFC:n och inte
+\enquote{standardiseras}.
+
+\paragraph{Tar modulen hand om specialfallen?}  Ja, och de är just de
+som RFC:n beskriver: \textcquote{RFC4180}{Fields containing line breaks
+(CRLF), double quotes, and commas should be enclosed in double-quotes},
+och ett citattecken inuti ett sådant fält dubbleras.  Dokumentationen
+beskriver modulens uppgift som att \textcquote{PythonCSV}{write a single
+module which can efficiently manipulate such data, hiding the details of
+reading and writing the data from the programmer}, och föreskriver att
+filen öppnas med \mintinline{python}{newline=""}:
+\textcquote{PythonCSV}{If csvfile is a file object, it should be opened
+with newline=''}.
+
+\paragraph{Är JSON en standard?}  Ja.  RFC~8259 är, till skillnad från
+RFC~4180, ett dokument på standardspåret --- \textcquote{RFC8259}{This is
+an Internet Standards Track document} --- och beskriver
+\textcquote{RFC8259}{a lightweight, text-based, language-independent
+data interchange format} som \textcquote{RFC8259}{can represent four
+primitive types (strings, numbers, booleans, and null) and two
+structured types (objects and arrays)}.  Pythons modul implementerar
+formatet enligt den föregående utgåvan av samma
+specifikation\autocite{PythonJSON}.
+
+\section{Diskussion och begränsningar}
+\label{sec:format-diskussion}
+
+Att CSV är \emph{vanligt} vilar på två utsagor från dem som beskriver
+formatet, inte på en mätning.  Ingen studie av hur vanliga olika
+filformat är har sökts, och påståendet står därför i materialet med
+källan utsatt --- \enquote{Pythons dokumentation kallar det} --- i
+stället för som ett eget faktum.  Frågan om status är däremot
+avgjord av dokumenten själva, och svaret vände på materialets tidigare
+formulering: CSV kallades ett standardformat, och det är JSON som är
+det.
+
+\section{Slutsats}
+\label{sec:format-slutsats}
+
+Ja, med ett viktigt förbehåll: CSV är ett mycket vanligt format enligt
+både Pythons dokumentation\autocite{PythonCSV} och RFC:n som beskriver
+det\autocite{RFC4180}, men RFC:n är informativ och formatet är ingen
+standard; modulen \mintinline{python}{csv} hanterar just de specialfall
+RFC:n beskriver --- kommatecken, citattecken och radbrytningar i fält
+--- när filen öppnas som dokumentationen föreskriver.  JSON är däremot
+en internetstandard på standardspåret\autocite{RFC8259}, med de fyra
+enkla och två sammansatta typer materialet räknar upp.  Materialet
+säger därför \enquote{standardformat} om JSON och \enquote{beskrivet i
+RFC~4180} om CSV.
