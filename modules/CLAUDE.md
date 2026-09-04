@@ -45,12 +45,27 @@ compact worked example). A deck is done when it has:
 
 - Swedish throughout; Swedish term first, English once in parentheses:
   "spårutskrift (\foreignlanguage{english}{traceback})".
-- Never tie text to weeks or lecture order ("förra veckan", "vecka 38"):
-  refer to topics and deck titles ("tidigare", "föreläsningen
-  \emph{Funktioner}").
+- Never tie text to weeks, lecture order or course events ("förra
+  veckan", "vecka 38", "föreläsningens första halva", "på laborationen"):
+  refer to topics, deck titles and activities ("tidigare", "föreläsningen
+  \emph{Funktioner}", "när ni programmerar"). Förkunskaper say "tagit del
+  av föreläsningen …", not "sett".
+- The verb for running code is "exekvera" ("tolken exekverar satserna",
+  noun "exekvering"), never "utför"; "köra" stays as the everyday word.
 - Appendix pointers read "det vetenskapliga underlaget finns i \cref{app:…}".
+  No ambiguous sentence-initial pronouns in the appendices ("Sökningen
+  gjordes …", not "Den gjordes …").
 - Learning objectives say what the student can do, in plain words, without
-  restating the mechanism. Exercises do not hint at the critical aspect.
+  restating the mechanism. Exercises do not hint at the critical aspect —
+  nor do example titles or lead-ins ("Ett program med ett fel", not "… med
+  ett stavfel"). A try-first question comes after everything it presupposes,
+  and the example that answers it shows the full answer.
+- Never refer to physical position ("på nästa bild", "ovan"): `\cref`. Every
+  figure is referenced from the prose (not only from an `\ltnote`) and
+  placed near the reference; captions are side captions in the notes.
+- Blocks that close a section by summarising it are `summary`, not `remark`.
+- Overlay staging that hides an answer on the slide (`\item<3->`) collapses
+  in the notes: stage structurally (example, exercise, prose, second example).
 - Chunk names short ("ta hand om felen"). Where a program handles several
   errors, ask first what can go wrong, then show the handlers.
 
