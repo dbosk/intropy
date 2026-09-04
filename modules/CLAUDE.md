@@ -97,6 +97,20 @@ skill.
   name the chunk after the file it tangles to, `<<[[hello.py]]>>=`, and
   place it at its point of presentation (inside the frame).
 - Frames containing chunks (or any minted output) must be `[fragile]`.
+- A two-line display inside an `example` must not rely on `\\` in a
+  `center`: the article job collapses it to one line. Use a one-column
+  `tabular` (or `\par` between the lines).
+- `sidecaption` only where the margin is free: next to a figure it works
+  (with `\setsidecappos{b}`), but a table on a footnote-heavy appendix
+  page overprints the citation footnotes, so query tables take a plain
+  `\caption`.
+- `\ltnote`s longer than the margin queue forward and print beside the
+  next section or the appendix; `\clearpage` does not flush them. Put
+  `\mode<article>{\clearpage}` before the section they belong to (and
+  shorten notes that restate the prose).
+- Noweb quoting `[[…]]` cannot hold a babel shorthand pair: `[[phone["adam"]]]`
+  prints `phone[ädam"]` because Swedish `"a` fires before `\code` changes
+  catcodes; write such snippets with `\mintinline{python}|…|`.
 - **Never start a theorem-style environment (`example`, `remark`, …)
   directly with a chunk or minted block** — the inline label and the code
   display overprint each other in the notes job. Put a short lead-in
@@ -168,8 +182,9 @@ In a fresh worktree run `git submodule update --init --checkout makefiles`
 ### Checks before a deck is reviewed
 
 0 `??` in `pdftotext` of both PDFs; 0 "empty citation"; no `^!` lines in
-`ltxobj/*.log`; 0 `Overfull \vbox` in `ltxobj/slides.log`; `black --check
-examples/`; no source line > 79 characters; `check_provenance.py` and
+`ltxobj/*.log`; 0 `Overfull \vbox` in `ltxobj/slides.log`; `black --check` on the tangled
+files under `examples/` (tracked hand-written activity inputs such as
+`files/slides/examples/scb/*.py` are exempt); no source line > 79 characters; `check_provenance.py` and
 `check_metadata.py` on `ltnotes.bib`; every tangled example runs; render
 every slide (`pdftoppm -r 40` + `montage`) and every notes page and read
 them. Also: `pdftotext ltxobj/slides.pdf - | grep -c MINTED` = 0 (the
