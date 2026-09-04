@@ -51,6 +51,7 @@ EXAMPLES+=	examples/whoami.py
 EXAMPLES+=	examples/use_whoami.py
 EXAMPLES+=	examples/lookup.py
 EXAMPLES+=	examples/mean.py
+EXAMPLES+=	examples/today.py
 # The shadowing example is a file named like a standard-library module.
 # It lives in its own directory so that it hides the real statistics
 # module only from itself, not from the other examples.
