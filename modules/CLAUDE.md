@@ -50,8 +50,9 @@ compact worked example). A deck is done when it has:
   refer to topics, deck titles and activities ("tidigare", "föreläsningen
   \emph{Funktioner}", "när ni programmerar"). Förkunskaper say "tagit del
   av föreläsningen …", not "sett".
-- The verb for running code is "exekvera" ("tolken exekverar satserna",
-  noun "exekvering"), never "utför"; "köra" stays as the everyday word.
+- "Ett program utför en uppgift; processorn/datorn/tolken exekverar
+  programmet": whoever runs code exekverar it (noun "exekvering"); a
+  program or a person utför a task; "köra" stays as the everyday word.
 - Appendix pointers read "det vetenskapliga underlaget finns i \cref{app:…}".
   No ambiguous sentence-initial pronouns in the appendices ("Sökningen
   gjordes …", not "Den gjordes …").
