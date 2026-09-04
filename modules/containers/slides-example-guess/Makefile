@@ -4,6 +4,12 @@ all: notes.pdf slides.pdf
 LATEXFLAGS+=	-shell-escape
 # The example program is run and its output embedded with PythonTeX.
 TEX_PYTHONTEX=	yes
+# notes and slides share one output directory, so they share PythonTeX's
+# cache (ltxobj/pythontex_data.pkl).  Without --rerun=always the second job
+# built finds everything cached, writes no <job>.pytxmcr, and latexmk's
+# custom dependency then fails with "did not make the destination" on every
+# subsequent run.  The programs are tiny, so rerunning them is cheap.
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example program is tangled from
