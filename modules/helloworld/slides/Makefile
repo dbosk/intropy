@@ -6,6 +6,7 @@ LATEXFLAGS+=	-shell-escape
 # PythonTeX (didactic's \runpython[transcript]), so code and output cannot
 # drift apart.
 TEX_PYTHONTEX=	yes
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
