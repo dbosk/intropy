@@ -133,9 +133,8 @@ metod som anropas när vi skapar ett nytt objekt.
 \begin{frame}
   \begin{exercise}
     \label{ovn:argument}
-    Vilka argument behöver vi för att skapa ett bråk?  Tänk på vad ett
-    bråk består av matematiskt.  Vad är användbara argument att skapa ett
-    nytt bråk ifrån?
+    Vilka argument behöver vi för att skapa ett bråk?  Vad är användbara
+    argument att skapa ett nytt bråk ifrån?
   \end{exercise}
 \end{frame}
 
@@ -174,15 +173,15 @@ olika sätt att skapa bråk:
     vi tomt tills vidare: att förkorta bråket, som vi återkommer
     till\only<article>{ i \cref{sec:forkortning}}.
 <<konstruktorn för [[Fraction]]>>=
-def __init__(self, nominator, denominator=1):
-    if isinstance(nominator, Fraction):
-        self.__nominator = nominator.nominator
-        self.__denominator = nominator.denominator * denominator
-    elif isinstance(nominator, int):
-        self.__nominator = nominator
+def __init__(self, numerator, denominator=1):
+    if isinstance(numerator, Fraction):
+        self.__numerator = numerator.numerator
+        self.__denominator = numerator.denominator * denominator
+    elif isinstance(numerator, int):
+        self.__numerator = numerator
         self.__denominator = denominator
     else:
-        raise TypeError(f"can't create fraction from {type(nominator)}")
+        raise TypeError(f"can't create fraction from {type(numerator)}")
     <<förkorta bråket>>
 @
   \end{example}
@@ -243,8 +242,8 @@ den något annat än ett heltal eller ett bråk kastar den ett särfall,
   \textbf{Variationsmönster}: Kontrast.
 
   \textbf{Vad som varierar}: åtkomstsyntaxen (metodanrop
-  \mintinline{python}{get_nominator()} respektive egenskapsåtkomst
-  \mintinline{python}{nominator}).
+  \mintinline{python}{get_numerator()} respektive egenskapsåtkomst
+  \mintinline{python}{numerator}).
 
   \textbf{Vad som hålls invariant}: funktionaliteten (läsa ett privat
   attribut) och inkapslingen (kontrollerad åtkomst).
@@ -269,8 +268,8 @@ oss ett mer elegant sätt: egenskaper (\foreignlanguage{english}{properties}).
   \begin{exercise}
     \label{ovn:property-syntax}
     Vad är skillnaden mellan att skriva
-    \mintinline{python}{frac.get_nominator()} och
-    \mintinline{python}{frac.nominator}?  Vilket känns mer naturligt?
+    \mintinline{python}{frac.get_numerator()} och
+    \mintinline{python}{frac.numerator}?  Vilket känns mer naturligt?
   \end{exercise}
 \end{frame}
 
@@ -292,9 +291,9 @@ behåller kontrollen över hur data läses och skrivs.
     ett attribut:
 <<egenskaper för täljare och nämnare>>=
 @property
-def nominator(self):
-    """nominator getter"""
-    return self.__nominator
+def numerator(self):
+    """numerator getter"""
+    return self.__numerator
 
 @property
 def denominator(self):
@@ -304,13 +303,13 @@ def denominator(self):
     Så här använder vi dem:
     \begin{minted}{python}
       frac = Fraction(1, 2)
-      print(f"{frac.nominator}/{frac.denominator}")
+      print(f"{frac.numerator}/{frac.denominator}")
     \end{minted}
   \end{example}
 \end{frame}
 
 Här använder vi dekoratorn \mintinline{python}{@property} för att göra
-metoderna \mintinline{python}{nominator()} och
+metoderna \mintinline{python}{numerator()} och
 \mintinline{python}{denominator()} tillgängliga som om de vore
 attribut.\footnote{\label{fn:property}%
   Den inbyggda funktionen \mintinline{python}{property} beskrivs i
@@ -376,14 +375,16 @@ Låt oss jämföra två sätt att arbeta med attribut.
   \end{flushleft}
 \end{frame}
 
-I vänster kolumn ser vi hur vi kan definiera både en läsmetod
+Med \mintinline{python}{@property} och
+\mintinline{python}{@attribute.setter} definierar vi en läsmetod
 (\foreignlanguage{english}{getter}) och en skrivmetod
-(\foreignlanguage{english}{setter}) med \mintinline{python}{@property}
-respektive \mintinline{python}{@attribute.setter}.  I höger kolumn ser
-vi det traditionella sättet med explicita metoder.
+(\foreignlanguage{english}{setter}) som används med attributsyntax.  Med
+\mintinline{python}{get_}- och \mintinline{python}{set_}-metoder får vi
+samma sak på det traditionella sättet, med explicita anrop.
 
 \ltnote{%
-  Jämförelsen är samma \textbf{kontrast} som ovan i kodform: vad som
+  Jämförelsen är avsnittets \textbf{kontrast} en gång till, nu i
+  kodform: vad som
   varierar är syntaxen, vad som hålls invariant är klassen och vad den
   gör.  Två fel i den tidigare versionen av bilden är rättade:
   skrivmetoden dekorerades med \mintinline{python}{@property.setter} (det
@@ -445,10 +446,10 @@ olika representationer.
     En dundermetod per måltyp:
 <<typkonvertering>>=
 def __str__(self):
-    return f"{self.nominator}/{self.denominator}"
+    return f"{self.numerator}/{self.denominator}"
 
 def __float__(self):
-    return self.nominator / self.denominator
+    return self.numerator / self.denominator
 
 <<konvertering till heltal>>
 @
@@ -489,7 +490,7 @@ För att implementera det behöver vi dundermetoden
     Heltalsdivision ger heltalsdelen:
 <<konvertering till heltal>>=
 def __int__(self):
-    return self.nominator // self.denominator
+    return self.numerator // self.denominator
 @
     Testprogrammet provar även den:
 <<prova typkonvertering>>=
@@ -560,7 +561,8 @@ Python anropar \mintinline{python}{frac_a.__add__(frac_b)} när vi kör
   instance of a class that has an \mintinline{python}{__add__()} method,
   \mintinline{python}{type(x).__add__(x, y)} is called.}  Avsnittet
   \emph{Emulating numeric types} i Pythons språkreferens,
-  \url{https://docs.python.org/3/reference/datamodel.html\#emulating-numeric-types}
+  \url{https://docs.python.org/3/reference/datamodel.html%
+\#emulating-numeric-types}
   (hämtad 2026-09-03).}
 
 \begin{frame}[fragile]
@@ -573,8 +575,8 @@ def __add__(self, other):
         other = Fraction(other)
     if isinstance(other, Fraction):
         return Fraction(
-            self.nominator * other.denominator
-            + other.nominator * self.denominator,
+            self.numerator * other.denominator
+            + other.numerator * self.denominator,
             self.denominator * other.denominator,
         )
     raise TypeError(f"can't add with type {type(other)}")
@@ -643,7 +645,7 @@ anropas?  Python försöker först anropa
 \mintinline{python}{__add__} vet inte hur man adderar med vårt
 \mintinline{python}{Fraction}-objekt.  Vi behöver en \enquote{omvänd}
 additionsmetod, som Python provar när den vänstra operanden inte kan
-utföra operationen.\footnote{\label{fn:radd}%
+hantera operationen.\footnote{\label{fn:radd}%
   \enquote{These methods are called to implement the binary arithmetic
   operations [\dots] with reflected (swapped) operands. These functions
   are only called if the operands are of different types, when the left
@@ -679,9 +681,9 @@ objektet inte kan hantera additionen.
   \end{exercise}
 \end{frame}
 
-Ja!  Vi kan helt enkelt skriva \mintinline{python}{self + other} --- det
-vill säga anropa \mintinline{python}{self.__add__(other)} --- från
-\mintinline{python}{__radd__()}, eftersom addition är kommutativ
+Ja!  Från \mintinline{python}{__radd__()} kan vi helt enkelt skriva
+\mintinline{python}{self + other}, det vill säga anropa
+\mintinline{python}{self.__add__(other)}, eftersom addition är kommutativ
 (ordningen spelar ingen roll).  Att inte skriva additionen två gånger
 är principen \emph{DRY}, \foreignlanguage{english}{don't repeat
 yourself}\autocite{HuntThomas1999}, från föreläsningen
@@ -712,7 +714,7 @@ negation.
     Vi negerar täljaren:
 <<negation och subtraktion>>=
 def __neg__(self):
-    return Fraction(-self.nominator, self.denominator)
+    return Fraction(-self.numerator, self.denominator)
 
 <<subtraktion>>
 @
@@ -786,8 +788,8 @@ subtract}), men här måste vi vara försiktiga!
 \begin{frame}
   \begin{exercise}
     \label{ovn:rsub-reuse}
-    Kan vi implementera \mintinline{python}{__rsub__()} på samma sätt
-    som \mintinline{python}{__radd__()}?  Varför eller varför inte?
+    Kan vi implementera \mintinline{python}{__rsub__} på samma sätt som
+    \mintinline{python}{__radd__}?  Varför eller varför inte?
   \end{exercise}
 \end{frame}
 
@@ -822,7 +824,8 @@ Nej!  Subtraktion är \emph{inte} kommutativ:
 \begin{frame}[fragile]
   \begin{example}[Omvänd subtraktion]
     \label{ex:fraction-rsub}
-    Heltalet görs om till ett bråk, och sedan subtraheras \emph{vi}:
+    Heltalet görs om till ett bråk, och sedan dras vårt eget bråk från
+    det:
 <<omvänd subtraktion>>=
 def __rsub__(self, other):
     return Fraction(other) - self
@@ -862,7 +865,7 @@ def __mul__(self, other):
         other = Fraction(other)
     if isinstance(other, Fraction):
         return Fraction(
-            self.nominator * other.nominator,
+            self.numerator * other.numerator,
             self.denominator * other.denominator,
         )
     raise TypeError(f"can't multiply type {type(other)}")
@@ -981,7 +984,7 @@ största gemensamma delaren av två tal.\footnote{\label{fn:gcd}%
   \url{https://docs.python.org/3/library/math.html\#math.gcd} (hämtad
   2026-09-03).}
 Vi kan använda den så här:
-\mintinline{python}{gcd = math.gcd(nominator, denominator)}.
+\mintinline{python}{gcd = math.gcd(numerator, denominator)}.
 
 \begin{frame}
   \begin{exercise}
@@ -999,8 +1002,8 @@ Det finns flera möjligheter:
   \item som en separat metod --- låter användaren välja när.
 \end{itemize}
 
-Den bästa lösningen beror på användningsfallet.  Pythons egen bråkklass,
-\mintinline{python}{fractions.Fraction}, håller bråket förkortat hela
+Vilket som är bäst beror på användningsfallet.  Pythons egen
+\mintinline{python}{fractions.Fraction} håller bråket förkortat hela
 tiden och nämnaren positiv.\footnote{\label{fn:fractions}%
   Om egenskapen \mintinline{python}{denominator}: \enquote{Denominator
   of the Fraction in lowest terms. Guaranteed to be positive.}  Modulen
@@ -1009,15 +1012,15 @@ tiden och nämnaren positiv.\footnote{\label{fn:fractions}%
   2026-09-03).}
 Vi väljer också att förkorta i konstruktorn, för vi vill ju även ha
 bråket förkortat när vi läser ut täljaren och nämnaren
-(\mintinline{python}{Fraction.nominator} och
+(\mintinline{python}{Fraction.numerator} och
 \mintinline{python}{Fraction.denominator}).
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:racker-konstruktorn}
     Varför räcker det med att förkorta i konstruktorn
-    (\mintinline{python}{Fraction.__init__}) för att hålla bråket
-    förkortat efter varje operation?
+    \mintinline{python}{__init__} för att hålla bråket förkortat efter
+    varje operation?
   \end{exercise}
 \end{frame}
 
@@ -1030,7 +1033,7 @@ konstruktorn.
 
 Låt oss titta på hur vi implementerar förkortning.  Vi behöver importera
 modulen \mintinline{python}{math} för att få tillgång till funktionen
-\mintinline{python}{gcd()}; det är det steget överst i filen
+\mintinline{python}{gcd()}; det är vad steget överst i filen
 (\cref{ex:fraction-file}) är till för.  Sedan skapar vi en (privat) metod
 \mintinline{python}{__simplify()} som gör själva förkortningen, och
 anropar den sist i konstruktorn.
@@ -1045,8 +1048,8 @@ import math
 <<förkortning>>=
 def __simplify(self):
     """Simplify the fraction by dividing by GCD"""
-    gcd = math.gcd(self.__nominator, self.__denominator)
-    self.__nominator //= gcd
+    gcd = math.gcd(self.__numerator, self.__denominator)
+    self.__numerator //= gcd
     self.__denominator //= gcd
 @
 <<förkorta bråket>>=
@@ -1225,9 +1228,9 @@ dundermetoder:
     \mintinline{python}{__rtruediv__()};
   \item att skapa bråk med ett bråk i nämnaren;
   \item att hantera noll i nämnaren med ett särfall;
-  \item att typkonvertera sträng till bråk, med konstruktorn (då kan vi
-    skapa bråk med \mintinline{python}{Fraction("3/4")} och således
-    använda \mintinline{python}{input_type(Fraction, "Ange ett bråktal: ")});
+  \item att typkonvertera sträng till bråk, med konstruktorn --- då kan
+    vi skapa bråk med \mintinline{python}{Fraction("3/4")} och läsa in
+    dem med \mintinline{python}{input_type};
   \item jämförelseoperatorer (\mintinline{python}{<},
     \mintinline{python}{>}, \mintinline{python}{==}), med
     \mintinline{python}{__lt__()}, \mintinline{python}{__eq__()} och så
@@ -1248,23 +1251,24 @@ Det är problematiskt att tillåta negativ nämnare, eftersom klassen då
 saknar en entydig, kanonisk representation av ett rationellt tal.
 Konsekvenserna blir:
 \begin{itemize}
-  \item Samma tal får flera olika interna former.  Exempelvis
-    representerar \mintinline{python}{Fraction(1, -2)} och
-    \mintinline{python}{Fraction(-1, 2)} båda \(-\frac{1}{2}\), medan
-    \mintinline{python}{Fraction(-1, -2)} egentligen är \(\frac{1}{2}\).
-    Om vi skriver ut dem ger \mintinline{python}{print(Fraction(1, -2))}
-    \(1/-2\) och \mintinline{python}{print(Fraction(-1, 2))} ger
-    \(-1/2\): olika utskrift för samma värde.  Det kan leda till
-    förvirring vid felsökning och jämförelser.
+  \item Samma tal får flera olika interna former.
+    \mintinline{python}{Fraction(1, -2)} och
+    \mintinline{python}{Fraction(-1, 2)} representerar båda
+    \(-\frac{1}{2}\), medan \mintinline{python}{Fraction(-1, -2)} är
+    \(\frac{1}{2}\).  Men
+    utskriften skiljer sig: den första skrivs \mintinline{text}|1/-2|
+    och den andra \mintinline{text}|-1/2|, alltså olika utskrift för
+    samma värde.  Det kan leda till förvirring vid felsökning och
+    jämförelser.
   \item Förkortningen via största gemensamma delaren flyttar inte
     tecknet till täljaren.  \mintinline{python}{Fraction(6, -12)}
-    förkortas exempelvis till \(\frac{1}{-2}\) i stället för
-    \(-\frac{1}{2}\), trots att värdet är detsamma.
-  \item Negativa nämnare \enquote{sprids} vidare i sammansatta uttryck:
-    \mintinline{python}{Fraction(1, -2) + Fraction(1, 3)} ger \(1/-6\),
-    medan \mintinline{python}{Fraction(-1, 2) + Fraction(1, 3)} ger
-    \(-1/6\).  Resultatet är korrekt, men representationerna gör
-    felsökning och jämförelser svårare.
+    skrivs \mintinline{text}|1/-2| i stället för
+    \mintinline{text}|-1/2|, trots att värdet är detsamma.
+  \item Negativa nämnare \enquote{sprids} vidare i sammansatta uttryck.
+    Adderar vi \(\frac{1}{3}\) till det första bråket blir utskriften
+    \mintinline{text}|1/-6|, och till det andra
+    \mintinline{text}|-1/6|.  Resultatet är korrekt, men
+    representationerna gör felsökning och jämförelser svårare.
 \end{itemize}
 
 För robusthet och entydighet bör man därför normalisera tecknet efter
@@ -1272,11 +1276,21 @@ förkortning: se alltid till att nämnaren är strikt positiv genom att
 multiplicera både täljare och nämnare med \(-1\) när nämnaren är
 negativ.  Det ger en unik, kanonisk representation för varje värde ---
 precis som Pythons egen \mintinline{python}{fractions.Fraction}
-(\cref{fn:fractions}).  Vi kan lägga till kod som flyttar minustecknet
-till täljaren om nämnaren är negativ, sist i
-\mintinline{python}{__simplify()}:
-\begin{minted}{python}
-  if self.__denominator < 0:
-      self.__nominator = -self.__nominator
-      self.__denominator = -self.__denominator
-\end{minted}
+(\cref{fn:fractions}).
+
+% Not a chunk: this code is a suggestion for the reader, not part of the
+% tangled fraction.py, and the example environment says so.  The
+% \needspace keeps the three lines with their lead-in.
+\mode<article>{\needspace{12\baselineskip}}
+\begin{example}[Tecknet till täljaren]
+  \label{ex:fraction-sign}
+  Det här är det enda kodstycket i kapitlet som inte hör till
+  \texttt{fraction.py}.  Det visar vad man skulle lägga sist i
+  \mintinline{python}{__simplify()} för att flytta minustecknet till
+  täljaren när nämnaren är negativ:
+  \begin{minted}{python}
+    if self.__denominator < 0:
+        self.__numerator = -self.__numerator
+        self.__denominator = -self.__denominator
+  \end{minted}
+\end{example}

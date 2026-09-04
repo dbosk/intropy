@@ -154,8 +154,8 @@ adress?
 \begin{frame}
   \begin{exercise}
     \label{ovn:adresser}
-    Hur skulle ni ändra programmet ovan för att även lagra adresser?
-    Tänk igenom strukturen innan ni läser vidare.
+    Hur skulle ni ändra \texttt{phonebook.py} för att även lagra
+    adresser?  Skissa en lösning innan ni läser vidare.
   \end{exercise}
 \end{frame}
 
@@ -271,13 +271,7 @@ repetitivt.
 \begin{frame}
   \begin{exercise}
     \label{ovn:problem}
-    Vilka problem ser ni med det här sättet?  Tänk på:
-    \begin{itemize}
-      \item Vad händer om ni skriver fel nyckelnamn i uppslagslistan?
-      \item Hur vet andra programmerare vilka fält som finns?
-      \item Vad händer om ni vill lägga till validering, till exempel
-        kontrollera att telefonnumret har rätt format?
-    \end{itemize}
+    Vilka problem ser ni med det här sättet?
   \end{exercise}
 \end{frame}
 
@@ -286,7 +280,11 @@ repetitivt.
   problemen själva innan vi uttryckligen säger dem.  Denna kritiska
   reflektion över uppslagslistan förbereder marken för att förstå
   \emph{varför} klasser är fördelaktiga; studenter som upptäcker problem
-  själva är mer motiverade att lära sig lösningen.
+  själva är mer motiverade att lära sig lösningen.  De tre problem som
+  frågan ska få fram, och som texten efteråt tar upp, är stavfel i
+  nyckelnamnen, att ingenting säger vilka fält som finns, och att det
+  inte finns någon plats att lägga validering på.  Kommer de inte fram
+  av sig själva går de att fråga efter ett i taget.
 
   \textbf{Kontrastmönstret fullbordas}: vi har nu visat en enkel
   uppslagslista (fungerar) och en komplex uppslagslista (problematisk).
@@ -298,11 +296,12 @@ Låt oss nu se hur klasser kan hjälpa oss att lösa dessa problem på ett
 mer elegant och strukturerat sätt.
 
 \subsection{Med klasser}
+\label{sec:med-klasser}
 
 \ltnote{%
   \textbf{Kontrastmönstret, andra halvan}: nu visar vi vad klasser
   \emph{är} genom att kontrastera dem med vad de \emph{inte} är
-  (uppslagslistorna ovan).
+  (uppslagslistorna i \cref{ex:phonebook-data,ex:contacts-data}).
 
   \textbf{Koppling till lärandemål}:
   \begin{itemize}
@@ -374,7 +373,7 @@ def __init__(self, first_name, last_name, birthday, address, phone):
     """first_name: string with first name.
     last_name: string with last name.
     birthday: string with birthday,
-    address: string or Adress object with address.
+    address: string or Address object with address.
     phone: string with phone number"""
     self.__first_name = first_name
     self.__last_name = last_name
@@ -496,7 +495,7 @@ phonebook = {
 Noterar ni att koden för att skapa personer är tydligare med klasser?
 Vi ser direkt vilka argument som behövs, och i vilken ordning.  Med
 uppslagslistor är det lätt att göra fel eller glömma ett fält.  Dessutom
-ser vi här att datat gäller en person
+ser vi här att datan gäller en person
 (\mintinline{python}{person.Person}).
 
 Nu ska vi titta på hur \mintinline{python}{Person}-klassen definierar
@@ -506,13 +505,23 @@ metoder för att hämta information.
   \begin{exercise}
     \label{ovn:lasa-instans}
     Hur tror ni att vi kan läsa information från en
-    \mintinline{python}{Person}-instans?  Tänk på hur vi gjorde det med
-    uppslagslistor innan: \mintinline{python}{phonebook["adam"]["phone"]}.
+    \mintinline{python}{Person}-instans?
   \end{exercise}
 \end{frame}
 
-Vi behöver definiera metoder (exempelvis \mintinline{python}{get_name}
-nedan) som låter oss läsa ut attributen.
+\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOAttributes,ClassLOEncapsulation}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan läsmetoderna
+  visas.  \textbf{Kontrast} mot uppslagslistan: studenterna har nyss
+  skrivit \mintinline{python}{phonebook["adam"]["phone"]}, och det är
+  motsvarigheten till den raden de ska söka i klassen.  Den jämförelsen
+  stod förr i uppgiftstexten; den är flyttad hit, eftersom det är just
+  den studenterna ska komma på.
+}
+
+Vi behöver definiera metoder (exempelvis \mintinline{python}{get_name})
+som låter oss läsa ut attributen.
 
 \begin{frame}[fragile]
   \begin{example}[Metoder för namnet]
@@ -525,7 +534,7 @@ def get_name(self):
     return self.__first_name + " " + self.__last_name
 
 def __str__(self):
-    """Returnerar en strängrepresentation lämpligt för utskrift"""
+    """Returns a string representation suitable for printing"""
     return self.get_name()
 @
   \end{example}
@@ -683,7 +692,7 @@ Dundermetoden \mintinline{python}{__str__()} är en speciell metod som
 Python anropar automatiskt när vi försöker konvertera objektet till en
 sträng, exempelvis med \mintinline{python}{print()} eller
 \mintinline{python}{str()}.  Det är därför testprogrammet i
-\cref{ex:person-namn} kan skriva \mintinline{python}{f"{person} ..."}.
+\cref{ex:person-print} kan skriva \mintinline{python}{f"{person} ..."}.
 
 \begin{frame}
   \begin{exercise}
@@ -705,7 +714,8 @@ funktioner.\footnote{\label{fn:special-methods}%
   classes to define their own behavior with respect to language
   operators.}  Avsnittet \emph{Special method names} i Pythons
   språkreferens,
-  \url{https://docs.python.org/3/reference/datamodel.html\#special-method-names}
+  \url{https://docs.python.org/3/reference/datamodel.html%
+\#special-method-names}
   (hämtad 2026-09-03).}
 
 Nu kan vi jämföra hur vi läser information med de två metoderna.  Med
@@ -737,6 +747,16 @@ värde (även om det kan vara strängen \mintinline{python}{"okänt"}).
     uppslagslistor?  Lista minst tre fördelar.
   \end{exercise}
 \end{frame}
+
+Vi har sett tre.  Koden som skapar en person säger själv vilka
+uppgifter som behövs och i vilken ordning
+(\cref{ex:contacts-class-data}), medan uppslagslistan låter vilken
+nyckel som helst passera.  Koden som läser uppgifterna slipper
+felhantering, för läsmetoderna garanterar ett värde
+(\cref{ex:contacts-class-lookup}), medan varje fält i uppslagslistan
+behövde ett eget \mintinline{python}{try} (\cref{ex:contacts-lookup}).
+Och attributen är privata, så klassen kan lägga till validering eller
+byta intern representation utan att den som använder den märker något.
 
 Klassen samlar allt som rör en person --- datan och det man kan göra
 med den --- och ingenting annat.  Att en klass ska ha ett enda ansvar
@@ -829,8 +849,8 @@ klassen innehåller den faktiska datan, själva värdena.
   \end{minted}
 \end{frame}
 
-I kodexemplet ovan ser vi hur en klass definieras med nyckelordet
-\mintinline{python}{class}.  Lägg märke till parametern
+I klassen \mintinline{python}{Class} ser vi hur en klass definieras med
+nyckelordet \mintinline{python}{class}.  Lägg märke till parametern
 \mintinline{python}{self} i metoderna.
 
 \begin{frame}
@@ -860,12 +880,11 @@ bara en konvention --- men en som all Pythonkod följer.\footnote{%
 \begin{frame}
   \begin{exercise}
     \label{ovn:var-finns-objekten}
-    Vi skapar två objekt från samma klass,
-    \mintinline{python}{objekt1 = Class("some value")} och
-    \mintinline{python}{objekt2 = Class("another value")}.  Var finns de
-    två objekten --- inuti klassen \mintinline{python}{Class}?  Vad
-    händer med \mintinline{python}{objekt1} när \mintinline{python}{objekt2}
-    skapas?
+    Vi skapar två objekt, \mintinline{python}{objekt1} och
+    \mintinline{python}{objekt2}, från samma klass
+    \mintinline{python}{Class}.  Var finns de två objekten --- inuti
+    klassen?  Vad händer med \mintinline{python}{objekt1} när
+    \mintinline{python}{objekt2} skapas?
   \end{exercise}
 \end{frame}
 
@@ -982,9 +1001,9 @@ kan arbeta med denna data.
 \begin{frame}
   \begin{exercise}
     \label{ovn:init}
-    I kodexemplet ovan, vilken metod används för att initiera attributen?
-    Vad tror ni händer när vi skapar ett nytt objekt med
-    \mintinline{python}{Class(attribute)}?
+    Vilken metod används för att initiera attributen i klassen
+    \mintinline{python}{Class}?  Vad tror ni händer när vi skapar ett
+    nytt objekt med \mintinline{python}{Class(attribute)}?
   \end{exercise}
 \end{frame}
 
@@ -1101,7 +1120,7 @@ Nu ska vi titta på metoder --- funktioner som tillhör objektet.
   \begin{minted}{python}
     class Class:
         def method(self):
-            # do something object related
+            ...  # do something object related
   \end{minted}
 \end{frame}
 
@@ -1181,12 +1200,17 @@ Pythons dokumentation i \cref{doc:dundermetoder} för att se fler
 dundermetoder.
 
 \begin{frame}
-  \begin{figure}[h]
+  \begin{figure}[htbp]
+    \centering
     \begin{sidecaption}
       {Utdrag från Pythons dokumentation som visar några vanliga
       dundermetoder.}[doc:dundermetoder]%
+      % The tracked original is a full browser window; the -crop file is
+      % the same screenshot with the chrome, the two side panes and the
+      % scrollbar cut away (ImageMagick: -crop 1010x1245+252+38), so the
+      % documentation itself gets the whole width.
       \includegraphics[width=\columnwidth,height=0.7\textheight,%
-        keepaspectratio]{figs/docs-special-methods.png}
+        keepaspectratio]{figs/docs-special-methods-crop.png}
     \end{sidecaption}
   \end{figure}
 \end{frame}
@@ -1199,6 +1223,9 @@ Låt oss titta på några konkreta exempel från vår
 \mintinline{python}{Person}-klass: den sista gruppen metoder i
 \cref{ex:person}.
 
+% The chunk is thirteen lines; without this the page break lands inside
+% the __lt__ docstring.
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Dundermetoder för jämförelse och felsökning]
     \label{ex:person-dunder}
@@ -1257,10 +1284,10 @@ Här ser vi flera intressanta dundermetoder:
 \begin{frame}
   \begin{exercise}
     \label{ovn:gt}
-    I koden ovan jämför \mintinline{python}{__lt__} födelsedagar.  Då
-    kunde vi använda \mintinline{python}{person1 < person2} för att
-    jämföra två personer.  Kan vi även använda
-    \mintinline{python}{person1 > person2}?  Hur fungerar det i så fall?
+    I \mintinline{python}{Person} jämför \mintinline{python}{__lt__}
+    födelsedagar, så vi kan jämföra två personer med
+    \mintinline{python}{<}.  Kan vi även använda
+    \mintinline{python}{>}?  Hur fungerar det i så fall?
   \end{exercise}
 \end{frame}
 
@@ -1286,7 +1313,8 @@ av de fyra ordningsmetoderna, och låter dekoratorn
 resten.\footnote{\label{fn:total-ordering}%
   \enquote{Given a class defining one or more rich comparison ordering
   methods, this class decorator supplies the rest.}
-  \url{https://docs.python.org/3/library/functools.html\#functools.total_ordering}
+  \url{https://docs.python.org/3/library/functools.html%
+\#functools.total_ordering}
   (hämtad 2026-09-03).}
 
 \begin{frame}
@@ -1621,17 +1649,17 @@ Låt oss sammanfatta konceptet arv.
 
 \begin{frame}[fragile]
   \only<presentation>{%
-    \begin{block}{Arv}
+    \begin{summary}[Arv]
       \begin{itemize}
         \item En klass kan ärva en annan klass.
         \item Den kan då förbättra saker.
       \end{itemize}
-    \end{block}%
+    \end{summary}%
   }
   \begin{minted}{python}
     class Class:
         def method(self):
-            # do something object related
+            ...  # do something object related
 
     class Child(Class):
         def method(self):
