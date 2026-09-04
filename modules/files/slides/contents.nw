@@ -115,8 +115,8 @@ information även när datorn är avstängd.  Detta kan vara en hårddisk,
 SSD, eller annan lagringsmedia.  Sekundärminnet är långsammare än
 primärminnet --- en läsning från en SSD tar tiotals mikrosekunder och
 från en hårddisk några millisekunder, mot hundra nanosekunder för
-primärminnet\autocite[kap.~22 och 44]{ArpaciDusseau2025OSTEP} --- men
-det är persistent och kan lagra mycket större mängder data.
+primärminnet\autocite[kap.~22, 37 och 44]{ArpaciDusseau2025OSTEP} ---
+men det är persistent och kan lagra mycket större mängder data.
 }
 
 \subsection{Varför filer?}
@@ -242,11 +242,6 @@ Python-program vi skriver själva är lagrade som textfiler på hårddisken.
   \end{summary}
 \end{frame}
 
-Spelets framsteg, nyhetsbrevets adresser och SCB:s namnstatistik
-illustrerar de viktigaste användningsområdena för filer.  Mönstret är
-tydligt: samma verktyg (filer) löser fundamentalt olika problem.  Det är
-därför filhantering är så centralt i programmering.
-
 
 \section{Hur använder vi filer?}
 \label{sec:anvanda}
@@ -362,12 +357,18 @@ bara talet, och programmet ska skriva ut det.
 
   \textbf{Pedagogisk sekvens}: Visa explicit metod först för att göra
   problemet synligt (glömma [[close()]], särfall), sedan [[with]] som
-  lösning.  Kontrasten gör värdet av kontexthanterare urskiljbart
-  \parencite[45--47]{Marton2015}.  Den manuella versionen visas
-  \emph{utan} [[try]]/[[finally]]: hade den skyddet inbyggt skulle
-  övningen om vad som händer vid ett särfall redan vara besvarad, och
-  kontrasten mot [[with]] skulle bara gälla längden.
+  lösning.  Anmärkningen \emph{Garanterad resurshantering} är
+  kontrastpunkten: den säger ut vad som skiljer de två sätten åt.
+  Blocktiteln säger bara vad som är garanterat --- kontrastvokabulären
+  hör hemma här och inte i det studenterna läser.  Kontrasten gör värdet
+  av kontexthanterare urskiljbart \parencite[45--47]{Marton2015}.  Den
+  manuella versionen visas \emph{utan} [[try]]/[[finally]]: hade den
+  skyddet inbyggt skulle övningen om vad som händer vid ett särfall
+  redan vara besvarad, och kontrasten mot [[with]] skulle bara gälla
+  längden.
 }
+
+\mode<article>{\needspace{12\baselineskip}}
 
 \begin{frame}[fragile]
   \begin{example}[Öppna och stänga för hand]
@@ -418,7 +419,7 @@ def read_number(filename):
 
 \begin{frame}
   \only<presentation>{%
-    \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+    \begin{remark}[Garanterad resurshantering]
       \begin{itemize}
         \item [[with]]: Filen stängs \emph{alltid}, även vid särfall.
         \item Manuell hantering: Risk att filen lämnas öppen vid fel.
@@ -429,7 +430,7 @@ def read_number(filename):
     \end{remark}%
   }%
   \only<article>{%
-    \begin{remark}[Kontrastpunkten: Garanterad resurshantering]
+    \begin{remark}[Garanterad resurshantering]
       Båda metoderna fungerar när allt går som planerat.  Men
       [[with]]-satsen har en avgörande fördel: den garanterar att filen
       \emph{alltid} stängs korrekt, även om ett särfall uppstår.
@@ -784,7 +785,7 @@ with open("test1.txt", "r") as file:
   \end{example}
 
   \begin{example}[Körning]
-    Utskriften blir densamma som med [[read()]]:
+    Samma rader kommer ut som med [[read()]]:
     \runpython[transcript]{examples/read_lines.py}
   \end{example}
 \end{frame}
@@ -795,9 +796,11 @@ radbrytningstecken \mintinline{python}{"\n"} som står i filen:
 is left at the end of the string}}\autocite{PythonTutorialFiles}.
 Skriver vi ut raden med ett vanligt [[print(line)]] lägger [[print]] till
 ännu en radbrytning, och utskriften får en tom rad mellan varje rad.
-Därför [[end=""]]: vi låter filens egna radbrytningar räcka.  Samma
-tecken som vi själva lade dit när vi skrev filen kommer alltså tillbaka
-när vi läser den.
+Därför [[end=""]]: vi låter filens egna radbrytningar räcka.  Det är av
+samma skäl [[read_all.py]] får en tom rad sist: där går hela innehållet
+--- radbrytningen på sista raden inräknad --- genom ett enda [[print]].
+Samma tecken som vi själva lade dit när vi skrev filen kommer alltså
+tillbaka när vi läser den.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLORead}.
@@ -999,11 +1002,10 @@ kräver.
     \begin{description}
       \item[Textfiler] Använder lägena \mintinline{python}{"r"},
         \mintinline{python}{"w"}, \mintinline{python}{"a"}.  Antar
-        \enquote{läsbara tecken}, rader bryts med
-        \mintinline{python}{"\n"}.
+        läsbara tecken, rader bryts med \mintinline{python}{"\n"}.
       \item[Binärfiler] Lägger till \mintinline{python}{"b"}:
         \mintinline{python}{"rb"}, \mintinline{python}{"wb"},
-        \mintinline{python}{"ab"}.  Ingen struktur, råa bytes.
+        \mintinline{python}{"ab"}.  Ingen given struktur: råa bytes.
     \end{description}
   \end{summary}
 \end{frame}
@@ -1071,13 +1073,13 @@ vi måste besvara varje gång vi arbetar med filer.
   }%
   \only<article>{%
     \begin{activity}[SCB]
-      Idé: Olle Bälter\footnote{Ursprunglig övningsidé från Olle Bälter.}
-
       SCB Namnsök\footnote{URL:
         \url{https://www.scb.se/hitta-statistik/sverige-i-siffror/namnsok/}
       } tillhandahåller statistik om namnfrekvenser i Sverige.  Ladda ner
       statistikfilen och skriv ett program som gör samma sak som
       webbsidans funktionalitet.
+
+      {\small Idé: Olle Bälter}
     \end{activity}%
   }
 \end{frame}
@@ -1181,10 +1183,10 @@ Lägg också märke till att det blev två funktioner och inte en:
 [[read_pairs]] läser filen, [[parse_pair]] tolkar en rad.  Det är
 principen om ett enda ansvar, \emph{SRP}
 (\foreignlanguage{english}{Single Responsibility Principle}) --- en modul
-ska aldrig ha mer än ett skäl att ändras\autocite[ch.~8]{Martin2003Agile}.
+ska aldrig ha mer än ett skäl att ändras\autocite[kap.~8]{Martin2003Agile}.
 Ändras formatet på en rad rör det bara [[parse_pair]]; ändras var paren
-finns rör det bara [[read_pairs]].  Principen namnges och beläggs i
-föreläsningen \emph{Funktioner}, bilaga B, med det förbehåll som står där.
+finns rör det bara [[read_pairs]].  Det vetenskapliga underlaget finns i
+föreläsningen \emph{Funktioner}, bilaga B.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLORead}.
@@ -1288,10 +1290,14 @@ skrivaren och läsaren förstått kontraktet lika.
   Aktiviteten \emph{Telefonbok med CSV} ger det konkreta testfallet.
 }
 
-Detta fungerar för enkla fall, men snabbt blir vårt egendesignade format
-otillräckligt när data blir mer komplex.
+Svaret ligger i skiljetecknet.  Kommatecknet skiljer fälten åt, men
+det kan lika gärna stå \emph{inuti} ett fält: raden för namnet
+\enquote{Andersson, Eva} får tre delar där vår tolkning väntar sig två,
+och en adress eller en fritext kan innehålla både kommatecken och
+citattecken.  Vårt eget format fungerar alltså för enkla fall, men blir
+otillräckligt så snart data ser ut som verkliga data.
 
-\subsection{Standardformatet CSV}
+\subsection{Formatet CSV}
 \label{sec:csv}
 
 I stället för att uppfinna egna format för vanliga behov är det mycket
@@ -1311,7 +1317,8 @@ citattecken eller radbrytningar omges av citattecken.
 Att välja ett format som redan finns i stället för att hitta på ett eget
 är \emph{KISS} (\foreignlanguage{english}{Keep It Simple, Stupid}) ---
 den enklaste lösning som gör jobbet.  Uttrycket tillskrivs
-flygplanskonstruktören Kelly Johnson\autocite{Rich1995Johnson}, men
+flygplanskonstruktören Kelly
+Johnson\autocite{Rich1995Johnson,LockheedMartinJohnson}, men
 tillskrivningen är folklore: det står i tryck redan
 1958\autocite{Popik2019KISS}.  Det vetenskapliga underlaget finns i
 föreläsningen \emph{Funktioner}, bilaga C.
@@ -1326,7 +1333,7 @@ sin egen kopia av [[split(",")]] --- och sina egna buggar i den ---
 använder alla samma.  Det är \emph{DRY}
 (\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
 enda ställe\autocite{HuntThomas1999}, här tillämpat över programgränsen.
-Principen och dess förbehåll står i föreläsningen \emph{Algoritmiskt
+Det vetenskapliga underlaget finns i föreläsningen \emph{Algoritmiskt
 tänkande}, bilaga E.
 
 \begin{frame}
@@ -1340,6 +1347,8 @@ tänkande}, bilaga E.
 \end{frame}
 
 Låt oss se hur vi kan skriva samma talpar med CSV-formatet:
+
+\mode<article>{\needspace{13\baselineskip}}
 
 \begin{frame}[fragile]
   \begin{example}[Skriva talpar som CSV]
@@ -1474,9 +1483,7 @@ if __name__ == "__main__":
       \end{enumerate}
 
       Testa att lägga till kontakten \enquote{Svensson, Anna} och se vad
-      som händer i filen och vid nästa inläsning.  Jämför med vad som
-      skulle hända om du använde [[split(",")]] i stället för modulen
-      [[csv]].
+      som händer i filen och vid nästa inläsning.
     \end{activity}%
   }
 \end{frame}
@@ -1488,8 +1495,9 @@ if __name__ == "__main__":
   telefonboksexemplet (en uppslagslista) utökas med filpersistens, och
   kommatecknet i namnet låter studenten \emph{upptäcka} modulens
   robusthet (\foreignlanguage{english}{try-first}).  Uppgiften säger
-  inte vad som ska hända med kommatecknet; det är studentens sak att se
-  det.
+  inte vad som ska hända med kommatecknet, och inte heller att den egna
+  tolkningen med [[split(",")]] hade delat namnet mitt itu; det är
+  studentens sak att se det.
 }
 
 \subsection{Nästlade data: JSON}
@@ -1514,8 +1522,8 @@ strängar och tal\autocite{PythonJSON}.
 
 \begin{frame}[fragile]
   \begin{example}[Spara och läsa tillbaka en telefonbok]
-    Två funktioner räcker: [[json.dump]] skriver strukturen till filen,
-    [[json.load]] läser den tillbaka:
+    Det räcker med två funktioner.  Strukturen skrivs till filen med
+    [[json.dump]] och läses tillbaka med [[json.load]]:
 <<spara telefonboken>>=
 def save_contacts(contacts, filename):
     """Saves the phone book (a dictionary) to the file as JSON"""
@@ -1581,7 +1589,8 @@ inlästa är en riktig uppslagslista igen, med samma nycklar och värden.
 Hela strukturen kom tillbaka utan att vi skrev en enda rad tolkning:
 formatet är standardiserat, så modulen kan göra det åt oss.  Hur ni
 hittar och läser dokumentationen för [[csv]], [[json]] och de andra
-modulerna i standardbiblioteket tas upp i materialet om moduler.
+modulerna i standardbiblioteket tas upp i föreläsningen \emph{Moduler
+och paket}.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLOFormats}, \cref{FilesLOWrite}.
@@ -1601,9 +1610,12 @@ modulerna i standardbiblioteket tas upp i materialet om moduler.
   är?} ställs i prosan innan svaret, och körningen visar filens text
   bredvid det inlästa så att likheten med --- och skillnaden mot ---
   Pythons egen skrivning syns samtidigt \parencite[45--47]{Marton2015}.
-  Att slå upp modulerna i dokumentationen är materialet om modulers sak;
-  här hänvisas dit i stället för att upprepa det.
+  Att slå upp modulerna i dokumentationen hör till föreläsningen
+  \emph{Moduler och paket}; här hänvisas dit i stället för att upprepa
+  det.
 }
+
+\mode<article>{\needspace{8\baselineskip}}
 
 Den viktigaste lärdomen här är att \emph{formatering och struktur är lika
 viktigt för filer som för terminalutskrift}.  Precis som vi måste tänka
