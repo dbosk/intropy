@@ -6,6 +6,9 @@ LATEXFLAGS+=	-shell-escape
 # FileNotFoundError traceback included) embedded with PythonTeX, so a
 # shown output cannot drift from the program that produces it.
 TEX_PYTHONTEX=	yes
+# Both jobs share ltxobj, so PythonTeX would otherwise reuse the first
+# job's cache for the second one.
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
