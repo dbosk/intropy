@@ -39,7 +39,7 @@ compact worked example). A deck is done when it has:
   and KISS (*Funktioner* B–C); exception misconceptions and catch-all
   (*Felhantering* B–C); loop misconceptions and productive failure
   (*Upprepningar* B–C); "Hello, World!" origin, interpreter, error messages
-  (*Hello World!* B–D).
+  (*Hello World!* B–D); language chronology and origins (*Hello World!* E).
 
 ### Language rules (from the author's reviews)
 
@@ -172,7 +172,14 @@ In a fresh worktree run `git submodule update --init --checkout makefiles`
 examples/`; no source line > 79 characters; `check_provenance.py` and
 `check_metadata.py` on `ltnotes.bib`; every tangled example runs; render
 every slide (`pdftoppm -r 40` + `montage`) and every notes page and read
-them.
+them. Also: `pdftotext ltxobj/slides.pdf - | grep -c MINTED` = 0 (the
+make can stop one pass short and leave literal `<MINTED>` placeholders on
+every slide; one more pdflatex pass clears it), and `wc -l
+ltxobj/notes.pytxcode ltxobj/slides.pytxcode` nearly equal (a frame that
+combines `\pause` with `\runpython` doubles the slides job's PythonTeX
+instances and the shared cache then prints the wrong outputs in the notes).
+A permanent "Rerun to get cross-references" two-cycle from a margin
+citation at a page boundary is harmless when `??` is 0.
 
 ### Driver wiring (slides.tex / notes.tex)
 
@@ -183,6 +190,16 @@ beamerarticle):
 \usepackage[minted]{noweb}
 \noweboptions{breakcode}
 ```
+
+`preamble.tex` carries, right after `\usepackage[...]{didactic}`,
+`\extrafloats{200}` (didactic's margin footnotes and verbose `\autocite`s
+are `\marginpar`s and exhaust LaTeX's float pool in citation-heavy
+chapters: "Too many unprocessed floats" pages after the cause) and
+`\ifdefined\setsidecappos\setsidecappos{b}\fi` (memoir `\rlap`s side
+captions, so the default centred position overprints an `\ltnote` at the
+same height). Figures use didactic's `sidecaption` environment,
+`\begin{figure}[htbp]\centering\begin{sidecaption}{…}[fig:x]
+\includegraphics…\end{sidecaption}\end{figure}` — no compat macros.
 
 Do not load minted with the `[outputdir=...]` package option anywhere —
 minted v3 (TeX Live 2024+) errors on it; plain `\usepackage{minted}` in
