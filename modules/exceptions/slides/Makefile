@@ -6,6 +6,7 @@ LATEXFLAGS+=	-shell-escape
 # included) embedded with PythonTeX, so a shown error message cannot
 # drift from the program that produces it.
 TEX_PYTHONTEX=	yes
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
