@@ -4,6 +4,9 @@ all: notes.pdf slides.pdf
 LATEXFLAGS+=	-shell-escape
 # The assembled program's output is executed and embedded with PythonTeX.
 TEX_PYTHONTEX=	yes
+# Both jobs share ltxobj, so the second job would otherwise reuse the
+# first job's cache and renumber its transcripts.
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example program is tangled from
