@@ -7,6 +7,12 @@ LATEXFLAGS+=	-shell-escape
 # --- import errors and the interpreter's rename hint included ---
 # cannot drift from the program that produces it.
 TEX_PYTHONTEX=	yes
+# notes and slides share one output directory, so they share PythonTeX's
+# cache (ltxobj/pythontex_data.pkl).  Without --rerun=always the second job
+# built finds everything cached, writes no <job>.pytxmcr, and latexmk's
+# custom dependency then fails with "did not make the destination" on every
+# subsequent run.  The programs are tiny, so rerunning them is cheap.
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
@@ -45,6 +51,7 @@ EXAMPLES+=	examples/whoami.py
 EXAMPLES+=	examples/use_whoami.py
 EXAMPLES+=	examples/lookup.py
 EXAMPLES+=	examples/mean.py
+EXAMPLES+=	examples/today.py
 # The shadowing example is a file named like a standard-library module.
 # It lives in its own directory so that it hides the real statistics
 # module only from itself, not from the other examples.
