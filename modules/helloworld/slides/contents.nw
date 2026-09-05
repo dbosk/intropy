@@ -91,13 +91,14 @@ där instruktionerna faktiskt slutar ser den ut så här.
 
 Ingenting i siffrorna skiljer instruktionerna åt --- det finns inga
 mellanslag och inga radbrytningar i minnet.  Att den första instruktionen
-är femtioen siffror lång och den andra tolv är något processorn vet,
-därför att de fyra första siffrorna säger vilken sorts instruktion det är.
-I den här (påhittade) processorn betyder \texttt{0001 aaaa nnnn}, följt av
+är femtioen siffror lång och den andra tolv är ändå något processorn
+vet: de fyra första siffrorna säger vilken sorts instruktion det är, och
+sorten säger hur instruktionen är byggd och var dess längd står.  I den
+här (påhittade) processorn betyder \texttt{0001 aaaa nnnn}, följt av
 \texttt{nnnn} tal, \enquote{lägg de talen i minnet med början i minnescell
-\texttt{aaaa}} --- där står alltså också hur lång instruktionen är --- och
-\texttt{0002 aaaa nnnn} betyder \enquote{skriv ut \texttt{nnnn}
-minnesceller med början i \texttt{aaaa}, som text}.  Talen är
+\texttt{aaaa}} --- talet \texttt{nnnn} säger alltså också hur lång
+instruktionen är --- och \texttt{0002 aaaa nnnn} betyder \enquote{skriv ut
+\texttt{nnnn} minnesceller med början i \texttt{aaaa}, som text}.  Talen är
 teckenkoder, tre siffror var: \texttt{072} står för \texttt{H},
 \texttt{101} för \texttt{e} och \texttt{033} för \texttt{!}.  Programmet i
 \cref{ex:maskinkod} lägger alltså de tretton teckenkoderna för
@@ -232,10 +233,11 @@ annat då något gavs ut --- och då säger texten vilket år som menas.
   uppmärksamheten på vägen och inte på vad programmen gör
   \parencite[45--47]{Marton2015}.
 
-  Att ordningen är kronologisk står numera i texten; skälet är att den
-  ger variationen en riktning studenten kan hålla i huvudet, så att
-  skillnaden mellan \enquote{översätts i förväg} och \enquote{läses under
-  körningen} går att placera i tiden.  Urvalet är gjort för att spänna
+  Ordningen är kronologisk för att ge variationen en riktning studenten
+  kan hålla i huvudet, så att skillnaden mellan \enquote{översätts i
+  förväg} och \enquote{läses under körningen} går att placera i tiden.
+  Skälet står också i den löpande texten: en riktning studenten inte
+  känner till kan hen inte följa.  Urvalet är gjort för att spänna
   över variationen och inte för att vara representativt: assembler och
   Lean 4 sitter i var sin ände, C och C++ visar att skillnaden mellan två
   språk kan vara liten utan att vägen ändras, och Haskell och JavaScript
@@ -251,7 +253,7 @@ annat då något gavs ut --- och då säger texten vilket år som menas.
 <<[[hello.s]]>>=
         .section .rodata
 msg:    .ascii "Hello, World!\n"
-len =   . - msg
+        .set len, . - msg
         .text
         .globl _start
 _start:
@@ -319,7 +321,7 @@ Här står inga instruktioner alls, utan vad som ska hända.  En
 \emph{kompilator} översätter hela filen till maskinkod i förväg, och det
 är resultatet vi kör --- samma slut som för assembler, men vi har sluppit
 välja instruktionerna själva.  Till skillnad från assemblerfilen är
-C-filen inte heller bunden till en bestämd sorts processor: kompilatorn
+C-filen inte bunden till en bestämd sorts processor: kompilatorn
 går att rikta om, så att samma fil översätts till maskinkod för en annan
 sorts maskin.  Ritchie gjorde C på Bell Labs för att kunna skriva
 operativsystemet Unix, och daterar själv språkets tillblivelse till åren
@@ -380,9 +382,10 @@ filen i förväg, och vi kör resultatet.  Två saker gör språket speciellt.
 Det är \emph{rent funktionellt} --- en funktion räknar ut ett värde och
 ändrar ingenting annat, så samma anrop ger alltid samma svar --- och det
 är \emph{lat} (\foreignlanguage{english}{lazy}): ingenting räknas ut
-förrän någon behöver värdet.  Under åttiotalet hade det vuxit fram ett
-tiotal forskningsspråk med de idéerna, och Haskell ritades av en kommitté
-just för att ge dem ett gemensamt språk; rapporten som fastställde det är
+förrän någon behöver värdet.  Under åttiotalet hade det vuxit fram över
+ett dussin forskningsspråk med de idéerna, och Haskell formgavs av en
+kommitté just för att ge dem ett gemensamt språk; rapporten som
+fastställde det är
 daterad den 1 april 1990\autocite{Hudak2007Haskell}.
 
 \begin{frame}[fragile]
@@ -487,12 +490,12 @@ def main : IO Unit :=
 \end{frame}
 
 Lean 4 är både ett programmeringsspråk och ett verktyg för att bevisa att
-påståenden stämmer: programmet och beviset skrivs i samma språk.  Det gör
-det möjligt att inte bara \emph{pröva} programmet på några exempel utan
-att \emph{bevisa} att det gör det vi har sagt att det ska göra --- till
-exempel att en funktion som sorterar en lista alltid lämnar tillbaka
-precis de tal den fick, i växande ordning\autocite{Moura2021Lean4}.  Lean
-självt är från 2013;
+påståenden stämmer: programmet och beviset skrivs i samma
+språk\autocite{Moura2021Lean4}.  Det gör det möjligt att inte bara
+\emph{pröva} programmet på några exempel utan att \emph{bevisa} att det
+gör det vi har sagt att det ska göra --- till exempel att en funktion som
+sorterar en lista alltid lämnar tillbaka precis de tal den fick, i
+växande ordning.  Lean självt är från 2013;
 versionen vi skriver i här kom 2021.  Vägen är ändå den vi känner igen:
 filen översätts i förväg, och det är resultatet som körs.
 
@@ -545,7 +548,7 @@ gör det.
 
 \mode<article>{\subsection{Varför språken ser olika ut}}
 
-Åtta sätt att skriva samma rad kan verka som slöseri.  Men språken är inte
+Åtta språk för en och samma rad kan verka som slöseri.  Men språken är inte
 smakvarianter av varandra: vart och ett kom till för att göra något som
 var svårt i det föregående, och fyra sådana skäl räcker för att förklara
 det mesta av det vi just sett.
@@ -768,11 +771,12 @@ Vim, som körs i terminalen och inte har några knappar alls.
 %  \end{figure}
 %\end{frame}
 
-De ser helt olika ut, och ingen av dem är Python.  Alla gör samma två
-saker: de sparar er text i en fil, och de startar pythontolken åt er ---
-samma [[python3]] som i terminalen, med samma filnamn.  Skillnaden mot
-terminalen är att kommandot inte alltid syns: IDLE visar bara en rad med
-filens namn, medan VSCodium öppnar en terminal och visar hela kommandot.
+De ser helt olika ut, och ingen av dem är Python.  Alla tre gör samma två
+saker: er text hamnar i en fil, och den filen lämnas till [[python3]] ---
+samma tolk som i terminalen, med samma filnamn.  Det som skiljer dem åt är
+hur mycket av kommandot ni får se: IDLE visar bara en rad med filens namn,
+VSCodium öppnar en terminal och visar hela kommandot, och i Vim skriver ni
+det själva.
 
 \begin{frame}
   \only<presentation>{%
@@ -810,18 +814,22 @@ att leta reda på tidigt.
   kört, ingen annan kod i fokus) är avsiktligt: det enda som ska sticka ut
   är att de är olika program.
 
-  Tre skärmdumpar, inte två.  Ett tredje fall som bara nämns i texten
+  Tre skärmdumpar, inte två (den tredje väntar på en bild av Vim).  Ett
+  tredje fall som bara nämns i texten
   räcker inte här: det är \emph{utseendet} som ska variera, och utseende
   syns bara i en bild.  Med två fall står det öppet om mönstret gäller
   eller om just de två råkar likna varandra; det tredje fallet är det som
   stänger frågan.  Vim är valt därför att det ligger längst från de andra
-  två --- ingen knapp, inget fönster, bara terminalen --- och ändå gör
-  samma två saker: sparar texten i en fil och startar [[python3]] på den.
+  två --- ingen knapp, inget fönster, bara terminalen --- och ändå slutar
+  i samma två saker: texten hamnar i en fil, och filen lämnas till
+  [[python3]].  Vim är också fallet som avslutar den andra variationen i
+  stycket, hur mycket av kommandot som syns: där skriver studenten det
+  själv.
 
-  Att bilderna visar \emph{samma} program kört är också ett val:
-  tidigare visade IDLE-bilden ett annat program, och då varierade två
-  saker samtidigt (redigerare och program), vilket skymde att det är
-  redigeraren som är den intressanta variationen.
+  Att bilderna visar \emph{samma} program kört är också ett val: visade
+  de olika program skulle två saker variera samtidigt (redigerare och
+  program), vilket skymmer att det är redigeraren som är den intressanta
+  variationen.
 
   Den avslutande anmärkningen om osparade ändringar är inte en
   \enquote{tips och tricks}-parentes utan samma kritiska aspekt en gång
@@ -1006,8 +1014,9 @@ tänkande}, bilaga E.
 
 Det som säkert kommer att hända när ni programmerar är att något inte
 fungerar.  Det är värt att titta på i förväg, för Pythons svar när något
-går fel är den mest användbara texten ni kommer att läsa den närmaste tiden
---- och den som lättast avfärdas som obegriplig.
+går fel är den mest användbara texten ni kommer att läsa den närmaste
+tiden --- och den som lättast avfärdas som obegriplig (det vetenskapliga
+underlaget finns i \cref{app:felmeddelanden}).
 
 \begin{frame}[fragile]
   \begin{example}[Ett program med ett fel]
@@ -1030,32 +1039,25 @@ print(f"Hello, {Name}!")
   Relevanta lärandemål: \cref{HelloLOError,HelloLOExecution}.
 
   \foreignlanguage{english}{Try-first}: frågan är \enquote{vad är
-  felet?}.  En tidigare version frågade \enquote{vad skriver programmet
-  ut?} med motiveringen att den lämnade den kritiska aspekten fri att
-  komma fram i svaren.  Det räcker inte: en fråga som bara \emph{tillåter}
-  urskiljningen kan besvaras med \enquote{ingenting, det är ju fel}, och
-  då har studenten aldrig behövt titta efter var programmet stannade.
-  Frågan måste rikta uppmärksamheten mot felet, inte lämna åt slumpen om
-  den hamnar där.  Priset är att frågan förutsätter att det finns ett fel
-  --- men det säger exemplets titel och inledning ändå --- medan vinsten
-  är att svaren skiljer sig på ett sätt som är värt att höra: den som
-  pekar på \texttt{Name} har läst programmet, den som svarar
-  \enquote{något är stavat fel} har sett sorten men inte stället, och den
-  som svarar \enquote{vet inte} får svaret av spårutskriften strax efter.
+  felet?}, inte \enquote{vad skriver programmet ut?}.  En fråga som bara
+  \emph{tillåter} urskiljningen kan besvaras med \enquote{ingenting, det
+  är ju fel}, och då har studenten aldrig behövt titta efter var
+  programmet stannade.  Priset är att frågan förutsätter att det finns
+  ett fel --- vilket exemplets titel och inledning säger ändå --- och
+  vinsten är att svaren skiljer sig på ett sätt som är värt att höra: den
+  som pekar på \texttt{Name} har läst programmet, den som svarar
+  \enquote{något är stavat fel} har sett sorten men inte stället.
 
-  Varken titeln, inledningen eller programmets egna utskrifter säger vad
-  det är för sorts fel.  Titeln och inledningen gjorde det i en tidigare
-  version.  Det gjorde också den utskrivna texten: \enquote{Den här raden
-  hinner köras.} talade om precis det som spårutskriften ska få studenten
-  att upptäcka, alltså hur långt programmet kom.  Den är utbytt mot en
-  hälsning som inte berättar något.
+  Varken titeln, inledningen eller programmets egna utskrifter får säga
+  vad det är för sorts fel: en utskrift som \enquote{den här raden hinner
+  köras} talar om just det som spårutskriften ska få studenten att
+  upptäcka, hur långt programmet kom.
 
-  Programmet är ett riktigt, tanglat exempel som körs i bygget: den
-  visade utmatningen \emph{är} vad Python svarar, inte en
-  efterhandsskriven återgivning.  Felet är valt till ett stavfel i ett
-  variabelnamn snarare än ett syntaxfel, eftersom ett syntaxfel stoppar
-  programmet innan \emph{något} hunnit köras --- och då försvinner den
-  aspekt som exemplet ska visa: att programmet hann en bit.
+  Felet är ett stavfel i ett variabelnamn och inte ett syntaxfel,
+  eftersom ett syntaxfel stoppar programmet innan \emph{något} hunnit
+  köras --- och då försvinner den aspekt exemplet ska visa: att
+  programmet hann en bit.  Programmet är tanglat och körs i bygget, så
+  den visade utmatningen \emph{är} vad Python svarar.
 }
 
 \begin{frame}[fragile]
@@ -1088,7 +1090,9 @@ print(f"Hello, {Name}!")
   \parencite{Huang2024Composition}.
 }
 
-Det viktigaste står först: den första utskriften kom.  Programmet körde
+Texten Python skriver ut när ett program stannar kallas en
+\emph{spårutskrift} (\foreignlanguage{english}{traceback}).  Det
+viktigaste i den står först: den första utskriften kom.  Programmet körde
 alltså rad ett och rad två, och stannade på rad tre.  Det är inte hela
 filen som \enquote{är fel} --- det är en rad, och Python säger vilken.
 
@@ -1099,6 +1103,11 @@ att ha fått något värde.  Den säger också vilket namn det gäller:
 [[name]] med litet \texttt{n}.  Python skiljer på stora och små
 bokstäver.
 
+% The section's second instructor note is longer than the margin left on
+% the page its subject ends on, so it queues forward --- and the next page
+% break after it is the one into the appendix.  Break here instead, so the
+% queue drains on a page that is still inside the chapter.
+\mode<article>{\clearpage}
 \begin{frame}
   \only<presentation>{%
     \begin{summary}[Läs felmeddelandet nerifrån och upp]
