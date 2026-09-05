@@ -129,8 +129,14 @@ skill.
   `\caption`.
 - `\ltnote`s longer than the margin queue forward and print beside the
   next section or the appendix; `\clearpage` does not flush them. Put
-  `\mode<article>{\clearpage}` before the section they belong to (and
-  shorten notes that restate the prose).
+  `\mode<article>{\clearpage}` before the section they belong to, and
+  before the *last* frame of a section whose notes overflow, so the queue
+  drains on a page still inside the chapter (shorten notes that restate
+  the prose; anchor a note where its decision is made, not at the end of
+  the passage, and never within a few lines of a `sidecaption` figure).
+  A margin at capacity also pushes citation footnotes to the next page.
+- Pygments' GAS lexer marks `len = . - msg` as an error token, which minted
+  draws as a red box: write `.set len, . - msg` in assembler chunks.
 - Noweb quoting `[[…]]` cannot hold a babel shorthand pair: `[[phone["adam"]]]`
   prints `phone[ädam"]` because Swedish `"a` fires before `\code` changes
   catcodes; write such snippets with `\mintinline{python}|…|`.
