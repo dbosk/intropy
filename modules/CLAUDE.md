@@ -53,14 +53,37 @@ compact worked example). A deck is done when it has:
 - "Ett program utför en uppgift; processorn/datorn/tolken exekverar
   programmet": whoever runs code exekverar it (noun "exekvering"); a
   program or a person utför a task; "köra" stays as the everyday word.
-- Appendix pointers read "det vetenskapliga underlaget finns i \cref{app:…}".
+- Appendix pointers read "det vetenskapliga underlaget finns i \cref{app:…}"
+  and stand beside the claim they back, once: in the same sentence (a
+  parenthesis or a following clause), never as a trailing sentence a
+  sentence or more away, never twice for one appendix in a paragraph.
   No ambiguous sentence-initial pronouns in the appendices ("Sökningen
   gjordes …", not "Den gjordes …").
+- Name the action, not the position: "något måste översätta det vi skriver
+  till det processorn exekverar", not "något måste stå emellan". A title
+  that names a literal reproduces it exactly ("Hello, World!").
 - Learning objectives say what the student can do, in plain words, without
   restating the mechanism. Exercises do not hint at the critical aspect —
   nor do example titles or lead-ins ("Ett program med ett fel", not "… med
-  ett stavfel"). A try-first question comes after everything it presupposes,
-  and the example that answers it shows the full answer.
+  ett stavfel"), nor the program's own payload (a printed string like "Den
+  här raden hinner köras." narrates the answer; print "Välkommen!"). A
+  try-first question comes after everything it presupposes, and the
+  example that answers it shows the full answer. The question must make
+  the student discern the critical aspect, not merely allow it to surface:
+  when the error is the object, ask "Vad är felet?", not "Vad skriver
+  programmet ut?".
+- In a generalisation sequence (the same task in language after language,
+  editor after editor) the invariant holds from the first case: the very
+  first example performs the same task as the last. Each step asks how the
+  new case relates to the previous one ("Hur förhåller sig detta till
+  assembler?"), and each case carries its own motivation in the body —
+  why this language exists, what is special about it — not only in a
+  later summary subsection. A case added to the sequence is added to every
+  sentence that enumerates the cases.
+- What exists only in an `\ltnote` does not exist for the student: if the
+  student is meant to notice a development or a reason, say it in the
+  prose. Do not pre-announce a `summary` block with a one-line paragraph
+  saying what it is about to say.
 - Never refer to physical position ("på nästa bild", "ovan"): `\cref`. Every
   figure is referenced from the prose (not only from an `\ltnote`) and
   placed near the reference; captions are side captions in the notes.
@@ -187,7 +210,9 @@ files under `examples/` (tracked hand-written activity inputs such as
 `files/slides/examples/scb/*.py` are exempt); no source line > 79 characters; `check_provenance.py` and
 `check_metadata.py` on `ltnotes.bib`; every tangled example runs; render
 every slide (`pdftoppm -r 40` + `montage`) and every notes page and read
-them. Also: `pdftotext ltxobj/slides.pdf - | grep -c MINTED` = 0 (the
+them; every margin footnote prints on the page that carries its marker
+(`pdftotext -f N -l N`: the superscript numbers in the text against the
+note numbers in the margin — a note pushed to the next page is a defect). Also: `pdftotext ltxobj/slides.pdf - | grep -c MINTED` = 0 (the
 make can stop one pass short and leave literal `<MINTED>` placeholders on
 every slide; one more pdflatex pass clears it), and `wc -l
 ltxobj/notes.pytxcode ltxobj/slides.pytxcode` nearly equal (a frame that
