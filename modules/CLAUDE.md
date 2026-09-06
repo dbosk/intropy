@@ -216,7 +216,13 @@ and `pdflatex … -output-directory=ltxobj <job>.tex` by hand until it does
 not (on slides the symptom is blank table-of-contents frames at every
 section and subsection, which didactic adds). Never combine `\pause` and
 `\runpython` in one frame: the overlays re-execute the body and shift
-PythonTeX's instance numbering for every later transcript.
+PythonTeX's instance numbering for every later transcript. When only the
+tangled programs change (a name in a chunk, nothing in the frames), the
+`.pytxcode` is unchanged and latexmk never invokes PythonTeX, so the
+notes keep the old transcripts (didactic's `didactic_output_*.txt` are
+named by output content and the stale ones stay referenced): `rm -f
+ltxobj/*.pytx* didactic_output_*.txt` before the build, and check the
+rebuilt transcripts against the tangled programs.
 
 The **makefiles submodule must be on the `tominted-default-weave`
 lineage** (currently 1571556; it makes the highlighted weave the default).
