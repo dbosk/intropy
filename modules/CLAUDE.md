@@ -139,14 +139,22 @@ compact worked example). A deck is done when it has:
   ("Scientific! som i matematiken"). A normative claim ("följ PEP 8") is
   an empirical claim about its benefit and is backed two-sidedly.
 - An `example` shows its own output (code and transcript in the same
-  example); an `exercise` keeps its answer separate, because the delay is
-  the point. A variation label in an `\ltnote` (kontrast, generalisering,
+  example), as a terminal run with the command line first
+  (`\runpython[showcommand]{examples/x.py}`, or `[transcript, stdin={…}]`
+  when the program reads input), never a bare output block; an `exercise`
+  keeps its answer separate, because the delay is the point. A section
+  asks before it tells: exercise, output, explanation, then the
+  definition last (Marton 2015, pp. 13 and 89). A variation label in an `\ltnote` (kontrast, generalisering,
   fusion) must match what the example actually varies.
 - Example data names: never the author's. "Malvina" is the default single
   name; when several are needed, Astrid Lindgren's strong characters in
   order — Ronja, Pippi, Madicken — then their side characters (Birk,
   Annika, Lisabet). "Ada" (Lovelace) is also fine (author, 2026-09-06);
-  "Beda" was only ever its one-letter partner. Choose verbs that name the mental action ("värda att
+  "Beda" was only ever its one-letter partner. Numbers too: hide a
+  cultural fact in example data where it costs nothing (the birth year
+  1927 is the founding year of Kvinnliga Teknologers Sammanslutning,
+  today Malvina, at KTH) — the fact stays out of the student text and is
+  recorded, with its source, in an `\ltnote`. Choose verbs that name the mental action ("värda att
   fundera på", not "värda att stanna vid").
 - Never refer to physical position ("på nästa bild", "ovan"): `\cref`. Every
   figure is referenced from the prose (not only from an `\ltnote`) and
@@ -190,7 +198,9 @@ skill.
 - `sidecaption` only where the margin is free: next to a figure it works
   (with `\setsidecappos{b}`), but a table on a footnote-heavy appendix
   page overprints the citation footnotes, so query tables take a plain
-  `\caption`.
+  `\caption` — one sentence naming what the table shows; date, tool,
+  code letters, databases and syntax belong in the Metod prose, not in
+  the caption.
 - `\ltnote`s longer than the margin queue forward and print beside the
   next section or the appendix; `\clearpage` does not flush them. Put
   `\mode<article>{\clearpage}` before the section they belong to, and
