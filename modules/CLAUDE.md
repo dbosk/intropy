@@ -221,8 +221,10 @@ tangled programs change (a name in a chunk, nothing in the frames), the
 `.pytxcode` is unchanged and latexmk never invokes PythonTeX, so the
 notes keep the old transcripts (didactic's `didactic_output_*.txt` are
 named by output content and the stale ones stay referenced): `rm -f
-ltxobj/*.pytx* didactic_output_*.txt` before the build, and check the
-rebuilt transcripts against the tangled programs.
+ltxobj/*.pytx* ltxobj/*.fdb_latexmk didactic_output_*.txt; touch
+contents.nw` before the build (removing the PythonTeX files alone leaves
+latexmk with "nothing to do"), and check the rebuilt transcripts against
+the tangled programs.
 
 The **makefiles submodule must be on the `tominted-default-weave`
 lineage** (currently 1571556; it makes the highlighted weave the default).
