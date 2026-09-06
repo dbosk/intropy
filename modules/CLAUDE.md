@@ -84,6 +84,21 @@ compact worked example). A deck is done when it has:
   student is meant to notice a development or a reason, say it in the
   prose. Do not pre-announce a `summary` block with a one-line paragraph
   saying what it is about to say.
+- An empirical claim in the student's text carries its citation there, as
+  a margin footnote (`\autocite` in the body), with the appendix pointer
+  beside it — not only in an `\ltnote` or an appendix table. The students
+  should see that the course claims nothing without a reference
+  ("Scientific! som i matematiken"). A normative claim ("följ PEP 8") is
+  an empirical claim about its benefit and is backed two-sidedly.
+- An `example` shows its own output (code and transcript in the same
+  example); an `exercise` keeps its answer separate, because the delay is
+  the point. A variation label in an `\ltnote` (kontrast, generalisering,
+  fusion) must match what the example actually varies.
+- Example data names: never the author's. "Malvina" is the default single
+  name; when several are needed, Astrid Lindgren's strong characters in
+  order — Ronja, Pippi, Madicken — then their side characters (Birk,
+  Annika, Lisabet). Choose verbs that name the mental action ("värda att
+  fundera på", not "värda att stanna vid").
 - Never refer to physical position ("på nästa bild", "ovan"): `\cref`. Every
   figure is referenced from the prose (not only from an `\ltnote`) and
   placed near the reference; captions are side captions in the notes.
