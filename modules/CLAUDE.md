@@ -234,6 +234,10 @@ skill.
   does not survive inside `\mode<presentation>{}`).
 - Block and frame titles use `\texttt`, never `\mintinline` (it vanishes on
   slides). When the Berlin headline overflows, `\section[short]{long}`.
+- Never `\textcite`/`\autocite` inside a `table` or `figure` float: the
+  citation is a margin footnote (`\marginpar`) and the float is lost
+  ("Float(s) lost", its `\label` with it). Use `\parencite` in floats and
+  put the footnoted first mention in the prose outside.
 - didactic's `remark`/`summary`/`solution` are unnumbered, so `\cref` to
   them gives `??`, and `\cref` to an `example` prints "sats" in the beamer
   job: wrap such crefs in `\only<article>{…}`.
