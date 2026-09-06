@@ -14,6 +14,9 @@ PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
+# The hit lists of the search protocol are generated from the scholar
+# session exports and \input by the appendix chapters.
+SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/age.py
