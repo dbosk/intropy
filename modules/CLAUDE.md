@@ -24,6 +24,13 @@ compact worked example). A deck is done when it has:
 - `ltnotes.bib` — every entry carries a provenance block (`CLAIM`,
   `FOUND-VIA`, `PICKED`, `QUOTE`, `VERIFIED`, `COUNTER`, `DATE`; see the
   `backing-claims` skill and `check_provenance.py`).
+- A claim audit before the appendices are called done: every imperative in
+  the deck ("följ PEP 8", "använd beskrivande namn") asserts a benefit, and
+  that benefit is an empirical claim to back two-sidedly; verifying the
+  convention against its own source backs only the attribution. An
+  appendix sentence "modulen gör inga påståenden som krävt en egen
+  litteratursökning" is itself a claim: list the deck's imperatives and
+  test each (backing-claims skill, `references/claim-audit.md`).
 - `sokprotokoll.tex` — appendices: Bilaga A (the method, for students),
   then one chapter per backed claim (question as title, Metod with the
   query table, Resultat, Slutsats answering the question in its first
