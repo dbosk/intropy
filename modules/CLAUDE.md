@@ -66,12 +66,12 @@ compact worked example). A deck is done when it has:
   restating the mechanism. Exercises do not hint at the critical aspect —
   nor do example titles or lead-ins ("Ett program med ett fel", not "… med
   ett stavfel"), nor the program's own payload (a printed string like "Den
-  här raden hinner köras." narrates the answer; print "Välkommen!"). A
-  try-first question comes after everything it presupposes, and the
-  example that answers it shows the full answer. The question must make
-  the student discern the critical aspect, not merely allow it to surface:
-  when the error is the object, ask "Vad är felet?", not "Vad skriver
-  programmet ut?".
+  här raden hinner köras." discerns the answer for the student; print
+  "Välkommen!" and let them discern it). A try-first question comes after
+  everything it presupposes, and the example that answers it shows the
+  full answer. The question itself stays open ("Vad skriver programmet
+  ut?", not "Vad är felet?"): it gives the critical aspect a chance to
+  surface in the answers without pointing at it.
 - In a generalisation sequence (the same task in language after language,
   editor after editor) the invariant holds from the first case: the very
   first example performs the same task as the last. Each step asks how the
