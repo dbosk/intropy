@@ -97,7 +97,8 @@ compact worked example). A deck is done when it has:
 - Example data names: never the author's. "Malvina" is the default single
   name; when several are needed, Astrid Lindgren's strong characters in
   order — Ronja, Pippi, Madicken — then their side characters (Birk,
-  Annika, Lisabet). Choose verbs that name the mental action ("värda att
+  Annika, Lisabet). "Ada" (Lovelace) is also fine (author, 2026-09-06);
+  "Beda" was only ever its one-letter partner. Choose verbs that name the mental action ("värda att
   fundera på", not "värda att stanna vid").
 - Never refer to physical position ("på nästa bild", "ovan"): `\cref`. Every
   figure is referenced from the prose (not only from an `\ltnote`) and
