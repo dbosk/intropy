@@ -41,12 +41,51 @@ compact worked example). A deck is done when it has:
   source with the provenance block copied (plus `% FOUND-VIA (here): backed
   in <deck>, bilaga <X>`) and point to it in prose — "det vetenskapliga
   underlaget finns i föreläsningen \emph{Funktioner}, bilaga B" (`\cref`
-  cannot cross documents). Backed so far: algorithm components, stepwise
-  refinement, literate programming, DRY (*Algoritmiskt tänkande* B–E); SRP
-  and KISS (*Funktioner* B–C); exception misconceptions and catch-all
-  (*Felhantering* B–C); loop misconceptions and productive failure
-  (*Upprepningar* B–C); "Hello, World!" origin, interpreter, error messages
-  (*Hello World!* B–D); language chronology and origins (*Hello World!* E).
+  cannot cross documents). A pointer says what the appendix answers ("både
+  var principen kommer ifrån och om den håller, med sina förbehåll"), and
+  the claim it backs is stated at the strength the appendix supports.
+  Backed so far (question → answer):
+  - *Algoritmiskt tänkande* B: algorithm components → sequence, selection,
+    repetition, data hold across three traditions, two reservations on
+    use; C: stepwise refinement → Wirth's, established for getting
+    started, a simplification as a full design method; D: literate
+    programming → Knuth's, noweb is Ramsey's form, never dominant; E: DRY →
+    Hunt and Thomas, the risk is real when copies change inconsistently,
+    but no absolute rule (both origin and benefit are covered).
+  - *Funktioner* B: SRP → Martin 2003 (not 2000), established, "one
+    responsibility" is a judgement; C: KISS → NOT Kelly Johnson's (in
+    print 1958, attribution rests on a memoir), simplicity as a design
+    value is established.
+  - *Felhantering* B: exception misconceptions → backed (Java, late-stage
+    students); C: catch-all → a known bad habit, but the actual bugs are
+    rarer than the habit, so the advice is "fånga det ni vet hur ni ska
+    svara på", not "aldrig".
+  - *Upprepningar* B: loop misconceptions → five of six backed in primary
+    sources; C: productive failure → moderate effect, from comparing the
+    attempt with the answer, not from delay itself.
+  - *Hello, World!* B: origin → Kernighan (B tutorial), tradition
+    questioned since 1996; C: interpreter reads statement by statement →
+    yes, but bytecode first; D: error messages → a real obstacle, first
+    errors are mostly typos, rewritten messages not shown to help; E:
+    chronology → holds, only two of seven years are clean release dates.
+  - *Villkor* B and *Inmatning* B: misconceptions → backed, frequencies
+    in this population unknown.
+  - *Arbeta med filer* B: misconception backed (one source no longer open);
+    C: memory hierarchy orders of magnitude → textbook values; D: Python's
+    file functions → as stated, default encoding platform-dependent; E:
+    CSV is not a standard (informational RFC), JSON is.
+  - *Moduler och paket* B: modules/import as a novice difficulty → NOT
+    backed (no direct study).
+  - *Klasser och objekt* B: class/object misconceptions → three backed
+    (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
+    defined and contested in its classic form. *Praktiska tillämpningar*
+    B: composition over inheritance → Design Patterns, established,
+    maintenance experiments on inheritance point both ways.
+  - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
+    weaker than assumed: names, short lines, indentation supported; the
+    guide as a whole and several rules (four spaces) not.
+  - No backed-claim chapters yet: *Operatoröverlagring*, the five
+    *Behållare* decks (method chapter only) — run the claim audit there.
 
 ### Language rules (from the author's reviews)
 
