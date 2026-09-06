@@ -34,7 +34,9 @@ compact worked example). A deck is done when it has:
 - `sokprotokoll.tex` — appendices: Bilaga A (the method, for students),
   then one chapter per backed claim (question as title, Metod with the
   query table, Resultat, Slutsats answering the question in its first
-  sentence, hit list `\input` from `litteratursokning/`). Every appendix
+  sentence, Fortsatt arbete — what this search left undone and what the
+  field must study for a surer answer — then the hit list `\input` from
+  `litteratursokning/`). Every appendix
   chapter opens with the verbatim `\chapterprecis{Författaren har ännu inte
   granskat resultaten i den här bilagan i sin helhet.}`.
 - A claim already backed in another deck is not redone: cite the same
