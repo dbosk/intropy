@@ -195,12 +195,13 @@ skill.
 - A two-line display inside an `example` must not rely on `\\` in a
   `center`: the article job collapses it to one line. Use a one-column
   `tabular` (or `\par` between the lines).
-- `sidecaption` only where the margin is free: next to a figure it works
-  (with `\setsidecappos{b}`), but a table on a footnote-heavy appendix
-  page overprints the citation footnotes, so query tables take a plain
-  `\caption` — one sentence naming what the table shows; date, tool,
-  code letters, databases and syntax belong in the Metod prose, not in
-  the caption.
+- Captions explain sufficiently and stand on their own: what the table
+  shows, the abbreviations (OA, WoS, IEEE …), the row codes and what the
+  markers (`--`, `†`) mean (author, 2026-09-07). The author prefers side
+  captions: tables that are floats take didactic's `sidecaption` (with
+  `\setsidecappos{b}`); a `longtable` cannot and keeps a full `\caption`.
+  When a side caption would land on a margin footnote or `\ltnote`, put
+  `\clearpage` before the table — do not fall back to a plain caption.
 - `\ltnote`s longer than the margin queue forward and print beside the
   next section or the appendix; `\clearpage` does not flush them. Put
   `\mode<article>{\clearpage}` before the section they belong to, and
