@@ -23,8 +23,7 @@ på frågan innan vi kör det.
   \begin{exercise}[Vad skriver programmet ut?]
     \label{ex:age}
     Läs programmet \texttt{age.py} och skriv ner, rad för rad, vad det
-    skriver ut när den som kör det svarar \enquote{Malvina} och
-    \enquote{1927}.
+    skriver ut när du kör det.
     \inputminted{python}{examples/age.py}
   \end{exercise}
 \end{frame}
@@ -39,11 +38,10 @@ på frågan innan vi kör det.
   spårning rad för rad avslöjar tre saker på en gång: att raderna
   exekveras i ordning, att \mintinline{python}{birthyear} tilldelas två
   gånger och att den andra tilldelningen \emph{ersätter} den första.
-  Svaren fungerar därför som ett diagnostiskt förtest: den som svarar
-  \enquote{1927} på
-  den sista utskriften har ännu inte urskilt att en tilldelning ersätter,
-  och den som svarar med två värden bär missuppfattningen att en variabel
-  kan hålla flera värden samtidigt
+  Svaren fungerar därför som ett diagnostiskt förtest: den som skriver
+  det inmatade födelseåret som programmets sista utskrift har ännu inte
+  urskilt att en tilldelning ersätter, och den som svarar med två värden
+  bär missuppfattningen att en variabel kan hålla flera värden samtidigt
   \parencite[tabell~A.1, nr~9, s.~359]{Sorva2012Dissertation}.
 
   Programmet är samma exempel som i kursens inspelade videogenomgång, med
@@ -491,7 +489,74 @@ Nu kan vi säga vad en tilldelning gör.
   \enquote{minns} sina gamla
   \parencite[tabell~A.1, nr~9, s.~359]{Sorva2012Dissertation}.  Den
   syns i förtestet i \cref{sec:pythonprogram}: den som svarar att den
-  sista utskriften visar både 1927 och det nya året bär den.
+  sista utskriften visar både det inmatade födelseåret och det nya året
+  bär den.
+}
+
+Men vad gör vi om vi \emph{vill} ha ett samband som fortsätter gälla ---
+något som ger oss summan av \mintinline{python}{a} och
+\mintinline{python}{b} också när de har fått nya värden?  Med en
+tilldelning går det inte, för tilldelningen räknar en gång och lägger
+undan svaret.  Python har en egen konstruktion för sådana samband: en
+\emph{funktion} (\foreignlanguage{english}{function}).
+
+\begin{frame}[fragile]
+  \begin{example}[Ett samband som går att använda om igen]
+    Funktionen räknar ut summan varje gång vi anropar den:
+<<[[relation.py]]>>=
+def total(a, b):
+    return a + b
+
+
+print(f"total(1, 2) = {total(1, 2)}")
+print(f"total(2, 3) = {total(2, 3)}")
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Ett svar per anrop:
+    \runpython[showcommand, chdir]{examples/relation.py}
+  \end{example}
+\end{frame}
+
+Namnet \mintinline{python}{total} håller alltså ingen summa.  Det håller
+en \emph{beräkning}, och den utförs på nytt vid varje anrop, med de
+värden anropet ger den.  Det är samma skillnad som i matematiken: \(y
+\in \mathbb{R}\) är ett tal och \(y \colon \mathbb{R} \to
+\mathbb{R}\) är en funktion, två olika saker.  Skolans \(y = kx + m\)
+är lite slarvigt med vilken av dem som menas, och det är en anledning
+till att en tilldelning kan se ut som en ekvation.  Resten om funktioner
+--- parametrar, returvärden och hur man skriver egna --- kommer i
+föreläsningen \emph{Funktioner}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOAssignment}.
+
+  \textbf{Kontrast} mot det tilldelningen \emph{inte} är: en funktion
+  håller en beräkning, tilldelningen håller resultatet av en.  Vad som
+  hålls invariant: uttrycket \mintinline{python}{a + b} och de värden
+  det används med.  Vad som varierar: om sambandet uttrycks som en
+  tilldelning eller som en funktion.
+
+  Passagen står \emph{efter} definitionen och inte vid kontrasten mellan
+  \texttt{state-keep.py} och \texttt{state-change.py}.  Följden
+  generalisering, fusion, definition får inte brytas, och det är
+  definitionens formulering --- att uttrycket beräknas med de värden som
+  gäller just då --- som gör frågan om ett samband som fortsätter gälla
+  möjlig att ställa.  Först när frågan är ställd har funktionen något
+  att svara på.
+
+  Jämförelsen mellan \(y \in \mathbb{R}\) och \(y \colon
+  \mathbb{R} \to \mathbb{R}\) är författarens egen iakttagelse om
+  notationen, inte ett påstående om vad studenterna tror, och kräver
+  därför inget belägg.
+
+  Resten om funktioner lämnas medvetet till föreläsningen
+  \emph{Funktioner}.  Här räcker ett exempel som visar att
+  konstruktionen finns och vad den gör; parametrar, returvärden och att
+  skriva egna funktioner är objekt för lärande där.
 }
 
 \subsection{Tilldelning är inte likhet}
@@ -706,20 +771,23 @@ Python vägrar, i stället för att gissa vad vi menade.
 \begin{frame}[fragile]
   \begin{example}[Det som inte fungerar]
     Den sista raden avbryter programmet:
-    \begin{minted}[highlightlines=3]{python}
+<<[[concat-error.py]]>>=
 name = "Malvina"
 age = 99
 print("Du är " + age + " år.")
-    \end{minted}
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Vad programmet svarar]
+    Kör vi det avbryts körningen:
+    \runpython[showcommand, chdir]{examples/concat-error.py}
   \end{example}
 
-  \pause
-
   \begin{remark}
-    Felmeddelandet lyder
-    \mintinline{text}|TypeError: can only concatenate str|
-    \mintinline{text}|(not "int") to str|.  Läs det som det står: det
-    säger vilken typ som fanns och vilken som behövdes.
+    Felmeddelandet står på sista raden.  Läs det som det står: det säger
+    vilken typ som fanns och vilken som behövdes.
   \end{remark}
 \end{frame}
 
@@ -771,6 +839,23 @@ print(f"Om du var född {birthyear} vore du {age} år gammal.")
 @
   \end{example}
 \end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{VarLOTypes,VarLOOutput}.
+
+  \textbf{Generalisering} av konverteringen.  Vad som hålls invariant:
+  mekanismen --- värdet förs in i texten genom klamrar i en f-sträng, och
+  konverteras åt oss på vägen.  Vad som varierar: sammanhanget.  Det är
+  modulens eget program i stället för ett program skrivet för saken, två
+  uträknade värden i stället för ett skrivet, och en annan mening.  Att
+  generaliseringen kommer efter kontrasten mellan de tre föregående
+  kodstyckena, och inte före, följer Marton \parencite[45--47]{Marton2015}.
+
+  Kodstycket \LA{}räkna baklänges\RA{} bär också en andra uppgift ---
+  det förfinar ett av stegen i överblicken och visar tilldelningen som
+  ersätter --- men det är generaliseringen som är dess variationsmönster
+  här.
+}
 
 Här ser vi tilldelningen på jobbet.  Både \mintinline{python}{birthyear}
 och \mintinline{python}{age} hade redan värden; nu får de nya, och de
@@ -938,7 +1023,7 @@ THIS_YEAR = 2026
 
   \begin{remark}
     Versalerna hindrar ingenting.  De är ett meddelande till läsaren:
-    \enquote{det här värdet är tänkt att stå still}.
+    \enquote{det här värdet är tänkt att vara fixerat}.
   \end{remark}
 \end{frame}
 
@@ -961,7 +1046,7 @@ birthyear = int(input("Vilket år är du född? "))
   Relevanta lärandemål: \cref{VarLONames}.
 
   \textbf{Kontrast} mellan de två sista kodstyckena.  Vad som varierar:
-  om värdet är tänkt att stå still eller bytas ut, och därmed
+  om värdet är tänkt att vara fixerat eller bytas ut, och därmed
   skrivsättet.  Vad som hålls invariant: att båda är vanliga
   tilldelningar --- Python behandlar dem exakt likadant, oavsett om
   högerledet är ett skrivet värde eller ett anrop.  Kontrasten ska
@@ -989,7 +1074,7 @@ Kommentarer är alltså text som bara människor läser --- och just därför
 är det värt att fundera på vad de ska innehålla.
 
 \begin{frame}[fragile,shrink=15]
-  \begin{exercise}[Vilken kommentar hjälper?]
+  \begin{exercise}[Hjälper kommentaren?]
     Det här programmet räknar ut vad en vara kostar med moms:
 <<[[comment-what.py]]>>=
 # Sätt VAT till 0.25 och räkna ut totalen.
@@ -1002,8 +1087,11 @@ print(f"Att betala: {total} kr")
   \end{exercise}
 
   \begin{exercise}[Och den här varianten?]
-    Samma program, med en annan kommentar.  Vilken av kommentarerna har
-    ni mest nytta av?
+    \only<article>{Här är programmet igen:
+      \inputminted{python}{examples/comment-what.py}
+      Och här är samma program, med en annan kommentar.}%
+    \only<presentation>{Samma program, med en annan kommentar.}
+    Vilken av kommentarerna har ni mest nytta av?
 <<[[comment-why.py]]>>=
 # Momssatsen står som eget namn: den ändras oftare än koden gör.
 VAT = 0.25
