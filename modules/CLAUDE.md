@@ -201,9 +201,11 @@ skill.
   and stand on their own: what the table shows, the abbreviations (OA,
   WoS, IEEE …), the row codes and what the markers (`--`, `†`) mean. In
   that order of priority: placement first, then didactic's `sidecaption`
-  (with `\setsidecappos{b}`) when the margin beside the float is free,
-  else a normal `\caption` with the same full text. A `longtable` cannot
-  take a side caption and keeps a full `\caption`.
+  (with `\setsidecappos{b}`) when the margin beside the float is free
+  AND the rendered caption is not taller than the table itself, else a
+  normal `\caption` with the same full text (a side caption that towers
+  over a short table goes below it instead; author, 2026-09-07). A
+  `longtable` cannot take a side caption and keeps a full `\caption`.
 - `\ltnote`s longer than the margin queue forward and print beside the
   next section or the appendix; `\clearpage` does not flush them. Put
   `\mode<article>{\clearpage}` before the section they belong to, and
