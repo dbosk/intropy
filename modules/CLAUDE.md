@@ -195,13 +195,14 @@ skill.
 - A two-line display inside an `example` must not rely on `\\` in a
   `center`: the article job collapses it to one line. Use a one-column
   `tabular` (or `\par` between the lines).
-- Captions explain sufficiently and stand on their own: what the table
-  shows, the abbreviations (OA, WoS, IEEE …), the row codes and what the
-  markers (`--`, `†`) mean (author, 2026-09-07). The author prefers side
-  captions: tables that are floats take didactic's `sidecaption` (with
-  `\setsidecappos{b}`) when the margin beside them is free; when the
-  side caption would land on margin footnotes or an `\ltnote`, fall back
-  to a normal `\caption` with the same full text. A `longtable` cannot
+- Tables and figures sit close to where they are relevant and referenced
+  (author, 2026-09-07): `[htbp]` right after the paragraph that
+  references them, never `[p]` float pages. Captions explain sufficiently
+  and stand on their own: what the table shows, the abbreviations (OA,
+  WoS, IEEE …), the row codes and what the markers (`--`, `†`) mean. In
+  that order of priority: placement first, then didactic's `sidecaption`
+  (with `\setsidecappos{b}`) when the margin beside the float is free,
+  else a normal `\caption` with the same full text. A `longtable` cannot
   take a side caption and keeps a full `\caption`.
 - `\ltnote`s longer than the margin queue forward and print beside the
   next section or the appendix; `\clearpage` does not flush them. Put
