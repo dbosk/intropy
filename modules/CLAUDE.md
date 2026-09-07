@@ -1,362 +1,136 @@
 # Module slide decks
 
-Each module has one or more deck directories (`slides*/`) building two PDFs
-from one source: `slides.pdf` (beamer) and `notes.pdf` (memoir +
-beamerarticle: full lecture notes with the slides' content woven in), both
-`\input`ing the shared `contents.tex`.
+**Load the `didactic-decks` skill before touching a deck**, and its
+`references/house-style-sv.md`: every deck here is in Swedish. That skill
+holds everything about how a deck is built, authored and checked; the
+pedagogy lives in `try-first-tell-later`, `variation-theory` and
+`didactic-notes`, the citations and appendices in `backing-claims`, the
+review loop in `remarkable` and `worktree-subagents`. This file holds only
+what is true of this course. Before writing a new rule here, ask: would it
+hold in another course too? Then it belongs in a skill, not here. A rule
+in two places is a defect.
 
-## The deck standard
+## The decks
 
-`computational-thinking/slides` is the model deck (tracking issue #269;
-the finished decks of variables, conditionals, exceptions, iterations,
-containers and helloworld follow it — `exceptions/slides` is the most
-compact worked example). A deck is done when it has:
+Each module has one or more deck directories (`slides*/`) building
+`slides.pdf` and `notes.pdf` from one `contents.nw`. The model deck is
+`computational-thinking/slides` (tracking issue #269); `helloworld/slides`
+is the build template the skill's `assets/deck-template/` was copied from
+(re-sync the template when its wiring changes); `exceptions/slides` is the
+most compact worked example. `modules/Makefile` excludes functions,
+exceptions, recap, scipy and debug from the course-wide build. Six decks
+still lack a backed-claim chapter: `classes/slides-more`
+(Operatoröverlagring) and the five `containers/slides-*` decks — run the
+claim audit there in their next rounds.
 
-- `contents.nw` — the literate single source (below); prose lecture notes
-  between the frames (article mode), try-first questions before
-  explanations, one `example`/`exercise` environment per case.
-- `abstract.tex` — Översikt, Lärandemål as `restatable` `lo` environments
-  labelled `<Module>LO<Aspect>` (restated where the notes meet them),
-  Förkunskaper; the week page's Lo-codes kept in a comment.
-- `\ltnote`s (instructor notes) for every design choice: which LO, what
-  varies and what stays invariant, which misconception an activity targets.
-  `\parencite` is used only inside `\ltnote`s.
-- `ltnotes.bib` — every entry carries a provenance block (`CLAIM`,
-  `FOUND-VIA`, `PICKED`, `QUOTE`, `VERIFIED`, `COUNTER`, `DATE`; see the
-  `backing-claims` skill and `check_provenance.py`).
-- A claim audit before the appendices are called done: every imperative in
-  the deck ("följ PEP 8", "använd beskrivande namn") asserts a benefit, and
-  that benefit is an empirical claim to back two-sidedly; verifying the
-  convention against its own source backs only the attribution. An
-  appendix sentence "modulen gör inga påståenden som krävt en egen
-  litteratursökning" is itself a claim: list the deck's imperatives and
-  test each (backing-claims skill, `references/claim-audit.md`).
-- `sokprotokoll.tex` — appendices: Bilaga A (the method, for students),
-  then one chapter per backed claim (question as title, Metod with the
-  query table, Resultat, Slutsats answering the question in its first
-  sentence, Fortsatt arbete — what this search left undone and what the
-  field must study for a surer answer — then the hit list `\input` from
-  `litteratursokning/`). Every appendix
-  chapter opens with the verbatim `\chapterprecis{Författaren har ännu inte
-  granskat resultaten i den här bilagan i sin helhet.}`.
-- A claim already backed in another deck is not redone: cite the same
-  source with the provenance block copied (plus `% FOUND-VIA (here): backed
-  in <deck>, bilaga <X>`) and point to it in prose — "det vetenskapliga
-  underlaget finns i föreläsningen \emph{Funktioner}, bilaga B" (`\cref`
-  cannot cross documents). A pointer says what the appendix answers ("både
-  var principen kommer ifrån och om den håller, med sina förbehåll"), and
-  the claim it backs is stated at the strength the appendix supports.
-  Backed so far (question → answer):
-  - *Algoritmiskt tänkande* B: algorithm components → sequence, selection,
-    repetition, data hold across three traditions, two reservations on
-    use; C: stepwise refinement → Wirth's, established for getting
-    started, a simplification as a full design method; D: literate
-    programming → Knuth's, noweb is Ramsey's form, never dominant; E: DRY →
-    Hunt and Thomas, the risk is real when copies change inconsistently,
-    but no absolute rule (both origin and benefit are covered).
-  - *Funktioner* B: SRP → Martin 2003 (not 2000), established, "one
-    responsibility" is a judgement; C: KISS → NOT Kelly Johnson's (in
-    print 1958, attribution rests on a memoir), simplicity as a design
-    value is established.
-  - *Felhantering* B: exception misconceptions → backed (Java, late-stage
-    students); C: catch-all → a known bad habit, but the actual bugs are
-    rarer than the habit, so the advice is "fånga det ni vet hur ni ska
-    svara på", not "aldrig".
-  - *Upprepningar* B: loop misconceptions → five of six backed in primary
-    sources; C: productive failure → moderate effect, from comparing the
-    attempt with the answer, not from delay itself.
-  - *Hello, World!* B: origin → Kernighan (B tutorial), tradition
-    questioned since 1996; C: interpreter reads statement by statement →
-    yes, but bytecode first; D: error messages → a real obstacle, first
-    errors are mostly typos, rewritten messages not shown to help; E:
-    chronology → holds, only two of seven years are clean release dates.
-  - *Villkor* B and *Inmatning* B: misconceptions → backed, frequencies
-    in this population unknown.
-  - *Arbeta med filer* B: misconception backed (one source no longer open);
-    C: memory hierarchy orders of magnitude → textbook values; D: Python's
-    file functions → as stated, default encoding platform-dependent; E:
-    CSV is not a standard (informational RFC), JSON is.
-  - *Moduler och paket* B: modules/import as a novice difficulty → NOT
-    backed (no direct study).
-  - *Klasser och objekt* B: class/object misconceptions → three backed
-    (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
-    defined and contested in its classic form. *Praktiska tillämpningar*
-    B: composition over inheritance → Design Patterns, established,
-    maintenance experiments on inheritance point both ways.
-  - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
-    weaker than assumed: names, short lines, indentation supported; the
-    guide as a whole and several rules (four spaces) not.
-  - No backed-claim chapters yet: *Operatoröverlagring*, the five
-    *Behållare* decks (method chapter only) — run the claim audit there.
+Canonical deck titles, used when one deck points at another in prose
+(`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
+bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
+*Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
+datatyper*; *Villkor och styrstrukturer*; *Felhantering*; *Upprepningar*;
+*Moduler och paket*; *Behållare: Listor*, *Behållare: Tupler*,
+*Behållare: Uppslagslistor*, *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*; *Klasser och objekt*;
+*Operatoröverlagring*; *Praktiska tillämpningar av klasser*; *Arbeta med
+filer*.
 
-### Language rules (from the author's reviews)
+The reMarkable review family of a deck is `<Titel> — notes (review) vN`
+(the Hello World family keeps its old spelling). Learning objectives carry
+the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
 
-- Swedish throughout; Swedish term first, English once in parentheses:
-  "spårutskrift (\foreignlanguage{english}{traceback})".
-- Never tie text to weeks, lecture order or course events ("förra
-  veckan", "vecka 38", "föreläsningens första halva", "på laborationen"):
-  refer to topics, deck titles and activities ("tidigare", "föreläsningen
-  \emph{Funktioner}", "när ni programmerar"). Förkunskaper say "tagit del
-  av föreläsningen …", not "sett".
-- "Ett program utför en uppgift; processorn/datorn/tolken exekverar
-  programmet": whoever runs code exekverar it (noun "exekvering"); a
-  program or a person utför a task; "köra" stays as the everyday word.
-- Appendix pointers read "det vetenskapliga underlaget finns i \cref{app:…}"
-  and stand beside the claim they back, once: in the same sentence (a
-  parenthesis or a following clause), never as a trailing sentence a
-  sentence or more away, never twice for one appendix in a paragraph.
-  No ambiguous sentence-initial pronouns in the appendices ("Sökningen
-  gjordes …", not "Den gjordes …").
-- Name the action, not the position: "något måste översätta det vi skriver
-  till det processorn exekverar", not "något måste stå emellan". A title
-  that names a literal reproduces it exactly ("Hello, World!").
-- Learning objectives say what the student can do, in plain words, without
-  restating the mechanism. Exercises do not hint at the critical aspect —
-  nor do example titles or lead-ins ("Ett program med ett fel", not "… med
-  ett stavfel"), nor the program's own payload (a printed string like "Den
-  här raden hinner köras." discerns the answer for the student; print
-  "Välkommen!" and let them discern it). A try-first question comes after
-  everything it presupposes, and the example that answers it shows the
-  full answer. The question itself stays open ("Vad skriver programmet
-  ut?", not "Vad är felet?"): it gives the critical aspect a chance to
-  surface in the answers without pointing at it.
-- In a generalisation sequence (the same task in language after language,
-  editor after editor) the invariant holds from the first case: the very
-  first example performs the same task as the last. Each step asks how the
-  new case relates to the previous one ("Hur förhåller sig detta till
-  assembler?"), and each case carries its own motivation in the body —
-  why this language exists, what is special about it — not only in a
-  later summary subsection. A case added to the sequence is added to every
-  sentence that enumerates the cases.
-- What exists only in an `\ltnote` does not exist for the student: if the
-  student is meant to notice a development or a reason, say it in the
-  prose. Do not pre-announce a `summary` block with a one-line paragraph
-  saying what it is about to say.
-- An empirical claim in the student's text carries its citation there, as
-  a margin footnote (`\autocite` in the body), with the appendix pointer
-  beside it — not only in an `\ltnote` or an appendix table. The students
-  should see that the course claims nothing without a reference
-  ("Scientific! som i matematiken"). A normative claim ("följ PEP 8") is
-  an empirical claim about its benefit and is backed two-sidedly.
-- An `example` shows its own output (code and transcript in the same
-  example), as a terminal run with the command line first
-  (`\runpython[showcommand]{examples/x.py}`, or `[transcript, stdin={…}]`
-  when the program reads input), never a bare output block; an `exercise`
-  keeps its answer separate, because the delay is the point. A section
-  asks before it tells: exercise, output, explanation, then the
-  definition last (Marton 2015, pp. 13 and 89). A variation label in an `\ltnote` (kontrast, generalisering,
-  fusion) must match what the example actually varies.
+## Course-specific rules
+
 - Example data names: never the author's. "Malvina" is the default single
   name; when several are needed, Astrid Lindgren's strong characters in
   order — Ronja, Pippi, Madicken — then their side characters (Birk,
   Annika, Lisabet). "Ada" (Lovelace) is also fine (author, 2026-09-06);
-  "Beda" was only ever its one-letter partner. Numbers too: hide a
-  cultural fact in example data where it costs nothing (the birth year
-  1927 is the founding year of Kvinnliga Teknologers Sammanslutning,
-  today Malvina, at KTH) — the fact stays out of the student text and is
-  recorded, with its source, in an `\ltnote`. Choose verbs that name the mental action ("värda att
-  fundera på", not "värda att stanna vid").
-- Never refer to physical position ("på nästa bild", "ovan"): `\cref`. Every
-  figure is referenced from the prose (not only from an `\ltnote`) and
-  placed near the reference; captions are side captions in the notes.
-- Blocks that close a section by summarising it are `summary`, not `remark`.
-- Overlay staging that hides an answer on the slide (`\item<3->`) collapses
-  in the notes: stage structurally (example, exercise, prose, second example).
-- Chunk names short ("ta hand om felen"). Where a program handles several
-  errors, ask first what can go wrong, then show the handlers.
+  "Beda" was only ever its one-letter partner.
+- Hidden cultural facts in example data: the birth year 1927 is the
+  founding year of Kvinnliga Teknologers Sammanslutning, today Malvina, at
+  KTH (bib key `MalvinaHistoria`). The fact stays out of the student text
+  and is recorded, with its source, in an `\ltnote`.
+- The author's own misconceptions manuscript is cited as
+  `SooriBosk2026` (`@unpublished`, provenance block in the decks that use
+  it), never by nickname.
+- Every appendix chapter opens with the verbatim
+  `\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}`.
+- "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
+  it keeps its spelling.
 
-## Literate decks (contents.nw)
+## Backed claims (the ledger)
 
-`helloworld/slides` is the build template — copy from it. In a literate
-deck, `contents.nw` is the single source:
+A claim already backed in another deck is not redone: cite the same
+source with the provenance block copied (plus `% FOUND-VIA (here): backed
+in <deck>, bilaga <X>`) and point to it in prose, saying what the appendix
+answers and stating the claim at the strength the appendix supports.
 
-- `contents.tex` is **woven** from it (`noweb.mk`'s `%.tex: %.nw` rule;
-  the default weave runs the dbosk noweb fork's `autolang` + `tominted`
-  pipeline, so chunks come out as syntax-highlighted `minted`
-  environments).
-- The presented example programs are **tangled** from it into `examples/`
-  (`notangle -R"[[<filename>]]"`), so `examples/` is entirely generated
-  (data files a deck reads, like `files/slides/examples/scb/`, are tracked
-  inputs and must be excluded from the ignore rule).
-- `.gitignore` lists the PDFs, `contents.tex`, `examples/`, `latexmkrc`
-  (tangled from `tex.mk.nw`), and PythonTeX's `didactic_output_*.txt`,
-  `*.pytxcode`, `pythontex-files-*`; `ltxobj/` is ignored repo-wide. Only
-  `contents.nw` is committed. Never edit `contents.tex`.
+Backed so far (question → answer):
+- *Algoritmiskt tänkande* B: algorithm components → sequence, selection,
+  repetition, data hold across three traditions, two reservations on
+  use; C: stepwise refinement → Wirth's, established for getting
+  started, a simplification as a full design method; D: literate
+  programming → Knuth's, noweb is Ramsey's form, never dominant; E: DRY →
+  Hunt and Thomas, the risk is real when copies change inconsistently,
+  but no absolute rule (both origin and benefit are covered).
+- *Funktioner* B: SRP → Martin 2003 (not 2000), established, "one
+  responsibility" is a judgement; C: KISS → NOT Kelly Johnson's (in
+  print 1958, attribution rests on a memoir), simplicity as a design
+  value is established.
+- *Felhantering* B: exception misconceptions → backed (Java, late-stage
+  students); C: catch-all → a known bad habit, but the actual bugs are
+  rarer than the habit, so the advice is "fånga det ni vet hur ni ska
+  svara på", not "aldrig".
+- *Upprepningar* B: loop misconceptions → five of six backed in primary
+  sources; C: productive failure → moderate effect, from comparing the
+  attempt with the answer, not from delay itself.
+- *Hello, World!* B: origin → Kernighan (B tutorial), tradition
+  questioned since 1996; C: interpreter reads statement by statement →
+  yes, but bytecode first; D: error messages → a real obstacle, first
+  errors are mostly typos, rewritten messages not shown to help; E:
+  chronology → holds, only two of seven years are clean release dates.
+- *Villkor* B and *Inmatning* B: misconceptions → backed, frequencies
+  in this population unknown.
+- *Arbeta med filer* B: misconception backed (one source no longer open);
+  C: memory hierarchy orders of magnitude → textbook values; D: Python's
+  file functions → as stated, default encoding platform-dependent; E:
+  CSV is not a standard (informational RFC), JSON is.
+- *Moduler och paket* B: modules/import as a novice difficulty → NOT
+  backed (no direct study).
+- *Klasser och objekt* B: class/object misconceptions → three backed
+  (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
+  defined and contested in its classic form. *Praktiska tillämpningar*
+  B: composition over inheritance → Design Patterns, established,
+  maintenance experiments on inheritance point both ways.
+- *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
+  weaker than assumed: names, short lines, indentation supported; the
+  guide as a whole and several rules (four spaces) not.
+- No backed-claim chapters yet: *Operatoröverlagring*, the five
+  *Behållare* decks (method chapter only) — run the claim audit there.
 
-Before editing any `contents.nw`, activate the `literate-programming`
-skill.
-
-### Authoring rules for chunks in decks
-
-- A code chunk replaces every `\inputminted[firstline=…,lastline=…]`:
-  name the chunk after the file it tangles to, `<<[[hello.py]]>>=`, and
-  place it at its point of presentation (inside the frame).
-- Frames containing chunks (or any minted output) must be `[fragile]`.
-- A two-line display inside an `example` must not rely on `\\` in a
-  `center`: the article job collapses it to one line. Use a one-column
-  `tabular` (or `\par` between the lines).
-- Tables and figures sit close to where they are relevant and referenced
-  (author, 2026-09-07): `[htbp]` right after the paragraph that
-  references them, never `[p]` float pages. Captions explain sufficiently
-  and stand on their own: what the table shows, the abbreviations (OA,
-  WoS, IEEE …), the row codes and what the markers (`--`, `†`) mean. In
-  that order of priority: placement first, then didactic's `sidecaption`
-  (with `\setsidecappos{b}`) when the margin beside the float is free
-  AND the rendered caption is not taller than the table itself, else a
-  normal `\caption` with the same full text (a side caption that towers
-  over a short table goes below it instead; author, 2026-09-07). A
-  `longtable` cannot take a side caption and keeps a full `\caption`.
-- `\ltnote`s longer than the margin queue forward and print beside the
-  next section or the appendix; `\clearpage` does not flush them. Put
-  `\mode<article>{\clearpage}` before the section they belong to, and
-  before the *last* frame of a section whose notes overflow, so the queue
-  drains on a page still inside the chapter (shorten notes that restate
-  the prose; anchor a note where its decision is made, not at the end of
-  the passage, and never within a few lines of a `sidecaption` figure).
-  A margin at capacity also pushes citation footnotes to the next page.
-- Pygments' GAS lexer marks `len = . - msg` as an error token, which minted
-  draws as a red box: write `.set len, . - msg` in assembler chunks.
-- Noweb quoting `[[…]]` cannot hold a babel shorthand pair: `[[phone["adam"]]]`
-  prints `phone[ädam"]` because Swedish `"a` fires before `\code` changes
-  catcodes; write such snippets with `\mintinline{python}|…|`.
-- **Never start a theorem-style environment (`example`, `remark`, …)
-  directly with a chunk or minted block** — the inline label and the code
-  display overprint each other in the notes job. Put a short lead-in
-  sentence first.
-- To show the same code again later (recaps), do not redefine the chunk —
-  noweb would concatenate the definitions into the tangled file. Instead
-  re-display the tangled artifact: `\inputminted{python}{examples/foo.py}`
-  (always the whole file, never line ranges).
-- Write Python chunks black-clean (4-space indent, double quotes, two
-  blank lines around top-level defs): the tangle rule pipes tangled `.py`
-  files through `black`, and the tangled file must match the slide byte
-  for byte. Keep source lines ≤ 79 characters.
-- Multi-language decks just work: `autolang` infers each chunk's language
-  from its filename-style name (`.py`, `.cpp`, `.sh`, …).
-- Notes-only structure goes in `\mode<article>{\subsection{…}}`; slide-only
-  tweaks in `\mode<presentation>{…}` (`\setminted{fontsize=\scriptsize}`,
-  `[shrink]` frames, poster frames `\centering\huge\texttt{…}` — verbatim
-  does not survive inside `\mode<presentation>{}`).
-- Block and frame titles use `\texttt`, never `\mintinline` (it vanishes on
-  slides). When the Berlin headline overflows, `\section[short]{long}`.
-- Never `\textcite`/`\autocite` inside a `table` or `figure` float: the
-  citation is a margin footnote (`\marginpar`) and the float is lost
-  ("Float(s) lost", its `\label` with it). Use `\parencite` in floats and
-  put the footnoted first mention in the prose outside.
-- didactic's `remark`/`summary`/`solution` are unnumbered, so `\cref` to
-  them gives `??`, and `\cref` to an `example` prints "sats" in the beamer
-  job: wrap such crefs in `\only<article>{…}`.
-- Program output is embedded with PythonTeX (`\runpython[transcript]`,
-  `TEX_PYTHONTEX= yes`); when both jobs share `ltxobj`, set
-  `PYTHONTEXFLAGS= --interpreter python:python3 --rerun=always` so the
-  second job does not reuse the first job's cache.
-
-### Build wiring (deck Makefile)
-
-See `helloworld/slides/Makefile`. The essentials:
-
-- Include `${INCLUDE_MAKEFILES}/tex.mk` **and** `noweb.mk` (bottom of the
-  Makefile, as usual); `LATEXFLAGS+= -shell-escape` for minted.
-- `contents.tex: contents.nw` — the pattern rule weaves. `tominted` finds
-  its bundled Pygments lexer itself; nothing depends on `noweb_lexer.py`.
-- Explicit tangle rules `examples/%.py: contents.nw` (etc. per suffix)
-  using `${NOTANGLE.py}` — the generic `%.py: %.nw` pattern does not
-  match across the `examples/` directory boundary.
-- `NOTANGLEFLAGS.cpp=` (empty) for teaching decks: the default `-L` would
-  inject `#line` directives into the tangled C++.
-- The PDFs depend on `${SRC}` (incl. `ltnotes.bib`, `sokprotokoll.tex`,
-  `$(wildcard litteratursokning/*-full.tex)`) and `${EXAMPLES}` so recaps
-  and hit lists are always fresh.
-
-Build one job at a time, never both PDFs of one deck concurrently:
-
-    make notes.pdf LATEXFLAGS="-shell-escape -interaction=nonstopmode"
-
-Gotchas: latexmk under `-use-make` may not rerun biber after new bib keys
-(`biber --output-directory ltxobj ltxobj/notes`, touch a source, make
-again); a stuck "gave an error in previous invocation … Nothing to do"
-needs `rm ltxobj/notes.fdb_latexmk`; a killed run leaves `ltxobj/_minted`
-that hangs the next one (`rm -rf ltxobj/_minted`). The make-driven
-latexmk can also stop before the final passes: if the last
-`ltxobj/<job>.log` still says "Rerun to get cross-references right",
-"There were undefined references" or "Please (re)run Biber", run biber
-and `pdflatex … -output-directory=ltxobj <job>.tex` by hand until it does
-not (on slides the symptom is blank table-of-contents frames at every
-section and subsection, which didactic adds). Never combine `\pause` and
-`\runpython` in one frame: the overlays re-execute the body and shift
-PythonTeX's instance numbering for every later transcript. When only the
-tangled programs change (a name in a chunk, nothing in the frames), the
-`.pytxcode` is unchanged and latexmk never invokes PythonTeX, so the
-notes keep the old transcripts (didactic's `didactic_output_*.txt` are
-named by output content and the stale ones stay referenced): `rm -f
-ltxobj/*.pytx* ltxobj/*.fdb_latexmk didactic_output_*.txt; touch
-contents.nw` before the build (removing the PythonTeX files alone leaves
-latexmk with "nothing to do"), and check the rebuilt transcripts against
-the tangled programs.
+## Build environment
 
 The **makefiles submodule must be on the `tominted-default-weave`
-lineage** (currently 1571556; it makes the highlighted weave the default).
-In a fresh worktree run `git submodule update --init --checkout makefiles`
-(`--checkout` because the repo config has `submodule.makefiles.update=none`).
+lineage** (currently 1571556; it makes the highlighted weave the
+default). In a fresh worktree run `git submodule update --init --checkout
+makefiles` (`--checkout` because the repo config has
+`submodule.makefiles.update=none`). The main checkout's `makefiles` is not
+on that lineage: after the campaign branch is merged to master, run
+`git submodule update` there. Tracked hand-written activity inputs such as
+`files/slides/examples/scb/*.py` are exempt from `black --check`; the
+tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
-### Checks before a deck is reviewed
+## Where the general rules went (2026-09-07)
 
-0 `??` in `pdftotext` of both PDFs; 0 "empty citation"; no `^!` lines in
-`ltxobj/*.log`; 0 `Overfull \vbox` in `ltxobj/slides.log`; `black --check` on the tangled
-files under `examples/` (tracked hand-written activity inputs such as
-`files/slides/examples/scb/*.py` are exempt); no source line > 79 characters; `check_provenance.py` and
-`check_metadata.py` on `ltnotes.bib`; every tangled example runs; render
-every slide (`pdftoppm -r 40` + `montage`) and every notes page and read
-them; every margin footnote prints on the page that carries its marker
-(`pdftotext -f N -l N`: the superscript numbers in the text against the
-note numbers in the margin — a note pushed to the next page is a defect). Also: `pdftotext ltxobj/slides.pdf - | grep -c MINTED` = 0 (the
-make can stop one pass short and leave literal `<MINTED>` placeholders on
-every slide; one more pdflatex pass clears it), and `wc -l
-ltxobj/notes.pytxcode ltxobj/slides.pytxcode` nearly equal (a frame that
-combines `\pause` with `\runpython` doubles the slides job's PythonTeX
-instances and the shared cache then prints the wrong outputs in the notes).
-A permanent "Rerun to get cross-references" two-cycle from a margin
-citation at a page boundary is harmless when `??` is 0.
-
-### Driver wiring (slides.tex / notes.tex)
-
-Both drivers load, after `\input{preamble.tex}` (and in notes after
-beamerarticle):
-
-```latex
-\usepackage[minted]{noweb}
-\noweboptions{breakcode}
-```
-
-`preamble.tex` carries, right after `\usepackage[...]{didactic}`,
-`\extrafloats{200}` (didactic's margin footnotes and verbose `\autocite`s
-are `\marginpar`s and exhaust LaTeX's float pool in citation-heavy
-chapters: "Too many unprocessed floats" pages after the cause) and
-`\ifdefined\setsidecappos\setsidecappos{b}\fi` (memoir `\rlap`s side
-captions, so the default centred position overprints an `\ltnote` at the
-same height). Figures use didactic's `sidecaption` environment,
-`\begin{figure}[htbp]\centering\begin{sidecaption}{…}[fig:x]
-\includegraphics…\end{sidecaption}\end{figure}` — no compat macros.
-
-Do not load minted with the `[outputdir=...]` package option anywhere —
-minted v3 (TeX Live 2024+) errors on it; plain `\usepackage{minted}` in
-the preamble is fine (noweb's `[minted]` option tolerates it being loaded
-already).
-
-`slides.tex` (copy `helloworld/slides/slides.tex`) additionally:
-
-- uses `\noweboptions{breakcode,nomargintag,noxref}` and neuters the chunk
-  cross-referencing apparatus (`\def\sublabel#1{}` … `\def\nwprevnextdefs
-  #1#2{}`): sub-page labels break under beamer overlays (`\pause`
-  re-executes the frame body) and the defines/uses lists are noise on a
-  slide;
-- tells the translator package the Swedish block titles
-  (`\uselanguage{Swedish}`, `\deftranslation[to=Swedish]{Example}{Exempel}`
-  …) before `\usetheme`, or beamer's `example`/`definition` blocks come out
-  in English;
-- keeps the bibliography frame commented out — the sources belong to the
-  notes.
-
-The notes keep the full noweb apparatus: margin sub-page tags,
-`⟨chunk 2a⟩≡` headers and cross-references are the point of the literate
-notes (identifier lists hidden, dbosk/noweb#13).
+| Was in this file | Now in |
+|---|---|
+| Deck anatomy, drivers, preamble, build wiring, gotchas, checks | `didactic-decks` (SKILL.md + `references/`) |
+| Chunk rules, `\runpython`, floats and captions, `\ltnote` queue | `didactic-decks/references/` |
+| Swedish term first, no week or course-event references, exekverar/utför, "tagit del av", name the action, appendix-pointer wording | `didactic-decks/references/house-style-sv.md` |
+| Exercises that do not narrate the answer, the open question | `try-first-tell-later` |
+| Generalisation sequences, labels matching what varies | `variation-theory` |
+| Note visibility, margin queue, summary vs remark, side captions | `didactic-notes/references/` |
+| Citations in floats, unnumbered crefs, two-line displays | `latex-writing/references/` |
+| latexmk/PythonTeX/biber gotchas, tangle rules | `literate-programming/references/` |
+| Pointers beside the claim, cross-deck reuse, no nicknames, claim audit, Fortsatt arbete | `backing-claims/references/` |
+| Review rounds, transcription, fix and reader agents, cleanup | `remarkable`, `worktree-subagents` |
