@@ -6,7 +6,11 @@ LATEXFLAGS+=	-shell-escape
 # PythonTeX (didactic's \runpython[transcript]), so code and output cannot
 # drift apart.
 TEX_PYTHONTEX=	yes
-PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
+# The exercises are Mentipy questions, so the interpreter PythonTeX runs
+# must be able to import mentipy; the system python3 cannot (pipx isolates
+# the CLI).  Run `mentipy init --venv .venv` once in this directory to
+# create the virtualenv this points at.
+PYTHONTEXFLAGS=	--interpreter python:$(CURDIR)/.venv/bin/python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled

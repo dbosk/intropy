@@ -1,3 +1,72 @@
+% Every exercise below is a live question: Mentipy renders it as a poll
+% with a QR code on the slide and as a plain exercise in the notes.  The
+% call arguments they all share are set up once, here, in both jobs.
+\mode<all>
+\begin{pycode}
+import re
+
+from mentipy.latex import mc, open_text
+from mentipy.store import Store
+
+mentipy_common = {
+    "store": Store("mentipy.json"),
+    "qr_dir": "mentipy-obj",
+    "qr_format": "png",
+    "environment": "",
+    "show_url": False,
+    "layout": "auto",
+    "base_url": "http://faculty-shell.sys.kth.se:8080",
+}
+
+
+def _pa_svenska(latex):
+    """Byt Mentipys fasta engelska fraser mot svenska."""
+    latex = latex.replace("Choose exactly one:", "Välj ett alternativ:")
+    latex = latex.replace(
+        "Choose one or more:", "Välj ett eller flera alternativ:"
+    )
+    latex = latex.replace(
+        "\\item[Type] Free-text answer", "\\item[Svar] Fritext"
+    )
+    latex = re.sub(
+        r"\\item\[Limit\] (\d+) characters", r"\\item[Högst] \1 tecken", latex
+    )
+    return latex
+
+
+def _qr_som_far_plats(latex):
+    """Sätt QR-kodens adress så att den ryms i sin spalt.
+
+    Mentipys egen QR-fil sätter adressen på en rad i \\footnotesize, och
+    den här värdens adress är för lång för spalten: raden rinner ut över
+    bildens kant.  Bygg samma innehåll själv i stället, med adressen
+    bruten mellan värdnamn och port och i \\tiny.
+    """
+    bas = mentipy_common["base_url"].rstrip("/")
+
+    def bygg(traff):
+        katalog, prefix = traff.group("dir"), traff.group("prefix")
+        return (
+            "\\begin{minipage}{\\linewidth}\\centering"
+            f"\\includegraphics[width=\\linewidth]{{{katalog}/Q-{prefix}.png}}"
+            "\\par\\smallskip{\\tiny\\ttfamily "
+            f"{bas.rsplit(':', 1)[0]}\\\\:{bas.rsplit(':', 1)[1]}/{prefix}"
+            "}\\end{minipage}"
+        )
+
+    return re.sub(
+        r"\\input\{(?P<dir>[^}]*)/Q-(?P<prefix>[0-9a-f]+)\.pdf_tex\}",
+        bygg,
+        latex,
+    )
+
+
+def fraga(helper, *args, **kwargs):
+    """Registrera en fråga och lämna tillbaka dess LaTeX, på svenska."""
+    latex = helper(*args, **{**mentipy_common, **kwargs})
+    return _qr_som_far_plats(_pa_svenska(latex))
+\end{pycode}
+
 \mode*
 
 \section{Vad ett program är}
@@ -9,10 +78,21 @@ pythonprogram, [[pannkakor.py]].  Vi gjorde allt utom det sista: vi körde
 det aldrig.  Vi vet alltså vad texten i filen betyder för en människa som
 läser den.  Vad den betyder för datorn har vi inte sagt ett ord om.
 
-\begin{frame}
+\begin{frame}[fragile,shrink]
   \begin{exercise}
-    Du har en fil med pythonkod på datorn.  Vad tror du händer med den
-    texten när programmet körs?  Vem, eller vad, läser den?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Du har en fil med pythonkod på datorn. Vad tror du händer med "
+    "den texten när programmet körs? Vem, eller vad, läser den?",
+    [
+        "Datorn läser texten och gör det som står",
+        "Ett annat program läser texten och gör det som står",
+        "Datorn förstår vad jag menar och gör det",
+        "Texten översätts till maskinkod, och maskinkoden körs",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -29,6 +109,17 @@ läser den.  Vad den betyder för datorn har vi inte sagt ett ord om.
   att det sitter ett tänkande medvetande någonstans i språket som tolkar
   avsikten \parencite{pea1986}.  Hela \cref{sec:program} är byggt för att
   ta bort det medvetandet ur bilden.
+
+  Frågan besvaras live, och som flervalsfråga: då syns de två lägren som
+  en fördelning i stället för som ett par röster.  Vart och ett av de
+  tre felaktiga alternativen bär en bestämd föreställning.
+  \enquote{Datorn läser texten} döljer att det är ett annat
+  \emph{program} som gör det --- det vanligaste av de två lägren.
+  \enquote{Datorn förstår vad jag menar} är superbuggen
+  \parencite{pea1986}.  \enquote{Texten översätts till maskinkod} är
+  antagandet att alla språk går kompilatorns väg, och det är just den
+  skillnaden \cref{sec:flera-sprak} varierar.  Fördelningen säger läraren
+  hur länge avsnittet behöver dröja vid vad processorn inte gör.
 }
 
 Svaret börjar längre ner i maskinen än man tror.  En dator är i grunden
@@ -52,7 +143,7 @@ exekvera instruktioner ur minnet, en i taget.
 Och instruktionerna ser inte ut som något vi skulle vilja skriva.  De är
 tal.
 
-\begin{frame}
+\begin{frame}[fragile,shrink]
   \begin{example}[Ett program som processorn kan exekvera]
     \label{ex:maskinkod}
     Processorn får en följd av siffror:
@@ -64,12 +155,39 @@ tal.
     \end{center}
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Var slutar den första instruktionen, och var börjar den andra?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Sifferföljden är två instruktioner efter varandra. Var slutar "
+    "den första instruktionen, och var börjar den andra?",
+    [
+        "Efter fyra siffror",
+        "Efter tolv siffror",
+        "Efter trettioen siffror, mitt i följden",
+        "Efter femtioen siffror",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
+
+\ltnote{%
+  Övningen besvaras live.  Alternativen är gissningarna man kan göra utan
+  att veta hur instruktionen är byggd: \enquote{efter fyra siffror} tar
+  instruktionssorten för hela instruktionen, \enquote{efter tolv siffror}
+  antar att de två instruktionerna är lika långa, och \enquote{efter
+  trettioen siffror} delar följden på mitten.  Att svaren sprider sig
+  över alla fyra är poängen, och det läraren pekar på när
+  \cref{ex:maskinkod-delat} visas.
+
+  Att frågan ligger på samma bild som sitt exempel, utan överlagring, är
+  en följd av att den ställs live: den som svarar i telefonen måste se
+  materialet samtidigt som frågan.  Uppdelningen mellan material och
+  fråga är alltså strukturell, som mellan de två
+  \texttt{example}-miljöerna nedan, och inte gjord med
+  \texttt{\string\pause}.  Det gäller varje övning i föreläsningen.
+}
 
 Detta är ett program som består av två instruktioner.  Delar man följden
 där instruktionerna faktiskt slutar ser den ut så här.
@@ -154,13 +272,32 @@ skrivit en instruktion för.
   tog slut.
 }
 
-\begin{frame}
+\begin{frame}[fragile]
   \begin{exercise}
-    Programmet i \only<article>{\cref{ex:maskinkod} }\only<presentation>{%
-    exemplet }lägger en text i minnet och skriver ut den.  Hur många
-    sådana instruktioner tror du går åt för [[pannkakor.py]]?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Det tog två instruktioner att lägga en hälsning i minnet och "
+    "skriva ut den. Hur många sådana instruktioner tror du går åt "
+    "för programmet pannkakor.py?",
+    [
+        "Ungefär tio",
+        "Ungefär hundra",
+        "Ungefär tusen",
+        "Många fler än tusen",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
+
+\ltnote{%
+  Också den här övningen besvaras live, med storleksordningar som
+  alternativ.  Det är spridningen i svaren, inte det rätta svaret, som
+  gör att \enquote{det är många} landar: när en del gissar tio och en del
+  många fler än tusen är det uppenbart att ingen vet, och då är det
+  billigt att säga att antalet inte spelar någon roll.
+}
 
 Gissningen spelar mindre roll än poängen: det är många, och ingen av dem
 säger något om pannkakor.  Att skriva ett program direkt i maskinkod går,
@@ -168,6 +305,10 @@ men det är ohanterligt för allt utom det allra minsta.  Därför skriver vi i
 stället i ett språk gjort för människor --- och låter en dator sköta
 översättningen till maskinkod.
 
+% The section's two live questions each carry an instructor note of their
+% own, so the margin queue reaches past the end of the section unless it
+% is drained before the definition.
+\mode<article>{\clearpage}
 \begin{frame}
   \only<presentation>{%
     \begin{definition}[Program och programmeringsspråk]
@@ -197,6 +338,10 @@ Vad det \enquote{något} är visar sig vara olika saker i olika språk --- och
 det är den skillnaden vi ska urskilja härnäst.
 
 
+% The section opens with two long references in its first paragraph, and
+% they only both fit in the margin if that paragraph starts at the top of
+% a page.
+\mode<article>{\clearpage}
 \section{Samma hälsning i flera språk}
 \label{sec:flera-sprak}
 
@@ -210,6 +355,11 @@ Language} som gjorde det till \emph{det} första programmet:
 \enquote{det första program man skriver är detsamma för alla språk ---
 skriv ut orden hello, world}\autocite[5]{KernighanRitchie1978}.
 
+% The two references of the paragraph above are long enough to fill the
+% margin on their own, and the instructor note anchored at the end of the
+% next paragraph is longer still; without a break here one of them ends
+% up beside the wrong page.
+\mode<article>{\clearpage}
 Vi gör likadant --- men vi stannar inte vid ett språk.  Vi skriver samma
 hälsning i flera språk, i tidsordning, och ställer samma fråga vid vart
 och ett: var är maskinkoden?  På så vis får vi också se hur programmering
@@ -268,11 +418,15 @@ _start:
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Vad måste hända med den här filen innan processorn kan exekvera den?
-    Och hur förhåller den sig till maskinkoden?
+    \begin{pycode}
+print(fraga(
+    open_text,
+    "Vad måste hända med filen hello.s innan processorn kan exekvera "
+    "den? Och hur förhåller den sig till maskinkoden?",
+    max_chars=280,
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 \mode<presentation>{\setminted{fontsize=\footnotesize}}
@@ -295,7 +449,7 @@ Idén är gammal.  Redan 1949 skrevs program till datorn EDSAC i en
 översatte till den \emph{inre form} den kunde
 exekvera\autocite[avsnitt~2-3]{Wilkes1951Preparation}.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[C, omkring 1972]
     \label{ex:hello-c}
     Samma hälsning i C:
@@ -309,11 +463,14 @@ int main(void) {
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Hur förhåller sig det här till
-    assembler\only<article>{ (\cref{ex:hello-s})}?
+    \begin{pycode}
+print(fraga(
+    open_text,
+    "Hur förhåller sig filen hello.c till assemblerfilen hello.s?",
+    max_chars=280,
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -341,8 +498,16 @@ senare\autocite{Ritchie1993C}.
   vem som väljer instruktionerna, och där byts vägen ut mot en
   kompilator.  Frågan ställs i de två första stegen därför att det är där
   mönstret sätts.
+
+  Båda ställs som fritextfrågor live: ett alternativ att kryssa i skulle
+  namnge just den relation studenten ska formulera själv.  Svaren visar om
+  \enquote{översätts} redan finns i studenternas egna ord.
 }
 
+% Every language here anchors a margin reference, and the note about the
+% two relational questions lands among them; without a break the whole
+% column queues forward for the rest of the section.
+\mode<article>{\clearpage}
 \begin{frame}[fragile]
   \begin{example}[C++, 1985]
     \label{ex:hello-cpp}
@@ -388,7 +553,7 @@ kommitté just för att ge dem ett gemensamt språk; rapporten som
 fastställde det är
 daterad den 1 april 1990\autocite{Hudak2007Haskell}.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Python, 1991]
     \label{ex:hello-py}
     Hela programmet är en rad:
@@ -397,13 +562,16 @@ print("Hello, World!")
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Jämför [[hello.py]]\only<article>{ (\cref{ex:hello-py})} med
-    [[hello.cpp]]\only<article>{ (\cref{ex:hello-cpp})}.  Vad skiljer de
-    två filerna åt, och vad måste hända med var och en innan processorn
-    kan exekvera den?
+    \begin{pycode}
+print(fraga(
+    open_text,
+    "Jämför filen hello.py med filen hello.cpp. Vad skiljer de två "
+    "filerna åt, och vad måste hända med var och en innan processorn "
+    "kan exekvera den?",
+    max_chars=280,
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -431,6 +599,10 @@ print("Hello, World!")
   listan, därför att skillnaden i \emph{klädsel} är som störst just där:
   ju mer iögonfallande syntaxskillnaden är, desto tydligare blir det att
   det inte är den som frågan handlar om.
+
+  Frågan besvaras live som fritext.  Svaren går att läsa som ett mått på
+  hur många som stannar vid det första ledet: den som bara räknar upp
+  semikolon och klamrar har inte urskilt den kritiska aspekten.
 }
 
 Det syns en hel del skillnader: semikolon, klamrar, en rad som börjar med
@@ -450,12 +622,16 @@ läsa.  Tolken läser en sats i taget och gör det satsen säger.  Vår fil är
 alltså inte något processorn exekverar; den är indata till ett program som
 processorn exekverar.
 
+% This paragraph carries two references, and the note about the
+% comparison with C++ takes the margin above it; break here so both
+% references print beside the sentences that make them.
+\mode<article>{\clearpage}
 Python släpptes 1991\autocite{VanRossum1991Python}.  Guido van Rossum
 skrev det på forskningsinstitutet CWI i Amsterdam, och beskriver behovet
 som ett språk mitt emellan C och skalet: det gick för långsamt att skriva
 små verktyg i C\autocite{VanRossumCWI}.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[JavaScript, 1995]
     \label{ex:hello-js}
     Samma hälsning i JavaScript:
@@ -464,10 +640,19 @@ console.log("Hello, World!");
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Var är maskinkoden när den här raden körs i en webbläsare?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Var är maskinkoden när raden i hello.js körs i en webbläsare?",
+    [
+        "I filen hello.js, raden är redan maskinkod",
+        "I webbläsaren, som själv är färdig maskinkod",
+        "I en fil med maskinkod som skapas när raden körs",
+        "Det finns ingen maskinkod inblandad alls",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -501,7 +686,7 @@ filen översätts i förväg, och det är resultatet som körs.
 
 Det sista språket är ett vi redan har i terminalen.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Skalet]
     \label{ex:hello-sh}
     Även raderna vi skriver i terminalen är ett språk:
@@ -510,10 +695,19 @@ echo "Hello, World!"
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Var är maskinkoden den här gången?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Var är maskinkoden när raden i hello.sh körs i terminalen?",
+    [
+        "I raden vi skriver, den är redan maskinkod",
+        "I skalet, som läser raden och själv skriver ut hälsningen",
+        "I programmet echo, som skalet startar",
+        "I både skalet och programmet echo",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -544,6 +738,14 @@ gör det.
   gör generaliseringen till något de kan pröva direkt i stället för att
   bara läsa om.  Det är också det enda fallet där \enquote{språket} inte
   har en fil alls utan bara en rad man skriver.
+
+  De två sista tillfällena besvaras live som flervalsfrågor med
+  spegelvända alternativ, så att fördelningarna går att jämföra.  Vid
+  JavaScript bär \enquote{raden är redan maskinkod} sammanblandningen av
+  källtext och maskinkod, \enquote{en fil som skapas} kompilatorantagandet
+  och \enquote{ingen maskinkod alls} tron att tolkade språk slipper
+  processorn.  Vid skalet är de halva svaren --- bara skalet, bara
+  \texttt{echo} --- de intressanta.
 }
 
 \mode<article>{\subsection{Varför språken ser olika ut}}
@@ -639,10 +841,21 @@ till den andra\autocite{Michaelson2020Paradigms}.
 Vi har sagt att pythontolken läser vår fil.  Men tolken behöver inte någon
 fil alls för att köra: den kan lika gärna läsa det vi skriver direkt.
 
-\begin{frame}
+\begin{frame}[fragile]
   \begin{exercise}
-    Du skriver \mintinline{bash}{python3} i terminalen, utan filnamn, och
-    trycker på retur.  Vad tror du händer?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Du skriver python3 i terminalen, utan filnamn, och trycker på "
+    "retur. Vad tror du händer?",
+    [
+        "Ingenting händer förrän du ger ett filnamn",
+        "Ett felmeddelande om att filnamnet saknas skrivs ut",
+        "Tolken startar och väntar på satser du skriver",
+        "Terminalen låser sig tills du avbryter",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -696,6 +909,14 @@ finns i \cref{app:python-tolkat}.
   \mintinline{latex}{\runpython[transcript]} via PythonTeX: den tanglade
   \texttt{examples/hello.py} körs på riktigt, så en handskriven
   \enquote{utmatning} inte kan glida isär från programmet.
+
+  Övningen före kontrasten besvaras live som flervalsfråga.  De två
+  första alternativen --- att ingenting händer och att ett felmeddelande
+  om saknat filnamn skrivs ut --- bär samma föreställning: att tolken
+  \emph{behöver} en fil.  Det fjärde, att terminalen låser sig, är den
+  vanliga tolkningen av en prompt man inte känner igen, och den är värd
+  att veta om innan bilden visas.  Andelen som väljer det tredje säger
+  läraren hur många som redan sett ett interaktivt samtal.
 }
 
 \begin{frame}[fragile]
@@ -728,12 +949,35 @@ Du kommer sällan att skriva dina program direkt i terminalen.  Du skriver
 dem i en textredigerare eller en \ac{IDE}, och många av dem har en knapp
 som kör programmet åt dig.  Det gör det lätt att blanda ihop två saker.
 
-\begin{frame}
+\begin{frame}[fragile]
   \begin{exercise}
-    Du har skrivit [[hello.py]] i en textredigerare och trycker på
-    \enquote{kör}.  Vilket program är det som exekverar din kod?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Du har skrivit hello.py i en textredigerare och trycker på "
+    "knappen som kör programmet. Vilket program är det som exekverar "
+    "din kod?",
+    [
+        "Textredigeraren",
+        "Pythontolken python3",
+        "Operativsystemet",
+        "Processorn, direkt ur filen hello.py",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
+
+\ltnote{%
+  Övningen besvaras live, och den är avsnittets mätpunkt: andelen som
+  svarar \enquote{textredigeraren} är sammanblandningen mätt direkt,
+  innan bilderna visas.  \enquote{Processorn, direkt ur filen} är den
+  andra föreställningen avsnittet arbetar mot --- att källtexten är det
+  processorn exekverar --- och \enquote{operativsystemet} fångar dem som
+  vet att det är ett annat program men inte vilket.  Är det första
+  alternativet stort behövs alla tre skärmdumparna; är det litet räcker
+  det att peka på dem.
+}
 
 IDLE i \cref{fig:idle} är inte den enda redigeraren.  En annan vanlig är
 VSCodium (\cref{fig:codium}), som ser helt annorlunda ut.  En tredje är
@@ -849,18 +1093,23 @@ att leta reda på tidigt.
 Nu kan vi skriva vårt eget program.  Det första är det vi redan sett.
 
 \mode<article>{\needspace{6\baselineskip}}
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Programmet från tidigare]
     Hela [[hello.py]]:
     \inputminted{python}{examples/hello.py}
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Hur skulle du få programmet att hälsa på \emph{dig} i stället för
-    världen --- utan att skriva om utskriftsraden varje gång namnet
-    ändras?
+    \begin{pycode}
+print(fraga(
+    open_text,
+    "Hur skulle du få programmet hello.py att hälsa på dig i stället "
+    "för världen, utan att skriva om utskriftsraden varje gång namnet "
+    "ändras? Skriv programmet.",
+    max_chars=400,
+    fence="python",
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -871,7 +1120,7 @@ stod stilla.  I Python ger vi variabeln ett namn och ett värde med ett
 likhetstecken, och plockar in värdet i utskriften med ett \(f\) framför
 strängen.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Med en variabel]
     Namnet ligger i en variabel:
 <<[[hello-name.py]]>>=
@@ -881,11 +1130,16 @@ print(f"Hello, {name}!")
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Hur skulle du hälsa på tre personer utan att skriva utskriftsraden tre
-    gånger?
+    \begin{pycode}
+print(fraga(
+    open_text,
+    "Hur skulle du hälsa på tre personer utan att skriva "
+    "utskriftsraden tre gånger? Skriv programmet.",
+    max_chars=400,
+    fence="python",
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -908,6 +1162,12 @@ print(f"Hello, {name}!")
 
   Formatsträngen förklaras inte: den kritiska aspekten här är att något
   kan bytas ut, inte hur strängar fungerar.
+
+  Avsnittets två första övningar besvaras live som fritext och ber om
+  kod: svaret på \enquote{hur skulle du göra?} är en konstruktion, och
+  ett färdigt alternativ vore facit.  Svaren är också materialet för
+  exemplet som följer --- någon skriver tre utskriftsrader, någon når
+  redan variabeln.
 }
 
 Att skriva samma rad tre gånger vore möjligt --- men vi vet redan vad man
@@ -915,6 +1175,10 @@ gör i stället.  I föreläsningen \emph{Algoritmiskt tänkande} gav vi en
 grupp steg ett namn och hänvisade till namnet; i Python heter det en
 \emph{funktion}.
 
+% The note about the section's two live questions lands in the same
+% margin as the references of the paragraphs around it; break here so it
+% does not push the following note off its page.
+\mode<article>{\clearpage}
 \begin{frame}[fragile]
   \begin{example}[Med en funktion]
     Utskriften får ett namn, och namnet används tre gånger:
@@ -970,10 +1234,25 @@ på ett ställe.
   utskrifter} och \emph{Funktioner}.
 }
 
-\begin{frame}
+% The instructor note about the section's two open questions is long
+% enough to take a whole margin column, so it queues onto the page the
+% DRY reference stands on.  Break here and both fit.
+\mode<article>{\clearpage}
+\begin{frame}[fragile]
   \begin{exercise}
-    Ändra hälsningen från \enquote{Hello} till \enquote{Hej}.  Hur många
-    ställen i programmet måste ändras?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Du vill ändra hälsningen i hello-function.py från Hello till "
+    "Hej. Hur många ställen i programmet måste ändras?",
+    [
+        "Ett ställe",
+        "Två ställen",
+        "Tre ställen",
+        "Fyra ställen",
+    ],
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -1002,6 +1281,13 @@ tänkande}, bilaga E.
   \textbf{generalisering}.  Belägget hämtas inte hit ---
   eftersom \texttt{\string\cref} inte når över dokumentgränsen och en
   omgjord sökning bara skulle ge samma svar en gång till.
+
+  Räkningen besvaras live, och alternativen är antalen man kommer fram
+  till på fel sätt: \enquote{tre ställen} är att räkna anropen, alltså
+  att tro att hälsningen står i vart och ett av dem, och \enquote{två
+  ställen} är att räkna definitionen och ett anrop.  Fördelningen är det
+  enda som behövs för att veta om funktionen har urskilts som \emph{ett}
+  ställe utskriften står på, och den kan läsas högt innan svaret ges.
 }
 
 
@@ -1019,7 +1305,7 @@ går fel är den mest användbara texten du kommer att läsa den närmaste
 tiden --- och den som lättast avfärdas som obegriplig (det vetenskapliga
 underlaget finns i \cref{app:felmeddelanden}).
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Ett program med ett fel]
     Någonstans i det här programmet har vi råkat skriva fel:
 <<[[hello-error.py]]>>=
@@ -1029,10 +1315,20 @@ print(f"Hello, {Name}!")
 @
   \end{example}
 
-  \pause
-
   \begin{exercise}
-    Vad skriver programmet ut?
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Vad skriver programmet hello-error.py ut?",
+    [
+        "Ingenting, programmet har ett fel",
+        "Ett felmeddelande, ingenting annat",
+        "Välkommen! och sedan ett felmeddelande",
+        "Välkommen! och Hello, World!",
+    ],
+    next=False,
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
@@ -1058,6 +1354,17 @@ print(f"Hello, {Name}!")
   köras --- och då försvinner den aspekt exemplet ska visa: att
   programmet hann en bit.  Programmet är tanglat och körs i bygget, så
   den visade utmatningen \emph{är} vad Python svarar.
+
+  Frågan besvaras live, och den är den sista i föreläsningen.  De två
+  första alternativen bär samma missuppfattning i två styrkor:
+  \enquote{ingenting} och \enquote{bara ett felmeddelande} säger båda att
+  ett program med ett fel inte hinner göra något, alltså att det stannar
+  men inte att det stannar \emph{där} \parencite[89]{Marton2015}.
+  \enquote{Välkommen! och Hello, World!} är att läsa \texttt{Name} som
+  \texttt{name} --- felet syns inte förrän man vet att Python skiljer på
+  stora och små bokstäver.  Att de två första tillsammans brukar vara i
+  majoritet är vad som gör spårutskriften värd sin tid: fördelningen står
+  kvar på skärmen medan den läses nerifrån och upp.
 }
 
 \begin{frame}[fragile]
