@@ -35,24 +35,27 @@ Varje vecka har en egen sida som den här överst i sin modul.
 
 ## Gör så här, i ordning
 
-1. **Gå på föreläsningen** (onsdag): introduktion till terminalen,
-   filsystemet och textredigerare. Den ges live så att du kan ställa frågor;
-   kan du inte komma finns inspelningen och anteckningarna på föreläsningens
-   sida här i modulen.  Föreläsningen inleder också programmeringens
-   grunder med *algoritmiskt tänkande*; se sidan *Föreläsning:
-   Algoritmiskt tänkande* i modulen.
-2. **Gå på labbpasset för din grupp** direkt efter föreläsningen (onsdag
-   eller torsdag): det är en hjälpsession för att få igång din arbetsmiljö.
-   Arbeta med *Laboration (0) kom igång med Hello World* och markera den som
-   klar när ditt program kör. Materialet från terminalkursen DD1301 överst i
-   modulen (från *Briefly on interfaces* till *Choosing an editor*) förklarar
-   hur du hittar och använder terminalen på just din dator (Ubuntu, macOS
-   eller Windows); *Guide to accessing the terminal* och *The terminal*
-   sammanfattar. Ett extra labbpass för dem som inte hunnit klart ges
-   måndagen vecka 38.
+1. **Gå på föreläsningen** (onsdag). Den börjar med en repetition av
+   introföreläsningen om Pythondelen och fortsätter i två delar med var sin
+   sida här i modulen: *Föreläsning: Algoritmiskt tänkande* och
+   *Föreläsning: Hello, World!*, om det första programmet, textredigerare
+   och hur du kör programmet från terminalen. Den ges live så att du kan
+   ställa frågor; kan du inte komma finns inspelningen och anteckningarna på
+   föreläsningarnas sidor.
+2. **Gör *Laboration (0) kom igång med Hello World* på egen hand** och
+   markera den som klar när ditt program kör. Labbpasset för din grupp
+   direkt efter föreläsningen (onsdag eller torsdag) är en hjälpsession där
+   du får hjälp att få igång din arbetsmiljö. Materialet från terminalkursen
+   DD1301 finns i modulen *The terminal* (från *Briefly on interfaces* till
+   *Choosing an editor*), dit länken *Gör terminaldelen i DD1301* här i
+   modulen leder; det förklarar hur du hittar och använder terminalen på
+   just din dator (Ubuntu, macOS eller Windows), och *Guide to accessing
+   the terminal* och *The terminal* sammanfattar. Ett extra labbpass för
+   dem som inte hunnit klart ges måndagen vecka 38.
 3. **Gå på övningen för din grupp:** *Övning: Terminalen och köra kod*, där
    vi övar på att köra kod från terminalen och introducerar versionshantering
-   med Git.
+   med Git. Den här veckan fortsätter övningen också där föreläsningen
+   slutade, om allt inte hann med.
 4. **Vill du fördjupa dig?** Gör *Fördjupande övning: Terminalen, IDE:er och
    versionshantering*.
 

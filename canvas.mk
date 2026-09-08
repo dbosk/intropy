@@ -37,6 +37,7 @@ WEEK_PAGES+=	modules/project/vecka.md
 # ... while these are pushed as they are.
 PAGES+=		modules/overview/pythondelen.md
 PAGES+=		modules/computational-thinking/lecture.md
+PAGES+=		modules/helloworld/lecture.md
 PAGES+=		${WEEK_PAGES}
 
 ${ICS}:
@@ -63,6 +64,30 @@ ${PUSH_STAMPDIR_PAGES}/%: %
 	@mkdir -p $(dir $@)
 	canvaslms pages edit -c "${CANVAS_COURSE}" -f "$<"
 	@touch $@
+
+# Lab instructions pushed into the FeedbackFruits peer-review assignments.
+# Each instruction.md carries the Canvas assignment id in its `regex` field, so
+# only that assignment is matched and only its name and description are sent;
+# the LTI (FeedbackFruits) submission settings are left untouched. The body is
+# converted with pandoc --mathjax so TeX math survives as \( ... \), which
+# Canvas renders. --no-cache: canvaslms' object cache otherwise serves stale
+# assignment names.
+LAB_PAGES+=	modules/variables/lab/instruction.md
+LAB_PAGES+=	modules/conditionals/lab/instruction.md
+
+.PHONY: push-labs
+push-labs: $(LAB_PAGES:.md=.canvas.html)
+	for f in $^; do \
+		canvaslms --no-cache assignments edit --html -c "${CANVAS_COURSE}" -f $$f || exit 1; \
+	done
+
+%.canvas.html: %.md
+	python3 -c 'import sys, subprocess; \
+	s = open(sys.argv[1], encoding="utf-8").read(); \
+	_, fm, body = s.split("---\n", 2); \
+	html = subprocess.run(["pandoc", "-f", "markdown", "-t", "html", "--mathjax"], \
+	  input=body, capture_output=True, text=True, check=True).stdout; \
+	open(sys.argv[2], "w", encoding="utf-8").write("---\n" + fm + "---\n" + html)' $< $@
 
 .PHONY: create-pages
 create-pages:
