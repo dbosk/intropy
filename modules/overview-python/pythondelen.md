@@ -13,8 +13,11 @@ programmera i Python, från terminalen och det första programmet till ett
 eget projekt. Den här sidan ger dig helheten: hur delen är upplagd vecka
 för vecka, hur en vecka går till och vad du ska kunna när den är klar.
 Varje vecka har sedan en egen sida överst i sin modul med veckans mål,
-arbetsgång och schema. Modulen avslutas med ett diagnostiskt prov som
-visar dig och oss var du står innan vi börjar.
+arbetsgång och schema. Modulen avslutas med tre korta inledande test: ett
+quiz om din programmeringsbakgrund, ett quiz om felsökning och en enkät
+om hur du studerar. De visar dig och oss var du står innan vi börjar
+och är inte betygsgrundande, men du måste lämna in alla tre för att
+resten av kursmaterialet, modulerna från vecka 38, ska låsas upp.
 
 ## Upplägg
 
@@ -27,7 +30,7 @@ programmeringsuppgift som avgör ditt betyg på kursen. Se sidan
 
 | Vecka | Modul i Canvas | Moment |
 |-------|----------------|--------|
-| 37 | Terminalen och "Hello World!" | Laboration 0 |
+| 37 | Terminalen, programmeringens grunder och "Hello World!" | Laboration 0 |
 | 38 | Funktioner och variabler | Laboration 1 |
 | 39 | Inmatning, felhantering och styrstrukturer | Laboration 2 |
 | 40 | Upprepningar, listor och moduler | Laboration 3 |
@@ -75,7 +78,7 @@ Pythondelen ska kunna
 
 Vecka för vecka är målen följande.
 
-**Vecka 37, Terminalen och "Hello World!":**
+**Vecka 37, Terminalen, programmeringens grunder och "Hello World!":**
 
 - styra datorn från terminalen och hitta i filsystemet,
 - installera Python och en textredigerare eller IDE och skriva program i
