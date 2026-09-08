@@ -49,9 +49,10 @@ redigera det i din textredigerare.
    par. Se gärna *Genomgång inför laboration 1* innan ni börjar. På
    labbpassen finns lärare och assistenter för att hjälpa er när ni fastnar;
    det mesta av arbetet gör ni på egen tid.
-4. **Granska** en annan grupps lösning i *Granskning Laboration 1* när ni
-   lämnat in er egen. Att läsa andras kod är ett av kursens mål och det bästa
-   sättet att se hur din egen kod kan bli tydligare.
+4. **Granska** två andra studenters lösningar i *Granskning Laboration
+   1* när du lämnat in din egen. Ni arbetar i par men lämnar in var för
+   sig. Att läsa andras kod är ett av kursens mål och det bästa sättet
+   att se hur din egen kod kan bli tydligare.
 5. **Vill du fördjupa dig?** Gör *Fördjupande övning funktioner och
    variabler*.
 

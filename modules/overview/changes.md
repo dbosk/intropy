@@ -45,6 +45,12 @@ filsystemet och textredigerare går nu parallellt med Excel-delens sista
 vecka, i stället för efteråt. Det frigör tid i slutet av kursen för
 p-uppgiften.
 
+**Laborationerna lämnas in individuellt.** Ni arbetar fortfarande i
+par, men var och en laddar upp sin egen inlämning. Det gör flödet för
+kamratgranskningen enklare; precis som tidigare granskar var och en två
+andra studenters inlämningar. Baksidan är att en av dem kan råka vara
+din labbpartners — men sannolikt inte båda.
+
 **Varje modul börjar med en veckoöversikt.** Överst i varje veckas modul
 finns en sida med veckans mål, vad du ska göra i vilken ordning och
 veckans schema.
