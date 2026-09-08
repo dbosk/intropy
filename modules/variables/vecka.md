@@ -16,8 +16,8 @@ problem i delproblem som var och en löses av en *funktion*. Det sättet att
 tänka, att bryta ner ett problem i hanterbara delar, är kursens röda tråd
 och kommer igen varje vecka.
 
-Innan du börjar bör du ha gjort klart förra veckans modul *Terminalen och
-"Hello World!"*: du ska kunna köra ett pythonprogram från terminalen och
+Innan du börjar bör du ha gjort klart förra veckans modul *Terminalen,
+programmeringens grunder och "Hello World!"*: du ska kunna köra ett pythonprogram från terminalen och
 redigera det i din textredigerare.
 
 ## Efter veckan ska du kunna
@@ -45,7 +45,7 @@ redigera det i din textredigerare.
    Prettiest Way to View the PEP 8 Python Style Guide* och *PEP 257 –
    Docstring Conventions* till hands; du behöver inte kunna dem utantill, men
    veta vad som finns där.
-3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter* i
+3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter (kamratgranskning)* i
    par. Se gärna *Genomgång inför laboration 1* innan ni börjar. På
    labbpassen finns lärare och assistenter för att hjälpa er när ni fastnar;
    det mesta av arbetet gör ni på egen tid.

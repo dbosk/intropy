@@ -1,4 +1,5 @@
 SUBDIR+=		slides
+SUBDIR+=		slides-functions
 SUBDIR_GOALS=	all clean distclean
 
 HTML_FILES= 	lecture.html exercise.html pythonic.html

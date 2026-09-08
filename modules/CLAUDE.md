@@ -1,94 +1,136 @@
 # Module slide decks
 
-Each module has one or more deck directories (`slides*/`) building two PDFs
-from one source: `slides.pdf` (beamer) and `notes.pdf` (article +
-beamerarticle, to become memoir), both `\input`ing the shared
-`contents.tex`.
+**Load the `didactic-decks` skill before touching a deck**, and its
+`references/house-style-sv.md`: every deck here is in Swedish. That skill
+holds everything about how a deck is built, authored and checked; the
+pedagogy lives in `try-first-tell-later`, `variation-theory` and
+`didactic-notes`, the citations and appendices in `backing-claims`, the
+review loop in `remarkable` and `worktree-subagents`. This file holds only
+what is true of this course. Before writing a new rule here, ask: would it
+hold in another course too? Then it belongs in a skill, not here. A rule
+in two places is a defect.
 
-## Literate decks (contents.nw)
+## The decks
 
-Decks are being converted to literate programs (tracking issue #269;
-`helloworld/slides` is the established template — copy from it). In a
-literate deck, `contents.nw` is the single source:
+Each module has one or more deck directories (`slides*/`) building
+`slides.pdf` and `notes.pdf` from one `contents.nw`. The model deck is
+`computational-thinking/slides` (tracking issue #269); `helloworld/slides`
+is the build template the skill's `assets/deck-template/` was copied from
+(re-sync the template when its wiring changes); `exceptions/slides` is the
+most compact worked example. `modules/Makefile` excludes functions,
+exceptions, recap, scipy and debug from the course-wide build. Six decks
+still lack a backed-claim chapter: `classes/slides-more`
+(Operatoröverlagring) and the five `containers/slides-*` decks — run the
+claim audit there in their next rounds.
 
-- `contents.tex` is **woven** from it (`noweb.mk`'s `%.tex: %.nw` rule;
-  the default weave runs the dbosk noweb fork's `autolang` + `tominted`
-  pipeline, so chunks come out as syntax-highlighted `minted`
-  environments).
-- The presented example programs are **tangled** from it into `examples/`
-  (`notangle -R"[[<filename>]]"`), so `examples/` is entirely generated.
-- Consequently `.gitignore` lists `contents.tex`, `noweb_lexer.py` and
-  `examples/`; only `contents.nw` is committed. Never edit `contents.tex`.
+Canonical deck titles, used when one deck points at another in prose
+(`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
+bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
+*Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
+datatyper*; *Villkor och styrstrukturer*; *Felhantering*; *Upprepningar*;
+*Moduler och paket*; *Behållare: Listor*, *Behållare: Tupler*,
+*Behållare: Uppslagslistor*, *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*; *Klasser och objekt*;
+*Operatoröverlagring*; *Praktiska tillämpningar av klasser*; *Arbeta med
+filer*.
 
-Before editing any `contents.nw`, activate the `literate-programming`
-skill.
+The reMarkable review family of a deck is `<Titel> — notes (review) vN`
+(the Hello World family keeps its old spelling). Learning objectives carry
+the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
 
-### Authoring rules for chunks in decks
+## Course-specific rules
 
-- A code chunk replaces every `\inputminted[firstline=…,lastline=…]`:
-  name the chunk after the file it tangles to, `<<[[hello.py]]>>=`, and
-  place it at its point of presentation (inside the frame).
-- Frames containing chunks (or any minted output) must be `[fragile]`.
-- **Never start a theorem-style environment (`example`, `remark`, …)
-  directly with a chunk or minted block** — the inline label and the code
-  display overprint each other in the article/notes job. Put a short
-  lead-in sentence first.
-- To show the same code again later (recaps), do not redefine the chunk —
-  noweb would concatenate the definitions into the tangled file. Instead
-  re-display the tangled artifact: `\inputminted{python}{examples/foo.py}`
-  (always the whole file, never line ranges).
-- Write Python chunks black-clean (4-space indent, double quotes, two
-  blank lines around top-level defs): the tangle rule pipes tangled `.py`
-  files through `black`, and the tangled file must match the slide byte
-  for byte.
-- Multi-language decks just work: `autolang` infers each chunk's language
-  from its filename-style name (`.py`, `.cpp`, `.sh`, …).
+- Example data names: never the author's. "Malvina" is the default single
+  name; when several are needed, Astrid Lindgren's strong characters in
+  order — Ronja, Pippi, Madicken — then their side characters (Birk,
+  Annika, Lisabet). "Ada" (Lovelace) is also fine (author, 2026-09-06);
+  "Beda" was only ever its one-letter partner.
+- Hidden cultural facts in example data: the birth year 1927 is the
+  founding year of Kvinnliga Teknologers Sammanslutning, today Malvina, at
+  KTH (bib key `MalvinaHistoria`). The fact stays out of the student text
+  and is recorded, with its source, in an `\ltnote`.
+- The author's own misconceptions manuscript is cited as
+  `SooriBosk2026` (`@unpublished`, provenance block in the decks that use
+  it), never by nickname.
+- Every appendix chapter opens with the verbatim
+  `\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}`.
+- "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
+  it keeps its spelling.
 
-### Build wiring (deck Makefile)
+## Backed claims (the ledger)
 
-See `helloworld/slides/Makefile`. The essentials:
+A claim already backed in another deck is not redone: cite the same
+source with the provenance block copied (plus `% FOUND-VIA (here): backed
+in <deck>, bilaga <X>`) and point to it in prose, saying what the appendix
+answers and stating the claim at the strength the appendix supports.
 
-- Include `${INCLUDE_MAKEFILES}/tex.mk` **and** `noweb.mk` (bottom of the
-  Makefile, as usual).
-- `contents.tex: contents.nw noweb_lexer.py` — the pattern rule weaves;
-  `noweb.mk` provides the `noweb_lexer.py:` copy rule (Pygments needs the
-  fork's lexer classes next to the `.tex` at compile time, so both PDFs
-  also depend on `noweb_lexer.py`).
-- Explicit tangle rules `examples/%.py: contents.nw` (etc. per suffix)
-  using `${NOTANGLE.py}` — the generic `%.py: %.nw` pattern does not
-  match across the `examples/` directory boundary.
-- `NOTANGLEFLAGS.cpp=` (empty) for teaching decks: the default `-L` would
-  inject `#line` directives into the tangled C++.
-- The PDFs depend on `${EXAMPLES}` so `\inputminted` recaps always see
-  freshly tangled files.
+Backed so far (question → answer):
+- *Algoritmiskt tänkande* B: algorithm components → sequence, selection,
+  repetition, data hold across three traditions, two reservations on
+  use; C: stepwise refinement → Wirth's, established for getting
+  started, a simplification as a full design method; D: literate
+  programming → Knuth's, noweb is Ramsey's form, never dominant; E: DRY →
+  Hunt and Thomas, the risk is real when copies change inconsistently,
+  but no absolute rule (both origin and benefit are covered).
+- *Funktioner* B: SRP → Martin 2003 (not 2000), established, "one
+  responsibility" is a judgement; C: KISS → NOT Kelly Johnson's (in
+  print 1958, attribution rests on a memoir), simplicity as a design
+  value is established.
+- *Felhantering* B: exception misconceptions → backed (Java, late-stage
+  students); C: catch-all → a known bad habit, but the actual bugs are
+  rarer than the habit, so the advice is "fånga det ni vet hur ni ska
+  svara på", not "aldrig".
+- *Upprepningar* B: loop misconceptions → five of six backed in primary
+  sources; C: productive failure → moderate effect, from comparing the
+  attempt with the answer, not from delay itself.
+- *Hello, World!* B: origin → Kernighan (B tutorial), tradition
+  questioned since 1996; C: interpreter reads statement by statement →
+  yes, but bytecode first; D: error messages → a real obstacle, first
+  errors are mostly typos, rewritten messages not shown to help; E:
+  chronology → holds, only two of seven years are clean release dates.
+- *Villkor* B and *Inmatning* B: misconceptions → backed, frequencies
+  in this population unknown.
+- *Arbeta med filer* B: misconception backed (one source no longer open);
+  C: memory hierarchy orders of magnitude → textbook values; D: Python's
+  file functions → as stated, default encoding platform-dependent; E:
+  CSV is not a standard (informational RFC), JSON is.
+- *Moduler och paket* B: modules/import as a novice difficulty → NOT
+  backed (no direct study).
+- *Klasser och objekt* B: class/object misconceptions → three backed
+  (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
+  defined and contested in its classic form. *Praktiska tillämpningar*
+  B: composition over inheritance → Design Patterns, established,
+  maintenance experiments on inheritance point both ways.
+- *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
+  weaker than assumed: names, short lines, indentation supported; the
+  guide as a whole and several rules (four spaces) not.
+- No backed-claim chapters yet: *Operatoröverlagring*, the five
+  *Behållare* decks (method chapter only) — run the claim audit there.
+
+## Build environment
 
 The **makefiles submodule must be on the `tominted-default-weave`
-lineage** (it makes the highlighted weave the default and ships the
-`noweb_lexer.py` rule). Note: that branch and `f870419` (biber-by-default
-`tex.mk`, pinned by the files-notes work) have not been merged yet; until
-they are, decks without a `.bib` see a harmless failing
-`ltxobj/*.bbl` (bibtexu) sub-make under latexmk's `-use-make`.
+lineage** (currently 1571556; it makes the highlighted weave the
+default). In a fresh worktree run `git submodule update --init --checkout
+makefiles` (`--checkout` because the repo config has
+`submodule.makefiles.update=none`). The main checkout's `makefiles` is not
+on that lineage: after the campaign branch is merged to master, run
+`git submodule update` there. Tracked hand-written activity inputs such as
+`files/slides/examples/scb/*.py` are exempt from `black --check`; the
+tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
-### Driver wiring (slides.tex / notes.tex)
+## Where the general rules went (2026-09-07)
 
-Both drivers load, after `\input{preamble.tex}` (and in notes after
-beamerarticle):
-
-```latex
-\usepackage[minted]{noweb}
-\noweboptions{breakcode}
-```
-
-Do not load minted with the `[outputdir=...]` package option anywhere —
-minted v3 (TeX Live 2024+) errors on it; plain `\usepackage{minted}` in
-the preamble is fine (noweb's `[minted]` option tolerates it being loaded
-already).
-
-`slides.tex` additionally neuters the chunk cross-referencing apparatus
-(and uses `\noweboptions{breakcode,nomargintag}`): sub-page labels break
-under beamer overlays (`\pause` re-executes the frame body, so `\sublabel`
-would define every label twice) and the defines/uses lists are noise on a
-slide. Copy the `\def\sublabel#1{}` … block from
-`helloworld/slides/slides.tex`. The notes keep the full apparatus: margin
-sub-page tags, `⟨chunk 2a⟩≡` headers and cross-references are the point
-of the literate notes.
+| Was in this file | Now in |
+|---|---|
+| Deck anatomy, drivers, preamble, build wiring, gotchas, checks | `didactic-decks` (SKILL.md + `references/`) |
+| Chunk rules, `\runpython`, floats and captions, `\ltnote` queue | `didactic-decks/references/` |
+| Swedish term first, no week or course-event references, exekverar/utför, "tagit del av", name the action, appendix-pointer wording | `didactic-decks/references/house-style-sv.md` |
+| Exercises that do not narrate the answer, the open question | `try-first-tell-later` |
+| Generalisation sequences, labels matching what varies | `variation-theory` |
+| Note visibility, margin queue, summary vs remark, side captions | `didactic-notes/references/` |
+| Citations in floats, unnumbered crefs, two-line displays | `latex-writing/references/` |
+| latexmk/PythonTeX/biber gotchas, tangle rules | `literate-programming/references/` |
+| Pointers beside the claim, cross-deck reuse, no nicknames, claim audit, Fortsatt arbete | `backing-claims/references/` |
+| Review rounds, transcription, fix and reader agents, cleanup | `remarkable`, `worktree-subagents` |
