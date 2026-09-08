@@ -1,3 +1,79 @@
+\mode<all>
+\begin{pycode}
+import os
+import re
+
+from mentipy.latex import mc, open_text, word_cloud
+from mentipy.store import Store
+
+mentipy_common = {
+    "store": Store("mentipy.json"),
+    "qr_dir": "mentipy-obj",
+    "qr_format": "png",
+    "environment": "",
+    "show_url": False,
+    "layout": "auto",
+    "base_url": "http://faculty-shell.sys.kth.se:8080",
+}
+
+# Mentipy sätter sina egna etiketter på engelska; föreläsningen är på
+# svenska, så den renderade LaTeX-koden översätts innan den skrivs ut.
+# Bara etiketterna rörs --- frågetexten och alternativen går oförändrade
+# till Mentipy, så frågornas identitet i frågelagret påverkas inte.
+ETIKETTER = [
+    ("Choose exactly one:", "Välj exakt ett alternativ:"),
+    ("Choose one or more:", "Välj ett eller flera alternativ:"),
+    ("\\item[Type] Free-text answer", "\\item[Svarstyp] fritext"),
+    ("\\item[Type] Word-cloud (free-text)",
+     "\\item[Svarstyp] ordmoln av fritext"),
+    ("\\item[Mode] Whole answer counts as one entry",
+     "\\item[Räknesätt] hela svaret räknas som ett bidrag"),
+]
+
+# Mentipys QR-omslag sätter hela adressen i \footnotesize\ttfamily under
+# koden.  I bildens smala högerkolumn rinner den utanför bilden, så
+# omslaget byts mot samma bild med adressen bruten och satt mindre.
+QR = re.compile(r"\\input\{mentipy-obj/(Q-[0-9a-f]+)\.pdf_tex\}")
+
+
+def qr_ersattning(träff):
+    filnamn = träff.group(1)
+    return (
+        "\\begin{minipage}{\\linewidth}\n\\centering\n"
+        "\\includegraphics[width=\\linewidth]{mentipy-obj/%s.png}\n\n"
+        "{\\tiny\\ttfamily faculty-shell.sys.kth.se}\n\n"
+        "{\\tiny\\ttfamily :8080/%s}\n\\end{minipage}"
+        % (filnamn, filnamn[2:])
+    )
+
+
+def sv(latex):
+    for engelska, svenska in ETIKETTER:
+        latex = latex.replace(engelska, svenska)
+    latex = re.sub(r"\\item\[Limit\] (\d+) characters",
+                   r"\\item[Längd] högst \1 tecken", latex)
+    return QR.sub(qr_ersattning, latex)
+
+
+def fraga(namn, latex):
+    """Skriv frågans LaTeX till en fil som övningsuppgiften inkluderar.
+
+    Blocken står utanför bilderna med avsikt.  Beamer läser en bilds
+    kropp en gång per överlägg, så ett pycode-block inne i kroppen får
+    ett nytt PythonTeX-index per läsning; indexen glider isär mellan
+    körningarna och en frågas utskrift hamnar då på fel bild.
+    """
+    os.makedirs("mentipy-obj", exist_ok=True)
+    with open("mentipy-obj/%s.tex" % namn, "w", encoding="utf-8") as fil:
+        fil.write(sv(latex))
+\end{pycode}
+
+% Frågefilerna skrivs av PythonTeX under körningen, så de saknas i den
+% allra första genomkörningen.
+\providecommand{\mentipyfraga}[1]{%
+  \IfFileExists{mentipy-obj/#1.tex}{\input{mentipy-obj/#1.tex}}{}%
+}
+
 \mode*
 
 \section{Algoritmer}
@@ -36,10 +112,25 @@ Vi börjar därför i köket, med något de flesta har en känsla för.
   \end{example}
 \end{frame}
 
-\begin{frame}
+\mode<all>
+\begin{pycode}
+fraga("f01-sekvens", mc(
+    "Vi byter plats på de två första stegen i pannkakssmeten: vispa "
+    "först, knäck äggen sedan. Vad händer då?",
+    [
+        "Vi vispar en tom bunke; äggen förblir ovispade.",
+        "Ingenting: ordningen spelar ingen roll.",
+        "Ingenting: vi kan göra stegen samtidigt.",
+        "Receptet avbryts: vi kan inte vispa något som inte finns.",
+    ],
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink]
   \begin{exercise}
-    Vad händer om vi byter plats på \cref{knäck-ägg,vispa-ägg}?  Kan
-    vi göra dem samtidigt?
+    \mentipyfraga{f01-sekvens}
   \end{exercise}
 \end{frame}
 
@@ -97,6 +188,13 @@ svårt för en person att göra flera saker samtidigt.)
   parallellism-bugg \parencite{pea1986}.
   \foreignlanguage{english}{Try-first}: frågan ställs på bilden innan
   svaret sägs i texten.
+
+  Frågan ställs som flervalsfråga i Mentipy, så fördelningen syns innan
+  svaret sägs.  Två distraktorer bär parallellism-buggen ovan ---
+  ordningen spelar ingen roll, stegen kan göras samtidigt --- och den
+  tredje bär idén att algoritmen avbryts när ett steg inte går att
+  utföra, samma missuppfattning som \cref{sec:forgrening} tar upp med
+  belägg.
 }
 
 Det vi har skrivit --- en ändlig följd av entydiga steg som löser en
@@ -133,12 +231,43 @@ här, beskrivs i \cref{app:verifiera}.
 Recept är en sak; låt oss pröva att själva formulera en algoritm för något
 annat vardagligt.
 
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOAlgorithm}.
+
+  Uppgiften ställs som en fritextfråga i Mentipy.  Svaren visar vilka
+  steg studenterna själva formulerar innan begreppet algoritm har
+  generaliserats bort från receptet, och ger de formuleringar som
+  \cref{ex:sortera-tvatt} sedan kan hållas emot.
+}
+
+\mode<all>
+\begin{pycode}
+fraga("f02-sortera-tvatt", open_text(
+    "Beskriv din algoritm för att sortera tvätt innan den åker in i "
+    "tvättmaskinen.",
+    max_chars=400,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}
   \begin{exercise}[Sortera tvätt]
-    Beskriv din algoritm för att sortera tvätt innan den åker in i
-    tvättmaskinen.
+    \mentipyfraga{f02-sortera-tvatt}
   \end{exercise}
 \end{frame}
+
+\mode<all>
+\begin{pycode}
+fraga("f03-bestandsdelar", word_cloud(
+    "Vad är beståndsdelarna av en algoritm? Skriv en beståndsdel du kan "
+    "se i tvättsorteringen. Börja med att titta på vad som varierar.",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
 
 \begin{frame}[fragile,shrink=15]
   \begin{example}[Sortera tvätt]
@@ -161,8 +290,7 @@ annat vardagligt.
 
   \begin{onlyenv}<2>
     \begin{exercise}
-      Vad är beståndsdelarna av en algoritm?  Vilka kan du se?  Börja
-      med att titta på vad som varierar i exemplet med tvättsortering.
+    \mentipyfraga{f03-bestandsdelar}
     \end{exercise}
   \end{onlyenv}
 \end{frame}
@@ -195,7 +323,10 @@ varierar?
   innan någon av dem har fått namn, med \enquote{vad som varierar} som
   ingång.  Ingången sår den tanke som variabelavsnittet sedan tar upp,
   och svaren visar vilka beståndsdelar (upprepningen, förgreningen, det
-  utbytbara plagget) studenterna redan kan urskilja.
+  utbytbara plagget) studenterna redan kan urskilja.  Frågan ställs som
+  ett ordmoln i Mentipy, där hela svaret räknas som ett bidrag: molnet
+  visar vilka beståndsdelar som urskiljs oftast, och vilka som ingen
+  nämner och som föreläsningen alltså måste varieras fram.
   I \cref{sec:upprepning,sec:forgrening} återanvänds exemplet på samma
   sätt som generalisering av upprepning
   (\enquote{repetera från steg 1}) respektive förgrening (kedjan av
@@ -210,10 +341,21 @@ lagom till några få personer.  Men vad gör vi om vi ska tillaga
 pannkakor till en hel klass?  Då måste alla mängder ändras.  Just det som
 kan ändras är vad vi ska fästa blicken på.
 
+\mode<all>
+\begin{pycode}
+fraga("f04-vad-varierar", word_cloud(
+    "Vad varierar i receptet på pannkakssmet för fyra personer? "
+    "Svara med några få ord.",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}
   \begin{exercise}
-    Vad varierar i exemplet med
-    pannkakssmet\only<article>{ (\cref{ex:pannkakssmet})}?
+    \mentipyfraga{f04-vad-varierar}
   \end{exercise}
 \end{frame}
 
@@ -263,7 +405,10 @@ byttes ut från varv till varv.
   Kontrasten ska urskilja aspekten \emph{variabel}: det som kan bytas ut
   medan proceduren står kvar.  Övningen \enquote{vad varierar?} ställs
   före exemplet med \(n\) så att studenterna själva letar efter den
-  varierande dimensionen innan den pekas ut.
+  varierande dimensionen innan den pekas ut.  Den ställs som ett ordmoln
+  i Mentipy: molnet visar om gruppen pekar ut mängderna eller antalet
+  personer, eller något som receptet tvärtom håller invariant --- stegen,
+  deras ordning, redskapen.
 
   \textbf{Generalisering} via \cref{ex:sortera-tvatt}.  Vad som varierar:
   kontexten och variabelns slag --- ett plagg i stället för ett tal.  Vad
@@ -288,11 +433,21 @@ byttes ut från varv till varv.
   \cref{sec:upprepning} sedan bygger på.
 }
 
+\mode<all>
+\begin{pycode}
+fraga("f05-tillstand", open_text(
+    "I receptet på pannkakssmet för n personer lyder mjölsteget: för "
+    "totalt 3n/4 dl mjöl, häll i 1 dl mjöl och vispa ordentligt. Hur "
+    "vet du när du ska sluta hälla i mjöl? Vad måste du hålla reda på?",
+    max_chars=200,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}
   \begin{exercise}
-    Hur vet du när du ska sluta hälla i mjöl i
-    \cref{mjöl-loop}\only<article>{ i \cref{ex:pannkakssmet-n}}?  Vad
-    måste du hålla reda på?
+    \mentipyfraga{f05-tillstand}
   \end{exercise}
 \end{frame}
 
@@ -315,7 +470,10 @@ det tillståndet variablerna håller reda på.
   mellan \(n\) (väljs en gång) och mängden mjöl hittills (ändras varje
   varv) ska urskilja aspekten \emph{tillstånd}; diskexemplet
   generaliserar den, och \cref{ex:handdisk} pekar senare ut den i ett
-  fullständigt exempel.
+  fullständigt exempel.  Frågan ställs som fritext i Mentipy: svaren
+  visar om studenterna nämner något som måste hållas reda på \emph{under}
+  körningen --- mängden hittills, eller antalet varv --- eller bara läser
+  av det färdiga måttet ur receptet.
 }
 
 \begin{frame}[fragile]
@@ -472,9 +630,27 @@ annars räcker den lilla.  Låt oss skriva in det valet i receptet.
   \end{example}
 \end{frame}
 
-\begin{frame}
+\mode<all>
+\begin{pycode}
+fraga("f06-forgrening", mc(
+    "I pannkakssmeten med val av bunke: är n större än 4 tas den stora "
+    "bunken fram, annars den lilla. Sedan knäcks äggen i bunken. "
+    "Vilket stämmer?",
+    [
+        "n = 2 ger den lilla bunken, n = 10 den stora; sedan knäcks "
+        "äggen i båda fallen.",
+        "För n = 10 tas båda bunkarna fram.",
+        "För n = 2 avbryts receptet: villkoret är falskt.",
+        "När bunken är vald är receptet slut.",
+    ],
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink]
   \begin{exercise}
-    Vilka steg exekveras om \(n = 2\)?  Om \(n = 10\)?
+    \mentipyfraga{f06-forgrening}
   \end{exercise}
 \end{frame}
 
@@ -507,7 +683,15 @@ Exakt en hög får plagget --- och oavsett vilken följer
   algoritmen \emph{fortsätter} efter valet.  De svarar mot två belagda
   missuppfattningar: att ett falskt villkor avslutar programmet
   \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation} och att båda
-  grenarna exekveras \parencite{qian2017}.
+  grenarna exekveras \parencite{qian2017}.  Spårningen ställs som en
+  flervalsfråga i Mentipy, och varje distraktor bär en av dem: att båda
+  bunkarna tas fram är \enquote{båda grenarna exekveras}
+  \parencite{qian2017}, medan \enquote{receptet avbryts när villkoret är
+  falskt} och \enquote{receptet är slut när bunken är vald} är två
+  former av att ett falskt villkor, respektive ett taget val, avslutar
+  programmet \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}.
+  Fördelningen visar vilken av dem som dominerar i gruppen, innan
+  spårningen görs i texten.
 
   \textbf{Generalisering} via \cref{ex:sortera-tvatt}: en kedja av
   alternativ med olika villkor, samma regel --- exakt en gren, sedan
@@ -541,13 +725,28 @@ skillnaden mellan de två byggstenarna?
       och sedan fortsätter algoritmen med nästa steg.
     \end{definition}%
   }
+\end{frame}
 
-  \pause
+\mode<all>
+\begin{pycode}
+fraga("f07-om-eller-sa-lange", mc(
+    "Vad skiljer steget: om smeten är för tjock, häll i lite mjölk; "
+    "från steget: så länge smeten är för tjock, häll i lite mjölk?",
+    [
+        "Det första häller i högst en gång, det andra tills smeten är "
+        "lagom.",
+        "Ingen skillnad: båda gör samma sak.",
+        "Det första häller i tills smeten är lagom, det andra en gång.",
+        "Är smeten inte för tjock avbryts receptet.",
+    ],
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
 
+\begin{frame}[shrink]
   \begin{exercise}
-    Vad är skillnaden mellan \enquote{om smeten är för tjock, häll i
-    lite mjölk} och \enquote{så länge smeten är för tjock, häll i lite
-    mjölk}?
+    \mentipyfraga{f07-om-eller-sa-lange}
   \end{exercise}
 \end{frame}
 
@@ -569,6 +768,16 @@ bara en längre text.
   räcker \parencite{Bosse2021Antipatterns}.
   \foreignlanguage{english}{Try-first}: skillnaden ställs som fråga
   innan den sägs ut.
+
+  Frågan är en flervalsfråga i Mentipy.  Distraktorn \enquote{ingen
+  skillnad} är antimönstret självt --- konstruktionerna hålls för
+  utbytbara \parencite{Bosse2021Antipatterns}; den omkastade
+  beskrivningen visar att de hålls isär men förväxlas; och
+  \enquote{receptet avbryts om smeten inte är för tjock} är
+  missuppfattningen att ett falskt villkor avslutar programmet
+  \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}.  Svaren avgör
+  om texten efter bilden räcker eller om skillnaden måste spåras steg
+  för steg.
 }
 
 \subsection{(Del)algoritmer, eller funktioner}
@@ -577,6 +786,19 @@ En algoritm kan använda andra algoritmer som byggstenar.  När vi ska steka
 pannkakor behöver vi först göra smet --- men \enquote{gör pannkakssmet} är
 ju i sig en hel algoritm, den vi redan skrivit.  I stället för att skriva
 ut den på nytt hänvisar vi till den vid namn.
+
+\mode<all>
+\begin{pycode}
+fraga("f08-det-resterande", word_cloud(
+    "I steget gör pannkakssmet för fyra personer är antalet personer "
+    "en variabel. Vad är det som återstår av steget, det som inte "
+    "varierar?",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
 
 \begin{frame}[shrink=10]
   \begin{example}[Att steka pannkakor\only<2>{ \alert{för fyra personer}}]
@@ -597,7 +819,7 @@ ut den på nytt hänvisar vi till den vid namn.
 
   \begin{onlyenv}<1>
     \begin{exercise}
-      Det resterande, som inte är en variabel --- vad är det?
+    \mentipyfraga{f08-det-resterande}
     \end{exercise}
   \end{onlyenv}
   
@@ -620,6 +842,17 @@ ut den på nytt hänvisar vi till den vid namn.
   \end{onlyenv}
 \end{frame}
 
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs på bilden innan
+  \emph{funktion} definieras på nästa överlägg.  Den ställs som ett
+  ordmoln i Mentipy: molnet visar vilka ord studenterna själva tar till
+  för det som står kvar när variabeln räknats bort --- recept, steg,
+  instruktion, delalgoritm --- och därmed vilken förförståelse
+  definitionen ska knyta an till.
+}
+
 En namngiven delalgoritm som tar variabler som inmatning och ger något som
 utmatning kallar vi en \emph{funktion}.  \enquote{Gör pannkakssmet för
 \(n\) personer} är en funktion: ge den ett antal personer, och den ger dig
@@ -633,12 +866,21 @@ mindre delalgoritmer som var för sig är enkla.  Ett tecken på en funktion
 vispa, att steka, att diska.  Letar vi efter verben i en algoritm hittar vi
 ofta de funktioner den bygger på.
 
+\mode<all>
+\begin{pycode}
+fraga("f09-hitta-funktioner", word_cloud(
+    "Vilka funktioner kan du hitta i receptet på pannkakssmet med val "
+    "av bunke och i receptet på att steka pannkakor? Skriv en av dem.",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}[shrink=20]
   \begin{exercise}
-    Vilka funktioner kan du hitta i
-    \only<article>{\cref{ex:pannkakssmet-forgrening,ex:steka-pannkakor}}%
-    \only<presentation>{recepten på pannkakssmet med val av bunke och på
-    att steka pannkakor}?
+    \mentipyfraga{f09-hitta-funktioner}
   \end{exercise}
 
   \only<presentation>{%
@@ -662,6 +904,17 @@ ofta de funktioner den bygger på.
   }
 \end{frame}
 
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan verben pekas
+  ut i texten.  Ordmolnet i Mentipy tar ett svar per person, så det som
+  blir stort är de verb gruppen ser lättast.  Det som saknas i molnet är
+  det föreläsningen behöver peka ut --- oftast \enquote{gör
+  pannkakssmet}, den delalgoritm som i sin tur är en hel algoritm och
+  därför är svårast att se som ett enda steg.
+}
+
 I \cref{ex:pannkakssmet-forgrening} är verben att ta fram, att knäcka,
 att vispa och att hälla; i \cref{ex:steka-pannkakor} att göra smet, att
 hälla, att vänta, att vända och att servera.  Vart och ett är en
@@ -676,12 +929,32 @@ hel rad rörelser som vi slipper skriva ut.
   \end{frame}
 }
 
+\mode<all>
+\begin{pycode}
+fraga("f10-handdisk", open_text(
+    "Vilka funktioner och variabler använder du i din algoritm för "
+    "handdisk i köket?",
+    max_chars=300,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}
   \begin{exercise}
-    Vilka funktioner och variabler använder du i din algoritm för handdisk
-    i köket?
+    \mentipyfraga{f10-handdisk}
   \end{exercise}
 \end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Generalisering}: samma två beståndsdelar söks nu i en algoritm
+  studenterna själva formulerat, i stället för i ett recept de fått.
+  Fritextsvaren i Mentipy visar om de skiljer det som \emph{görs}
+  (funktionerna) från det som \emph{byts ut} (variablerna) innan
+  \cref{ex:handdisk} visar uppdelningen.
+}
 
 I en algoritm för handdisk återkommer samma handling --- ta, diska, lägg
 --- för varje sorts disk: först glasen, sedan besticken, sedan tallrikarna.
@@ -726,10 +999,20 @@ variablerna som bär det.
 
 Det enda som saknas nu är att skölja disken.
 
+\mode<all>
+\begin{pycode}
+fraga("f11-skolja-disken", open_text(
+    "Skriv en algoritm för att skölja disken. Vilka variabler, "
+    "upprepningar och funktioner använder du?",
+    max_chars=500,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}
   \begin{exercise}[Skölja disken]
-    Skriv en algoritm för att skölja disken.  Vilka variabler,
-    upprepningar och funktioner använder du?
+    \mentipyfraga{f11-skolja-disken}
   \end{exercise}
 \end{frame}
 
@@ -742,6 +1025,8 @@ Det enda som saknas nu är att skölja disken.
   \parencite{Marton2015}.  Svaren visar vilka beståndsdelar de själva
   tar till --- en upprepning över disken, en variabel för det som sköljs
   just nu, sköljandet som funktion --- och vilka som ännu inte urskilts.
+  Uppgiften ställs som en fritextfråga i Mentipy, så svaren går att läsa
+  under föreläsningen och de beståndsdelar som saknas kan tas upp direkt.
 }
 
 
@@ -836,11 +1121,21 @@ stött på.
   uppifrån och ner: definiera, fråga, använd.
 }
 
+\mode<all>
+\begin{pycode}
+fraga("f12-handdisk-utan-upprepning", open_text(
+    "Algoritmen för handdisk upprepar nästan samma steg tre gånger: "
+    "för glasen, för besticken och för tallrikarna. Skriv om "
+    "algoritmen så att du slipper upprepa dig.",
+    max_chars=500,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}
   \begin{exercise}[Handdisk utan upprepning]
-    Algoritmen för handdisk upprepar nästan samma steg tre gånger: för
-    glasen, för besticken och för tallrikarna.  Skriv om algoritmen så att
-    du slipper upprepa dig.
+    \mentipyfraga{f12-handdisk-utan-upprepning}
   \end{exercise}
 \end{frame}
 
@@ -850,7 +1145,10 @@ stött på.
   upptäcka.  Svaren visar vilka som redan urskiljer
   dekomposition-genom-namngivning (de inför egna namn eller
   \enquote{gör som med glasen}-hänvisningar) och vilka som bara stryker
-  upprepningen.
+  upprepningen.  Fritextsvaren i Mentipy gör den fördelningen läsbar
+  under föreläsningen: står det egna namn i svaren kan notationen
+  \LA{}namn\RA{} införas som en skrivform för något studenterna redan
+  gjort, annars måste själva idén att namnge ett steg införas först.
 }
 
 \subsection{Namngivna steg}
@@ -1109,10 +1407,23 @@ Nu är varje namn förfinat ända ner till Python.  Sätter vi ihop bitarna
 --- ersätter varje \LA{}namn\RA{} med sin förfining --- får vi ett helt,
 körbart program.
 
+\mode<all>
+\begin{pycode}
+fraga("f13-hopsatta-programmet", open_text(
+    "Hur ser det färdiga, hopsatta programmet pannkakor.py ut när "
+    "varje namn ersatts med sin förfining? Skriv programmet.",
+    max_chars=600,
+    fence="python",
+    next=False,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
 \begin{frame}[fragile,shrink=15]
   \begin{onlyenv}<1>
     \begin{exercise}
-      Hur ser det färdiga, hopsatta programmet ut?
+    \mentipyfraga{f13-hopsatta-programmet}
     \end{exercise}
   \end{onlyenv}
 
@@ -1158,6 +1469,13 @@ körbart program.
   Den hopsatta versionen visas direkt efter förutsägelsen: kontrasten
   ska upplevas simultant, inte återskapas ur minnet
   \parencite[45--47]{Marton2015}.
+
+  Förutsägelsen ställs som en fritextfråga i Mentipy, med
+  Python-inramning så att svaren kan visas som kod.  Svaren visar om
+  studenterna sätter in varje förfining på sitt namns plats, uppifrån
+  och ner, eller läser \LA{}namn\RA{} som ett anrop som hoppar --- den
+  anropssemantik som medvetet är uppskjuten till modulen om funktioner.
+  Det är föreläsningens sista fråga.
 }
 
 \begin{frame}

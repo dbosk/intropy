@@ -6,7 +6,11 @@ LATEXFLAGS+=	-shell-escape
 TEX_PYTHONTEX=	yes
 # Both jobs share ltxobj, so the second job would otherwise reuse the
 # first job's cache and renumber its transcripts.
-PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
+# The exercises' poll questions are rendered by Mentipy from PythonTeX,
+# and `import mentipy` fails in the system python3 (pipx isolates the
+# CLI).  Run `mentipy init --venv .venv` once in this directory to create
+# the virtualenv this points at.
+PYTHONTEXFLAGS=	--interpreter python:$(CURDIR)/.venv/bin/python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example program is tangled from
