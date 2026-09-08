@@ -45,7 +45,7 @@ redigera det i din textredigerare.
    Prettiest Way to View the PEP 8 Python Style Guide* och *PEP 257 –
    Docstring Conventions* till hands; du behöver inte kunna dem utantill, men
    veta vad som finns där.
-3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter* i
+3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter (kamratgranskning)* i
    par. Se gärna *Genomgång inför laboration 1* innan ni börjar. På
    labbpassen finns lärare och assistenter för att hjälpa er när ni fastnar;
    det mesta av arbetet gör ni på egen tid.

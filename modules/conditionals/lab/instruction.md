@@ -1,11 +1,13 @@
 ---
-title: Laboration om Klasser och objekt
+title: Laboration om Inmatning, felhantering och styrstrukturer
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
+# Canvas (canvaslms assignments edit): the assignment is matched by its
+# Canvas id so the name can change freely; make push-labs pushes it.
+name: 'Laboration (2) inmatning, felhantering och styrstrukturer (kamratgranskning)'
+regex: '^395799$'
 ---
-# Laboration: Inmatning, felhantering och styrstrukturer
-
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
 I föregående laboration skrev vi två funktioner, en som beräknar en aritmetisk 
 summa och en som beräknar en geometrisk summa, vilka har använt sig av 

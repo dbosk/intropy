@@ -44,7 +44,7 @@ parametrar och returvärden från förra veckan.
    tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
    resten finns med lösningar på övningens sida så att du kan fortsätta på
    egen hand.
-3. **Arbeta med** *Laboration (2) inmatning, felhantering och styrstrukturer*
+3. **Arbeta med** *Laboration (2) inmatning, felhantering och styrstrukturer (kamratgranskning)*
    i par. Ni bygger vidare på programmet från laboration 1: nu ska användaren
    mata in värdena och programmet ska tåla felaktig inmatning. På labbpassen
    finns lärare och assistenter för att hjälpa er när ni fastnar; det mesta
