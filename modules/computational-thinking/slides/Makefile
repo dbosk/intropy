@@ -8,9 +8,17 @@ TEX_PYTHONTEX=	yes
 # first job's cache and renumber its transcripts.
 # The exercises' poll questions are rendered by Mentipy from PythonTeX,
 # and `import mentipy` fails in the system python3 (pipx isolates the
-# CLI).  Run `mentipy init --venv .venv` once in this directory to create
-# the virtualenv this points at.
-PYTHONTEXFLAGS=	--interpreter python:$(CURDIR)/.venv/bin/python3 --rerun=always
+# CLI), so PythonTeX runs in a deck-local virtualenv.  mentipy init
+# creates it (and installs mentipy into it) on the first build.
+MENTIPY_VENV=	$(CURDIR)/.venv
+PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
+
+${MENTIPY_VENV}/bin/python3:
+	mentipy init --venv ${MENTIPY_VENV}
+
+# Order-only: the venv must exist before latexmk runs pythontex, but its
+# timestamp must not trigger a rebuild.
+notes.pdf slides.pdf: | ${MENTIPY_VENV}/bin/python3
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example program is tangled from
