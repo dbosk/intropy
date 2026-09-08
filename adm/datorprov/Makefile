@@ -1,4 +1,4 @@
-NOWEAVEFLAGS=-option "shift,longchunks,swedish,longxref"
+NOWEAVEFLAGS=-option swedish
 
 .PHONY: all
 all: datorprov.pdf datorprov.sh
@@ -14,6 +14,8 @@ datorprov.sh: datorprov.sh.nw
 .PHONY: clean
 clean:
 	${RM} datorprov.tex datorprov.sh datorprov.pdf
+	${RM} *.minted
+	${RM} *.aux *.fdb_latexmk *.fls *.log *.toc
 
 INCLUDE_MAKEFILES=../../makefiles
 include ${INCLUDE_MAKEFILES}/noweb.mk
