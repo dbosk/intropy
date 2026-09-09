@@ -59,6 +59,16 @@ EXAMPLES+=	examples/hello-name.py
 EXAMPLES+=	examples/hello-function.py
 EXAMPLES+=	examples/hello-error.py
 
+FIGS+=		figs/atom.png
+FIGS+=		figs/codium-hello.png
+FIGS+=		figs/codium.png
+FIGS+=		figs/idle-cropped.png
+FIGS+=		figs/idle.jpg
+FIGS+=		figs/idle.png
+FIGS+=		figs/pycharm.png
+FIGS+=		figs/python-terminal.png
+FIGS+=		figs/vim-hello.png
+
 contents.tex: contents.nw
 
 examples/%.py: contents.nw
@@ -92,7 +102,7 @@ examples: ${EXAMPLES}
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
-notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
+notes.pdf slides.pdf: ${SRC} ${EXAMPLES} ${FIGS}
 
 
 .PHONY: clean
