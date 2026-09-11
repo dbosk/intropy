@@ -20,6 +20,12 @@ ${MENTIPY_VENV}/bin/python3:
 # timestamp must not trigger a rebuild.
 notes.pdf slides.pdf: | ${MENTIPY_VENV}/bin/python3
 
+# mentipy serve rewrites the QR images and their .pdf_tex sidecars (the
+# address under each QR code) when the poll's address changes, so a
+# rebuilt slide deck must follow them.  The wildcard is empty until the
+# first build has written them, which is fine: that build makes them.
+notes.pdf slides.pdf: $(wildcard mentipy-obj/Q-*.pdf_tex)
+
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
 # from it (the examples/ directory is all generated files).  noweb.mk

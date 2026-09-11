@@ -30,29 +30,12 @@ ETIKETTER = [
      "\\item[Räknesätt] hela svaret räknas som ett bidrag"),
 ]
 
-# Mentipys QR-omslag sätter hela adressen i \footnotesize\ttfamily under
-# koden.  I bildens smala högerkolumn rinner den utanför bilden, så
-# omslaget byts mot samma bild med adressen bruten och satt mindre.
-QR = re.compile(r"\\input\{mentipy-obj/(Q-[0-9a-f]+)\.pdf_tex\}")
-
-
-def qr_ersattning(träff):
-    filnamn = träff.group(1)
-    return (
-        "\\begin{minipage}{\\linewidth}\n\\centering\n"
-        "\\includegraphics[width=\\linewidth]{mentipy-obj/%s.png}\n\n"
-        "{\\tiny\\ttfamily faculty-shell.sys.kth.se}\n\n"
-        "{\\tiny\\ttfamily :8080/%s}\n\\end{minipage}"
-        % (filnamn, filnamn[2:])
-    )
-
-
 def sv(latex):
     for engelska, svenska in ETIKETTER:
         latex = latex.replace(engelska, svenska)
     latex = re.sub(r"\\item\[Limit\] (\d+) characters",
                    r"\\item[Längd] högst \1 tecken", latex)
-    return QR.sub(qr_ersattning, latex)
+    return latex
 
 
 def fraga(namn, latex):
@@ -73,6 +56,14 @@ def fraga(namn, latex):
 \providecommand{\mentipyfraga}[1]{%
   \IfFileExists{mentipy-obj/#1.tex}{\input{mentipy-obj/#1.tex}}{}%
 }
+
+% Adressen under QR-koden står i omslaget mentipy-obj/Q-*.pdf_tex, som
+% mentipy serve skriver om när adressen ändras.  Därför får den inte
+% kopieras in i frågefilen ovan: kopian fryser vid kompileringen.  Bara
+% sättningen ändras, via Mentipys krok: liten och radbrytbar (\url
+% bryter efter kolon, punkt och snedstreck), så att den ryms i bildens
+% smala högerkolumn.
+\newcommand{\mentipyqrcaption}[1]{{\tiny\url{#1}}}
 
 \mode*
 
@@ -1309,6 +1300,22 @@ en algoritm uppifrån och ner, utan att drunkna i detaljerna med en gång.
   }
 \end{frame}
 
+\mode<presentation>
+\subsection{[[learnlog]]}
+
+\begin{frame}[fragile]
+  \begin{example}[ [[learnlog]] ]
+    \begin{minted}{bash}
+pipx install learnlog
+learnlog init python
+eval $(learnlog activate)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\mode*
+
+
 \subsection{Från pseudokod till program}
 
 Samma metod tar oss hela vägen till ett körbart program.  Vi förfinar då
@@ -1335,7 +1342,6 @@ den, frågar hur många personer det gäller, och använder den.
   Receptberäkningen ur pannkaksalgoritmen, som förfinad pseudokod:
 <<[[pannkakor.py]]>>=
 <<definiera funktionen pannkakssmet>>
-
 
 <<fråga efter antalet personer>>
 <<gör pannkakssmet för så många>>
@@ -1412,28 +1418,12 @@ Nu är varje namn förfinat ända ner till Python.  Sätter vi ihop bitarna
 --- ersätter varje \LA{}namn\RA{} med sin förfining --- får vi ett helt,
 körbart program.
 
-\mode<all>
-\begin{pycode}
-fraga("f13-hopsatta-programmet", open_text(
-    "Hur ser det färdiga, hopsatta programmet pannkakor.py ut när "
-    "varje namn ersatts med sin förfining? Skriv programmet.",
-    max_chars=600,
-    fence="python",
-    next=False,
-    **mentipy_common,
-))
-\end{pycode}
-\mode*
+\begin{exercise}
+  Hur ser det färdiga, hopsatta programmet pannkakor.py ut när varje namn 
+  ersatts med sin förfining? Skriv programmet.
+\end{exercise}
 
 \begin{frame}[fragile,shrink=15]
-  \begin{onlyenv}<1>
-    \begin{exercise}
-    \mentipyfraga{f13-hopsatta-programmet}
-    \end{exercise}
-  \end{onlyenv}
-
-  \pause
-
   \begin{example}[Hela programmet]
     Så här ser det hopsatta programmet ut:
     \lstexample{python}{examples/pannkakor.py}

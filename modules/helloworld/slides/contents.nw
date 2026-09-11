@@ -34,38 +34,19 @@ def _pa_svenska(latex):
     return latex
 
 
-def _qr_som_far_plats(latex):
-    """Sätt QR-kodens adress så att den ryms i sin spalt.
-
-    Mentipys egen QR-fil sätter adressen på en rad i \\footnotesize, och
-    den här värdens adress är för lång för spalten: raden rinner ut över
-    bildens kant.  Bygg samma innehåll själv i stället, med adressen
-    bruten mellan värdnamn och port och i \\tiny.
-    """
-    bas = mentipy_common["base_url"].rstrip("/")
-
-    def bygg(traff):
-        katalog, prefix = traff.group("dir"), traff.group("prefix")
-        return (
-            "\\begin{minipage}{\\linewidth}\\centering"
-            f"\\includegraphics[width=\\linewidth]{{{katalog}/Q-{prefix}.png}}"
-            "\\par\\smallskip{\\tiny\\ttfamily "
-            f"{bas.rsplit(':', 1)[0]}\\\\:{bas.rsplit(':', 1)[1]}/{prefix}"
-            "}\\end{minipage}"
-        )
-
-    return re.sub(
-        r"\\input\{(?P<dir>[^}]*)/Q-(?P<prefix>[0-9a-f]+)\.pdf_tex\}",
-        bygg,
-        latex,
-    )
-
-
 def fraga(helper, *args, **kwargs):
     """Registrera en fråga och lämna tillbaka dess LaTeX, på svenska."""
     latex = helper(*args, **{**mentipy_common, **kwargs})
-    return _qr_som_far_plats(_pa_svenska(latex))
+    return _pa_svenska(latex)
 \end{pycode}
+
+% Adressen under QR-koden står i Mentipys omslag mentipy-obj/Q-*.pdf_tex,
+% som mentipy serve skriver om när adressen ändras.  Därför får den inte
+% byggas om till egen text här: kopian fryser vid kompileringen och följer
+% inte servern.  Bara sättningen ändras, via Mentipys krok: liten och
+% radbrytbar (\url bryter efter kolon, punkt och snedstreck), så att
+% adressen ryms i bildens smala spalt.
+\newcommand{\mentipyqrcaption}[1]{{\tiny\url{#1}}}
 
 \mode*
 
