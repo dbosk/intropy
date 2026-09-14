@@ -23,7 +23,7 @@ EXAMPLES+=	examples/age.py
 
 EXAMPLES+=	examples/state-keep.py examples/state-change.py
 EXAMPLES+=	examples/state-greeting.py examples/state-recompute.py
-EXAMPLES+=	examples/increment.py examples/compare.py
+EXAMPLES+=	examples/assign-eq-a.py examples/assign-eq-b.py
 EXAMPLES+=	examples/division.py examples/string-number.py
 EXAMPLES+=	examples/relation.py
 EXAMPLES+=	examples/concat-error.py examples/concat.py
