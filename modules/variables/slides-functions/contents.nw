@@ -5,11 +5,11 @@
 
 I föreläsningen \emph{Algoritmiskt tänkande} delade vi upp handdisken i
 namngivna delalgoritmer: i stället för att skriva ut disknings\-stegen
-tre gånger --- för glasen, för besticken och för tallrikarna --- skrev vi
-dem en gång och hänvisade till namnet.  Vi kallade en sådan namngiven
-delalgoritm för en \emph{funktion}.  Nu ska vi göra samma sak i Python,
-och innan vi gör det är det värt att veta vad vi tror att vi vinner på
-det.
+tre gånger --- en gång för glasen, en för besticken och en för
+tallrikarna --- skrev vi dem en enda gång och hänvisade till namnet.
+Vi kallade en sådan namngiven delalgoritm för en \emph{funktion}.  Nu
+ska vi göra samma sak i Python, och innan vi gör det är det värt att
+veta vad vi tror att vi vinner på det.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad vinner man på funktioner?]
@@ -20,6 +20,7 @@ det.
       \item Programmet kan bli kortare.
       \item Det blir lättare att få en överblick över programmet.
       \item Programmet blir mer användarvänligt.
+      \item Koden blir mer återanvändbar.
     \end{enumerate}
   \end{exercise}
 \end{frame}
@@ -30,8 +31,9 @@ det.
   \foreignlanguage{english}{Try-first} i diagnostisk form.  Påståendena
   är valda så att svaren avslöjar vilken sorts vinst studenten redan
   urskiljer: två av dem (läsbarhet, överblick) gäller \emph{läsaren},
-  ett (kortare) gäller \emph{källkoden}, och två gäller något funktioner
-  inte handlar om --- exekveringshastighet och användarvänlighet.  Den
+  två (kortare, återanvändbar) gäller \emph{källkoden}, och två gäller
+  något funktioner inte handlar om --- exekveringshastighet och
+  användarvänlighet.  Den
   som svarar ja på de senare två har ännu inte skilt programmets form
   från dess beteende, och det är just den skillnaden avsnittet vilar på.
   Frågan pekar inte ut vilka påståenden som är de avvikande
@@ -76,11 +78,11 @@ print(f"Du är {age} år gammal.")
 Tre rader står två gånger, ordagrant.  Ska hälsningen ändras måste båda
 kopiorna ändras --- och ändrar vi bara den ena får vi ett program som
 hälsar på två olika sätt utan att någon har bestämt det.  Det är den
-risken principen \emph{DRY} varnar för: varje kunskap i ett program ska
-stå på ett enda ställe\autocite{HuntThomas1999}.  Vi mötte den i
-föreläsningen \emph{Algoritmiskt tänkande}; det vetenskapliga underlaget
---- både var principen kommer ifrån och om den håller, med sina förbehåll
---- finns där, i bilaga E.
+risken principen \emph{DRY} varnar för: varje kunskap eller färdighet i
+ett program ska stå på ett enda ställe\autocite{HuntThomas1999}.  Vi
+mötte den i föreläsningen \emph{Algoritmiskt tänkande}; det
+vetenskapliga underlaget --- både var principen kommer ifrån och om den
+håller, med sina förbehåll --- finns där, i bilaga E.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FuncLOWhy,FuncLODecompose}.
@@ -178,6 +180,9 @@ för varje \(x\).  Skrivsättet är egentligen lite slarvigt: \(y \in
 är en funktion, två olika saker, och \(y = kx + m\) säger inte vilken av
 dem som avses\autocite[avsnittet
 \foreignlanguage{english}{Functions and variables}]{SooriBosk2026}.
+Lite tydligare blir det om vi skriver \(y(x) = kx + m\).  Ännu tydligare
+blir det med \(y\colon \mathbb{R} \to \mathbb{R}\), \(x \mapsto kx + m\),
+där \(k, m \in \mathbb{R}\).
 Det samband vi menar finns i Python också, men det är inte en variabel
 som bär det --- det är en funktion.
 
@@ -238,17 +243,12 @@ programmet ingenting alls.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad skrivs ut?]
-    Det här programmet definierar en funktion:
-<<[[defined-only.py]]>>=
+    Här är två program.  Vad skriver vart och ett av dem ut?
+<<[[greet1.py]]>>=
 def greet(name):
     """Skriver ut en hälsning till name."""
     print(f"Hej, {name}!")
-@
-  \end{exercise}
-
-  \begin{exercise}[Och det här?]
-    Det här programmet definierar samma funktion och har en rad till:
-<<[[defined-and-called.py]]>>=
+<<[[greet2.py]]>>=
 def greet(name):
     """Skriver ut en hälsning till name."""
     print(f"Hej, {name}!")
@@ -260,13 +260,13 @@ greet("Ada")
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{defined-only.py}]
+  \begin{example}[\texttt{greet1.py}]
     Programmet skriver inte ut någonting alls: kroppen nås aldrig.
   \end{example}
 
-  \begin{example}[\texttt{defined-and-called.py}]
+  \begin{example}[\texttt{greet2.py}]
     Programmet skriver ut
-    \runpython[showcommand, chdir]{examples/defined-and-called.py}
+    \runpython[showcommand, chdir]{examples/greet2.py}
   \end{example}
 \end{frame}
 
@@ -281,15 +281,55 @@ greet("Ada")
   skulle utföra uteblir \parencite{Bosse2021Antipatterns}.
   Mönstret är hämtat ur missuppfattningsartikelns avsnitt om att
   definiera variabler och funktioner \parencite{SooriBosk2026}.
+
+  De två programmen står i en och samma övning, så att det är studenten
+  som gör jämförelsen; delade på två uppgifter hade materialet gjort
+  urskiljningen åt henne \parencite[45--47]{Marton2015}.  Av samma skäl
+  heter filerna [[greet1.py]] och [[greet2.py]]: namn som beskriver
+  skillnaden --- \emph{definierad} mot \emph{anropad} --- hade avslöjat
+  vad som ska urskiljas.
 }
 
 Att kroppen körs vid anropet har en följd till.  Python läser filen
-uppifrån och ned, precis som \emph{Variabler och utskrifter} visade, och
-namnet \mintinline{python}{greet} finns inte förrän raden med
+uppifrån och ned, precis som \emph{Variabler och utskrifter} visade.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skrivs ut?]
+    Samma funktion, men raderna står i en annan ordning:
+<<[[greet3.py]]>>=
+greet("Ada")
+
+
+def greet(name):
+    """Skriver ut en hälsning till name."""
+    print(f"Hej, {name}!")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{greet3.py}]
+    Körningen avbryts:
+    \runpython[showcommand, chdir]{examples/greet3.py}
+  \end{example}
+\end{frame}
+
+Namnet \mintinline{python}{greet} finns inte förrän raden med
 \mintinline{python}{def} har körts.  Ett anrop \emph{ovanför}
 definitionen misslyckas därför med \mintinline{python}{NameError}: namnet
 är okänt när anropet nås.  Definitionerna står därför först i filen och
 huvudprogrammet sist.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOCall}.
+
+  \textbf{Kontrast.}  Vad som varierar: var anropet står i förhållande
+  till definitionen.  Vad som hålls invariant: funktionen och anropet.
+  Kontrasten ska urskilja att en definition också är en sats som körs i
+  tur och ordning, och att namnet finns först efter den.  Påståendet
+  stod tidigare bara i brödtexten; nu får studenten se felet inträffa
+  innan texten förklarar det.
+}
 
 \subsection{Att lämna tillbaka ett värde}
 
@@ -297,22 +337,17 @@ En funktion kan göra två helt olika saker med sitt resultat: skriva ut
 det, eller lämna tillbaka det.  Det låter likt, och det är det inte.
 
 \begin{frame}[fragile,shrink=30]
-  \begin{exercise}[Vad skriver programmet ut?]
-    Den här funktionen fördubblar ett tal:
-<<[[return-value.py]]>>=
+  \begin{exercise}[Vad skriver programmen ut?]
+    Två program som båda fördubblar talet fyra.  Vad skriver vart och
+    ett av dem ut?
+<<[[return1.py]]>>=
 def double(x):
     """Returnerar det dubbla värdet av x."""
     return 2 * x
 
 
 print(double(4))
-@
-  \end{exercise}
-
-  \begin{exercise}[Och det här?]
-    Den här funktionen fördubblar också ett tal, och sista raden är
-    densamma:
-<<[[print-value.py]]>>=
+<<[[return2.py]]>>=
 def double(x):
     """Skriver ut det dubbla värdet av x."""
     print(2 * x)
@@ -324,14 +359,14 @@ print(double(4))
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{return-value.py}]
+  \begin{example}[\texttt{return1.py}]
     Programmet skriver ut
-    \runpython[showcommand, chdir]{examples/return-value.py}
+    \runpython[showcommand, chdir]{examples/return1.py}
   \end{example}
 
-  \begin{example}[\texttt{print-value.py}]
+  \begin{example}[\texttt{return2.py}]
     Programmet skriver ut
-    \runpython[showcommand, chdir]{examples/print-value.py}
+    \runpython[showcommand, chdir]{examples/return2.py}
   \end{example}
 \end{frame}
 
@@ -357,27 +392,83 @@ i --- och det är bara det senare man kan räkna vidare på.
   \parencite{MisconceptionsSurvey2017}.  Att \mintinline{python}{None}
   skrivs ut i utmatningen är avsiktligt: det gör den uteblivna
   returen synlig i stället för bara frånvarande.
+
+  Båda programmen står i en och samma övning, så att studenten själv
+  gör jämförelsen.  Filerna heter [[return1.py]] och [[return2.py]] och
+  inte något som säger vilken som returnerar och vilken som skriver ut:
+  det är just det studenten ska urskilja.
+}
+
+Skillnaden syns ännu tydligare om vi använder värdet till något.
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skriver programmen ut?]
+    Samma två funktioner, men nu står anropet inuti en text.  Vad
+    skriver vart och ett av programmen ut, och i vilken ordning?
+<<[[return3.py]]>>=
+def double(x):
+    """Returnerar det dubbla värdet av x."""
+    return 2 * x
+
+
+print(f"Det dubbla är {double(4)}.")
+<<[[return4.py]]>>=
+def double(x):
+    """Skriver ut det dubbla värdet av x."""
+    print(2 * x)
+
+
+print(f"Det dubbla är {double(4)}.")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{return3.py}]
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/return3.py}
+  \end{example}
+
+  \begin{example}[\texttt{return4.py}]
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/return4.py}
+  \end{example}
+\end{frame}
+
+I det andra programmet kommer åttan på en egen rad, \emph{före} texten.
+Ordningen avslöjar när vad händer: för att sätta ihop texten måste
+Python först anropa \mintinline{python}{double}, och det är då den inre
+\mintinline{python}{print} skriver ut åttan.  Sedan får texten det
+funktionen lämnade tillbaka --- \mintinline{python}{None} --- och först
+därefter skriver den yttre \mintinline{python}{print} ut den.  I det
+första programmet händer bara det sista: värdet hamnar i texten, och
+ingenting annat syns.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOCall}.
+
+  \textbf{Generalisering} av den föregående kontrasten.  Vad som
+  varierar: om funktionen returnerar eller skriver ut, som förut.  Vad
+  som hålls invariant: att anropet står inuti en f-sträng vars värde
+  används.  Med ett anrop vars värde används till något blir ordningen
+  mellan den inre och den yttre utskriften synlig, så att \emph{när} en
+  funktion körs går att urskilja, och inte bara \emph{vad} den ger.
 }
 
 Det är också värt att veta \emph{när} en funktion tar slut.
 
 \mode<article>{\needspace{11\baselineskip}}
 \begin{frame}[fragile,shrink=25]
-  \begin{exercise}[Vad skriver programmet ut?]
-    Funktionen innehåller två satser:
-<<[[return-ends.py]]>>=
+  \begin{exercise}[Vad skriver programmen ut?]
+    Två program till.  Vad skriver vart och ett av dem ut?
+<<[[report1.py]]>>=
 def report():
     return "klar"
     print("arbetar")
 
 
 print(report())
-@
-  \end{exercise}
-
-  \begin{exercise}[Och det här?]
-    Här står samma två satser i omvänd ordning:
-<<[[return-last.py]]>>=
+<<[[report2.py]]>>=
 def report():
     print("arbetar")
     return "klar"
@@ -389,14 +480,14 @@ print(report())
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{return-ends.py}]
+  \begin{example}[\texttt{report1.py}]
     Programmet skriver ut
-    \runpython[showcommand, chdir]{examples/return-ends.py}
+    \runpython[showcommand, chdir]{examples/report1.py}
   \end{example}
 
-  \begin{example}[\texttt{return-last.py}]
+  \begin{example}[\texttt{report2.py}]
     Programmet skriver ut
-    \runpython[showcommand, chdir]{examples/return-last.py}
+    \runpython[showcommand, chdir]{examples/report2.py}
   \end{example}
 \end{frame}
 
@@ -416,6 +507,11 @@ värde \emph{och} avslutar funktionen på fläcken.  Raden efter
   och ännu mer sällan att det avslutar funktionen
   \parencite{Esche2025Return}.  En aspekt som studenterna inte nämner
   kan vi inte utgå från att de urskiljer.
+
+  Båda programmen står i en och samma övning, så att studenten själv
+  gör jämförelsen, och filerna heter [[report1.py]] och [[report2.py]]
+  efter funktionen: ett namn som sade att \mintinline{python}{return}
+  avslutar hade gett bort svaret.
 }
 
 
@@ -443,8 +539,8 @@ def welcome(name, origin):
 <<funktionen [[welcome]]>>
 
 
-print(welcome("Malvina", "Kungsängen"))
-print(welcome("Kungsängen", "Malvina"))
+print(welcome("Malvina", "Valhallavägen"))
+print(welcome("Valhallavägen", "Malvina"))
 @
   \end{example}
 
@@ -479,7 +575,8 @@ fel ordning är därför ett fel som inte kraschar, bara ljuger.
   hade det ena varit ett tal hade felet gett ett undantag, och den
   kritiska aspekten hade dolts av felmeddelandet.  Mönstret är
   forskningsartikelns kontrast för argumentordning, med kursens eget
-  välkomstexempel.
+  välkomstexempel.  Orten är Valhallavägen, KTH:s egen adress --- ett
+  faktum exempeldata får bära utan att studenttexten säger det.
 }
 
 \subsection{Funktionens namn är dess egna}
@@ -490,28 +587,23 @@ heta likadant?
 
 \begin{frame}[fragile,shrink=30]
   \begin{exercise}[Spelar det roll vad de heter utanför?]
-    Samma funktion som förut, med ett huvudprogram:
+    Samma funktion som förut, med två olika huvudprogram.  Skriver de
+    ut samma sak?
 <<[[scope-same-names.py]]>>=
 <<funktionen [[welcome]]>>
 
 
 name = "Malvina"
-origin = "Kungsängen"
+origin = "Valhallavägen"
 print(welcome(name, origin))
-@
-  \end{exercise}
-
-  \begin{exercise}[Och det här?]
-    Samma funktion, med ett annat huvudprogram:
 <<[[scope-other-names.py]]>>=
 <<funktionen [[welcome]]>>
 
 
 traveller = "Malvina"
-home_town = "Kungsängen"
+home_town = "Valhallavägen"
 print(welcome(traveller, home_town))
 @
-    Skriver de ut samma sak?
   \end{exercise}
 \end{frame}
 
@@ -556,8 +648,8 @@ en tilldelning inuti en funktion inte ändrar någonting utanför den.
   Funktionen skrivs inte ut en gång till i något av programmen; båda
   hänvisar till den som ett namngivet steg.  Det som hålls invariant är
   därmed invariant också i källan --- det står en enda gång --- och de två
-  huvudprogrammen ryms bredvid varandra, vilket en kontrast kräver
-  \parencite[45--47]{Marton2015}.
+  huvudprogrammen ryms bredvid varandra i en och samma övning, vilket
+  en kontrast kräver \parencite[45--47]{Marton2015}.
 }
 
 \subsection{Standardvärden}
@@ -639,10 +731,10 @@ sammanfattar vad
 funktionen gör, skriven som en uppmaning eller ett påstående och avslutad
 med punkt.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=20]
   \begin{example}[Två temperaturomvandlingar]
     Två funktioner, var och en med sin docstring:
-<<[[degrees.py]]>>=
+<<temperaturfunktionerna>>=
 def fahrenheit(degrees_celsius):
     """Returnerar temperaturen degrees_celsius i grader Fahrenheit."""
     return degrees_celsius * 9 / 5 + 32
@@ -651,6 +743,13 @@ def fahrenheit(degrees_celsius):
 def celsius(degrees_fahrenheit):
     """Returnerar temperaturen degrees_fahrenheit i grader Celsius."""
     return (degrees_fahrenheit - 32) * 5 / 9
+@
+  \end{example}
+
+  \begin{example}[Två anrop]
+    Programmet anropar dem en gång var:
+<<[[degrees.py]]>>=
+<<temperaturfunktionerna>>
 
 
 print(f"20 grader C = {fahrenheit(20)} grader F")
@@ -682,6 +781,70 @@ ensak, och kan bytas ut utan att någon användare av funktionen berörs.
   formeln är oväsentlig för den som anropar: docstringens uppgift ---
   att säga vad funktionen ger utan att säga hur --- blir synlig först
   när kroppen innehåller något man kan låta bli att läsa.
+}
+
+Docstringen är inte en kommentar med annat utseende.  Den hör till
+funktionen, och det går att fråga Python efter den.
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skriver programmen ut?]
+    Två program med samma funktioner och samma två sista rader.  Vad
+    skriver vart och ett av dem ut?
+<<[[degrees-help.py]]>>=
+<<temperaturfunktionerna>>
+
+
+help(fahrenheit)
+help(celsius)
+<<[[degrees-comments.py]]>>=
+def fahrenheit(degrees_celsius):
+    # Returnerar temperaturen degrees_celsius i grader Fahrenheit.
+    return degrees_celsius * 9 / 5 + 32
+
+
+def celsius(degrees_fahrenheit):
+    # Returnerar temperaturen degrees_fahrenheit i grader Celsius.
+    return (degrees_fahrenheit - 32) * 5 / 9
+
+
+help(fahrenheit)
+help(celsius)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile,shrink=30]
+  \begin{example}[\texttt{degrees-help.py}]
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/degrees-help.py}
+  \end{example}
+
+  \begin{example}[\texttt{degrees-comments.py}]
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/degrees-comments.py}
+  \end{example}
+\end{frame}
+
+Funktionen \mintinline{python}{help} skriver ut vad Python vet om en
+funktion: namnet, parametrarna och docstringen.  Kommentaren finns
+inte med, för den hör inte till funktionen --- den är text för den som
+läser källkoden, ingenting annat.  Docstringen är däremot en del av
+funktionen och följer med den; verktyget \texttt{pydoc} sätter ihop
+docstringarna i en fil till en översikt på samma sätt.  Docstringen är
+alltså till för den som \emph{anropar} funktionen, och kommentaren för
+den som läser dess kropp.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLODocstring}.
+
+  \textbf{Kontrast.}  Vad som varierar: om beskrivningen är en
+  docstring eller en kommentar.  Vad som hålls invariant: funktionerna
+  och anropen av \mintinline{python}{help}.  Kontrasten ska urskilja
+  att docstringen är en del av funktionen --- åtkomlig för program och
+  verktyg --- medan kommentaren inte är det.  Utan den är
+  \enquote{skriv docstrings} bara en regel; med den har regeln en synlig
+  följd.  Utmatningen är belägget: här görs inget empiriskt påstående
+  om att docstrings hjälper läsaren, bara att verktygen läser dem.
 }
 
 
@@ -833,11 +996,11 @@ du möter dem i kodgranskning och i litteraturen.
 
 Den första har du redan mött.  \emph{DRY}
 (\foreignlanguage{english}{Don't Repeat Yourself}) säger att varje
-kunskap i ett program ska ha en enda, entydig representation i
-systemet\autocite{HuntThomas1999}.  Hälsningen stod två gånger; nu står
-den en gång, i \mintinline{python}{greet}.  Det vetenskapliga underlaget
---- och de förbehåll som hör till --- finns i föreläsningen
-\emph{Algoritmiskt tänkande}, bilaga E.
+kunskap eller färdighet i ett program ska ha en enda, entydig
+representation i systemet\autocite{HuntThomas1999}.  Hälsningen stod två
+gånger; nu står den en gång, i \mintinline{python}{greet}.  Det
+vetenskapliga underlaget för DRY --- och de förbehåll som hör till ---
+finns i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.
 
 Den andra förklarar varför det blev \emph{två} funktioner och inte en.
 \emph{SRP}, principen om ett enda ansvar
@@ -848,7 +1011,9 @@ hälsa på någon är två olika sorters arbete: ändras hälsningens
 formulering rör det bara \mintinline{python}{greet}, och ändras sättet
 att räkna ut åldern rör det bara \mintinline{python}{age}.  Vad som
 räknas som \emph{ett} ansvar är däremot en bedömningsfråga --- erfarna
-utvecklare är mätbart oense om den, och Martin skrev själv senare om
+utvecklare är mätbart oense om
+den\autocite{Alkharabsheh2021Analysing,Hall2014Some}, och Martin skrev
+själv senare om
 formuleringen därför att \enquote{ett skäl att ändras} inte säger
 \emph{vems} skäl.  Använd den därför som en fråga att ställa om en
 funktion --- \enquote{vad skulle få den här att behöva ändras?} --- och
@@ -868,7 +1033,7 @@ en del av komplexiteten sitter i problemet självt och går inte att
 förenkla bort\autocite{Brooks1987Silver}, och ingen har ännu ett
 pålitligt sätt att \emph{mäta} hur enkel en bit kod är.  Slagordet
 brukar tillskrivas Kelly Johnson vid Lockheeds Skunk Works, men den
-tillskrivningen är folklore --- uttrycket står i tryck redan 1958, i
+tillskrivningen är en sägen --- uttrycket står i tryck redan 1958, i
 sammanhang utan minsta koppling till flyg.  Det vetenskapliga underlaget
 finns i \cref{app:kiss}, som är värd att läsa som ett exempel på hur det
 ser ut när ett påstående inte håller.
@@ -885,10 +1050,10 @@ ser ut när ett påstående inte håller.
   }%
   \only<article>{%
     \begin{summary}[Tre principer]
-      DRY säger att varje kunskap i programmet ska stå på ett enda
-      ställe; SRP att en funktion ska ha ett ansvar, det vill säga ett
-      skäl att ändras; och KISS att man ska välja den enklaste lösning
-      som gör jobbet.
+      DRY säger att varje kunskap eller färdighet i programmet ska stå
+      på ett enda ställe; SRP att en funktion ska ha ett ansvar, det
+      vill säga ett skäl att ändras; och KISS att man ska välja den
+      enklaste lösning som gör jobbet.
     \end{summary}%
   }
 \end{frame}
@@ -918,6 +1083,11 @@ ser ut när ett påstående inte håller.
   användas: som en fråga att ställa om en funktion, inte som ett
   kriterium som avgör saken.  Att lägga det i en bilaga hade gjort
   undervisningen mer tvärsäker än underlaget tillåter.
+
+  Hunt och Thomas skriver \foreignlanguage{english}{knowledge};
+  \enquote{eller färdighet} är författarens vidgning, så att också ett
+  sätt att göra något --- en beräkning --- räknas.  Den ändrar inte vad
+  bilaga E i \emph{Algoritmiskt tänkande} belägger.
 }
 
 Med det har vi verktyget som mycket av det övriga materialet bygger på.
