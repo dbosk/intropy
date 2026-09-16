@@ -23,6 +23,10 @@ SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/age1.py
 EXAMPLES+=	examples/age2.py
+EXAMPLES+=	examples/prompt1.py
+EXAMPLES+=	examples/prompt2.py
+EXAMPLES+=	examples/prompt3.py
+EXAMPLES+=	examples/prompt4.py
 EXAMPLES+=	examples/plus1.py
 EXAMPLES+=	examples/plus2.py
 EXAMPLES+=	examples/heltalsdivision.py
