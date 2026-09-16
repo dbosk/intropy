@@ -22,8 +22,9 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/phone-small.py
-EXAMPLES+=	examples/nyckel_inte_index.py
+EXAMPLES+=	examples/uppslag.py
 EXAMPLES+=	examples/lagga_till.py
+EXAMPLES+=	examples/namn.py
 EXAMPLES+=	examples/nycklar.py
 EXAMPLES+=	examples/isin.py
 EXAMPLES+=	examples/isin-alt.py

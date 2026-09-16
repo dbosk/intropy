@@ -22,6 +22,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/guess.py
+EXAMPLES+=	examples/slump.py
 # The transcript is produced by feeding the program this file, with a
 # fixed seed, so the run in the notes is exactly reproducible.
 EXAMPLES+=	examples/guess.in

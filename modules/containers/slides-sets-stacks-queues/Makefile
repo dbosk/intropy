@@ -23,8 +23,8 @@ SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/mangder.py
 EXAMPLES+=	examples/mangdoperationer.py
-EXAMPLES+=	examples/pile.py
-EXAMPLES+=	examples/queue.py
+EXAMPLES+=	examples/saker1.py
+EXAMPLES+=	examples/saker2.py
 EXAMPLES+=	examples/diska.py
 
 contents.tex: contents.nw
