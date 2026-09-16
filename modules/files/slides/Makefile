@@ -30,10 +30,16 @@ EXAMPLES+=	examples/open_close.py
 EXAMPLES+=	examples/tal.txt
 EXAMPLES+=	examples/read_missing.py
 EXAMPLES+=	examples/ask_for_file.py
+EXAMPLES+=	examples/text.txt
+EXAMPLES+=	examples/close1.py
+EXAMPLES+=	examples/close2.py
 EXAMPLES+=	examples/write_text.py
 EXAMPLES+=	examples/read_all.py
 EXAMPLES+=	examples/read_lines.py
 EXAMPLES+=	examples/write_append.py
+EXAMPLES+=	examples/bytes_as_text.py
+EXAMPLES+=	examples/value1.py
+EXAMPLES+=	examples/value2.py
 EXAMPLES+=	examples/xy.py
 EXAMPLES+=	examples/xy_csv.py
 EXAMPLES+=	examples/contacts_json.py
@@ -44,11 +50,15 @@ examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
 
-# The one-line data file the open/close examples read is tangled too, so
-# the transcript in the notes reads exactly the file the slide shows.
+# The one-line data files the open/close examples read are tangled too,
+# so the transcripts in the notes read exactly the files the slides show.
 examples/tal.txt: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[tal.txt]]' $< > $@
+
+examples/text.txt: contents.nw
+	@mkdir -p ${@D}
+	notangle -R'[[text.txt]]' $< > $@
 
 .PHONY: examples
 examples: ${EXAMPLES}

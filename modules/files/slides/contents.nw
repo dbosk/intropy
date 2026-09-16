@@ -65,19 +65,22 @@
 
 \begin{frame}
   \mode<presentation>{%
-    \textbytext{%
-      \begin{definition}[Primärminne]
-        Datorns arbetsminne där program under exekvering (processer) och
-        data (variabler) lagras.  Detta är flyktigt minne med mycket snabb
-        åtkomst (storleksordning nanosekunder).
-      \end{definition}
-    }{%
-      \begin{definition}[Sekundärminne]
-        Oflyktigt minne där program som inte exekveras och data (filer)
-        lagras.  Långsammare åtkomst än primärminne (storleksordning
-        mikro- till millisekunder).
-      \end{definition}
-    }
+    \begin{columns}[t]
+      \begin{column}{0.47\textwidth}
+        \begin{definition}[Primärminne]
+          Datorns arbetsminne där program under exekvering (processer)
+          och data (variabler) lagras.  Detta är flyktigt minne med
+          mycket snabb åtkomst (storleksordning nanosekunder).
+        \end{definition}
+      \end{column}
+      \begin{column}{0.47\textwidth}
+        \begin{definition}[Sekundärminne]
+          Oflyktigt minne där program som inte exekveras och data
+          (filer) lagras.  Långsammare åtkomst än primärminne
+          (storleksordning mikro- till millisekunder).
+        \end{definition}
+      \end{column}
+    \end{columns}
   }
   \mode<article>{%
     \textbytext*{%
@@ -96,11 +99,14 @@
   }
 \end{frame}
 
+\mode<article>{\clearpage}
+
 \mode<article>{%
 När ett Python-program körs finns alla variabler och data i datorns
 \emph{primärminne} (även kallat RAM eller arbetsminne).  Detta minne är
-mycket snabbt --- en åtkomst tar i storleksordningen hundra nanosekunder
---- vilket gör att programmet kan arbeta effektivt med data.  Men
+mycket snabbt --- en åtkomst tar i storleksordningen hundra
+nanosekunder\autocite[kap.~22.1]{ArpaciDusseau2025OSTEP} --- vilket gör
+att programmet kan arbeta effektivt med data.  Men
 primärminnet har en avgörande begränsning: det är \emph{flyktigt}.  När
 programmet avslutas, eller när datorn stängs av, försvinner allt innehåll
 i primärminnet.
@@ -287,16 +293,6 @@ Nu när vi förstår \emph{varför} filer behövs är det dags att lära oss
   \end{exercise}
 \end{frame}
 
-\begin{frame}
-  \begin{figure}[htbp]
-    \begin{sidecaption}{Python-dokumentationen för filhantering visar de
-      grundläggande filoperationerna.}[fig:docs-files]
-      \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
-        keepaspectratio]{figs/docs-files.png}
-    \end{sidecaption}
-  \end{figure}
-\end{frame}
-
 \subsection{Öppna och stänga}
 \label{sec:oppna}
 
@@ -308,6 +304,16 @@ disken\autocite{PythonTutorialFiles}.  Det är de operationerna Pythons
 egen handledning tar upp i sitt avsnitt om filer, det som
 \cref{fig:docs-files} visar; dit går vi tillbaka varje gång vi behöver
 veta vad en av dem gör.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \begin{sidecaption}{Python-dokumentationen för filhantering visar de
+      grundläggande filoperationerna.}[fig:docs-files]
+      \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
+        keepaspectratio]{figs/docs-files.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
 
 \begin{frame}
   \begin{exercise}
@@ -397,9 +403,9 @@ def read_number_by_hand(filename):
 
 Går [[int()]] fel avbryts funktionen på den raden, precis som vi såg i
 föreläsningen \emph{Felhantering}: raderna efter --- däribland
-[[file.close()]] --- körs aldrig, och filen lämnas öppen.  Vi skulle kunna
-skydda oss med [[try]] och [[finally]], men det är precis den bokföringen
-Python kan göra åt oss.  Pythons dokumentation rekommenderar
+[[file.close()]] --- körs aldrig.  Vi skulle kunna skydda oss med [[try]]
+och [[finally]], men det är precis den bokföringen Python kan göra åt
+oss.  Pythons dokumentation rekommenderar
 \enquote{\foreignlanguage{english}{the with keyword}}: filen stängs då
 korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
 an exception is raised at some point}}\autocite{PythonTutorialFiles}.
@@ -416,6 +422,90 @@ def read_number(filename):
 @
   \end{example}
 \end{frame}
+
+Så långt är det ett påstående vi läser.  Vi kan i stället låta
+programmen svara: ett filobjekt vet självt om det är stängt, och
+[[file.closed]] är \mintinline{python}{True} när det är det.  Vi behöver
+också en fil som \emph{inte} innehåller ett tal.
+
+\begin{frame}[fragile]
+  \begin{example}[En fil med ett ord]
+    Filen [[text.txt]] innehåller ett ord där [[tal.txt]] hade ett tal:
+<<[[text.txt]]>>=
+fyrtiotvå
+@
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{26\baselineskip}}
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skriver programmen ut?]
+    Här är två program.  Båda läser [[text.txt]] och frågar till sist om
+    filen är stängd.  Vad skriver vart och ett av dem ut?
+<<[[close1.py]]>>=
+"""Reading a number from a file, closing the file by hand"""
+
+file = open("text.txt", "r")
+try:
+    print("Talet är", int(file.read()))
+    file.close()
+except ValueError:
+    print("Det stod inget tal i filen")
+print("Filen är stängd:", file.closed)
+<<[[close2.py]]>>=
+"""Reading a number from a file, letting with close it"""
+
+try:
+    with open("text.txt", "r") as file:
+        print("Talet är", int(file.read()))
+except ValueError:
+    print("Det stod inget tal i filen")
+print("Filen är stängd:", file.closed)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{close1.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/close1.py}
+  \end{example}
+
+  \begin{example}[\texttt{close2.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/close2.py}
+  \end{example}
+\end{frame}
+
+Det första programmet svarar \mintinline{python}{False}: raden
+[[file.close()]] hoppades över när [[int()]] misslyckades, så filen
+lämnades öppen.  Det andra svarar \mintinline{python}{True}: [[with]]
+stängde filen när blocket lämnades, också när det lämnades av ett
+särfall.  Det är hela skillnaden mellan de två sätten, och den syns
+inte förrän något går fel.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOContextMgr}.
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: hur filen öppnas och stängs --- för hand
+  med [[open()]] och [[close()]], eller med [[with]].
+
+  \textbf{Vad som hålls invariant}: filen, det misslyckade [[int()]] och
+  frågan programmet ställer till sist ([[file.closed]]).
+
+  Att filen lämnas öppen stod tidigare bara i prosan.  Här körs det i
+  stället, så att studenten ser \mintinline{python}{False} och
+  \mintinline{python}{True} bredvid varandra.  De två programmen står i
+  \emph{en} övning för att det ska vara studenten och inte materialet
+  som gör jämförelsen \parencite[45--47]{Marton2015}.  Av samma skäl
+  heter de [[close1.py]] och [[close2.py]]: namn som beskriver
+  skillnaden hade avslöjat vad som ska urskiljas.  Ordet
+  \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
+  [[tal.txt]], skrivet så att [[int()]] inte klarar det.
+}
 
 \begin{frame}
   \only<presentation>{%
@@ -509,6 +599,9 @@ def main():
   samma svar är poängen: skillnaden mellan dem syns inte när allt går
   väl, utan först när något går fel --- vilket är varför kontrasten
   ställs som fråga innan [[with]] visas.
+
+  Talet 42 i [[tal.txt]] är svaret ur Douglas Adams \emph{Liftarens
+  guide till galaxen}.  Upplysningen står här och inte i studenttexten.
 }
 
 \begin{frame}
@@ -552,7 +645,7 @@ with open("finns-inte.txt", "r") as file:
 @
   \begin{example}[Körning]
     Körningen avbryts med en spårutskrift:
-    \runpython[transcript]{examples/read_missing.py}
+    \runpython[transcript, breaklines]{examples/read_missing.py}
   \end{example}
 \end{frame}
 
@@ -602,7 +695,7 @@ def main():
             number = read_number(filename)
             break
         except FileNotFoundError:
-            print(f"Det finns ingen fil som heter {filename}. Försök igen.")
+            print(f"Ingen fil heter {filename}. Försök igen.")
     print(f"Talet är {number}")
 @
   \end{example}
@@ -669,6 +762,8 @@ hand om det.
   påstående om det utan förutsätter mekanismen därifrån.
 }
 
+\mode<article>{\clearpage}
+
 \subsection{Läsa och skriva}
 \label{sec:lasa-skriva}
 
@@ -734,9 +829,10 @@ with open("test1.txt", "w") as file:
 
 Ingenting syns i terminalen; det är ju filen vi skrev till.  För att se
 resultatet får vi läsa filen --- med en texteditor, eller med ett
-program.
+program.  De två läsprogram vi ska skriva avslutar med raden
+[[(slut)]], så att det syns var utmatningen tar slut.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=20]
   \begin{example}[Läsa hela filen]
     Programmet [[read_all.py]] läser hela filen som en enda sträng med
     [[read()]]:
@@ -745,6 +841,7 @@ program.
 
 with open("test1.txt", "r") as file:
     print(file.read())
+print("(slut)")
 @
   \end{example}
 
@@ -772,7 +869,7 @@ du själv skriva det?
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=15]
   \begin{example}[Läsa rad för rad]
     Programmet [[read_lines.py]] går igenom filen med en [[for]]-slinga:
 <<[[read_lines.py]]>>=
@@ -781,11 +878,12 @@ du själv skriva det?
 with open("test1.txt", "r") as file:
     for line in file:
         print(line, end="")
+print("(slut)")
 @
   \end{example}
 
   \begin{example}[Körning]
-    Samma rader kommer ut som med [[read()]]:
+    De två raderna kommer ut, och sedan markören:
     \runpython[transcript]{examples/read_lines.py}
   \end{example}
 \end{frame}
@@ -796,21 +894,29 @@ radbrytningstecken \mintinline{python}{"\n"} som står i filen:
 is left at the end of the string}}\autocite{PythonTutorialFiles}.
 Skriver vi ut raden med ett vanligt [[print(line)]] lägger [[print]] till
 ännu en radbrytning, och utskriften får en tom rad mellan varje rad.
-Därför [[end=""]]: vi låter filens egna radbrytningar räcka.  Det är av
-samma skäl [[read_all.py]] får en tom rad sist: där går hela innehållet
---- radbrytningen på sista raden inräknad --- genom ett enda [[print]].
-Samma tecken som vi själva lade dit när vi skrev filen kommer alltså
-tillbaka när vi läser den.
+Därför \mintinline{python}{end=""}: vi låter filens egna radbrytningar
+räcka.  Det är av samma skäl [[read_all.py]] får en tom rad före
+[[(slut)]] och [[read_lines.py]] inte får det: där går hela innehållet
+--- radbrytningen på sista raden inräknad --- genom ett enda [[print]],
+som lägger till ännu en.  Samma tecken som vi själva lade dit när vi
+skrev filen kommer alltså tillbaka när vi läser den.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLORead}.
 
   \foreignlanguage{english}{Try-first}: studenterna skriver slingan själva
-  innan den visas.  Den som skriver [[print(line)]] utan [[end=""]] har
+  innan den visas.  Den som skriver [[print(line)]] utan
+  \mintinline{python}{end=""} har
   inte urskilt att raden bär sin egen radbrytning --- det syns i
   utskriften som tomma rader, och det är den kontrasten prosan efter
   körningen förklarar.  Frågan avslöjar inte aspekten (\enquote{tänk på
   radbrytningen}); den ställs som en ren konstruktionsuppgift.
+
+  Båda programmen skriver raden [[(slut)]] sist.  Utan den ser de två
+  körningarna likadana ut i noterna: PythonTeX klipper transkriptets
+  avslutande radbrytning, så den tomma rad [[read_all.py]] verkligen
+  skriver nådde aldrig sidan, och prosan påstod en skillnad som
+  materialets egna körningar motsade.
 
   Radbrytningarna knyter också skrivningen till läsningen: samma
   \mintinline{python}{"\n"} som lades dit i [[write_text.py]] kommer
@@ -824,12 +930,12 @@ tillbaka när vi läser den.
     Vi har sett två sätt att läsa från filer: [[file.read()]] (hela
     filen) och iteration rad för rad.
 
-    När bör vi använda vilket?  Tänk på SCB:s namnfil med hundratusentals
-    rader --- vilket sätt passar där, och varför?
+    När bör vi använda vilket?  Tänk på SCB:s namnfil --- vilket sätt
+    passar där, och varför?
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=15]
   \begin{example}[Hela filen på en gång]
     Allt hamnar i en enda sträng i primärminnet:
     \inputminted{python}{examples/read_all.py}
@@ -930,18 +1036,61 @@ läge när vi öppnar dem.
   \end{exercise}
 \end{frame}
 
-Svaret är att Python i textläge tolkar filens bytes enligt en
-teckenkodning för att bygga upp en sträng: innehållet
+\begin{frame}[fragile]
+  \begin{example}[En \texttt{.jpg} läst som text]
+    Programmet [[bytes_as_text.py]] skriver de fyra byte en JPEG-fil
+    börjar med och läser dem sedan som text:
+<<[[bytes_as_text.py]]>>=
+"""Reading raw bytes as if they were text"""
+
+with open("bild.jpg", "wb") as file:
+    file.write(b"\xff\xd8\xff\xe0")
+
+with open("bild.jpg", "r") as file:
+    print(file.read())
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körning]
+    Läsningen avbryts med en spårutskrift:
+    \runpython[transcript, breaklines]{examples/bytes_as_text.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLOFileTypes}.
+
+  Övningens andra fråga besvarades tidigare bara i prosan; här körs den
+  i stället, och spårutskriften är svaret.  Vad som varierar är läget
+  filen öppnas i (\mintinline{python}{"wb"} när den skrivs,
+  \mintinline{python}{"r"} när den läses); filen och dess innehåll hålls
+  invariant, så det är avkodningen och ingenting annat som skiljer de
+  två öppningarna åt.
+
+  De fyra byten \mintinline{python}{b"\xff\xd8\xff\xe0"} är de som en
+  JPEG-fil börjar med, och det är därför filen heter \texttt{bild.jpg};
+  den upplysningen hör hemma här och inte i studenttexten.  Programmet
+  anger ingen teckenkodning, som materialets övriga exempelprogram ---
+  ett val som \cref{app:dokumentation} redovisar --- så körningen visar
+  vad som händer på en dator vars standardkodning inte tar emot
+  bytesekvensen.
+}
+
+Det blev ett [[UnicodeDecodeError]].  Python tolkar nämligen filens
+bytes i textläge enligt en teckenkodning för att bygga upp en sträng:
+innehållet
 \enquote{\foreignlanguage{english}{returned as str, the bytes having been
-first decoded}}\autocite{PythonOpen}.  Vilken kodning som används om vi
-inte anger någon beror på datorn, men dokumentationen rekommenderar att
-ange \mintinline{python}{encoding="utf-8"}, som är den moderna de
-facto-standarden\autocite{PythonTutorialFiles}.  För en bildfil fungerar
-avkodningen inte: bytesekvensen i en \texttt{.jpg} följer ingen
-teckenkodning, så försöket att avkoda den misslyckas typiskt med ett
-[[UnicodeDecodeError]] --- eller, i värsta fall, ger tyst korrupta data.
-Det är därför vi måste tala om för Python huruvida en fil ska hanteras
-som text eller som rå binärdata.
+first decoded}}\autocite{PythonOpen}.  Bytesekvensen i en \texttt{.jpg}
+följer ingen teckenkodning, så avkodningen misslyckas --- eller, med en
+kodning som tar emot vilka byte som helst, lyckas och ger tyst korrupta
+data i stället.  Vilken kodning som används om vi inte anger någon beror
+nämligen på datorn, och dokumentationen rekommenderar därför att ange
+\mintinline{python}{encoding="utf-8"}, som är den moderna de
+facto-standarden\autocite{PythonTutorialFiles}.  Det är därför vi måste
+tala om för Python huruvida en fil ska hanteras som text eller som rå
+binärdata.
 
 För textfiler använder vi lägena \mintinline{python}{"r"},
 \mintinline{python}{"w"} och \mintinline{python}{"a"}.  För binärfiler
@@ -986,7 +1135,7 @@ kräver.
 }
 
 \begin{frame}
-  \begin{figure}[tbp]
+  \begin{figure}[htbp]
     \begin{sidecaption}{Python-dokumentationen för [[open()]] visar alla
       fillägen.}[fig:docs-open]
       \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
@@ -994,6 +1143,8 @@ kräver.
     \end{sidecaption}
   \end{figure}
 \end{frame}
+
+\mode<article>{\clearpage}
 
 \begin{frame}
   \begin{summary}[Två typer av filer]
@@ -1183,14 +1334,73 @@ def read_pairs(filename):
 När vi läser tillbaka filen måste vi tolka strukturen: ta bort
 radbrytningen med [[strip()]], dela upp raden vid kommatecknet med
 [[split(",")]], och --- inte att glömma --- omvandla delarna till tal
-med [[int()]].  Allt som läses ur en textfil är nämligen strängar, även
-det som ser ut som tal: [[read()]] ger en sträng, och slingan över filen
-ger en sträng per rad\autocite{PythonTutorialFiles}.  Strängen
-\mintinline{python}{"3"} är inte talet 3, precis som med [[input()]] i
-föreläsningen \emph{Inmatning och datatyper}, och jämförelsen
-\mintinline{python}{f(3) == "9"} är falsk hur rätt filen än är.  Paren
-samlar vi i en lista av tupler, den behållare vi känner från
-föreläsningarna \emph{Behållare: Listor} och \emph{Behållare: Tupler}.
+med [[int()]].  Att den sista omvandlingen behövs är värt att pröva.
+
+\mode<article>{\needspace{24\baselineskip}}
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skriver programmen ut?]
+    Här är två program.  Båda läser [[tal.txt]], som innehåller talet
+    42.  Vad skriver vart och ett av dem ut?
+<<[[value1.py]]>>=
+"""Reading the number in the file as it comes"""
+
+with open("tal.txt", "r") as file:
+    value = file.read().strip()
+
+print(value == 42)
+print(value * 2)
+<<[[value2.py]]>>=
+"""Reading the number in the file and converting it"""
+
+with open("tal.txt", "r") as file:
+    value = int(file.read().strip())
+
+print(value == 42)
+print(value * 2)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{value1.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/value1.py}
+  \end{example}
+
+  \begin{example}[\texttt{value2.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/value2.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLORead}, \cref{FilesLOFormats}.
+
+  \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}: om
+  [[int()]] används på det lästa.  \textbf{Vad som hålls invariant}:
+  filen [[tal.txt]], jämförelsen och fördubblingen.
+
+  Att det lästa är strängar stod förut bara i prosan.  Här körs det.
+  Fördubblingen är med för att skillnaden ska synas som ett
+  \emph{resultat} och inte bara som ett uteblivet ja: en sträng gånger
+  två blir en längre sträng, inte ett dubbelt tal.  Programmen står i en
+  och samma övning så att det är studenten som gör jämförelsen
+  \parencite[45--47]{Marton2015}, och de heter [[value1.py]] och
+  [[value2.py]]: ett namn som nämnde [[int()]] hade avslöjat vad som
+  skiljer dem.  Filen är samma [[tal.txt]] som i \cref{sec:oppna}.
+}
+
+Allt som läses ur en textfil är nämligen strängar, även det som ser ut
+som tal: [[read()]] ger en sträng, och slingan över filen ger en sträng
+per rad\autocite{PythonTutorialFiles}.  Strängen
+\mintinline{python}{"42"} är inte talet 42: jämförelsen blir falsk, och
+gångertecknet upprepar strängen i stället för att räkna.  Det är samma
+sak som med [[input()]] i föreläsningen \emph{Inmatning och datatyper},
+och av samma skäl är jämförelsen \mintinline{python}{f(3) == "9"} falsk
+hur rätt filen än är.  Paren samlar vi i en lista av tupler, den
+behållare vi känner från föreläsningarna \emph{Behållare: Listor} och
+\emph{Behållare: Tupler}.
 
 Lägg också märke till att det blev två funktioner och inte en:
 [[read_pairs]] läser filen, [[parse_pair]] tolkar en rad.  Det är
@@ -1198,8 +1408,10 @@ principen om ett enda ansvar, \emph{SRP}
 (\foreignlanguage{english}{Single Responsibility Principle}) --- en modul
 ska aldrig ha mer än ett skäl att ändras\autocite[kap.~8]{Martin2003Agile}.
 Ändras formatet på en rad rör det bara [[parse_pair]]; ändras var paren
-finns rör det bara [[read_pairs]].  Det vetenskapliga underlaget finns i
-föreläsningen \emph{Funktioner}, bilaga B.
+finns rör det bara [[read_pairs]].  Det vetenskapliga underlaget för
+SRP --- att principen är etablerad, och att avgränsningen av
+\enquote{ett ansvar} är en bedömningsfråga --- finns i föreläsningen
+\emph{Funktioner}, bilaga B.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLORead}.
@@ -1213,9 +1425,9 @@ föreläsningen \emph{Funktioner}, bilaga B.
   \emph{missing type conversion} i nybörjarkod
   \parencite{Bosse2021Antipatterns}.  Prosan efter tolkningen säger
   aspekten ut och knyter den till [[input()]], där studenterna redan mött
-  samma sak.  Källorna är återanvända ur kursens sammanställning av
-  missuppfattningar; vad som kontrollerats står i
-  \cref{app:missuppfattningar}.
+  samma sak.  Källorna är återanvända ur kursens systematiska genomgång
+  av nybörjares missuppfattningar \parencite{SooriBosk2026}; vad som
+  kontrollerats står i \cref{app:missuppfattningar}.
 
   Uppdelningen i [[read_pairs]] och [[parse_pair]] är vald för att kunna
   namnge SRP där den tillämpas, som föreläsningen \emph{Funktioner} gör;
@@ -1298,15 +1510,15 @@ skrivaren och läsaren förstått kontraktet lika.
 
   \foreignlanguage{english}{Try-first}: frågan säger inte vad problemet
   är.  Den kritiska aspekten är att skiljetecknet kan förekomma
-  \emph{inuti} ett fält --- ett namn som \enquote{Andersson, Eva} ---
+  \emph{inuti} ett fält --- ett namn som \enquote{Långstrump, Pippi} ---
   och den ska studenten upptäcka själv, inte läsa i frågan.
   Aktiviteten \emph{Telefonbok med CSV} ger det konkreta testfallet.
 }
 
 Svaret ligger i skiljetecknet.  Kommatecknet skiljer fälten åt, men
 det kan lika gärna stå \emph{inuti} ett fält: raden för namnet
-\enquote{Andersson, Eva} får tre delar där vår tolkning väntar sig två,
-och en adress eller en fritext kan innehålla både kommatecken och
+\enquote{Långstrump, Pippi} får tre delar där vår tolkning väntar sig
+två, och en adress eller en fritext kan innehålla både kommatecken och
 citattecken.  Vårt eget format fungerar alltså för enkla fall, men blir
 otillräckligt så snart data ser ut som verkliga data.
 
@@ -1314,9 +1526,9 @@ otillräckligt så snart data ser ut som verkliga data.
 \label{sec:csv}
 
 I stället för att uppfinna egna format för vanliga behov är det mycket
-bättre att använda \emph{standardformat} --- välkända och väl testade
-format som många program förstår.  Ett av de vanligaste formaten för
-tabelldata är CSV (\foreignlanguage{english}{Comma-Separated Values}):
+bättre att använda ett format som \emph{redan finns} --- välkänt, väl
+testat och förstått av många program.  Det vanligaste för tabelldata är
+CSV (\foreignlanguage{english}{Comma-Separated Values}):
 Pythons dokumentation kallar det \enquote{\foreignlanguage{english}{the
 most common import and export format for spreadsheets and
 databases}}\autocite{PythonCSV}.  Formatet användes länge utan att vara
@@ -1332,9 +1544,10 @@ Att välja ett format som redan finns i stället för att hitta på ett eget
 den enklaste lösning som gör jobbet.  Uttrycket tillskrivs
 flygplanskonstruktören Kelly
 Johnson\autocite{Rich1995Johnson,LockheedMartinJohnson}, men
-tillskrivningen är folklore: det står i tryck redan
-1958\autocite{Popik2019KISS}.  Det vetenskapliga underlaget finns i
-föreläsningen \emph{Funktioner}, bilaga C.
+tillskrivningen är en sägen: det står i tryck redan
+1958\autocite{Popik2019KISS}.  Det vetenskapliga underlaget för KISS ---
+både varifrån uttrycket kommer och om enkelhet som designvärde håller
+--- finns i föreläsningen \emph{Funktioner}, bilaga C.
 
 Python har inbyggt stöd för CSV genom modulen [[csv]], och dess
 dokumentation visar hur filerna läses och skrivs (\cref{fig:docs-csv}).
@@ -1346,12 +1559,12 @@ sin egen kopia av [[split(",")]] --- och sina egna buggar i den ---
 använder alla samma.  Det är \emph{DRY}
 (\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
 enda ställe\autocite{HuntThomas1999}, här tillämpat över programgränsen.
-Det vetenskapliga underlaget --- både var principen kommer ifrån och om
-den håller, med sina förbehåll --- finns i föreläsningen \emph{Algoritmiskt
-tänkande}, bilaga E.
+Det vetenskapliga underlaget för DRY --- både var principen kommer
+ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+\emph{Algoritmiskt tänkande}, bilaga E.
 
 \begin{frame}
-  \begin{figure}[tbp]
+  \begin{figure}[htbp]
     \begin{sidecaption}{Python-dokumentationen för modulen [[csv]] visar
       hur CSV-filer läses och skrivs.}[fig:docs-csv]
       \includegraphics[width=0.7\textwidth,height=0.6\textheight,%
@@ -1483,7 +1696,8 @@ if __name__ == "__main__":
         \item Låt användaren lägga till nya kontakter.
         \item Spara tillbaka till filen.
       \end{enumerate}
-      Testa med namnet \enquote{Svensson, Anna} och se vad som händer.
+      Testa med namnet \enquote{Långstrump, Pippi} och se vad som
+      händer.
     \end{activity}%
   }%
   \only<article>{%
@@ -1496,8 +1710,8 @@ if __name__ == "__main__":
         \item Spara alla kontakter tillbaka till filen.
       \end{enumerate}
 
-      Testa att lägga till kontakten \enquote{Svensson, Anna} och se vad
-      som händer i filen och vid nästa inläsning.
+      Testa att lägga till kontakten \enquote{Långstrump, Pippi} och se
+      vad som händer i filen och vid nästa inläsning.
     \end{activity}%
   }
 \end{frame}
@@ -1559,7 +1773,7 @@ def load_contacts(filename):
 <<spara, visa och läs tillbaka>>=
 def main():
     """Saves a phone book, shows the file and reads it back"""
-    contacts = {"Anna": "070-123 45 67", "Bo": "08-12 34 56"}
+    contacts = {"Ronja": "070-123 45 67", "Pippi": "08-12 34 56"}
     save_contacts(contacts, "contacts.json")
     with open("contacts.json", "r") as file:
         print("Filen innehåller:", file.read())
@@ -1601,10 +1815,11 @@ Filens innehåll ser nästan ut som när Python skriver ut en uppslagslista
 --- skillnaden är citattecknen, som i JSON alltid är dubbla --- och det
 inlästa är en riktig uppslagslista igen, med samma nycklar och värden.
 Hela strukturen kom tillbaka utan att vi skrev en enda rad tolkning:
-formatet är standardiserat, så modulen kan göra det åt oss.  Hur du
-hittar och läser dokumentationen för [[csv]], [[json]] och de andra
-modulerna i standardbiblioteket tas upp i föreläsningen \emph{Moduler
-och paket}.
+formatet är standardiserat, så modulen kan göra det åt oss.  Både
+[[csv]] och [[json]] hör till standardbiblioteket, och sättet att ta
+reda på vad en sådan modul kan är det föreläsningen \emph{Moduler och
+paket} visar: innehållsförteckningen över standardbiblioteket i Pythons
+dokumentation, och [[help()]] i terminalen.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLOFormats}, \cref{FilesLOWrite}.
@@ -1624,9 +1839,10 @@ och paket}.
   är?} ställs i prosan innan svaret, och körningen visar filens text
   bredvid det inlästa så att likheten med --- och skillnaden mot ---
   Pythons egen skrivning syns samtidigt \parencite[45--47]{Marton2015}.
-  Att slå upp modulerna i dokumentationen hör till föreläsningen
-  \emph{Moduler och paket}; här hänvisas dit i stället för att upprepa
-  det.
+  Att slå upp en modul i dokumentationen --- standardbibliotekets
+  innehållsförteckning och [[help()]] --- lärs ut i föreläsningen
+  \emph{Moduler och paket}.  Den föreläsningen nämner inte [[csv]] och
+  [[json]], så prosan pekar på metoden och inte på modulerna.
 }
 
 \mode<article>{\needspace{8\baselineskip}}
