@@ -19,18 +19,21 @@ SRC+=		sokprotokoll.tex
 SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
-EXAMPLES+=	examples/olika.py
-EXAMPLES+=	examples/olika-fel.py
-EXAMPLES+=	examples/temp-varmt.py
-EXAMPLES+=	examples/temp-kallt.py
+EXAMPLES+=	examples/jamforelse.py
+EXAMPLES+=	examples/villkor.py
+EXAMPLES+=	examples/kombinera.py
+EXAMPLES+=	examples/olika1.py
+EXAMPLES+=	examples/olika2.py
+EXAMPLES+=	examples/temp1.py
+EXAMPLES+=	examples/temp2.py
 EXAMPLES+=	examples/temp-elif.py
-EXAMPLES+=	examples/temp-fusion.py
-EXAMPLES+=	examples/fodelsear-fel.py
-EXAMPLES+=	examples/fodelsear.py
+EXAMPLES+=	examples/klader.py
+EXAMPLES+=	examples/fodelsear1.py
+EXAMPLES+=	examples/fodelsear2.py
 EXAMPLES+=	examples/bed.py
 EXAMPLES+=	examples/nedrakning.py
-EXAMPLES+=	examples/rabatt-if.py
-EXAMPLES+=	examples/rabatt-while.py
+EXAMPLES+=	examples/rabatt1.py
+EXAMPLES+=	examples/rabatt2.py
 EXAMPLES+=	examples/gissa.py
 EXAMPLES+=	examples/fraga-utan-slinga.py
 
@@ -41,6 +44,19 @@ contents.tex: contents.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+# examples/villkor.py is the one program in the deck that must NOT parse:
+# it is the demonstration of what a single equals sign in a condition
+# does, and the slide shows Python's own syntax error.  The default .py
+# tangle rule pipes the file through black, which cannot format a file it
+# cannot parse, so this one target overrides the rule above and tangles
+# raw.  It must also be excluded from the style check:
+#
+#     build_deck.sh --deck ... --exempt 'examples/villkor.py'
+#
+examples/villkor.py: contents.nw
+	@mkdir -p ${@D}
+	notangle -R"[[$(@F)]]" $< | ${CPIF} $@
 
 .PHONY: examples
 examples: ${EXAMPLES}
