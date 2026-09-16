@@ -67,23 +67,9 @@ print(len(phone))
 Uppslaget ser ut precis som en indexering i en lista: samma
 hakparenteser, samma skrivsätt.  Vi ställer de två bredvid varandra.
 
-\begin{frame}[fragile]
-  \begin{exercise}
-    Vad skriver var och en av de fyra sista raderna ut?
-    \begin{minted}{python}
-names = ["ronja", "pippi"]
-phone = {"ronja": "0701234567", "pippi": "0721234567"}
-
-print(names[0])
-print(phone[0])
-print(names["ronja"])
-print(phone["ronja"])
-    \end{minted}
-  \end{exercise}
-\end{frame}
-
-\begin{frame}[fragile]
-  Vi kör och ser efter:
+\begin{frame}[fragile,shrink]
+  \begin{exercise}[Vad skrivs ut?]
+    Ett program med fyra uppslag:
 <<[[uppslag.py]]>>=
 names = ["ronja", "pippi"]
 phone = {"ronja": "0701234567", "pippi": "0721234567"}
@@ -102,6 +88,7 @@ except TypeError as error:
 
 print(phone["ronja"])
 @
+  \end{exercise}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -111,9 +98,14 @@ print(phone["ronja"])
   \end{example}
 \end{frame}
 
-Listan vill ha ett heltal och kan inte ta emot ett namn; uppslagslistan
-vill ha en nyckel, och \(0\) är ingen nyckel i just den här
-uppslagslistan.  Det finns alltså ingen \emph{första} post i en
+Två av de fyra uppslagen går inte: \mintinline{python}|phone[0]| ger ett
+\mintinline{text}|KeyError| och \mintinline{python}|names["ronja"]| ett
+\mintinline{text}|TypeError|.  Programmet kraschar ändå inte, för de två
+\mintinline{python}{except}-satserna fångar felen och skriver ut ett
+meddelande i stället; utan dem hade körningen avbrutits vid det första
+felet.  Listan vill ha ett heltal och kan inte ta emot ett namn;
+uppslagslistan vill ha en nyckel, och \(0\) är ingen nyckel i just den
+här uppslagslistan.  Det finns alltså ingen \emph{första} post i en
 uppslagslista på det sätt det finns ett första element i en lista.
 Posterna ligger inte i någon ordning som vi kan räkna oss fram i med
 tal --- de nås bara genom sina nycklar.  (Att de ändå går att gå igenom
@@ -143,8 +135,15 @@ i en bestämd ordning återkommer vi till i \cref{sec:genomgang}.)
 
   Programmet heter [[uppslag.py]] och inte något som säger hur de fyra
   uppslagen går: ett namn som beskriver skillnaden hade avslöjat vad som
-  ska urskiljas \parencite[45--47]{Marton2015}.  Samma skäl styr namnen
-  på alla programmen i den här modulen.
+  ska urskiljas \parencite[13, 89 och 91]{Marton2015}.  Samma skäl styr
+  namnen på alla programmen i den här modulen.
+
+  Övningen visar samma program som sedan körs, och inte en kortare
+  variant utan [[try]]/[[except]].  Det kostar att de två
+  [[except]]-satserna röjer att två uppslag kan gå fel, men det köper
+  att studenten förutsäger utfallet av precis den text hon sedan ser
+  köras --- och att prosan efteråt kan namnge [[KeyError]] och
+  [[TypeError]] som det som faktiskt inträffar.
 }
 
 Att lägga till en post gör vi med samma skrivsätt: en tilldelning till en
@@ -189,7 +188,7 @@ print(names)
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{namn.py}]
+  \begin{example}[Utmatning]
     Körningen avbryts:
     \runpython[showcommand, chdir]{examples/namn.py}
   \end{example}
@@ -258,7 +257,8 @@ print(distance[("Stockholm", "Uppsala")])
 try:
     distance[["Stockholm", "Malmö"]] = 613
 except TypeError as error:
-    print(f"En lista dög inte som nyckel: {error}")
+    print("En lista dög inte som nyckel:")
+    print(error)
 @
 \end{frame}
 
@@ -554,10 +554,10 @@ uppslagslistan \(O(n)\).
   studenterna ska lära sig att inte lita på.
 
   Att välja den enklaste behållare som klarar de operationer man behöver
-  är principen \foreignlanguage{english}{KISS}; det vetenskapliga
-  underlaget för \foreignlanguage{english}{KISS} --- både var principen
-  kommer ifrån och om den håller --- finns i föreläsningen
-  \emph{Funktioner}, bilaga~C.
+  är principen \foreignlanguage{english}{KISS}.  Det vetenskapliga
+  underlaget för \foreignlanguage{english}{KISS} --- att enkelhet är ett
+  etablerat designvärde, medan den vanliga upphovsuppgiften inte går att
+  bekräfta --- finns i föreläsningen \emph{Funktioner}, bilaga~C.
 }
 
 \begin{frame}
@@ -655,17 +655,13 @@ sökprogrammet i föreläsningen \emph{Behållare: Listor}.
 
 def main():
     """Huvudprogrammet"""
-    print(
-        "Nu bygger vi upp telefonboken. Ange namn och nummer. "
-        "Ange tom sträng för att gå vidare."
-    )
+    print("Nu bygger vi upp telefonboken. Ange namn och nummer.")
+    print("Ange tom sträng för att gå vidare.")
     phonebook = fill_phonebook()
 
     print()
-    print(
-        "Nu ska vi söka bland namnen. Skriv namn för att söka. "
-        "Skriv blankrad för att avsluta."
-    )
+    print("Nu ska vi söka bland namnen. Skriv namn för att söka.")
+    print("Skriv blankrad för att avsluta.")
     search_phonebook(phonebook)
 
 
@@ -708,7 +704,7 @@ def input_phonenum(
     prompt="Ange telefonnummer: ",
     fail_prompt="Det ser inte ut som ett telefonnummer.",
 ):
-    """Läser in ett telefonnummer, frågar om igen tills det ser rätt ut."""
+    """Läser in ett telefonnummer som ser rätt ut."""
     phonenum = input(prompt)
 
     while not is_phonenum(phonenum):
@@ -726,8 +722,9 @@ def input_phonenum(
   på att varje funktion har ett ansvar --- kontrollen respektive
   dialogen med användaren --- vilket är principen
   \foreignlanguage{english}{SRP}.  Principen namnges här; det
-  vetenskapliga underlaget för \foreignlanguage{english}{SRP} --- både
-  var principen kommer ifrån och hur säker den är --- finns i
+  vetenskapliga underlaget för \foreignlanguage{english}{SRP} --- att
+  principen härrör från Martin och är etablerad, medan vad som räknas
+  som \emph{ett} ansvar förblir en bedömningsfråga --- finns i
   föreläsningen \emph{Funktioner}, bilaga~B.  Poängen är praktisk:
   kontrollen går att testa utan att någon behöver mata in något.
 }
@@ -740,7 +737,7 @@ behållaren i stället för av oss.
   Inmatningsfasen:
 <<fyll telefonboken>>=
 def fill_phonebook():
-    """Låter användaren fylla telefonboken, returnerar en uppslagslista."""
+    """Låter användaren fylla telefonboken och returnerar den."""
     phonebook = {}
 
     name = input_name("Ange namn för en ny kontakt: ")
@@ -764,9 +761,10 @@ def search_phonebook(phonebook):
     name = input_name()
     while name:
         try:
-            print(f"{name.capitalize()} har telefonnummer {phonebook[name]}.")
+            number = phonebook[name]
+            print(f"{name.capitalize()} har nummer {number}.")
         except KeyError:
-            print(f"Hittade INTE {name.capitalize()} i telefonboken.")
+            print(f"Hittade INTE {name.capitalize()}.")
 
         print()
         name = input_name()
