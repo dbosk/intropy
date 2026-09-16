@@ -126,9 +126,8 @@ plats där funktionen skrivs en gång, och som programmen kan hänvisa till.
 Den platsen är en fil.  Vi lägger funktionen i en egen fil och låter
 programmen hämta den därifrån.  En fil med Pythonkod som andra program
 kan hämta kallas en \emph{modul} (\foreignlanguage{english}{module}), och
-vi har redan använt flera: \mintinline{python}{random} och
-\mintinline{python}{math} är moduler.  Skillnaden är att den här skriver
-vi själva.
+en sådan har vi redan använt: \mintinline{python}{random} är en modul.
+Skillnaden är att den här skriver vi själva.
 
 \begin{frame}[fragile]
   Funktionen flyttar till en egen fil, [[typed_input.py]]:
@@ -151,7 +150,9 @@ efter ett heltal, och det är just därför båda programmen kan använda den.
 Att en modul, liksom en funktion, bör ha ett enda ansvar är principen
 \emph{SRP}, \foreignlanguage{english}{single responsibility
 principle}\autocite[ch.~8]{Martin2003Agile}; det vetenskapliga underlaget
-finns i föreläsningen \emph{Funktioner}, bilaga B.
+--- både varifrån principen kommer och att den är etablerad, med
+förbehållet att \enquote{ett enda ansvar} är en bedömningsfråga --- finns
+i föreläsningen \emph{Funktioner}, bilaga B.
 
 \begin{frame}
   \begin{definition}[Modul]
@@ -236,9 +237,8 @@ det var det vi ville.
 }
 
 Titta på anropet: modulens namn, en punkt, funktionens namn.  Så har du
-skrivit förut, i \mintinline{python}{random.randint(1, 6)} och i
-\mintinline{python}{math.sqrt(2)}, utan att vi sagt varför punkten
-behövs.  Nu är det dags.
+skrivit förut, i \mintinline{python}{random.randint(1, 6)}, utan att vi
+sagt varför punkten behövs.  Nu är det dags.
 
 \begin{frame}
   \begin{exercise}
@@ -253,7 +253,7 @@ behövs.  Nu är det dags.
 \begin{frame}[fragile]
   Samma program, men anropet nämner inte modulen:
 <<[[age-bare.py]]>>=
-"""Räknar ut åldern ur födelseåret --- eller försöker."""
+"""Räknar ut åldern ur födelseåret."""
 
 import typed_input
 
@@ -298,7 +298,9 @@ på 1,6 miljoner inlämningar var det det näst vanligaste felmeddelandet
 över huvud taget\autocite[avsnitt~2.1]{Pritchard2015}.  Vad namnfelen
 berodde på säger ingen av studierna --- ett stavfel ger samma
 meddelande --- så hur många av dem som var just ett utelämnat modulnamn
-vet vi inte; det vetenskapliga underlaget finns i \cref{app:moduler}.
+vet vi inte; det vetenskapliga underlaget för hur vanliga namnfelen är,
+och för att studierna inte säger vad de berodde på, finns i
+\cref{app:moduler}.
 
 \begin{frame}
   \only<presentation>{%
@@ -519,42 +521,52 @@ def area(side):
 \end{frame}
 
 Båda definierar en funktion \mintinline{python}{area}, och det är inget
-konstigt med det: var och en bor i sin egen namnrymd.  Nu ett program som
+konstigt med det: var och en bor i sin egen namnrymd.  Nu två program som
 hämtar båda med stjärnan.
 
-\begin{frame}[fragile]
-  Programmet hämtar allt ur båda modulerna och räknar ut en area:
-<<[[areas-star.py]]>>=
-"""Räknar ut en area --- men vilken?"""
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}
+    \label{ovn:stjarna}
+    Här är två program.  Vilket tal skriver vart och ett av dem ut?  Och
+    hur ser man det i programmet?
+<<[[areas-star1.py]]>>=
+"""Räknar ut en area."""
 
 from circle import *
 from square import *
 
 print(area(1))
-@
-\end{frame}
+<<[[areas-star2.py]]>>=
+"""Räknar ut en area."""
 
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:stjarna}
-    Vilket tal skriver programmet ut?  Och hur ser man det i programmet?
+from square import *
+from circle import *
+
+print(area(1))
+@
   \end{exercise}
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[Vilken area?]
-    \label{ex:areas-star}
+  \begin{example}[\texttt{areas-star1.py}]
+    \label{ex:areas-star1}
     Körningen svarar:
-    \runpython[transcript, chdir]{examples/areas-star.py}
+    \runpython[transcript, chdir]{examples/areas-star1.py}
+  \end{example}
+
+  \begin{example}[\texttt{areas-star2.py}]
+    \label{ex:areas-star2}
+    Och den andra:
+    \runpython[transcript, chdir]{examples/areas-star2.py}
   \end{example}
 \end{frame}
 
-Det blev kvadratens area.  Den andra importraden hämtade ett namn
-\mintinline{python}{area} som skrev över det första, utan ett ord ---
-hade raderna stått i omvänd ordning hade svaret blivit \(\pi\).  Och
-svaret på den andra frågan är: det ser man inte.  Ingenting i anropet
-\mintinline{python}{area(1)} säger var funktionen kommer ifrån; den som
-läser programmet måste veta vad båda modulerna innehåller för att gissa
+Samma anrop, två olika svar.  Det som avgör är vilken importrad som kom
+sist: den hämtade ett namn \mintinline{python}{area} som skrev över det
+första, utan ett ord.  Och svaret på den andra frågan är: det ser man
+inte.  Ingenting i anropet \mintinline{python}{area(1)} säger var
+funktionen kommer ifrån; den som läser programmet måste veta både vad
+båda modulerna innehåller och i vilken ordning de hämtades för att gissa
 rätt.  Med modulnamnen framför är det inget att gissa på.
 
 \begin{frame}[fragile]
@@ -592,7 +604,8 @@ längre ner.  Använd i stället \mintinline{python}{import},
 
   \textbf{Variationsmönster}: Kontrast.
 
-  \textbf{Vad som varierar}: Importformen --- stjärna eller modulnamn.
+  \textbf{Vad som varierar}: Först importradernas ordning, mellan de två
+  stjärnprogrammen; sedan importformen --- stjärna eller modulnamn.
 
   \textbf{Vad som hålls invariant}: De två modulerna och anropet
   \mintinline{python}{area(1)}.
@@ -606,6 +619,14 @@ längre ner.  Använd i stället \mintinline{python}{import},
   som två frågor, där den andra --- \enquote{hur ser man det?} --- är den
   viktiga: svaret \enquote{det ser man inte} är själva argumentet mot
   stjärnan, och det ska studenterna själva komma fram till.
+
+  De två stjärnprogrammen står i \emph{en} övning, så att jämförelsen
+  görs av studenten och inte av materialet
+  \parencite[45--47]{Marton2015}.  Att ordningen avgör visas därmed med
+  en körning i stället för att påstås i prosan, som i en tidigare version
+  av materialet.  Filerna heter [[areas-star1.py]] och
+  [[areas-star2.py]]: namn som beskriver skillnaden --- vilken modul som
+  importeras sist --- hade avslöjat vad som ska urskiljas.
 
   Geometrimodulerna är ett avsteg från åldersexemplet, med avsikt: för
   att namnen ska krocka behövs två moduler som definierar samma namn,
@@ -633,7 +654,7 @@ def hello(name):
     print(f"Hej, {name}!")
 
 
-hello("modulen själv")
+hello("Ronja")
 @
 \end{frame}
 
@@ -683,7 +704,7 @@ någonting.  Det är provkörningen sist i \texttt{hello.py} som kördes ---
 när modulen importerades.  \mintinline{python}{import} gör nämligen inte
 bara namnen tillgängliga: den \emph{kör} filen, uppifrån och ner.  Raden
 \mintinline{python}{def hello(name):} definierar en funktion; raden
-\mintinline{python}{hello("modulen själv")} anropar den.  Handledningen
+\mintinline{python}{hello("Ronja")} anropar den.  Handledningen
 säger det rakt ut: \enquote{A module can contain executable statements
 as well as function definitions. [\ldots] They are executed only the
 \emph{first} time the module name is encountered in an import statement.
@@ -715,7 +736,11 @@ direkt.  Provkörningen vill vi bara ha i det andra fallet.
   ber om utskrifterna \emph{och deras ordning}, eftersom det är
   ordningen som avslöjar när modulen kördes: den som svarar \enquote{bara
   Hej, Ada} tror att import läser utan att köra, och den som svarar
-  rätt ordning har redan urskilt aspekten.  Modulen \texttt{hello.py} är
+  rätt ordning har redan urskilt aspekten.  Provkörningen hälsar därför
+  på ett namn ur materialets vanliga persongalleri och inte på
+  \enquote{modulen själv}, som den gjorde förut: en nyttolast som säger
+  vem som kör raden gör urskiljningen åt studenten.  Modulen
+  \texttt{hello.py} är
   ett eget litet exempel, i stället för en variant av
   \texttt{typed\_input.py}, därför att en importerad modul måste heta
   något bestämt i programmet som importerar den: två versioner av samma
@@ -872,9 +897,10 @@ villkoret sist i filen som avgör.
 \section[Standardbiblioteket]{Moduler som följer med Python}
 \label{sec:stdlib}
 
-Vi har använt \mintinline{python}{random} sedan gissningsspelet och
-\mintinline{python}{math} sedan cirkeln, utan att någon av oss skrivit
-dem.  De är moduler precis som \mintinline{python}{typed_input}, med den
+Vi har använt \mintinline{python}{random} sedan gissningsspelet, och
+\mintinline{python}{math} i modulen \texttt{circle.py}, utan att någon av
+oss skrivit dem.  De är moduler precis som
+\mintinline{python}{typed_input}, med den
 skillnaden att de följer med Python.  Tillsammans utgör de
 \emph{standardbiblioteket} (\foreignlanguage{english}{the standard
 library}), och det är stort: \enquote{Python's standard library is very
@@ -1167,8 +1193,8 @@ Python Package Index}: \enquote{a repository of software for the Python
 programming language}, där \enquote{package authors use PyPI to
 distribute their software}\autocite{PyPI}.  Startsidan är i första hand
 en sökruta, för det finns mycket att söka bland: när det här skrevs
-fanns där över 880\,000 projekt --- skärmdumpen i \cref{fig:pypi} är
-från 2020, då räknaren stod på drygt 260\,000.
+fanns där över 880\,000 projekt\autocite{PyPI} --- skärmdumpen i
+\cref{fig:pypi} är från 2020, då räknaren stod på drygt 260\,000.
 
 \begin{frame}
   \begin{figure}[tbp]
@@ -1350,8 +1376,9 @@ och inte värt det för en rad.  Att välja den enklaste lösning som duger
 är principen \emph{KISS}, \foreignlanguage{english}{Keep It Simple,
 Stupid}, som tillskrivs flygplanskonstruktören Kelly
 Johnson\autocite{Rich1995Johnson,Popik2019KISS}; det vetenskapliga
-underlaget --- inklusive varför det heter \emph{tillskrivs} --- finns i
-föreläsningen \emph{Funktioner}, bilaga C.
+underlaget --- både varför det heter \emph{tillskrivs} och att enkelhet
+som designvärde är etablerat --- finns i föreläsningen \emph{Funktioner},
+bilaga C.
 
 \begin{frame}
   \only<presentation>{%
