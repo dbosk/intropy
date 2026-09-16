@@ -1,4 +1,4 @@
-SUBDIR+=		slides-input
+SUBDIR+=		slides-input-exceptions
 SUBDIR+=		slides-conditionals
 SUBDIR_GOALS=	all clean distclean
 

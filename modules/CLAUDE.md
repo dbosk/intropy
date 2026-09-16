@@ -16,10 +16,9 @@ Each module has one or more deck directories (`slides*/`) building
 `slides.pdf` and `notes.pdf` from one `contents.nw`. The model deck is
 `computational-thinking/slides` (tracking issue #269); `helloworld/slides`
 is the build template the skill's `assets/deck-template/` was copied from
-(re-sync the template when its wiring changes); `exceptions/slides` is the
-most compact worked example. `modules/Makefile` excludes functions,
-exceptions, recap, scipy and debug from the course-wide build. Six decks
-still lack a backed-claim chapter: `classes/slides-more`
+(re-sync the template when its wiring changes). `modules/Makefile`
+excludes functions, recap, scipy and debug from the course-wide build.
+Six decks still lack a backed-claim chapter: `classes/slides-more`
 (Operatoröverlagring) and the five `containers/slides-*` decks — run the
 claim audit there in their next rounds.
 
@@ -27,8 +26,8 @@ Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
 bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
 *Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
-datatyper*; *Villkor och styrstrukturer*; *Felhantering*; *Upprepningar*;
-*Moduler och paket*; *Behållare: Listor*, *Behållare: Tupler*,
+felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Moduler
+och paket*; *Behållare: Listor*, *Behållare: Tupler*,
 *Behållare: Uppslagslistor*, *Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*; *Klasser och objekt*;
 *Operatoröverlagring*; *Praktiska tillämpningar av klasser*; *Arbeta med
@@ -77,10 +76,11 @@ Backed so far (question → answer):
   responsibility" is a judgement; C: KISS → NOT Kelly Johnson's (in
   print 1958, attribution rests on a memoir), simplicity as a design
   value is established.
-- *Felhantering* B: exception misconceptions → backed (Java, late-stage
-  students); C: catch-all → a known bad habit, but the actual bugs are
-  rarer than the habit, so the advice is "fånga det ni vet hur ni ska
-  svara på", not "aldrig".
+- *Inmatning och felhantering* B: input and type misconceptions →
+  backed, frequencies in this population unknown; C: exception
+  misconceptions → backed (Java, late-stage students); D: catch-all → a
+  known bad habit, but the actual bugs are rarer than the habit, so the
+  advice is "fånga det du vet hur du ska svara på", not "aldrig".
 - *Upprepningar* B: loop misconceptions → five of six backed in primary
   sources; C: productive failure → moderate effect, from comparing the
   attempt with the answer, not from delay itself.
@@ -89,8 +89,8 @@ Backed so far (question → answer):
   yes, but bytecode first; D: error messages → a real obstacle, first
   errors are mostly typos, rewritten messages not shown to help; E:
   chronology → holds, only two of seven years are clean release dates.
-- *Villkor* B and *Inmatning* B: misconceptions → backed, frequencies
-  in this population unknown.
+- *Villkor* B: misconceptions → backed, frequencies in this population
+  unknown.
 - *Arbeta med filer* B: misconception backed (one source no longer open);
   C: memory hierarchy orders of magnitude → textbook values; D: Python's
   file functions → as stated, default encoding platform-dependent; E:
