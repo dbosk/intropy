@@ -40,6 +40,8 @@ PAGES+=		modules/overview/changes.md
 PAGES+=		modules/overview-python/diagnostiskt-prov.md
 PAGES+=		modules/computational-thinking/lecture.md
 PAGES+=		modules/helloworld/lecture.md
+PAGES+=		modules/variables/lecture.md
+PAGES+=		modules/variables/lecture-functions.md
 PAGES+=		${WEEK_PAGES}
 
 ${ICS}:

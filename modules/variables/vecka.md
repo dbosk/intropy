@@ -36,8 +36,11 @@ redigera det i din textredigerare.
 ## Gör så här, i ordning
 
 1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
-   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
-   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+   frågor. Den har två delar med var sin sida här i modulen, *Föreläsning:
+   Variabler och utskrifter* och *Föreläsning: Funktioner*. Kan du inte
+   komma, eller föredrar du att läsa, finns föreläsningsanteckningarna som
+   interaktiva dokument och videogenomgångar här i modulen; sidorna säger
+   vilka.
 2. **Gå på övningen för din grupp:** *Övning funktioner och variabler*. Vi
    går igenom veckans innehåll genom att lösa problem tillsammans i mindre
    grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
