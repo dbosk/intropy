@@ -3,11 +3,12 @@
 % Convention in this deck: every program that is meant to work is a code
 % chunk tangled into examples/, and most of them are also run during the
 % build with \runpython, so the shown output cannot drift from the code.
-% (The five that are not run either print fifty identical lines or need
+% (The four that are not run either print fifty identical lines or need
 % interactive input that adds nothing to the point being made.)
-% Snippets that are deliberately broken --- an infinite loop, a missing
-% base case, a non-iterable after "in" --- are plain minted blocks, so
-% that examples/ only ever holds programs that run.
+% Snippets that cannot be run at all --- an infinite loop, a missing base
+% case --- are plain minted blocks.  A program that merely fails is
+% tangled and run like any other, so that the error output on the slide is
+% the one Python produced: hundra.py is the non-iterable after "in".
 
 \section[Upprepa]{Att upprepa sig --- eller inte}
 \label{sec:upprepa}
@@ -46,8 +47,8 @@ enklaste tänkbara uppgiften.
   nybörjare med mycket låga förkunskaper \parencite{Fyfe2014}.  Därför är
   frågorna korta och konkreta --- två till sju rader kod --- och därför
   ställs de bara om ämnen studenterna har förutsättningar för.  Frågan här
-  bygger på funktioner och \mintinline{python}{print} från föreläsningen
-  \emph{Funktioner}.
+  bygger på \mintinline{python}{print} från föreläsningen \emph{Variabler
+  och utskrifter} och på funktioner från \emph{Funktioner}.
 }
 
 Nästan alla börjar likadant, och det är inte fel: skriv utskriften, och
@@ -87,10 +88,10 @@ for gång in range(50):
 Två rader i stället för femtio, och --- viktigare --- \emph{en} plats att
 ändra på.  Att varje kunskap i ett program ska stå på ett enda ställe är
 en namngiven princip: \emph{DRY}, \foreignlanguage{english}{Don't Repeat
-Yourself}\autocite{HuntThomas1999}.  Att det är en bra princip, och vilka
-förbehåll som gäller, är redan prövat: det vetenskapliga underlaget finns
-i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.  Vi återanvänder
-svaret här i stället för att pröva det på nytt.
+Yourself}\autocite{HuntThomas1999}.  Det vetenskapliga underlaget för DRY
+--- både varifrån principen kommer och om den håller, med de förbehåll som
+hör till --- finns i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.
+Vi återanvänder svaret här i stället för att pröva det på nytt.
 
 \ltnote{%
   Relevanta lärandemål: \cref{IterLOFor}.
@@ -170,16 +171,11 @@ till det.  Låt oss börja med att ta reda på vad som egentligen upprepas.
 \begin{frame}[fragile]
   \begin{exercise}[Vad skrivs ut?]
     \label{ex:vad-upprepas}
-    Programmet går igenom en lista:
-<<[[loop_text.py]]>>=
+    Här är två program.  Vad skriver vart och ett av dem ut?
+<<[[loop1.py]]>>=
 for x in [10, 20, 30]:
     print("Hej")
-@
-  \end{exercise}
-  \begin{exercise}[Och det här?]
-    \label{ex:vad-upprepas-b}
-    Det här går igenom samma lista:
-<<[[loop_variabel.py]]>>=
+<<[[loop2.py]]>>=
 for x in [10, 20, 30]:
     print(x)
 @
@@ -187,13 +183,13 @@ for x in [10, 20, 30]:
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{solution}[\texttt{loop\_text.py}]
+  \begin{solution}[\texttt{loop1.py}]
     Utmatningen blir tre likadana rader:
-    \runpython{examples/loop_text.py}
+    \runpython{examples/loop1.py}
   \end{solution}
-  \begin{solution}[\texttt{loop\_variabel.py}]
+  \begin{solution}[\texttt{loop2.py}]
     Och för det andra programmet:
-    \runpython{examples/loop_variabel.py}
+    \runpython{examples/loop2.py}
   \end{solution}
 \end{frame}
 
@@ -238,11 +234,17 @@ for variabel in samling:
   \cref{app:missuppfattningar}; kontrasten står ändå, eftersom den gör
   ombindningen synlig för alla.
 
-  \foreignlanguage{english}{Try-first}: frågorna i
-  \cref{ex:vad-upprepas,ex:vad-upprepas-b} pekar inte ut vad studenten ska
-  titta på, så svaren visar vem som redan urskiljer ombindningen.  De står
-  som två miljöer på samma bild, inte efter varandra, eftersom kontrasten
-  ska upplevas simultant \parencite[45--47]{Marton2015}.
+  \foreignlanguage{english}{Try-first}: frågan i \cref{ex:vad-upprepas}
+  pekar inte ut vad studenten ska titta på, så svaren visar vem som redan
+  urskiljer ombindningen.  De två programmen står i en och samma övning,
+  så att det är studenten och inte materialet som gör jämförelsen
+  \parencite[45--47]{Marton2015}.
+
+  Filerna heter [[loop1.py]] och [[loop2.py]] och inte något som säger
+  vilken som skriver ut en text och vilken som skriver ut värdet: namn
+  som beskriver skillnaden hade avslöjat vad som ska urskiljas.  Av
+  samma skäl är filparen i \cref{sec:indrag,sec:upprepa-eller-valja}
+  numrerade och inte namngivna efter sin konstruktion.
 }
 
 \subsection{Vilka rader hör till slingan?}
@@ -251,20 +253,15 @@ for variabel in samling:
 Om det är kroppen som upprepas blir nästa fråga vilka rader kroppen
 består av.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{exercise}[Vad skrivs ut?]
     \label{ex:indrag}
-    Programmet har tre rader:
-<<[[inuti.py]]>>=
+    Här är två program om tre rader.  Vad skriver vart och ett av dem ut?
+<<[[streck1.py]]>>=
 for x in [1, 2, 3]:
     print(x)
     print("---")
-@
-  \end{exercise}
-  \begin{exercise}[Och det här?]
-    \label{ex:indrag-b}
-    Det här programmet:
-<<[[efter.py]]>>=
+<<[[streck2.py]]>>=
 for x in [1, 2, 3]:
     print(x)
 print("---")
@@ -273,13 +270,13 @@ print("---")
 \end{frame}
 
 \begin{frame}[fragile,shrink]
-  \begin{solution}[\texttt{inuti.py}]
+  \begin{solution}[\texttt{streck1.py}]
     Här körs strecken tre gånger:
-    \runpython{examples/inuti.py}
+    \runpython{examples/streck1.py}
   \end{solution}
-  \begin{solution}[\texttt{efter.py}]
+  \begin{solution}[\texttt{streck2.py}]
     Här körs de en gång:
-    \runpython{examples/efter.py}
+    \runpython{examples/streck2.py}
   \end{solution}
 \end{frame}
 
@@ -306,6 +303,10 @@ gånger än när det körs en gång.
   \parencite[360]{Sorva2012Dissertation}.  Citaten står i
   \cref{app:missuppfattningar}.
 
+  De två programmen står i en och samma övning, så att det är studenten
+  och inte materialet som gör jämförelsen
+  \parencite[45--47]{Marton2015}.
+
   Programmen körs på plats i stället för att utmatningen skrivs av.  Det
   gör att kontrasten inte kan glida isär från koden, och det är också
   själva poängen studenten ska ta med sig: kör programmet i stället för
@@ -323,7 +324,7 @@ går igenom, bara att det går att gå igenom ett element i taget.
   \begin{example}[En lista]
     \label{ex:tre-samlingar}
     Listan från förut:
-    \inputminted{python}{examples/loop_variabel.py}
+    \inputminted{python}{examples/loop2.py}
   \end{example}
   \begin{example}[Ett \texttt{range}]
     \label{ex:tre-samlingar-range}
@@ -351,9 +352,9 @@ for tecken in "abc":
 \end{frame}
 
 \begin{frame}[fragile,shrink]
-  \begin{solution}[\texttt{loop\_variabel.py}]
+  \begin{solution}[\texttt{loop2.py}]
     Listan ger:
-    \runpython{examples/loop_variabel.py}
+    \runpython{examples/loop2.py}
   \end{solution}
   \begin{solution}[\texttt{loop\_range.py}]
     Och \mintinline{python}{range}-versionen:
@@ -377,19 +378,34 @@ värt att stanna vid, för det öppnar en hel klass av program: allt man kan
 göra med en lista av värden kan man göra med tecknen i en sträng.  Vi
 använder det i \cref{sec:valja} för att räkna ut siffersumman av ett tal.
 
+Men slingan ställer ett krav på det som står efter
+\mintinline{python}{in}, och det märks först när kravet inte är uppfyllt.
+
 \begin{frame}[fragile]
-  \begin{remark}[Vad kan stå efter \texttt{in}?]
-    Något som går att gå igenom --- en lista, en tupel, ett
-    \mintinline{python}{range}, en sträng.  Ett ensamt tal går inte:
-    \begin{minted}{python}
+  \begin{exercise}[Vad skrivs ut?]
+    \label{ex:hundra}
+    Programmet är skrivet för att skriva ut talen noll till nittionio:
+<<[[hundra.py]]>>=
 for i in 100:
     print(i)
-    \end{minted}
-    ger \mintinline{text}|TypeError: 'int' object is not iterable|.  Vill
-    vi ha hundra varv får vi be om hundra tal, med
-    \mintinline{python}{range(100)}.
-  \end{remark}
+@
+  \end{exercise}
 \end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen]
+    \label{ex:hundra-svar}
+    Vi kör programmet:
+    \runpython[showcommand, chdir]{examples/hundra.py}
+  \end{example}
+\end{frame}
+
+Efter \mintinline{python}{in} måste det stå något som går att gå igenom
+--- en lista, en tupel, ett \mintinline{python}{range}, en sträng.  Ett
+ensamt tal är inte sådant: det finns inget första, andra och tredje
+element i talet hundra, och Python säger det rakt ut med
+\mintinline{text}|'int' object is not iterable|.  Vill vi ha hundra varv
+får vi be om hundra tal, med \mintinline{python}{range(100)}.
 
 \ltnote{%
   Relevanta lärandemål: \cref{IterLOFor,IterLOString}.
@@ -400,7 +416,8 @@ for i in 100:
   \textbf{Vad som varierar}: samlingens \emph{slag} (lista,
   \mintinline{python}{range}, sträng).
 
-  Listversionen är ordagrant den från \cref{ex:vad-upprepas-b}, och
+  Listversionen är ordagrant det andra programmet i
+  \cref{ex:vad-upprepas}, och
   \mintinline{python}{range}-versionen är vald så att den ger \emph{samma}
   utmatning: då kan skillnaden i utmatning inte förväxlas med skillnaden i
   samling.  Strängen varierar därefter elementens slag, och gör
@@ -409,18 +426,31 @@ for i in 100:
   slingan är \emph{representerad} \parencite{Eckert2022Loops} är just
   skälet att variera ytformen och hålla innebörden fast.
 
+  \Cref{ex:hundra} vänder därefter på generaliseringen.
+  \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}: om
+  det som står efter \mintinline{python}{in} går att gå igenom.
+  \textbf{Vad som hålls invariant}: slingan, kroppen och avsikten att
+  köra ett bestämt antal varv.  Aspekten är kravet på samlingen, som de
+  tre fungerande fallen håller konstant och därför inte kan göra
+  urskiljbart på egen hand.
+
   \mintinline{python}{for i in 100} är en dokumenterad missuppfattning
-  \parencite[4]{GuoMarkelZhang2020} och visas därför som felkod, med
-  felmeddelandet utskrivet: felmeddelandet är det studenten faktiskt
-  kommer att möta.
+  \parencite[4]{GuoMarkelZhang2020}.  Programmet tanglas och körs som
+  alla andra, så att felutskriften som visas är den Python faktiskt
+  gjorde: felmeddelandet är det studenten kommer att möta, och ett
+  påstående om vad Python gör ska visas och inte bara sägas.  Frågan
+  ställs före körningen, så att den som tror att vilket tal som helst
+  duger får se sitt eget svar prövat.
 }
 
+\mode<article>{\clearpage}
 \subsection{Slingor i slingor}
 \label{sec:nastlade}
 
 Kroppen i en slinga är vanlig kod, och vanlig kod får innehålla en slinga.
-Det låter oskyldigt, men det är steget där många tappar tråden, så vi tar
-det med ett exempel där resultatet syns direkt: multiplikationstabellen.
+Det låter oskyldigt, men nästlade slingor pekas ut som en särskild
+svårighet för nybörjare\autocite{Eckert2022Loops}, så vi tar det med ett
+exempel där resultatet syns direkt: multiplikationstabellen.
 
 \begin{frame}
   \begin{exercise}[Multiplikationstabellen]
@@ -490,8 +520,8 @@ inre slingan, men innanför den yttre.
 En \mintinline{python}{for}-slinga behöver veta vad den ska gå igenom
 innan den börjar.  Ibland vet vi inte det: vi vet bara när vi ska sluta.
 Då använder vi \mintinline{python}{while}, som du mötte i föreläsningarna
-\emph{Inmatning och datatyper} och \emph{Felhantering}.  Här ska vi läsa en
-sådan slinga noga.
+\emph{Villkor och styrstrukturer} och \emph{Felhantering}.  Här ska vi läsa
+en sådan slinga noga.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad gör programmet?]
@@ -528,8 +558,9 @@ det är en rimlig läsning av vad någon \emph{ville} skriva.  Villkoret
 kroppen ändrar \mintinline{python}{i}, så villkoret som var sant första
 gången är sant varje gång.
 
-Det här är en av de vanligaste anledningarna till att ett program
-\enquote{hänger sig}.  Skriv därför alltid
+Det här är en av anledningarna till att ett program \enquote{hänger
+sig}, och felet är katalogiserat i nybörjares egen
+kod\autocite[111]{Bosse2021Antipatterns}.  Skriv därför alltid
 \mintinline{python}{while}-slingan i tre delar och kontrollera alla tre:
 något sätts \emph{före} slingan, något prövas \emph{i villkoret}, och
 något ändras \emph{i kroppen} så att villkoret till slut blir falskt.
@@ -572,19 +603,14 @@ likadant ut i koden, och betyder helt olika saker.
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Rabatten]
     \label{ex:rabatt}
-    Varor som kostar minst 50 kronor ska få 20 kronor i rabatt.  Vad
-    skriver programmet ut?
-<<[[rabatt_while.py]]>>=
+    Varor som kostar minst 50 kronor ska få 20 kronor i rabatt.  Här är
+    två program.  Vad skriver vart och ett av dem ut?
+<<[[rabatt1.py]]>>=
 pris = 100
 while pris >= 50:
     pris = pris - 20
 print(pris)
-@
-  \end{exercise}
-  \begin{exercise}[Och det här?]
-    \label{ex:rabatt-b}
-    Samma uppgift, samma pris:
-<<[[rabatt_if.py]]>>=
+<<[[rabatt2.py]]>>=
 pris = 100
 if pris >= 50:
     pris = pris - 20
@@ -594,13 +620,13 @@ print(pris)
 \end{frame}
 
 \begin{frame}[fragile,shrink]
-  \begin{solution}[\texttt{rabatt\_while.py}]
+  \begin{solution}[\texttt{rabatt1.py}]
     Priset landar på:
-    \runpython{examples/rabatt_while.py}
+    \runpython{examples/rabatt1.py}
   \end{solution}
-  \begin{solution}[\texttt{rabatt\_if.py}]
+  \begin{solution}[\texttt{rabatt2.py}]
     Och med det andra programmet:
-    \runpython{examples/rabatt_if.py}
+    \runpython{examples/rabatt2.py}
   \end{solution}
 \end{frame}
 
@@ -651,6 +677,10 @@ slingan hänger sig, utan att svaret blir fel.
   \cref{sec:while} redan avhandlat, i stället för om vad konstruktionen
   \emph{betyder}.  Det är aspekt 32 i kursens diagnostiska för- och
   eftertest om upprepningar.
+
+  De två programmen står i en och samma övning, så att det är studenten
+  och inte materialet som gör jämförelsen
+  \parencite[45--47]{Marton2015}.
 }
 
 Innan vi lämnar \mintinline{python}{while} är det värt att lösa
@@ -1222,8 +1252,10 @@ tills svaret går att använda --- och det är därför den går att återanvän
 den vet ingenting om vad talet ska användas till.  Att en funktion bör ha
 ett enda ansvar är en namngiven princip, \emph{SRP},
 \foreignlanguage{english}{single responsibility
-principle}\autocite[ch.~8]{Martin2003Agile}; det vetenskapliga
-underlaget finns i föreläsningen \emph{Funktioner}, bilaga B.
+principle}\autocite[ch.~8]{Martin2003Agile}.  Det vetenskapliga
+underlaget för SRP --- varifrån principen kommer, att den är etablerad
+och att \enquote{ett ansvar} förblir en fråga att ställa och inte ett
+facit --- finns i föreläsningen \emph{Funktioner}, bilaga B.
 
 \ltnote{%
   Relevanta lärandemål: \cref{IterLOInput,IterLOChoose,IterLORecursion}.
