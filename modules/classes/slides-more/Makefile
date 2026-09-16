@@ -24,6 +24,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/fraction.py
+EXAMPLES+=	examples/negative.py
 
 contents.tex: contents.nw
 

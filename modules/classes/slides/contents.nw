@@ -122,8 +122,8 @@ eller två.
     \label{ex:phonebook-data}
     Namnet är nyckel och numret är värde:
 <<lagra telefonnumren i en uppslagslista>>=
-phonebook = {"adam": "0701234567", "bertil": "0721234567"}
-phonebook["cesar"] = "0731234567"
+phonebook = {"ronja": "0701234567", "pippi": "0721234567"}
+phonebook["madicken"] = "0731234567"
 @
     Att slå upp ett nummer är då bara att indexera med namnet:
 <<slå upp och skriv ut numret>>=
@@ -202,14 +202,14 @@ if __name__ == "__main__":
     Varje person får en egen uppslagslista:
 <<lagra kontakterna i en nästlad uppslagslista>>=
 phonebook = {
-    "adam": {
+    "ronja": {
         "phone": "0701234567",
         "address": "Gatan 1, Orten",
     },
-    "bertil": {
+    "pippi": {
         "address": "Gatan 2, Orten",
     },
-    "cesar": {
+    "madicken": {
         "phone": "0731234567",
     },
 }
@@ -227,7 +227,6 @@ fält ifyllda.
   \begin{exercise}
     \label{ovn:keyerror}
     Vad händer om du försöker läsa ett fält som inte finns för en person?
-    Vilket fel får du?
   \end{exercise}
 \end{frame}
 
@@ -410,6 +409,17 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
+\ltnote{%
+  Namnen i testprogrammet bär en dold kulturell koppling, som inte sägs i
+  studenttexten: Madicken i Astrid Lindgrens böcker heter egentligen
+  Margareta Engström, och förebilden för henne var Lindgrens barndomsvän
+  Anne-Marie Fries, gift Ingeström.  Vimmerby är Astrid Lindgrens
+  hemstad och 1907 hennes födelseår.  Namnbytet i
+  \cref{ex:person-rename} är alltså personen som blir sin egen
+  romanfigur, och smeknamnet \enquote{Madicken} i
+  \cref{ex:person-nick-main} sluter cirkeln.
+}
+
 \begin{frame}
   \begin{exercise}
     \label{ovn:understreck}
@@ -429,7 +439,9 @@ inte kan nås direkt från utsidan av klassen.\footnote{\label{fn:mangling}%
   (hämtad 2026-09-03).}
 Detta kallas inkapsling (\foreignlanguage{english}{encapsulation}) och
 är en viktig princip i objektorienterad programmering; det
-vetenskapliga underlaget finns i \cref{app:inkapsling}.
+vetenskapliga underlaget för inkapsling --- både varifrån principen
+kommer och hur etablerad den är, med de förbehåll som hör till ---
+finns i \cref{app:inkapsling}.
 
 Låt oss nu jämföra hur vi skapar och använder kontakter med de två olika
 metoderna.  Telefonboken med klasser lägger vi i
@@ -468,14 +480,14 @@ if __name__ == "__main__":
     Varje person är nu ett \mintinline{python}{Person}-objekt:
 <<lagra kontakterna som personobjekt>>=
 phonebook = {
-    "adam": person.Person(
-        "Adam", "Adamsson", "1985-01-01", "Gatan 1, Orten", "0701234567"
+    "ronja": person.Person(
+        "Ronja", "Rövardotter", "1985-01-01", "Gatan 1, Orten", "0701234567"
     ),
-    "bertil": person.Person(
-        "Bertil", "Bertilsson", "1990-01-01", "Gatan 2, Orten", "okänt"
+    "pippi": person.Person(
+        "Pippi", "Långstrump", "1990-01-01", "Gatan 2, Orten", "okänt"
     ),
-    "cesar": person.Person(
-        "Cesar", "Cesarsson", "1995-01-01", "okänt", "0731234567"
+    "madicken": person.Person(
+        "Madicken", "Engström", "1995-01-01", "okänt", "0731234567"
     ),
 }
 @
@@ -514,7 +526,7 @@ metoder för att hämta information.
 
   \foreignlanguage{english}{Try-first}: frågan ställs innan läsmetoderna
   visas.  \textbf{Kontrast} mot uppslagslistan: studenterna har nyss
-  skrivit \mintinline{python}{phonebook["adam"]["phone"]}, och det är
+  skrivit \mintinline{python}{phonebook["ronja"]["phone"]}, och det är
   motsvarigheten till den raden de ska söka i klassen.  Den jämförelsen
   stod förr i uppgiftstexten; den är flyttad hit, eftersom det är just
   den studenterna ska komma på.
@@ -598,7 +610,7 @@ kontrollera hur data hanteras.  Vi kan lägga till validering, loggning
 eller andra funktioner utan att ändra hur användare av klassen
 interagerar med den.  Vi kan också förhindra att en programmerare
 oavsiktligt ändrar ett attribut på ett sätt som bryter klassens interna
-logik.  Det förhindrar många möjliga buggar.
+logik.  Det förhindrar många möjliga programfel.
 
 Metoden som byter namn är ett exempel: den tar emot ett helt namn och
 delar själv upp det i för- och efternamn, så att de två attributen
@@ -642,19 +654,36 @@ print(person.get_last_name())
   \end{example}
 \end{frame}
 
-\begin{frame}
-  \begin{exercise}
+\begin{frame}[fragile,shrink=10]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:tva-objekt}
-    Antag att vi har skapat två personer, \mintinline{python}{person} och
-    \mintinline{python}{person2}, och anropar
-    \mintinline{python}{person.change_name("Margareta Engström")}.
-    Vad händer med \mintinline{python}{person2}?
+    Här är ett program med två personobjekt.
+<<[[two.py]]>>=
+from person import Person
+
+person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
+person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+
+person.change_name("Margareta Engström")
+print(person)
+print(person2)
+@
   \end{exercise}
 \end{frame}
 
-Ingenting.  Metoden \mintinline{python}{change_name} står visserligen
-skriven en gång, i klassen, men varje anrop gäller det objekt som står
-före punkten: \mintinline{python}{self} i metoden är just
+\begin{frame}[fragile]
+  \begin{example}[\texttt{two.py}]
+    \label{ex:two-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/two.py}
+  \end{example}
+\end{frame}
+
+Den andra personen står kvar som förut.  Metoden
+\mintinline{python}{change_name} står visserligen skriven en gång, i
+klassen, men varje anrop gäller det objekt som står före punkten:
+\mintinline{python}{self} i metoden är just
 \mintinline{python}{person}, och \mintinline{python}{person2} har sina
 egna attribut som ingen rört.
 
@@ -673,8 +702,13 @@ egna attribut som ingen rört.
   som en funktion bunden till
   klassen, klassen som mall (en definition, många objekt) och varje
   objekt som eget (anropet ändrar ett objekt, inte det andra).  Svaret
-  sägs först efteråt.  Underlaget för missuppfattningen finns i
-  \cref{app:missuppfattningar}.
+  sägs först efteråt.  Frågan ställs numera om ett program som körs
+  (\cref{ex:two-run}): påståendet att det andra objektet är orört stod
+  förr bara i brödtexten, och en missuppfattning som ska rubbas behöver
+  se sig motsagd av maskinen, inte av materialet.  Vad som varierar är
+  vilket av objekten anropet gäller; vad som hålls invariant är klassen,
+  metoden och de två objektens attribut.  Underlaget för
+  missuppfattningen finns i \cref{app:missuppfattningar}.
 }
 
 I \cref{ex:person-namn} såg vi metoderna \mintinline{python}{get_name()}
@@ -762,9 +796,10 @@ Klassen samlar allt som rör en person --- datan och det man kan göra
 med den --- och ingenting annat.  Att en klass ska ha ett enda ansvar
 kallas \emph{SRP} (\foreignlanguage{english}{single responsibility
 principle}), en princip formulerad av Robert C.
-Martin\autocite{Martin2003Agile}; det vetenskapliga underlaget, med de
-förbehåll som hör till, finns i föreläsningen \emph{Funktioner},
-bilaga~B.
+Martin\autocite{Martin2003Agile}; det vetenskapliga underlaget för SRP
+--- både att principen är Martins och att den är etablerad, med
+förbehållet att vad som är ett ansvar är en bedömning --- finns i
+föreläsningen \emph{Funktioner}, bilaga~B.
 
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLORepresentation}.
@@ -919,7 +954,8 @@ programmet.  En klass är en mall, inte en behållare.
   en belagd missuppfattning: att klassen är en samling av sina objekt
   snarare än en mall för att skapa dem \parencite{Ragonis2005OOP}, eller
   rentav en databas \parencite{Holland1997}.  Den analys som ligger till
-  grund finns i författarens missuppfattningsprotokoll (klasser).
+  grund finns i författarens egen genomgång av missuppfattningar
+  \parencite{SooriBosk2026}.
   \textbf{Kontrast} mot de inbyggda typerna: vad som varierar är om typen
   är inbyggd eller egen; vad som hålls invariant är relationen
   \enquote{anropa typen för att få ett objekt}.  Det visar att klassen
@@ -1063,12 +1099,14 @@ class PublicExample:
 \begin{frame}[fragile]
   \begin{example}[Direkt åtkomst till ett publikt attribut]
     \label{ex:public-main}
-    Testprogrammet ändrar attributet både via metoden och direkt:
+    Testprogrammet läser attributet både via metoden och direkt, och
+    ändrar det sedan på båda sätten:
 <<testprogram för [[PublicExample]]>>=
 def main():
     """Example program"""
     example = PublicExample(10)
     print(f"Initial value: {example.get_value()}")
+    print(f"Directly read value: {example.value}")
     example.set_value(20)
     print(f"Updated value: {example.get_value()}")
     example.value = 30
@@ -1081,29 +1119,93 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Detta hade inte fungerat om vi hade skrivit
-\mintinline{python}{self.__value} istället för
-\mintinline{python}{self.value}.  (Prova!)
+\begin{frame}[fragile]
+  \begin{example}[\texttt{public.py}]
+    \label{ex:public-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/public.py}
+  \end{example}
+\end{frame}
+
+Raden \mintinline{python}{example.value} läser attributet utan att gå
+via någon metod, och den fungerar.  Här är en klass med samma uppgift,
+men attributet heter \mintinline{python}{__value}, och huvudprogrammet
+försöker läsa det direkt på samma sätt.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:privat-atkomst}
+    Attributet är privat, och programmet läser det på två sätt.
+<<[[private.py]]>>=
+class PrivateExample:
+    def __init__(self, value):
+        self.__value = value
+
+    def get_value(self):
+        return self.__value
+
+
+example = PrivateExample(10)
+print(example.get_value())
+print(example.__value)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{private.py}]
+    \label{ex:private-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines]{examples/private.py}
+  \end{example}
+\end{frame}
+
+Läsmetoden kommer åt attributet, men raden utanför klassen gör det
+inte.  Den direkta läsningen lyckades i \cref{ex:public-run} och
+misslyckas här, och det är den skillnaden understrecken gör: namnet
+\mintinline{python}{__value} finns inte på objektet.  Python har skrivit
+om det, till
+\mintinline{python}{_PrivateExample__value} (\cref{fn:mangling}).
 
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLOEncapsulation}.
 
   \textbf{Variationsmönster}: Kontrast.
 
-  \textbf{Vad som varierar}: attributets synlighet (publikt
-  \mintinline{python}{self.value} respektive privat
+  \textbf{Vad som varierar}: attributets namn, och därmed dess
+  synlighet (\mintinline{python}{self.value} respektive
   \mintinline{python}{self.__value}).
 
-  \textbf{Vad som hålls invariant}: allt annat i klassens struktur.
+  \textbf{Vad som hålls invariant}: klassens uppgift (hålla ett värde
+  och lämna ut det), läsmetoden, och den direkta läsningen i
+  huvudprogrammet --- \mintinline{python}{example.value} i
+  \cref{ex:public-run} mot \mintinline{python}{example.__value} här.
+  Det är den raden, och bara den, som kontrasten vilar på; resten av
+  \texttt{private.py} är nedbantad (inget \mintinline{python}{main},
+  ingen skrivmetod) för att den raden ska stå oskymd.  Programmen är
+  alltså inte identiska så när som på ett tecken, och texten påstår inte
+  längre att de är det.
+
+  \textbf{Varför inte ett rent ombyte av en enda rad}: namnomskrivningen
+  gäller bara inuti klasskroppen.  Skrev vi om \texttt{public.py} rakt av
+  skulle \mintinline{python}{example.__value = 30} utanför klassen
+  tyst skapa ett \emph{andra} attribut vid sidan av
+  \mintinline{python}{_PrivateExample__value}, och utskriften efteråt
+  skulle lyckas --- kontrasten hade visat ingenting.  Det är därför
+  jämförelsen står mellan två \emph{läsningar} och inte mellan en
+  skrivning och en läsning.
 
   Genom att kontrastera publika och privata attribut kan studenterna
   urskilja \emph{när} och \emph{varför} man ska använda inkapsling.  Det
   konkreta exemplet (direkt åtkomst fungerar respektive fungerar inte)
   gör den abstrakta principen påtaglig.
 
-  \textbf{Notera}: uppmaningen att \enquote{prova} är avgörande ---
-  studenterna erfar begränsningen själva, vilket är kraftfullare än att
-  få den berättad.
+  \textbf{Notera}: begränsningen visas i stället för att påstås.  Förr
+  stod bara satsen att det \enquote{inte hade fungerat}, med en
+  uppmaning att prova; nu står det program som inte fungerar, och
+  spårutskriften (\foreignlanguage{english}{traceback}) är belägget.
+  Filen heter \texttt{private.py} efter attributet, inte efter vad
+  körningen ger: vad som händer är just det som ska urskiljas.
 }
 
 Nu ska vi titta på metoder --- funktioner som tillhör objektet.
@@ -1317,15 +1419,33 @@ resten.\footnote{\label{fn:total-ordering}%
 \#functools.total_ordering}
   (hämtad 2026-09-03).}
 
-\begin{frame}
-  \begin{exercise}
+\begin{frame}[fragile,shrink=10]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:eq}
-    Vi skapar två personer med exakt samma namn, födelsedag, adress och
-    telefonnummer.  Vad ger \mintinline{python}{person1 == person2}?
+    Här är två personer med exakt samma namn, födelsedag, adress och
+    telefonnummer.
+<<[[compare.py]]>>=
+from person import Person
+
+person1 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+
+print(person1 == person2)
+print(person1 == person1)
+@
   \end{exercise}
 \end{frame}
 
-\mintinline{python}{False}.  Vår klass har ingen \mintinline{python}{__eq__},
+\begin{frame}[fragile]
+  \begin{example}[\texttt{compare.py}]
+    \label{ex:compare-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/compare.py}
+  \end{example}
+\end{frame}
+
+Vår klass har ingen \mintinline{python}{__eq__},
 och då jämför Python \emph{identitet}: två objekt är lika bara om de är
 samma objekt, precis som \mintinline{python}{person1 is
 person2}.\footnote{\label{fn:default-eq}%
@@ -1343,6 +1463,10 @@ innehållet --- säg namn och födelsedag --- definierar vi
 \mintinline{python}{__lt__}, och låter den returnera
 \mintinline{python}{True} när attributen är lika.
 
+% Marginalen på den sidan där den här noten hamnar delas med fotnoten
+% till DRY (HuntThomas1999) i nästa avsnitt, och marginalnoter tas i tur
+% och ordning: växer noten med ett par rader sköts den fotnoten till
+% nästa sida, bort från sin markör.  Håll noten kort.
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLODunder,ClassLOObject}.
 
@@ -1355,7 +1479,9 @@ innehållet --- säg namn och födelsedag --- definierar vi
   har två objekt med lika attribut eller ett objekt med två namn; vad
   som hålls invariant är attributvärdena.  Att \mintinline{python}{==}
   utan \mintinline{python}{__eq__} är identitet är belagt i
-  språkreferensen (\cref{fn:default-eq}).  Underlaget för
+  språkreferensen (\cref{fn:default-eq}) och körs nu också
+  (\cref{ex:compare-run}); jämförelsen med sig själv är raden som visar
+  att det är identiteten, inte värdena, som jämförs.  Underlaget för
   missuppfattningen finns i \cref{app:missuppfattningar}.
 
   Det ursprungliga påståendet här --- att \mintinline{python}{__lt__}
@@ -1730,8 +1856,8 @@ en \mintinline{python}{Person} \enquote{har en}
   när varje mönster är lämpligt.  Kontrasten gör den kritiska aspekten
   (relationstypen) synlig.  Både arv och komposition ger återanvändning,
   men \emph{typen} av relation avgör vilket som passar.  Den fulla
-  behandlingen av komposition, med exempel, kommer i materialet om
-  sammansatta klasser.
+  behandlingen av komposition, med exempel, kommer i föreläsningen
+  \emph{Praktiska tillämpningar av klasser}.
 }
 
 % The assembled programs belong to the notes only.  A frame wrapped in
@@ -1774,6 +1900,21 @@ den tanglas ur källan --- det är de här filerna som körs.
 \begin{example}[\texttt{public.py}]
   Hela programmet:
   \inputminted{python}{examples/public.py}
+\end{example}
+
+\begin{example}[\texttt{private.py}]
+  Hela programmet:
+  \inputminted{python}{examples/private.py}
+\end{example}
+
+\begin{example}[\texttt{two.py}]
+  Hela programmet:
+  \inputminted{python}{examples/two.py}
+\end{example}
+
+\begin{example}[\texttt{compare.py}]
+  Hela programmet:
+  \inputminted{python}{examples/compare.py}
 \end{example}
 
 }

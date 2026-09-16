@@ -337,25 +337,57 @@ alternativen.
 \end{frame}
 
 Titta igen på hur varorna skapas och visas i
-\cref{ex:shopping-add}: varje vara är en uppslagslista med nycklarna
-\mintinline{python}{"name"} och \mintinline{python}{"checked"}.  När vi
-ska använda varan måste vi komma ihåg nyckelnamnen exakt.
+\cref{ex:shopping-add}: varje vara är en uppslagslista, och det är
+nycklarna som håller ihop den.  Vad det innebär för den som använder
+varan är värt att pröva.
 
-\begin{frame}
-  \begin{exercise}
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:stavfel}
-    Vad händer om vi råkar skriva nyckeln \mintinline{python}{"namn"}
-    i stället för \mintinline{python}{"name"}?  Kommer vi att upptäcka
-    felet direkt?
+    Programmet lägger till två varor och läser sedan ut dem.
+<<[[items1.py]]>>=
+items = []
+items.append({"name": "Mjölk", "checked": False})
+items.append({"name": "Bröd", "checked": False})
+
+print(len(items))
+for item in items:
+    print(item["namn"])
+@
   \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{items1.py}]
+    \label{ex:items1-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines]{examples/items1.py}
+  \end{example}
 \end{frame}
 
 Detta är ett vanligt problem med uppslagslistor: ett stavfel i ett
 nyckelnamn upptäcks först vid körning, när just den raden körs och
 kastar ett \mintinline{python}{KeyError} --- och bara om den raden körs.
+Raden med \mintinline{python}{len} hann köras först, och i ett större
+program kan raden som slår upp nyckeln ligga i en gren som sällan tas.
 Låt oss se hur en \mintinline{python}{Item}-klass kan förbättra
-situationen.  Filen \texttt{shopping\_with\_items.py} innehåller de två
-klasserna och ett testprogram.
+situationen.  De två klasserna och ett testprogram ligger i filen
+\texttt{shopping\_with\_items.py}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{AppLORepresentation}.
+
+  \textbf{Kontrast.}  Vad som varierar: om nyckelnamnet stämmer.  Vad
+  som hålls invariant: uppslagslistan och koden runt omkring.
+  Kontrasten ska urskilja \emph{när} felet upptäcks --- först när den
+  raden körs, inte när programmet startar.  Påståendet stod förr bara i
+  brödtexten; nu ser studenten spårutskriften
+  (\foreignlanguage{english}{traceback}) innan texten förklarar den, och
+  utskriften från \mintinline{python}{len} före felet är belägget för
+  att programmet hann arbeta ett tag först.  Filen heter
+  \texttt{items1.py} och inte något som säger att den innehåller ett
+  stavfel: det är just det studenten ska upptäcka.
+}
 
 \begin{frame}[fragile]
   \begin{example}[Alternativ: en \texttt{Item}-klass]
@@ -654,8 +686,8 @@ ger bättre struktur, säkerhet och underhållbarhet --- särskilt när
 programmet växer.
 
 I vårt fall med inköpslistor är \mintinline{python}{Item}-klassen
-förmodligen \enquote{\foreignlanguage{english}{overkill}} för ett så
-enkelt program: uppslagslistan är den enklaste lösning som gör jobbet.
+förmodligen onödigt tung för ett så enkelt program: uppslagslistan är
+den enklaste lösning som gör jobbet.
 Att välja den enklaste lösningen som fungerar kallas \emph{KISS},
 \foreignlanguage{english}{keep it simple, stupid}, en princip som
 tillskrivs flygplanskonstruktören Kelly
@@ -1055,12 +1087,12 @@ if __name__ == "__main__":
     En person, en person med adress, ett konto och två transaktioner:
 <<skapa person, adress och konto>>=
 # Enkel person
-person = Person("Anna Andersson", 30)
+person = Person("Ronja Rövardotter", 30)
 print(person)
 
 # Person med adress
 address = Address("Storgatan 1", "Stockholm", "12345")
-person_with_addr = PersonWithAddress("Bertil Bertilsson", 35, address)
+person_with_addr = PersonWithAddress("Pippi Långstrump", 35, address)
 
 # Skapa ett konto
 account = BankAccount(person_with_addr, 1000)
@@ -1158,7 +1190,7 @@ var den kommer ifrån och om den håller, med sina förbehåll.
 <<skapa en medborgare med konto>>=
 # Medborgare med personnummer
 address2 = Address("Kungsgatan 5", "Göteborg", "41234")
-citizen = Citizen("Erik Eriksson", 45, address2, "450101-1234")
+citizen = Citizen("Madicken Engström", 45, address2, "450101-1234")
 
 account2 = BankAccount(citizen, 5000)
 print(account2)
@@ -1250,8 +1282,9 @@ Viktiga designprinciper vi har sett:
 \begin{description}
   \item[Inkapsling] Håll data och metoder tillsammans, och låt varje
     klass ha tydligt definierad funktionalitet.  Det vetenskapliga
-    underlaget finns i föreläsningen \emph{Klasser och objekt},
-    bilaga~C.
+    underlaget för inkapsling --- både varifrån principen kommer och hur
+    etablerad den är, med de förbehåll som hör till --- finns i
+    föreläsningen \emph{Klasser och objekt}, bilaga~C.
   \item[Abstraktion] Dölj komplexitet bakom enkla gränssnitt.
     Användaren av en klass behöver inte veta hur den fungerar
     invändigt.
@@ -1262,15 +1295,19 @@ Viktiga designprinciper vi har sett:
     delar, så att varje klass har ett tydligt ansvar.  Principen kallas
     \emph{SRP} (\foreignlanguage{english}{single responsibility
     principle}) och är Robert C. Martins\autocite{Martin2003Agile}; det
-    vetenskapliga underlaget, med de förbehåll som hör till, finns i
-    föreläsningen \emph{Funktioner}, bilaga~B.
+    vetenskapliga underlaget för SRP --- både att principen är Martins
+    och att den är etablerad, med förbehållet att vad som är ett ansvar
+    är en bedömning --- finns i föreläsningen \emph{Funktioner},
+    bilaga~B.
   \item[Komposition före arv] Föredra komposition (att innehålla objekt)
     framför arv när det är möjligt; det ger mer flexibilitet.  Rådet
     formulerades av Gamma, Helm, Johnson och Vlissides i boken
     \emph{Design Patterns}\autocite[20]{Gamma1994DesignPatterns}, som i
     samma andetag säger att arv och komposition
     \enquote{\foreignlanguage{english}{work together}}; det
-    vetenskapliga underlaget finns i \cref{app:komposition}.
+    vetenskapliga underlaget för rådet --- både varifrån det kommer och
+    hur väl det håller, med sina förbehåll --- finns i
+    \cref{app:komposition}.
 \end{description}
 
 \ltnote{%
@@ -1392,9 +1429,13 @@ komposition respektive arv.
 }
 
 Tumregel: föredra komposition, och använd arv när du verkligen har en
-\foreignlanguage{english}{is-a}-relation.  Tumregeln är, med förbehåll,
-väl underbyggd; det vetenskapliga underlaget finns i
-\cref{app:komposition}.
+\foreignlanguage{english}{is-a}-relation.  Arvets kostnader --- bruten
+inkapsling, svårare förståelse och fler
+programfel --- är
+belagda\autocite{Snyder1986,WildeHuitt1992,CartwrightShepperd2000},
+men underhållsexperimenten pekar åt olika håll, så tumregeln är väl
+underbyggd med förbehåll; vad forskningen säger om arvets kostnader, och
+vilka förbehåll som hör till, finns i \cref{app:komposition}.
 
 \subsection{Nästa steg}
 \label{sec:nasta-steg}
