@@ -46,12 +46,16 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   "Beda" was only ever its one-letter partner.
 - Hidden cultural facts in example data: the birth year 1927 is the
   founding year of Kvinnliga Teknologers Sammanslutning, today Malvina, at
-  KTH (bib key `MalvinaHistoria`). The fact stays out of the student text
-  and is recorded, with its source, in an `\ltnote`.
+  KTH (bib key `MalvinaHistoria`); the place name in *Funktioner*'s
+  welcome example is Valhallavägen, KTH's own address (author,
+  2026-09-15: "Why Kungsängen?"). The fact stays out of the student text
+  and is recorded, with its source, in an `\ltnote`. The spelled-out
+  wrong answer to "vilket år är du född?" is `nittonhundratjugosju`.
 - The author's own misconceptions manuscript is cited as
   `SooriBosk2026` (`@unpublished`, provenance block in the decks that use
   it), never by nickname.
-- Every appendix chapter opens with the verbatim
+- Every backed-claim appendix chapter (B onwards; not the method chapter
+  A) opens with the verbatim
   `\chapterprecis{Författaren har ännu inte granskat resultaten i den här
   bilagan i sin helhet.}`.
 - "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
@@ -117,7 +121,10 @@ makefiles` (`--checkout` because the repo config has
 `submodule.makefiles.update=none`). The main checkout's `makefiles` is not
 on that lineage: after the campaign branch is merged to master, run
 `git submodule update` there. Tracked hand-written activity inputs such as
-`files/slides/examples/scb/*.py` are exempt from `black --check`; the
+`files/slides/examples/scb/*.py` are exempt from `black --check`, and so
+is `conditionals/slides-conditionals/examples/villkor.py`, a deliberately
+unparsable program (its tangle rule in that deck's Makefile skips black;
+build with `--exempt 'examples/villkor.py'`); the
 tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
 ## Where the general rules went (2026-09-07)
