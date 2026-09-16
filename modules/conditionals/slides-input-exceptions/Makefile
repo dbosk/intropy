@@ -3,7 +3,9 @@ all: notes.pdf slides.pdf
 
 LATEXFLAGS+=	-shell-escape
 # The example programs are run and their terminal sessions embedded with
-# PythonTeX (didactic's \runpython).
+# PythonTeX (didactic's \runpython).  The tracebacks in the second half
+# are produced by the tangled programs themselves, so a shown error
+# message cannot drift from the code that raises it.
 TEX_PYTHONTEX=	yes
 PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
@@ -19,14 +21,19 @@ SRC+=		sokprotokoll.tex
 SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
-EXAMPLES+=	examples/alder.py
-EXAMPLES+=	examples/alder-input.py
-EXAMPLES+=	examples/alder-fel.py
-EXAMPLES+=	examples/strang-plus.py
-EXAMPLES+=	examples/tal-plus.py
+EXAMPLES+=	examples/age1.py
+EXAMPLES+=	examples/age2.py
+EXAMPLES+=	examples/plus1.py
+EXAMPLES+=	examples/plus2.py
 EXAMPLES+=	examples/heltalsdivision.py
 EXAMPLES+=	examples/strangoperationer.py
 EXAMPLES+=	examples/strangmetoder.py
+EXAMPLES+=	examples/age3.py
+EXAMPLES+=	examples/age-try.py
+EXAMPLES+=	examples/age-isdigit.py
+EXAMPLES+=	examples/average.py
+EXAMPLES+=	examples/age-catchall.py
+EXAMPLES+=	examples/age-raise.py
 
 contents.tex: contents.nw
 

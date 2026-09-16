@@ -4,7 +4,7 @@
 [yt]: https://youtu.be/EOLHQ-eJTyU
 [fbf]: https://eu.feedbackfruits.com/courses/activity-course/91c73814-3a91-4b23-b95a-283663cc2c44
 
-Videon och FeedbackFruits-aktiviteten heter fortfarande *Inmatning och
-felhantering*.  Föreläsningen heter numera *Inmatning och datatyper*:
-felhanteringen (`try`/`except`) hör till modulen om felhantering, och
-den här föreläsningen slutar med en hänvisning dit.
+Föreläsningen heter *Inmatning och felhantering* och täcker både
+inläsning med `input` och felhantering med `try`/`except`; videon och
+FeedbackFruits-aktiviteten heter detsamma.  Den slinga som frågar om
+igen tills svaret går att använda hör till *Villkor och styrstrukturer*.
