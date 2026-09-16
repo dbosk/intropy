@@ -22,7 +22,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/tupler.py
-EXAMPLES+=	examples/oforanderlig.py
+EXAMPLES+=	examples/byt.py
 EXAMPLES+=	examples/uppackning.py
 EXAMPLES+=	examples/fullname.py
 EXAMPLES+=	examples/fullname-alt.py
