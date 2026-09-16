@@ -65,19 +65,22 @@
 
 \begin{frame}
   \mode<presentation>{%
-    \textbytext{%
-      \begin{definition}[Primärminne]
-        Datorns arbetsminne där program under exekvering (processer) och
-        data (variabler) lagras.  Detta är flyktigt minne med mycket snabb
-        åtkomst (storleksordning nanosekunder).
-      \end{definition}
-    }{%
-      \begin{definition}[Sekundärminne]
-        Oflyktigt minne där program som inte exekveras och data (filer)
-        lagras.  Långsammare åtkomst än primärminne (storleksordning
-        mikro- till millisekunder).
-      \end{definition}
-    }
+    \begin{columns}[t]
+      \begin{column}{0.47\textwidth}
+        \begin{definition}[Primärminne]
+          Datorns arbetsminne där program under exekvering (processer)
+          och data (variabler) lagras.  Detta är flyktigt minne med
+          mycket snabb åtkomst (storleksordning nanosekunder).
+        \end{definition}
+      \end{column}
+      \begin{column}{0.47\textwidth}
+        \begin{definition}[Sekundärminne]
+          Oflyktigt minne där program som inte exekveras och data
+          (filer) lagras.  Långsammare åtkomst än primärminne
+          (storleksordning mikro- till millisekunder).
+        \end{definition}
+      \end{column}
+    \end{columns}
   }
   \mode<article>{%
     \textbytext*{%
@@ -642,7 +645,7 @@ with open("finns-inte.txt", "r") as file:
 @
   \begin{example}[Körning]
     Körningen avbryts med en spårutskrift:
-    \runpython[transcript]{examples/read_missing.py}
+    \runpython[transcript, breaklines]{examples/read_missing.py}
   \end{example}
 \end{frame}
 
@@ -692,7 +695,7 @@ def main():
             number = read_number(filename)
             break
         except FileNotFoundError:
-            print(f"Det finns ingen fil som heter {filename}. Försök igen.")
+            print(f"Ingen fil heter {filename}. Försök igen.")
     print(f"Talet är {number}")
 @
   \end{example}
@@ -826,9 +829,10 @@ with open("test1.txt", "w") as file:
 
 Ingenting syns i terminalen; det är ju filen vi skrev till.  För att se
 resultatet får vi läsa filen --- med en texteditor, eller med ett
-program.
+program.  De två läsprogram vi ska skriva avslutar med raden
+[[(slut)]], så att det syns var utmatningen tar slut.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=20]
   \begin{example}[Läsa hela filen]
     Programmet [[read_all.py]] läser hela filen som en enda sträng med
     [[read()]]:
@@ -837,6 +841,7 @@ program.
 
 with open("test1.txt", "r") as file:
     print(file.read())
+print("(slut)")
 @
   \end{example}
 
@@ -864,7 +869,7 @@ du själv skriva det?
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=15]
   \begin{example}[Läsa rad för rad]
     Programmet [[read_lines.py]] går igenom filen med en [[for]]-slinga:
 <<[[read_lines.py]]>>=
@@ -873,11 +878,12 @@ du själv skriva det?
 with open("test1.txt", "r") as file:
     for line in file:
         print(line, end="")
+print("(slut)")
 @
   \end{example}
 
   \begin{example}[Körning]
-    Samma rader kommer ut som med [[read()]]:
+    De två raderna kommer ut, och sedan markören:
     \runpython[transcript]{examples/read_lines.py}
   \end{example}
 \end{frame}
@@ -888,21 +894,29 @@ radbrytningstecken \mintinline{python}{"\n"} som står i filen:
 is left at the end of the string}}\autocite{PythonTutorialFiles}.
 Skriver vi ut raden med ett vanligt [[print(line)]] lägger [[print]] till
 ännu en radbrytning, och utskriften får en tom rad mellan varje rad.
-Därför [[end=""]]: vi låter filens egna radbrytningar räcka.  Det är av
-samma skäl [[read_all.py]] får en tom rad sist: där går hela innehållet
---- radbrytningen på sista raden inräknad --- genom ett enda [[print]].
-Samma tecken som vi själva lade dit när vi skrev filen kommer alltså
-tillbaka när vi läser den.
+Därför \mintinline{python}{end=""}: vi låter filens egna radbrytningar
+räcka.  Det är av samma skäl [[read_all.py]] får en tom rad före
+[[(slut)]] och [[read_lines.py]] inte får det: där går hela innehållet
+--- radbrytningen på sista raden inräknad --- genom ett enda [[print]],
+som lägger till ännu en.  Samma tecken som vi själva lade dit när vi
+skrev filen kommer alltså tillbaka när vi läser den.
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLORead}.
 
   \foreignlanguage{english}{Try-first}: studenterna skriver slingan själva
-  innan den visas.  Den som skriver [[print(line)]] utan [[end=""]] har
+  innan den visas.  Den som skriver [[print(line)]] utan
+  \mintinline{python}{end=""} har
   inte urskilt att raden bär sin egen radbrytning --- det syns i
   utskriften som tomma rader, och det är den kontrasten prosan efter
   körningen förklarar.  Frågan avslöjar inte aspekten (\enquote{tänk på
   radbrytningen}); den ställs som en ren konstruktionsuppgift.
+
+  Båda programmen skriver raden [[(slut)]] sist.  Utan den ser de två
+  körningarna likadana ut i noterna: PythonTeX klipper transkriptets
+  avslutande radbrytning, så den tomma rad [[read_all.py]] verkligen
+  skriver nådde aldrig sidan, och prosan påstod en skillnad som
+  materialets egna körningar motsade.
 
   Radbrytningarna knyter också skrivningen till läsningen: samma
   \mintinline{python}{"\n"} som lades dit i [[write_text.py]] kommer
@@ -921,7 +935,7 @@ tillbaka när vi läser den.
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=15]
   \begin{example}[Hela filen på en gång]
     Allt hamnar i en enda sträng i primärminnet:
     \inputminted{python}{examples/read_all.py}
@@ -1320,14 +1334,73 @@ def read_pairs(filename):
 När vi läser tillbaka filen måste vi tolka strukturen: ta bort
 radbrytningen med [[strip()]], dela upp raden vid kommatecknet med
 [[split(",")]], och --- inte att glömma --- omvandla delarna till tal
-med [[int()]].  Allt som läses ur en textfil är nämligen strängar, även
-det som ser ut som tal: [[read()]] ger en sträng, och slingan över filen
-ger en sträng per rad\autocite{PythonTutorialFiles}.  Strängen
-\mintinline{python}{"3"} är inte talet 3, precis som med [[input()]] i
-föreläsningen \emph{Inmatning och datatyper}, och jämförelsen
-\mintinline{python}{f(3) == "9"} är falsk hur rätt filen än är.  Paren
-samlar vi i en lista av tupler, den behållare vi känner från
-föreläsningarna \emph{Behållare: Listor} och \emph{Behållare: Tupler}.
+med [[int()]].  Att den sista omvandlingen behövs är värt att pröva.
+
+\mode<article>{\needspace{24\baselineskip}}
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skriver programmen ut?]
+    Här är två program.  Båda läser [[tal.txt]], som innehåller talet
+    42.  Vad skriver vart och ett av dem ut?
+<<[[value1.py]]>>=
+"""Reading the number in the file as it comes"""
+
+with open("tal.txt", "r") as file:
+    value = file.read().strip()
+
+print(value == 42)
+print(value * 2)
+<<[[value2.py]]>>=
+"""Reading the number in the file and converting it"""
+
+with open("tal.txt", "r") as file:
+    value = int(file.read().strip())
+
+print(value == 42)
+print(value * 2)
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{value1.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/value1.py}
+  \end{example}
+
+  \begin{example}[\texttt{value2.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/value2.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesLORead}, \cref{FilesLOFormats}.
+
+  \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}: om
+  [[int()]] används på det lästa.  \textbf{Vad som hålls invariant}:
+  filen [[tal.txt]], jämförelsen och fördubblingen.
+
+  Att det lästa är strängar stod förut bara i prosan.  Här körs det.
+  Fördubblingen är med för att skillnaden ska synas som ett
+  \emph{resultat} och inte bara som ett uteblivet ja: en sträng gånger
+  två blir en längre sträng, inte ett dubbelt tal.  Programmen står i en
+  och samma övning så att det är studenten som gör jämförelsen
+  \parencite[45--47]{Marton2015}, och de heter [[value1.py]] och
+  [[value2.py]]: ett namn som nämnde [[int()]] hade avslöjat vad som
+  skiljer dem.  Filen är samma [[tal.txt]] som i \cref{sec:oppna}.
+}
+
+Allt som läses ur en textfil är nämligen strängar, även det som ser ut
+som tal: [[read()]] ger en sträng, och slingan över filen ger en sträng
+per rad\autocite{PythonTutorialFiles}.  Strängen
+\mintinline{python}{"42"} är inte talet 42: jämförelsen blir falsk, och
+gångertecknet upprepar strängen i stället för att räkna.  Det är samma
+sak som med [[input()]] i föreläsningen \emph{Inmatning och datatyper},
+och av samma skäl är jämförelsen \mintinline{python}{f(3) == "9"} falsk
+hur rätt filen än är.  Paren samlar vi i en lista av tupler, den
+behållare vi känner från föreläsningarna \emph{Behållare: Listor} och
+\emph{Behållare: Tupler}.
 
 Lägg också märke till att det blev två funktioner och inte en:
 [[read_pairs]] läser filen, [[parse_pair]] tolkar en rad.  Det är
@@ -1453,9 +1526,9 @@ otillräckligt så snart data ser ut som verkliga data.
 \label{sec:csv}
 
 I stället för att uppfinna egna format för vanliga behov är det mycket
-bättre att använda \emph{standardformat} --- välkända och väl testade
-format som många program förstår.  Ett av de vanligaste formaten för
-tabelldata är CSV (\foreignlanguage{english}{Comma-Separated Values}):
+bättre att använda ett format som \emph{redan finns} --- välkänt, väl
+testat och förstått av många program.  Det vanligaste för tabelldata är
+CSV (\foreignlanguage{english}{Comma-Separated Values}):
 Pythons dokumentation kallar det \enquote{\foreignlanguage{english}{the
 most common import and export format for spreadsheets and
 databases}}\autocite{PythonCSV}.  Formatet användes länge utan att vara
@@ -1486,9 +1559,9 @@ sin egen kopia av [[split(",")]] --- och sina egna buggar i den ---
 använder alla samma.  Det är \emph{DRY}
 (\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
 enda ställe\autocite{HuntThomas1999}, här tillämpat över programgränsen.
-Det vetenskapliga underlaget --- både var principen kommer ifrån och om
-den håller, med sina förbehåll --- finns i föreläsningen \emph{Algoritmiskt
-tänkande}, bilaga E.
+Det vetenskapliga underlaget för DRY --- både var principen kommer
+ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+\emph{Algoritmiskt tänkande}, bilaga E.
 
 \begin{frame}
   \begin{figure}[htbp]
