@@ -5,10 +5,13 @@
 % build with \runpython, so the shown output cannot drift from the code.
 % (The four that are not run either print fifty identical lines or need
 % interactive input that adds nothing to the point being made.)
-% Snippets that cannot be run at all --- an infinite loop, a missing base
-% case --- are plain minted blocks.  A program that merely fails is
-% tangled and run like any other, so that the error output on the slide is
-% the one Python produced: hundra.py is the non-iterable after "in".
+% A program that merely fails is tangled and run like any other, so that
+% the error output on the slide is the one Python produced: hundra.py is
+% the non-iterable after "in" and hej_rekursion2.py the missing base case.
+% The only snippet that stays a plain minted block is the infinite while
+% loop, which cannot be run at all.  hej_rekursion2.py is the one run that
+% is cut (\runshell ... | tail): it greets once per call and would
+% otherwise embed a thousand lines.  The slide says so above the output.
 
 \section[Upprepa]{Att upprepa sig --- eller inte}
 \label{sec:upprepa}
@@ -320,6 +323,7 @@ Så länge vi bara har gått igenom en lista kan man tro att listan är det
 väsentliga.  Det är den inte.  Slingan bryr sig inte om \emph{vad} den
 går igenom, bara att det går att gå igenom ett element i taget.
 
+\mode<article>{\needspace{26\baselineskip}}
 \begin{frame}[fragile,shrink]
   \begin{example}[En lista]
     \label{ex:tre-samlingar}
@@ -374,7 +378,7 @@ igenom en \emph{sträng}, och då är elementen strängens tecken: först
 
 En sträng är alltså inte en odelbar klump text, utan en \emph{följd av
 tecken} --- och en följd går att gå igenom precis som en lista.  Det är
-värt att stanna vid, för det öppnar en hel klass av program: allt man kan
+värt att fundera på, för det öppnar en hel klass av program: allt man kan
 göra med en lista av värden kan man göra med tecknen i en sträng.  Vi
 använder det i \cref{sec:valja} för att räkna ut siffersumman av ett tal.
 
@@ -605,12 +609,12 @@ likadant ut i koden, och betyder helt olika saker.
     \label{ex:rabatt}
     Varor som kostar minst 50 kronor ska få 20 kronor i rabatt.  Här är
     två program.  Vad skriver vart och ett av dem ut?
-<<[[rabatt1.py]]>>=
+<<[[pris1.py]]>>=
 pris = 100
 while pris >= 50:
     pris = pris - 20
 print(pris)
-<<[[rabatt2.py]]>>=
+<<[[pris2.py]]>>=
 pris = 100
 if pris >= 50:
     pris = pris - 20
@@ -620,13 +624,13 @@ print(pris)
 \end{frame}
 
 \begin{frame}[fragile,shrink]
-  \begin{solution}[\texttt{rabatt1.py}]
+  \begin{solution}[\texttt{pris1.py}]
     Priset landar på:
-    \runpython[showcommand, chdir]{examples/rabatt1.py}
+    \runpython[showcommand, chdir]{examples/pris1.py}
   \end{solution}
-  \begin{solution}[\texttt{rabatt2.py}]
+  \begin{solution}[\texttt{pris2.py}]
     Och med det andra programmet:
-    \runpython[showcommand, chdir]{examples/rabatt2.py}
+    \runpython[showcommand, chdir]{examples/pris2.py}
   \end{solution}
 \end{frame}
 
@@ -704,6 +708,7 @@ före, pröva den i villkoret och minska den i kroppen.  Det
 är precis varför \mintinline{python}{for} är förstahandsvalet när antalet
 varv är känt.
 
+\mode<article>{\clearpage}
 \section[Rekursion]{Rekursion: funktionen som anropar sig själv}
 \label{sec:rekursion}
 
@@ -751,18 +756,32 @@ noll returnerar funktionen utan att anropa sig själv igen, och kedjan tar
 slut.
 
 \begin{frame}[fragile]
-  \begin{remark}[Utan basfall]
-    Utan de två raderna som avbryter ser funktionen ut så här:
-    \begin{minted}{python}
+  \begin{exercise}[Vad händer?]
+    \label{ex:utan-basfall}
+    Här är samma funktion utan de två rader som avbryter:
+<<[[hej_rekursion2.py]]>>=
 def skriv_ut(meddelande, antal_gånger):
     """Skriver ut meddelande så många gånger."""
     print(meddelande)
     skriv_ut(meddelande, antal_gånger - 1)
-    \end{minted}
-    Då slutar den aldrig att anropa sig själv, och Python avbryter till
-    sist med felmeddelandet
-    \mintinline{text}|RecursionError: maximum recursion depth exceeded|.
-  \end{remark}
+
+
+skriv_ut("hej", 50)
+@
+  \end{exercise}
+\end{frame}
+
+\mode<article>{\needspace{22\baselineskip}}
+\begin{frame}[fragile,shrink]
+  \begin{example}[Slutet av körningen]
+    \label{ex:utan-basfall-svar}
+    Programmet hinner hälsa nästan tusen gånger innan det ger upp.  Alla
+    hälsningar utom den sista är klippta här:
+    \runshell[showcommand, cwd=examples,
+      commandtext={python3 hej_rekursion2.py},
+      deps={examples/hej_rekursion2.py}]%
+      {python3 -u hej_rekursion2.py 2>>/dev/stdout | tail -n 16}
+  \end{example}
 \end{frame}
 
 Basfallet spelar samma roll för rekursionen som ändringen av räknaren
@@ -806,6 +825,17 @@ i minnet, och till slut är platsen slut.
   med avsikt: samma kritiska aspekt --- att upprepningen måste kunna ta
   slut --- i två skepnader.  Det ger en generalisering över
   konstruktionerna utan att någon ny aspekt införs.
+
+  Till skillnad från den oändliga \mintinline{python}{while}-slingan
+  \emph{går} versionen utan basfall att köra, så påståendet om
+  \mintinline{text}|RecursionError| visas i stället för att sägas:
+  \cref{ex:utan-basfall} frågar först, körningen svarar.  Programmet
+  skriver ut sitt meddelande en gång per anrop och hinner därför med
+  nästan tusen rader innan det ger upp; körningen visar bara slutet, med
+  \mintinline{text}|tail|, och att hälsningarna däremellan är klippta
+  står i klartext ovanför utmatningen.  Det är enda stället i materialet
+  där en körning är beskuren, och kommandoraden som visas är därför den
+  studenten själv skulle skriva, inte den beskärande.
 
   \Cref{ex:hej-femtio} löses här för tredje gången, med samma uppgift och
   samma utmatning som i \cref{sec:upprepa,sec:while}.  Den invariansen är
@@ -1218,7 +1248,7 @@ lyckas}, och det är precis vad \mintinline{python}{while} säger.
 
 
 def fråga_tal(fråga):
-    """Frågar tills användaren matar in ett heltal, returnerar det."""
+    """Frågar tills svaret är ett heltal, och ger talet."""
     while True:
         try:
             return int(input(fråga))
@@ -1335,7 +1365,7 @@ sig en gissning som går att använda, så de hör hemma i samma funktion.
     Vi frågar tills svaret är både ett heltal och inom intervallet:
 <<fråga efter en giltig gissning>>=
 def fråga_gissning(försök):
-    """Frågar tills användaren matar in ett tal mellan 0 och MAX_TAL."""
+    """Frågar tills svaret är ett tal mellan 0 och MAX_TAL."""
     while True:
         try:
             gissning = int(input(f"Gissning {försök}: "))
@@ -1365,7 +1395,7 @@ den är en \mintinline{python}{for} och inte en \mintinline{python}{while}
     Vi ger användaren ett bestämt antal försök:
 <<spela en omgång>>=
 def spela_omgång():
-    """Spelar en omgång; returnerar True om användaren gissade rätt."""
+    """Spelar en omgång; sant om användaren gissade rätt."""
     talet = random.randint(0, MAX_TAL)
 
     for försök in range(1, ANTAL_FÖRSÖK + 1):
