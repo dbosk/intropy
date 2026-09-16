@@ -91,7 +91,7 @@ position[0] = 59.3
 
 \begin{frame}[fragile]
   Vi kör och ser efter:
-<<[[byt.py]]>>=
+<<[[tupel1.py]]>>=
 names = ["Ronja", "Pippi"]
 position = (58.4, 15.6)
 
@@ -101,14 +101,15 @@ print(names)
 try:
     position[0] = 59.3
 except TypeError as error:
-    print(f"Gick inte att ändra tupeln: {error}")
+    print("Gick inte att ändra tupeln:")
+    print(error)
 @
 \end{frame}
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
     Kör vi programmet får vi:
-    \runpython[showcommand, chdir]{examples/byt.py}
+    \runpython[showcommand, chdir]{examples/tupel1.py}
   \end{example}
 \end{frame}
 
@@ -137,9 +138,11 @@ skriver koden kan inte råka ändra det.
   avsiktligt, eftersom det som ska urskiljas är föränderligheten och
   inget annat.
 
-  Filen heter [[byt.py]] efter vad programmet \emph{försöker} göra, inte
-  efter vad som händer: ett namn som [[oforanderlig.py]] hade avslöjat
-  vad som ska urskiljas innan studenten hunnit förutsäga det.
+  Filen heter [[tupel1.py]] efter behållaren och inte efter vad som
+  händer: ett namn som [[oforanderlig.py]] hade avslöjat vad som ska
+  urskiljas innan studenten hunnit förutsäga det.  Den heter inte
+  [[byt.py]], eftersom föreläsningen \emph{Behållare: Listor} tanglar en
+  fil med det namnet där bytet \emph{lyckas}.
 
   Missuppfattningen som mönstret riktar sig mot är att tupeln vore en
   \enquote{fryst lista} --- en lista som råkar vara låst --- i stället
@@ -252,7 +255,7 @@ värdet får vara en tupel.
 
 
 def input_full_name():
-    """Ber användaren mata in namn, returnerar (förnamn, efternamn)."""
+    """Ber om namn och returnerar (förnamn, efternamn)."""
     firstname = input("Ange förnamn: ")
     lastname = input("Ange efternamn: ")
     return firstname, lastname
@@ -260,7 +263,7 @@ def input_full_name():
 
 first, last = input_full_name()
 print(f"Hej, {first.capitalize()}, välkommen till programmet!")
-print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome to the program!")
+print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
 @
 \end{frame}
 
@@ -278,7 +281,7 @@ print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome to the program!")
 
 
 def input_full_name():
-    """Ber användaren mata in namn, returnerar (förnamn, efternamn)."""
+    """Ber om namn och returnerar (förnamn, efternamn)."""
     firstname = input("Ange förnamn: ")
     lastname = input("Ange efternamn: ")
     return (firstname, lastname)
@@ -286,7 +289,7 @@ def input_full_name():
 
 (first, last) = input_full_name()
 print(f"Hej, {first.capitalize()}, välkommen till programmet!")
-print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome to the program!")
+print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
 @
 \end{frame}
 
@@ -351,7 +354,7 @@ elementen, ett i taget, men inte deras nummer.  Behöver vi numret också
   Vår egen version, som bygger listan med par:
 <<[[my_enumerate.py]]>>=
 def my_enumerate(iterable):
-    """Returnerar en lista med (n, item) där item är element i iterable."""
+    """Returnerar listan av par (n, item) ur iterable."""
     result = []
 
     for i in range(len(iterable)):
@@ -415,11 +418,34 @@ for counter, name in enumerate(["ronja", "pippi", "madicken"]):
   \end{exercise}
 \end{frame}
 
-Sista frågan har ett svar värt att lägga märke till:
-\mintinline{python}{enumerate} lämnar inte tillbaka en lista, utan något
-som producerar paren ett i taget medan slingan går.  Det räcker gott för
-en \mintinline{python}{for}-slinga, och behöver vi verkligen en lista
-kan vi be om en med \mintinline{python}{list}.
+Den sista frågan går också att svara på genom att köra.
+
+\mode<article>{\needspace{9\baselineskip}}
+\begin{frame}[fragile]
+  \begin{exercise}
+    Här är ett program som anropar \mintinline{python}{enumerate} utan
+    någon slinga.  Vad skriver det ut?
+<<[[numrering.py]]>>=
+numbers = enumerate(["ronja", "pippi"])
+
+print(type(numbers))
+print(list(numbers))
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/numrering.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{enumerate} lämnar alltså inte tillbaka en lista,
+utan något som producerar paren ett i taget medan slingan går.  Det
+räcker gott för en \mintinline{python}{for}-slinga, och behöver vi
+verkligen en lista kan vi be om en med \mintinline{python}{list} --- och
+då får vi paren.
 
 \ltnote{%
   Relevanta lärandemål: \cref{TupleLODocs,TupleLOEnumerate}.
@@ -430,4 +456,14 @@ kan vi be om en med \mintinline{python}{list}.
   materialets lärandemål och tas inte upp i någon av föreläsningarna.
   Prosan ger därför svaret i vardagliga ord och utan att namnge
   begreppet.
+
+  \textbf{Kontrast.}  Vad som varierar: om vi ber om paren ett i taget
+  eller om hela följden på en gång ([[type]] mot [[list]]).  Vad som
+  hålls invariant: anropet av [[enumerate]] och dess argument.
+  Kontrasten ska urskilja att det [[enumerate]] lämnar tillbaka inte
+  \emph{är} en lista men kan \emph{bli} en --- lärandemålet säger att
+  studenten ska kunna förklara vad [[enumerate]] lämnar tillbaka, och
+  det gick tidigare bara att läsa sig till.  Objektet självt skrivs inte
+  ut: dess representation innehåller en minnesadress som ändras vid
+  varje bygge, så utmatningen skulle inte gå att upprepa.
 }
