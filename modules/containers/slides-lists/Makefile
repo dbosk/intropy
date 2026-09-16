@@ -22,6 +22,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/namnlista.py
+EXAMPLES+=	examples/index.py
 EXAMPLES+=	examples/langd.py
 EXAMPLES+=	examples/skivning.py
 EXAMPLES+=	examples/byt.py
