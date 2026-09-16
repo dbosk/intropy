@@ -2,6 +2,13 @@
 all: notes.pdf slides.pdf
 
 LATEXFLAGS+=	-shell-escape
+# Two of the example programs are run and their terminal sessions
+# embedded with PythonTeX (didactic's \runpython), so code and output
+# cannot drift apart.
+TEX_PYTHONTEX=	yes
+# Both jobs share ltxobj, so the second job must not reuse the first
+# job's PythonTeX cache; and the interpreter must be python3.
+PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
@@ -25,6 +32,8 @@ EXAMPLES+=	examples/person.py
 EXAMPLES+=	examples/contacts_class.py
 EXAMPLES+=	examples/public.py
 EXAMPLES+=	examples/person_nick.py
+EXAMPLES+=	examples/private.py
+EXAMPLES+=	examples/two.py
 
 contents.tex: contents.nw
 
