@@ -22,12 +22,13 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/tupler.py
-EXAMPLES+=	examples/oforanderlig.py
+EXAMPLES+=	examples/tupel1.py
 EXAMPLES+=	examples/uppackning.py
 EXAMPLES+=	examples/fullname.py
 EXAMPLES+=	examples/fullname-alt.py
 EXAMPLES+=	examples/my_enumerate.py
 EXAMPLES+=	examples/tuples.py
+EXAMPLES+=	examples/numrering.py
 
 contents.tex: contents.nw
 
