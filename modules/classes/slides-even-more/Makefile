@@ -24,6 +24,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/shopping.py
+EXAMPLES+=	examples/items1.py
 EXAMPLES+=	examples/shopping_with_items.py
 EXAMPLES+=	examples/bank.py
 
