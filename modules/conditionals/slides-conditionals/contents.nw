@@ -156,8 +156,7 @@ Ett likhetstecken är en \emph{tilldelning}: det stoppar ett värde i en
 variabel.  Två likhetstecken är en \emph{jämförelse}: de frågar om två
 värden är lika.  Att skriva \mintinline{python}{x = 3} i ett villkor är
 alltså att stoppa in ett värde där programmet väntade sig en fråga, och
-Python vägrar.  Det är den snälla varianten --- i många andra språk är
-det tillåtet, och då blir felet tyst.
+Python vägrar.
 
 \ltnote{%
   Relevanta lärandemål: \cref{CondLOBoolean}.
@@ -973,36 +972,128 @@ och det är just den versionen vi körde i \cref{ex:malet}.  Den som
 svarar \enquote{hundraåttio} får frågan igen i stället för ett
 felmeddelande.
 
-\subsection{Det som slingan inte klarar}
+\subsection{Det som kontrollen inte klarar}
+\label{sec:kontrollen}
 
 Omfrågningen bygger på att vi kan \emph{fråga} strängen om den ser ut som
-ett tal.  Men det \mintinline{python}{isdigit} faktiskt svarar på är en
-snävare fråga: består strängen \emph{enbart} av siffror?  Den svarar
-därför nej på \mintinline{text}|-5| och på \mintinline{text}|1.75|, som
-ändå är fullt rimliga svar på andra frågor.
-Att i stället låta programmet \emph{försöka} omvandla och ta hand om
-felet när omvandlingen misslyckas är vad \mintinline{python}{try} och
-\mintinline{python}{except} är till för --- ämnet för föreläsningen
-\emph{Felhantering}.
+ett tal.  Men \mintinline{python}{isdigit} svarar på en snävare fråga än
+\mintinline{python}{int}: består strängen \emph{enbart} av siffror?  Det
+är samma iakttagelse som i föreläsningen \emph{Inmatning och
+felhantering} --- kontrollen är en andra kopia av en regel
+\mintinline{python}{int} redan äger, och kopian är inte likadan.  Inuti
+en slinga får det en följd till.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:plus}
+    Programmet frågar om tills svaret går att använda.  Vad händer om du
+    svarar \mintinline{text}|+180|?
+<<[[langd1.py]]>>=
+<<fråga efter ett heltal>>
+
+
+length = ask_number("Hur lång är du (cm)? ")
+print(f"Du är {length} cm lång.")
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Vi svarar \mintinline{text}|+180| och sedan \mintinline{text}|180|:
+    \runpython[transcript, stdin={+180}, stdin={180}]%
+      {examples/langd1.py}
+  \end{example}
+\end{frame}
+
+Frågan kommer tillbaka för ett svar \mintinline{python}{int} hade tagit
+emot.  Kontrollen vänder bort \mintinline{text}|+180| på samma grund som
+den vänder bort \mintinline{text}|-5| och \mintinline{text}|1.75|, och i
+en slinga räcker det inte att svaret underkänns en gång: användaren
+frågas om tills hon gissar vilken form vi tänkte oss.
+
+Botemedlet känner du: låt \mintinline{python}{int} själv avgöra, och ta
+hand om felet när omvandlingen misslyckas.  Det nya är att vi nu kan
+göra det \emph{om och om igen}, med en \mintinline{python}{while}-slinga
+runt \mintinline{python}{try}-blocket.
+
+\begin{frame}[fragile]
+  \begin{example}[Att fråga igen]
+    \label{ex:fraga-igen}
+    Samma fråga, men utan egen kontroll:
+<<[[langd2.py]]>>=
+def ask_number(question):
+    """Frågar tills svaret går att omvandla, och ger talet."""
+    while True:
+        try:
+            number = int(input(question))
+            break
+        except ValueError:
+            print("Svara med siffror.")
+
+    return number
+
+
+length = ask_number("Hur lång är du (cm)? ")
+print(f"Du är {length} cm lång.")
+@
+  \end{example}
+\end{frame}
+
+Lägg märke till var \mintinline{python}{break} står: sist i
+\mintinline{python}{try}-blocket, efter omvandlingen.  Går omvandlingen
+fel hoppar körningen till \mintinline{python}{except} och når aldrig
+\mintinline{python}{break} --- alltså snurrar slingan ett varv till.
+Lyckas den körs \mintinline{python}{break} och vi är ute.  Det är samma
+egenskap som föreläsningen \emph{Inmatning och felhantering} urskilde
+--- att resten av \mintinline{python}{try}-blocket hoppas över --- nu
+använd till något nyttigt.
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Vi svarar \enquote{hundraåttio} och sedan \mintinline{text}|+180|:
+    \runpython[transcript, stdin={hundraåttio}, stdin={+180}]%
+      {examples/langd2.py}
+  \end{example}
+\end{frame}
+
+Sängprogrammet frågar efter centimeter och kilo, och där duger
+kontrollen med \mintinline{python}{isdigit}.  Men så fort svaret kan
+vara negativt, ett decimaltal eller skrivet med tecken är det
+\mintinline{python}{int} som ska få avgöra --- och då är det den här
+versionen av \mintinline{python}{ask_number} som gäller.
 
 \ltnote{%
-  Kontrollen med \mintinline{python}{isdigit} är medvetet den enklaste
-  som duger för uppgiften i exemplet, i
-  \foreignlanguage{english}{KISS}-anda: den kräver ingen ny
-  konstruktion och kan läsas högt.  Att den inte täcker negativa tal
-  eller decimaltal sägs ut i stället för att döljas, eftersom
-  föreläsningen \emph{Felhantering} behöver bristen som motiv --- och
-  eftersom studenterna annars upptäcker den i labben och drar
-  slutsatsen att materialet hade fel.
+  Relevanta lärandemål: \cref{CondLOLoop,CondLORobust,CondLOTrace}.
 
-  Kopplingen går åt båda hållen: föreläsningen \emph{Felhantering}
-  bygger vidare på just det här stycket och driver saken längre, med
-  \mintinline{text}|+1994| som \mintinline{python}{int} accepterar men
-  \mintinline{python}{isdigit} avvisar --- alltså att kontrollen är en
-  andra kopia av en regel \mintinline{python}{int} redan äger.  Därför
-  formuleras regeln här som den är (enbart siffror) i stället för som en
-  konsekvens av den (hela positiva tal): det senare stämmer inte för tal
-  skrivna med tecken, och studenten skulle möta motexemplet i
-  \emph{Felhantering}.  Ändras stycket bör den föreläsningen ändras med
-  det.
+  \textbf{Fusion}: vad som varierar är felhanteringen och styrflödet
+  samtidigt; vad som hålls invariant är uppgiften och frågan.  (Att
+  programmet i \cref{ex:plus} tiger när svaret underkänns är inte en
+  tredje variation utan sängprogrammets egen
+  \mintinline{python}{ask_number} oförändrad.)  Här möts två saker
+  studenten sett var för sig: att
+  \mintinline{python}{except} fångar, från föreläsningen \emph{Inmatning
+  och felhantering}, och att \mintinline{python}{while} upprepar, som är
+  den här föreläsningens egen konstruktion.  Avsnittet lägger därför
+  ingen tid på \mintinline{python}{try} i sig.
+
+  Placeringen av \mintinline{python}{break} är den kritiska aspekten och
+  pekas ut i prosan i stället för att lämnas åt läsaren: den hänger på
+  att resten av \mintinline{python}{try}-blocket hoppas över, vilket
+  \emph{Inmatning och felhantering} redan urskilt.  Att kunna hänvisa
+  tillbaka dit i stället för att förklara om är hela skälet till att
+  avsnitten ligger i den här ordningen.
+
+  \Cref{ex:plus} frågar vad som \emph{händer}, inte vad som är fel med
+  kontrollen.  Att \mintinline{python}{isdigit} är strängare än
+  \mintinline{python}{int} är känt sedan \emph{Inmatning och
+  felhantering}; att det i en slinga gör att frågan kommer tillbaka för
+  ett dugligt svar är det inte, och det är den nya urskiljningen.
+
+  Sängprogrammet behåller kontrollen med \mintinline{python}{isdigit}.
+  Det är medvetet, i \foreignlanguage{english}{KISS}-anda: den kräver
+  ingen ny konstruktion och kan läsas högt.  Att den ändå inte är
+  \mintinline{python}{int}:s regel sägs ut i stället för att döljas ---
+  annars upptäcker studenterna det i labben och drar slutsatsen att
+  materialet hade fel.
 }

@@ -36,6 +36,8 @@ EXAMPLES+=	examples/rabatt1.py
 EXAMPLES+=	examples/rabatt2.py
 EXAMPLES+=	examples/gissa.py
 EXAMPLES+=	examples/fraga-utan-slinga.py
+EXAMPLES+=	examples/langd1.py
+EXAMPLES+=	examples/langd2.py
 
 contents.tex: contents.nw
 
