@@ -34,6 +34,7 @@ EXAMPLES+=	examples/public.py
 EXAMPLES+=	examples/person_nick.py
 EXAMPLES+=	examples/private.py
 EXAMPLES+=	examples/two.py
+EXAMPLES+=	examples/compare.py
 
 contents.tex: contents.nw
 

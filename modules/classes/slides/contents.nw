@@ -654,11 +654,10 @@ print(person.get_last_name())
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{exercise}
+\begin{frame}[fragile,shrink=10]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:tva-objekt}
-    Programmet skapar två personer och byter namn på den ena.  Vad
-    skriver det ut?
+    Här är ett program med två personobjekt.
 <<[[two.py]]>>=
 from person import Person
 
@@ -1100,12 +1099,14 @@ class PublicExample:
 \begin{frame}[fragile]
   \begin{example}[Direkt åtkomst till ett publikt attribut]
     \label{ex:public-main}
-    Testprogrammet ändrar attributet både via metoden och direkt:
+    Testprogrammet läser attributet både via metoden och direkt, och
+    ändrar det sedan på båda sätten:
 <<testprogram för [[PublicExample]]>>=
 def main():
     """Example program"""
     example = PublicExample(10)
     print(f"Initial value: {example.get_value()}")
+    print(f"Directly read value: {example.value}")
     example.set_value(20)
     print(f"Updated value: {example.get_value()}")
     example.value = 30
@@ -1118,8 +1119,18 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Byt nu ut \mintinline{python}{self.value} mot
-\mintinline{python}{self.__value} och låt allt annat stå kvar.
+\begin{frame}[fragile]
+  \begin{example}[\texttt{public.py}]
+    \label{ex:public-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/public.py}
+  \end{example}
+\end{frame}
+
+Raden \mintinline{python}{example.value} läser attributet utan att gå
+via någon metod, och den fungerar.  Här är en klass med samma uppgift,
+men attributet heter \mintinline{python}{__value}, och huvudprogrammet
+försöker läsa det direkt på samma sätt.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad skriver programmet ut?]
@@ -1149,22 +1160,40 @@ print(example.__value)
   \end{example}
 \end{frame}
 
-Läsmetoden kommer åt attributet, men raden utanför klassen gör det inte:
-namnet \mintinline{python}{__value} finns inte på objektet, eftersom det
-är omskrivet till \mintinline{python}{_PrivateExample__value}
-(\cref{fn:mangling}).  Det är den skillnaden mot
-\cref{ex:public-main} som understrecken gör.
+Läsmetoden kommer åt attributet, men raden utanför klassen gör det
+inte.  Den direkta läsningen lyckades i \cref{ex:public-run} och
+misslyckas här, och det är den skillnaden understrecken gör: namnet
+\mintinline{python}{__value} finns inte på objektet.  Python har skrivit
+om det, till
+\mintinline{python}{_PrivateExample__value} (\cref{fn:mangling}).
 
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLOEncapsulation}.
 
   \textbf{Variationsmönster}: Kontrast.
 
-  \textbf{Vad som varierar}: attributets synlighet (publikt
-  \mintinline{python}{self.value} respektive privat
+  \textbf{Vad som varierar}: attributets namn, och därmed dess
+  synlighet (\mintinline{python}{self.value} respektive
   \mintinline{python}{self.__value}).
 
-  \textbf{Vad som hålls invariant}: allt annat i klassens struktur.
+  \textbf{Vad som hålls invariant}: klassens uppgift (hålla ett värde
+  och lämna ut det), läsmetoden, och den direkta läsningen i
+  huvudprogrammet --- \mintinline{python}{example.value} i
+  \cref{ex:public-run} mot \mintinline{python}{example.__value} här.
+  Det är den raden, och bara den, som kontrasten vilar på; resten av
+  \texttt{private.py} är nedbantad (inget \mintinline{python}{main},
+  ingen skrivmetod) för att den raden ska stå oskymd.  Programmen är
+  alltså inte identiska så när som på ett tecken, och texten påstår inte
+  längre att de är det.
+
+  \textbf{Varför inte ett rent ombyte av en enda rad}: namnomskrivningen
+  gäller bara inuti klasskroppen.  Skrev vi om \texttt{public.py} rakt av
+  skulle \mintinline{python}{example.__value = 30} utanför klassen
+  tyst skapa ett \emph{andra} attribut vid sidan av
+  \mintinline{python}{_PrivateExample__value}, och utskriften efteråt
+  skulle lyckas --- kontrasten hade visat ingenting.  Det är därför
+  jämförelsen står mellan två \emph{läsningar} och inte mellan en
+  skrivning och en läsning.
 
   Genom att kontrastera publika och privata attribut kan studenterna
   urskilja \emph{när} och \emph{varför} man ska använda inkapsling.  Det
@@ -1390,15 +1419,33 @@ resten.\footnote{\label{fn:total-ordering}%
 \#functools.total_ordering}
   (hämtad 2026-09-03).}
 
-\begin{frame}
-  \begin{exercise}
+\begin{frame}[fragile,shrink=10]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:eq}
-    Vi skapar två personer med exakt samma namn, födelsedag, adress och
-    telefonnummer.  Vad ger \mintinline{python}{person1 == person2}?
+    Här är två personer med exakt samma namn, födelsedag, adress och
+    telefonnummer.
+<<[[compare.py]]>>=
+from person import Person
+
+person1 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+
+print(person1 == person2)
+print(person1 == person1)
+@
   \end{exercise}
 \end{frame}
 
-\mintinline{python}{False}.  Vår klass har ingen \mintinline{python}{__eq__},
+\begin{frame}[fragile]
+  \begin{example}[\texttt{compare.py}]
+    \label{ex:compare-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/compare.py}
+  \end{example}
+\end{frame}
+
+Vår klass har ingen \mintinline{python}{__eq__},
 och då jämför Python \emph{identitet}: två objekt är lika bara om de är
 samma objekt, precis som \mintinline{python}{person1 is
 person2}.\footnote{\label{fn:default-eq}%
@@ -1416,6 +1463,10 @@ innehållet --- säg namn och födelsedag --- definierar vi
 \mintinline{python}{__lt__}, och låter den returnera
 \mintinline{python}{True} när attributen är lika.
 
+% Marginalen på den sidan där den här noten hamnar delas med fotnoten
+% till DRY (HuntThomas1999) i nästa avsnitt, och marginalnoter tas i tur
+% och ordning: växer noten med ett par rader sköts den fotnoten till
+% nästa sida, bort från sin markör.  Håll noten kort.
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLODunder,ClassLOObject}.
 
@@ -1428,7 +1479,9 @@ innehållet --- säg namn och födelsedag --- definierar vi
   har två objekt med lika attribut eller ett objekt med två namn; vad
   som hålls invariant är attributvärdena.  Att \mintinline{python}{==}
   utan \mintinline{python}{__eq__} är identitet är belagt i
-  språkreferensen (\cref{fn:default-eq}).  Underlaget för
+  språkreferensen (\cref{fn:default-eq}) och körs nu också
+  (\cref{ex:compare-run}); jämförelsen med sig själv är raden som visar
+  att det är identiteten, inte värdena, som jämförs.  Underlaget för
   missuppfattningen finns i \cref{app:missuppfattningar}.
 
   Det ursprungliga påståendet här --- att \mintinline{python}{__lt__}
@@ -1803,8 +1856,8 @@ en \mintinline{python}{Person} \enquote{har en}
   när varje mönster är lämpligt.  Kontrasten gör den kritiska aspekten
   (relationstypen) synlig.  Både arv och komposition ger återanvändning,
   men \emph{typen} av relation avgör vilket som passar.  Den fulla
-  behandlingen av komposition, med exempel, kommer i materialet om
-  sammansatta klasser.
+  behandlingen av komposition, med exempel, kommer i föreläsningen
+  \emph{Praktiska tillämpningar av klasser}.
 }
 
 % The assembled programs belong to the notes only.  A frame wrapped in
@@ -1857,6 +1910,11 @@ den tanglas ur källan --- det är de här filerna som körs.
 \begin{example}[\texttt{two.py}]
   Hela programmet:
   \inputminted{python}{examples/two.py}
+\end{example}
+
+\begin{example}[\texttt{compare.py}]
+  Hela programmet:
+  \inputminted{python}{examples/compare.py}
 \end{example}
 
 }
