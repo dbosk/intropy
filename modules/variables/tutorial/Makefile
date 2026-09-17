@@ -42,11 +42,14 @@ SRC+=		ltnotes.bib
 EXAMPLES+=	examples/walk.py
 EXAMPLES+=	examples/dance.py
 EXAMPLES+=	examples/dishes.py
-EXAMPLES+=	examples/dishes-steps.py
+EXAMPLES+=	examples/dishes-nested.py
+EXAMPLES+=	examples/dance-step.py
+EXAMPLES+=	examples/wash-step.py
 EXAMPLES+=	examples/tiles.py
 EXAMPLES+=	examples/house-chores.py
 EXAMPLES+=	examples/house-chores-fixed.py
 EXAMPLES+=	examples/bmi.py
+EXAMPLES+=	examples/bmi-units.py
 
 # The tile figures live with the module, not with the deck: they are the
 # course's own drawings and the retired markdown tutorial linked to the
