@@ -38,8 +38,10 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
 ## Gör så här, i ordning
 
 1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
-   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
-   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
+   frågor. Föreläsningen har en egen sida här i modulen, *Föreläsning:
+   Klasser och objekt*, som beskriver dess innehåll och länkar till
+   anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
+   inspelningen och föreläsningsanteckningarna där i stället.
 2. **Gå på övningen för din grupp:** *Övning klasser och objekt*. Vi går
    igenom veckans innehåll genom att lösa problem tillsammans i mindre
    grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
