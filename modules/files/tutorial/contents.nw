@@ -63,6 +63,25 @@ kraschar programmet redan på \mintinline{python}{open}.  Ska den
 med \mintinline{python}{"w"}, och då är det som stod där borta.
 
 \begin{frame}
+  \begin{exercise}[Att stänga filen]
+    Båda frågorna slutar med att programmet öppnar en fil --- och
+    därmed med att det förr eller senare måste stänga den.  Varför då?
+    Vad kan gå fel för den som låter bli?
+  \end{exercise}
+\end{frame}
+
+Två saker, och den ena är allvarligare än den andra.  En öppen fil är en
+resurs operativsystemet håller åt programmet, och antalet sådana är
+begränsat: ett program som öppnar filer utan att stänga dem tar till
+slut slut på dem.  Värre är att det programmet \emph{skriver} går via
+en buffert, och det som ligger kvar i bufferten när programmet avslutas
+kan aldrig nå disken.  Därför ska filen stängas när programmet är klart
+med den, och därför gör \mintinline{python}{with} det åt
+oss\autocite{PythonTutorialFiles} --- det vetenskapliga underlaget för
+vad Pythons filfunktioner gör finns i föreläsningen \emph{Arbeta med
+filer}, bilaga D.
+
+\begin{frame}
   \begin{exercise}[Modulen \texttt{filer.py}]
     Skriv en modul [[filer.py]] som svarar på programmens frågor om
     filer.  Den ska innehålla
@@ -83,21 +102,6 @@ med \mintinline{python}{"w"}, och då är det som stod där borta.
 \end{frame}
 
 \subsection{Lösningsförslag}
-
-Modulen får bli en egen fil, inte en del av det första program som
-behöver den.  Skälet är att den inte har med något enskilt program att
-göra: den svarar på frågor om filer, och den frågan ändras av andra skäl
-än ordräkningen eller översättningen ändras.  Det är principen om ett
-enda ansvar, \emph{SRP} (\foreignlanguage{english}{Single
-Responsibility Principle}) --- en modul ska inte ha mer än ett skäl att
-ändras\autocite[kap.~8]{Martin2003Agile}.  Att lägga funktionerna här en
-gång i stället för i varje program är samtidigt \emph{DRY}
-(\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
-enda ställe\autocite{HuntThomas1999}.  Det vetenskapliga underlaget för
-SRP --- att principen är etablerad, och att avgränsningen av
-\enquote{ett ansvar} är en bedömningsfråga --- finns i föreläsningen
-\emph{Funktioner}, bilaga B, och underlaget för DRY, med sina förbehåll,
-i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.
 
 Den fråga allt annat hänger på är den enklaste: finns filen?  Det finns
 inget sätt att veta annat än att be operativsystemet om den, så
@@ -208,7 +212,7 @@ Lägg märke till att [[läs_fil]] returnerar \emph{inifrån}
 när funktionen returnerar, och \mintinline{python}{with} stänger filen
 när blocket lämnas --- oavsett hur det lämnas.
 
-\begin{frame}[fragile,shrink=45]
+\begin{frame}[fragile,shrink=15]
   Modulen [[filer.py]] består av de sex funktionerna och ett
   huvudprogram som låter oss pröva dem:
 <<[[filer.py]]>>=
@@ -264,6 +268,22 @@ def main():
 Samma fel, motsatta svar --- och samma slinga.  Det är hela skillnaden
 mellan de två frågorna.
 
+De sex funktionerna fick bli en egen fil, inte en del av det första
+program som behöver dem.  Skälet syns nu när de står samlade: de har
+inte med något enskilt program att göra, utan svarar på frågor om filer
+--- och de frågorna ändras av andra skäl än ordräkningen eller
+översättningen ändras.  Det är principen om ett enda ansvar, \emph{SRP}
+(\foreignlanguage{english}{Single Responsibility Principle}) --- en
+modul ska inte ha mer än ett skäl att
+ändras\autocite[kap.~8]{Martin2003Agile}.  Att lägga dem här en gång i
+stället för i varje program är samtidigt \emph{DRY}
+(\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
+enda ställe\autocite{HuntThomas1999}.  Det vetenskapliga underlaget för
+SRP --- att principen är etablerad, och att avgränsningen av
+\enquote{ett ansvar} är en bedömningsfråga --- finns i föreläsningen
+\emph{Funktioner}, bilaga B, och underlaget för DRY, med sina förbehåll,
+i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.
+
 Det finns ett annat och lika rimligt sätt att skriva [[läs_infilnamn]]:
 strunta i att fråga om filen finns, försök läsa den direkt och fånga
 \mintinline{python}{FileNotFoundError} när det misslyckas.  Så gör
@@ -275,7 +295,7 @@ när frågan ändå måste finnas blir de två funktionerna varandras spegel i
 stället för två olika idéer.
 
 \mode<article>{\clearpage}
-\section{Är det en bild?}
+\section{Är det en JPEG-bild?}
 \label{sec:bild}
 
 \ltnote{%
@@ -304,6 +324,11 @@ stället för två olika idéer.
   \mintinline{python}{UnicodeDecodeError} --- samma spårutskrift som i
   föreläsningen \emph{Arbeta med filer} --- eller en jämförelse som
   alltid blir falsk.
+
+  Att uppgiften \emph{pekar ut} argumentet till [[read]] är avsiktligt:
+  antalet byte att läsa är bokföring och inte den kritiska aspekten, och
+  en student som fastnar på den hinner aldrig fram till lägesvalet.
+  Peka på dokumentationen, inte på \mintinline{python}{"rb"}.
 }
 
 Alla filer i den förra uppgiften var textfiler.  Men en fil är i grunden
@@ -340,7 +365,7 @@ byten med värdet \texttt{FF}.
 JPEG_INLEDNING = b"\xff\xd8\xff"
 
 
-def är_jpeg(filnamn):
+def börjar_som_jpeg(filnamn):
     """Returnerar True om filen filnamn inleds som en JPEG-bild"""
     with open(filnamn, "rb") as fil:
         return fil.read(3) == JPEG_INLEDNING
@@ -370,7 +395,6 @@ filen i minnet.
 
 import filer
 
-
 <<känn igen JPEG-inledningen>>
 
 
@@ -389,7 +413,7 @@ if __name__ == "__main__":
 def main():
     """Frågar efter en fil och svarar om den är en JPEG-bild"""
     filnamn = filer.läs_infilnamn("Vilken fil ska vi titta på? ")
-    if är_jpeg(filnamn):
+    if börjar_som_jpeg(filnamn):
         print(f"{filnamn} inleds som en JPEG-bild.")
     else:
         print(f"{filnamn} är ingen JPEG-bild.")
@@ -427,8 +451,13 @@ CSV är.
 
   \textbf{Variationsmönster}: Generalisering, sedan fusion.
 
-  \textbf{Vad som varierar}: vad texten delas upp i --- ord eller
-  tecken.
+  \textbf{Vad som varierar} \emph{inuti} uppgiften: vad texten delas upp
+  i --- ord eller tecken.  \textbf{Mot \cref{sec:bild}} varierar i
+  stället hela kedjan: filen bearbetas i stället för att inspekteras, en
+  tredje sorts fråga tillkommer, innehållet samlas i en behållare och
+  resultatet går ut på fil igen.  Det är den senare variationen som
+  motiverar avsnittets plats i ordningen, och den förra som gör
+  räkningen urskiljbar.
 
   \textbf{Vad som hålls invariant}: räkningen, som är \emph{samma}
   funktion i båda fallen, och vägen fil \(\rightarrow\) uppslagslista
@@ -454,9 +483,11 @@ CSV är.
 Nu ska vi göra något med innehållet.  En textfil på några sidor
 innehåller några hundra olika ord, och frågan \enquote{hur många gånger
 förekommer varje ord?} går inte att svara på genom att titta --- men den
-går att svara på med en uppslagslista och en slinga.  Filen
-[[madicken.txt]] --- ett utdrag ur Wikipedias artikel om Madicken ---
-finns att hämta tillsammans med övningen och är lagom stor att räkna på.
+går att svara på med ett program.  Filen [[madicken.txt]] finns att
+hämta tillsammans med övningen och är lagom stor att räkna på; den är
+ett utdrag ur Wikipedias artikel \enquote{Madicken (bok)} och får
+användas och spridas vidare under licensen CC~BY-SA~4.0, vilket också
+står sist i filen.
 
 \begin{frame}
   \begin{exercise}[Programmet \texttt{wc.py}]
@@ -564,7 +595,7 @@ vetenskapliga underlaget --- att CSV är mycket vanligt men aldrig
 formellt standardiserat, och att modulen tar hand om specialfallen ---
 finns i föreläsningen \emph{Arbeta med filer}, bilaga E.
 
-\begin{frame}[fragile,shrink=35]
+\begin{frame}[fragile,shrink=15]
   Programmet [[wc.py]] består av räkningen, skrivningen och ett
   huvudprogram:
 <<[[wc.py]]>>=
@@ -666,7 +697,8 @@ for rad in rader[:4]:
   \end{example}
 
   \begin{example}[Att hitta de citerade raderna]
-    En rad som börjar med ett citattecken har ett komma i ordet:
+    Strängmetoden [[startswith]] svarar om strängen inleds med den text
+    den får som argument --- här ett citattecken:
 <<visa raderna med citattecken>>=
 citerade = []
 for rad in rader:
@@ -726,6 +758,11 @@ skiljetecknen innan orden räknas, till exempel med
 CSV-filen försvinner, och med dem det tydligaste skälet att använda
 modulen.
 
+Och kalkylprogrammet?  Det öppnar filen utan att fråga något: de
+citerade fälten hamnar i \emph{en} cell var, kommatecknet och allt, och
+antalen i kolumnen bredvid --- vilket är hela poängen med att ett
+etablerat format har en läsare i varje program.
+
 \mode<article>{\clearpage}
 \section{Rövarspråket}
 \label{sec:rovarspraket}
@@ -734,7 +771,11 @@ modulen.
   Relevanta lärandemål: \cref{OvningFilesLOContextMgr},
   \cref{OvningFilesLORead}, \cref{OvningFilesLOWrite}.
 
-  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Variationsmönster}: generalisering av mönstret, kontrast i den
+  kritiska aspekten.  Mönstret läs, bearbeta, skriv går igen från
+  \cref{sec:rakna} med nytt innehåll --- det är generaliseringen --- men
+  den aspekt uppgiften handlar om varieras mot en invariant bakgrund,
+  och det är en kontrast.
 
   \textbf{Vad som varierar}: vart resultatet skrivs --- till en
   \emph{annan} fil i \cref{sec:rakna}, till \emph{samma} fil här.
@@ -779,7 +820,9 @@ och tillbaka igen.
     den är, och användaren få veta varför.
 
     Filen [[rövare.txt]] är skriven på rövarspråket.  Med en översättare
-    som fungerar kan du läsa den.
+    som fungerar kan du läsa den --- också sista raden, som är ett utdrag
+    ur Wikipedias artikel \enquote{Ronja Rövardotter} och står under
+    licensen CC~BY-SA~4.0, skriven på rövarspråket som resten av filen.
   \end{exercise}
 \end{frame}
 
@@ -809,9 +852,9 @@ def till_rövarspråket(text):
   \end{example}
 \end{frame}
 
-Konstanten innehåller bara gemener, så jämförelsen sker mot
-[[bokstav.lower()]]; det dubblerade tecknet blir också gement, vilket är
-hur rövarspråket brukar skrivas: \enquote{Rorononjoja}, inte
+Jämförelsen sker mot [[bokstav.lower()]] eftersom konstanten bara
+innehåller gemener, och av samma skäl blir det dubblerade tecknet
+gement: rövarspråket brukar skrivas \enquote{Rorononjoja} och inte
 \enquote{RoRononjoja}.
 
 Åt det andra hållet duger inte en slinga över tecknen, och det är värt
@@ -867,7 +910,6 @@ fånga allt är verklig men att buggarna av den är mer sällsynta än vanan
 
 import filer
 
-
 <<till rövarspråket>>
 
 
@@ -906,11 +948,11 @@ def main():
 \end{frame}
 
 Två saker i huvudprogrammet är där för att filen ska överleva.  Den
-första är att [[text]] hämtas hem \emph{innan} skrivningen:
-[[läs_fil]] läser hela filen och stänger den, så när
-[[skriv_fil]] senare öppnar samma namn med
-\mintinline{python}{"w"} finns innehållet redan i minnet.  Hade filen
-fortfarande varit öppen för läsning skulle vi tömma den under oss.
+första är att texten hämtas hem \emph{innan} skrivningen: [[läs_fil]]
+läser hela filen och stänger den, så att [[skriv_fil]] efteråt kan
+öppna samma namn med \mintinline{python}{"w"} utan att något går
+förlorat.  Hade filen fortfarande varit öppen för läsning skulle vi
+tömma den under oss.
 
 Den andra är ordningen inuti anropet.  Python räknar ut argumentet ---
 själva översättningen --- innan [[skriv_fil]] anropas, så kastar
@@ -995,6 +1037,20 @@ print(rövare.från_rövarspråket(hela).split("\n")[0])
 
 Filen ligger kvar efter felet, precis som huvudprogrammet lovar.
 
+\ltnote{%
+  Exempeldatan bär två upplysningar som inte hör hemma i studenttexten.
+  Texten i [[rövare.txt]] är ett utdrag ur Wikipedias artikel
+  \enquote{Ronja Rövardotter} (CC~BY-SA~4.0), alltså en \emph{rövar}saga
+  som bärare av \emph{rövar}språket --- valet är gjort för att den som
+  väl har avkodat filen ska få en poäng på köpet.  Provtexten
+  \enquote{Madicken bor på Junibacken} kommer ur samma författarskap:
+  Junibacken är gården i Astrid Lindgrens \emph{Madicken}, och
+  [[madicken.txt]] är utdraget ur Wikipedias artikel
+  \enquote{Madicken (bok)} (CC~BY-SA~4.0) som \cref{sec:rakna} räknar
+  på.  Namnen följer kursens ordning för exempeldata
+  (\texttt{modules/CLAUDE.md}).
+}
+
 Det finns ett försiktigare sätt att skriva över en fil: skriv
 översättningen till en ny fil och byt namn på den när den är färdig.  Då
 överlever originalet också om datorn stängs av midnattstid mitt i
@@ -1034,6 +1090,19 @@ haverisäker lagring.
   Uppgiften är \emph{behållen} men gjord fristående: den byggde förut på
   ett program studenten skrivit på en tidigare övning, vilket gjorde den
   olösbar för den som inte var där.  Nu står allt som behövs i uppgiften.
+
+  \textbf{Andra dimensionen: läget.}  Påbyggnaden är tillagd för att
+  \cref{OvningFilesLOFileTypes} nämner \emph{valet} av läge, och
+  \mintinline{python}{"a"} är det enda läge föreläsningen tar upp som
+  övningen annars aldrig skulle använda.  Kontrasten
+  \mintinline{python}{"w"} mot \mintinline{python}{"a"} står i
+  provprogrammet, där båda skriver till samma fil i samma körning.
+  Binärskrivning (\mintinline{python}{"wb"}) praktiseras fortfarande
+  inte: den kräver data som inte är text, och det enda rimliga
+  binärformatet i räckhåll vore att tillverka en bildfil --- ett eget
+  ämne som skulle dra fokus från filhanteringen.  Läsningen i binärläge
+  räcker för att göra text mot binärt urskiljbart
+  (\cref{sec:bild}).
 }
 
 Ett program som har sina data inuti sig måste ändras varje gång datan
@@ -1048,11 +1117,14 @@ ett som vem som helst kan lägga till i.
     version stod spådomarna i en lista inuti programmet, så att den som
     ville lägga till en fick redigera koden.
 
-    Skriv ett program [[fortune.py]] som i stället läser spådomarna ur
-    filen [[fortunes.txt]] --- en spådom per rad --- och skriver ut en
-    slumpvis vald.  Modulen [[random]] i standardbiblioteket har
-    funktionen [[choice]], som väljer ett slumpvis element ur en lista.
-    Skriv också filen [[fortunes.txt]] med några spådomar i.
+    Låt databasen heta [[fortunes.txt]] och ha en spådom per rad.  Skriv
+    den, och skriv ett program [[fortune.py]] som läser spådomarna
+    därifrån och skriver ut en slumpvis vald.  Modulen [[random]] i
+    standardbiblioteket har funktionen [[choice]], som väljer ett
+    slumpvis element ur en lista.
+
+    Lägg sedan till en funktion som skriver en \emph{ny} spådom till
+    databasen.  De som redan står där ska finnas kvar efteråt.
   \end{exercise}
 \end{frame}
 
@@ -1104,15 +1176,40 @@ sig filens egen radbrytning, och en spådom som slutar på
 Filnamnet är en parameter med [[DATABAS]] som standardvärde, så att
 programmet går att pröva mot en annan databas utan att ändras.
 
+Att lägga till en spådom ser ut som en skrivning, men läget
+\mintinline{python}{"w"} duger inte: det tömmer filen, och då är de
+gamla spådomarna borta.  Det är vad läget \mintinline{python}{"a"} är
+till för --- allt som skrivs hamnar sist i filen, och det som redan
+stod där rörs inte.
+
 \begin{frame}[fragile]
-  Programmet [[fortune.py]] är laddningen och ett huvudprogram:
+  \begin{example}[Att bygga på databasen]
+    Filen öppnas i tilläggsläge, och kakan får sin egen rad:
+<<lägg till en kaka sist>>=
+def lägg_till(kaka, filnamn=DATABAS):
+    """Skriver kaka sist i databasen utan att röra de andra"""
+    with open(filnamn, "a") as databas:
+        databas.write(kaka + "\n")
+@
+  \end{example}
+\end{frame}
+
+Radbrytningen måste vi lägga dit själva, precis som i föreläsningen
+\emph{Arbeta med filer}: [[write]] lägger inte till någon.  Utan den
+skulle den nya spådomen klistras ihop med den förra, och formatet ---
+en post per rad --- vore brutet av just det som skulle fylla på det.
+
+\begin{frame}[fragile]
+  Programmet [[fortune.py]] är de två funktionerna och ett huvudprogram:
 <<[[fortune.py]]>>=
 """Ett program som skriver ut en slumpvis vald fortunekaka"""
 
 import random
 
-
 <<ladda databasen rad för rad>>
+
+
+<<lägg till en kaka sist>>
 
 
 <<skriv ut en slumpvis vald kaka>>
@@ -1141,15 +1238,28 @@ läge med [[random.seed]].  Då blir valet detsamma varje körning, vilket
 programmet används.
 
 \begin{frame}[fragile]
-  \begin{example}[Provkörningen]
-    Hela databasen, och sedan ett val ur den:
+  Provprogrammet [[fortuneprov.py]] gör två saker efter varandra:
 <<[[fortuneprov.py]]>>=
-"""Provkörning: databasen och en slumpvis vald kaka ur den"""
+"""Provkörning: databasen, ett slumpvis val och en påbyggnad"""
 
 import random
 
+import filer
 import fortune
 
+PROVDATABAS = "provkakor.txt"
+
+<<visa databasen och välj en kaka>>
+
+
+<<bygg på en kopia av databasen>>
+@
+\end{frame}
+
+\begin{frame}[fragile,shrink=20]
+  \begin{example}[Hela databasen, och ett val ur den]
+    Slumptalsgeneratorn ställs först i ett bestämt läge:
+<<visa databasen och välj en kaka>>=
 random.seed(42)
 kakor = fortune.ladda_databas()
 print(f"{len(kakor)} kakor i databasen:")
@@ -1158,11 +1268,28 @@ for kaka in kakor:
 print("En slumpvis vald:", random.choice(kakor))
 @
   \end{example}
+
+  \begin{example}[Påbyggnaden]
+    Kopian skrivs om från grunden, och den nya kakan läggs sist:
+<<bygg på en kopia av databasen>>=
+filer.skriv_fil(PROVDATABAS, filer.läs_fil(fortune.DATABAS))
+fortune.lägg_till("Du hittar en ledig dator!", PROVDATABAS)
+print("Efter påbyggnaden:")
+for kaka in fortune.ladda_databas(PROVDATABAS):
+    print("-", kaka)
+@
+  \end{example}
 \end{frame}
+
+Påbyggnaden sker på en kopia, inte på [[fortunes.txt]] självt: ett
+tilläggsläge som körs om och om igen fyller annars filen med samma
+spådom en gång per körning.  Kopian skrivs med \mintinline{python}{"w"}
+först, så att provkörningen börjar från samma läge varje gång --- och
+kontrasten mellan de två skrivlägena står därmed i samma program.
 
 \begin{frame}[fragile]
   \begin{example}[Körning]
-    De fyra raderna kom in som fyra poster:
+    De fyra raderna kom in som fyra poster, och den femte kom till:
     \runpython[transcript]{examples/fortuneprov.py}
   \end{example}
 \end{frame}
@@ -1233,8 +1360,8 @@ posterna åt.  Och spådomar vill ibland vara längre än en rad.
 Om radbrytningen inte längre kan skilja posterna åt måste något annat
 göra det, och det något måste vara text som inte förekommer i en spådom.
 En hel rad med en avtalad text duger: en rad som
-\mintinline{text}|*** nästa fortune ***| går inte att förväxla med en
-spådom, och programmet kan leta efter den med [[split]].
+\mintinline{text}|*** nästa fortune ***| går knappast att förväxla med
+en spådom, och programmet kan leta efter den med [[split]].
 
 \begin{frame}[fragile]
   \begin{example}[Databasen med skiljerader]
@@ -1297,7 +1424,6 @@ filen slutar med en skiljerad.
 import random
 
 import filer
-
 
 <<ladda databasen post för post>>
 
@@ -1469,7 +1595,7 @@ def skriv_jämförelse(filnamn, före, efter):
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile,shrink=50]
+\begin{frame}[fragile,shrink=15]
   Programmet [[analys.py]] importerar allt det behöver och lägger bara
   till jämförelsen:
 <<[[analys.py]]>>=
@@ -1493,6 +1619,9 @@ RESULTAT = "analys.csv"
 <<skriv jämförelsen som CSV>>
 
 
+<<läs jämförelsen tillbaka>>
+
+
 <<räkna före och efter>>
 
 
@@ -1500,6 +1629,26 @@ if __name__ == "__main__":
     main()
 @
 \end{frame}
+
+Tabellen ska också läsas tillbaka, och nu är det inte formatet som är
+lärdomen utan resultatet: vi vill se raderna, inte öva på att tolka dem.
+Då är det modulen som ska läsa, precis som det var modulen som skrev.
+
+\begin{frame}[fragile]
+  \begin{example}[Att läsa tillbaka jämförelsen]
+    Ett [[csv.reader]]-objekt ger en lista med fält per rad:
+<<läs jämförelsen tillbaka>>=
+def läs_jämförelse(filnamn):
+    """Returnerar raderna i CSV-filen filnamn, en lista per rad"""
+    with open(filnamn, "r", newline="") as fil:
+        return list(csv.reader(fil))
+@
+  \end{example}
+\end{frame}
+
+Argumentet \mintinline{python}{newline=""} står kvar också vid läsning:
+dokumentationen föreskriver det åt båda hållen, eftersom modulen sköter
+radbrytningarna själv\autocite{PythonCSV}.
 
 \begin{frame}[fragile,shrink=10]
   \begin{example}[Huvudprogrammet]
@@ -1513,17 +1662,19 @@ def main():
     efter = wc.räkna_bokstäver(rövare.till_rövarspråket(text))
     skriv_jämförelse(RESULTAT, före, efter)
     print(f"Resultatet står i {RESULTAT}. De första raderna:")
-    for rad in filer.läs_fil(RESULTAT).split("\n")[:7]:
+    for rad in läs_jämförelse(RESULTAT)[:7]:
         print(rad)
 @
   \end{example}
 \end{frame}
 
 Huvudprogrammet innehåller ingen ny idé.  Det frågar med [[filer]],
-räknar med [[wc]], översätter med [[rövare]] och skriver med den enda
-funktion som är programmets egen.  Att de tre modulerna aldrig skrevs
-för att användas tillsammans hindrar ingenting: de tar emot text och ger
-tillbaka text eller tabeller, och det räcker.
+räknar med [[wc]], översätter med [[rövare]] och skriver och läser med
+de två funktioner som är programmets egna.  Att de tre modulerna aldrig
+skrevs för att användas tillsammans hindrar ingenting: de tar emot text
+och ger tillbaka text eller tabeller, och det räcker.
+
+\mode<article>{\needspace{14\baselineskip}}
 
 \begin{frame}[fragile]
   \begin{example}[Körning]
@@ -1532,23 +1683,30 @@ tillbaka text eller tabeller, och det räcker.
   \end{example}
 \end{frame}
 
-Läs raderna en gång till.  Blanksteget och vokalerna står stilla ---
-[[e]] förekommer lika många gånger före som efter, och så gör [[I]],
-som ju är en vokal.  Konsonanterna fördubblas: [[t]] går från 150 till
-300, eftersom varje [[t]] blir \mintinline{text}|tot|.  Men [[s]] går
-från 106 till 214, alltså två för mycket, och det är versalerna som
-förklarar det: ett [[S]] blir \mintinline{text}|Sos| och bidrar med ett
-gement [[s]] som inte fanns förut.
+Raderna kommer tillbaka som listor av fält, och fälten som strängar:
+modulen delar upp raden åt oss, men vad de uppdelade delarna
+\emph{betyder} vet bara vi.  Det är också där det första tecknet i
+tabellen blir läsbart --- fältet som såg tomt ut i filen syns nu som
+\mintinline{python}{' '}, alltså blanksteget.
 
-Och sedan finns [[o]].  Det tecknet går från 66 till 1237, därför att
-varje konsonant i hela texten lägger till ett [[o]].  Skillnaden är
-alltså antalet konsonanter i texten, och det är den siffran tabellen
-egentligen visar.  Rövarspråket är i det avseendet en dålig kod: en
-text på rövarspråket känns igen på att den består till en fjärdedel av
-[[o]], och den som vill dölja något behöver något bättre.
+Läs raderna en gång till.  Blanksteget och vokalerna står stilla ---
+utom en, som vi återkommer till.  [[e]] förekommer lika många gånger
+före som efter, och så gör [[I]], som ju är en vokal.  Konsonanterna
+fördubblas: [[t]] går från 151 till 302, eftersom varje [[t]]
+blir \mintinline{text}|tot|.  Men [[s]] går från 107 till 217,
+alltså tre för mycket, och det är versalerna som förklarar det: ett
+[[S]] blir \mintinline{text}|Sos| och bidrar med ett gement [[s]] som
+inte fanns förut.
+
+Och där är vokalen som inte stod stilla.  [[o]] går från 67 till
+1265, därför att varje konsonant i hela texten lägger till ett [[o]].
+Skillnaden är alltså antalet konsonanter i texten, och det är den
+siffran tabellen egentligen visar.  Rövarspråket är i det avseendet en
+dålig kod: den här texten består till en fjärdedel av [[o]] efter
+översättningen, och den som vill dölja något behöver något bättre.
 
 \ltnote{%
-  Relevanta lärandemål: \cref{OvningFilesLOFormats}.
+  Relevanta lärandemål: \cref{OvningFilesLORead}.
 
   \foreignlanguage{english}{Try-first}: uppgiften ber om en förutsägelse
   (\enquote{vilka tecken tror du ändras?}) innan körningen, och prosan
