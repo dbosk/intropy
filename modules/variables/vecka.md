@@ -41,13 +41,14 @@ redigera det i din textredigerare.
    komma, eller föredrar du att läsa, finns föreläsningsanteckningarna som
    interaktiva dokument och videogenomgångar här i modulen; sidorna säger
    vilka.
-2. **Gå på övningen för din grupp:** *Övning funktioner och variabler*. Vi
-   går igenom veckans innehåll genom att lösa problem tillsammans i mindre
-   grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
-   på övningens sida så att du kan fortsätta på egen hand. Ha *pep8.org — The
-   Prettiest Way to View the PEP 8 Python Style Guide* och *PEP 257 –
-   Docstring Conventions* till hands; du behöver inte kunna dem utantill, men
-   veta vad som finns där.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Funktioner och
+   variabler* här i modulen. Vi går igenom veckans innehåll genom att lösa
+   problem tillsammans i mindre grupper. Vi hinner bara ett urval av
+   problemen; uppgifterna och lösningarna till alla finns i det interaktiva
+   dokumentet (FeedbackFruits) så att du kan fortsätta på egen hand. Ha
+   *pep8.org — The Prettiest Way to View the PEP 8 Python Style Guide* och
+   *PEP 257 – Docstring Conventions* till hands; du behöver inte kunna dem
+   utantill, men veta vad som finns där.
 3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter (kamratgranskning)* i
    par. Se gärna *Genomgång inför laboration 1* innan ni börjar. På
    labbpassen finns lärare och assistenter för att hjälpa er när ni fastnar;

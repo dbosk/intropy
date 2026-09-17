@@ -42,10 +42,11 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
    Klasser och objekt*, som beskriver dess innehåll och länkar till
    anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
    inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** *Övning klasser och objekt*. Vi går
-   igenom veckans innehåll genom att lösa problem tillsammans i mindre
-   grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
-   på övningens sida så att du kan fortsätta på egen hand.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Klasser och objekt*
+   här i modulen. Vi går igenom veckans innehåll genom att lösa problem
+   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
+   uppgifterna och lösningarna till alla finns i det interaktiva dokumentet
+   (FeedbackFruits) så att du kan fortsätta på egen hand.
 3. **Arbeta med** *Laboration (4) klasser och objekt (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.

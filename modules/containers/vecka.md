@@ -45,12 +45,13 @@ inmatning från användaren.
    Fler behållare och mer om klasser*, som beskriver dess innehåll och
    länkar till anteckningarna. Kan du inte komma, eller föredrar du att
    läsa, finns inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** *Övning fler behållare och mer om
-   klasser*. Vi går igenom veckans innehåll genom att lösa problem
-   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
-   resten finns med lösningar på övningens sida så att du kan fortsätta på
-   egen hand. Att hitta och läsa dokumentationen för Pythons behållare är en
-   stor del av veckans mål, så ha den uppe under övningen.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Fler behållare och
+   mer om klasser* här i modulen. Vi går igenom veckans innehåll genom att
+   lösa problem tillsammans i mindre grupper. Vi hinner bara ett urval av
+   problemen; uppgifterna och lösningarna till alla finns i det interaktiva
+   dokumentet (FeedbackFruits) så att du kan fortsätta på egen hand. Att
+   hitta och läsa dokumentationen för Pythons behållare är en stor del av
+   veckans mål, så ha den uppe under övningen.
 3. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.

@@ -43,11 +43,11 @@ veckorna.
    Upprepningar, listor och moduler*, som beskriver dess innehåll och
    länkar till anteckningarna. Kan du inte komma, eller föredrar du att
    läsa, finns inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** *Övning upprepningar, listor och
-   moduler*. Vi går igenom veckans innehåll genom att lösa problem
-   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
-   resten finns med lösningar på övningens sida så att du kan fortsätta på
-   egen hand.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Upprepningar, listor
+   och moduler* här i modulen. Vi går igenom veckans innehåll genom att lösa
+   problem tillsammans i mindre grupper. Vi hinner bara ett urval av
+   problemen; uppgifterna och lösningarna till alla finns i det interaktiva
+   dokumentet (FeedbackFruits) så att du kan fortsätta på egen hand.
 3. **Arbeta med** *Laboration (3) upprepningar, listor och moduler* i par. Ni
    flyttar felhanteringen från laboration 2 till en egen modul med funktioner
    som frågar om igen tills inmatningen är korrekt. På labbpassen finns
