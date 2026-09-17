@@ -42,10 +42,11 @@ parametrar och returvärden från förra veckan.
    innehåll och länkar till anteckningarna. Kan du inte komma, eller
    föredrar du att läsa, finns inspelningen och föreläsningsanteckningarna
    där i stället.
-2. **Gå på övningen för din grupp:** *Övning inmatning, felhantering och
-   styrstrukturer*. Vi går igenom veckans innehåll genom att lösa problem
-   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
-   resten finns med lösningar på övningens sida så att du kan fortsätta på
+2. **Gå på övningen för din grupp:** se sidan *Övning: Inmatning,
+   felhantering och styrstrukturer* här i modulen. Vi går igenom veckans
+   innehåll genom att lösa problem tillsammans i mindre grupper. Vi hinner
+   bara ett urval av problemen; uppgifterna och lösningarna till alla finns
+   i det interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på
    egen hand.
 3. **Arbeta med** *Laboration (2) inmatning, felhantering och styrstrukturer (kamratgranskning)*
    i par. Ni bygger vidare på programmet från laboration 1: nu ska användaren
