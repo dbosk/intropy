@@ -50,6 +50,7 @@ PAGES+=		modules/iterations/tutorial.md
 PAGES+=		modules/classes/lecture.md
 PAGES+=		modules/classes/tutorial.md
 PAGES+=		modules/containers/lecture.md
+PAGES+=		modules/containers/tutorial.md
 PAGES+=		modules/files/lecture.md
 PAGES+=		modules/graphics/lecture.md
 PAGES+=		${WEEK_PAGES}
