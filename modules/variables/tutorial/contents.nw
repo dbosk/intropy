@@ -1,0 +1,1419 @@
+\mode*
+
+Varje uppgift här står först, ensam, och lösningsförslaget kommer efter
+den.  Ordningen är avsiktlig: att brottas med ett problem innan du får
+svaret ger dig måttligt bättre förståelse än att få svaret
+först\autocite{SinhaKapur2021} --- men vinsten kommer inte av att svaret
+dröjer, den kommer av att du jämför ditt eget försök med
+svaret\autocite[296]{LoiblRummel2013}, och det vetenskapliga underlaget
+--- både om det lönar sig och var gränserna går --- finns i
+föreläsningen \emph{Upprepningar}, bilaga C.  Läs alltså inte förslaget
+i stället för att försöka, och hoppa inte över det efteråt: skillnaden
+mellan din lösning och förslaget är själva poängen.
+
+Övningen övar det föreläsningarna \emph{Variabler och utskrifter} och
+\emph{Funktioner} gick igenom: att dela upp ett problem i delar, skriva
+en funktion för varje del och sätta namn som säger vad delarna gör.  Ett
+lösningsförslag är ett förslag.  Nästan varje uppgift går att lösa på
+flera rimliga sätt, och där det finns ett uppenbart alternativ säger
+texten vad det är och varför förslaget ändå ser ut som det gör.  Några av
+de påståenden övningen gör går inte att pröva genom att köra ett program;
+\cref{app:verifiera} säger hur sådana påståenden kontrolleras, var vart
+och ett av övningens är kontrollerat, och vilka fyra som ännu inte är
+det.
+
+
+\mode<article>{\clearpage}
+\section{Att gå}
+\label{sec:ga}
+
+\mode<article>{%
+  \OvningVariablesLOCall*
+}
+
+Vi börjar i ett program som redan är skrivet.  Det är skrivet på precis
+det sätt resten av övningen ska öva in: en handling delad i namngivna
+delar, där de större delarna anropar de mindre.  Läs det, och skriv ner
+utskriften innan du kör det.
+
+\begin{frame}[fragile,shrink=25]
+  \begin{exercise}[Vad skriver programmet ut?]
+    Läs programmet och skriv ner, rad för rad, vad det skriver ut.
+<<[[walk.py]]>>=
+"""Ett program som illustrerar funktionsuppdelningen i att gå."""
+
+
+def take_step_fwd():
+    """Skriver ut stegen som behövs för att ta ett steg framåt."""
+    lift_leg("vänster")
+    lean_body("framåt")
+    lift_leg("höger")
+    lean_body("bakåt")
+
+
+def lift_leg(the_leg):
+    """Skriver ut att benet the_leg lyfts."""
+    print(f"lyft {the_leg} ben")
+
+
+def lean_body(direction):
+    """Skriver ut att kroppen lutas i riktningen direction."""
+    print(f"luta kroppen {direction}")
+
+
+def walk_two_steps():
+    """Skriver ut stegen som behövs för att ta två steg framåt."""
+    take_step_fwd()
+    take_step_fwd()
+
+
+walk_two_steps()
+@
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningVariablesLOCall}.
+
+  \textbf{Ny uppgift.}  Programmet stod i den gamla övningen som ett
+  \emph{exempel} före uppgiften att skriva en egen uppdelning, utan att
+  någon fråga ställdes om det.  Här bär det en egen uppgift, av två skäl.
+  Det ena är att uppdelningen annars är given innan studenten har fått
+  läsa en: frågan gör programmet till något att urskilja i stället för en
+  form att kopiera.  Det andra är att den fråga uppgiften ställer --- i
+  vilken ordning raderna skrivs ut --- riktar sig mot en belagd
+  svårighet.
+
+  \textbf{Bakgrund} för resten av övningen: formen hålls invariant genom
+  \cref{sec:dansa,sec:diska}, som varierar den i tur och ordning.  Frågan
+  pekar inte ut att det är ordningen som är det svåra
+  \parencite[s.~91]{Marton2015}; den ber bara om utskriften.
+}
+
+\ltnote{%
+  Nybörjare har dokumenterat svårt för satsernas följdordning
+  \parencite[tabell~A.1, nr~23, s.~360]{Sorva2012Dissertation}, och
+  Sleeman och medförfattare observerade felet i dess skarpaste form:
+  \enquote{All statements including those in procedure bodies were
+  executed in the order they appeared. This was a frequent error}
+  \parencite[s.~20--21]{Sleeman1984}.  Just det felet ger här ett svar
+  som går att skilja från det rätta: den som läser filen uppifrån och ned
+  som om den var en körning får utskrifterna i fel ordning, och den som
+  följer anropen får dem i rätt.
+
+  Programmet är författarens eget, oförändrat så nära som att
+  docstringarna nu säger vad funktionerna \emph{gör} i stället för vilka
+  funktioner de anropar, och att filen är formaterad enligt PEP~8.  Att
+  gångalgoritmen är anatomiskt tvivelaktig är avsiktligt lämnat i fred:
+  uppgiften handlar om ordningen, inte om att gå.
+}
+
+\subsection{Lösningsförslag}
+
+Programmet skriver ut åtta rader, och det enda svåra är ordningen.  Filen
+läses uppifrån och ned, men de fyra \mintinline{python}{def}-satserna gör
+ingenting annat än att skapa fyra namn.  Det är sista raden, anropet, som
+sätter igång arbetet --- och därifrån går exekveringen \emph{inåt}:
+\mintinline{python}{walk_two_steps} anropar
+\mintinline{python}{take_step_fwd}, som anropar
+\mintinline{python}{lift_leg}, och det är först där någon skriver ut
+något.  Sedan fortsätter exekveringen där den lämnade: tillbaka i
+\mintinline{python}{take_step_fwd}, vidare till
+\mintinline{python}{lean_body}, och så vidare.
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/walk.py}
+  \end{example}
+\end{frame}
+
+Fyra rader per steg, två steg: åtta rader.  Två saker är värda att lägga
+märke till.  Den första är att funktionerna står i filen i en annan
+ordning än de körs i --- \mintinline{python}{walk_two_steps} definieras
+sist och körs först --- så ordningen i filen säger ingenting om ordningen
+i körningen.  Det är anropen som bestämmer den.  Den andra är att de fyra
+stegen står en enda gång i källkoden fast de utförs två gånger.  Det är
+hela vinsten med att ge dem ett namn, och det är det du ska göra själv i
+nästa uppgift.
+
+
+\mode<article>{\clearpage}
+\section{Att dansa}
+\label{sec:dansa}
+
+\mode<article>{%
+  \OvningVariablesLODefine*
+  \OvningVariablesLODecompose*
+}
+
+Nu är det din tur.  Uppgiften är densamma som programmet i \cref{sec:ga}
+löser, men för en annan handling.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Skriv ut stegen i en dans]
+    Skriv ett program som skriver ut instruktionerna för att dansa en
+    dans du väljer själv.  Utskriften ska säga vilket steg som tas och
+    med vilken fot, i den ordning stegen utförs, och dansen ska ha minst
+    två takter som liknar varandra.  Dela upp programmet i funktioner, på
+    samma sätt som \texttt{walk.py}\only<article>{ i \cref{sec:ga}}.
+
+    Kör programmet och kontrollera att det går att dansa efter
+    utskriften.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningVariablesLODefine} och
+  \cref{OvningVariablesLODecompose}.
+
+  \textbf{Förbättrad uppgift} (gamla \enquote{Att göra saker}, första
+  halvan).  Den gamla formuleringen var \enquote{dansa (valfri dans),
+  vilka steg ska tas med vilka fötter?}.  Tillägget här är kravet på
+  \emph{minst två takter som liknar varandra}: utan det kan studenten
+  välja en dans utan upprepning, och då finns ingenting att dela upp ---
+  uppgiftens hela poäng vilar på att det finns två nästan lika delar.
+  Kravet gäller dansen, inte programmet, så det avslöjar inte lösningen.
+
+  \textbf{Generalisering} av \cref{sec:ga}.  Vad som hålls invariant:
+  formen --- en handling delad i namngivna delar där de större anropar de
+  mindre.  Vad som varierar: handlingen, och att den upprepade delen nu
+  anropas med \emph{olika argument} i stället för utan argument.  Den
+  varierande aspekten är alltså att en parameter är det som gör två
+  nästan lika delar till en enda.  Aspekten är värd sin plats: Fleury
+  intervjuade 23 nybörjare om parameteröverföring och fann att de
+  konstruerar egna regler för hur argument och parametrar hänger ihop
+  \parencite[s.~285]{Fleury1991}.  Studien är liten, kvalitativ och
+  gjord i Pascal, så den motiverar att aspekten övas, inte ett påstående
+  om hur många som bär reglerna.
+
+  Uppgiften kommer före \cref{sec:diska} därför att dess funktioner
+  \emph{gör} något --- de skriver ut --- medan diskens \emph{lämnar
+  tillbaka} något.  Skillnaden är nästa avsnitts kontrast, och den kräver
+  att det här fallet är sett först \parencite[45--47]{Marton2015}.
+}
+
+\subsection{Lösningsförslag}
+
+Först valet av dans.  En vals duger: en takt är tre steg, och nästa takt
+är samma tre steg med fötterna ombytta och riktningen omvänd.  Det är
+just den likheten som avgör uppdelningen --- takten skrivs en gång och
+anropas två gånger, med olika argument.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i överblick]
+    Sex delar, i den ordning de står i filen:
+<<[[dance.py]]>>=
+<<vad dansprogrammet gör>>
+
+
+<<dansen>>
+
+
+<<en takt vals>>
+
+
+<<ett steg>>
+
+
+<<att sätta ihop fötterna>>
+
+
+<<dansens huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+Dansen som helhet är de två takterna, och det är här skillnaden mellan
+dem står: vilken fot som börjar, vilken som följer, och vilken riktning
+takten går i.
+
+\begin{frame}[fragile]
+  \begin{example}[Dansen]
+    Två anrop, ett per takt:
+<<dansen>>=
+def dance_waltz():
+    """Skriver ut stegen i två takter vals."""
+    waltz_bar("vänster", "höger", "framåt")
+    waltz_bar("höger", "vänster", "bakåt")
+@
+  \end{example}
+\end{frame}
+
+Takten är den del som går igen.  Den vet ingenting om vilken takt i
+ordningen den är --- den får sina tre uppgifter av anropet och utför dem.
+
+\begin{frame}[fragile]
+  \begin{example}[En takt vals]
+    Tre steg, varav det sista sätter ihop fötterna:
+<<en takt vals>>=
+def waltz_bar(first_foot, second_foot, direction):
+    """Skriver ut en takt vals som börjar med first_foot."""
+    take_step(first_foot, direction)
+    take_step(second_foot, "åt sidan")
+    close_feet(first_foot)
+@
+  \end{example}
+\end{frame}
+
+Längst ner ligger de två stegen som verkligen skriver ut något.  De är
+små med avsikt: de vet bara hur ett steg beskrivs, inte vilka steg som
+ingår i en vals, och de går därför att använda i nästa dans också.
+
+\begin{frame}[fragile]
+  \begin{example}[Stegen]
+    De två delarna som skriver ut, en funktion var:
+<<ett steg>>=
+def take_step(the_foot, direction):
+    """Skriver ut att the_foot sätts ner i riktningen direction."""
+    print(f"sätt ner {the_foot} fot {direction}")
+<<att sätta ihop fötterna>>=
+def close_feet(the_foot):
+    """Skriver ut att the_foot flyttas intill den andra foten."""
+    print(f"flytta {the_foot} fot intill den andra")
+@
+  \end{example}
+\end{frame}
+
+Kvar är de två yttersta delarna: raden som säger vad filen är till för,
+och anropet som sätter igång dansen.
+
+\begin{frame}[fragile]
+  \begin{example}[Vad programmet gör]
+    Överst i filen står en beskrivning:
+<<vad dansprogrammet gör>>=
+"""Skriver ut stegen i en vals."""
+@
+  \end{example}
+
+  \begin{example}[Huvudprogrammet]
+    Och sist står anropet:
+<<dansens huvudprogram>>=
+dance_waltz()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Hela programmet, hopsatt]
+    Sätter vi in varje del där dess namn står får vi:
+    \inputminted{python}{examples/dance.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut:
+    \runpython[showcommand, chdir]{examples/dance.py}
+  \end{example}
+\end{frame}
+
+Sex rader: tre per takt, och den andra takten speglar den första.
+
+Två val i förslaget är värda en kommentar, för båda kunde ha blivit
+annorlunda.  Det första: takten kunde ha skrivits ut i sin helhet två
+gånger inuti \mintinline{python}{dance_waltz}, sex anrop i stället för
+två.  Programmet hade fungerat lika bra, men beskrivningen av vad en
+takt \emph{är} hade då stått på två ställen, och den som ändrar takten
+måste hitta båda --- det är just den risken DRY varnar för, och det
+vetenskapliga underlaget för DRY, med sina förbehåll, finns i
+föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.  Det andra:
+\mintinline{python}{waltz_bar} tar \emph{båda} fötterna som parametrar,
+fast den andra foten alltid är den som den första inte är.  Att räkna ut
+den inuti funktionen kräver att programmet väljer mellan två värden, och
+det är en konstruktion vi ännu inte har --- den hör till föreläsningen
+\emph{Villkor och styrstrukturer}.  Två parametrar är därför den enklaste
+lösning som gör jobbet här.
+
+
+\mode<article>{\clearpage}
+\section{Att diska}
+\label{sec:diska}
+
+\mode<article>{%
+  \OvningVariablesLODefine*
+}
+
+I föreläsningen \emph{Algoritmiskt tänkande} stannade algoritmen för
+handdisk vid steget att diska glaset: vad det steget består av sa vi
+aldrig.  Nu förfinar vi just det.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Skriv ut vad som händer med en sak i disken]
+    Skriv ett program som delar upp handdisken av \emph{en} sak i sina
+    beståndsdelar --- att doppa saken i diskvattnet, att gnugga den och
+    att skölja den --- och skriver ut vad saken har blivit när allt är
+    gjort.  För ett glas ska programmet skriva ut en enda rad, som
+    beskriver glaset efter alla tre stegen.
+
+    Dela upp programmet i en funktion per steg.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningVariablesLODefine}.
+
+  \textbf{Förbättrad uppgift} (gamla \enquote{Att göra saker}, andra
+  halvan).  Den gamla formuleringen var \enquote{diska (handdisk, då
+  diskmaskinen inte är så utmanande, vi såg en algoritm på
+  föreläsningen)} och sa inte vad programmet skulle producera; den som
+  läste den som \enquote{skriv ut stegen} fick samma uppgift som dansen
+  en gång till, och kontrasten uteblev.  Här står leveransen i uppgiften:
+  \emph{en} rad, som beskriver saken efteråt.  Det är den enda ändringen
+  mot dansen, och den är ställd som ett krav på \emph{utskriften}, inte
+  på koden --- uppgiften säger inte att stegen ska lämna tillbaka något,
+  för det är just den upptäckten den ska framkalla.  Hänvisningen till
+  föreläsningen är också preciserad: algoritmen där stannar vid steget
+  att diska glaset, så uppgiften förfinar ett namngivet steg som redan
+  finns.
+}
+
+\ltnote{%
+  \textbf{Kontrast} mot \cref{sec:dansa}.  Vad som hålls invariant: en
+  vardagssyssla delad i namngivna steg, en funktion per steg, och att
+  helheten anropar delarna.  Vad som varierar: om stegen \emph{skriver
+  ut} eller \emph{lämnar tillbaka}.  Kontrasten ska urskilja att ett
+  returvärde går till programmet medan en utskrift går till användaren
+  --- samma aspekt som föreläsningen \emph{Funktioner} kontrasterade i
+  två färdiga program, nu i den form där studenten själv måste välja.
+  Den riktar sig mot två belagda svårigheter: att nybörjare utelämnar
+  \mintinline{python}{return} \parencite{KumarVeerasamy2016}, och att de
+  sällan nämner \mintinline{python}{return} när de beskriver funktioner
+  och ännu mer sällan att det avslutar funktionen
+  \parencite{Esche2025Return}.  Den som löser uppgiften med
+  \mintinline{python}{print} i varje steg får tre rader där uppgiften ber
+  om en, och upptäcker felet själv.
+
+  Att förslaget dessutom visar två former av \emph{samma} funktion ---
+  namngivna mellanresultat och nästlade anrop --- med identisk utmatning
+  är en andra, mindre kontrast: det som varierar är formen, det som hålls
+  invariant är resultatet, och likheten går att avläsa i stället för att
+  behöva tros på.  Den flata formen står först därför att det är den
+  föreläsningarna har stöd för; den nästlade är det nya.
+}
+
+\subsection{Lösningsförslag}
+
+Uppdelningen kommer ur uppgiftens egen formulering: tre steg, tre
+funktioner, och en fjärde som är hela disken.  Det nya mot dansen visar
+sig så fort du försöker: skriver varje steg ut sin rad blir det tre
+rader, och uppgiften ber om en.  Stegen måste alltså \emph{lämna
+tillbaka} sitt resultat i stället, och disken som helhet skicka det
+vidare från steg till steg.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Programmet i överblick]
+    Sex delar:
+<<[[dishes.py]]>>=
+<<vad diskprogrammet gör>>
+
+
+<<hela disken, steg för steg>>
+
+
+<<att doppa saken i vattnet>>
+
+
+<<att gnugga saken>>
+
+
+<<att skölja saken>>
+
+
+<<diskens huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+Hela disken är de tre stegen efter varandra, och varje mellanresultat får
+ett namn som säger vad saken är just då.
+
+\begin{frame}[fragile]
+  \begin{example}[Hela disken]
+    Tre tilldelningar, och det sista värdet lämnas tillbaka:
+<<hela disken, steg för steg>>=
+def wash(item):
+    """Returnerar item efter alla stegen i handdisken."""
+    soaked = soak(item)
+    scrubbed = scrub(soaked)
+    return rinse(scrubbed)
+@
+  \end{example}
+\end{frame}
+
+De tre stegen är varandras like: var och en tar emot saken som den är och
+lämnar tillbaka saken som den blev.  Ingen av dem skriver ut något, och
+ingen av dem vet vad som händer före eller efter.
+
+\begin{frame}[fragile,shrink=20]
+  \begin{example}[Diskens tre steg]
+    En funktion per steg:
+<<att doppa saken i vattnet>>=
+def soak(item):
+    """Returnerar item doppat i diskvattnet."""
+    return f"diskvattendränkt {item}"
+<<att gnugga saken>>=
+def scrub(item):
+    """Returnerar item gnuggat med diskborsten."""
+    return f"rengnuggat {item}"
+<<att skölja saken>>=
+def rinse(item):
+    """Returnerar item avsköljt under kranen."""
+    return f"avsköljt {item}"
+@
+  \end{example}
+\end{frame}
+
+Kvar är beskrivningen av filen och anropet.  Lägg märke till två saker.
+Det är \emph{huvudprogrammet} som skriver ut, inte någon av
+funktionerna.  Och argumentet är saken som den är \emph{före} disken:
+hade det stått \mintinline{python}{"smutsigt glas"} skulle utskriften
+påstå att glaset fortfarande är smutsigt efter att det diskats.
+
+\begin{frame}[fragile]
+  \begin{example}[Vad programmet gör]
+    Överst i filen:
+<<vad diskprogrammet gör>>=
+"""Skriver ut vad som händer med en sak i handdisken."""
+@
+  \end{example}
+
+  \begin{example}[Huvudprogrammet]
+    Och sist, en enda rad:
+<<diskens huvudprogram>>=
+print(wash("glas"))
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Hela programmet, hopsatt]
+    Sätter vi in varje del där dess namn står får vi:
+    \inputminted{python}{examples/dishes.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut en enda rad:
+    \runpython[showcommand, chdir]{examples/dishes.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Att de två fallen ligger två avsnitt isär räcker inte: en kontrast
+  måste kunna ses samtidigt \parencite[45--47]{Marton2015}.  Därför
+  ställs de två minsta stegen intill varandra här, med utmatningen
+  under.  Båda är satta av samma kodstycken som de två stora
+  programmen, så de kan inte glida isär, och de är valda i stället för
+  [[dance_waltz]] och [[wash]] därför att de två helheterna skiljer sig
+  i fler avseenden än det som ska urskiljas.
+}
+
+Här sitter skillnaden mot dansen, och den är värd att se på en gång.  Ta
+det minsta steget ur vartdera programmet --- ett steg i valsen och det
+första steget i disken --- och gör ett litet program av vart och ett.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett steg ur vartdera programmet]
+    Två program med ett steg var, hämtade ur de två stora:
+<<[[dance-step.py]]>>=
+<<ett steg>>
+
+
+take_step("vänster", "framåt")
+<<[[wash-step.py]]>>=
+<<att doppa saken i vattnet>>
+
+
+print(soak("glas"))
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Ett steg som skriver ut]
+    \texttt{dance-step.py}, hopsatt:
+    \inputminted{python}{examples/dance-step.py}
+  \end{example}
+
+  \begin{example}[Ett steg som lämnar tillbaka]
+    Och \texttt{wash-step.py}:
+    \inputminted{python}{examples/wash-step.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dance-step.py}]
+    Det första skriver ut
+    \runpython[showcommand, chdir]{examples/dance-step.py}
+  \end{example}
+
+  \begin{example}[\texttt{wash-step.py}]
+    Och det andra skriver ut
+    \runpython[showcommand, chdir]{examples/wash-step.py}
+  \end{example}
+\end{frame}
+
+De två funktionerna är lika stora, lika enkla och lika namngivna, och i
+terminalen ser resultatet nästan likadant ut --- en rad var.  Skillnaden
+står på sista raden i varje funktion, och den syns inte i terminalen: det
+andra programmet har ett \emph{värde} kvar när steget är klart, det
+första har det inte.  Det är därför \mintinline{python}{wash} kan skicka
+saken vidare från steg till steg, medan
+\mintinline{python}{dance_waltz} bara kan anropa sina steg och låta dem
+skriva var för sig.
+
+% TODO(claim-audit): att en funktion som lämnar tillbaka sitt resultat
+% går att använda till mer än en som skriver ut det (återanvändbarhet)
+% --- ett påstående om nytta, inte belagt någonstans i kursen.
+En funktion som lämnar tillbaka sitt resultat går alltså att använda till
+mer än en som skriver ut det: den som anropar kan skriva ut värdet, räkna
+vidare på det eller skicka det till nästa steg.  Och det finns en andra
+form av \mintinline{python}{wash} som många skriver i stället --- den
+sätter ihop de tre anropen till ett enda uttryck.
+
+\begin{frame}[fragile]
+  \begin{example}[Samma disk, som ett enda uttryck]
+    Tre nästlade anrop i stället för tre tilldelningar:
+<<hela disken, nästlad>>=
+def wash(item):
+    """Returnerar item efter alla stegen i handdisken."""
+    return rinse(scrub(soak(item)))
+@
+  \end{example}
+\end{frame}
+
+Resten av filen är densamma, ordagrant: samma tre steg, samma
+huvudprogram.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Den andra formen som eget program]
+    Bara den ena delen är utbytt:
+<<[[dishes-nested.py]]>>=
+<<vad diskprogrammet gör>>
+
+
+<<hela disken, nästlad>>
+
+
+<<att doppa saken i vattnet>>
+
+
+<<att gnugga saken>>
+
+
+<<att skölja saken>>
+
+
+<<diskens huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Och utskriften är ordagrant densamma:
+    \runpython[showcommand, chdir]{examples/dishes-nested.py}
+  \end{example}
+\end{frame}
+
+Den nästlade formen läses inifrån och ut: det som står innerst körs
+först, så raden i terminalen kommer i omvänd ordning mot arbetet.  Valet
+mellan formerna är alltså inte ett val mellan rätt och fel utan mellan
+två läsningar.  Den nästlade är kortare och säger att disken är
+\emph{ett} uttryck; den flata läses i samma ordning som arbetet utförs,
+och namnen \mintinline{python}{soaked} och
+\mintinline{python}{scrubbed} berättar vad saken är mellan stegen.  Välj
+den som är lättast att läsa för den som kommer efter dig --- och skriv
+inte båda.
+
+
+\mode<article>{\clearpage}
+\section{Kakelfabriken}
+\label{sec:kakel}
+
+\mode<article>{%
+  \OvningVariablesLODecompose*
+  \OvningVariablesLONames*
+  \OvningVariablesLOOutput*
+}
+
+De två föregående uppgifterna hade sin uppdelning given av handlingen:
+ett steg är ett steg.  Nu kommer en där uppdelningen inte är given.
+
+\begin{frame}[shrink=35]
+  \begin{exercise}[Hur mycket färg går åt?]
+    En kakelfabrik målar tre mönster på kvadratiska
+    kakelplattor\only<article>{ (\cref{fig:kakel})} och behöver veta
+    hur mycket färg som går åt.  Färgen går åt med \(0{,}05\)
+    milliliter per kvadratcentimeter målad yta.
+
+    Skriv ett program som skriver ut färgåtgången för tre mönster: en
+    cirkel med radien 10~cm, en ram med bredden 2~cm på en kakelplatta
+    med sidan 20~cm, och en sexhörning med sidan 10~cm.  Areorna räknas
+    ut så här: en cirkel med radien \(r\) har arean \(\pi r^2\); en ram
+    med bredden \(b\) längs kanterna av en kvadrat med sidan \(s\) har
+    arean \(s^2 - (s-2b)^2\); och en regelbunden sexhörning med sidan
+    \(s\) har arean \(\frac{3\sqrt{3}}{2}s^2\).
+  \end{exercise}
+
+  \begin{figure}[!htb]
+    \centering
+    \begin{subfigure}{0.3\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{../fig/kakel1.png}
+      \subcaption{Cirkel}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{../fig/kakel2.png}
+      \subcaption{Ram}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.3\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{../fig/kakel3.png}
+      \subcaption{Sexhörning}
+    \end{subfigure}
+    \caption{Kakelfabrikens tre mönster, målade på en kvadratisk
+      kakelplatta.  Det gula är målat och det olivgröna omålat:
+      cirkelmönstret är en cirkel som fyller plattan, rammönstret är en
+      ram av jämn bredd längs plattans fyra kanter, och
+      sexhörningsmönstret är en regelbunden sexhörning, alltså en med
+      alla sex sidorna lika långa.  Färgåtgången beror bara på hur stor
+      den gula ytan är.}
+    \label{fig:kakel}
+  \end{figure}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningVariablesLODecompose},
+  \cref{OvningVariablesLONames} och \cref{OvningVariablesLOOutput}.
+
+  \textbf{Bevarad uppgift} --- författarens val; figurerna är hans egna
+  (\cref{fig:kakel}).  Den gamla formuleringen var \enquote{Skriv
+  funktioner som beräknar mängden färg givet relevanta inparametrar},
+  med de tre bilderna men utan areaformler, utan färgåtgång per
+  kvadratcentimeter och utan att säga vad programmet skulle skriva ut.
+  Det gjorde geometrin till det svåra.  Formlerna och färgåtgången står
+  därför i uppgiften nu: det som ska övas är uppdelningen, inte
+  areaberäkning.  Ordet \enquote{funktioner} står kvar i plural, som i
+  originalet, men uppgiften säger inte hur många eller vilka --- det är
+  det som ska urskiljas.
+}
+
+\ltnote{%
+  \textbf{Fusion.}  Tre aspekter verkar samtidigt och ingen av dem
+  räcker: att tre fall delar ett sista steg (DRY), att stegen är olika
+  slags arbete och därför blir olika funktioner (SRP), och att
+  utskriften ska gå att använda av den som målar.  Vad som varierar
+  mellan de tre fallen: areaformeln.  Vad som hålls invariant: att arean
+  räknas om till färg på ett och samma sätt.  Den som skriver
+  [[paint_for_circle]], [[paint_for_frame]] och [[paint_for_hexagon]] får
+  färgåtgången i tre exemplar och upptäcker det när fabriken byter färg
+  --- vilket är hela skälet till att uppgiften har \emph{tre} mönster och
+  inte ett \parencite[45--47]{Marton2015}.
+
+  Konstanterna [[PI]] och [[SQRT3]] är en biprodukt med ett eget syfte:
+  de ger versalkonventionen från föreläsningen \emph{Variabler och
+  utskrifter} ett fall där den behövs, och de gör att uppgiften går att
+  lösa utan att importera något --- moduler är objekt för lärande först i
+  föreläsningen \emph{Moduler och paket}.
+}
+
+\subsection{Lösningsförslag}
+
+Frågan är vilka funktioner det ska bli.  Leta efter verben, som i
+föreläsningen \emph{Algoritmiskt tänkande}: programmet räknar ut
+\emph{areor} --- tre olika --- och räknar om \emph{area till färg} --- en
+gång, likadant för alla tre.  Det blir fyra funktioner, och den fjärde är
+den som gör att färgåtgången per kvadratcentimeter bara står på ett
+ställe.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i överblick]
+    Sex delar:
+<<[[tiles.py]]>>=
+<<vad kakelprogrammet gör>>
+
+<<färgåtgången per kvadratcentimeter>>
+
+<<talen som areaformlerna behöver>>
+
+
+<<funktionen som räknar färg>>
+
+
+<<funktionerna som räknar areor>>
+
+
+<<kakelprogrammets huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+Vi börjar i den del som är gemensam.  Den vet ingenting om kakel: den tar
+en area och lämnar tillbaka en mängd färg.  Därför kan de tre mönstren
+dela på den.
+
+\begin{frame}[fragile]
+  \begin{example}[Från area till färg]
+    Färgåtgången står som konstant, och funktionen använder den:
+<<färgåtgången per kvadratcentimeter>>=
+# Milliliter färg per kvadratcentimeter målad yta.
+PAINT_PER_CM2 = 0.05
+@
+<<funktionen som räknar färg>>=
+def paint_for_area(area_cm2):
+    """Returnerar antalet milliliter färg för arean area_cm2."""
+    return area_cm2 * PAINT_PER_CM2
+@
+  \end{example}
+\end{frame}
+
+Sedan de tre areorna, en funktion per mönster.  Var och en tar just de
+mått mönstret behöver, och ingen av dem vet något om färg; de två
+konstanterna \mintinline{python}{PI} och \mintinline{python}{SQRT3} som
+formlerna använder står längre ner i filen.  Ramens
+docstring behöver säga två saker och ryms därför inte på en rad.  Då
+gäller den flerradiga formen: första raden sammanfattar, resten står
+efter en blank rad, och de avslutande citattecknen får en rad för sig.
+
+\begin{frame}[fragile,shrink=30]
+  \begin{example}[De tre areorna]
+    En funktion per mönster:
+<<funktionerna som räknar areor>>=
+def circle_area(radius_cm):
+    """Returnerar arean av en cirkel med radien radius_cm."""
+    return PI * radius_cm * radius_cm
+
+
+def frame_area(side_cm, border_cm):
+    """Returnerar arean av ramen i ett kvadratiskt kakel.
+
+    Kaklet har sidan side_cm och ramen bredden border_cm.
+    """
+    inner_side_cm = side_cm - 2 * border_cm
+    return side_cm * side_cm - inner_side_cm * inner_side_cm
+
+
+def hexagon_area(side_cm):
+    """Returnerar arean av en sexhörning med sidan side_cm."""
+    return 3 * SQRT3 / 2 * side_cm * side_cm
+@
+  \end{example}
+\end{frame}
+
+De två talen formlerna behöver, \(\pi\) och \(\sqrt{3}\), finns färdiga i
+Pythons standardbibliotek, men att hämta hem dem hör till föreläsningen
+\emph{Moduler och paket}.  Här skriver vi dem som konstanter i stället,
+med versaler: de är just sådana värden som inte ska ändras medan
+programmet kör\autocite{pep8}.
+
+\begin{frame}[fragile]
+  \begin{example}[Talen formlerna behöver]
+    Två konstanter:
+<<talen som areaformlerna behöver>>=
+PI = 3.14159
+SQRT3 = 1.73205
+@
+  \end{example}
+\end{frame}
+
+Huvudprogrammet sätter ihop delarna: en area, omräknad till färg, per
+mönster.  De tre måtten hör till en och samma kakelplatta med sidan
+20~cm: cirkeln fyller plattan, ramen löper längs dess kanter och
+sexhörningen är lika bred som den.  Utskriften är det den som målar
+faktiskt läser, så den säger vilket mönster och vilket mått svaret
+gäller.  Och den avrundar: \mintinline{python}{:.1f} efter kolon i en
+f-sträng betyder \enquote{skriv talet med en decimal}.  Utan den står
+det \mintinline{python}{15.70795} milliliter på första raden --- fem
+decimaler, en precision som ingen som blandar färg kan använda.  Den
+skrivformen är ny här: ingen av föreläsningarna \emph{Variabler och
+utskrifter} och \emph{Funktioner} tar upp den, och du behöver den bara
+när ett uträknat tal ska läsas av en människa.
+
+\begin{frame}[fragile,shrink=20]
+  \begin{example}[Huvudprogrammet]
+    Tre uträkningar och tre utskrifter:
+<<kakelprogrammets huvudprogram>>=
+circle = paint_for_area(circle_area(10))
+frame = paint_for_area(frame_area(20, 2))
+hexagon = paint_for_area(hexagon_area(10))
+
+print(f"Cirkel med radien 10 cm: {circle:.1f} ml")
+print(f"Ram, 20 cm kakel med 2 cm ram: {frame:.1f} ml")
+print(f"Sexhörning med sidan 10 cm: {hexagon:.1f} ml")
+@
+  \end{example}
+
+  \begin{example}[Vad programmet gör]
+    Och överst i filen:
+<<vad kakelprogrammet gör>>=
+"""Räknar ut hur mycket färg tre kakelmönster kräver."""
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Hela programmet, hopsatt]
+    Sätter vi in varje del där dess namn står får vi:
+    \inputminted{python}{examples/tiles.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut:
+    \runpython[showcommand, chdir]{examples/tiles.py}
+  \end{example}
+\end{frame}
+
+Det uppenbara alternativet är tre funktioner som var och en räknar hela
+vägen från mått till färg.  Programmet blir kortare i huvudprogrammet och
+fungerar precis lika bra --- ända till dagen fabriken byter till en färg
+som går åt med \(0{,}04\) milliliter per kvadratcentimeter.  Då ska samma
+tal ändras på tre ställen, och ändras bara två av dem har programmet två
+sanningar om samma sak.  Det är den risken DRY varnar för: varje kunskap
+i ett program ska ha ett enda ställe\autocite{HuntThomas1999}, och det
+vetenskapliga underlaget för DRY --- både var principen kommer ifrån och
+vilka förbehåll som hör till --- finns i föreläsningen \emph{Algoritmiskt
+tänkande}, bilaga E.
+
+
+\mode<article>{\clearpage}
+\section{Någon annans program}
+\label{sec:granska}
+
+\mode<article>{%
+  \OvningVariablesLODocstring*
+  \OvningVariablesLONames*
+  \OvningVariablesLOReview*
+}
+
+Hittills har du skrivit kod.  Den sista kärnuppgiften handlar om att läsa
+någon annans.
+% TODO(claim-audit): att läsa och granska andras kod gör den egna koden
+% tydligare --- kursens eget motiv för momentet, men ett påstående om
+% nytta som ingen bilaga i kursen belägger.
+Att läsa andras kod och säga vad som är svårt med den är ett av kursens
+mål i sig, och det är också ett sätt att se hur din egen kod kan bli
+tydligare.  Gör gärna uppgiften tillsammans med någon: ni ser olika
+saker, och det är lärorikt att behöva motivera varför något är ett fel.
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skulle du göra annorlunda?]
+    Här är ett program som ska skriva ut vilka hushållssysslor som ska
+    göras.  Läs det, kör det, och hitta minst fem saker du skulle göra
+    annorlunda.  Skriv sedan om programmet, säg vad som blev bättre och
+    varför, och namnge den princip varje ändring följer.
+<<[[house-chores.py]]>>=
+def blommor():
+    print("Vattnar blommorna")
+
+
+def sopor(string):
+    print(string)
+    return True
+
+
+def func():
+    print("Tömma diskmaskinen")
+    print("Dammsuga mormors hus")
+
+
+def hunden():
+    print("Går ut med hunden")
+
+
+b = blommor()
+
+sopor("Tar ut soporna")
+
+print("Förutom att vattna blommor och ta ut sopor ska vi:")
+func()
+@
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningVariablesLODocstring},
+  \cref{OvningVariablesLONames} och \cref{OvningVariablesLOReview}.
+
+  \textbf{Förbättrad uppgift.}  Programmet är författarens
+  [[easy_house_chores.py]] med tre ändringar.  (1)~Formateringen är
+  rättad till PEP~8 --- blankrader mellan definitionerna --- därför att
+  formateringsfel är de fel \texttt{black} rättar åt en, och uppgiften
+  ska handla om det verktygen \emph{inte} ser.  Det sägs i
+  lösningsförslaget, så att ingen tror att formatering är oviktig.
+  (2)~Funktionen [[hunden]] är tillagd och anropas aldrig: det är ett
+  dokumenterat antimönster hos CS1-studenter, en funktion som skapas men
+  inte anropas, varför arbetet uteblir
+  \parencite{Bosse2021Antipatterns}.  Felet syns dessutom i
+  \emph{utmatningen}, vilket gör uppmaningen att köra programmet till mer
+  än en formalitet.  (3)~Sysslan \enquote{Gå ut med hunden} är hämtad ur
+  den fördjupande övningens variant av samma program, så att ingenting är
+  hittat på.
+
+  Den svårare varianten, [[hard_house_chores.py]], är utesluten: den
+  bygger på \mintinline{python}{if}, \mintinline{python}{for}, listor och
+  \mintinline{python}{input}, som hör till föreläsningarna
+  \emph{Inmatning och felhantering}, \emph{Villkor och styrstrukturer}
+  och \emph{Upprepningar}.  Den går inte att lösa med det här
+  materialet.
+}
+
+\ltnote{%
+  \textbf{Fusion} och avslutning.  Alla aspekter verkar samtidigt, och
+  ingen av dem är utpekad: namn, docstringar, ansvarsfördelning,
+  returvärden som ingen använder, och utskrifter i en ordning som ljuger.
+  Uppgiften ligger sist bland kärnuppgifterna därför att fusion kräver
+  att aspekterna redan är urskilda \parencite[45--47]{Marton2015}.  Att
+  frågan lyder \enquote{vad skulle du göra annorlunda?} och inte
+  \enquote{vilka fem fel finns det?} är avsiktligt: det senare säger att
+  det finns precis fem och att de är fel, och båda sakerna är falska.
+  Avsnittet hette \enquote{Finn fem fel} efter den gamla övningen, vilket
+  påstod samma sak i rubriken som frågan är formulerad för att undvika;
+  därav det nuvarande namnet.  Uppgiftens egen rubrik står kvar.
+}
+
+\subsection{Lösningsförslag}
+
+Börja med att köra programmet, för det första felet syns bara där.
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut:
+    \runpython[showcommand, chdir]{examples/house-chores.py}
+  \end{example}
+\end{frame}
+
+Hunden går aldrig ut.  Funktionen \mintinline{python}{hunden} finns i
+filen, men ingen anropar den, och en funktion som inte anropas gör
+ingenting --- definitionen säger vad som \emph{ska} göras, inte att det
+ska göras.  Ett fel av samma slag står på den första raden efter
+definitionerna: \mintinline{python}{blommor} skriver ut, men den lämnar
+inte tillbaka något, så \mintinline{python}{b} får värdet
+\mintinline{python}{None} --- och används sedan aldrig.  Tilldelningen ser
+ut som om den sparade ett resultat, och det gör den inte.
+
+\begin{frame}[fragile]
+  \begin{solution}[Det som inte blir gjort]
+    Två fel handlar om arbete som uteblir:
+    \begin{description}
+      \item[Den oanropade funktionen] \mintinline{python}{hunden} anropas
+        aldrig.
+      \item[Den tomma tilldelningen] \mintinline{python}{b} blir
+        \mintinline{python}{None} och används aldrig.
+    \end{description}
+  \end{solution}
+\end{frame}
+
+\ltnote{%
+  De två felen här riktar sig mot belagda missuppfattningar.  Att [[b]]
+  tilldelas resultatet av en funktion som inte returnerar något prövar
+  tron att en funktion returnerar det den ska av sig själv
+  \parencite{KumarVeerasamy2016} och att en
+  \mintinline{python}{print}-sats sist i kroppen fungerar som en
+  \mintinline{python}{return}-sats \parencite{MisconceptionsSurvey2017}.
+}
+
+Nästa grupp av fel gäller det som gör ett program läsbart.  Inget av
+namnen säger vad som händer: \mintinline{python}{blommor} och
+\mintinline{python}{sopor} är substantiv och kunde lika väl vara
+variabler, \mintinline{python}{func} säger bara att det är en funktion,
+\mintinline{python}{b} säger ingenting alls, och parametern
+\mintinline{python}{string} är döpt efter sin typ i stället för sin roll.
+% TODO(claim-audit): att en funktion bör heta något som säger vad den
+% gör (ett verb) och en variabel något som säger vad den innehåller ---
+% en konvention som påstår en nytta.  PEP 8 föreskriver den inte, och
+% bilaga B i Variabler och utskrifter prövar bara namn byggda av
+% riktiga ord, inte ordklassen.
+En funktion gör något, så dess namn får gärna vara ett verb; en variabel
+innehåller något, så dess namn får gärna säga vad.  Att namn byggda av
+riktiga ord är lättare att läsa finns det stöd
+för\autocite[avsnitt~4.2]{SantosGerosa2018Readability}, och det
+vetenskapliga underlaget --- inklusive vad det \emph{inte} räcker till ---
+finns i föreläsningen \emph{Variabler och utskrifter}, bilaga B.
+Dessutom har ingen av funktionerna en docstring, och filen säger inte vad
+den är till för.
+% TODO(claim-audit): att en docstring gör att den som ska använda
+% funktionen slipper läsa dess kropp --- ett påstående om nytta;
+% föreläsningen Funktioner påstår bara att verktygen läser docstringen.
+Konventionen för docstrings står i PEP~257\autocite{pep257}.  Poängen med
+dem är tänkt att vara att den som ska \emph{använda} funktionen slipper
+läsa dess kropp --- men det är ett antagande, inte något kursen har
+belägg för; det enda som går att visa är att verktygen läser dem.
+
+\begin{frame}[fragile]
+  \begin{solution}[Namnen och dokumentationen]
+    Tre fel handlar om vad läsaren kan utläsa:
+    \begin{description}
+      \item[Namnen] \mintinline{python}{blommor}, \mintinline{python}{sopor},
+        \mintinline{python}{func}, \mintinline{python}{b}.
+      \item[Parametern] \mintinline{python}{string} är döpt efter sin typ.
+      \item[Dokumentationen] ingen docstring, ingen rad om filen.
+    \end{description}
+  \end{solution}
+\end{frame}
+
+\ltnote{%
+  Här får två aspekter som annars aldrig varieras sin enda kontrast:
+  \emph{om} en funktion har en docstring, och \emph{vad} den heter.
+  Paret [[house-chores.py]] och [[house-chores-fixed.py]] varierar båda
+  mot en invariant bakgrund --- samma sysslor, samma utskrifter --- och
+  det är det närmaste övningen kommer en kontrast för dem; de andra
+  avsnittens lösningsförslag har docstringar och beskrivande namn hela
+  vägen utan att alternativet någonsin visas.  En egen uppgift för var
+  och en av aspekterna vore bättre.
+
+  Att funktionerna heter [[blommor]], [[sopor]] och [[func]] prövar
+  dessutom det motsatta hållet av namnens makt: Sleeman och
+  medförfattare observerade att elva elever trodde att ett namn med
+  betydelse fick programmet att välja ett värde efter betydelsen
+  \parencite[s.~11]{Sleeman1984}, och översikten förtecknar samma sak
+  med noteringen att \enquote{variable names are arbitrary}
+  \parencite[s.~1:5]{MisconceptionsSurvey2017}.  Här är namnen
+  godtyckliga på riktigt, och programmet fungerar ändå --- det är
+  läsaren som förlorar.  Mönstret att låta ett namn och dess syfte
+  variera oberoende är hämtat från kursens egen missuppfattningsartikel
+  \parencite{SooriBosk2026}.
+}
+
+Den tredje gruppen gäller vad varje funktion ansvarar för.
+\mintinline{python}{func} utför två sysslor, så den måste ändras både när
+diskmaskinen byts ut och när dammsugningen flyttar --- två skäl att
+ändras, alltså två ansvar.  \mintinline{python}{sopor} gör också två
+saker: den skriver ut en text den får utifrån, och lämnar tillbaka ett
+\mintinline{python}{True} som ingen använder.  Att texten står vid
+anropet i stället för i funktionen är värre än det ser ut:
+\mintinline{python}{sopor} kan skriva ut vad som helst, så kunskapen om
+vad sysslan är ligger inte i funktionen som heter efter den.  Principen
+om ett enda ansvar --- SRP --- säger just att en funktion aldrig ska ha
+mer än ett skäl att ändras\autocite[ch.~8]{Martin2003Agile}; vad som
+räknas som \emph{ett} ansvar är däremot en bedömningsfråga, och det
+vetenskapliga underlaget med den kritiken finns i föreläsningen
+\emph{Funktioner}, bilaga B.
+
+\begin{frame}[fragile]
+  \begin{solution}[Ansvaret]
+    Två fel handlar om vad en funktion ska ha hand om:
+    \begin{description}
+      \item[Två sysslor i en] \mintinline{python}{func} tömmer
+        \emph{och} dammsuger.
+      \item[Texten utifrån] \mintinline{python}{sopor} får sin text från
+        anropet.
+    \end{description}
+  \end{solution}
+\end{frame}
+
+Sist ett fel som bara syns om man läser utmatningen som en användare:
+raden \enquote{Förutom att vattna blommor och ta ut sopor ska vi:} kommer
+\emph{efter} att de två sysslorna redan är utförda, och den räknar upp i
+text vad koden precis har gjort.  Ändras sysslorna måste någon komma
+ihåg att ändra meningen också.  Och en småsak av samma slag:
+utskrifterna blandar infinitiv (\enquote{Tömma diskmaskinen}) med
+presens (\enquote{Vattnar blommorna}), så den som läser terminalen blir
+tilltalad på två sätt.  Omskrivningen håller sig till presens.
+
+Ett fel finns det däremot inte: formateringen.  Programmet följer PEP~8
+--- blankrader mellan definitionerna, fyra blanksteg i indrag --- och det
+är just den sorts fel som \texttt{black} rättar åt dig utan att fråga.
+Att den sortens fel saknas här är avsiktligt; det betyder inte att
+formatering är oviktig, utan att den inte är det svåra.
+
+Omskrivningen följer av felen.  Varje syssla blir en funktion som heter
+efter vad den gör och vet själv vad den ska skriva ut, och en funktion
+till håller ordningen mellan dem.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i överblick]
+    Fyra delar:
+<<[[house-chores-fixed.py]]>>=
+<<vad hushållsprogrammet gör>>
+
+
+<<de enskilda sysslorna>>
+
+
+<<sysslorna i tur och ordning>>
+
+
+<<hushållsprogrammets huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+Sysslorna först.  Var och en gör en sak, heter efter den saken, och har
+en docstring som säger vad den gör.
+
+\begin{frame}[fragile,shrink=40]
+  \begin{example}[De enskilda sysslorna]
+    Fem funktioner, en per syssla:
+<<de enskilda sysslorna>>=
+def water_flowers():
+    """Skriver ut att blommorna vattnas."""
+    print("Vattnar blommorna")
+
+
+def take_out_rubbish():
+    """Skriver ut att soporna tas ut."""
+    print("Tar ut soporna")
+
+
+def empty_dishwasher():
+    """Skriver ut att diskmaskinen töms."""
+    print("Tömmer diskmaskinen")
+
+
+def walk_the_dog():
+    """Skriver ut att hunden går ut."""
+    print("Går ut med hunden")
+
+
+def vacuum_grandmas_house():
+    """Skriver ut att mormors hus dammsugs."""
+    print("Dammsuger mormors hus")
+@
+  \end{example}
+\end{frame}
+
+Sedan den som håller ordningen.  Den bestämmer vad som görs och i vilken
+följd, och ingenting annat.  Inledningsraden kommer nu före sysslorna i
+stället för efter, och den räknar inte längre upp dem: koden säger redan
+vilka de är, och en uppräkning i text är en till sak att hålla i takt
+när listan ändras.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Sysslorna i tur och ordning]
+    En funktion som anropar de fem:
+<<sysslorna i tur och ordning>>=
+def do_chores():
+    """Skriver ut alla sysslorna i tur och ordning."""
+    print("I dag ska vi:")
+    water_flowers()
+    take_out_rubbish()
+    empty_dishwasher()
+    walk_the_dog()
+    vacuum_grandmas_house()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Vad programmet gör]
+    Överst i filen:
+<<vad hushållsprogrammet gör>>=
+"""Skriver ut vilka hushållssysslor som ska göras."""
+@
+  \end{example}
+
+  \begin{example}[Huvudprogrammet]
+    Och sist ett enda anrop:
+<<hushållsprogrammets huvudprogram>>=
+do_chores()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Nu blir allt gjort:
+    \runpython[showcommand, chdir]{examples/house-chores-fixed.py}
+  \end{example}
+\end{frame}
+
+Ett val i omskrivningen är värt att ifrågasätta:
+\mintinline{python}{do_chores} kunde ha utelämnats och de fem anropen
+stått direkt i huvudprogrammet.  Programmet hade blivit en funktion
+enklare, och KISS --- välj den enklaste lösning som gör jobbet --- talar
+för det.  Skälet att behålla den är att den har ett eget ansvar: den vet
+vilka sysslorna är och i vilken ordning de görs, och det är det som
+kommer att ändras när listan ändras.  Att enkelhet är ett designvärde är
+väl underbyggt, medan den vanliga tillskrivningen av slagordet till Kelly
+Johnson inte är det; det vetenskapliga underlaget för båda delarna finns
+i föreläsningen \emph{Funktioner}, bilaga C.
+
+
+\mode<article>{\clearpage}
+\section{Räkna ut BMI}
+\label{sec:bmi}
+
+\mode<article>{%
+  \OvningVariablesLODefine*
+  \OvningVariablesLODocstring*
+  \OvningVariablesLOOutput*
+}
+
+Den sista uppgiften är fördjupning.  Den kräver inga nya verktyg, men den
+flyttar uppdelningen till ett annat slags problem: en formel som kommer
+utifrån, med enheter som måste stämma.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Skriv ut ett BMI]
+    BMI (\foreignlanguage{english}{body mass index}) används för att
+    jämföra en persons vikt med hennes längd, och räknas ut som vikten i
+    kilogram delad med längden i meter i kvadrat.
+
+    Skriv ett program som består av en funktion som räknar ut BMI för en
+    given vikt och längd, och ett huvudprogram som skriver ut åtminstone
+    ett BMI.  Längden ska anges i centimeter.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningVariablesLODefine},
+  \cref{OvningVariablesLODocstring} och \cref{OvningVariablesLOOutput}.
+
+  \textbf{Bevarad uppgift, fördjupning.}  Den kommer ur den gamla
+  fördjupande övningen och står därför sist, i ett eget avsnitt.  Den är
+  inte svårare än \cref{sec:kakel} --- den är ett extra fall för den som
+  vill ha ett till --- och det sägs i texten, så att ingen tror att
+  fördjupning här betyder svårare.
+
+  Två ändringar mot originalet.  Uppgiften anger att längden ska ges i
+  \emph{centimeter} medan formeln är i \emph{meter}: omräkningen är det
+  enda nya, och den gör att funktionens docstring måste säga vilka
+  enheter parametrarna har, annars ger ett korrekt anrop ett felaktigt
+  svar utan att något kraschar.  Och originalets utskrift av
+  gränsvärdena för under- och övervikt är borta: att välja mellan
+  intervall kräver \mintinline{python}{if}, som hör till föreläsningen
+  \emph{Villkor och styrstrukturer}, och funktionen har dessutom ett
+  renare ansvar om den lämnar tolkningen åt den som anropar.
+  Exempelpersonen heter Malvina, enligt kursens namnregel; originalets
+  namn var författarens eget.
+}
+
+\subsection{Lösningsförslag}
+
+Uppdelningen är given av uppgiften: en funktion som räknar, ett
+huvudprogram som skriver ut.  Det enda som kräver eftertanke är
+enheterna.  Funktionen får längden i centimeter men formeln vill ha
+meter, så omräkningen måste göras någonstans --- och den görs inuti
+funktionen, så att den som anropar bara behöver veta vad docstringen
+säger.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet i överblick]
+    Fyra delar:
+<<[[bmi.py]]>>=
+<<vad bmi-programmet gör>>
+
+
+<<funktionen som räknar bmi>>
+
+
+<<personen programmet handlar om>>
+
+<<bmi-programmets huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Från centimeter till BMI]
+    Omräkningen först, formeln sedan:
+<<funktionen som räknar bmi>>=
+def bmi(weight_kg, height_cm):
+    """Returnerar BMI för en vikt i kilogram och en längd i cm."""
+    height_m = height_cm / 100
+    return weight_kg / (height_m * height_m)
+@
+  \end{example}
+\end{frame}
+
+Docstringen säger \emph{kilogram} och \emph{cm}, och det är ingen
+artighet.  Innan du läser vidare: vad skriver de här två raderna ut?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver raderna ut?]
+    Samma funktion, två anrop:
+<<[[bmi-units.py]]>>=
+<<funktionen som räknar bmi>>
+
+
+print(bmi(65, 170))
+print(bmi(65, 1.70))
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/bmi-units.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  \textbf{Generalisering} av \cref{sec:kakel} --- men bara till hälften,
+  och de två halvorna ska inte blandas ihop.  Uppdelningen är
+  generaliserad: vad som hålls invariant är en funktion som räknar och
+  lämnar tillbaka medan huvudprogrammet skriver ut, och vad som varierar
+  är sammanhanget --- en formel från ett annat ämne
+  \parencite[45--47]{Marton2015}.
+
+  Parametrarnas \emph{enheter} är däremot ingen generalisering utan ett
+  \textbf{första fall} av en ny aspekt: att en parameter har en enhet som
+  hör till funktionens överenskommelse med den som anropar den.  Den
+  aspekten har inget att varieras mot i övningen, och den lilla
+  jämförelsen i lösningsförslaget --- samma anrop med [[170]] och med
+  [[1.70]] --- är en kontrast i ett enda par, inte ett mönster.  Att
+  aspekten är ny och obearbetad är hela skälet till att uppgiften står
+  som fördjupning: den öppnar något som en senare övning får ta upp
+  ordentligt.
+}
+
+Ingen av raderna kraschar.  Den andra ger ett svar som är tiotusen
+gånger för stort, därför att \mintinline{python}{1.70} är en längd i
+meter och funktionen väntar sig centimeter.  Det är därför docstringen
+säger vilka enheter parametrarna har: enheten hör till
+överenskommelsen, och den som bryter mot den får ett svar, inte ett
+felmeddelande.  Kvadraten är skriven som en multiplikation; Python har
+också en operator för upphöjt till, men en multiplikation räcker här och
+kräver inget nytt.
+
+Personens uppgifter står som konstanter, med versaler: de ska inte ändras
+medan programmet kör\autocite{pep8}.  Huvudprogrammet skriver ut svaret
+med en decimal, av samma skäl som i \cref{sec:kakel} --- och skälet är
+tydligare här: utan avrundning skriver programmet ut ett BMI med fjorton
+decimaler.
+
+\begin{frame}[fragile]
+  \begin{example}[Personen och utskriften]
+    Tre konstanter och en rad:
+<<personen programmet handlar om>>=
+NAME = "Malvina"
+WEIGHT_KG = 65
+HEIGHT_CM = 170
+@
+<<bmi-programmets huvudprogram>>=
+print(f"{NAME} har BMI {bmi(WEIGHT_KG, HEIGHT_CM):.1f}")
+@
+  \end{example}
+
+  \begin{example}[Vad programmet gör]
+    Överst i filen:
+<<vad bmi-programmet gör>>=
+"""Räknar ut BMI för en person."""
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver ut:
+    \runpython[showcommand, chdir]{examples/bmi.py}
+  \end{example}
+\end{frame}
+
+Funktionen skriver inte ut något och säger ingenting om vad talet
+betyder.  Det är avsiktligt: den som anropar kan vilja skriva ut svaret,
+jämföra det med ett annat eller spara det, och en funktion som skriver ut
+duger bara till det första.  Ett alternativ hade varit att låta
+funktionen ta längden i \emph{meter} och lägga omräkningen i
+huvudprogrammet.  Det är också en rimlig lösning --- men då måste varje
+anropare komma ihåg att räkna om, och det är ett fel som väntar på att
+hända.
