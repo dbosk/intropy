@@ -177,7 +177,7 @@ Efter föreläsningen ska du kunna
 
 Föreläsningen bygger på tidigare veckors föreläsningar *Funktioner*,
 *Inmatning och felhantering*, *Upprepningar*, *Behållare: Listor* och
-*Behållare: Tupler* samt på *Klasser och objekt* från vecka 41: du ska
+*Behållare: Tupler* samt på *Klasser och objekt*: du ska
 kunna skriva egna funktioner, fånga särfall med `try`/`except`, använda
 `for`- och `while`-slingor, arbeta med listor och tupler, och skriva en
 klass med attribut, metoder, parametern `self` och dundermetoderna

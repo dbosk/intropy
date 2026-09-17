@@ -60,12 +60,17 @@ komposition passar bäst.
 ## Förkunskaper
 
 Föreläsningen bygger på föreläsningarna *Funktioner*, *Villkor och
-styrstrukturer*, *Upprepningar*, *Behållare: Listor* och *Behållare:
-Uppslagslistor*: du ska kunna skriva en funktion med parametrar och
-returvärde, använda villkor och upprepningar och lagra data i listor och
-uppslagslistor. Strängar och f-strängar används genomgående, och
-särfall (`try` och `except`) förekommer i det inledande exemplet; de
-behandlas i föreläsningen *Inmatning och felhantering*.
+styrstrukturer*, *Upprepningar* och *Behållare: Listor*: du ska kunna
+skriva en funktion med parametrar och returvärde, använda villkor och
+upprepningar och lagra data i listor. Det inledande exemplet använder
+också en uppslagslista (`dict`), som föreläsningen *Behållare:
+Uppslagslistor* går igenom först senare; det som behövs förklaras där
+den används. Strängar och f-strängar används genomgående, och särfall
+(`try` och `except`) förekommer i det inledande exemplet; de behandlas i
+föreläsningen *Inmatning och felhantering*.
+<!-- REVIEW: classes/slides/abstract.tex listar Behållare: Uppslagslistor
+     som förkunskap fast den ges vecka 44; decket bör säga vad det
+     förutsätter om dict eller stryka förkunskapen. -->
 
 ## Efter föreläsningen
 
