@@ -1,0 +1,1626 @@
+\mode*
+
+Den här övningen är till för att du ska få använda det du har tagit del
+av i föreläsningarna \emph{Inmatning och felhantering} och \emph{Villkor
+och styrstrukturer}: att läsa in svar från den som kör programmet, att ta
+hand om svar som inte går att använda, och att låta programmet välja väg
+och göra om något så länge det behövs.  Uppgifterna kommer i en ordning
+som är vald med avsikt.  De första handlar om att \emph{läsa} villkor och
+räkna ut vad de betyder; sedan kommer ett färdigt program att granska
+och förbättra, och en funktion att bygga ut; och sist program att
+skriva från början.  De två sista
+uppgifterna är fördjupning --- gör dem om du vill ha mer.
+
+Arbeta så här: läs uppgiften, lös den, och läs \emph{sedan}
+lösningsförslaget.  Vinsten med att försöka först ligger nämligen inte i
+att svaret dröjer, utan i att du har något eget att jämföra det
+med\autocite{SinhaKapur2021} --- det vetenskapliga underlaget, både för
+att effekten finns och för var den inte gäller, finns i föreläsningen
+\emph{Upprepningar}, bilaga C.  Varje lösningsförslag är dessutom
+\emph{ett} förslag och inte det enda rätta.  Där det finns ett annat
+rimligt sätt står det ett stycke om vilket, och om varför förslaget ändå
+ser ut som det gör.  Hur du kontrollerar ett påstående du stöter på ---
+här eller någon annanstans --- står i \cref{app:verifiera}.
+
+\section{Bomben}
+\label{sec:bomben}
+
+Vi börjar med ett program som redan är skrivet.  Det är ett litet spel:
+programmet ställer frågor, och svarar du \enquote{fel} detonerar bomben.
+Det knepiga är att \enquote{fel} inte är detsamma som fel --- vad som
+räknas som fel svar står i koden, inte i frågan.  Du måste alltså läsa
+villkoren för att komma igenom.  Programmet finns inte att hämta någon
+annanstans: skriv av det ur anteckningarna, spara det som
+\texttt{bomben1.py} och kör det.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOBoolean,OvningConditionalsLOTrace}.
+
+  Uppgiften är behållen ur det gamla materialets \enquote{Bombspelet},
+  men bantad.  Animeringsbiblioteket (elva rader
+  \textsc{ascii}-konst per bildruta) övade inget av veckans stoff, och
+  de frågor som byggde på rekursion gick inte att lösa med det
+  studenten har tagit del av.  Kvar står det som övar veckan: att läsa
+  ett villkor och räkna ut vad det ger.
+
+  \textbf{Kontrast}: vad som varierar är villkorets \emph{form} och
+  ingenting annat --- en ensam jämförelse, ett
+  \mintinline{python}{not} över ett \mintinline{python}{and}, ett
+  \mintinline{python}{or}, och en blandning av
+  \mintinline{python}{and} och \mintinline{python}{or} utan
+  parenteser.  Vad som hålls invariant är de fyra frågornas form, rad
+  för rad: frågan står som argument till \mintinline{python}{input},
+  svaret läggs i en variabel på egen rad, villkoret prövas, och samma
+  \mintinline{python}{detonera} anropas.  Kontrasten ska urskilja att
+  det är villkoret och inte frågans ordalydelse som bestämmer utfallet.
+
+  Att de tre första svaren omvandlas med \mintinline{python}{float} och
+  det fjärde inte alls följer av frågorna och är ingen fjärde
+  variation.  En tidigare version lade omvandlingen inuti villkoret i
+  en fråga och skrev den fjärde med
+  \mintinline{python}{print(..., end=" ")}; båda är borta, därför att
+  de varierade var omvandlingen hör hemma
+  (\cref{OvningConditionalsLOConvert}) mitt i en kontrast om villkorets
+  form, och därför att \mintinline{python}{end} inte tas upp i veckans
+  föreläsningar.
+}
+
+Programmet är byggt av en funktion som detonerar bomben, fyra funktioner
+med en fråga var, och ett huvudprogram som ställer frågorna i tur och
+ordning.
+
+\begin{frame}[fragile]
+  Så ser helheten ut:
+<<[[bomben1.py]]>>=
+"""Ett spel där du ska undvika att bomben detonerar.
+
+Vad som räknas som fel svar står i koden, inte i frågan.  Du måste
+alltså läsa villkoren innan du svarar.
+"""
+
+
+<<funktionen som detonerar>>
+
+
+<<den första frågan>>
+
+
+<<två frågor om intervall>>
+
+
+<<den fjärde frågan>>
+
+
+<<bombens huvudprogram>>
+@
+\end{frame}
+
+Att detonera bomben är i den här versionen en utskrift och ingenting
+annat.
+
+\begin{frame}[fragile]
+  Bomben, och den första frågan:
+<<funktionen som detonerar>>=
+def detonera():
+    """Skriver ut att bomben har detonerat."""
+    print("BOM!")
+@
+<<den första frågan>>=
+def forsta_fragan():
+    """Ställer den första frågan och detonerar vid fel svar."""
+    tal = float(input("Hur mycket är 1 + 1? "))
+    if tal == 2:
+        detonera()
+@
+\end{frame}
+
+De två nästa frågorna handlar båda om ett intervall.
+
+\begin{frame}[fragile]
+  Två frågor om ett intervall:
+<<två frågor om intervall>>=
+def andra_fragan():
+    """Ställer den andra frågan och detonerar vid fel svar."""
+    tal = float(input("Säg ett tal mellan 0 och 1: "))
+    if not (0 < tal and tal < 1):
+        detonera()
+
+
+def tredje_fragan():
+    """Ställer den tredje frågan och detonerar vid fel svar."""
+    tal = float(input("Säg ett tal mellan 1 och 2: "))
+    if 1 > tal or tal > 2:
+        detonera()
+@
+\end{frame}
+
+Den fjärde frågan handlar om villkoret själv: programmet skriver ut ett
+uttryck och frågar vad det är värt.
+
+\begin{frame}[fragile]
+  Den fjärde frågan, och huvudprogrammet:
+<<den fjärde frågan>>=
+def fjarde_fragan():
+    """Ställer den fjärde frågan och detonerar vid fel svar."""
+    svar = input("1 < 2 and 2 < 1 or 9 < 10, sant eller falskt? ")
+    if svar == "falskt":
+        detonera()
+@
+<<bombens huvudprogram>>=
+forsta_fragan()
+andra_fragan()
+tredje_fragan()
+fjarde_fragan()
+print("Du tog dig igenom utan att detonera bomben!")
+@
+\end{frame}
+
+Nu är uppgiften din.
+
+\ltnote{%
+  De två intervallfrågorna står i \emph{samma} chunk och därmed på
+  samma bild, eftersom de är varandras spegelbilder och skillnaden
+  måste kunna upplevas samtidigt för att kunna urskiljas
+  \parencite[45--47]{Marton2015}.
+
+  Den första frågan riktar sig mot att \mintinline{python}{==} läses
+  som \enquote{är lika med} i frågans mening snarare än som ett
+  villkor programmet prövar; att ett likhetstecken används där en
+  jämförelse avses är belagt i granskad studentkod
+  \parencite{Bosse2021Antipatterns}, och den fjärde frågan mot att
+  kedjade villkor läses som talspråk
+  \parencite{GuoMarkelZhang2020}.  Underlaget för båda finns i
+  föreläsningen \emph{Villkor och styrstrukturer}, bilaga B.
+
+  Uppgiften kommer först därför att den inte kräver att något skrivs:
+  tröskeln är låg, och den spårning för hand som resten av övningen
+  bygger på övas isolerat innan den används till något.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Bomben]
+    \label{ovn:bomben}
+    Läs [[bomben1.py]] och skriv ner ett svar på var och en av de fyra
+    frågorna som gör att bomben \emph{inte} detonerar.  Motivera varje
+    svar med vad villkoret blir värt.  Kör därefter programmet med dina
+    svar och kontrollera att det skriver
+    \mintinline{text}|Du tog dig igenom utan att detonera bomben!|
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Ta villkoren ett i taget, och pröva ditt tänkta svar i vart och ett av
+dem.
+
+Den första frågan detonerar bomben när villkoret
+\mintinline{python}{tal == 2} är sant, alltså när svaret \emph{är} två.
+Det rätta svaret på frågan är det enda som fäller dig, så svara vad som
+helst annat --- till exempel \mintinline{text}|3|.  Då blir
+\mintinline{python}{tal} lika med \mintinline{python}{3.0} och
+villkoret falskt.
+
+Den andra frågan detonerar när
+\mintinline{python}{not (0 < tal and tal < 1)} är sant, alltså när
+\mintinline{python}{tal} \emph{inte} ligger strikt mellan noll och ett.
+Här duger ett hederligt svar: för \mintinline{text}|0.5| är
+\mintinline{python}{0 < 0.5} sant och \mintinline{python}{0.5 < 1}
+sant, så parentesen är sann och \mintinline{python}{not} gör den falsk.
+Lägg märke till att både \mintinline{text}|0| och \mintinline{text}|1|
+skulle detonera bomben: jämförelserna är strikta.
+
+Villkoret \mintinline{python}{1 > tal or tal > 2} i den tredje frågan
+säger samma sak från andra hållet.  Det är sant när talet ligger
+\emph{utanför} intervallet, och det räcker att ett av leden är sant.
+För \mintinline{text}|1.5| är båda leden falska, så bomben ligger
+stilla.  De två frågorna säger alltså samma sak med olika ord, och det
+är värt att stanna vid: ett villkor som fångar \enquote{utanför} är
+negationen av det som fångar \enquote{innanför}.
+
+Den fjärde frågan hänger på i vilken ordning operatorerna räknas.
+\mintinline{python}{and} binder hårdare än \mintinline{python}{or}, så
+uttrycket läses som
+\mintinline{python}{(1 < 2 and 2 < 1) or (9 < 10)}.  Den första
+parentesen är falsk, eftersom \mintinline{python}{2 < 1} är falskt; den
+andra är sann.  Falskt eller sant är sant, så det rätta svaret är
+\mintinline{text}|sant| --- och eftersom bomben detonerar på
+\mintinline{text}|falskt| är det rätta svaret också det säkra här.
+
+\begin{frame}[fragile]
+  \begin{example}[En körning som går igenom]
+    \label{ex:bomben-korning}
+    Med svaren \mintinline{text}|3|, \mintinline{text}|0.5|,
+    \mintinline{text}|1.5| och \mintinline{text}|sant|:
+    \runpython[transcript, stdin={3}, stdin={0.5}, stdin={1.5},
+      stdin={sant}]{examples/bomben1.py}
+  \end{example}
+\end{frame}
+
+Att svara på frågan i stället för att läsa villkoret hade gått bra på
+tre av de fyra frågorna.  Det är den första som är elak, och den är
+elak på ett sätt som är värt att komma ihåg: ett villkor är inte en
+omskrivning av frågan, det är ett uttryck som programmet räknar ut.
+
+\mode<article>{\clearpage}
+\section{Bombens sista fråga}
+\label{sec:bomben-sista}
+
+Bomben har en fråga kvar, och den är av ett annat slag.  Hittills har
+varje fråga haft sitt eget \mintinline{python}{if}.  Nu kommer flera
+villkor i en kedja, med \mintinline{python}{elif}.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOBranch,OvningConditionalsLOTrace}.
+
+  Detta är den fjärde delen av det gamla \enquote{Bombspelet}, bruten
+  ut i en egen uppgift.  Skälet är att den övar en annan aspekt än de
+  tre första: i \cref{sec:bomben} prövas varje villkor för sig, här
+  beror varje villkor på att de föregående var falska.  Slagna samman
+  i en uppgift varierar två aspekter samtidigt och ingen av dem blir
+  urskiljbar.
+
+  \textbf{Generalisering}: vad som hålls invariant är spelet och
+  villkorens form --- jämförelser, \mintinline{python}{and},
+  \mintinline{python}{not} --- medan konstruktionen varieras från
+  fristående \mintinline{python}{if}-satser till en
+  \mintinline{python}{elif}-kedja.  Kontrasten i \cref{sec:bomben}
+  måste komma först: den som inte har urskilt vad ett villkor
+  \emph{är} kan inte se vad ordningen mellan flera villkor gör
+  \parencite[45--47]{Marton2015}.
+
+  Uppgiftens andra halva --- vilka värden som kan nå den andra grenen
+  --- riktar sig mot att en gren tros prövas oberoende av de
+  föregående.  Att ett falskt villkor tros avsluta programmet, och att
+  båda grenarna tros köras, står som post 26 respektive 27 i Sorvas
+  inventering
+  \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}; underlaget
+  finns i föreläsningen \emph{Villkor och styrstrukturer}, bilaga B.
+  Frågan ställs om kedjan som helhet och pekar inte ut vilket av de fem
+  jämförelseleden som är överflödigt; den som svarar måste pröva vart
+  och ett av dem mot de villkor som står ovanför det.  En tidigare
+  version frågade om ledet \mintinline{python}{alder > 20} vid namn,
+  vilket tog bort just den urskiljningen.
+}
+
+Programmet är kort: en fråga, tre villkor och ett huvudprogram.
+
+\begin{frame}[fragile]
+  Samma bomb, en fråga:
+<<[[bomben2.py]]>>=
+"""Bombens sista fråga: en kedja av villkor.
+
+Också här står det i koden vad som räknas som fel svar.
+"""
+
+
+<<funktionen som detonerar>>
+
+
+<<den sista frågan>>
+
+
+sista_fragan()
+print("Du tog dig igenom utan att detonera bomben!")
+@
+\end{frame}
+
+Frågan i sig är oskyldig.  Det är kedjan under den som avgör saken.
+
+\begin{frame}[fragile]
+  Tre villkor i en kedja:
+<<den sista frågan>>=
+def sista_fragan():
+    """Ställer den sista frågan och detonerar vid fel svar."""
+    alder = int(input("Nämn en bra ålder? [Ange ett tal] "))
+    if alder < 30:
+        detonera()
+    elif alder > 20 and alder < 40:
+        detonera()
+    elif not (alder < 65):
+        detonera()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Bombens sista fråga]
+    \label{ovn:bomben-sista}
+    Vilka åldrar kan du svara utan att bomben detonerar?  Svara med
+    ett intervall, och visa för ett av talen i intervallet vad vart och
+    ett av de tre villkoren blir värt.
+    \only<presentation>{\medskip}
+
+    Titta sedan på kedjan som helhet: finns det något led i den som
+    aldrig kan ändra utfallet?  Vilket, och varför?
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Villkoren prövas uppifrån och ner, och det första som är sant vinner.
+Gå därför igenom dem i den ordningen, ett åldersintervall i taget.
+
+Är \mintinline{python}{alder} mindre än 30 är det första villkoret
+sant, och bomben detonerar direkt.  Är den 30 eller mer prövas det
+andra: \mintinline{python}{alder > 20 and alder < 40}.  För 30 till 39
+är båda leden sanna, så bomben detonerar även där.  För 40 och uppåt är
+det andra ledet falskt, och då prövas det tredje,
+\mintinline{python}{not (alder < 65)}.  Det är sant från 65 och uppåt,
+så där detonerar bomben igen.  Kvar blir 40 till 64.
+
+För till exempel 42 blir de tre villkoren i tur och ordning
+\mintinline{python}{42 < 30} som är falskt,
+\mintinline{python}{42 > 20 and 42 < 40} som är falskt eftersom det
+andra ledet är falskt, och \mintinline{python}{not (42 < 65)} som är
+falskt eftersom parentesen är sann.  Ingen gren körs, och programmet
+fortsätter till raden efter kedjan.
+
+\begin{frame}[fragile]
+  \begin{example}[En ålder som håller]
+    \label{ex:bomben2-korning}
+    Med svaret \mintinline{text}|42|:
+    \runpython[transcript, stdin={42}]{examples/bomben2.py}
+  \end{example}
+\end{frame}
+
+Kvar står frågan om ledet \mintinline{python}{alder > 20}.  Den andra
+grenen nås bara när den första var falsk, alltså när
+\mintinline{python}{alder} är 30 eller mer --- och för varje sådant
+värde är \mintinline{python}{alder > 20} redan sant.  Ledet kan alltså
+aldrig ändra utfallet: det andra villkoret \emph{är} i praktiken
+\mintinline{python}{alder < 40}.  Det är den viktiga läxan ur den här
+uppgiften.  En gren i en kedja bär med sig att alla villkor ovanför den
+var falska, och läser man grenen utan det får man fel.
+
+\mode<article>{\clearpage}
+\section{Biobiljetterna}
+\label{sec:biobiljetter}
+
+Nu vänder vi blicken mot ett program som ska \emph{användas} av någon
+annan.  Det är skrivet för en biograf: det frågar hur många biljetter
+kunden vill ha och hur många av dem som är vuxenbiljetter, och räknar
+ut vad det kostar.  Programmet fungerar --- det kör, och för rimliga
+svar räknar det rätt.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOReview,%
+    OvningConditionalsLOPrompt,%
+    OvningConditionalsLOConvert,%
+    OvningConditionalsLOCatch,%
+    OvningConditionalsLORobust}.
+
+  Uppgiften är det gamla materialets \enquote{Finn fem fel}, behållen
+  därför att den övar ett mål ingen av veckans föreläsningar övar: att
+  granska ett färdigt program och sätta ord på vad som brister i det.
+  Vad som är ändrat är ramen.  Det gamla materialet bad studenterna
+  dela upp sig i par och hämta programmet från en länk --- det är
+  logistik för ett övningstillfälle och hör inte i anteckningarna
+  hemma, så programmet står nu i materialet och tanglas ur det.
+
+  \textbf{Kontrast}: vad som varierar mellan uppgiftens program och
+  lösningsförslagets är \emph{utformningen} och \emph{uppdelningen} ---
+  frågornas ordalydelse, var omvandlingen står, vad som händer med ett
+  svar som inte går att använda, vad utskriften säger, och att ett rakt
+  skript blir fyra funktioner.  Att uppdelningen varieras med är
+  avsiktligt och inte ett slarv: att se att ett program \emph{kan}
+  delas upp är en del av \cref{OvningConditionalsLOReview}, och
+  uppdelningen är dessutom det som gör omfrågningen möjlig att skriva
+  på ett enda ställe.  Vad som hålls
+  invariant är uppgiften: två frågor, en prisräkning, ett svar.  Båda
+  körs dessutom på samma svar, så skillnaden syns i utmatningen och
+  behöver inte tros på ord.  Detta är samma kontrast som föreläsningen
+  \emph{Inmatning och felhantering} gör mellan
+  [[prompt3.py]] och [[prompt4.py]], nu på ett helt program.
+
+  Formuleringen säger bara att programmet kör och räknar rätt för
+  rimliga svar; att bristerna ligger i utformningen och i vad som
+  händer vid orimliga svar är vad uppgiften ska pröva och sägs därför
+  inte ut \parencite[13 och 91]{Marton2015}.  Antalet fem är behållet
+  ur det gamla materialet: ett tal gör uppgiften avgränsad utan att
+  peka ut vilka fem.
+
+  % TODO(claim-audit): att granska ett färdigt program och sätta ord på
+  % vad som brister i det gör studenten bättre på att skriva egna
+  % program.  Uppgiften vilar på det, och det är inte belagt någonstans
+  % i kursens material.
+  % TODO(claim-audit): att en fråga som säger vad den vill ha, och ett
+  % felmeddelande på användarens språk med ett exempel på ett svar som
+  % fungerar, gör programmet användbart.  Hela bristlistan vilar på det.
+  % Kursens underlag rör felmeddelanden till nybörjande programmerare
+  % (föreläsningen Hello, World!, bilaga D, där omskrivna meddelanden
+  % inte kunde visas hjälpa), inte meddelanden till en slutanvändare.
+}
+
+\begin{frame}[fragile]
+  Programmet ser ut så här:
+<<[[biobiljetter1.py]]>>=
+barn_pris = 10
+vuxen_pris = 20
+
+antal_biljetter = input("Hur många biljetter vil du köpa? ")
+antalBiljetter = int(antal_biljetter)
+
+antal_vuxen = input("Hur många av de biljetterna är för en vuxen? ")
+antalVuxen = int(antal_vuxen)
+
+antal_barn = antalBiljetter - antalVuxen
+
+total_pris = antal_barn * barn_pris + antalVuxen * vuxen_pris
+
+print("Du ska betala:")
+print(total_pris)
+@
+\end{frame}
+
+Så här ser en körning ut när kunden vill ha tre biljetter, varav en är
+en vuxenbiljett.
+
+\begin{frame}[fragile]
+  \begin{example}[En körning som går bra]
+    \label{ex:biobiljetter-korning}
+    Kunden svarar \mintinline{text}|3| och \mintinline{text}|1|:
+    \runpython[transcript, stdin={3}, stdin={1}]%
+      {examples/biobiljetter1.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Biobiljetterna]
+    \label{ovn:biobiljetter}
+    Programmet kör, och för rimliga svar räknar det rätt.  Hitta ändå
+    minst fem saker som är fel eller går att göra bättre i
+    [[biobiljetter1.py]], och skriv ner vad var och en av dem gör för
+    den som kör programmet.  Skriv sedan om programmet så att de fem är
+    åtgärdade.
+    \only<presentation>{\medskip}
+
+    Testa till sist ditt program på de svar du tror att det gamla inte
+    klarade.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Det finns fler än fem brister att hitta.  Här är de sju vi bygger om
+programmet efter.
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{remark}[Bristerna vi rättar]
+      Sju stycken, i den ordning programmet möter dem:
+      \begin{enumerate}
+        \item Frågorna säger inte vad de vill ha --- och en av dem är
+          felstavad.
+        \item Omvandlingen står i en andra variabel, så varje värde har
+          två namn.
+        \item Namnen följer två olika konventioner samtidigt.
+        \item Ett svar som inte är ett tal kraschar programmet.
+        \item Fler vuxenbiljetter än biljetter accepteras, och priset
+          blir obegripligt.
+        \item Utskriften säger inte vad talet är eller i vilken valuta.
+        \item Ingenting i filen säger vad programmet är till för.
+      \end{enumerate}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}[Bristerna vi rättar]
+      Frågan \mintinline{text}|"Hur många biljetter vil du köpa? "| är
+      felstavad, och den andra frågan --- \enquote{hur många av de
+      biljetterna är för en vuxen?} --- säger inte att svaret ska vara
+      ett tal.  Omvandlingen står i en egen variabel, så varje värde
+      finns under två namn och strängversionen ligger kvar; namnen
+      blandar dessutom två konventioner, \mintinline{python}{antal_barn}
+      och \mintinline{python}{antalVuxen}.  Ett svar som inte är ett
+      tal avbryter programmet med en spårutskrift.  Fler
+      vuxenbiljetter än biljetter accepteras, och då blir antalet barn
+      negativt.  Utskriften säger bara ett tal, utan att säga vad talet
+      är eller i vilken valuta.  Och ingenting i filen säger vad
+      programmet är till för: den saknar den
+      \foreignlanguage{english}{docstring} föreläsningen
+      \emph{Funktioner} ber om.
+    \end{remark}%
+  }
+\end{frame}
+
+De två sista är de allvarligaste, eftersom de drabbar den som kör
+programmet.  Så här ser kraschen ut.
+
+\ltnote{%
+  Att programmet kraschar på bokstäver är inte bara en brist utan
+  också tillfället att läsa en spårutskrift en gång till
+  \parencite{Bosse2021Antipatterns}; körningen med det felaktiga
+  svaret ligger därför i lösningsförslaget och inte i uppgiften, så
+  att den inte avslöjar bristen i förväg.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett svar som inte är ett tal]
+    \label{ex:biobiljetter-krasch}
+    Kunden svarar \mintinline{text}|tre|:
+    \runpython[transcript, stdin={tre}]{examples/biobiljetter1.py}
+  \end{example}
+\end{frame}
+
+Spårutskriften säger var felet uppstod, vilken sorts fel det var och
+vad som var fel --- men den är skriven för den som skrivit programmet,
+inte för kunden i biljettkön.  Och det andra felet är tystare och
+därför värre.
+
+\begin{frame}[fragile]
+  \begin{example}[Fler vuxna än biljetter]
+    \label{ex:biobiljetter-negativ}
+    Kunden svarar \mintinline{text}|2| och \mintinline{text}|3|:
+    \runpython[transcript, stdin={2}, stdin={3}]%
+      {examples/biobiljetter1.py}
+  \end{example}
+\end{frame}
+
+Programmet säger ett pris, och priset är fel: antalet barnbiljetter
+blev \(-1\), och en negativ barnbiljett drar av tio kronor från
+summan.  Ingenting i utskriften antyder att något gick snett.
+
+Nu bygger vi om programmet.  Priserna blir namngivna konstanter,
+frågorna ställs av en funktion som frågar om tills svaret går att
+använda, och utskriften säger vad den handlar om.
+
+\begin{frame}[fragile]
+  Programmet i sin nya form:
+<<[[biobiljetter2.py]]>>=
+"""Räknar ut vad biobiljetterna kostar.
+
+Priserna står som konstanter, frågorna ställs om tills svaren går att
+använda, och kvittot säger vad som köptes.
+"""
+
+<<biljettpriserna>>
+
+
+<<fråga efter ett heltal>>
+
+
+<<fråga efter antalet vuxenbiljetter>>
+
+
+<<funktionen som räknar ut priset>>
+
+
+<<biljettköpets huvudprogram>>
+@
+\end{frame}
+
+Priserna hör ihop och ändras sällan, så de står överst och med versaler,
+som konventionen för konstanter i PEP~8
+säger\autocite{pep8}.  Att namn som följer den konventionen
+hjälper läsaren är belagt --- men bara för namnen, radlängden och
+indenteringen, inte för guiden som helhet; underlaget finns i
+föreläsningen \emph{Variabler och utskrifter}, bilaga B.
+
+\begin{frame}[fragile]
+  Två konstanter i stället för två variabler:
+<<biljettpriserna>>=
+BARNPRIS = 10
+VUXENPRIS = 20
+@
+\end{frame}
+
+Den fråga som måste ställas om är den om ett heltal, och den behövs
+två gånger.  Alltså blir den en funktion, med frågan som parameter.
+Funktionen låter \mintinline{python}{int} själv avgöra om svaret går
+att omvandla och tar hand om felet när det inte gick.
+
+\begin{frame}[fragile]
+  Funktionen som frågar om:
+<<fråga efter ett heltal>>=
+def fraga_heltal(fraga):
+    """Frågar tills svaret går att omvandla, och ger talet."""
+    while True:
+        try:
+            tal = int(input(fraga))
+            break
+        except ValueError:
+            print("Svara med ett heltal, till exempel 3.")
+
+    return tal
+@
+\end{frame}
+
+\ltnote{%
+  \textbf{Om ordningen mellan den här uppgiften och
+  \cref{sec:fraga}}: omfrågningen kommer hit \emph{fuserad}, som en av
+  flera rättelser i ett program där fem aspekter varierar på en gång,
+  och separeras först efteråt i \cref{sec:fraga}.  Det är omvänt mot
+  huvudregeln att kontrasten ska komma före
+  \parencite[45--47]{Marton2015}, och det är ett medvetet val.
+  Uppgiften här ger omfrågningen ett \emph{behov}: studenten möter
+  först ett program som kraschar på ett dugligt svar, och kan därför
+  se vad slingan är till för innan hon får se den varieras.  Det är
+  också den enda ordning som låter \cref{sec:fraga} generalisera från
+  en funktion studenten själv har skrivit.  Priset är att den som inte
+  urskiljer omfrågningen här får göra det först i nästa avsnitt; om
+  övningen visar att det priset är för högt, är rättelsen ett kort
+  kontrastavsnitt om \mintinline{python}{fraga_heltal} \emph{före} den
+  här uppgiften.
+}
+
+Att frågan står på ett enda ställe är hela poängen: ska den formuleras
+om räcker det att ändra på ett ställe, och det är precis vad principen
+\foreignlanguage{english}{DRY}
+(\foreignlanguage{english}{Don't Repeat Yourself}) handlar
+om\autocite{HuntThomas1999}.  Det vetenskapliga underlaget för
+\foreignlanguage{english}{DRY} --- både var principen kommer ifrån och
+om den håller, med sina förbehåll --- finns i föreläsningen
+\emph{Algoritmiskt tänkande}, bilaga E.
+
+Antalet vuxenbiljetter har ett krav till: det får inte vara negativt,
+och inte större än antalet biljetter.  Det kravet är vårt eget och inte
+\mintinline{python}{int}:s, och därför är det en kontroll med
+\mintinline{python}{if} och inte ett
+\texttt{except}.
+
+\begin{frame}[fragile]
+  Ett krav som är vårt eget:
+<<fråga efter antalet vuxenbiljetter>>=
+def fraga_vuxenbiljetter(antal_biljetter):
+    """Frågar tills antalet vuxenbiljetter ryms i beställningen."""
+    while True:
+        antal = fraga_heltal("Hur många vuxenbiljetter? [Ange ett tal] ")
+        if 0 <= antal and antal <= antal_biljetter:
+            break
+        print(f"Svara med ett heltal mellan 0 och {antal_biljetter}.")
+
+    return antal
+@
+\end{frame}
+
+Lägg märke till villkoret: två fullständiga jämförelser bundna med
+\mintinline{python}{and}.  Det är samma regel som bomben i
+\cref{sec:bomben} byggde på, och den gäller lika mycket när villkoret
+är vårt eget.
+
+Priset är en räkning och ingenting annat, så det får en egen funktion
+med ett enda ansvar --- principen om ett enda ansvar
+(\foreignlanguage{english}{single responsibility}) som föreläsningen
+\emph{Funktioner} namnger\autocite{Martin2003Agile}; underlaget för att
+den är Robert C. Martins och för hur etablerad den är finns där, i
+bilaga B.
+
+\begin{frame}[fragile]
+  Räkningen för sig:
+<<funktionen som räknar ut priset>>=
+def pris(antal_barn, antal_vuxna):
+    """Ger priset i kronor för antal_barn och antal_vuxna."""
+    return antal_barn * BARNPRIS + antal_vuxna * VUXENPRIS
+@
+\end{frame}
+
+Huvudprogrammet blir därmed fyra rader som läser som en beskrivning av
+vad som ska hända, och ett kvitto som säger vad kunden köpte.
+
+\begin{frame}[fragile]
+  Huvudprogrammet och kvittot:
+<<biljettköpets huvudprogram>>=
+antal_biljetter = fraga_heltal("Hur många biljetter? [Ange ett tal] ")
+antal_vuxna = fraga_vuxenbiljetter(antal_biljetter)
+antal_barn = antal_biljetter - antal_vuxna
+
+print(f"Barnbiljetter: {antal_barn}. Vuxenbiljetter: {antal_vuxna}.")
+print(f"Du ska betala {pris(antal_barn, antal_vuxna)} kr.")
+@
+\end{frame}
+
+Samma svar som förut, men nu händer något annat med dem.
+
+\begin{frame}[fragile]
+  \begin{example}[Samma svar, det nya programmet]
+    \label{ex:biobiljetter2-korning}
+    Kunden svarar \mintinline{text}|tre|, sedan
+    \mintinline{text}|3|, sedan \mintinline{text}|5| och sist
+    \mintinline{text}|1|:
+    \runpython[transcript, stdin={tre}, stdin={3}, stdin={5},
+      stdin={1}]{examples/biobiljetter2.py}
+  \end{example}
+\end{frame}
+
+Svaret \mintinline{text}|tre| ger inte längre någon spårutskrift utan
+en uppmaning, och frågan kommer tillbaka.  Fem vuxenbiljetter av tre
+avvisas med en fråga som säger vilka svar som duger.  Och lägg märke
+till frågorna själva: de säger nu vilken form svaret ska ha,
+\mintinline{text}|[Ange ett tal]|, i stället för att lämna det åt
+kunden att gissa.  Ingen av rättelserna krävde något utanför
+föreläsningarnas stoff --- allt är \mintinline{python}{if},
+\mintinline{python}{while}, \mintinline{python}{try}, egna funktioner
+och text.  Programmet ser däremot inte ut som förut: fyra funktioner
+har ersatt ett rakt skript, och det är den uppdelningen som gör att
+frågan kan ställas om på ett enda ställe.
+
+Ett annat rimligt sätt hade varit att fånga alla sorters fel med ett
+enda \texttt{except}, alltså
+\mintinline{python}{except Exception}.  Vi gör det inte.
+\mintinline{python}{int} misslyckas med ett
+\mintinline{python}{ValueError}, och det är det enda felet vi vet hur
+vi ska svara på; ett stavfel i vår egen kod skulle med ett allmänt
+\texttt{except} hamna i samma gren och skyllas på
+kunden.  Att den breda fångsten är en känd dålig vana är mätt och inte
+en smaksak\autocite[83]{EbertCastor2015}, men regeln är ändå inte
+\enquote{aldrig} utan: fånga det du vet hur du ska svara på, och låt
+resten synas.  Det vetenskapliga underlaget --- både för att vanan är
+känd som dålig och för hur stor kostnaden faktiskt är --- finns i
+föreläsningen \emph{Inmatning och felhantering}, bilaga D.
+
+\mode<article>{\clearpage}
+\section{Frågan som kommer tillbaka}
+\label{sec:fraga}
+
+Funktionen \mintinline{python}{fraga_heltal} löste ett problem som
+återkommer i nästan varje interaktivt program: att fråga om tills
+svaret går att använda.  Men kraven på ett svar är inte alltid
+desamma.  Ibland ska talet ligga i ett intervall, ibland ska det få
+vara ett decimaltal.  Frågan är vad som ändras då --- och vad som inte
+gör det.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOLoop,%
+    OvningConditionalsLORobust,%
+    OvningConditionalsLOConvert,%
+    OvningConditionalsLOCatch}.
+
+  Uppgiften är ny.  Sekvensen hade ett hål: omfrågningen är veckans
+  mest användbara konstruktion, och i \cref{sec:biobiljetter} kommer
+  den fram som en av flera rättelser i ett stort program, där den är
+  svår att urskilja för sig.  Den här uppgiften isolerar den och
+  varierar bara kravet.
+
+  \textbf{Generalisering}: vad som hålls invariant är formen --- en
+  slinga, ett försök, ett meddelande när försöket inte dög, och ett
+  värde tillbaka.  (Formen är avsiktligt namngiven så: den mellersta
+  funktionen har inget \mintinline{python}{try}-block alls, utan
+  prövar sitt eget krav med ett \mintinline{python}{if} efter att ha
+  låtit den första sköta omvandlingen.)  Vad
+  som varierar är kravet på svaret: ett heltal, ett heltal i ett
+  intervall, ett flyttal.  Att invarianten ges (funktionen står i
+  materialet) är avsiktligt: generaliseringen kräver att det finns
+  något att generalisera \emph{från}
+  \parencite[45--47]{Marton2015}.
+
+  Frågan om \mintinline{text}|1,75| är ställd som en designfråga ---
+  vad \emph{ska} hända --- och inte som \enquote{vad är fel med
+  \mintinline{python}{isdigit}}: att kommatecknet inte är en
+  decimalpunkt i Python faller ut av körningen i stället för att
+  påstås.  Att slingor, och särskilt spårningen av dem, hör till det
+  svåraste för nybörjare är belagt
+  \parencite{Eckert2022Loops}, liksom att slingvariabeln glöms bort
+  före slingan \parencite{GuoMarkelZhang2020}; här kan den inte glömmas,
+  eftersom \mintinline{python}{while True} inte prövar någon variabel.
+
+  Att studenter inte tillägnar sig att körningen hoppar till den
+  passande \texttt{except}-grenen och fortsätter därifrån är belagt
+  \parencite[343]{RashkovitsLavy2012}; underlaget finns i
+  föreläsningen \emph{Inmatning och felhantering}, bilaga C.  Här är
+  det den egenskapen som gör att slingan snurrar ett varv till:
+  \mintinline{python}{break} nås aldrig när omvandlingen misslyckas.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Frågan som kommer tillbaka]
+    \label{ovn:fraga}
+    Biljettprogrammets \mintinline{python}{fraga_heltal} frågar om
+    tills svaret går att omvandla till ett heltal.  Skriv två
+    funktioner till, med samma uppgift men med andra krav på svaret:
+    en som frågar om tills svaret är ett heltal mellan två gränser som
+    anropet anger, och en som frågar om tills svaret går att omvandla
+    till ett flyttal.
+    \only<presentation>{\medskip}
+
+    Pröva dem i ett program som frågar efter en ålder mellan 0 och 120
+    och en längd i meter.  Bestäm också vad som ska hända när någon
+    svarar \mintinline{text}|1,75| på längdfrågan, och se efter om ditt
+    program gör det.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+De tre funktionerna har samma form, och det är den formen som är svaret
+på uppgiften: en slinga som inte tar slut av sig själv, ett försök
+inuti den, och ett sätt att komma ut när försöket lyckades.
+
+\begin{frame}[fragile]
+  Programmet i sin helhet:
+<<[[fraga.py]]>>=
+"""Tre frågor som ställs om tills svaret går att använda.
+
+De tre funktionerna har samma form: en slinga, ett försök att omvandla
+eller granska svaret, och ett meddelande när svaret inte dög.
+"""
+
+
+<<fråga efter ett heltal>>
+
+
+<<fråga efter ett heltal i ett intervall>>
+
+
+<<fråga efter ett flyttal>>
+
+
+<<frågornas huvudprogram>>
+@
+\end{frame}
+
+Den första funktionen är oförändrad.  Den andra har ett krav som
+\mintinline{python}{int} inte kan avgöra, så den återanvänder den
+första och lägger till sin egen kontroll efteråt.
+
+\begin{frame}[fragile]
+  Samma form, ett annat krav:
+<<fråga efter ett heltal i ett intervall>>=
+def fraga_heltal_mellan(fraga, minsta, storsta):
+    """Frågar tills svaret är ett heltal mellan minsta och storsta."""
+    while True:
+        tal = fraga_heltal(fraga)
+        if minsta <= tal and tal <= storsta:
+            break
+        print(f"Svara med ett heltal mellan {minsta} och {storsta}.")
+
+    return tal
+@
+\end{frame}
+
+Att den anropar \mintinline{python}{fraga_heltal} i stället för att
+skriva av dess \mintinline{python}{try}-block är samma
+\foreignlanguage{english}{DRY} som förut: omvandlingen och dess
+felmeddelande står på ett enda ställe, och en ändring där gäller för
+båda funktionerna.
+
+Den tredje funktionen skiljer sig från den första i omvandlingen ---
+och i det som följer av den.
+
+\begin{frame}[fragile]
+  Samma form, en annan omvandling:
+<<fråga efter ett flyttal>>=
+def fraga_flyttal(fraga):
+    """Frågar tills svaret går att omvandla, och ger flyttalet."""
+    while True:
+        try:
+            tal = float(input(fraga))
+            break
+        except ValueError:
+            print("Svara med ett tal, till exempel 1.75.")
+
+    return tal
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Två frågor som prövar funktionerna:
+<<frågornas huvudprogram>>=
+alder = fraga_heltal_mellan("Hur gammal är du? ", 0, 120)
+langd = fraga_flyttal("Hur lång är du (m)? ")
+
+print(f"Du är {alder} år och {langd} m lång.")
+@
+\end{frame}
+
+Nu till frågan om \mintinline{text}|1,75|.  Vi behöver inte bestämma
+något särskilt om den: \mintinline{python}{float} avgör själv, och
+eftersom kommatecknet inte är en decimalpunkt i Python misslyckas
+omvandlingen och frågan kommer tillbaka --- med ett meddelande som
+visar hur ett tal ska skrivas.
+
+\begin{frame}[fragile]
+  \begin{example}[Fyra svar som inte dög]
+    \label{ex:fraga-korning}
+    Svaren är \mintinline{text}|trettio|, \mintinline{text}|150|,
+    \mintinline{text}|30|, \mintinline{text}|1,75| och sist
+    \mintinline{text}|1.75|:
+    \runpython[transcript, stdin={trettio}, stdin={150}, stdin={30},
+      stdin={1,75}, stdin={1.75}]{examples/fraga.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till skillnaden mellan de två sorternas fel.  Svaret
+\mintinline{text}|trettio| avvisas av \mintinline{python}{int}, alltså
+av ett \mintinline{python}{ValueError} i ett
+\texttt{except}; svaret \mintinline{text}|150| avvisas
+av vår egen kontroll, alltså av ett
+\mintinline{python}{if}.  Den skiljelinjen är värd att ha med sig: låt
+omvandlingen avgöra det som är omvandlingens sak, och kontrollera själv
+bara det som är ditt eget krav.
+
+Ett annat rimligt sätt att skriva funktionerna är att lämna tillbaka
+talet direkt inifrån \mintinline{python}{try}-blocket, alltså
+\mintinline{python}{return int(input(fraga))}, och låta bli både
+\mintinline{python}{break} och variabeln.  Det är kortare, och det
+fungerar --- \mintinline{python}{return} avslutar funktionen och därmed
+också slingan.  Vi behåller ändå formen med
+\mintinline{python}{break}, som är den föreläsningen \emph{Villkor och
+styrstrukturer} visar, eftersom de tre funktionerna då är lika varandra
+ända ner i detaljerna och det är likheten som är sakens kärna här.
+
+\mode<article>{\clearpage}
+\section{Frågesporten}
+\label{sec:fragesport}
+
+Nu ska du skriva ett program från början.  Det klassiska programmet för
+att öva villkor är frågesporten: programmet frågar, jämför svaret med
+facit och håller räkningen.  Allt du behöver för det har du använt i de
+föregående uppgifterna.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOBranch,%
+    OvningConditionalsLOLoop,%
+    OvningConditionalsLORobust,%
+    OvningConditionalsLOPrompt,%
+    OvningConditionalsLOCatch}.
+
+  Uppgiften är behållen ur det gamla materialet.  Vad som är borta är
+  tidmätningen: den byggde på \mintinline{python}{import datetime}, och
+  moduler och \mintinline{python}{import} tas upp först i
+  föreläsningen \emph{Moduler och paket}.  Tipset om funktioner för
+  straffrundor är däremot kvar, i formen \enquote{ställ om en fråga som
+  besvarats fel}.
+
+  \textbf{Fusion}: här varieras flera kritiska aspekter samtidigt ---
+  villkoret, förgreningen, slingan, omvandlingen och utformningen ---
+  eftersom ett program som ska tåla vad som helst kräver dem alla på en
+  gång.  Ingen av dem går att hoppa över: den som saknar slingan kan
+  inte ställa om frågan, den som saknar
+  \texttt{except} kraschar på ett tal som inte är ett
+  tal, och den som saknar förgreningen kan inte ge ett omdöme.
+  Fusionen kommer sist av de fem första uppgifterna, efter att
+  aspekterna varierats en och en \parencite[45--47]{Marton2015}.
+
+  Uppgiften säger vad programmet ska göra, aldrig vilken konstruktion
+  som ska användas.  Kravet \enquote{ska inte krascha oavsett vad den
+  som svarar skriver} är formulerat som ett krav på programmets
+  beteende, inte som \enquote{använd \mintinline{python}{try}}.
+
+  Facit jämförs med \mintinline{python}{strip} och
+  \mintinline{python}{capitalize}, de strängmetoder föreläsningen
+  \emph{Inmatning och felhantering} tar upp; frågorna har därför svar
+  som är ett enda ord, eftersom \mintinline{python}{capitalize} gör
+  resten av strängen till gemener.  Exempeldata är Astrid Lindgrens
+  starka karaktärer i kursens ordning --- Ronja, Madicken, och Birk
+  som det felaktiga svaret.  Facit \enquote{Mattis} står utanför den
+  listan med avsikt: det är inte ett namn programmet hittar på, utan
+  \emph{svaret} på en fråga om Ronja, och en fråga om Ronja får namnge
+  hennes far.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Frågesporten]
+    \label{ovn:fragesport}
+    Skriv en frågesport.  Programmet ska ställa minst tre frågor, varav
+    minst en där svaret är ett tal, och det ska ställa om en fråga som
+    besvarats fel i stället för att gå vidare.  Till sist ska det säga
+    hur många frågor som klarades på första försöket, och ge ett
+    omdöme som beror på hur många det blev.
+    \only<presentation>{\medskip}
+
+    Programmet ska inte krascha oavsett vad den som svarar skriver.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Två frågor återkommer i uppgiften: att ställa en fråga tills svaret är
+rätt, och att räkna försöken.  De hör ihop, för det är antalet försök
+som avgör poängen, och därför blir de en funktion som ger tillbaka
+antalet försök.
+
+\begin{frame}[fragile]
+  Programmets delar:
+<<[[fragesport.py]]>>=
+"""En frågesport med tre frågor.
+
+Varje fråga ställs om tills svaret är rätt, och antalet försök räknas.
+Poängen är antalet frågor som klarades på första försöket.
+"""
+
+ANTAL_FRAGOR = 3
+
+
+<<frågan med ett ord som facit>>
+
+
+<<frågan med ett tal som facit>>
+
+
+<<funktionen som ger omdömet>>
+
+
+<<frågesportens huvudprogram>>
+@
+\end{frame}
+
+Den första sortens fråga jämför ett ord med facit.  Innan jämförelsen
+klipps blanktecknen bort och begynnelsebokstaven görs stor, så att
+\mintinline[showspaces]{text}|  mattis| och
+\mintinline{text}|Mattis| räknas som
+samma svar.
+
+\begin{frame}[fragile]
+  En fråga med ett ord som facit:
+<<frågan med ett ord som facit>>=
+def fraga_ord(fraga, facit):
+    """Ställer fraga tills svaret är facit, och ger antalet försök."""
+    forsok = 0
+
+    while True:
+        forsok = forsok + 1
+        if input(fraga).strip().capitalize() == facit:
+            break
+        print("Inte riktigt. Försök igen.")
+
+    return forsok
+@
+\end{frame}
+
+Den andra sortens fråga har ett tal som facit, och då måste svaret
+omvandlas.  Omvandlingen kan misslyckas, och det är det som gör att
+funktionen behöver ett \texttt{except} som den
+föregående klarar sig utan.
+
+\begin{frame}[fragile]
+  En fråga med ett tal som facit:
+<<frågan med ett tal som facit>>=
+def fraga_tal(fraga, facit):
+    """Ställer fraga tills svaret är talet facit, och ger försöken."""
+    forsok = 0
+
+    while True:
+        forsok = forsok + 1
+        try:
+            if int(input(fraga)) == facit:
+                break
+            print("Inte riktigt. Försök igen.")
+        except ValueError:
+            print("Svara med ett heltal, till exempel 42.")
+
+    return forsok
+@
+\end{frame}
+
+Lägg märke till var \mintinline{python}{break} står: inuti
+\mintinline{python}{try}-blocket, efter jämförelsen.  Misslyckas
+omvandlingen hoppar körningen till
+\texttt{except} och når aldrig
+\mintinline{python}{break}, så slingan snurrar ett varv till --- och
+försöket räknas, precis som ett felaktigt svar gör.
+
+Omdömet är en kedja av villkor, och den enda som inte behöver veta
+något om inmatning.  Den är därför lättast att skriva sist, och
+lättast att prova för sig.
+
+\begin{frame}[fragile]
+  Ett omdöme per poängintervall:
+<<funktionen som ger omdömet>>=
+def omdome(poang, antal):
+    """Ger ett omdöme för poang rätta svar av antal frågor."""
+    if poang == antal:
+        return "Alla på första försöket!"
+    elif poang >= antal - 1:
+        return "Nästan felfritt."
+    elif poang > 0:
+        return "Godkänt, men läs på."
+    else:
+        return "Det här får vi öva mer på."
+@
+\end{frame}
+
+Villkoren står snävast först, som de måste när de överlappar: vore
+\mintinline{python}{poang > 0} överst skulle ingen någonsin få de två
+första omdömena.  Det är samma fälla som kedjan i
+\cref{sec:bomben-sista}, sedd från andra sidan --- där gällde det att
+\emph{läsa} en kedja, här att skriva en.
+
+\begin{frame}[fragile]
+  Tre frågor och en poängräkning:
+<<frågesportens huvudprogram>>=
+poang = 0
+
+if fraga_ord("Vad heter Ronjas pappa? ", "Mattis") == 1:
+    poang = poang + 1
+
+if fraga_ord("Vad heter Madickens lillasyster? ", "Lisabet") == 1:
+    poang = poang + 1
+
+if fraga_tal("Hur många ben har en spindel? ", 8) == 1:
+    poang = poang + 1
+
+print(f"Du klarade {poang} av {ANTAL_FRAGOR} på första försöket.")
+print(omdome(poang, ANTAL_FRAGOR))
+@
+\end{frame}
+
+Här finns en svaghet värd att se: konstanten
+\mintinline{python}{ANTAL_FRAGOR} måste stämma med antalet
+\mintinline{python}{if}-satser under den, och ingenting i programmet
+tvingar dem att göra det.  Lägger du till en fråga måste du komma ihåg
+att räkna upp konstanten.  Det går att bli kvitt genom att lägga
+frågorna och deras facit i en behållare och gå igenom den, och det
+kommer du att kunna efter föreläsningen \emph{Behållare: Listor}.  Med
+det du har tagit del av så här långt är konstanten det bästa vi kan
+göra --- och att skriva
+ut talet på ett enda ställe är i alla fall bättre än att skriva
+\mintinline{text}|3| i två utskrifter.
+
+\begin{frame}[fragile]
+  \begin{example}[En omgång med två snedsteg]
+    \label{ex:fragesport-korning}
+    Svaren är \mintinline{text}|Mattis|, \mintinline{text}|Birk|,
+    \mintinline{text}|Lisabet|, \mintinline{text}|åtta| och sist
+    \mintinline{text}|8|:
+    \runpython[transcript, stdin={Mattis}, stdin={Birk},
+      stdin={Lisabet}, stdin={åtta}, stdin={8}]%
+      {examples/fragesport.py}
+  \end{example}
+\end{frame}
+
+Programmet skiljer inte på ett fel svar och ett svar som inte gick att
+omvandla: båda kostar ett försök, och båda ger ett meddelande som säger
+vad som förväntas.  Det är ett val, och det går att göra annorlunda.
+Man kan låta bli att räkna ett försök när svaret inte ens var ett tal,
+med motiveringen att den som skrev \enquote{åtta} kanske visste svaret.
+Vi gör det inte, därför att programmet då måste hålla reda på
+\emph{varför} ett varv blev av, och uppgiften är att räkna försök och
+inte att bedöma avsikter.
+
+\mode<article>{\clearpage}
+\section{Vägvisaren}
+\label{sec:vagvisaren}
+
+De två sista uppgifterna är fördjupning.  Den här handlar om ett
+program som inte räknar utan \emph{talar}: en vägvisare som frågar vart
+du ska och skriver ut vägen dit, steg för steg.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOBranch,%
+    OvningConditionalsLORaise,%
+    OvningConditionalsLOCatch,%
+    OvningConditionalsLORobust}.
+
+  Det här är fördjupningsmaterial i den meningen att uppgiften ligger
+  utanför det ett övningspass hinner.  Den är däremot inte utbytbar:
+  \cref{OvningConditionalsLORaise} övas bara här och i
+  \cref{sec:rummet}, så den som hoppar över båda lämnar det
+  lärandemålet oövat --- och det är ett lärandemål föreläsningen
+  \emph{Inmatning och felhantering} har.  Uppgiften är det gamla
+  fördjupningsmaterialets \enquote{Att göra saker}, kraftigt
+  omarbetad.  Av dess fyra punkter är två borta: den
+  slumpmässiga promenaden och den slumpmässiga dansen krävde
+  \mintinline{python}{import random}, och exempelprogrammen byggde på
+  rekursion --- ingetdera hör till det studenten har tagit del av.
+  Punkten om att välja mellan olika platser är kvar, eftersom den går
+  att lösa med veckans stoff, och punkten om att reagera på en vägg har
+  blivit \cref{sec:rummet}.  Programmets förlaga namngav dessutom
+  författaren och hans postlåda; exempeldata bär inte författarens namn
+  i det här materialet.
+
+  \textbf{Fusion}: vad som varieras samtidigt är förgreningen (vilken
+  väg), standardvärdet (vilket språk) och felhanteringen (en plats
+  eller en riktning som inte finns).  Uppgiften ligger efter
+  \cref{sec:fragesport} därför att den lägger till en aspekt de fem
+  första inte övar: att en funktion som inte kan svara vettigt
+  \emph{kastar} felet vidare i stället för att gissa.
+
+  Kravet är formulerat som ett krav på beteendet --- programmet ska
+  säga ifrån begripligt --- och inte som \enquote{använd
+  \mintinline{python}{raise}}.  Förlagan hade just den bristen
+  uppgiften ber om: dess \mintinline{python}{sväng} lämnade tillbaka
+  en översatt sträng för vilken riktning som helst, så ett felskrivet
+  riktningsnamn gav en instruktion som såg riktig ut.  Att låta
+  funktionen kasta ett särfall i stället är det som gör felet synligt,
+  och det är samma mönster som föreläsningen \emph{Inmatning och
+  felhantering} visar med \mintinline{python}{age}.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vägvisaren]
+    \label{ovn:vagvisare}
+    Skriv en vägvisare.  Programmet ska fråga vart användaren ska,
+    bland några platser du väljer, och skriva ut vägen dit som en rad
+    instruktioner.  Varje instruktion --- att gå ett antal meter, att
+    svänga --- ska vara en egen funktion som lämnar tillbaka en
+    textrad, så att samma instruktion kan användas i flera vägar.
+    \only<presentation>{\medskip}
+
+    Programmet ska också kunna ge instruktionerna på engelska, utan att
+    de anrop som vill ha dem på svenska behöver ändras.  Och det ska
+    säga ifrån begripligt i två fall: när användaren namnger en plats
+    du inte känner, och när någon del av programmet ber om en riktning
+    som inte finns.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Uppdelningen faller ut av kravet att samma instruktion ska kunna
+användas i flera vägar: en funktion per instruktion, en funktion per
+väg, och en fråga som frågar om tills svaret är en plats vi känner.
+
+\begin{frame}[fragile]
+  Vägvisarens delar:
+<<[[vagvisare.py]]>>=
+"""Instruktioner från entrén till några platser i närheten."""
+
+MALEN = "biblioteket, kafét eller tunnelbanan"
+
+
+<<instruktionen att gå>>
+
+
+<<instruktionen att svänga>>
+
+
+<<funktionen som ger vägen>>
+
+
+<<vägvisarens fråga>>
+
+
+<<vägvisarens huvudprogram>>
+@
+\end{frame}
+
+Konstanten \mintinline{python}{MALEN} är den text frågan visar, och den
+står för sig därför att den måste stämma med de mål
+\mintinline{python}{vagen_till} känner: läggs ett mål till ska frågan
+ändras på samma gång, och då ska den bara stå på ett ställe.
+
+Språket är en parameter med standardvärdet svenska.  Då behöver de
+anrop som vill ha svenska inte säga något om språk alls, och det är
+just vad ett standardvärde är till för.
+
+\begin{frame}[fragile]
+  Instruktionen att gå:
+<<instruktionen att gå>>=
+def ga(meter, sprak="sv"):
+    """Ger instruktionen att gå meter meter rakt fram."""
+    if sprak == "sv":
+        return f"Gå {meter} m rakt fram."
+
+    return f"Walk {meter} m straight ahead."
+@
+\end{frame}
+
+Att svänga är knepigare, för riktningen är ett ord som ska översättas.
+Och här finns ett fall funktionen inte kan svara vettigt på: en
+riktning som varken är höger eller vänster.  Då säger den ifrån.
+
+\begin{frame}[fragile]
+  Instruktionen att svänga:
+<<instruktionen att svänga>>=
+def svang(riktning, sprak="sv"):
+    """Ger instruktionen att svänga åt riktning, som anges på svenska.
+
+    Kastar ValueError för en riktning som varken är höger eller
+    vänster.
+    """
+    if riktning == "höger":
+        if sprak == "sv":
+            return "Sväng höger."
+        return "Turn right."
+    elif riktning == "vänster":
+        if sprak == "sv":
+            return "Sväng vänster."
+        return "Turn left."
+
+    raise ValueError(f"{riktning} är varken höger eller vänster")
+@
+\end{frame}
+
+Varför inte bara lämna tillbaka \mintinline{text}|"Sväng uppåt."| och
+låta det vara?  Därför att funktionen då svarar fel i stället för att
+säga att den inte kan svara, och felet dyker upp långt senare, som en
+instruktion som ser riktig ut.  Ett särfall däremot stannar körningen
+där felet är och lämnar åt den som anropade att bestämma vad som ska
+hända.
+
+Vägen till ett mål är en kedja av villkor: ett per plats, och ett
+särfall för en plats vi inte känner.
+
+\begin{frame}[fragile]
+  Vägen till ett mål:
+<<funktionen som ger vägen>>=
+def vagen_till(mal, sprak="sv"):
+    """Ger vägen till mal som en rad instruktioner.
+
+    Kastar ValueError för ett mål vägvisaren inte känner.
+    """
+    if mal == "biblioteket":
+        return ga(50, sprak) + " " + svang("höger", sprak)
+    elif mal == "kafét":
+        return ga(200, sprak) + " " + svang("vänster", sprak)
+    elif mal == "tunnelbanan":
+        vag = ga(50, sprak) + " " + svang("höger", sprak)
+        return vag + " " + ga(500, sprak)
+
+    raise ValueError(f"jag känner inte vägen till {mal}")
+@
+\end{frame}
+
+Lägg märke till att de två särfallen är av samma sort,
+\mintinline{python}{ValueError}, fast de kastas på två olika ställen
+och av två olika skäl.  Det gör att \emph{en}
+\texttt{except}-gren räcker för båda.
+
+\begin{frame}[fragile]
+  Frågan som frågar om:
+<<vägvisarens fråga>>=
+def fraga_efter_vagen():
+    """Frågar tills svaret är ett mål vägvisaren känner."""
+    while True:
+        try:
+            mal = input(f"Vart ska du ({MALEN})? ").strip()
+            return vagen_till(mal)
+        except ValueError as fel:
+            print(f"Det gick inte: {fel}.")
+@
+\end{frame}
+
+Här lämnar funktionen tillbaka värdet direkt inifrån
+\mintinline{python}{try}-blocket, i stället för med
+\mintinline{python}{break} och en variabel.  Det går bra --- ett
+\mintinline{python}{return} avslutar funktionen och därmed slingan ---
+och här är det formen som passar bäst, eftersom det som ska lämnas
+tillbaka är precis det anropet gav.
+
+\begin{frame}[fragile]
+  Huvudprogrammet, med alla tre fallen:
+<<vägvisarens huvudprogram>>=
+print(fraga_efter_vagen())
+print(vagen_till("biblioteket", "en"))
+
+try:
+    print(svang("uppåt"))
+except ValueError as fel:
+    print(f"Vägvisaren vet inte: {fel}.")
+@
+\end{frame}
+
+Den sista bunten rader finns där för att visa hur särfallet sprider
+sig: det uppstår inuti \mintinline{python}{svang}, ingen tar hand om
+det där, och därför fortsätter det uppåt till den som anropade.
+
+\begin{frame}[fragile]
+  \begin{example}[En vägvisning]
+    \label{ex:vagvisare-korning}
+    Användaren svarar först \mintinline{text}|gymmet| och sedan
+    \mintinline{text}|kafét|:
+    \runpython[transcript, stdin={gymmet}, stdin={kafét}]%
+      {examples/vagvisare.py}
+  \end{example}
+\end{frame}
+
+Ett annat rimligt sätt hade varit att låta
+\mintinline{python}{vagen_till} lämna tillbaka
+\mintinline{python}{None} för ett okänt mål och låta anroparen
+kontrollera det med ett \mintinline{python}{if}.  Det fungerar också,
+men det lägger ansvaret för att komma ihåg kontrollen på varje anrop,
+och den som glömmer får ingen varning alls.  Ett särfall glöms inte
+bort: fångar ingen det avbryts körningen och spårutskriften pekar ut
+raden.
+
+\mode<article>{\clearpage}
+\section{Rummet}
+\label{sec:rummet}
+
+Den sista uppgiften handlar om ett program som minns något mellan
+varven i en slinga.  Hittills har varje varv varit oberoende av de
+andra --- en ny fråga, ett nytt svar.  Nu ska varje varv bygga på var
+programmet lämnade det förra.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningConditionalsLOLoop,%
+    OvningConditionalsLOTrace,%
+    OvningConditionalsLOBranch,%
+    OvningConditionalsLOCatch,%
+    OvningConditionalsLORaise}.
+
+  Uppgiften är ny, men inte tagen ur luften: det gamla
+  fördjupningsmaterialets sista punkt bad om ett program som
+  \enquote{reagerar om användaren går in i en vägg, ramlar ner i ett
+  hål m.m.}, utan att säga vad programmet skulle göra i övrigt.  Här
+  är den punkten gjord till en uppgift med ett bestämt resultat.
+  Korridoren är en dimension och inte två, eftersom en plats i två
+  dimensioner behöver en tupel för att kunna lämnas tillbaka från en
+  funktion, och tupler tas upp först i föreläsningen
+  \emph{Behållare: Tupler}.
+
+  \textbf{Fusion}: vad som varieras samtidigt är slingans villkor,
+  förgreningen och den variabel som bär tillståndet.  Den nya aspekten
+  mot \cref{sec:fraga} är att slingan \emph{minns}: där gällde
+  villkoret bara det senaste svaret, här beror utfallet på alla
+  tidigare varv.  Att spårningen av slingor hör till det svåraste för
+  nybörjare är belagt \parencite{Eckert2022Loops}, och ett program
+  vars utskrift visar tillståndet före varje fråga gör spårningen
+  möjlig att göra i huvudet medan man kör det.
+
+  Det är också här \cref{OvningConditionalsLOCatch} möter sin andra
+  hälft: att de specifika \texttt{except}-grenarna står före den
+  allmänna.  Resten av övningen fångar bara
+  \mintinline{python}{ValueError}, så ordningen blir aldrig en fråga
+  där; här kastar \mintinline{python}{nytt_steg} två olika sorters
+  särfall, väggen får sitt eget besked och skyddsnätet står sist.
+  Att skyddsnätet finns här men inte i \cref{sec:biobiljetter} är
+  avsiktligt och sägs ut i prosan: samma regel, två program som
+  behöver olika mycket nät.
+
+  Uppgiften är fördjupningsmaterial, liksom \cref{sec:vagvisaren}, och
+  kommer sist därför att den är den enda som kräver att två saker hålls
+  i huvudet samtidigt: var man står och vad svaret skulle göra med det.
+
+  % TODO(claim-audit): att spåra exekveringen för hand är det som
+  % avslöjar var felet sitter.  Materialet bygger flera uppgifter på
+  % det och lärandemålet säger det, men kursens bilagor backar bara att
+  % slingor är svåra, inte att spårning för hand hjälper.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Rummet]
+    \label{ovn:rummet}
+    Skriv ett program som låter användaren promenera i en korridor.
+    Programmet ska hålla reda på hur långt in i korridoren användaren
+    står, skriva ut det före varje fråga, och säga till när väggen är i
+    vägen i stället för att låta användaren gå ut genom den.
+    \only<presentation>{\medskip}
+
+    Programmet ska förstå orden \mintinline{text}|framåt| och
+    \mintinline{text}|bakåt|, säga ifrån begripligt om något annat
+    skrivs, och sluta när användaren skriver
+    \mintinline{text}|slut|.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Två saker ska programmet hålla reda på, och bara två: var användaren
+står, och hur långt korridoren är.  Det första är en variabel som
+ändras, det andra en konstant.
+
+\begin{frame}[fragile]
+  Programmets delar:
+<<[[rummet.py]]>>=
+"""En promenad i en korridor.
+
+Du säger vilken riktning du vill gå, och programmet håller reda på hur
+långt in i korridoren du står och säger till när väggen är i vägen.
+"""
+
+LANGD = 5
+
+
+<<funktionen som tar ett steg>>
+
+
+<<promenadens huvudprogram>>
+@
+\end{frame}
+
+Steget är en egen funktion, och den äger allt som avgör om ett steg
+går att ta: den räknar ut vilken plats riktningen leder till och
+vägrar om platsen ligger utanför korridoren.  Två helt olika saker kan
+alltså gå fel i den, och den säger ifrån om båda --- med var sin sorts
+särfall, så att den som anropar kan skilja dem åt.
+
+\begin{frame}[fragile]
+  Ett steg i en riktning:
+<<funktionen som tar ett steg>>=
+def nytt_steg(plats, riktning):
+    """Ger platsen efter ett steg i riktning från plats.
+
+    Kastar ValueError för en riktning som varken är framåt eller
+    bakåt, och IndexError för ett steg som leder ut ur korridoren.
+    """
+    if riktning == "framåt":
+        ny_plats = plats + 1
+    elif riktning == "bakåt":
+        ny_plats = plats - 1
+    else:
+        raise ValueError(f"{riktning} är varken framåt eller bakåt")
+
+    if ny_plats < 0 or ny_plats > LANGD:
+        raise IndexError(f"{ny_plats} m ligger utanför korridoren")
+
+    return ny_plats
+@
+\end{frame}
+
+Villkoret som vaktar korridoren är skrivet utifrån och in, med
+\mintinline{python}{or} mellan två fullständiga jämförelser --- samma
+form som bombens tredje fråga i \cref{sec:bomben}.
+
+Huvudprogrammet är slingan.  Den har fyra utgångar att hålla ordning
+på: användaren vill sluta, riktningen gick inte att tolka, steget
+skulle leda ut ur korridoren, eller något annat gick fel.
+
+\begin{frame}[fragile]
+  Slingan som minns var du står:
+<<promenadens huvudprogram>>=
+plats = 0
+
+while True:
+    svar = input(f"Du står {plats} m in. Vart går du? ").strip()
+
+    if svar == "slut":
+        break
+
+    try:
+        plats = nytt_steg(plats, svar)
+    except IndexError:
+        print("Där är en vägg. Du står kvar.")
+    except ValueError as fel:
+        print(f"Jag förstod inte: {fel}.")
+    except Exception as fel:
+        print(f"Något oväntat gick fel: {fel}")
+
+print(f"Du slutade {plats} m in. Tack för promenaden!")
+@
+\end{frame}
+
+Tre \texttt{except}-grenar, och ordningen mellan dem är inte fri.  De
+två första är \emph{specifika}: de namnger var sin sorts fel och har
+var sitt svar som betyder något för den som promenerar.  Den sista
+fångar allt annat, och därför måste den stå sist --- stod den först
+skulle den ta även väggen och den obegripliga riktningen, och
+användaren skulle få \enquote{något oväntat gick fel} i stället för ett
+besked hon kan använda.
+
+Lägg också märke till vad den sista grenen \emph{säger}.  I
+\cref{sec:biobiljetter} avstod vi från en allmän gren, därför att den
+hade skyllt vårt eget stavfel på kunden.  Här finns den, men den
+skyller ingenting på någon: den säger att något oväntat hände och visar
+felet som det är.  Det är samma regel i båda fallen --- fånga det du
+vet hur du ska svara på, och låt resten synas --- tillämpad på två
+program som behöver olika mycket skyddsnät.
+
+Att tilldelningen \mintinline{python}{plats = nytt_steg(plats, svar)}
+står inuti \mintinline{python}{try}-blocket är det som gör att
+\mintinline{python}{plats} blir oförändrad när något går fel:
+funktionen hinner aldrig lämna tillbaka något, så tilldelningen blir
+aldrig av.
+
+\begin{frame}[fragile]
+  \begin{example}[En promenad med en vägg och ett missförstånd]
+    \label{ex:rummet-korning}
+    Svaren är \mintinline{text}|framåt|, \mintinline{text}|framåt|,
+    \mintinline{text}|uppåt|, \mintinline{text}|bakåt|,
+    \mintinline{text}|bakåt|, \mintinline{text}|bakåt| och sist
+    \mintinline{text}|slut|:
+    \runpython[transcript, stdin={framåt}, stdin={framåt},
+      stdin={uppåt}, stdin={bakåt}, stdin={bakåt}, stdin={bakåt},
+      stdin={slut}]{examples/rummet.py}
+  \end{example}
+\end{frame}
+
+Följ utskriften rad för rad och jämför med slingan.  Efter två steg
+framåt står användaren 2 m in.  Svaret \mintinline{text}|uppåt| ger ett
+\mintinline{python}{ValueError}, ett meddelande och ingen tilldelning,
+så nästa fråga kommer från samma plats.  Två steg bakåt tar användaren
+tillbaka till noll, och det tredje skulle leda till \(-1\): då kastar
+\mintinline{python}{nytt_steg} ett \mintinline{python}{IndexError} och
+väggen får sitt eget besked.  Att följa exekveringen på det sättet, ett
+steg i taget, är lättare här än i ett vanligt program, eftersom
+programmet skriver ut sitt tillstånd före varje fråga.
+
+Ett annat rimligt sätt hade varit att låta \mintinline{python}{nytt_steg}
+sköta enbart räkningen och lägga kontrollen av korridorens gränser i
+slingan, med ett \mintinline{python}{if} efter anropet.  Det fungerar,
+och det var den första versionen av det här programmet.  Vi valde det
+andra därför att funktionen då äger hela frågan \enquote{går det här
+steget att ta?}: den som anropar behöver inte känna till
+\mintinline{python}{LANGD}, och ett steg som inte går att ta kan inte av
+misstag användas som om det gick.  Det är den enklaste lösning som
+duger, vilket är vad principen \foreignlanguage{english}{KISS}
+(\foreignlanguage{english}{Keep It Simple, Stupid}) handlar om --- och
+enklast är här inte färst rader utan färst saker att hålla reda på
+samtidigt.  Det vetenskapliga underlaget finns i föreläsningen
+\emph{Funktioner}, bilaga C: att enkelhet som designvärde är etablerat,
+men att uttrycket \emph{inte} går att belägga som Kelly Johnsons.
