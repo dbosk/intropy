@@ -31,10 +31,17 @@ och paket*; *Behållare: Listor*, *Behållare: Tupler*,
 *Behållare: Uppslagslistor*, *Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*; *Klasser och objekt*;
 *Operatoröverlagring*; *Praktiska tillämpningar av klasser*; *Arbeta med
-filer*.
+filer*; *Grafiska användargränssnitt*. The tutorial decks
+(`modules/<module>/tutorial/`, one per week, one chapter, one exercise per
+section followed by a literate solution) are titled *Övning: Funktioner och
+variabler*; *Övning: Inmatning, felhantering och styrstrukturer*; *Övning:
+Upprepningar, listor och moduler*; *Övning: Klasser och objekt*; *Övning:
+Fler behållare och mer om klasser*; *Övning: Filhantering*; *Övning:
+Grafiskt gränssnitt*.
 
 The reMarkable review family of a deck is `<Titel> — notes (review) vN`
-(the Hello World family keeps its old spelling). Learning objectives carry
+(the Hello World family keeps its old spelling); a tutorial deck's family
+is `Övning: <Vecka> — notes (review) vN`. Learning objectives carry
 the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
 
 ## Course-specific rules
