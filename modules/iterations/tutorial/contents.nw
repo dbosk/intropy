@@ -1,0 +1,1896 @@
+\mode*
+
+% Convention in this deck: every program is a code chunk tangled into
+% examples/, and every one of them is run during the build with
+% \runpython, with the reader's answers fed in as stdin, so a transcript
+% cannot drift from the program it claims to run.  The one program that is
+% not meant to work -- fib.py in the first exercise -- is tangled and run
+% like the others, so the error message shown is the one Python produced.
+%
+% The quiz in the first five sections is one program that grows: the
+% chunks named "frågelistan", "funktionen fråga_tal" and "funktionen
+% ställ_fråga" are shared by every stage, so two stages that are compared
+% differ only in the code that is being compared.  The chunk "funktionen
+% fråga_tal" is the function written in the lecture Upprepningar,
+% reproduced verbatim.  (Chunk names are spelled without their angle
+% brackets in this comment: an unescaped opening bracket pair in a
+% documentation chunk is an error to noweb, even inside a LaTeX comment.)
+
+Den här övningen använder veckans innehåll i stället för att visa det.
+Uppgifterna hör till föreläsningarna \emph{Upprepningar},
+\emph{Behållare: Listor}, \emph{Behållare: Tupler} och \emph{Moduler och
+paket}.
+
+Arbeta med en uppgift i taget, och lös den \emph{innan} du läser
+lösningsförslaget.  Vinsten kommer nämligen inte av att svaret skjuts upp,
+utan av att ditt eget försök sedan ställs mot förslaget, och den är
+måttlig; det vetenskapliga underlaget för båda delarna --- att effekten
+finns och hur stor den är, och att det är jämförelsen som ger den ---
+finns i föreläsningen \emph{Upprepningar}, bilaga~C.  Ett
+lösningsförslag som lästs i förväg finns det inget att jämföra med.
+
+Förslagen är just förslag: ett av flera möjliga.  Där en annan lösning är
+lika rimlig står det vilken den är och varför just den här valdes.  De
+fem första uppgifterna bygger en och samma frågesport, en bit i taget, och
+hänger därför ihop; de fyra sista är fördjupning och går att lösa i vilken
+ordning du vill.
+
+\ltnote{%
+  Relevanta lärandemål: samtliga.
+
+  Övningen är genomgående byggd så att uppgiften kommer före
+  lösningsförslaget, och prosan ovan säger uttryckligen varför --- att
+  vinsten ligger i jämförelsen och inte i väntan.  Belägget görs inte om
+  här: det är den slutsats sökningen i föreläsningen \emph{Upprepningar},
+  bilaga C, kom fram till, och den slutsatsen är måttlig, vilket
+  formuleringen \enquote{måttlig} speglar.
+
+  Ordningen mellan uppgifterna är designad och inte historisk.  De fem
+  första varierar en kritisk aspekt var mot en i övrigt oförändrad
+  bakgrund: samma frågesport, samma frågor, samma utmatning, och bara
+  det som ska urskiljas skiljer sig.  Att kontrasten måste kunna upplevas
+  samtidigt, och inte återskapas ur minnet, är skälet att de jämförda
+  programmen står bredvid varandra i en och samma uppgift
+  \parencite[45--47]{Marton2015}.  De fyra fördjupande uppgifterna ligger
+  sist, var och en i ett eget avsnitt, och är markerade som fördjupning i
+  sina egna anteckningar.
+}
+
+\section[Fem fel]{Finn fem fel}
+\label{sec:fem-fel}
+
+Vi börjar med ett program som någon annan har skrivit.  Det är tänkt att
+skriva ut början av Fibonaccis talföljd, den där varje tal är summan av de
+två föregående: \(0, 1, 1, 2, 3, 5, 8, \dots\)
+
+\begin{frame}[fragile,shrink]
+  \begin{exercise}[Finn fem fel]
+    \label{ex:fem-fel}
+    Läs igenom programmet och bilda dig en uppfattning om vad det är tänkt
+    att göra.  Kör det sedan.  Hitta därefter minst fem fel eller saker
+    som kan bli bättre, och rätta dem.  Vilka av dem hittade du genom att
+    läsa, och vilka hittade du genom att köra?
+<<[[fib.py]]>>=
+# Python program to display the Fibonacci sequence
+
+
+def fibo(n):
+    if n <= 1:
+        return n
+    else:
+        return fibo(n - 1) + fibo(n - 2)
+
+
+n = 10
+for i in range(nt):
+    print(fibo(i))
+@
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningIterationsLOReview},
+  \cref{OvningIterationsLORecursion,OvningIterationsLOMain}.
+
+  Uppgiften är hämtad ur den tidigare övningen, där den hette
+  \enquote{Finn fem fel} och använde samma program.  Den är behållen
+  därför att den övar kursens mål Lo11 --- att granska andras program ---
+  som ingen föreläsning i kursen övar, och den ligger först därför att
+  den fungerar som ett förtest: frågan pekar inte ut \emph{vilka} fel
+  som finns, och svaren visar därför vilka aspekter studenten redan
+  urskiljer \parencite[89]{Marton2015}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om programmet går att köra och säger vad det
+  gör.
+  \textbf{Vad som hålls invariant}: algoritmen --- båda versionerna
+  räknar ut samma talföljd på samma sätt.
+
+  Den tillagda frågan sist --- vilka fel som hittades genom att läsa och
+  vilka genom att köra --- förbereder \cref{sec:anrop}, där ett fel som
+  \emph{varken} syns vid läsning eller vid en enda körning tas upp.
+
+  Programmet är ändrat på två punkter jämfört med den tidigare övningen.
+  Författarraden överst är borta: ett program som ska granskas bör inte
+  peka ut en namngiven person.  Och indraget är fyra tecken i stället för
+  tre, eftersom bygget kör varje tanglat program genom
+  \foreignlanguage{english}{black}: ett indragsfel hade rättats innan
+  studenten fick se det, och ett fel som inte kan visas ska inte heller
+  påstås.
+}
+
+Programmet ser rimligt ut, och just därför är det värt att köra det innan
+man börjar rätta.
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen]
+    \label{ex:fem-fel-korning}
+    Vi kör programmet:
+    \runpython[showcommand, chdir, breaklines]{examples/fib.py}
+  \end{example}
+\end{frame}
+
+Programmet hinner inte skriva ut ett enda tal.  Python läser
+\mintinline{python}{nt} som ett namn, hittar inget med det namnet, och
+föreslår själv vad som kan ha menats.  Det är alltså ett stavfel, och det
+går bara att hitta genom att köra --- eller genom att läsa mycket noga.
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Felen faller i två slag: det som gör att programmet inte kör, och det som
+gör att programmet är svårare att använda och läsa än det behöver vara.
+
+\begin{description}
+  \item[Stavfelet] \mintinline{python}{range(nt)} ska vara
+    \mintinline{python}{range(n)}.  Det är det enda felet som gör att
+    programmet inte kör alls.
+  \item[Beskrivningen] Raden överst är en kommentar.  Python har en egen
+    plats för en beskrivning av vad en fil eller en funktion gör --- en
+    docstring --- och det är den platsen \mintinline{python}{help} läser
+    ifrån.  Står beskrivningen som en kommentar hittar Python ingen
+    beskrivning alls.
+  \item[Namnen] \mintinline{python}{fibo} säger inte vad funktionen lämnar
+    tillbaka, och \mintinline{python}{n} på filens sista rader är inte
+    samma \mintinline{python}{n} som funktionens parameter, trots att det
+    ser ut så.
+  \item[\texttt{else} efter \texttt{return}] Grenen behövs inte:
+    \mintinline{python}{return} avslutar funktionen, så raden efter
+    \mintinline{python}{if}-satsen körs bara när villkoret var falskt.
+  \item[Antalet tal] \mintinline{python}{10} står som ett tal inne i
+    koden.  Ska programmet skriva ut tjugo tal i stället får man leta upp
+    siffran; står den som en namngiven konstant högst upp finns den på ett
+    enda ställe.
+  \item[Allt körs direkt] Slingan står i filen och inte i en funktion, så
+    filen skriver ut tio tal så snart något hämtar den med
+    \mintinline{python}{import}.
+  \item[Samma arbete många gånger] Varje anrop räknar ut samma tal om och
+    om igen.  Det märks inte för tio tal, och vi återkommer till det i
+    \cref{sec:anrop}.
+\end{description}
+
+% TODO(claim-audit): att en namngiven konstant är lättare att ändra än ett
+% tal inne i koden, och att ett namn som säger vad funktionen lämnar
+% tillbaka gör programmet lättare att läsa -- två råd som var för sig
+% påstår en nytta.
+
+Det rättade programmet behåller rekursionen.  Basfallet och det rekursiva
+anropet är oförändrade; det som ändras är stavfelet, namnen,
+docstringarna, och att utskriften har flyttat in i en funktion som bara
+anropas när filen körs som program.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Det rättade programmet]
+    Samma algoritm, i en form som går att både köra och hämta:
+<<[[fib2.py]]>>=
+"""Skriver ut början av Fibonaccis talföljd."""
+
+ANTAL_TAL = 10
+
+
+def fibonacci(n):
+    """Returnerar talet på plats n i talföljden, n >= 0."""
+    if n <= 1:
+        return n
+
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+
+def main():
+    """Skriver ut de första talen i talföljden."""
+    for n in range(ANTAL_TAL):
+        print(fibonacci(n))
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen]
+    Nu skriver programmet ut talföljden:
+    \runpython[showcommand, chdir]{examples/fib2.py}
+  \end{example}
+\end{frame}
+
+En annan lösning ligger nära till hands: att byta ut rekursionen mot en
+slinga som bygger upp talen i en lista.  Den lösningen är inte sämre ---
+tvärtom, den räknar ut varje tal en enda gång --- men den byter ut det som
+uppgiften handlade om.  Här var uppgiften att rätta ett program, inte att
+skriva ett nytt, så rekursionen får stå kvar; slingversionen står i
+\cref{sec:anrop}, där det finns ett skäl att jämföra de två.
+
+\mode<article>{\clearpage}
+\section[Listan]{Frågorna i en lista}
+\label{sec:listan}
+
+Resten av de här uppgifterna bygger en frågesport, en bit i taget.  Vi
+börjar med frågorna själva.  En fråga hör ihop med sitt svar, och antalet
+frågor ska kunna växa medan programmet kör --- två krav som pekar på två
+olika behållare.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Frågorna i en lista]
+    \label{ex:listan}
+    Skriv ett program som ställer tre frågor, en i taget, och för varje
+    fråga säger om svaret blev rätt.  Frågorna ska ligga i en lista.
+    Använd de här tre:
+    \begin{center}
+      \begin{tabular}{@{}lr@{}}
+        \toprule
+        Fråga & Svar \\
+        \midrule
+        Vad är 7 * 8? & 56 \\
+        Hur många element har en tom lista? & 0 \\
+        Största tillåtna index i en lista med fem element? & 4 \\
+        \bottomrule
+      \end{tabular}
+    \end{center}
+    Gå igenom listan på två sätt, ett med \mintinline{python}{for} och ett
+    med \mintinline{python}{while}, och avgör vilket av dem du själv
+    skulle vilja läsa om ett halvår.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOFor,OvningIterationsLOList},
+  \cref{OvningIterationsLOTuple,OvningIterationsLOChoose}.
+
+  Uppgiften är den första delen av \enquote{Frågesport} i den tidigare
+  övningen, som i ett stycke bad om frågelista, begränsade försök,
+  inmatningskontroll, meny och en funktion för att lägga till frågor.
+  Den är delad i fyra uppgifter här
+  (\cref{sec:listan,sec:forsoken,sec:menyn,sec:modulen}), en kritisk
+  aspekt i var och en, eftersom
+  en uppgift som varierar fem aspekter samtidigt inte gör någon av dem
+  urskiljbar.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: vad slingvariabeln får --- elementet eller
+  platsen i listan.
+  \textbf{Vad som hålls invariant}: listan, frågorna, funktionen som
+  ställer frågan, och utmatningen, som är ordagrant densamma i de två
+  versionerna.
+
+  Att uppgiften \emph{säger} vilka två konstruktioner som ska användas är
+  avsiktligt: det som ska urskiljas här är inte vilken konstruktion som
+  finns, utan vad de gör med koden.  Därför är inte heller filnamnen
+  neutrala.
+
+  Den tredje frågan --- det största indexet i en lista med fem element ---
+  är vald för att svaret 5 är det vanliga felsvaret, så att frågesporten
+  själv ställer en fråga som avslöjar en missuppfattning om listindex.
+
+  Att en fråga hör ihop med sitt svar gör paret till en tupel och listan
+  till en lista av tupler; det är därför \cref{OvningIterationsLOTuple}
+  kommer in redan här, som en följd av hur data ser ut och inte som ett
+  eget ämne.
+}
+
+% TODO(claim-audit): att svaret 5 är det vanliga felsvaret på frågan om
+% det största indexet i en lista med fem element -- en missuppfattning som
+% namnges utan källa här; föreläsningen Behållare: Listor citerar
+% KumarVeerasamy2016 och SooriBosk2026 för listindex, men har ingen
+% granskad bilaga att peka på.
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Frågorna med sina svar hör ihop parvis, och ett par är en tupel.  Listan
+är alltså en lista av tupler, och den står som en namngiven konstant
+högst upp i filen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Frågorna]
+    Varje element är ett par av en fråga och dess svar:
+<<frågelistan>>=
+FRÅGOR = [
+    ("Vad är 7 * 8?", 56),
+    ("Hur många element har en tom lista?", 0),
+    ("Största tillåtna index i en lista med fem element?", 4),
+]
+@
+  \end{solution}
+\end{frame}
+
+Svaren är heltal, så användarens svar måste bli ett heltal innan det går
+att jämföra.  Den funktionen skrevs i föreläsningen \emph{Upprepningar}
+och används här som redan känd kod, ordagrant som den stod där.
+
+\begin{frame}[fragile]
+  \begin{solution}[Inmatningen]
+    Funktionen frågar tills omvandlingen lyckas:
+<<funktionen [[fråga_tal]]>>=
+def fråga_tal(fråga):
+    """Frågar tills svaret är ett heltal, och ger talet."""
+    while True:
+        try:
+            return int(input(fråga))
+        except ValueError:
+            print("Det var inget heltal, försök igen.")
+@
+  \end{solution}
+\end{frame}
+
+Att ställa \emph{en} fråga är en sak för sig, och den saken får en egen
+funktion.  Då kan de två slingorna nedan skilja sig i precis en detalj:
+hur de går igenom listan.
+
+\begin{frame}[fragile]
+  \begin{solution}[En fråga]
+    Funktionen frågar och jämför:
+<<funktionen [[ställ_fråga]]>>=
+def ställ_fråga(fråga, svar):
+    """Ställer fråga och säger om användarens svar blev rätt."""
+    if fråga_tal(fråga + " ") == svar:
+        print("Rätt!")
+    else:
+        print(f"Fel, svaret är {svar}.")
+@
+  \end{solution}
+\end{frame}
+
+Mellanslaget läggs till här och inte i frågorna, så att frågorna i listan
+är rena frågor och inte texter med ett mellanslag på slutet.
+
+Nu de två genomgångarna.  Den första låter slingan ge oss frågorna, en i
+taget.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Med \texttt{for}]
+    Slingan ger oss ett par per varv, och paret packas upp i slingans
+    huvud:
+<<[[fragor_for.py]]>>=
+"""Ställer frågorna i en lista, en gång för varje fråga."""
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ställ_fråga]]>>
+
+
+def main():
+    """Går igenom frågorna med en for-slinga."""
+    for fråga, svar in FRÅGOR:
+        ställ_fråga(fråga, svar)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Den andra räknar själv.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Med \texttt{while}]
+    Här får vi hålla reda på var i listan vi är:
+<<[[fragor_while.py]]>>=
+"""Ställer frågorna i en lista, med hjälp av en räknare."""
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ställ_fråga]]>>
+
+
+def main():
+    """Går igenom frågorna med en while-slinga och en räknare."""
+    nummer = 0
+
+    while nummer < len(FRÅGOR):
+        fråga, svar = FRÅGOR[nummer]
+        ställ_fråga(fråga, svar)
+        nummer += 1
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+De två programmen delar allt utom slingan, och de svarar likadant.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[\texttt{fragor\_for.py}]
+    Vi svarar 56, 1 och 4:
+    \runpython[transcript, stdin={56}, stdin={1},
+      stdin={4}]{examples/fragor_for.py}
+  \end{example}
+  \begin{example}[\texttt{fragor\_while.py}]
+    Och med samma svar:
+    \runpython[transcript, stdin={56}, stdin={1},
+      stdin={4}]{examples/fragor_while.py}
+  \end{example}
+\end{frame}
+
+Utmatningen är ordagrant densamma, så skillnaden ligger helt i koden.
+\mintinline{python}{for} säger vad vi vill göra --- en gång för varje
+fråga --- medan \mintinline{python}{while}-versionen dessutom måste
+bokföra var i listan den är.  Räknaren står på tre ställen: den sätts före
+slingan, prövas i villkoret och ökas i kroppen.  Glöms den sista blir
+villkoret sant för evigt, och slingan tar aldrig slut.
+
+Men ibland behöver man numret, till exempel för att skriva ut vilken fråga
+i ordningen det är.  Då är svaret inte en räknare.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Numret och elementet]
+    \mintinline{python}{enumerate} ger oss båda:
+<<[[fragor_numrerade.py]]>>=
+"""Ställer frågorna i en lista och numrerar dem."""
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ställ_fråga]]>>
+
+
+def main():
+    """Går igenom frågorna och numrerar dem."""
+    for nummer, par in enumerate(FRÅGOR, start=1):
+        fråga, svar = par
+        print(f"Fråga {nummer} av {len(FRÅGOR)}:")
+        ställ_fråga(fråga, svar)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{fragor\_numrerade.py}]
+    Samma svar en tredje gång:
+    \runpython[transcript, stdin={56}, stdin={1},
+      stdin={4}]{examples/fragor_numrerade.py}
+  \end{example}
+\end{frame}
+
+Varje varv ger nu två värden: numret och paret.  Paret packas upp på
+raden efter, och \mintinline{python}|start=1| gör att numreringen börjar
+på ett i stället för på noll --- vilket är en av de saker man får läsa sig
+till i dokumentationen.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOList,OvningIterationsLOTuple}.
+
+  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- kroppen körs
+  en gång per element i listan.
+  \textbf{Vad som varierar}: vad slingvariabeln är --- ett par, eller ett
+  nummer och ett par.
+
+  \mintinline{python}{enumerate} kommer först efter räknarversionen och
+  inte i stället för den: den som inte har sett räknaren har inget att
+  känna igen \mintinline{python}{enumerate} \emph{som}, och
+  generaliseringen förutsätter att kontrasten redan gjort aspekten
+  urskiljbar \parencite[45--47]{Marton2015}.  Paret packas upp på en egen
+  rad i stället för i slingans huvud, eftersom en nästlad uppackning
+  skulle variera en andra dimension samtidigt.
+
+  Att räknaren i räknarversionen måste ökas i kroppen är den
+  aspekt som gör den lättare att skriva fel:
+  antimönstret \emph{control variable is not changed} är katalogiserat i
+  riktig nybörjarkod \parencite[111]{Bosse2021Antipatterns}, och det
+  vetenskapliga underlaget finns i föreläsningen \emph{Upprepningar},
+  bilaga~B --- det görs inte om här.  Prosan säger därför att räknaren
+  står på tre ställen, i stället för att bara visa slingan.
+}
+
+% TODO(claim-audit): att for-versionen är lättare att läsa och svårare att
+% skriva fel än while-versionen med en räknare -- ett råd som påstår en
+% nytta.  Föreläsningen Behållare: Listor gör samma påstående, också utan
+% belägg.
+
+\mode<article>{\clearpage}
+\section[Försöken]{Antalet försök}
+\label{sec:forsoken}
+
+En frågesport där alla frågor är lika stränga är inte särskilt rolig.
+Lätta frågor ska ge ett begränsat antal försök; svåra frågor får man hålla
+på med tills man svarar rätt.
+
+\begin{frame}
+  \begin{exercise}[Antalet försök]
+    \label{ex:forsoken}
+    Bygg ut frågesporten så att en lätt fråga ger två försök och en svår
+    fråga låter användaren hålla på tills svaret är rätt.  Skriver
+    användaren något som inte går att använda som svar --- \enquote{tre} i
+    stället för \enquote{3} --- ska programmet fråga om igen.  Ska det
+    räknas som ett försök?  Bestäm själv, och motivera.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOFor,OvningIterationsLOWhile},
+  \cref{OvningIterationsLOChoose,OvningIterationsLOInput}.
+
+  Uppgiften är den andra delen av \enquote{Frågesport} i den tidigare
+  övningen, ordagrant bevarad ned till frågan om ett skrivfel ska kosta
+  ett försök --- en fråga som inte har ett givet svar och som därför
+  tvingar studenten att motivera i stället för att gissa.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om antalet varv är känt innan slingan
+  börjar.
+  \textbf{Vad som hålls invariant}: frågan, jämförelsen och funktionen
+  som läser in svaret.
+
+  Aspekten är valet i \cref{OvningIterationsLOChoose}, och de två
+  funktionerna är skrivna så att valet inte går att läsa av något annat:
+  båda ställer samma fråga och jämför med samma svar, och det enda som
+  skiljer dem är om antalet gånger är bestämt i förväg.
+
+  Att ett skrivfel \emph{inte} kostar ett försök i förslaget är en följd
+  av att inmatningen redan är en egen funktion som frågar om igen.  Det
+  sägs ut i prosan tillsammans med vad den andra lösningen skulle
+  innebära, så att uppgiftens öppna fråga inte får ett facit i smyg.
+}
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+De två kraven ser olika ut men är samma sak sedd från två håll: hur många
+gånger ska frågan ställas?  För den lätta frågan är antalet bestämt i
+förväg, och då är \mintinline{python}{for} förstahandsvalet --- den sköter
+räknaren själv.
+
+\begin{frame}[fragile]
+  \begin{solution}[Ett bestämt antal försök]
+    Funktionen lämnar tillbaka om användaren svarade rätt:
+<<funktionen [[ge_försök]]>>=
+def ge_försök(fråga, svar, antal):
+    """Ger antal försök; sant om svaret blev rätt."""
+    for försök in range(antal):
+        if fråga_tal(fråga + " ") == svar:
+            return True
+
+        print(f"Fel. Du har {antal - försök - 1} försök kvar.")
+
+    return False
+@
+  \end{solution}
+\end{frame}
+
+För den svåra frågan är antalet inte bestämt: vi vet bara när det ska
+sluta, nämligen när svaret är rätt.  Det är precis vad
+\mintinline{python}{while} säger.
+
+\begin{frame}[fragile]
+  \begin{solution}[Tills det blir rätt]
+    Villkoret prövas på nytt efter varje svar:
+<<funktionen [[fråga_tills_rätt]]>>=
+def fråga_tills_rätt(fråga, svar):
+    """Frågar om igen tills användaren svarar svar."""
+    while fråga_tal(fråga + " ") != svar:
+        print("Fel, försök igen.")
+@
+  \end{solution}
+\end{frame}
+
+Lägg märke till att den här slingan inte behöver någon räknare, och att
+det som gör villkoret falskt är användarens svar.  Slingan tar alltså slut
+om, och bara om, användaren till slut svarar rätt --- vilket är vad
+uppgiften bad om.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Programmet]
+    Programmet är de två funktionerna, det de behöver, och en huvuddel:
+<<[[forsok.py]]>>=
+"""Frågesport där en lätt fråga har ett begränsat antal försök."""
+
+ANTAL_FÖRSÖK = 2
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ge_försök]]>>
+
+
+<<funktionen [[fråga_tills_rätt]]>>
+
+
+<<ställ den lätta och den svåra frågan>>
+@
+  \end{solution}
+\end{frame}
+
+Huvuddelen tar den första frågan som den lätta och den tredje som den
+svåra, och plockar ut båda ur frågelistan med uppackning.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Huvuddelen]
+    Den lätta frågan får två försök, den svåra inga gränser:
+<<ställ den lätta och den svåra frågan>>=
+def main():
+    """Ställer en lätt fråga med försök och en svår utan."""
+    fråga, svar = FRÅGOR[0]
+
+    if ge_försök(fråga, svar, ANTAL_FÖRSÖK):
+        print("Rätt!")
+    else:
+        print(f"Slut på försök. Svaret var {svar}.")
+
+    fråga, svar = FRÅGOR[2]
+    fråga_tills_rätt(fråga, svar)
+    print("Rätt!")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[\texttt{forsok.py}]
+    Vi svarar \enquote{tre}, sedan 48, 56, 3 och 4:
+    \runpython[transcript, stdin={tre}, stdin={48}, stdin={56},
+      stdin={3}, stdin={4}]{examples/forsok.py}
+  \end{example}
+\end{frame}
+
+Svaret \enquote{tre} kostade inget försök: det gick inte att använda som
+svar över huvud taget, så \mintinline{python}{fråga_tal} frågade om igen
+och \mintinline{python}{ge_försök} fick aldrig veta om det.  Den andra
+lösningen är att låta \mintinline{python}{ge_försök} läsa in svaret själv
+och fånga felet i sin egen kropp; då kostar ett skrivfel ett försök.
+Förslaget här gör det inte, eftersom \mintinline{python}{fråga_tal} redan
+har ansvaret för att lämna ifrån sig något som går att jämföra, och det
+ansvaret finns det ingen anledning att dela.
+
+\mode<article>{\clearpage}
+\section[Menyn]{Menyn}
+\label{sec:menyn}
+
+Frågesporten tar slut efter tre frågor.  Vill användaren hålla på längre
+får hen starta programmet om, och det är inte roligare än det låter.
+
+\begin{frame}
+  \begin{exercise}[Menyn]
+    \label{ex:menyn}
+    Lägg till en meny med tre val: ställ frågorna, lägg till en egen
+    fråga, eller sluta.  Menyn ska komma tillbaka efter varje val, så att
+    användaren kan hålla på så länge hen vill.  Skriv upprepningen på två
+    sätt --- som en slinga och som ett rekursivt anrop --- och avgör
+    vilken av dem du behåller, och varför.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOWhile,OvningIterationsLORecursion},
+  \cref{OvningIterationsLOChoose,OvningIterationsLOAppend}.
+
+  Uppgiften är den tredje och fjärde delen av \enquote{Frågesport} i den
+  tidigare övningen --- menyn och valet som lägger till en fråga ---
+  sammanförda, eftersom de delar samma kritiska aspekt: något ska kunna
+  hända om och om igen, och listan ska kunna växa medan det händer.
+
+  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- en
+  upprepning måste kunna ta slut, och valet av form följer av om
+  problemet innehåller ett mindre exemplar av sig självt.
+  \textbf{Vad som varierar}: formen (slinga eller rekursivt anrop) och
+  sammanhanget, från en fråga till en meny.
+
+  Den tidigare övningen bad om tre former --- \mintinline{python}{for},
+  \mintinline{python}{while} och rekursion.  \mintinline{python}{for} är
+  utesluten här, och avsiktligt: antalet menyvarv är inte känt i förväg,
+  så en \mintinline{python}{for} skulle kräva ett påhittat maxantal, och
+  en jämförelse mellan tre former där en av dem inte går att skriva
+  rimligt jämför inte tre former.  Att formen \emph{följer} av om antalet
+  varv är känt är hela poängen med \cref{OvningIterationsLOChoose}, och
+  att den frågan redan är avgjord här är vad som gör att jämförelsen kan
+  handla om rekursionen.
+
+  Funktionen som lägger till en fråga ändrar den lista den får in, och
+  ändringen syns hos den som anropade den.  Det är
+  \cref{OvningIterationsLOAppend}, och det är också skälet att funktionen
+  inte lämnar tillbaka något: hade den byggt en ny lista hade anroparens
+  lista varit orörd.
+}
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Menyn är två saker: skriva ut alternativen, och läsa användarens val.
+Valet är ett tal, så \mintinline{python}{fråga_tal} duger.
+
+\begin{frame}[fragile]
+  \begin{solution}[Menyn]
+    Funktionen skriver ut alternativen och lämnar tillbaka valet:
+<<funktionen [[visa_meny]]>>=
+def visa_meny():
+    """Skriver ut menyn och ger användarens val."""
+    print()
+    print("1. Ställ frågorna")
+    print("2. Lägg till en fråga")
+    print("0. Sluta")
+
+    return fråga_tal("Ditt val: ")
+@
+  \end{solution}
+\end{frame}
+
+Att lägga till en fråga är att lägga ett nytt par sist i listan.
+
+\begin{frame}[fragile]
+  \begin{solution}[En ny fråga]
+    Funktionen ändrar listan den får in:
+<<funktionen [[lägg_till_fråga]]>>=
+def lägg_till_fråga(frågor):
+    """Frågar efter en ny fråga och lägger den sist i frågor."""
+    fråga = input("Vilken fråga vill du lägga till? ")
+    svar = fråga_tal("Vad är svaret? ")
+    frågor.append((fråga, svar))
+@
+  \end{solution}
+\end{frame}
+
+Funktionen lämnar inget tillbaka, och behöver inte det:
+\mintinline{python}{append} ändrar den lista som skickades in, och
+funktionen och anroparen har därför två namn på samma lista.  Hade
+funktionen i stället byggt en ny lista med
+\mintinline{python}|frågor = frågor + [par]| hade anroparens lista varit
+orörd, och den nya frågan hade försvunnit när funktionen tog slut.
+
+Nu själva upprepningen.  Den första versionen frågar om valet, och
+fortsätter så länge valet inte är noll.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Med en slinga]
+    Villkoret prövas på nytt efter varje menyval:
+<<[[meny_while.py]]>>=
+"""Frågesport med en meny, upprepad med en while-slinga."""
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ställ_fråga]]>>
+
+
+<<funktionen [[visa_meny]]>>
+
+
+<<funktionen [[lägg_till_fråga]]>>
+
+
+def main():
+    """Visar menyn tills användaren väljer att sluta."""
+    frågor = FRÅGOR.copy()
+    val = visa_meny()
+
+    while val != 0:
+        if val == 1:
+            for fråga, svar in frågor:
+                ställ_fråga(fråga, svar)
+        elif val == 2:
+            lägg_till_fråga(frågor)
+        else:
+            print("Det valet finns inte.")
+
+        val = visa_meny()
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Programmet arbetar med en \emph{kopia} av frågelistan.
+\mintinline{python}{FRÅGOR} är konstanten högst upp i filen, och den ska
+se likadan ut varje gång programmet startar; en ny fråga hör till den här
+körningen och inte till konstanten.
+
+Den andra versionen låter i stället funktionen anropa sig själv när valet
+är avklarat.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Med ett rekursivt anrop]
+    Basfallet är valet att sluta:
+<<[[meny_rekursivt.py]]>>=
+"""Frågesport med en meny, upprepad med ett rekursivt anrop."""
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ställ_fråga]]>>
+
+
+<<funktionen [[visa_meny]]>>
+
+
+<<funktionen [[lägg_till_fråga]]>>
+
+
+def kör_menyn(frågor):
+    """Visar menyn en gång, och anropar sig själv om igen."""
+    val = visa_meny()
+
+    if val == 0:
+        return
+
+    if val == 1:
+        for fråga, svar in frågor:
+            ställ_fråga(fråga, svar)
+    elif val == 2:
+        lägg_till_fråga(frågor)
+    else:
+        print("Det valet finns inte.")
+
+    kör_menyn(frågor)
+
+
+def main():
+    """Kör menyn med en kopia av frågorna."""
+    kör_menyn(FRÅGOR.copy())
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Båda fungerar, och de gör samma sak.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[\texttt{meny\_while.py}]
+    Vi lägger till en fråga och ställer sedan alla fyra:
+    \runpython[transcript, stdin={2}, stdin={3 * 3?}, stdin={9},
+      stdin={1}, stdin={56}, stdin={0}, stdin={4}, stdin={9},
+      stdin={0}]{examples/meny_while.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[\texttt{meny\_rekursivt.py}]
+    Med samma menyval och samma svar:
+    \runpython[transcript, stdin={2}, stdin={3 * 3?}, stdin={9},
+      stdin={1}, stdin={56}, stdin={0}, stdin={4}, stdin={9},
+      stdin={0}]{examples/meny_rekursivt.py}
+  \end{example}
+\end{frame}
+
+Utmatningen är densamma, så valet mellan dem är ett val om koden och inte
+om vad programmet gör.  Rekursionen har ett basfall --- valet att sluta
+--- men ingenting blir \emph{mindre} för varje varv: menyn efter det
+femtonde valet är precis samma meny som den första.  Problemet innehåller
+alltså inget mindre exemplar av sig självt, och då är rekursion inte den
+form som ligger närmast, enligt tumreglerna i föreläsningen
+\emph{Upprepningar}.  Dessutom ligger varje pågående anrop kvar i minnet
+medan nästa körs, så en användare som sitter tillräckligt länge får samma
+\mintinline{text}|RecursionError| som den rekursion utan basfall som
+visades där.  Vi behåller slingan.
+
+\mode<article>{\clearpage}
+\section[Modulen]{Frågesporten i en modul}
+\label{sec:modulen}
+
+Nu står samma funktioner i flera av våra filer.
+\mintinline{python}{fråga_tal} finns i var och en av dem, och
+frågelistan likaså.  Det fungerar, ända till dagen då meddelandet
+\enquote{Det var inget heltal, försök igen.} ska ändras.
+
+\begin{frame}
+  \begin{exercise}[Frågesporten i en modul]
+    \label{ex:modulen}
+    Flytta det som flera av programmen behöver till en egen fil, och låt
+    programmen hämta det därifrån.  Filen ska också gå att köra för sig,
+    för att prova det den innehåller --- men provkörningen ska inte ske
+    när ett annat program hämtar den.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOModule,OvningIterationsLOMain}.
+
+  Uppgiften är \emph{ny}.  Den tidigare övningen hette \enquote{Övning:
+  upprepningar, listor och moduler} och räknade \enquote{dela upp problem
+  i mindre problem} bland sina mål, men hade ingen uppgift om moduler
+  alls --- inte en enda \mintinline{python}{import}.  Luckan är
+  övningens största, eftersom veckans laboration ber studenterna flytta
+  sin felhantering till en egen modul.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: var koden står, och om provkörningen sker.
+  \textbf{Vad som hålls invariant}: vad programmet gör och vad det
+  skriver ut.
+
+  Uppgiften löser inte laborationens uppgift: den handlar om frågesportens
+  frågor, inte om laborationens inmatningsfunktioner, och övar därmed
+  samma färdighet på ett annat innehåll.  Kontrasten är densamma som i
+  föreläsningen \emph{Moduler och paket}, nu använd i stället för visad;
+  därför upprepas inte förklaringen av
+  \mintinline{python}{__name__} här, utan bara det villkoret gör.
+
+  DRY och SRP namnges i prosan men prövas inte om.  DRY är belagt i
+  föreläsningen \emph{Algoritmiskt tänkande}, bilaga~E
+  \parencite{HuntThomas1999}, och SRP i föreläsningen \emph{Funktioner},
+  bilaga~B \parencite[ch.~8]{Martin2003Agile}; posterna är kopierade
+  därifrån med sina proveniensanteckningar.
+}
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Det som flera program behöver är tre saker: frågelistan, funktionen som
+läser in ett heltal, och funktionen som ställer en fråga.  De får en egen
+fil, \texttt{fragor.py}, och modulen heter då
+\mintinline{python}{fragor} --- filnamnet utan \texttt{.py}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Modulen]
+    Filen innehåller det som flera program behöver, och inget annat:
+<<[[fragor.py]]>>=
+"""Frågorna, och det som behövs för att ställa dem."""
+
+<<frågelistan>>
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[ställ_fråga]]>>
+
+
+<<provkör modulen>>
+@
+  \end{solution}
+\end{frame}
+
+Att samma kunskap --- hur man frågar efter ett heltal --- nu står på ett
+enda ställe är principen \emph{DRY},
+\foreignlanguage{english}{Don't Repeat Yourself}\autocite{HuntThomas1999};
+det vetenskapliga underlaget för DRY, både varifrån principen kommer och
+om den håller med de förbehåll som hör till, finns i föreläsningen
+\emph{Algoritmiskt tänkande}, bilaga~E.  Och att modulen kan \emph{en}
+sak --- frågorna och hur de ställs --- och ingenting om menyer eller
+försök, är principen \emph{SRP},
+\foreignlanguage{english}{single responsibility
+principle}\autocite[ch.~8]{Martin2003Agile}; underlaget för SRP, att
+principen härrör från Martin och är etablerad medan \enquote{ett enda
+ansvar} förblir en bedömningsfråga, finns i föreläsningen
+\emph{Funktioner}, bilaga~B.
+
+Provkörningen är det som gör att filen går att prova utan att man skriver
+ett program till, och villkoret sist är det som gör att den inte sker vid
+\mintinline{python}{import}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Provkörningen]
+    Den ligger i en funktion, och anropas bara på ett villkor:
+<<provkör modulen>>=
+def main():
+    """Provkör modulen genom att ställa den första frågan."""
+    fråga, svar = FRÅGOR[0]
+    ställ_fråga(fråga, svar)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Frågesporten blir därmed kort: den hämtar modulen och ställer frågorna.
+
+\begin{frame}[fragile]
+  \begin{solution}[Programmet]
+    Allt som är kvar är själva genomgången:
+<<[[fragesport.py]]>>=
+"""Frågesport som hämtar frågorna ur modulen fragor."""
+
+import fragor
+
+
+def main():
+    """Ställer alla frågor ur modulen."""
+    for fråga, svar in fragor.FRÅGOR:
+        fragor.ställ_fråga(fråga, svar)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Kör vi modulen som program ställer den sin enda provfråga.  Kör vi
+frågesporten ställer den alla tre --- och provfrågan syns inte till.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Modulen körd direkt]
+    \label{ex:modulen-direkt}
+    Vi svarar 56:
+    \runpython[transcript, stdin={56}]{examples/fragor.py}
+  \end{example}
+  \begin{example}[Programmet som hämtar modulen]
+    \label{ex:modulen-import}
+    Vi svarar 56, 0 och 4:
+    \runpython[transcript, stdin={56}, stdin={0},
+      stdin={4}]{examples/fragesport.py}
+  \end{example}
+\end{frame}
+
+Samma fil, två sätt att starta den, två beteenden --- och det är
+villkoret sist i filen som avgör vilket.
+
+En annan form av importen vore lika rimlig.  Skriver vi
+\mintinline{python}{from fragor import} följt av de namn vi vill ha, får
+programmet dem direkt, utan \mintinline{python}{fragor} framför anropen.
+Här står den längre formen kvar, så att varje anrop säger var funktionen
+kommer ifrån; vilken av formerna du väljer är ett val och inte ett krav.
+
+\mode<article>{\clearpage}
+\section[Blandat]{Frågorna i blandad ordning}
+\label{sec:blandat}
+
+Frågorna kommer alltid i samma ordning, vilket gör frågesporten
+förutsägbar för den som gör om den.  Att blanda en lista är en sak Python
+kan, men ingen av de funktioner du behöver har visats i något exempel.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Frågorna i blandad ordning]
+    \label{ex:blandat}
+    Låt frågesporten ställa frågorna i blandad ordning.  Ta reda på vad du
+    behöver genom att läsa dokumentationen för modulen
+    \mintinline{python}{random}: både hur man blandar en lista och hur man
+    får samma blandning en gång till.  Vad händer med
+    \mintinline{python}{fragor.FRÅGOR} om du blandar den direkt?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{OvningIterationsLODocs,OvningIterationsLOModule}.
+
+  Uppgiften är \emph{ny}.  Både den tidigare övningen och den fördjupande
+  räknade \enquote{leta i Pythons dokumentation} bland sina mål, men
+  ingen av dem hade en uppgift som krävde det.  Den här gör det: inget
+  exempel i veckans föreläsningar visar
+  \mintinline{python}{random.shuffle} eller
+  \mintinline{python}{random.seed}, så uppgiften går inte att lösa utan
+  att läsa dokumentationen.
+
+  Förhållandet till föreläsningen \emph{Moduler och paket} är avsiktligt.
+  Där ber en övning studenten \emph{hitta} hur man blandar en lista, utan
+  att nämna funktionens namn; här ska den hittade funktionen
+  \emph{användas}, till något som behöver den.  Att dessutom få samma
+  blandning en gång till kräver ett andra uppslag,
+  \mintinline{python}{random.seed}, som ingen av veckans föreläsningar
+  tar upp.
+
+  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Vad som hålls invariant}: hur en modul används --- importraden,
+  modulens namn, punkt, funktion.
+  \textbf{Vad som varierar}: varifrån modulen kommer, från vår egen fil i
+  \cref{sec:modulen} till standardbiblioteket här.
+
+  Den sista frågan i uppgiften är en kontroll av aliaseringen från
+  \cref{sec:menyn}: \mintinline{python}{shuffle} ändrar listan på plats,
+  och den lista som ändras är modulens egen om man inte tar en kopia
+  först.  \mintinline{python}{random} är vald framför en okänd modul
+  eftersom studenterna redan har använt
+  \mintinline{python}{random.randint} och därför vet att modulen finns;
+  det nya är att den innehåller mer än de sett.
+}
+
+% TODO(claim-audit): att det är en färdighet i sig att hitta och läsa
+% dokumentationen, och att den färdigheten är värd ett eget lärandemål --
+% ett påstående som veckans föreläsningar också gör, utan belägg.
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Funktionen som blandar en lista heter \mintinline{python}{shuffle}, och
+den blandar listan \emph{på plats} --- precis som
+\mintinline{python}{sort} sorterar på plats.  Vill man blanda utan att
+röra originalet tar man alltså en kopia först.
+
+Den andra funktionen heter \mintinline{python}{seed}.  Slumptalen är inte
+slumpmässiga utan \emph{beräknade}, och talet man ger
+\mintinline{python}{seed} bestämmer var beräkningen börjar --- samma frö
+ger samma blandning.  Det behövs här, men inte i ditt eget program: raden
+med fröet finns bara för att körningen nedan ska bli densamma varje gång
+det här materialet byggs.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Blandade frågor]
+    Vi blandar en kopia, inte modulens egen lista:
+<<[[blanda.py]]>>=
+"""Ställer frågorna ur modulen fragor i blandad ordning."""
+
+import random
+
+import fragor
+
+FRÖ = 2026
+
+
+def main():
+    """Blandar en kopia av frågorna och ställer dem."""
+    frågor = fragor.FRÅGOR.copy()
+
+    random.seed(FRÖ)
+    random.shuffle(frågor)
+
+    for fråga, svar in frågor:
+        fragor.ställ_fråga(fråga, svar)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{blanda.py}]
+    Frågorna kommer nu i omvänd ordning, så vi svarar 4, 0 och 56:
+    \runpython[transcript, stdin={4}, stdin={0},
+      stdin={56}]{examples/blanda.py}
+  \end{example}
+\end{frame}
+
+Svaret på uppgiftens sista fråga är alltså att
+\mintinline{python}{fragor.FRÅGOR} skulle ha blivit blandad om vi hade
+gett den till \mintinline{python}{shuffle} direkt --- och den ligger i
+modulen, så nästa program som hämtade modulen hade fått den i den
+ordningen.  Det är samma sak som i \cref{sec:menyn}, nu med en funktion
+ur standardbiblioteket i stället för vår egen.
+
+\mode<article>{\clearpage}
+\section[Anropen]{Antalet anrop}
+\label{sec:anrop}
+
+Här börjar fördjupningen.  Vi går tillbaka till det fel i
+\cref{sec:fem-fel} som varken syns när man läser programmet eller när man
+kör det en gång: att varje anrop räknar ut samma tal om och om igen.
+
+\begin{frame}
+  \begin{exercise}[Antalet anrop]
+    \label{ex:anrop}
+    Hur många anrop gör den rekursiva fibonaccifunktionen för att räkna ut
+    talet på plats \(n\)?  Gissa först, och ta sedan reda på det genom att
+    låta funktionen räkna sina egna anrop.  Vad händer med antalet när
+    \(n\) växer med ett?  Och hur många varv skulle en slinga behöva?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \textbf{Fördjupning.}  Uppgiften ligger bland de fördjupande, sist i
+  materialet, och förutsätter \cref{sec:fem-fel}.
+
+  Relevanta lärandemål:
+  \cref{OvningIterationsLORecursion,OvningIterationsLOTuple},
+  \cref{OvningIterationsLOChoose}.
+
+  Uppgiften är den fördjupande övningens \enquote{Finns det några brister
+  i lösningsförslaget?}, gjord till en mätning i stället för en fråga om
+  omdöme.  Det är själva poängen med att den ligger här och inte i
+  \cref{sec:fem-fel}: de fel som togs upp där hittas genom att läsa eller
+  genom att köra, det här hittas bara genom att \emph{räkna}.
+
+  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Vad som varierar}: om funktionen räknar ut samma tal flera
+  gånger.
+  \textbf{Vad som hålls invariant}: talföljden och svaren, som är
+  desamma i båda versionerna.
+
+  Att räknaren följer med som en del av returvärdet, i stället för att
+  ligga i en variabel utanför funktionen, är ett val: en global variabel
+  hade krävt \mintinline{python}{global}, som inte gåtts igenom, och en
+  tupel som returvärde är veckans material
+  (\cref{OvningIterationsLOTuple}) använt till något det behövs för.
+
+  Frågan \enquote{gissa först} är ställd innan mätningen visas, så att
+  den som tror att antalet växer jämnt med \(n\) får se sitt eget svar
+  prövat.
+}
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+En funktion kan lämna tillbaka flera värden, så vi låter den lämna både
+talet och antalet anrop det tog.  Varje anrop räknar sig självt, och
+lägger till det som de två inre anropen rapporterade.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Funktionen som räknar sig själv]
+    Returvärdet är ett par:
+<<[[fib_anrop.py]]>>=
+"""Räknar anropen i den rekursiva fibonaccifunktionen."""
+
+
+def fibonacci(n):
+    """Returnerar talet på plats n och antalet anrop det tog."""
+    if n <= 1:
+        return n, 1
+
+    föregående, anrop1 = fibonacci(n - 1)
+    dessförinnan, anrop2 = fibonacci(n - 2)
+
+    return föregående + dessförinnan, anrop1 + anrop2 + 1
+
+
+def main():
+    """Skriver ut antalet anrop för några olika n."""
+    for n in range(5, 26, 5):
+        tal, anrop = fibonacci(n)
+        print(f"n = {n}: {anrop} anrop för talet {tal}")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Antalet anrop]
+    \label{ex:anrop-korning}
+    Vi kör programmet:
+    \runpython[showcommand, chdir]{examples/fib_anrop.py}
+  \end{example}
+\end{frame}
+
+Antalet anrop blir ungefär elva gånger så stort varje gång \(n\) växer med
+fem --- alltså drygt 1,6 gånger så stort för varje steg i \(n\).  Skälet
+syns i funktionen: \mintinline{python}{fibonacci(n - 1)} räknar bland
+annat ut talet på plats \(n - 2\), och sedan räknar
+\mintinline{python}{fibonacci(n - 2)} ut det igen, från början.
+
+En slinga behöver i stället ett varv per tal.  Vi håller reda på de två
+senaste talen och låter listan växa.
+
+\begin{frame}[fragile]
+  \begin{solution}[Samma talföljd med en slinga]
+    Varje tal räknas ut en enda gång, och listan växer ett tal per varv:
+<<funktionen [[fibonacci_lista]]>>=
+def fibonacci_lista(antal):
+    """Returnerar en lista med de antal första talen."""
+    talen = []
+    föregående, nuvarande = 0, 1
+
+    while len(talen) < antal:
+        talen.append(föregående)
+        föregående, nuvarande = nuvarande, föregående + nuvarande
+
+    return talen
+@
+  \end{solution}
+\end{frame}
+
+Huvuddelen ber om listan och skriver ut den.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Programmet]
+    Antalet tal står som en namngiven konstant:
+<<[[fib_lista.py]]>>=
+"""Bygger upp Fibonaccis talföljd i en lista, utan rekursion."""
+
+ANTAL_TAL = 10
+
+
+<<funktionen [[fibonacci_lista]]>>
+
+
+def main():
+    """Skriver ut talföljden och hur många varv det tog."""
+    talen = fibonacci_lista(ANTAL_TAL)
+    print(talen)
+    print(f"{len(talen)} tal, och {len(talen)} varv i slingan")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Talföljden i en lista]
+    Programmet skriver ut hela listan:
+    \runpython[showcommand, chdir]{examples/fib_lista.py}
+  \end{example}
+\end{frame}
+
+Raden som byter värden i de två variablerna är en tupel som packas upp:
+högerledet räknas ut först, i sin helhet, och packas sedan upp i de två
+namnen på vänstersidan.  Utan det hade vi behövt en hjälpvariabel, för
+att inte hinna skriva över \mintinline{python}{föregående} innan vi
+använt den.
+
+Den tredje vägen är att behålla rekursionen men spara de tal som redan är
+uträknade, så att varje tal räknas ut en gång.  Det kräver en behållare
+som kan svara på frågan \enquote{har jag redan räknat ut talet på plats
+\(n\)?}, och en sådan behållare behandlas i föreläsningen
+\emph{Behållare: Uppslagslistor}.
+
+\mode<article>{\clearpage}
+\section[Tabellen]{Multiplikationstabellen}
+\label{sec:multtabell}
+
+Multiplikationstabellen är ett rutnät, och ett rutnät har två riktningar:
+en rad per tal, och en kolumn per faktor.  Uppgiften är därför i två
+steg, och det andra steget är det första en gång per tal.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Multiplikationstabellen]
+    \label{ex:multtabell}
+    Låt användaren ange vilken multiplikationstabell hen vill se, och
+    skriv ut den:
+    \begin{minted}{text}
+Vilken multiplikationstabell vill du se? 7
+
+  7 |   7  14  21  28  35  42  49  56  63  70
+    \end{minted}
+    Låt därefter användaren ange det högsta talet, och skriv ut alla
+    tabeller upp till det, med kolumnhuvud och en avdelande rad:
+    \begin{minted}{text}
+Vilket är det högsta tal du vill multiplicera? 7
+
+  * |   1   2   3   4   5   6   7
+----+----------------------------
+  1 |   1   2   3   4   5   6   7
+  2 |   2   4   6   8  10  12  14
+    \end{minted}
+    Resten av tabellerna följer samma mönster.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \textbf{Fördjupning.}  Uppgiften ligger bland de fördjupande, sist i
+  materialet.
+
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOFor,OvningIterationsLOInput}.
+
+  Uppgiften är \enquote{Multiplikationshjälpmedel} ur den fördjupande
+  övningen, oförändrad i vad den ber om.  Den överlappar med
+  föreläsningen \emph{Upprepningar}, som skriver ut tabellen 1--9 med två
+  nästlade slingor --- men överlappningen är avsiktlig och åt andra
+  hållet: föreläsningen skalade medvetet bort kolumnhuvudet och den
+  avdelande raden, eftersom formateringen där blev mer kod än nästlingen
+  och drog uppmärksamheten från den aspekt som skulle urskiljas.  Här är
+  formateringen inte i vägen, eftersom nästlingen redan är urskild.
+
+  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- en slinga
+  skriver ut en rad.
+  \textbf{Vad som varierar}: hur många rader --- en, eller en per tal.
+
+  Uppgiften är delad i två delar, och den andra delen återanvänder den
+  första delens funktion ordagrant.  Det är skälet att förslaget inte
+  skriver två nästlade slingor i samma funktion, som föreläsningen gör:
+  den yttre slingan blir då den enda nya koden, och nästlingen syns som
+  ett funktionsanrop inuti en slinga.
+
+  Att exempelkörningarna står i uppgiften och inte bara beskrivs i ord är
+  avsiktligt: utmatningens form --- kolumnbredder och var strecken går
+  --- är en del av uppgiften, och den går inte att formulera i prosa utan
+  att bli längre än exemplet.
+}
+
+% TODO(claim-audit): att en nästlad slinga blir lättare att läsa när den
+% inre slingan flyttas till en egen funktion -- ett råd som påstår en
+% nytta.
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+En rad i tabellen är ett tal, ett lodstreck, och talets produkter med
+1 till det högsta talet.  Det är en slinga, och den får en egen funktion.
+
+\begin{frame}[fragile]
+  \begin{solution}[En rad]
+    Formatmallarna \mintinline{python}{:3d} och
+    \mintinline{python}{:4d} lägger ut talen på tre respektive fyra
+    teckens bredd, så att kolumnerna står rakt:
+<<funktionen [[skriv_rad]]>>=
+def skriv_rad(tal, högsta):
+    """Skriver ut tals produkter med 1 till högsta, på en rad."""
+    print(f"{tal:3d} |", end="")
+
+    for faktor in range(1, högsta + 1):
+        print(f"{tal * faktor:4d}", end="")
+
+    print()
+@
+  \end{solution}
+\end{frame}
+
+Den första delen av uppgiften är därmed nästan klar: fråga efter ett tal,
+och skriv ut dess rad.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[En tabell]
+    Programmet frågar och skriver ut en rad:
+<<[[en_tabell.py]]>>=
+"""Skriver ut en enda multiplikationstabell."""
+
+HÖGSTA = 10
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[skriv_rad]]>>
+
+
+def main():
+    """Frågar efter ett tal och skriver ut dess tabell."""
+    tal = fråga_tal("Vilken multiplikationstabell vill du se? ")
+
+    print()
+    skriv_rad(tal, HÖGSTA)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Sjuans tabell]
+    Vi svarar 7:
+    \runpython[transcript, stdin={7}]{examples/en_tabell.py}
+  \end{example}
+\end{frame}
+
+Den andra delen behöver två saker till: ett kolumnhuvud, som är samma
+slinga en gång till men med faktorerna i stället för produkterna, och en
+yttre slinga som skriver en rad per tal.
+
+\begin{frame}[fragile]
+  \begin{solution}[Kolumnhuvudet]
+    Strecken är lika många som kolumnerna är breda:
+<<funktionen [[skriv_huvud]]>>=
+def skriv_huvud(högsta):
+    """Skriver ut kolumnhuvudet och den avdelande raden."""
+    print("  * |", end="")
+
+    for faktor in range(1, högsta + 1):
+        print(f"{faktor:4d}", end="")
+
+    print()
+    print("----+" + "-" * (4 * högsta))
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Den yttre slingan]
+    Den anropar radfunktionen en gång per tal:
+<<fråga och skriv ut alla tabeller>>=
+def main():
+    """Frågar efter det högsta talet och skriver ut tabellerna."""
+    fråga = "Vilket är det högsta tal du vill multiplicera? "
+    högsta = fråga_tal(fråga)
+
+    print()
+    skriv_huvud(högsta)
+
+    for tal in range(1, högsta + 1):
+        skriv_rad(tal, högsta)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Programmet är de tre funktionerna och huvuddelen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Alla tabeller]
+    Radfunktionen är ordagrant den från den första delen:
+<<[[alla_tabeller.py]]>>=
+"""Skriver ut alla multiplikationstabeller upp till ett tal."""
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[skriv_rad]]>>
+
+
+<<funktionen [[skriv_huvud]]>>
+
+
+<<fråga och skriv ut alla tabeller>>
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Alla tabeller upp till sju]
+    Vi svarar 7:
+    \runpython[transcript, stdin={7}]{examples/alla_tabeller.py}
+  \end{example}
+\end{frame}
+
+Funktionen \mintinline{python}{skriv_rad} är ordagrant densamma i de två
+programmen --- den står en gång i det här materialet och tanglas till
+båda filerna.  Nästlingen finns kvar: den inre slingan körs om från
+början för varje varv i den yttre, precis som i föreläsningen
+\emph{Upprepningar}.  Skillnaden är att den inre slingan har fått ett
+namn, och att den yttre slingans kropp därför är en enda rad.
+
+\mode<article>{\clearpage}
+\section[Primtal]{Primtalsfaktorisering}
+\label{sec:primtal}
+
+Ett primtal är ett heltal större än 1 som bara är delbart med 1 och sig
+självt: 2, 3, 5, 7, 11 och så vidare.  Aritmetikens fundamentalsats säger
+att varje heltal större än 1 kan skrivas som en produkt av primtal på
+precis ett sätt, om man bortser från faktorernas ordning.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Primtalsfaktorisering]
+    \label{ex:primtal}
+    Skriv en funktion som tar ett heltal större än 1 och lämnar tillbaka
+    en sträng med talets primtalsfaktorer.  Talet 15 ska ge
+    \mintinline{text}|3*5|, talet 8 ska ge \mintinline{text}|2*2*2|, och
+    talet 9 ska ge \mintinline{text}|3*3|.  Vilken sorts upprepning
+    passar var i lösningen?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \textbf{Fördjupning.}  Uppgiften ligger bland de fördjupande, sist i
+  materialet.
+
+  Relevanta lärandemål:
+  \cref{OvningIterationsLORecursion,OvningIterationsLOWhile},
+  \cref{OvningIterationsLOChoose}.
+
+  Uppgiften är \enquote{Primtalsfaktorisering} ur den fördjupande
+  övningen.  Två saker är ändrade.  Den tidigare formuleringen skrev ut
+  att funktionen \enquote{sannolikt är enklast att skriva som en rekursiv
+  funktion}, vilket gav bort svaret på den enda frågan uppgiften
+  ställer; frågan här är i stället vilken sorts upprepning som passar
+  \emph{var}, och den har två olika svar i samma program.  Och
+  exempelvärdena är utökade med 9, eftersom 9 är precis det fall det
+  gamla lösningsförslaget svarade fel på.
+
+  \textbf{Variationsmönster}: Fusion.
+  \textbf{Vad som varierar samtidigt}: de två upprepningarna och deras
+  skäl --- en \mintinline{python}{while}-slinga som letar efter den
+  minsta faktorn, och ett rekursivt anrop på det som är kvar av talet.
+  \textbf{Vad som hålls invariant}: uppgiften och svaret.
+
+  Det är veckans tumregler använda på ett problem där båda gäller
+  samtidigt: antalet faktorer att pröva är inte känt i förväg
+  (\mintinline{python}{while}), medan resten av talet är ett mindre
+  exemplar av samma problem (rekursion).  Därför ligger uppgiften efter
+  \cref{sec:anrop} och inte före: den förutsätter att rekursionen med
+  returvärde är urskild.
+}
+
+% TODO(claim-audit): aritmetikens fundamentalsats anges utan källa.
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Problemet delar sig i två delar, och de två delarna vill ha olika sorters
+upprepning.  Den första delen är att hitta den minsta faktorn i ett tal.
+Vi vet inte hur många tal vi behöver pröva innan vi hittar den, bara att
+vi ska sluta när vi gjort det --- och \enquote{tills} är
+\mintinline{python}{while}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Den minsta faktorn]
+    Vi behöver inte pröva längre än till kvadratroten: har talet en
+    faktor större än den, har det också en mindre:
+<<funktionen [[minsta_faktor]]>>=
+def minsta_faktor(heltal):
+    """Returnerar minsta faktorn i heltal, för heltal > 1."""
+    faktor = 2
+
+    while faktor * faktor <= heltal:
+        if heltal % faktor == 0:
+            return faktor
+
+        faktor += 1
+
+    return heltal
+@
+  \end{solution}
+\end{frame}
+
+Hittas ingen faktor är talet självt ett primtal, och då lämnar funktionen
+tillbaka talet.  Villkoret \mintinline{python}|faktor * faktor <= heltal|
+är detsamma som \enquote{faktorn är högst kvadratroten ur talet}, skrivet
+utan kvadratrot --- vilket gör att jämförelsen sker mellan heltal och inte
+mellan avrundade flyttal.
+
+Den andra delen är hela faktoriseringen, och där ser problemet annorlunda
+ut: den minsta faktorn, och sedan primtalsfaktorerna i \emph{resten} av
+talet.  Resten är ett mindre exemplar av precis samma problem, och det är
+rekursion.
+
+\begin{frame}[fragile]
+  \begin{solution}[Faktoriseringen]
+    Basfallet är talet som är ett primtal:
+<<funktionen [[faktorisera]]>>=
+def faktorisera(heltal):
+    """Returnerar primtalsfaktorerna i heltal som en sträng."""
+    faktor = minsta_faktor(heltal)
+
+    if faktor == heltal:
+        return str(heltal)
+
+    return f"{faktor}*{faktorisera(heltal // faktor)}"
+@
+  \end{solution}
+\end{frame}
+
+Det rekursiva anropet sker på \mintinline{python}|heltal // faktor|, som
+är ett mindre tal --- så varje anrop kommer närmare basfallet.  Och
+eftersom sökningen efter den minsta faktorn börjar om från 2 varje gång,
+hittas en faktor som förekommer två gånger båda gångerna:
+\(8 = 2\cdot 4\), och 4 faktoriseras i sin tur till \(2\cdot 2\).
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Programmet]
+    Huvuddelen frågar efter talet och skriver ut faktorerna:
+<<[[primtal.py]]>>=
+"""Faktoriserar ett heltal i dess primtalsfaktorer."""
+
+
+<<funktionen [[fråga_tal]]>>
+
+
+<<funktionen [[minsta_faktor]]>>
+
+
+<<funktionen [[faktorisera]]>>
+
+
+def main():
+    """Frågar efter ett tal och skriver ut dess faktorer."""
+    talet = fråga_tal("Vilket tal vill du faktorisera? ")
+    print(f"{talet} = {faktorisera(talet)}")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Faktoriseringen av 360]
+    Vi svarar 360:
+    \runpython[transcript, stdin={360}]{examples/primtal.py}
+  \end{example}
+\end{frame}
+
+Hela faktoriseringen går också att skriva utan rekursion: en
+\mintinline{python}{while}-slinga som delar talet med sin minsta faktor
+om och om igen och samlar faktorerna i en lista, ungefär som slingan i
+\cref{sec:anrop}.  Förslaget här använder rekursion därför att
+formuleringen \enquote{den minsta faktorn, och sedan faktorerna i
+resten} redan är rekursiv: resten av talet är samma problem, en gång
+mindre.
+
+Funktionen förutsätter att talet är större än 1, precis som uppgiften
+sade.  Ger man den 1 lämnar den tillbaka \mintinline{text}|1|, och ger
+man den 0 eller ett negativt tal blir svaret inte meningsfullt --- det
+finns ingen primtalsfaktorisering av dem.  Vill man fånga det är
+\mintinline{python}{raise ValueError} rätt verktyg, som i fakulteten i
+föreläsningen \emph{Upprepningar}.
+
+\mode<article>{\clearpage}
+\section[Cowsay]{Cowsay}
+\label{sec:cowsay}
+
+I terminalen finns ett program som heter \texttt{cowsay}.  Det skriver ut
+en text i en pratbubbla, med en ko som säger den.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Cowsay]
+    \label{ex:cowsay}
+    Så här ser \texttt{cowsay} ut när man kör det:
+    \begin{minted}{text}
+$ cowsay "Smaka på den här utmaningen!"
+ ______________________________
+< Smaka på den här utmaningen! >
+ ------------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+    \end{minted}
+    Skriv en funktion som gör samma sak.  Bubblan ska klara flera rader,
+    och ramen ska sluta tätt om den längsta av dem.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \textbf{Fördjupning.}  Uppgiften ligger bland de fördjupande, sist i
+  materialet.
+
+  Relevanta lärandemål:
+  \cref{OvningIterationsLOFor,OvningIterationsLOList}.
+
+  Uppgiften är \enquote{Cowsay} ur den fördjupande övningen, med ett
+  tillägg: bubblan ska klara flera rader.  Tillägget är det som gör
+  uppgiften till en uppgift.  Med en enda rad är bubblans bredd
+  \mintinline{python}|len(text)|, och då finns ingen slinga att skriva ---
+  det gamla lösningsförslaget skrev ändå en, som skrev ut ett streck i
+  taget, vilket är en slinga där en multiplikation räcker.  Med flera
+  rader måste bredden \emph{letas fram} ur listan, och då är slingan det
+  som löser uppgiften i stället för att demonstrera sig själv.
+
+  \textbf{Variationsmönster}: Fusion.
+  \textbf{Vad som varierar samtidigt}: vad slingan används till --- att
+  hitta det största värdet i en lista, och att skriva ut varje element
+  --- och att radens bredd bestäms av en annan rad än den man skriver ut.
+  \textbf{Vad som hålls invariant}: texten som ska ut.
+
+  Uppgiften ligger sist därför att den är den enda som inte bygger på
+  någon annan uppgift här, och därför går att hoppa över utan att något
+  senare saknas.
+}
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Ramen ska sluta tätt om den längsta raden, så det första vi behöver veta
+är hur lång den är.  Det får vi genom att gå igenom raderna och komma ihåg
+den längsta vi sett.
+
+\begin{frame}[fragile]
+  \begin{solution}[Den längsta raden]
+    Slingan jämför varje rad med den längsta så långt:
+<<funktionen [[bredd]]>>=
+def bredd(rader):
+    """Returnerar längden på den längsta raden i rader."""
+    längsta = 0
+
+    for rad in rader:
+        if len(rad) > längsta:
+            längsta = len(rad)
+
+    return längsta
+@
+  \end{solution}
+\end{frame}
+
+Startvärdet \mintinline{python}{0} är inte en gissning: ingen rad är
+kortare än noll tecken, så den första raden vi ser blir alltid den längsta
+så långt.
+
+Med bredden känd är bubblan tre delar: en rad streck, raderna själva, och
+en rad streck igen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Bubblan]
+    Formatmallen \mintinline{python}|{rad:{längsta}s}| fyller ut raden
+    till den gemensamma bredden, så att högerkanten står rakt:
+<<funktionen [[pratbubbla]]>>=
+def pratbubbla(rader):
+    """Skriver ut raderna i en pratbubbla."""
+    längsta = bredd(rader)
+
+    print(" " + "-" * (längsta + 2))
+
+    for rad in rader:
+        print(f"| {rad:{längsta}s} |")
+
+    print(" " + "-" * (längsta + 2))
+@
+  \end{solution}
+\end{frame}
+
+Kon är en sträng över flera rader, och den skrivs med ett
+\mintinline{python}{r} framför: i en sådan sträng betyder ett bakstreck
+ett bakstreck och inget annat, vilket är precis vad en ko ritad med
+bakstreck behöver.
+
+\begin{frame}[fragile]
+  \begin{solution}[Kon och texten]
+    Båda står som namngivna konstanter:
+<<kon och texten>>=
+KON = r"""        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||"""
+
+TEXT = [
+    "Smaka på den här utmaningen!",
+    "Fast så svår är den inte.",
+]
+@
+  \end{solution}
+\end{frame}
+
+Kvar är att sätta ihop delarna.
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Programmet]
+    Huvuddelen skriver ut bubblan och sedan kon:
+<<[[cowsay.py]]>>=
+"""Skriver ut en text i en pratbubbla, med en ko under."""
+
+<<kon och texten>>
+
+
+<<funktionen [[bredd]]>>
+
+
+<<funktionen [[pratbubbla]]>>
+
+
+def main():
+    """Skriver ut en pratbubbla och kon som säger det."""
+    pratbubbla(TEXT)
+    print(KON)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Kon säger något]
+    Vi kör programmet:
+    \runpython[showcommand, chdir]{examples/cowsay.py}
+  \end{example}
+\end{frame}
+
+Riktiga \texttt{cowsay} byter ram beroende på antalet rader: ett par
+vinkelparenteser för en enda rad, och streck och snedstreck för flera.
+Förslaget här håller sig till en ram, som fungerar för båda fallen.  Vill
+du ha det andra också är det en \mintinline{python}{if} på
+\mintinline{python}|len(rader)| --- och då har du skrivit
+\texttt{cowsay} klart.
