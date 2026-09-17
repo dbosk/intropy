@@ -3,9 +3,10 @@ SUBDIR+=		slides-tuples
 SUBDIR+=		slides-example-guess
 SUBDIR+=		slides-sets-stacks-queues
 SUBDIR+=		slides-dicts
+SUBDIR+=		tutorial
 SUBDIR_GOALS=	all clean distclean
 
-HTML_FILES= 	lecture.html exercise.html
+HTML_FILES= 	lecture.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos
 
@@ -14,7 +15,6 @@ PANDOCFLAGS= 	--filter pandoc-xnos
 all: ${HTML_FILES} ${PDF_FILES}
 
 lecture.html: lecture.md
-exercise.html: exercise.md
 
 
 .PHONY: clean
