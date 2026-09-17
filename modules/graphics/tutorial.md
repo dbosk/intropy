@@ -12,9 +12,9 @@ modules:
 överst i modulen. Vi löser uppgifter tillsammans i mindre grupper.
 Uppgifterna och deras lösningsförslag finns i det interaktiva dokumentet
 (FeedbackFruits) här i modulen, *Övning: Grafiskt gränssnitt
-(övningsanteckningar)*
-<!-- TODO: FBF-dokumentet skapas av författaren -->: pröva varje uppgift
-innan du läser lösningen.
+(övningsanteckningar)*: pröva varje uppgift innan du läser lösningen.
+
+<!-- TODO: FBF-dokumentet skapas av författaren -->
 
 ## Vad vi går igenom på övningen
 
