@@ -42,6 +42,7 @@ PAGES+=		modules/computational-thinking/lecture.md
 PAGES+=		modules/helloworld/lecture.md
 PAGES+=		modules/variables/lecture.md
 PAGES+=		modules/variables/lecture-functions.md
+PAGES+=		modules/variables/tutorial.md
 PAGES+=		modules/conditionals/lecture.md
 PAGES+=		modules/iterations/lecture.md
 PAGES+=		modules/classes/lecture.md
