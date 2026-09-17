@@ -26,10 +26,12 @@ SRC+=		ltnotes.bib
 # One line per tangled solution program.  The last section re-displays
 # these files with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/book.py
+EXAMPLES+=	examples/books.py
 EXAMPLES+=	examples/read500.py
 EXAMPLES+=	examples/trace1.py
 EXAMPLES+=	examples/trace2.py
 EXAMPLES+=	examples/shelf.py
+EXAMPLES+=	examples/copies.py
 EXAMPLES+=	examples/same.py
 EXAMPLES+=	examples/review.py
 EXAMPLES+=	examples/review_better.py

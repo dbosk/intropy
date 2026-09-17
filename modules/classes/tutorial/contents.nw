@@ -6,8 +6,8 @@ läst i den.  Uppgifterna använder bara det som föreläsningen
 \emph{Klasser och objekt} gick igenom --- klass, objekt, attribut,
 metod, parametern \mintinline{python}{self}, privata attribut och
 dundermetoder --- och de kommer i en ordning där varje uppgift lägger
-till en sak.  De två sista uppgifterna är fördjupning och handlar om
-arv.
+till en sak.  De två sista uppgifterna är fördjupning och handlar om arv
+och komposition.
 
 Övningen är byggd för att du ska försöka först.  Varje uppgift står för
 sig, och lösningsförslaget kommer efter den.  Läs förslaget när du har
@@ -27,7 +27,7 @@ rimligt säger texten vilket och varför vi valde som vi gjorde.
   föreläsningen \emph{Praktiska tillämpningar av klasser}, med
   lösningar och allt, så att lägga dem här med lösningsförslag hade
   både föregripit och upprepat den föreläsningen.  I stället körs en
-  och samma klass genom veckans kritiska aspekter, en aspekt per
+  och samma klass genom föreläsningens kritiska aspekter, en aspekt per
   uppgift, med problemet (en bok och ett bokmärke) invariant hela
   vägen: det som varierar mot en invariant bakgrund är det som kan
   urskiljas \parencite{MartonPang2006}.
@@ -37,6 +37,13 @@ rimligt säger texten vilket och varför vi valde som vi gjorde.
   faktiskt bär: effekten ligger i jämförelsen, inte i väntan.  Att
   uppgiftstexten inte heller får peka ut vad som är det svåra är samma
   premiss \parencite[s.~13]{Marton2015}.
+
+  \textbf{Tidsbudget}: \cref{sec:boken} till \cref{sec:granskning} är
+  huvudsekvensen och täcker samtliga sju lärandemål; de ryms i ett
+  tvåtimmarspass om omskrivningen i \cref{sec:granskning} lämnas som
+  hemarbete, vilket uppgiftstexten där säger.
+  \Cref{sec:arv,sec:komposition} är fördjupning och ingenting senare
+  bygger på dem.
 }
 
 \mode<article>{\clearpage}
@@ -64,6 +71,11 @@ rimligt säger texten vilket och varför vi valde som vi gjorde.
   studenten bygger ett objekt själv i stället för att läsa om ett.
   Underlaget för missuppfattningarna finns i föreläsningen
   \emph{Klasser och objekt}, bilaga~B.
+
+  Uppgiften ber inte om några läsmetoder: de införs i
+  \cref{sec:kortast}, där \mintinline{python}{__lt__} och programmet
+  behöver dem.  Skälet är dels tidsbudgeten, dels att en metod som
+  ingen anropar inte är något studenten kan se behovet av.
 }
 
 Vi börjar med själva boken.  En bok har en titel, en författare och ett
@@ -95,13 +107,13 @@ det hör till \emph{en} bok, så allt det hör hemma på ett ställe.
 Klassen är den enda plats i programmet som rör en bok, så vi lägger den
 i en egen fil, \texttt{book.py}, och låter övningens övriga program
 importera den därifrån.  Filen växer under övningen: varje uppgift
-lägger till en namngiven del.  Här kommer de tre första ---
-konstruktorn, läsmetoderna och utskriften --- och ett testprogram sist.
+lägger till en namngiven del.  Så här långt består den av en
+konstruktor och en utskrift.
 
-\begin{frame}[fragile,shrink]
-  \begin{example}[Filen \texttt{book.py} i sin helhet]
+\begin{frame}[fragile]
+  \begin{example}[Filen \texttt{book.py}]
     \label{ex:book}
-    Delarna namngivna, i den ordning de kommer i filen:
+    Två delar, namngivna:
 <<[[book.py]]>>=
 """A book and how far it has been read"""
 
@@ -111,18 +123,7 @@ class Book:
 
     <<konstruktorn för [[Book]]>>
 
-    <<läsmetoder för [[Book]]>>
-
     <<utskrift av [[Book]]>>
-
-    <<metoden som flyttar bokmärket>>
-
-    <<jämförelse på sidantal>>
-
-    <<jämförelse av titel och författare>>
-
-
-<<testprogram för [[Book]]>>
 @
   \end{example}
 \end{frame}
@@ -130,7 +131,16 @@ class Book:
 Konstruktorn tar emot de tre uppgifter som kommer utifrån och sätter
 bokmärket på noll själv --- ingen skapar en bok som redan är halvläst.
 Varje attribut är privat, med dubbla understreck, eftersom uppgiften
-säger att ingen annan del av programmet får ändra dem direkt.
+säger att ingen annan del av programmet får ändra dem
+direkt.\footnote{\label{fn:mangling}%
+  Strängt taget finns inga privata attribut i Python.  Ett namn som
+  \mintinline{python}{__title} skrivs om till
+  \mintinline{python}{_Book__title}
+  (\foreignlanguage{english}{name mangling}), så den som vet det kommer
+  åt attributet ändå.  Se avsnittet \emph{Private Variables} i Pythons
+  handledning,
+  \url{https://docs.python.org/3/tutorial/classes.html\#private-variables}
+  (hämtad 2026-09-18).}
 
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
@@ -145,34 +155,6 @@ def __init__(self, title, author, pages):
     self.__author = author
     self.__pages = pages
     self.__read_pages = 0
-@
-  \end{example}
-\end{frame}
-
-Eftersom attributen är privata behöver den som använder klassen en
-metod per uppgift för att läsa dem.  De är alla lika enkla: de
-returnerar attributets värde.
-
-\begin{frame}[fragile]
-  \begin{example}[Läsmetoderna]
-    \label{ex:book-getters}
-    En läsmetod per attribut:
-<<läsmetoder för [[Book]]>>=
-def get_title(self):
-    """Returns the title"""
-    return self.__title
-
-def get_author(self):
-    """Returns the name of the author"""
-    return self.__author
-
-def get_pages(self):
-    """Returns the number of pages in the book"""
-    return self.__pages
-
-def get_read_pages(self):
-    """Returns the number of pages read so far"""
-    return self.__read_pages
 @
   \end{example}
 \end{frame}
@@ -198,24 +180,21 @@ def __str__(self):
   \end{example}
 \end{frame}
 
-Testprogrammet ligger sist i filen och körs bara när filen körs som
-program, inte när den importeras.
+Testprogrammet ligger i en egen fil och importerar klassen.  Det behöver
+inte läsa ut ett enda attribut: \mintinline{python}{print} ber objektet
+själv om raden.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
-    \label{ex:book-main}
+    \label{ex:books}
     Två böcker och två utskrifter:
-<<testprogram för [[Book]]>>=
-def main():
-    """Test program"""
-    ronja = Book("Ronja Rövardotter", "Astrid Lindgren", 240)
-    madicken = Book("Madicken", "Astrid Lindgren", 180)
-    print(ronja)
-    print(madicken)
+<<[[books.py]]>>=
+from book import Book
 
-
-if __name__ == "__main__":
-    main()
+ronja = Book("Ronja Rövardotter", "Astrid Lindgren", 240)
+madicken = Book("Madicken", "Astrid Lindgren", 180)
+print(ronja)
+print(madicken)
 @
   \end{example}
 \end{frame}
@@ -235,10 +214,11 @@ if __name__ == "__main__":
 Körningen ger precis de två rader uppgiften bad om.
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{book.py}]
-    \label{ex:book-run}
+  \begin{example}[\texttt{books.py}]
+    \label{ex:books-run}
     Programmet skriver ut
-    \runpython[showcommand, chdir]{examples/book.py}
+    \runpython[showcommand, chdir, deps={examples/book.py}]%
+      {examples/books.py}
   \end{example}
 \end{frame}
 
@@ -255,13 +235,24 @@ skapar --- följer med.
   Relevanta lärandemål:
   \cref{OvningClassesLOEncapsulation,OvningClassesLOAttributes}.
 
-  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Variationsmönster}: Generalisering av den kontrast
+  föreläsningen \emph{Klasser och objekt} redan har kört --- publikt
+  attribut mot privat, \texttt{public.py} mot \texttt{private.py}, där
+  den direkta läsningen lyckas i det ena fallet och ger en
+  spårutskrift i det andra.
 
-  \textbf{Vad som varierar}: vem som får ändra bokmärket --- vilken kod
-  som helst, respektive bara en metod som först kontrollerar.
+  \textbf{Vad som varierar}: att klassen får en metod som \emph{ändrar}
+  ett attribut, och att den metoden bär ett villkor.  Inkapslingen går
+  därmed från att skydda mot läsning till att bära en regel.
 
-  \textbf{Vad som hålls invariant}: klassen och dess fyra attribut från
-  \cref{sec:boken}, och datan.
+  \textbf{Vad som hålls invariant}: att attributet bara går att komma åt
+  inifrån klassen --- det är föreläsningens resultat och tas för givet
+  här --- och klassens fyra attribut från \cref{sec:boken}.
+
+  Övningen kör alltså inte om kontrasten mellan publikt och privat.
+  Det betyder att inkapslingen är urskild i föreläsningen och
+  generaliserad här; \cref{sec:granskning} smälter den sedan samman med
+  de övriga aspekterna, vilket förutsätter just den ordningen.
 
   Uppgiften är ny.  Den riktar sig mot en belagd missuppfattning: att
   ett objekt i grunden är en post i en databas, en behållare för
@@ -275,7 +266,7 @@ skapar --- följer med.
   val som föreläsningen gör med sitt privata attribut.
 }
 
-Klassen kan hittills bara berätta hur långt du har läst, inte flytta
+Klassen kan hittills bara skriva ut hur långt du har läst, inte flytta
 bokmärket.  Det behöver en metod --- och en metod som får ändra datan är
 också den enda som kan vägra.
 
@@ -294,16 +285,21 @@ också den enda som kan vägra.
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Metoden räknar först ut var bokmärket skulle hamna och jämför det med
-antalet sidor.  Går det inte låter den attributet vara och kastar ett
-särfall, så att den som anropade får veta det --- på det sätt
-föreläsningen \emph{Inmatning och felhantering} beskriver.  Att
-kontrollen ligger \emph{inuti} metoden är hela poängen: attributet är
-privat, så det finns ingen väg runt den.
+Filen \texttt{book.py} får en del till.  Metoden räknar först ut var
+bokmärket skulle hamna och jämför det med antalet sidor.  Går det inte
+låter den attributet vara och kastar ett särfall, så att den som
+anropade får veta det --- på det sätt föreläsningen \emph{Inmatning och
+felhantering} beskriver.  Att kontrollen ligger \emph{inuti} metoden är
+hela poängen: attributet är privat, så det finns ingen väg runt den.
 
 \begin{frame}[fragile]
   \begin{example}[Metoden som flyttar bokmärket]
     \label{ex:book-read}
+    En del till i klassen:
+<<[[book.py]]>>=
+
+    <<metoden som flyttar bokmärket>>
+@
     Kontrollen först, tilldelningen sist:
 <<metoden som flyttar bokmärket>>=
 def read(self, pages):
@@ -341,6 +337,9 @@ print(ronja)
   \end{example}
 \end{frame}
 
+% The traceback is eleven lines and the ValueError line at its foot is
+% the whole point; without this the page break lands just above it.
+\mode<article>{\needspace{16\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[\texttt{read500.py}]
     \label{ex:read500-run}
@@ -350,14 +349,15 @@ print(ronja)
   \end{example}
 \end{frame}
 
+Den sista \mintinline{python}{print} kördes aldrig: särfallet avbröt
+programmet.
 % TODO(claim-audit): att det är bättre att ett programfel märks direkt
-% än att det passerar tyst (meningen nedan).  Rådet har namn i
+% än att det passerar tyst (meningen som följer).  Rådet har namn i
 % litteraturen --- fail fast, defensiv programmering --- men ingen
 % sökning är gjord i den här rundan; se bilaga A, Fortsatt arbete.
-Den sista \mintinline{python}{print} kördes aldrig: särfallet avbröt
-programmet.  Det är avsiktligt --- ett program som försöker läsa 500
-sidor i en bok på 240 har ett fel i sig, och då är det bättre att det
-märks än att bokmärket tyst hamnar på sidan 550.
+Det är avsiktligt --- ett program som försöker läsa 500 sidor i en bok
+på 240 har ett fel i sig, och då är det bättre att det märks än att
+bokmärket tyst hamnar på sidan 550.
 
 Ett annat val hade varit lika rimligt: att låta metoden läsa så långt
 det går och stanna på sista sidan.  Det passar när anroparen inte har
@@ -367,11 +367,7 @@ glömma bort: ett returvärde som säger \enquote{det gick inte} kan
 anroparen strunta i, ett särfall måste den ta om hand.
 
 \mode<article>{\clearpage}
-% The Berlin theme lists every section in the slides' headline, and nine
-% full titles run off its right edge (cutcheck.py reported a clipped word
-% on every slide).  The sections from here on therefore carry a short
-% form; the long title still heads the section in the notes.
-\section[Två böcker]{Två böcker, ett anrop}
+\section{Två böcker}
 \label{sec:tva-bocker}
 
 \ltnote{%
@@ -471,9 +467,16 @@ Det är parametern \mintinline{python}{self} som gör skillnaden.  Inuti
 \mintinline{python}{read} är \mintinline{python}{self} det objekt som
 står \emph{före punkten} i anropet, och
 \mintinline{python}{self.__read_pages} är alltså det objektets eget
-attribut.  Anropet \mintinline{python}{ronja.read(30)} är detsamma som
-\mintinline{python}{Book.read(ronja, 30)}: metoden finns en gång,
-objekten har sina egna attribut.
+attribut.
+
+\begin{frame}[fragile]
+  \begin{remark}[Vad \texttt{self} är]
+    Metoden står skriven en gång, och objektet före punkten skickas med
+    som första argument: anropet \mintinline{python}{ronja.read(30)} är
+    detsamma som \mintinline{python}{Book.read(ronja, 30)}.  Varje
+    objekt har sina egna attribut, och anropet rör bara det objektets.
+  \end{remark}
+\end{frame}
 
 \mode<article>{\clearpage}
 \section[Kortast]{Kortast först}
@@ -499,6 +502,10 @@ objekten har sina egna attribut.
   \parencite{MartonPang2006}.  Uppgiften ber om ett resultat
   (\enquote{kortast först}) och nämner ingen metod; att sorteringen bara
   behöver \mintinline{python}{<} är det studenten ska komma på.
+
+  Läsmetoderna införs här och inte i \cref{sec:boken}, eftersom det är
+  här de första gången behövs: \mintinline{python}{__lt__} läser en
+  annan boks sidantal, och summeringen läser varje boks bokmärke.
 }
 
 Hittills har vi låtit \mintinline{python}{print} fungera på våra böcker.
@@ -508,21 +515,71 @@ sortering är en av dem.
 \begin{frame}
   \begin{exercise}[Sortera hyllan]
     \label{ovn:kortast}
-    Skriv ett program som lägger tre böcker i en lista och skriver ut
-    dem med den kortaste boken först.  Du får inte skriva någon egen
-    sorteringsalgoritm, och du får inte tala om för sorteringen vad den
-    ska jämföra --- ändra i stället i klassen \mintinline{python}{Book}
-    så att det räcker med att sortera listan.
+    Skriv ett program som lägger tre böcker i en lista, läser 60 sidor i
+    den första, och sedan skriver ut alla tre med den kortaste boken
+    först och sist hur många sidor du har läst sammanlagt.
+
+    Du får inte skriva någon egen sorteringsalgoritm, och du får inte
+    tala om för sorteringen vad den ska jämföra --- ändra i stället i
+    klassen \mintinline{python}{Book} så att det räcker med att sortera
+    listan.
   \end{exercise}
 \end{frame}
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Sorteringen behöver kunna avgöra vilken av två böcker som kommer först,
-och den frågan ställer den med \mintinline{python}{<}.  Dundermetoden
-bakom \mintinline{python}{<} heter \mintinline{python}{__lt__}, och när
-klassen har den kan en lista med böcker sorteras precis som en lista med
-tal.
+Programmet behöver två saker av klassen som den inte har.  Det ena är
+att kunna jämföra böcker: sorteringen avgör vilken av två böcker som
+kommer först genom att fråga med \mintinline{python}{<}, och
+dundermetoden bakom \mintinline{python}{<} heter
+\mintinline{python}{__lt__}.  Det andra är att kunna läsa ut ett
+attribut, för summan av lästa sidor räknas utanför klassen.  Båda
+delarna läggs till i \texttt{book.py}.
+
+\begin{frame}[fragile]
+  \begin{example}[Två delar till i klassen]
+    \label{ex:book-grows}
+    Läsmetoderna först, jämförelsen sedan:
+<<[[book.py]]>>=
+
+    <<läsmetoder för [[Book]]>>
+
+    <<jämförelse på sidantal>>
+@
+  \end{example}
+\end{frame}
+
+Läsmetoderna är alla lika enkla: de returnerar attributets värde.  De
+finns för att koden utanför klassen ska kunna fråga objektet om en
+uppgift utan att komma åt attributet, och de dyker upp nu därför att
+det är nu någon frågar.
+
+\begin{frame}[fragile]
+  \begin{example}[Läsmetoderna]
+    \label{ex:book-getters}
+    En läsmetod per attribut:
+<<läsmetoder för [[Book]]>>=
+def get_title(self):
+    """Returns the title"""
+    return self.__title
+
+def get_author(self):
+    """Returns the name of the author"""
+    return self.__author
+
+def get_pages(self):
+    """Returns the number of pages in the book"""
+    return self.__pages
+
+def get_read_pages(self):
+    """Returns the number of pages read so far"""
+    return self.__read_pages
+@
+  \end{example}
+\end{frame}
+
+Jämförelsen blir tre rader, och när klassen har den kan en lista med
+böcker sorteras precis som en lista med tal.
 
 \begin{frame}[fragile]
   \begin{example}[Jämförelse på sidantal]
@@ -542,7 +599,7 @@ listans egen \mintinline{python}{sort}.
 \begin{frame}[fragile]
   \begin{example}[Ett program som sorterar hyllan]
     \label{ex:shelf}
-    Tre böcker, en sortering, en upprepning:
+    Tre böcker, en sortering, en upprepning som också summerar:
 <<[[shelf.py]]>>=
 from book import Book
 
@@ -551,9 +608,13 @@ shelf = [
     Book("Madicken", "Astrid Lindgren", 180),
     Book("Mio min Mio", "Astrid Lindgren", 200),
 ]
+shelf[0].read(60)
 shelf.sort()
+read_pages = 0
 for book in shelf:
     print(book)
+    read_pages = read_pages + book.get_read_pages()
+print(f"Sammanlagt {read_pages} lästa sidor.")
 @
   \end{example}
 \end{frame}
@@ -582,36 +643,50 @@ klass har bara en ordning.
   Relevanta lärandemål:
   \cref{OvningClassesLODunder,OvningClassesLOObject}.
 
-  \textbf{Variationsmönster}: Kontrast, inuti körningen.
+  \textbf{Variationsmönster}: Generalisering \emph{och} kontrast.
+  Generaliseringen är dundermönstrets tredje värde efter
+  \mintinline{python}{__str__} och \mintinline{python}{__lt__}, och
+  uppgiftens inledning ställer den relationen uttryckligen --- utan den
+  frågan blir sekvensen en uppräkning i stället för en variation.
+  Kontrasten ligger inuti körningen: \mintinline{python}{==} mot
+  \mintinline{python}{is}.
 
-  \textbf{Vad som varierar}: vad som jämförs ---
-  \mintinline{python}{==} med en egen \mintinline{python}{__eq__}
-  (innehåll, och bara det innehåll vi pekat ut) mot
-  \mintinline{python}{is} (identitet).
+  \textbf{Vad som varierar}: vilken inbyggd operation som kopplas in
+  (\mintinline{python}{==}) och, i körningen, vad som jämförs ---
+  innehåll som vi själva har pekat ut, mot identitet.
 
-  \textbf{Vad som hålls invariant}: de två objekten och deras
-  attributvärden.
+  \textbf{Vad som hålls invariant}: dundermönstret, klassen och de två
+  objektens attributvärden.
 
-  Uppgiften är ny och täcker \mintinline{python}{__eq__}, som veckans
-  lärandemål räknar upp men som föreläsningens
-  \mintinline{python}{Person} inte implementerar --- föreläsningen
-  beskriver den bara i text.  Den riktar sig mot en belagd
-  missuppfattning: att ett objekts attribut \emph{är} dess identitet, så
-  att två objekt med samma värden måste vara samma objekt
+  Uppgiften är ny och täcker \mintinline{python}{__eq__}, som
+  föreläsningens egna lärandemål nämner i texten men som dess
+  \mintinline{python}{Person} inte implementerar.  Den riktar sig mot en
+  belagd missuppfattning: att ett objekts attribut \emph{är} dess
+  identitet, så att två objekt med samma värden måste vara samma objekt
   \parencite{Holland1997}.  Uppgiften vänder den rätt: likhet är något
   vi definierar och kan välja innehållet i, identitet är det inte.
   Därför står \mintinline{python}{is} kvar i körningen --- utan den
   raden vore kontrasten borta.  Underlaget finns i föreläsningen
   \emph{Klasser och objekt}, bilaga~B.
 
+  Att \mintinline{python}{==} utan \mintinline{python}{__eq__} är
+  identitet visar föreläsningen redan med en körning (dess
+  \texttt{compare.py}); här körs samma sak en gång till, på boken, för
+  att förutsägelsen ska få sitt svar av maskinen och inte av en mening
+  i brödtexten.
+
   Att en klass som definierar \mintinline{python}{__eq__} förlorar sin
   inbyggda \mintinline{python}{__hash__} och därmed inte längre kan
-  läggas i en mängd är sant, men utanför veckans material; det är
+  läggas i en mängd är sant, men utanför materialets område; det är
   medvetet utelämnat och inte ett förbiseende.
 }
 
-Du och en kamrat läser samma bok, var och en i sitt exemplar.  Du har
-kommit till sidan 50, kamraten har inte börjat.
+Samma mönster en gång till: en dundermetod, och en till av Pythons
+inbyggda operationer som börjar fungera på våra egna böcker.  Efter
+\mintinline{python}{print} och \mintinline{python}{sort} är det den här
+gången \mintinline{python}{==}.  Du och en kamrat läser samma bok, var
+och en i sitt exemplar; du har kommit till sidan 50, kamraten har inte
+börjat.
 
 \begin{frame}[fragile]
   \begin{exercise}[Är det samma bok?]
@@ -632,10 +707,54 @@ kommit till sidan 50, kamraten har inte börjat.
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Som klassen ser ut nu ger \mintinline{python}{==} falskt.  En klass utan
+Kör det, så svarar maskinen.  Filen \texttt{copies.py} är samma klass
+som \texttt{book.py} har så här långt, med de två exemplaren och en
+jämförelse till: den frågar också om det är \emph{ett och samma} objekt.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Två exemplar, två jämförelser]
+    \label{ex:copies}
+    Klassen som den ser ut nu, och de två frågorna:
+<<[[copies.py]]>>=
+"""Two copies of one book, compared as the class stands"""
+
+
+class Book:
+    """A book with a title, an author and a bookmark"""
+
+    <<konstruktorn för [[Book]]>>
+
+    <<utskrift av [[Book]]>>
+
+    <<metoden som flyttar bokmärket>>
+
+    <<läsmetoder för [[Book]]>>
+
+    <<jämförelse på sidantal>>
+
+
+my_copy = Book("Madicken", "Astrid Lindgren", 180)
+your_copy = Book("Madicken", "Astrid Lindgren", 180)
+my_copy.read(50)
+print(my_copy == your_copy)
+print(my_copy is your_copy)
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{copies.py}]
+    \label{ex:copies-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/copies.py}
+  \end{example}
+\end{frame}
+
+Båda raderna är falska, och de är falska av samma skäl.  En klass utan
 \mintinline{python}{__eq__} jämför \emph{identitet}: två objekt är lika
-bara om de är samma objekt.  Det gäller oavsett vad attributen
-innehåller --- precis som föreläsningen \emph{Klasser och objekt} visade
+bara om de är samma objekt, precis som
+\mintinline{python}{is} frågar.  Det gäller oavsett vad attributen
+innehåller --- föreläsningen \emph{Klasser och objekt} visade samma sak
 med två personer med identiska uppgifter.
 
 Vill vi något annat får vi säga det, och vi får säga det \emph{exakt}:
@@ -645,7 +764,10 @@ författare, så bokmärket får inte vara med.
 \begin{frame}[fragile]
   \begin{example}[Likhet på titel och författare]
     \label{ex:book-eq}
-    Två villkor, båda måste stämma:
+    Sista delen i klassen, och två villkor som båda måste stämma:
+<<[[book.py]]>>=
+
+    <<jämförelse av titel och författare>>
 <<jämförelse av titel och författare>>=
 def __eq__(self, other):
     """Returns True if the books have the same title and author"""
@@ -657,7 +779,7 @@ def __eq__(self, other):
   \end{example}
 \end{frame}
 
-Programmet nedan jämför på tre sätt: de två exemplaren med
+\Cref{ex:same} jämför på tre sätt: de två exemplaren med
 \mintinline{python}{==}, samma två med \mintinline{python}{is}, och till
 sist ett exemplar mot en annan bok.
 
@@ -687,13 +809,21 @@ print(my_copy == Book("Mio min Mio", "Astrid Lindgren", 200))
   \end{example}
 \end{frame}
 
-Den första raden är sann: titel och författare stämmer, och bokmärket
-räknas inte.  Den andra är falsk, och den är den intressanta ---
-\mintinline{python}{is} frågar om det är \emph{ett och samma} objekt,
-och det är det inte.  Vi har två exemplar, inte ett.  Att \enquote{samma
-bok} och \enquote{samma objekt} är olika saker är just det
-\mintinline{python}{__eq__} låter oss uttrycka.  Den tredje raden visar
-att metoden också säger nej när den ska.
+Den första raden är nu sann: titel och författare stämmer, och bokmärket
+räknas inte.  Den andra är fortfarande falsk, och den är den intressanta
+--- \mintinline{python}{is} frågar om det är \emph{ett och samma}
+objekt, och det är det inte.  Den tredje raden visar att metoden också
+säger nej när den ska.
+
+\begin{frame}[fragile]
+  \begin{remark}[Samma bok, inte samma objekt]
+    \mintinline{python}{==} betyder det vi säger att det betyder, och
+    vi valde titel och författare.  \mintinline{python}{is} betyder
+    alltid \enquote{ett och samma objekt} och går inte att ändra.  Vi
+    har två exemplar av samma bok: lika enligt
+    \mintinline{python}{==}, skilda enligt \mintinline{python}{is}.
+  \end{remark}
+\end{frame}
 
 Hade uppgiften varit en annan hade valet blivit ett annat.  Ska
 \mintinline{python}{==} svara på frågan \enquote{är det här samma
@@ -717,7 +847,8 @@ frågar om.
   respektive ett program där flera delar ändrar samma data.
 
   \textbf{Vad som hålls invariant}: datan (titel, författare, sidor,
-  bokmärke) och de två representationerna.
+  bokmärke) och de två representationerna, som båda står i
+  uppgiftstexten så att kontrasten går att se och inte bara läsa om.
 
   Uppgiften är ny.  Föreläsningen ställer frågan \enquote{vilka fördelar
   ser du?}; den här uppgiften ställer den som ett val i ett givet fall,
@@ -735,13 +866,21 @@ författare, sidor och bokmärke --- går utmärkt att lägga i en
 uppslagslista, och föreläsningen \emph{Klasser och objekt} började just
 där.  Frågan är när vilket passar.
 
-\begin{frame}
+\begin{frame}[fragile]
   \begin{exercise}[Vilket skulle du välja?]
     \label{ovn:representation}
     Du ska lagra titel, författare, antal sidor och bokmärke för de
-    böcker du läser.  Det finns två förslag: en uppslagslista per bok,
-    eller klassen \mintinline{python}{Book}.  Välj ett av dem för
-    vardera fallet nedan, och skriv ner varför.
+    böcker du läser.  Det ena förslaget är en uppslagslista per bok:
+    \begin{minted}{python}
+      ronja = {
+          "title": "Ronja Rövardotter",
+          "author": "Astrid Lindgren",
+          "pages": 240,
+          "read_pages": 0,
+      }
+    \end{minted}
+    Det andra är klassen \mintinline{python}{Book}.  Välj ett av dem för
+    vardera fallet, och skriv ner varför.
     \begin{enumerate}
       \item Ett kort skript som du skriver en gång, matar in tre böcker
         i och skriver ut en lista av.
@@ -753,16 +892,18 @@ där.  Frågan är när vilket passar.
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-I det första fallet är uppslagslistan gott nog.  Den kostar tre rader,
-den behöver ingen klassdefinition, och det finns ingenting att vinna:
-ingen ska ändra datan efteråt, så det finns inget att skydda.  Att
-skriva en klass här är inte fel, men det är arbete utan motsvarande
-vinst.
+I det första fallet är uppslagslistan gott nog.  Den kostar de sex
+rader du redan har sett, den behöver ingen klassdefinition, och det
+finns ingenting att vinna: ingen ska ändra datan efteråt, så det finns
+inget att skydda.  Att skriva en klass här är inte fel, men det är
+arbete utan motsvarande vinst.
 
-\begin{frame}{När uppslagslistan räcker}
-  Ett engångsskript har ingen kod som ska ändra datan senare.  Då finns
-  det inget beteende att lägga i en klass --- bara värden --- och en
-  uppslagslista är värden.
+\begin{frame}
+  \begin{remark}[När uppslagslistan räcker]
+    Ett engångsskript har ingen kod som ska ändra datan senare.  Då
+    finns det inget beteende att lägga i en klass --- bara värden ---
+    och en uppslagslista är värden.
+  \end{remark}
 \end{frame}
 
 I det andra fallet är klassen svaret, och skälet är
@@ -770,19 +911,22 @@ I det andra fallet är klassen svaret, och skälet är
 gälla överallt, och i klassen finns exakt ett ställe där bokmärket kan
 ändras, nämligen metoden \mintinline{python}{read}.  Med en
 uppslagslista finns inget sådant ställe: varje del av programmet som
-skriver \mintinline{python}{book["read_pages"] = ...} måste själv komma
+skriver \mintinline{python}{ronja["read_pages"] = ...} måste själv komma
 ihåg kontrollen, och den som glömmer får inget felmeddelande.  Dessutom
 finns det ingen att fråga vilka nycklar en bok har --- en felstavad
 nyckel ger en ny nyckel, inte ett fel.
 
-\begin{frame}{När klassen betalar sig}
-  Så snart en regel måste gälla för all data av ett slag behöver regeln
-  ett ställe att bo på.  Klassen ger den ett: metoden som ändrar
-  attributet är den enda vägen in, eftersom attributet är privat.
+\begin{frame}
+  \begin{remark}[När klassen betalar sig]
+    Så snart en regel måste gälla för all data av ett slag behöver
+    regeln ett ställe att bo på.  Klassen ger den ett: metoden som
+    ändrar attributet är den enda vägen in, eftersom attributet är
+    privat.
+  \end{remark}
 \end{frame}
 
 \mode<article>{\clearpage}
-\section[Fem fel]{Finn fem fel}
+\section[Granskning]{Någon annans klass}
 \label{sec:granskning}
 
 \ltnote{%
@@ -802,32 +946,39 @@ nyckel ger en ny nyckel, inte ett fel.
   Uppgiften är den gamla övningens \enquote{Finn fem fel}, behållen som
   form men med nytt program: de gamla pekade på program i en annan
   modul (\texttt{multtable.py} och \texttt{guess.py} i behållarmodulens
-  övning) och handlade inte om klasser.  Den ligger sist bland
-  huvuduppgifterna eftersom den kräver att alla veckans aspekter hålls i
-  huvudet samtidigt --- fusion förutsätter att aspekterna först har
-  urskilts var för sig.
+  övning) och handlade inte om klasser.  Rubriken är bytt därför att
+  svarsbilden räknar sju fel medan uppgiften ber om minst fem.
 
-  Påståendet om namn är belagt: beskrivande namn gör att en läsare
-  hittar ett fel snabbare, och ett namn som ljuger är sämre än inget
-  namn alls.  Underlaget finns i föreläsningen \emph{Variabler och
-  utskrifter}, bilaga~B, som också säger vilka andra PEP~8-regler som
-  \emph{inte} har stöd.
+  Uppgiften ligger sist bland huvuduppgifterna eftersom fusion
+  förutsätter att aspekterna först har urskilts var för sig.  Det är de:
+  inkapslingen i föreläsningens \texttt{public.py} mot
+  \texttt{private.py} och generaliserad i \cref{sec:sista-sidan},
+  dundermetoderna över tre värden i
+  \cref{sec:boken,sec:kortast,sec:tva-exemplar}, objektens åtskillnad i
+  \cref{sec:tva-bocker}.  Ingen av dem urskiljs här för första gången.
+
+  Omskrivningen är flyttad till hemarbete och uppgiftstexten säger det,
+  så att huvudsekvensen ryms i ett pass.  Kvar i uppgiften är
+  granskningen och namngivningen av principerna, vilket är det
+  lärandemålet gäller.
 }
 % TODO(claim-audit): att det utvecklar den egna designförmågan att
 % granska kod som andra har skrivit (uppgiftens form).  Ingen sökning
 % gjord; texten påstår därför ingenting om nyttan, utan ber bara om
 % granskningen.
 
-Programmet nedan gör i stort sett det klassen \mintinline{python}{Book}
-gör, och det fungerar --- det går att köra och det skriver ut något
-rimligt.  Det är ändå illa skrivet.
+Här är ett program som i stort sett gör det klassen
+\mintinline{python}{Book} gör, och det fungerar --- det går att köra och
+det skriver ut något rimligt.  Det är ändå illa skrivet.
 
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Vad är fel här, och varför?]
     \label{ovn:granskning}
-    Läs programmet, kör det, och hitta minst fem saker som är fel eller
-    kan bli bättre.  Skriv om det sedan, och svara på om det blev
-    lättare att läsa, använda och lita på --- och varför.
+    Läs programmet och kör det.  Hitta minst fem saker som är fel eller
+    kan bli bättre, och säg för varje vilken princip den bryter mot.
+
+    Att skriva om programmet tar du med hem: gör det, och svara sedan på
+    om det blev lättare att läsa, att använda och att lita på.
 <<[[review.py]]>>=
 class Book:
     def __init__(self, t, a, p):
@@ -863,41 +1014,48 @@ Kör man programmet först syns det allvarligaste felet av sig själv.
 \end{frame}
 
 \emph{Madicken} har 180 sidor, och programmet påstår att 300 av dem är
-lästa.  Ingen klagade.  Det är det första av felen; här är sju.
+lästa.  Ingen klagade.  Det är det första av felen; här är sju, med
+principen de bryter mot.
 
 \begin{frame}[shrink]{Sju saker att hitta}
-  \begin{enumerate}
-    \item Metoden \mintinline{python}{read} kontrollerar ingenting, så
-      bokmärket kan hamna var som helst.
-    \item Attributen är publika, så vilken kod som helst kan sätta
-      \mintinline{python}{b1.r} till vad som helst --- även bakåt.
-    \item Namnen \mintinline{python}{t}, \mintinline{python}{a},
-      \mintinline{python}{p} och \mintinline{python}{r} säger
-      ingenting; ingen läsare kan veta vad \mintinline{python}{r} är.
-    \item Utskriftens utseende står skrivet två gånger, tecken för
-      tecken.
-    \item Klassen saknar \mintinline{python}{__str__}, vilket är
+  \begin{description}
+    \item[Ingen kontroll] Metoden \mintinline{python}{read}
+      kontrollerar ingenting, så bokmärket kan hamna var som helst ---
+      klassen bär ingen regel om sin egen data.
+    \item[Ingen inkapsling] Attributen är publika, så vilken kod som
+      helst kan sätta \mintinline{python}{b1.r} till vad som helst,
+      även bakåt.
+    \item[Namn som inte säger något] \mintinline{python}{t},
+      \mintinline{python}{a}, \mintinline{python}{p} och
+      \mintinline{python}{r}: ingen läsare kan veta vad
+      \mintinline{python}{r} är.
+    \item[Upprepning] Utskriftens utseende står skrivet två gånger,
+      tecken för tecken --- principen \emph{DRY}.
+    \item[Ingen \texttt{\_\_str\_\_}] Klassen saknar den, vilket är
       \emph{varför} utskriften står skriven två gånger.
-    \item Utskriften plockar värdena ur objektet i stället för att fråga
-      det, så den vet mer om klassens inre än den behöver.
-    \item Varken klassen eller metoderna har någon docstring, så
-      \mintinline{python}{help(Book)} har ingenting att berätta.
-  \end{enumerate}
+    \item[Utifrån i stället för inifrån] Utskriften plockar värdena ur
+      objektet i stället för att fråga det, så den vet mer om klassens
+      inre än den behöver.
+    \item[Ingen docstring] Varken klassen eller metoderna har någon, så
+      \mintinline{python}{help} har ingenting att berätta om
+      \mintinline{python}{Book}.
+  \end{description}
 \end{frame}
 
-Punkt 3 är den som kostar mest i det tysta.  Beskrivande namn gör att en
-läsare hittar ett fel snabbare, och ett namn som ljuger är sämre än
-inget namn alls; det vetenskapliga underlaget --- både vad som har stöd
-och vilka stilregler som inte har det --- finns i föreläsningen
+Namnen är den punkt som kostar mest i det tysta.  Beskrivande namn gör
+att en läsare hittar ett fel snabbare, och ett namn som ljuger är sämre
+än inget namn alls; det vetenskapliga underlaget --- både vad som har
+stöd och vilka stilregler som inte har det --- finns i föreläsningen
 \emph{Variabler och utskrifter}, bilaga~B.
 
-Punkt 4 och 5 hör ihop.  Att samma utskriftsformat står på två ställen
-är precis vad principen \emph{DRY}, \foreignlanguage{english}{don't
-repeat yourself}\autocite{HuntThomas1999}, varnar för: ändrar du det ena
-och glömmer det andra motsäger programmet sig självt.  Det
-vetenskapliga underlaget för DRY --- både var principen kommer ifrån och
-om den håller, med sina förbehåll --- finns i föreläsningen
-\emph{Algoritmiskt tänkande}, bilaga~E.
+Upprepningen och den saknade \mintinline{python}{__str__} hör ihop.  Att
+samma utskriftsformat står på två ställen är precis vad principen
+\emph{DRY}, \foreignlanguage{english}{don't repeat
+yourself}\autocite{HuntThomas1999}, varnar för: ändrar du det ena och
+glömmer det andra motsäger programmet sig självt.  Det vetenskapliga
+underlaget för DRY --- både var principen kommer ifrån och om den
+håller, med sina förbehåll --- finns i föreläsningen \emph{Algoritmiskt
+tänkande}, bilaga~E.
 
 Den omskrivna versionen behöver ingen ny klass: klassen
 \mintinline{python}{Book} från den här övningen är redan svaret på alla
@@ -932,10 +1090,19 @@ print(madicken)
   \end{example}
 \end{frame}
 
-Det som ändrades är inte utskriftens utseende utan var kunskapen bor.
-Det felaktiga anropet om 300 sidor stoppas nu av boken själv, och
-programmet som använder klassen får välja vad det vill göra åt saken ---
-här skriver det ett meddelande och går vidare.
+Det som ändrades är inte utskriftens utseende utan var kunskapen bor,
+och det ger svaret på uppgiftens tre sista frågor.
+\begin{description}
+  \item[Lättare att läsa] Varje namn säger vad värdet är, och
+    utskriftsraden står en gång i stället för två.
+  \item[Lättare att använda] Den som använder klassen behöver inte veta
+    vilka attribut den har, bara vad den kan: skriva ut sig, flytta
+    bokmärket, jämföra sig med en annan bok.
+  \item[Lättare att lita på] Det felaktiga anropet om 300 sidor stoppas
+    av boken själv, så ingen del av programmet kan lämna ett bokmärke
+    förbi sista sidan --- och programmet som använder klassen får
+    välja vad det vill göra åt saken.
+\end{description}
 
 \mode<article>{\clearpage}
 \section[Lånad bok]{Den lånade boken}
@@ -945,7 +1112,7 @@ här skriver det ett meddelande och går vidare.
   Relevanta lärandemål:
   \cref{OvningClassesLOInheritance,OvningClassesLOOverride}.
 
-  Fördjupning.  Arv är veckans valfria material --- \enquote{utöver
+  Fördjupning.  Arv är materialets valfria del --- \enquote{utöver
   detta har studenten möjlighet att lära sig} --- så uppgiften ligger
   efter huvuduppgifterna och ingen senare uppgift bygger på den.  De
   fördjupningsuppgifter som stod i det gamla materialet är utgångna
@@ -974,11 +1141,11 @@ tillbaka den till.
     \label{ovn:arv}
     Skriv en klass för en lånad bok.  Den ska kunna allt en
     \mintinline{python}{Book} kan, och dessutom hålla reda på vem du har
-    lånat den av.  Utskriften ska säga det:
-    \begin{center}\footnotesize
+    lånat den av.  Utskriften ska säga det, på en rad:
+    \begin{center}\scriptsize
       \begin{tabular}{@{}l@{}}
-        \texttt{Mio min Mio av Astrid Lindgren (60/200 sidor lästa),} \\
-        \texttt{lånad av Birk}
+        \texttt{Mio min Mio av Astrid Lindgren (60/200 sidor lästa),
+          lånad av Birk}
       \end{tabular}
     \end{center}
     Du får inte upprepa någon av \mintinline{python}{Book}s rader.
@@ -1036,7 +1203,7 @@ def __init__(self, title, author, pages, lender):
 Utlånaren får en läsmetod, som alla andra attribut.  Utskriften skriver
 vi däremot inte om från början: föräldern kan redan sätta samman titel,
 författare och bokmärke, så vi ber om den raden och lägger till vår egen
-ände på den.
+ände på den --- genom läsmetoden, som resten av klassen.
 
 \begin{frame}[fragile]
   \begin{example}[Läsmetoden och den överlagrade utskriften]
@@ -1049,7 +1216,7 @@ def get_lender(self):
 
 def __str__(self):
     """Returns a string representation suitable for printing"""
-    return f"{super().__str__()}, lånad av {self.__lender}"
+    return f"{super().__str__()}, lånad av {self.get_lender()}"
 @
   \end{example}
 \end{frame}
@@ -1064,7 +1231,7 @@ def main():
     mio = BorrowedBook("Mio min Mio", "Astrid Lindgren", 200, "Birk")
     mio.read(60)
     print(mio)
-    print(mio.get_author())
+    print(f"{mio.get_author()} skrev den, {mio.get_lender()} äger den.")
 
 
 if __name__ == "__main__":
@@ -1133,37 +1300,48 @@ ihop.
     \mintinline{python}{Author}, så att varje bok får författarens
     uppgifter direkt.  Det andra är att ge \mintinline{python}{Book} ett
     attribut som är ett \mintinline{python}{Author}-objekt.  Vilket
-    väljer du, och varför?  Vad skulle gå snett med det andra?
+    väljer du, och varför?  Vad skulle gå snett med det du inte valde?
   \end{exercise}
 \end{frame}
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Attributet.  Arv passar när den nya klassen verkligen \enquote{är en}
-variant av den gamla --- en lånad bok \emph{är} en bok
-(\cref{sec:arv}) --- och en bok är inte en författare.  Relationen är
-den andra: en bok \enquote{har en} författare.  Tumregeln är alltså att
-föredra komposition och använda arv när relationen verkligen är
+Frågan avgörs av vilken sorts relation det är mellan de två klasserna.
+Arv passar när den nya klassen verkligen \enquote{är en} variant av den
+gamla --- en lånad bok \emph{är} en bok (\cref{sec:arv}).  En bok är
+inte en författare; en bok \enquote{har en} författare.
+
+\begin{frame}[fragile]
+  \begin{remark}[Vad som går snett med arv]
+    Ärvde \mintinline{python}{Book} från \mintinline{python}{Author}
+    skulle varje bok få författarens metoder som sina egna, och
+    \mintinline{python}{book.get_birth_year()} skulle läsa som om boken
+    vore född.  Två böcker av samma författare skulle dessutom få var
+    sin uppsättning författaruppgifter, vilket var precis det vi ville
+    slippa.
+  \end{remark}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{remark}[Valet, och varför]
+    En bok \enquote{har en} författare, så författaren blir ett
+    attribut: \mintinline{python}{Book} får ett
+    \mintinline{python}{Author}-objekt som attribut och en läsmetod som
+    lämnar ut det.  Arv hade krävt att en bok \enquote{är en}
+    författare, och det är den inte.
+  \end{remark}
+\end{frame}
+
+Med ett attribut i stället pekar båda böckerna på samma
+\mintinline{python}{Author}-objekt.  Att bygga en klass av andra klasser
+på det sättet heter \emph{komposition}.  Tumregeln är att föredra
+komposition och använda arv när relationen verkligen är
 \foreignlanguage{english}{is-a}; det vetenskapliga underlaget för den
 --- både att rådet är etablerat och de förbehåll som hör till, bland
 annat att experimenten om arv och underhållbarhet pekar i båda
 riktningarna --- finns i föreläsningen \emph{Praktiska tillämpningar av
-klasser}, bilaga~B.
-
-\begin{frame}{Vad som går snett med arv}
-  Ärvde \mintinline{python}{Book} från \mintinline{python}{Author} skulle
-  varje bok få författarens metoder som sina egna, och
-  \mintinline{python}{book.get_birth_year()} skulle läsa som om boken
-  vore född.  Två böcker av samma författare skulle dessutom få var sin
-  uppsättning författaruppgifter, vilket var precis det vi ville slippa.
-\end{frame}
-
-Med ett attribut i stället pekar båda böckerna på samma
-\mintinline{python}{Author}-objekt, och \mintinline{python}{Book}s
-läsmetod för författaren kan lämna ut det objektet.  Att bygga en klass
-av andra klasser på det sättet heter \emph{komposition}, och
-föreläsningen \emph{Praktiska tillämpningar av klasser} går igenom den
-med kod och flera klasser som samverkar.
+klasser}, bilaga~B, som också går igenom komposition med kod och flera
+klasser som samverkar.
 
 % The assembled class belongs to the notes only.  A frame wrapped in
 % onlyenv<article> is still typeset by the slides job, so this section
@@ -1174,11 +1352,12 @@ med kod och flera klasser som samverkar.
 \label{sec:all-kod}
 
 Klassen \mintinline{python}{Book} byggdes upp en del i taget genom
-övningen.  Här är filen som den tanglas ur källan --- det är den som
-körs i alla lösningsförslagen ovan.
+\cref{sec:boken,sec:sista-sidan,sec:kortast,sec:tva-exemplar}.  Här är
+filen som den tanglas ur källan --- det är den som körs i alla
+lösningsförslagen.
 
 \begin{example}[\texttt{book.py}]
-  Hela klassen med testprogram:
+  Hela klassen:
   \inputminted{python}{examples/book.py}
 \end{example}
 
