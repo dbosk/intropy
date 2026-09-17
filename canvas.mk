@@ -46,6 +46,7 @@ PAGES+=		modules/variables/tutorial.md
 PAGES+=		modules/conditionals/lecture.md
 PAGES+=		modules/conditionals/tutorial.md
 PAGES+=		modules/iterations/lecture.md
+PAGES+=		modules/iterations/tutorial.md
 PAGES+=		modules/classes/lecture.md
 PAGES+=		modules/containers/lecture.md
 PAGES+=		modules/files/lecture.md
