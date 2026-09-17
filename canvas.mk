@@ -54,6 +54,7 @@ PAGES+=		modules/containers/tutorial.md
 PAGES+=		modules/files/lecture.md
 PAGES+=		modules/files/tutorial.md
 PAGES+=		modules/graphics/lecture.md
+PAGES+=		modules/graphics/tutorial.md
 PAGES+=		${WEEK_PAGES}
 
 ${ICS}:
