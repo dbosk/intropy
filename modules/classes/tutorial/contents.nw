@@ -1,17 +1,19 @@
 \mode*
 
-Den här övningen övar klasser och objekt på en och samma uppgift hela
-vägen: en klass som håller uppgifterna om en bok och hur långt du har
-läst i den.  Uppgifterna bygger på det föreläsningen \emph{Klasser och
+Den här övningen övar klasser och objekt på en och samma uppgift nästan
+hela vägen: en klass som håller uppgifterna om en bok och hur långt du
+har läst i den.  Uppgifterna bygger på det föreläsningen \emph{Klasser och
 objekt} gick igenom --- klass, objekt, attribut, metod, parametern
 \mintinline{python}{self}, privata attribut och dundermetoder --- och de
 kommer i en ordning där varje uppgift lägger till en sak.
 
 Först låter vi Pythons inbyggda operationer fungera på våra egna objekt,
 en dundermetod i taget: utskrift, ordning, likhet och sist de fyra
-räknesätten på en klass för bråk.  Därefter visar sig arvet: de metoder
-du har skrivit \emph{ersatte} metoder som klassen redan hade, och att
-skriva en underklass är samma drag mot en klass du själv har skrivit.
+räknesätten på en klass för bråk.  Därefter tar vi reda på varifrån
+\mintinline{python}{print} och \mintinline{python}{==} fick sina svar
+innan du skrev dina egna metoder, och skriver en underklass som bygger
+vidare på den klass du redan har.  Till sist väger vi en klass mot en
+uppslagslista och granskar ett program som fungerar men är illa skrivet.
 Den sista uppgiften är fördjupning och handlar om komposition.
 
 Övningen är byggd för att du ska försöka först.  Varje uppgift står för
@@ -61,9 +63,11 @@ rimligt säger texten vilket och varför vi valde som vi gjorde.
   tvåtimmarspass; sex gör det, och urvalet står på övningens sida i
   lärplattformen: \cref{sec:boken,sec:sista-sidan}, sedan
   \cref{sec:kortast,sec:tva-exemplar}, sedan \cref{sec:brak} och
-  \cref{sec:arv}.  \Cref{sec:tva-bocker,sec:representation} och
-  granskningens omskrivning i \cref{sec:granskning} lämnas som
-  hemarbete, vilket uppgiftstexten där säger.
+  \cref{sec:arv}.  \Cref{sec:tva-bocker,sec:representation} och hela
+  \cref{sec:granskning} görs på egen hand.  Det står på övningens sida
+  och ingen annanstans: av de tre uppgiftstexterna är det bara
+  \cref{sec:granskning} som själv säger något om saken, och den säger
+  bara att omskrivningen tas med hem.
   \Cref{sec:komposition} är fördjupning och ingenting senare bygger på
   den.
 
@@ -450,8 +454,8 @@ anroparen strunta i, ett särfall måste den ta om hand.
 }
 
 Metoden \mintinline{python}{read} står skriven en gång, i klassen, men
-den kan anropas på vilken bok som helst.  Här är två program som skiljer
-sig på en enda rad.
+den kan anropas på vilken bok som helst.  Här är två program som
+använder den.
 
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Vad skriver vart och ett av dem ut?]
@@ -778,6 +782,10 @@ börjat.
 Kör det, så svarar maskinen.  Filen \texttt{copies.py} är samma klass
 som \texttt{book.py} har så här långt, med de två exemplaren och en
 jämförelse till: den frågar också om det är \emph{ett och samma} objekt.
+Klassen står skriven en gång till i stället för importerad, därför att
+\texttt{book.py} får sin \mintinline{python}{__eq__} på nästa sida ---
+ett program som importerade den skulle inte längre kunna visa vad som
+händer utan den.
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Två exemplar, två jämförelser]
@@ -979,7 +987,8 @@ något.
 
 Metodernas namn står i Pythons språkreferens: jämförelserna i avsnittet
 \emph{Basic customization}\footnote{\label{fn:richcmp}%
-  \url{https://docs.python.org/3/reference/datamodel.html\#object.__lt__}
+  \url{https://docs.python.org/3/reference/datamodel.html%
+\#basic-customization}
   (hämtad 2026-09-18).}
 och räknesätten i avsnittet \emph{Emulating numeric
 types}.\footnote{\label{fn:numtypes}%
@@ -1012,7 +1021,8 @@ Där är de uppräknade med namn; vilka av dem den här uppgiften behöver
 \mode<article>{\subsection{Lösningsförslag}}
 
 Klassen bor i en egen fil, \texttt{frac.py}, precis som boken.  Delarna
-är namngivna i den ordning uppgiften räknar upp dem, och sist ligger
+är namngivna i den ordning uppgiften räknar upp dem, med läsmetoderna
+först eftersom jämförelserna behöver dem, och sist ligger
 testprogrammet.
 
 \begin{frame}[fragile,shrink]
@@ -1032,9 +1042,9 @@ class Fraction:
 
     <<läsmetoder för [[Fraction]]>>
 
-    <<utskrift av [[Fraction]]>>
-
     <<jämförelser av bråk>>
+
+    <<utskrift av [[Fraction]]>>
 
     <<addition och subtraktion>>
 
@@ -1079,8 +1089,9 @@ def __init__(self, numerator, denominator=1):
 
 Att nämnaren har ett förvalt värde gör att \mintinline{python}{Fraction(3)}
 är talet tre: ett heltal är ett bråk med nämnaren ett.  Läsmetoderna är
-som bokens --- de finns för att de andra bråken ska kunna fråga om
-täljare och nämnare utan att komma åt attributen.
+som bokens --- de finns för att ett bråk ska kunna fråga ett annat om
+täljare och nämnare utan att komma åt attributen, och det är
+jämförelserna som först behöver det.
 
 \begin{frame}[fragile]
   \begin{example}[Läsmetoderna]
@@ -1094,21 +1105,6 @@ def get_numerator(self):
 def get_denominator(self):
     """Returns the denominator"""
     return self.__denominator
-@
-  \end{example}
-\end{frame}
-
-Utskriften är en rad, precis som bokens, och den skriver bråket som det
-är --- oförkortat.
-
-\begin{frame}[fragile]
-  \begin{example}[Utskriften]
-    \label{ex:frac-str}
-    Täljare, snedstreck, nämnare:
-<<utskrift av [[Fraction]]>>=
-def __str__(self):
-    """Returns a string representation suitable for printing"""
-    return f"{self.__numerator}/{self.__denominator}"
 @
   \end{example}
 \end{frame}
@@ -1139,6 +1135,21 @@ def __lt__(self, other):
         self.__numerator * other.get_denominator()
         < other.get_numerator() * self.__denominator
     )
+@
+  \end{example}
+\end{frame}
+
+Utskriften är en rad, precis som bokens, och den skriver bråket som det
+är --- oförkortat.
+
+\begin{frame}[fragile]
+  \begin{example}[Utskriften]
+    \label{ex:frac-str}
+    Täljare, snedstreck, nämnare:
+<<utskrift av [[Fraction]]>>=
+def __str__(self):
+    """Returns a string representation suitable for printing"""
+    return f"{self.__numerator}/{self.__denominator}"
 @
   \end{example}
 \end{frame}
@@ -1251,13 +1262,14 @@ lämnar tillbaka ett nytt, som räknesätten.
 \begin{frame}[fragile,shrink]
   \begin{example}[Testprogrammet]
     \label{ex:frac-main}
-    En rad per punkt i uppgiften:
+    En rad per punkt i uppgiften, och en för heltalet:
 <<testprogram för [[Fraction]]>>=
 def main():
     """Test program"""
     one_third = Fraction(1, 3)
     two_sixths = Fraction(2, 6)
     print(f"{one_third} och {two_sixths}")
+    print(f"heltalet tre: {Fraction(3)}")
     print(f"lika: {one_third == two_sixths}")
     print(f"mindre: {one_third < Fraction(1, 2)}")
     print(f"summa: {one_third + two_sixths}")
@@ -1297,7 +1309,7 @@ sant fastän attributen är olika.  Klassen avgör själv vad
 räknestycke och inte en jämförelse av attribut.
 
 \mode<article>{\clearpage}
-\section[Arv]{Metoderna som redan fanns}
+\section[Redan fanns]{Metoderna som redan fanns}
 \label{sec:arv}
 
 \ltnote{%
@@ -1315,60 +1327,66 @@ räknestycke och inte en jämförelse av attribut.
   gemensamt lösningsförslag.
 
   \textbf{Kontrast} (\cref{ovn:arv-tom}): samma klass med och utan
-  metoderna.  Utan \mintinline{python}{__eq__} svarar
-  \mintinline{python}{==} falskt på två lika böcker
-  (\cref{ex:plain-run}); med den blev svaret
-  \mintinline{python}{True} i \cref{ex:same-run}.  Och raden
-  \mintinline{python}{PlainBook.__str__ is object.__str__} svarar ja,
-  medan samma fråga om \mintinline{python}{Book} svarar nej.  Att det
-  \emph{fanns} ett svar innan är hela saken: en metod som ersätter
-  ingenting är inte överlagrad.
+  dundermetoderna, i \emph{en} körning.  \Cref{ex:plain-run} ställer
+  samma fråga två gånger --- två exemplar av \emph{Madicken} jämförda
+  med \mintinline{python}{==} --- först till klassen utan metoderna och
+  sedan till \mintinline{python}{Book}, och svaren står på varandra
+  följande rader.  Att det \emph{fanns} ett svar innan är hela saken:
+  en metod som ersätter ingenting är inte överlagrad.
 
-  Utskriften utan \mintinline{python}{__str__} står som en inline-rad i
+  \textbf{Vad som varierar}: om klassen har dundermetoderna eller inte.
+  Ingenting annat: \mintinline{python}{PlainBook} är byggd av samma
+  namngivna delar som \mintinline{python}{Book} --- konstruktorn,
+  metoden som flyttar bokmärket och läsmetoderna --- så de raderna står
+  ordagrant en gång i källan och används på båda ställena.
+
+  \textbf{Vad som hålls invariant}: de delarna, de två exemplaren av
+  \emph{Madicken} med samma \mintinline{python}{read(50)} som i
+  \cref{sec:tva-exemplar}, och frågan programmet ställer dem.
+
+  Utskriften utan \mintinline{python}{__str__} står som en egen rad i
   brödtexten och inte som en körning: den innehåller objektets adress,
   som är olika varje gång.  En inbäddad körning hade gjort bygget
   instabilt, eftersom didactics \texttt{\textbackslash runpython} namnger
   sina utdatafiler efter innehållet --- varje bygge hade gett en ny fil
   och en ny omkörning.  Texten säger därför rakt ut att adressen skiljer
   sig, vilket också är poängen med den.
-
-  \textbf{Vad som varierar}: om klassen har de två dundermetoderna
-  eller inte.
-
-  \textbf{Vad som hålls invariant}: attributen, de två exemplaren av
-  \emph{Madicken} från \cref{sec:tva-exemplar} och de två frågor
-  programmet ställer.
 }
 
 Två saker i övningen har hänt utan att vi har sagt varför.  Innan du
 skrev \mintinline{python}{__str__} kunde \mintinline{python}{print}
 ändå skriva ut något, och innan du skrev \mintinline{python}{__eq__}
 svarade \mintinline{python}{==} ändå någonting på två lika böcker
-\only<article>{(\cref{ex:copies-run})}.  Det fanns alltså ett svar
-redan, och det är det svaret dina metoder ersatte.
+\only<article>{(\cref{ex:copies-run})}.
 
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Varifrån kom det första svaret?]
     \label{ovn:arv-tom}
-    Här är boken utan en enda dundermetod, bara konstruktorn:
+    Här är boken utan sina dundermetoder: samma konstruktor, samma
+    metod som flyttar bokmärket och samma läsmetoder som förut, men
+    varken \mintinline{python}{__str__}, \mintinline{python}{__lt__}
+    eller \mintinline{python}{__eq__}.
 <<[[plain.py]]>>=
-"""A book with nothing but a constructor"""
+"""The book without its dunder methods, beside the one with them"""
+
+from book import Book
 
 
 class PlainBook:
-    """A book that has been given no dunder methods at all"""
+    """A book that has been given no dunder method but the constructor"""
 
-    def __init__(self, title, author, pages):
-        """title, author: strings.  pages: integer"""
-        self.__title = title
-        self.__author = author
-        self.__pages = pages
-        self.__read_pages = 0
+    <<konstruktorn för [[Book]]>>
+
+    <<metoden som flyttar bokmärket>>
+
+    <<läsmetoder för [[Book]]>>
 @
     Vad skriver \mintinline{python}{print} på ett sådant objekt ut, och
     vad svarar \mintinline{python}{==} på två av dem med samma
-    uppgifter?  Förutsäg först och kör sedan --- och ta reda på var
-    svaret kommer ifrån.  Klassen kan svara på det själv.
+    uppgifter?  Ställ sedan samma två frågor till en riktig
+    \mintinline{python}{Book} med samma uppgifter.  Förutsäg först och
+    kör sedan --- och ta reda på var svaren kommer ifrån.  Klassen kan
+    svara på det själv.
   \end{exercise}
 \end{frame}
 
@@ -1390,20 +1408,25 @@ class PlainBook:
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Börja med \mintinline{python}{print}.  Kör den, och du får en rad i
-stil med \mintinline{text}|<__main__.PlainBook object at 0x7f3c1a2b4d60>|:
-klassens namn och objektets adress i minnet.  Adressen är olika varje
-gång programmet körs, och därför står den inte i något program i den
-här texten --- din rad har en annan adress än den vi såg.
+Börja med \mintinline{python}{print}.  Kör den, och du får en rad i stil
+med
+\begin{center}
+  \mintinline{text}|<__main__.PlainBook object at 0x7f3c1a2b4d60>|
+\end{center}
+alltså klassens namn och objektets adress i minnet.  Adressen är olika
+varje gång programmet körs, och därför står den inte i något program i
+den här texten --- din rad har en annan adress än den vi såg.
 
-Resten svarar samma sak varje gång, och det är den delen
-testprogrammet gör.  Det jämför två böcker med samma uppgifter och
-frågar sedan klassen själv varifrån den har sina metoder.
+Resten svarar samma sak varje gång, och det är den delen testprogrammet
+gör.  Det ställer samma fråga två gånger --- två exemplar av samma bok,
+jämförda med \mintinline{python}{==} --- först till klassen utan
+dundermetoder och sedan till \mintinline{python}{Book}, och frågar
+därefter klasserna själva varifrån de har sina metoder.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Testprogrammet till klassen utan dundermetoder]
     \label{ex:plain-main}
-    En fråga till objekten, fem till klasserna:
+    Samma fråga till två objektpar, sex frågor till klasserna:
 <<[[plain.py]]>>=
 
 
@@ -1414,11 +1437,17 @@ def main():
     """Test program"""
     my_copy = PlainBook("Madicken", "Astrid Lindgren", 180)
     your_copy = PlainBook("Madicken", "Astrid Lindgren", 180)
+    my_copy.read(50)
     print(my_copy == your_copy)
+    my_book = Book("Madicken", "Astrid Lindgren", 180)
+    your_book = Book("Madicken", "Astrid Lindgren", 180)
+    my_book.read(50)
+    print(my_book == your_book)
     print(PlainBook.__bases__)
     print(object.__str__)
     print(object.__eq__)
     print(PlainBook.__str__ is object.__str__)
+    print(Book.__str__ is object.__str__)
     print(hasattr(object, "__add__"))
 
 
@@ -1432,26 +1461,31 @@ if __name__ == "__main__":
   \begin{example}[\texttt{plain.py}]
     \label{ex:plain-run}
     Programmet skriver ut
-    \runpython[showcommand, chdir, breaklines]{examples/plain.py}
+    \runpython[showcommand, chdir, breaklines, deps={examples/book.py}]%
+      {examples/plain.py}
   \end{example}
 \end{frame}
 
-\mintinline{python}{==} fick alltså också ett svar,
-\mintinline{python}{False}, precis som i \cref{ex:copies-run}.  Den
-andra raden säger varifrån svaren kom.  Klassen
-\mintinline{python}{PlainBook} har en förälder,
-\mintinline{python}{object}, utan att vi har skrivit ett ord om det ---
-varje klass i Python har den --- och de två raderna efter den visar
-metoderna själva: \mintinline{python}{object.__str__}, den som gav
-utskriften, och \mintinline{python}{object.__eq__}, den som gav
-jämförelsen.
+De två första raderna är kontrasten.  Samma fråga, samma uppgifter,
+samma \mintinline{python}{read(50)} --- och två olika svar: klassen utan
+dundermetoder säger att de två exemplaren är olika, klassen med dem
+säger att det är samma bok.  Allt annat i de två klasserna är samma
+rader, så skillnaden är den \mintinline{python}{__eq__} du skrev i
+\cref{sec:tva-exemplar} och ingenting mer.
 
-Den femte raden är den som avgör saken.  Den frågar om den
-\mintinline{python}{__str__} klassen använder \emph{är} den
-\mintinline{python}{object} har, med samma \mintinline{python}{is} som
-\cref{sec:tva-exemplar} använde på två böcker, och svaret är ja.  Ställ
-samma fråga om \mintinline{python}{Book} och svaret blir nej: där står
-en egen.
+Resten av körningen säger varifrån det första svaret kom.  Den tredje
+raden: klassen \mintinline{python}{PlainBook} har en förälder,
+\mintinline{python}{object}, utan att vi har skrivit ett ord om det ---
+varje klass i Python har den.  De två raderna efter den visar metoderna
+själva: \mintinline{python}{object.__str__}, den som gav utskriften, och
+\mintinline{python}{object.__eq__}, den som gav jämförelsen.
+
+De två sista jämförelserna avgör saken.  Den sjätte raden frågar om den
+\mintinline{python}{__str__} som \mintinline{python}{PlainBook} använder
+\emph{är} den \mintinline{python}{object} har --- med samma
+\mintinline{python}{is} som \cref{sec:tva-exemplar} använde på två
+böcker --- och svaret är ja.  Den sjunde ställer samma fråga om
+\mintinline{python}{Book}, och svaret är nej: där står en egen.
 
 När du skrev \mintinline{python}{__str__} i \mintinline{python}{Book}
 ersatte du alltså inte ingenting: du \emph{överlagrade} en ärvd metod.
@@ -1465,9 +1499,10 @@ närmare objektet än den ärvda och används i stället för den.
     Den sista raden i körningen svarar \mintinline{python}{False}:
     \mintinline{python}{object} har ingen \mintinline{python}{__add__}.
     Räknesätten i bråkklassen överlagrade därför ingenting --- de lade
-    till något som inte fanns.  Det en operator gör är att leta
-    upp en metod med ett bestämt namn i klassen till den vänstra
-    operanden; hittar den ingen sådan metod blir det ett
+    till något som inte fanns.  Det en operator gör är att leta upp en
+    metod med ett bestämt namn i klassen till den vänstra operanden, och
+    därefter i den högra operandens klass efter en spegelvänd metod;
+    hittar den ingen av dem blir det ett
     \mintinline{python}{TypeError}.  Arvet svarar på var metoden kommer
     ifrån när den finns, inte på var namnet kommer ifrån.
   \end{remark}
@@ -1739,10 +1774,11 @@ nyckel ger en ny nyckel, inte ett fel.
   åtskillnad i \cref{sec:tva-bocker} och överlagringen i
   \cref{sec:arv}.  Ingen av dem urskiljs här för första gången.
 
-  Omskrivningen är flyttad till hemarbete och uppgiftstexten säger det,
-  så att huvudsekvensen ryms i ett pass.  Kvar i uppgiften är
-  granskningen och namngivningen av principerna, vilket är det
-  lärandemålet gäller.
+  Hela uppgiften görs på egen hand: passet hinner sex avsnitt och det
+  här är inte ett av dem.  Uppgiftstexten säger dessutom uttryckligen
+  att omskrivningen tas med hem, så att den som ändå tar upp avsnittet
+  tillsammans kan stanna vid granskningen och namngivningen av
+  principerna, vilket är det lärandemålet gäller.
 }
 % TODO(claim-audit): att det utvecklar den egna designförmågan att
 % granska kod som andra har skrivit (uppgiftens form).  Ingen sökning
