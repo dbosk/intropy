@@ -33,8 +33,10 @@ EXAMPLES+=	examples/trace2.py
 EXAMPLES+=	examples/shelf.py
 EXAMPLES+=	examples/copies.py
 EXAMPLES+=	examples/same.py
+EXAMPLES+=	examples/frac.py
 EXAMPLES+=	examples/review.py
 EXAMPLES+=	examples/review_better.py
+EXAMPLES+=	examples/plain.py
 EXAMPLES+=	examples/borrowed.py
 
 contents.tex: contents.nw

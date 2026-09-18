@@ -25,27 +25,29 @@ vi tillsammans, i den här ordningen:
    en dundermetod som ger en läsbar utskrift.
 2. **Uppgift 2: Sista sidan.** Lägga till en metod som flyttar ett
    bokmärke och skyddar det mot att gå längre än bokens sista sida.
-3. **Uppgift 3: Två böcker.** Förutsäga utskriften från två nästan
-   identiska program, för att se att metodanrop gäller ett bestämt
-   objekt.
-4. **Uppgift 4: Kortast först.** Implementera `__lt__` så att en lista av
-   böcker går att sortera med `sort`.
-5. **Uppgift 6: Klass eller uppslagslista.** Välja mellan att representera
-   samma data som en klass eller som en uppslagslista, beroende på vad
-   programmet behöver.
+3. **Uppgift 4: Kortast först.** Sortera en hylla böcker så att den
+   kortaste kommer först.
+4. **Uppgift 5: Två exemplar.** Avgöra när två exemplar ska räknas som
+   samma bok.
+5. **Uppgift 6: En bråkig klass.** Skriva en klass för bråk som går att
+   jämföra, skriva ut, räkna med, omvandla till flyttal och förkorta.
+6. **Uppgifterna 7 och 8: Metoderna som redan fanns.** Ta reda på
+   varifrån `print` och `==` fick sina svar innan klassen hade
+   dundermetoder, och skriva en underklass för en lånad bok som
+   överlagrar en metod med hjälp av `super()`.
 
 ## På egen hand
 
 Resten av uppgifterna finns kvar att göra på egen tid; lösningsförslagen
 i dokumentet låter dig kontrollera dina egna svar.
 
-1. **Uppgift 5: Två exemplar.** Implementera `__eq__` så att `==`
-   jämför böckernas innehåll i stället för deras identitet.
-2. **Uppgift 7: Någon annans klass.** Granska och skriva om en illa
-   skriven klass: inkapsling, namn och dundermetoder.
-3. **Fördjupning: Uppgift 8: Den lånade boken.** Skriva en underklass som
-   anropar `super()` och överlagrar en dundermetod.
-4. **Fördjupning: Uppgift 9: Författaren.** Välja mellan arv och
+1. **Uppgift 3: Två böcker.** Förutsäga vad två program skriver ut.
+2. **Uppgift 9: Klass eller uppslagslista.** Välja mellan att
+   representera samma data som en klass eller som en uppslagslista,
+   beroende på vad programmet behöver.
+3. **Uppgift 10: Någon annans klass.** Granska och skriva om en illa
+   skriven klass: inkapsling, namn, kodupprepning och dundermetoder.
+4. **Fördjupning: Uppgift 11: Författaren.** Välja mellan arv och
    komposition (is-a mot has-a) för en ny klass `Author`.
 
 ## Förberedelser
