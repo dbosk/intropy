@@ -126,6 +126,23 @@ if __name__ == "__main__":
 @
 \end{frame}
 
+\ltnote{%
+  Varje program i övningen har samma form: filens högsta nivå bär bara
+  import, konstanter, definitioner och det anrop som startar programmet,
+  och allt arbete --- inmatning, beräkning, utskrift --- ligger i
+  funktioner.  Formen är den föreläsningen \emph{Funktioner} lär ut, och
+  den följs här därför att ett material som frångår en genomgången
+  praktik lär ut att praktiken var frivillig.
+  % TODO(claim-audit): att ett material som frångår en genomgången
+  % praktik lär ut att praktiken var frivillig är ett påstående om
+  % materialets verkan utan källa här.
+  Att anropet står bakom
+  \mintinline{python}|if __name__ == "__main__":| är formen från
+  föreläsningen \emph{Moduler och paket}, och den behövs: flera av
+  filerna importeras av andra program i övningen, och ett huvudprogram
+  på högsta nivån skulle då köras vid importen.
+}
+
 Vad har då alla e-postadresser gemensamt?  De har ett
 \mintinline{python}|"@"| --- exakt ett --- med något före och något
 efter, och den del som står efter innehåller minst en punkt som varken
@@ -440,26 +457,48 @@ bad dig slå upp \mintinline{python}{Counter} i dokumentationen för
 modulen \mintinline{python}{collections}.  Det är den som gör samma
 räkning åt oss.
 
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   \frametitle{Samma räkning med \texttt{Counter}}
-  Samma inmatning, samma utskrift, och två frågor till på slutet:
+  Räkningen blir ett anrop i stället för en slinga:
 <<[[counter.py]]>>=
 """Samma räkning, med collections.Counter"""
 
 import collections
 
-text = input("Ange en text: ")
-letters = [c for c in text.casefold() if c.isalpha()]
-counts = collections.Counter(letters)
 
-for letter, count in sorted(counts.items()):
-    print(f"{letter}: {count}")
+def count_letters(text):
+    """Returnerar en uppslagslista från bokstav till antal."""
+    letters = [c for c in text.casefold() if c.isalpha()]
+    return collections.Counter(letters)
+@
+\end{frame}
 
-top_letter, top_count = counts.most_common(1)[0]
-print(f"Vanligast är {top_letter}, {top_count} gånger.")
+Funktionen behåller sitt namn och sitt löfte --- en text in, en
+uppslagslista från bokstav till antal ut --- så att det enda som skiljer
+den från förut är räkningen inuti den.
 
-print(f"Antal q: {counts['q']}")
-print(f"De två vanligaste: {counts.most_common(2)}")
+\begin{frame}[fragile,shrink]
+  \frametitle{Utskriften, och två frågor till}
+  Samma inmatning och samma utskrift, med två rader tillagda:
+<<[[counter.py]]>>=
+
+
+def main():
+    """Huvudprogrammet"""
+    counts = count_letters(input("Ange en text: "))
+
+    for letter, count in sorted(counts.items()):
+        print(f"{letter}: {count}")
+
+    top_letter, top_count = counts.most_common(1)[0]
+    print(f"Vanligast är {top_letter}, {top_count} gånger.")
+
+    print(f"Antal q: {counts['q']}")
+    print(f"De två vanligaste: {counts.most_common(2)}")
+
+
+if __name__ == "__main__":
+    main()
 @
 \end{frame}
 
@@ -821,14 +860,20 @@ class Second:
         return isinstance(other, Second)
 
 
-first = {First(): "ett"}
-print(f"First: {len(first)} post")
+def main():
+    """Huvudprogrammet"""
+    first = {First(): "ett"}
+    print(f"First: {len(first)} post")
 
-try:
-    second = {Second(): "två"}
-    print(f"Second: {len(second)} post")
-except Exception as error:
-    print(f"Second: {error}")
+    try:
+        second = {Second(): "två"}
+        print(f"Second: {len(second)} post")
+    except Exception as error:
+        print(f"Second: {error}")
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{question}
 \end{frame}
@@ -1043,9 +1088,10 @@ annorlunda ut än vad hen skrev.
   ändrar det man skrev --- hindrar att den kanoniska formen framstår
   som gratis.
 
-  Klassen är en \emph{kopia} av föreläsningens, inte en import: noweb
-  kan inte tangla över deckgränser, och ett program i det här decket kan
-  inte importera ett program i ett annat.  Kopian är beskuren till det
+  Klassen är en \emph{kopia} av föreläsningens, inte en import.  Att
+  importera vore fullt möjligt --- ett annat decks tanglade fil kan
+  byggas där och kopieras hit --- men det skulle ta bort uppgiften: det
+  är klassen studenten ska skriva.  Kopian är beskuren till det
   jämförelsen och divisionen behöver.  Det betyder att den kan glida
   isär från föreläsningens klass om den ändras; ändras
   \emph{Operatoröverlagring}, läs om konstruktorn och
@@ -1337,7 +1383,7 @@ nycklarna i ordning, och listbyggaren gör en rad per konto.  Utan
 sorteringen hade ordningen varit den kontona öppnades i, vilket inte är
 den ordning någon vill läsa en kontolista i.
 
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   \frametitle{Ett program som använder modulen}
   Tre konton, en överföring, och två fel:
 <<[[banken.py]]>>=
@@ -1345,6 +1391,26 @@ den ordning någon vill läsa en kontolista i.
 
 from bank import Bank, Person
 
+
+def main():
+    """Huvudprogrammet"""
+    <<tre konton och en överföring>>
+
+    <<de två felen>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Banken skrivs ut både före och efter överföringen, eftersom en
+överföring inte syns i något annat än skillnaden mellan två utskrifter.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Kontona och överföringen}
+  Två hundra kronor byter konto:
+<<tre konton och en överföring>>=
 bank = Bank()
 bank.open_account("1001", Person("Ronja"), 500)
 bank.open_account("1002", Person("Pippi"), 100)
@@ -1357,7 +1423,17 @@ bank.transfer("1001", "1003", 200)
 print()
 print("Efter överföringen:")
 print(bank)
+@
+\end{frame}
 
+De två felen fångas i stället för att få avsluta programmet, så att båda
+hinner visas i samma körning --- och så att utskriften visar vad banken
+svarade och inte en spårutskrift.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{De två felen}
+  Ett uttag som saldot inte täcker, och ett konto som inte finns:
+<<de två felen>>=
 try:
     bank.transfer("1002", "1001", 1000)
 except ValueError as error:
@@ -1515,7 +1591,7 @@ Uppackningen i tre namn är densamma som
 föreläsningen \emph{Behållare: Uppslagslistor}, och att metoden vägrar
 när stacken är tom är samma slags kontroll som kontots.
 
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   \frametitle{Ett program som ångrar}
   Två överföringar, två ångranden, och ett försök för många:
 <<[[angra.py]]>>=
@@ -1523,6 +1599,26 @@ när stacken är tom är samma slags kontroll som kontots.
 
 from bank import Bank, Person
 
+
+def main():
+    """Huvudprogrammet"""
+    <<två överföringar och två ångranden>>
+
+    <<ett försök för många>>
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+En utskrift står mellan varje steg, så att ordningen går att läsa ur
+körningen --- och det är ordningen som är uppgiftens svar.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Överföringarna och ångrandena}
+  Pengar åt två håll, och sedan tillbaka i omvänd ordning:
+<<två överföringar och två ångranden>>=
 bank = Bank()
 bank.open_account("1001", Person("Ronja"), 500)
 bank.open_account("1002", Person("Pippi"), 100)
@@ -1541,7 +1637,15 @@ bank.undo()
 print()
 print("Efter att även den första ångrats:")
 print(bank)
+@
+\end{frame}
 
+Och till sist ett ångrande när stacken är tom.
+
+\begin{frame}[fragile]
+  \frametitle{Ett försök för många}
+  Metoden vägrar, och programmet berättar varför:
+<<ett försök för många>>=
 try:
     bank.undo()
 except ValueError as error:
