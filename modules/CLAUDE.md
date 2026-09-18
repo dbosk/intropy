@@ -67,6 +67,21 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   bilagan i sin helhet.}`.
 - "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
   it keeps its spelling.
+- Practise what has been taught (author, 2026-09-18: "once we've said
+  it's better to use functions, we'd better be non-hypocritical and use
+  the function version everywhere"): from *Funktioner* (week 38) on,
+  every program in every deck and tutorial is the function version. From
+  *Moduler och paket* (week 40) on, a program that needs a function an
+  earlier deck already wrote imports that file instead of re-implementing
+  it; the wiring is in `didactic-decks/references/build-and-gotchas.md`
+  ("Reusing a program another deck tangles").
+- Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
+- *Övning: Klasser och objekt* covers both operator overloading and
+  inheritance, in that order: overloading first (comparison and
+  arithmetic dunder methods; the old exercise *En bråkig klass* is back),
+  then inheritance as the generalisation, since overloading `__eq__` or
+  `__str__` already overrides a method inherited from `object` (author,
+  2026-09-18: "probably the same phenomenon").
 
 ## Backed claims (the ledger)
 
