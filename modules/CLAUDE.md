@@ -111,6 +111,13 @@ Backed so far (question → answer):
   misconceptions → backed (Java, late-stage students); D: catch-all → a
   known bad habit, but the actual bugs are rarer than the habit, so the
   advice is "fånga det du vet hur du ska svara på", not "aldrig".
+  E: when pupils meet integer division and decimals → both Lgr11 (the
+  cohort's curriculum, `Skolverket2019Lgr11`) and Lgr22
+  (`Skolverket2022Lgr22`) place the four operations with natural numbers
+  in årskurs 1–3 and decimal form in 4–6; "rest" does not occur, the
+  curriculum names content not outcomes, schooling abroad is the caveat.
+  *Variabler och utskrifter* makes the same `/` vs `//` contrast and
+  should point here.
 - *Upprepningar* B: loop misconceptions → five of six backed in primary
   sources; C: productive failure → moderate effect, from comparing the
   attempt with the answer, not from delay itself.
