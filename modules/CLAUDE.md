@@ -74,7 +74,11 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   *Moduler och paket* (week 40) on, a program that needs a function an
   earlier deck already wrote imports that file instead of re-implementing
   it; the wiring is in `didactic-decks/references/build-and-gotchas.md`
-  ("Reusing a program another deck tangles").
+  ("Reusing a program another deck tangles"). The start call follows the
+  same rule: a bare `main()` until *Moduler och paket* introduces
+  `if __name__ == "__main__":`, the guard from then on (week 40's
+  *Upprepningar*, *Behållare: Listor* and *Behållare: Tupler* are
+  lectured before it and call `main()` bare).
 - Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
 - *Övning: Klasser och objekt* covers both operator overloading and
   inheritance, in that order: overloading first (comparison and
