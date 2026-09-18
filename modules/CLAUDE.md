@@ -150,7 +150,10 @@ on that lineage: after the campaign branch is merged to master, run
 `files/slides/examples/scb/*.py` are exempt from `black --check`, and so
 is `conditionals/slides-conditionals/examples/villkor.py`, a deliberately
 unparsable program (its tangle rule in that deck's Makefile skips black;
-build with `--exempt 'examples/villkor.py'`); the
+build with `--exempt 'examples/villkor.py'`), and so is
+`containers/slides-tuples/examples/fullname-alt.py`, whose optional
+parentheses black would strip (tangled raw; build with
+`--exempt 'examples/fullname-alt.py'`); the
 tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
 ## Where the general rules went (2026-09-07)
