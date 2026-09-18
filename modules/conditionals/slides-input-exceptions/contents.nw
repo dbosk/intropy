@@ -12,13 +12,14 @@
   % författarens (2026-09-18).
 
   Regeln: arbetet ligger i namngivna funktioner med docstringar, och
-  toppnivån innehåller aldrig en utskrift --- bara definitionerna, de
-  inläsningar som matar startanropet, och startanropet, som i
-  [[age1.py]].  Där en utskrift eller en styrstruktur annars hade
-  hamnat på toppnivån samlas flödet i en \mintinline{python}{main} och
-  toppnivån blir bara \mintinline{python}{main()}.  Att startanropet
-  är ett bart anrop och inte en \mintinline{python}{if}-sats om
-  \mintinline{python}{__name__} är avsiktligt: den konstruktionen
+  toppnivån innehåller bara definitionerna och \emph{ett} startanrop.
+  Läser programmet in något, skriver det ut något eller har flödet en
+  styrstruktur, så samlas flödet i en \mintinline{python}{main} och
+  startanropet är \mintinline{python}{main()}; gör programmet bara en
+  sak med givna värden heter startanropet det programmet gör
+  ([[plus1.py]], [[strangoperationer.py]], de tre felprogrammen).  Att
+  startanropet är ett bart anrop och inte en \mintinline{python}{if}-sats
+  om \mintinline{python}{__name__} är avsiktligt: den konstruktionen
   hör till föreläsningen \emph{Moduler och paket}.
 
   Priset är ett steg per anrop i spårutskriften.  Det är därför
@@ -47,9 +48,14 @@ tillbaka, och vad gör \mintinline{python}{int} där?
 <<årtalet och funktionerna>>
 
 
-name = input("Vad heter du? ")
-birthyear = int(input("Vilket år är du född? "))
-greet(name, birthyear)
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = int(input("Vilket år är du född? "))
+    greet(name, birthyear)
+
+
+main()
 @
   \end{example}
 \end{frame}
@@ -102,17 +108,17 @@ beror på svaren.
   inläsning är något nytt --- det gör de två raderna till objekt för
   lärande.  Ändras åldersprogrammet där, ska det här avsnittet ses över.
 
-  Programmet står i den form föreläsningen \emph{Funktioner} gav det:
-  samma uppdelning, samma funktionsnamn och samma docstringar, med
-  inläsningen och anropet sist.  Funktionerna ligger i en egen chunk som
-  alla åldersprogram i det här avsnittet delar, så att det som varierar
-  mellan [[age1.py]] och [[age2.py]] är en enda rad och ingenting annat.
+  Programmet står i den uppdelning föreläsningen \emph{Funktioner} gav
+  det: samma funktionsnamn och samma docstringar.  Inläsningen och
+  anropet ligger i \mintinline{python}{main} enligt regeln i kapitlets
+  inledande anteckning; funktionerna ligger i en egen chunk som alla
+  åldersprogram i det här avsnittet delar, så att det som varierar
+  mellan [[age1.py]] och [[age2.py]] är en enda rad inne i
+  \mintinline{python}{main} och ingenting annat.
 
-  Programmet är modellen för den form kapitlets inledande anteckning
-  beskriver: toppnivån är inläsningarna och anropet, inget annat.
   Priset är ett steg per anrop i spårutskriften --- felutskriften i
-  \cref{ex:age2-krasch} har tre, eftersom subtraktionen sker inne i
-  \mintinline{python}{age} --- och prosan där riktar därför
+  \cref{ex:age2-krasch} har fyra, eftersom subtraktionen sker tre anrop
+  ner i \mintinline{python}{age} --- och prosan där riktar därför
   uppmärksamheten mot sista raden och pekar fram mot
   \cref{sec:felmeddelande}.
 
@@ -142,9 +148,14 @@ först.
 <<årtalet och funktionerna>>
 
 
-name = input("Vad heter du? ")
-birthyear = input("Vilket år är du född? ")
-greet(name, birthyear)
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = input("Vilket år är du född? ")
+    greet(name, birthyear)
+
+
+main()
 @
   \end{exercise}
 \end{frame}
@@ -440,8 +451,8 @@ ställen att sätta in den på, och de ger olika program.
 % (exkurs) instead of a try-first exercise.
 % The two programs must be compared without recreating one from memory,
 % so they may not be split by a page break in the notes.
-\mode<article>{\needspace{22\baselineskip}}
-\begin{frame}[fragile]
+\mode<article>{\needspace{32\baselineskip}}
+\begin{frame}[fragile,shrink=20]
   \begin{exercise}[Vad skriver programmen ut?]
     \label{ovn:var-omvandling}
     Här är två program.  Vad skriver vart och ett av programmen ut, och
@@ -450,16 +461,26 @@ ställen att sätta in den på, och de ger olika program.
 <<årtalet och funktionerna>>
 
 
-name = input("Vad heter du? ")
-birthyear = input("Vilket år är du född? ")
-greet(name, int(birthyear))
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = input("Vilket år är du född? ")
+    greet(name, int(birthyear))
+
+
+main()
 <<[[age2b.py]]>>=
 <<årtalet och funktionerna>>
 
 
-name = input("Vad heter du? ")
-birthyear = int(input("Vilket år är du född? "))
-greet(name, birthyear)
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = int(input("Vilket år är du född? "))
+    greet(name, birthyear)
+
+
+main()
 @
   \end{exercise}
 \end{frame}
@@ -1186,7 +1207,7 @@ Kedjan av anrop är också förklaringen till namnet: utskriften
 \emph{spårar tillbaka} vägen till felet, från det som satte i gång
 körningen till det som inte gick att utföra.  Har programmet flera
 funktioner blir kedjan längre --- jämför \cref{ex:age2-krasch}, där
-subtraktionen sker två anrop längre ner --- men det är alltid det
+subtraktionen sker tre anrop längre ner --- men det är alltid det
 nedersta paret som pekar ut raden att titta på.
 
 Att det alltid ser ut så är lättare att se om vi tittar på flera fel i
