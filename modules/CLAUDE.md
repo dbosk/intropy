@@ -91,8 +91,11 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
 
 A claim already backed in another deck is not redone: cite the same
 source with the provenance block copied (plus `% FOUND-VIA (here): backed
-in <deck>, bilaga <X>`) and point to it in prose, saying what the appendix
-answers and stating the claim at the strength the appendix supports.
+in <deck>, bilaga <X>`) and point to it in a footnote anchored at the
+claim, saying what the appendix answers, with the claim stated in the
+prose at the strength the appendix supports (author, 2026-09-20: pointer
+sentences go in footnotes; the decks written before that date still
+carry them in the body and are converted when next revised).
 
 Backed so far (question → answer):
 - *Algoritmiskt tänkande* B: algorithm components → sequence, selection,
