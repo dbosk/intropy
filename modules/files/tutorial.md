@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Filhantering$'
-    position: 3
+    position: 4
 ---
 Övningen ges live i din grupp; tid och plats står i veckoöversikten
 överst i modulen. Vi löser uppgifter tillsammans i mindre grupper.

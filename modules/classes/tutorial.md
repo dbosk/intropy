@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Klasser och objekt$'
-    position: 4
+    position: 5
 ---
 Övningen ges live i din grupp; tid och plats står i veckoöversikten
 överst i modulen. Vi löser uppgifter tillsammans i mindre grupper.
