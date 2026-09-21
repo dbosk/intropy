@@ -1,7 +1,7 @@
 ---
 title: 'Föreläsning: Funktioner'
 regex: '^Föreläsning: Funktioner$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:

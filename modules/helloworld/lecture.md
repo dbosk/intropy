@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Terminalen, programmeringens grunder och "Hello World!"$'
-    position: 4
+    position: 6
 ---
 Föreläsningen ges live; tid och plats står i veckoöversikten överst i
 modulen. Den har två delar med var sin sida här i modulen: den här sidan
