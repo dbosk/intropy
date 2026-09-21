@@ -15,7 +15,7 @@ under föreläsningen. Anteckningarna finns som ett interaktivt dokument
 (föreläsningsanteckningar)*: läs dem efter föreläsningen, eller i
 stället för den om du inte kan komma, och svara på frågorna i
 dokumentet. Som komplement finns kursens videogenomgång *Grafiska
-gränssnitt*.
+användargränssnitt (videoföreläsning)*.
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 

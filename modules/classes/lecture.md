@@ -14,7 +14,8 @@ föreläsningen. Anteckningarna finns som ett interaktivt dokument
 (FeedbackFruits) här i modulen, *Klasser och objekt
 (föreläsningsanteckningar)*: läs dem efter föreläsningen, eller i
 stället för den om du inte kan komma, och svara på frågorna i
-dokumentet. Som komplement finns kursens videogenomgång *Klasser*.
+dokumentet. Som komplement finns kursens videogenomgång *Klasser och
+objekt (videoföreläsning)*.
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 

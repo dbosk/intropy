@@ -1,7 +1,7 @@
 ---
 title: 'Föreläsning: Inmatning, felhantering och styrstrukturer'
 regex: '^Föreläsning: Inmatning, felhantering och styrstrukturer$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:
@@ -16,7 +16,8 @@ modulen: *Inmatning och felhantering (föreläsningsanteckningar)* och
 *Villkor och styrstrukturer (föreläsningsanteckningar)*; läs dem efter
 föreläsningen, eller i stället för den om du inte kan komma, och svara på
 frågorna i dokumenten. Som komplement finns kursens videogenomgångar
-*Inmatning och felhantering* och *Villkor och styrstrukturer*.
+*Inmatning och felhantering (videoföreläsning)* och *Villkor och
+styrstrukturer (videoföreläsning)*.
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 

@@ -1,12 +1,12 @@
 ---
 title: 'Övning: Inmatning, felhantering och styrstrukturer'
 regex: '^Övning: Inmatning, felhantering och styrstrukturer$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:
   - module: '^Inmatning, felhantering och styrstrukturer$'
-    position: 3
+    position: 6
 ---
 Övningen ges live i din grupp; tid och plats står i veckoöversikten
 överst i modulen. Vi löser uppgifter tillsammans i mindre grupper.

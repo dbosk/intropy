@@ -18,9 +18,8 @@ dokument (FeedbackFruits) här i modulen: *Upprepningar
 (föreläsningsanteckningar)* och *Moduler och paket
 (föreläsningsanteckningar)*; läs dem efter föreläsningen, eller i stället
 för den om du inte kan komma, och svara på frågorna i dokumenten. Som
-komplement finns kursens videogenomgångar *Upprepningar*, *Behållare:
-Listor, del 1* och *Behållare: Listor, del 2: Sökning, sortering, mm*,
-*Behållare: Tupler* samt *Moduler och paket*.
+komplement finns kursens videogenomgångar här i modulen, märkta
+*(videoföreläsning)*: en till varje del, och två till *Behållare: Listor*.
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 

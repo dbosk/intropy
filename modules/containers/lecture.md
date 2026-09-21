@@ -20,9 +20,9 @@ och köer (föreläsningsanteckningar)*, *Behållare: Ett gissningsspel
 (föreläsningsanteckningar)* och *Praktiska tillämpningar av klasser
 (föreläsningsanteckningar)*; läs dem efter föreläsningen, eller i
 stället för den om du inte kan komma, och svara på frågorna i
-dokumenten. Som komplement finns kursens videogenomgångar *Behållare:
-Gissningsspel* till delen *Behållare: Ett gissningsspel*, och *Klasser:
-Operatoröverlagring* till delen *Operatoröverlagring*.
+dokumenten. Som komplement finns kursens videogenomgångar *Behållare: Ett
+gissningsspel (videoföreläsning)* och *Operatoröverlagring
+(videoföreläsning)*.
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 
