@@ -47,14 +47,15 @@ vidare till den som anropat dem.
 
 ### Villkor och styrstrukturer
 
-Programmen vi skrivit hittills går rakt igenom, rad för rad, och gör
-samma sak varje gång oavsett vad användaren svarar. Den här delen ger dem
-två nya förmågor: att *välja*, en sak om ett villkor är sant och en annan
-annars, med `if`, `elif` och `else`; och att *upprepa*, göra om något så
-länge ett villkor gäller, med `while`. Båda styrs av ett villkor, så vi
-börjar med villkoren själva: jämförelser, den booleska typen och
-operatorerna `and`, `or` och `not`, och de två misstag villkor oftast
-fälls på — att skriva `=` när man menar `==`, och att bara skriva ena
+De flesta program vi skrivit hittills går rakt igenom, rad för rad, och
+gör samma sak varje gång oavsett vad användaren svarar. Den här delen ger
+dem två förmågor: att *välja*, en sak om ett villkor är sant och en annan
+annars, med `if`, `elif` och `else` (en `if` skymtade redan i
+*Inmatning och felhantering*; här tittar vi ordentligt på den); och att
+*upprepa*, göra om något så länge ett villkor gäller, med `while`. Båda
+styrs av ett villkor, så vi börjar med villkoren själva: jämförelser, den
+booleska typen och operatorerna `and`, `or` och `not`, och två vanliga
+misstag — att skriva `=` när man menar `==`, och att bara skriva ena
 ledet i en jämförelse med två värden. Sedan bygger vi ett program som
 frågar efter längd och vikt och rekommenderar en säng, och till sist
 låter vi det fråga om igen när svaret inte går att använda, först med en
