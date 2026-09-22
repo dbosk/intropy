@@ -29,8 +29,7 @@ EXAMPLES+=	examples/prompt1.py
 EXAMPLES+=	examples/prompt2.py
 EXAMPLES+=	examples/prompt3.py
 EXAMPLES+=	examples/prompt4.py
-EXAMPLES+=	examples/plus1.py
-EXAMPLES+=	examples/plus2.py
+EXAMPLES+=	examples/plus.py
 EXAMPLES+=	examples/heltalsdivision.py
 EXAMPLES+=	examples/strangoperationer.py
 EXAMPLES+=	examples/strangmetoder.py
@@ -42,7 +41,8 @@ EXAMPLES+=	examples/age-try.py
 EXAMPLES+=	examples/age-isdigit.py
 EXAMPLES+=	examples/average.py
 EXAMPLES+=	examples/age-catchall.py
-EXAMPLES+=	examples/age-raise.py
+EXAMPLES+=	examples/age-raise1.py
+EXAMPLES+=	examples/age-raise2.py
 
 contents.tex: contents.nw
 
