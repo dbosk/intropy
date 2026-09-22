@@ -39,6 +39,21 @@ Upprepningar, listor och moduler*; *Övning: Klasser och objekt*; *Övning:
 Fler behållare och mer om klasser*; *Övning: Filhantering*; *Övning:
 Grafiskt gränssnitt*.
 
+**Reading order** (what "an earlier deck" means, e.g. for appendix
+pointers, which may only point to the current deck or an earlier one):
+week by week, and within a week the lectures in the order listed above,
+then the week's tutorial. Week 37: *Algoritmiskt tänkande*, *Hello,
+World!*. Week 38: *Variabler och utskrifter*, *Funktioner*, *Övning:
+Funktioner och variabler*. Week 39: *Inmatning och felhantering*, *Villkor
+och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
+Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
+*Klasser och objekt*, its Övning. Week 42: *Behållare: Uppslagslistor*,
+*Behållare: Mängder, stackar och köer*, *Behållare: Ett gissningsspel*,
+*Operatoröverlagring*, *Praktiska tillämpningar av klasser*, its Övning.
+Week 44: *Arbeta med filer*, its Övning. Week 46: *Grafiska
+användargränssnitt*, its Övning. A tutorial deck is named in a pointer by
+its title: "i \emph{Övning: Funktioner och variabler}, bilaga~B".
+
 The reMarkable review family of a deck is `<Titel> — notes (review) vN`
 (the Hello World family keeps its old spelling); a tutorial deck's family
 is `Övning: <Vecka> — notes (review) vN`. Learning objectives carry
@@ -127,9 +142,12 @@ Backed so far (question → answer):
   curriculum names content not outcomes, schooling abroad is the caveat.
   *Variabler och utskrifter* makes the same `/` vs `//` contrast and
   should point here.
+- *Övning: Funktioner och variabler* B: productive failure → moderate
+  effect, from comparing the attempt with the answer, not from delay
+  itself (moved here from *Upprepningar* C on 2026-09-22, the first deck
+  that makes the claim).
 - *Upprepningar* B: loop misconceptions → five of six backed in primary
-  sources; C: productive failure → moderate effect, from comparing the
-  attempt with the answer, not from delay itself.
+  sources.
 - *Hello, World!* B: origin → Kernighan (B tutorial), tradition
   questioned since 1996; C: interpreter reads statement by statement →
   yes, but bytecode first; D: error messages → a real obstacle, first
@@ -145,9 +163,10 @@ Backed so far (question → answer):
   backed (no direct study).
 - *Klasser och objekt* B: class/object misconceptions → three backed
   (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
-  defined and contested in its classic form. *Praktiska tillämpningar*
-  B: composition over inheritance → Design Patterns, established,
-  maintenance experiments on inheritance point both ways.
+  defined and contested in its classic form. D: composition over inheritance → Design Patterns, established,
+  maintenance experiments on inheritance point both ways (moved here from
+  *Praktiska tillämpningar av klasser* B on 2026-09-22; *Klasser och
+  objekt* is the first deck that recommends composition).
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
