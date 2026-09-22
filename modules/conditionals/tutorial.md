@@ -39,7 +39,7 @@ i dokumentet låter dig kontrollera dina egna svar.
    grunden, med villkor, slinga och robust inmatning.
 2. **Fördjupning: Uppgift 6: Vägvisaren.** Skriva ett program som talar
    om vägen, steg för steg, och som kastar egna särfall.
-3. **Fördjupning: Uppgift 7: Rummet.** Skriva ett program som minns
+3. **Fördjupning: Uppgift 7: Korridoren.** Skriva ett program som minns
    tillstånd mellan varven i en slinga.
 
 ## Förberedelser
