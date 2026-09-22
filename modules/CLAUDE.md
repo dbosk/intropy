@@ -80,6 +80,12 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   *Upprepningar*, *Behållare: Listor* and *Behållare: Tupler* are
   lectured before it and call `main()` bare).
 - Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
+- Commands follow *Hello, World!*, which has the student type `python3`:
+  the same holds for `pydoc3` (and `python3 -m pip`). A deck that shows
+  the unsuffixed form, or a run made with it, says once that the student
+  may have to type the suffixed name, just as with `python3` (author,
+  2026-09-22, beside `pydoc input`: "they might have to type pydoc3 just as
+  they have to write python3").
 - *Övning: Klasser och objekt* covers both operator overloading and
   inheritance, in that order: overloading first (comparison and
   arithmetic dunder methods; the old exercise *En bråkig klass* is back),
