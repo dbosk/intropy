@@ -33,8 +33,7 @@ EXAMPLES+=	examples/fragor_numrerade.py
 EXAMPLES+=	examples/forsok.py
 EXAMPLES+=	examples/meny_while.py
 EXAMPLES+=	examples/meny_rekursivt.py
-EXAMPLES+=	examples/lagg_till1.py
-EXAMPLES+=	examples/lagg_till2.py
+EXAMPLES+=	examples/lagg_till.py
 # The module, and the two programs that import it:
 EXAMPLES+=	examples/fragor.py
 EXAMPLES+=	examples/fragesport.py
