@@ -22,22 +22,21 @@ SRC+=		ltnotes.bib
 EXAMPLES+=	examples/jamforelse.py
 EXAMPLES+=	examples/villkor.py
 EXAMPLES+=	examples/kombinera.py
-EXAMPLES+=	examples/olika1.py
-EXAMPLES+=	examples/olika2.py
+EXAMPLES+=	examples/olika.py
 EXAMPLES+=	examples/temp1.py
+EXAMPLES+=	examples/halka.py
 EXAMPLES+=	examples/temp2.py
-EXAMPLES+=	examples/temp-elif.py
-EXAMPLES+=	examples/klader.py
 EXAMPLES+=	examples/fodelsear1.py
 EXAMPLES+=	examples/fodelsear2.py
+EXAMPLES+=	examples/temp3.py
+EXAMPLES+=	examples/klader.py
 EXAMPLES+=	examples/bed.py
 EXAMPLES+=	examples/nedrakning.py
-EXAMPLES+=	examples/rabatt1.py
-EXAMPLES+=	examples/rabatt2.py
+EXAMPLES+=	examples/rabatt.py
 EXAMPLES+=	examples/gissa.py
 EXAMPLES+=	examples/fraga-utan-slinga.py
-EXAMPLES+=	examples/langd1.py
-EXAMPLES+=	examples/langd2.py
+EXAMPLES+=	examples/varv.py
+EXAMPLES+=	examples/bed2.py
 
 contents.tex: contents.nw
 
