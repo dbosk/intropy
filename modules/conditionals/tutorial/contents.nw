@@ -31,12 +31,9 @@ här eller någon annanstans --- står i \cref{app:verifiera}.
 \label{sec:bomben}
 
 Vi börjar med ett program som redan är skrivet.  Det är ett litet spel:
-programmet ställer frågor, och svarar du \enquote{fel} detonerar bomben.
-Det knepiga är att \enquote{fel} inte är detsamma som fel --- vad som
-räknas som fel svar står i koden, inte i frågan.  Du måste alltså läsa
-villkoren för att komma igenom.  Programmet finns inte att hämta någon
-annanstans: skriv av det ur anteckningarna, spara det som
-\texttt{bomben1.py} och kör det.
+programmet ställer frågor, och svarar du fel detonerar bomben.
+Programmet finns inte att hämta någon annanstans: skriv av det ur
+anteckningarna, spara det som \texttt{bomben1.py} och kör det.
 
 \ltnote{%
   Relevanta lärandemål:
@@ -74,11 +71,11 @@ annanstans: skriv av det ur anteckningarna, spara det som
 Programmet är byggt av en funktion som detonerar bomben, fyra funktioner
 med en fråga var, och ett huvudprogram som ställer frågorna i tur och
 ordning.  Så ser varje program i övningen ut: allt arbete ligger i
-funktioner, och sist står det anrop som sätter igång programmet.  Att
-detonera bomben är här en utskrift och ingenting annat; de två
-mittersta frågorna handlar båda om ett intervall, och den fjärde om
-villkoret självt: programmet skriver ut ett uttryck och frågar vad det
-är värt.
+funktioner, och sist står det anrop som sätter igång programmet.  Varje
+fråga lämnar tillbaka om bomben detonerade, och huvudprogrammet säger
+till sist om du tog dig igenom.  De två mittersta frågorna handlar båda
+om ett intervall, och den fjärde om villkoret självt: programmet skriver
+ut ett uttryck och frågar vad det är värt.
 
 % REVIEW(C3): den andra läsningen av A2 är att uppdelningen i chunkar
 % står kvar och bara rensas --- då delas programmet åter i ett skelett
@@ -86,56 +83,93 @@ villkoret självt: programmet skriver ut ett uttryck och frågar vad det
 % frågor om intervall", "den fjärde frågan" och "bombens
 % huvudprogram", och bomben2.py återanvänder chunken för detonera i
 % stället för att upprepa den.
-\begin{frame}[fragile,shrink]
-  Hela programmet, i ett stycke:
+% Runda 5 (R6): programmet står nu på flera bilder utan krympning, delat i
+% sin egen ordning, så att det går att läsa i salen.
+\begin{frame}[fragile]
+  Programmet börjar med bomben:
 <<[[bomben1.py]]>>=
-"""Ett spel där du ska undvika att bomben detonerar.
-
-Vad som räknas som fel svar står i koden, inte i frågan.  Du måste
-alltså läsa villkoren innan du svarar.
-"""
+"""Ett spel: svarar du fel på en fråga detonerar bomben."""
 
 
 def detonera():
-    """Skriver ut att bomben har detonerat."""
+    """Skriver ut att bomben detonerar, och ger True."""
     print("BOM!")
+    return True
 
 
+<<den första frågan>>
+
+
+<<frågorna om ett intervall>>
+
+
+<<den fjärde frågan>>
+
+
+<<bombens huvudprogram>>
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Den första frågan:
+<<den första frågan>>=
 def forsta_fragan():
-    """Ställer den första frågan och detonerar vid fel svar."""
+    """Ställer den första frågan och ger True om bomben detonerade."""
     tal = float(input("Hur mycket är 1 + 1? "))
     if tal == 2:
-        detonera()
+        return detonera()
 
+    return False
+@
+\end{frame}
 
+\begin{frame}[fragile]
+  Sedan två frågor om ett intervall:
+<<frågorna om ett intervall>>=
 def andra_fragan():
-    """Ställer den andra frågan och detonerar vid fel svar."""
+    """Ställer den andra frågan och ger True om bomben detonerade."""
     tal = float(input("Säg ett tal mellan 0 och 1: "))
     if not (0 < tal and tal < 1):
-        detonera()
+        return detonera()
+
+    return False
 
 
 def tredje_fragan():
-    """Ställer den tredje frågan och detonerar vid fel svar."""
+    """Ställer den tredje frågan och ger True om bomben detonerade."""
     tal = float(input("Säg ett tal mellan 1 och 2: "))
     if 1 > tal or tal > 2:
-        detonera()
+        return detonera()
 
+    return False
+@
+\end{frame}
 
+\begin{frame}[fragile]
+  Den fjärde frågan:
+<<den fjärde frågan>>=
 def fjarde_fragan():
-    """Ställer den fjärde frågan och detonerar vid fel svar."""
-    svar = input("1 < 2 and 2 < 1 or 9 < 10, sant eller falskt? ")
+    """Ställer den fjärde frågan och ger True om bomben detonerade."""
+    svar = input("9 < 10 or 1 < 2 and 2 < 1, sant eller falskt? ")
     if svar == "falskt":
-        detonera()
+        return detonera()
 
+    return False
+@
+\end{frame}
 
+\begin{frame}[fragile]
+  Sist huvudprogrammet:
+<<bombens huvudprogram>>=
 def main():
-    """Ställer de fyra frågorna i tur och ordning."""
-    forsta_fragan()
-    andra_fragan()
-    tredje_fragan()
-    fjarde_fragan()
-    print("Du tog dig igenom utan att detonera bomben!")
+    """Ställer frågorna i tur och ordning och säger hur det gick."""
+    forsta = forsta_fragan()
+    andra = andra_fragan()
+    tredje = tredje_fragan()
+    fjarde = fjarde_fragan()
+
+    if not (forsta or andra or tredje or fjarde):
+        print("Du tog dig igenom utan att detonera bomben!")
 
 
 main()
@@ -161,22 +195,19 @@ Nu är uppgiften din.
 }
 
 \ltnote{%
-  \textbf{Varför uppgiftens program inte är uppdelat.}
-  [[bomben1.py]] står som \emph{en} listning och inte som ett skelett
-  med fem namngivna delar, fast resten av övningen delar upp sina
-  program.  Skälet ligger i uppgiften: den ber studenten läsa och
-  spåra ett färdigt program, och det som ska spåras är hela programmet
-  --- vilken fråga som kommer efter vilken, och vad varje villkor gör
-  med svaret.  En uppdelning skulle visa delarna var för sig och just
-  helheten sist, och den som ska spåra behöver se helheten först.
-  Lösningsförslagens program delas däremot upp, eftersom det som ska
-  urskiljas där är en del i taget.  Priset är att bilden blir tät;
-  anteckningarna bär listningen i full storlek.  Ett andra pris är att
-  [[detonera]] nu står skriven två gånger i källan, en gång i vartdera
-  bombprogrammet, eftersom den chunk de förut delade på är upplöst.
-  Det är avsiktligt: de två programmen är två fristående program som
-  studenten skriver av var för sig, och det studenten ser ska vara den
-  fil hon har framför sig.
+  \textbf{Varför uppgiftens program delas i sin egen ordning.}
+  [[bomben1.py]] står på flera bilder i den ordning filen har, och inte
+  som ett skelett med namngivna delar som resten av övningen använder.
+  Skälet ligger i uppgiften: den ber studenten läsa och spåra ett
+  färdigt program, och det som ska spåras är hela programmet ---
+  vilken fråga som kommer efter vilken, och vad varje villkor gör med
+  svaret.  Uppdelningen följer därför filen uppifrån och ner, och
+  varje del slutar där nästa börjar.  Tidigare stod programmet på en
+  enda krympt bild, och koden blev för liten för att läsas i salen.
+  Ett pris är att [[detonera]] står skriven två gånger i källan, en
+  gång i vartdera bombprogrammet: de två programmen är två fristående
+  program som studenten skriver av var för sig, och det studenten ser
+  ska vara den fil hon har framför sig.
 }
 
 \ltnote{%
@@ -185,14 +216,15 @@ Nu är uppgiften din.
   skillnaden måste kunna upplevas samtidigt för att kunna urskiljas
   \parencite[45--47]{Marton2015}.
 
-  Den första frågan riktar sig mot att \mintinline{python}{==} läses
-  som \enquote{är lika med} i frågans mening snarare än som ett
-  villkor programmet prövar; att ett likhetstecken används där en
-  jämförelse avses är belagt i granskad studentkod
-  \parencite{Bosse2021Antipatterns}, och den fjärde frågan mot att
-  kedjade villkor läses som talspråk
-  \parencite{GuoMarkelZhang2020}.  Underlaget för båda finns i
-  föreläsningen \emph{Villkor och styrstrukturer}, bilaga B.
+  Den första frågan riktar sig mot att villkoret läses som en
+  omskrivning av frågan och inte som ett uttryck programmet räknar ut:
+  det rätta svaret är det som detonerar.  Den fjärde frågan riktar sig
+  mot operatorernas företräde.  Det tas inte upp i någon av
+  föreläsningarna, och frågan är därför byggd så att de två läsningarna
+  ger olika värden: från vänster till höger blir uttrycket falskt, med
+  \mintinline{python}{and} före \mintinline{python}{or} sant.  Den som
+  svarar fel upptäcker regeln i lösningsförslaget, som inför den där
+  och inte tidigare.
 
   Uppgiften kommer först därför att den inte kräver att något skrivs:
   tröskeln är låg, och den spårning för hand som resten av övningen
@@ -244,13 +276,19 @@ inte.  De två frågorna säger alltså samma sak med olika ord, och det
 är negationen av det som fångar \enquote{innanför}.
 
 Den fjärde frågan hänger på i vilken ordning operatorerna räknas.
-\mintinline{python}{and} binder hårdare än \mintinline{python}{or}, så
-uttrycket läses som
-\mintinline{python}{(1 < 2 and 2 < 1) or (9 < 10)}.  Den första
-parentesen är falsk, eftersom \mintinline{python}{2 < 1} är falskt; den
-andra är sann.  Falskt eller sant är sant, så det rätta svaret är
-\mintinline{text}|sant| --- och eftersom bomben detonerar på
-\mintinline{text}|falskt| är det rätta svaret också det säkra här.
+Läser du uttrycket från vänster till höger blir det
+\mintinline{python}{(9 < 10 or 1 < 2) and 2 < 1}: parentesen är sann,
+men \mintinline{python}{2 < 1} är falskt, så svaret blir
+\mintinline{text}|falskt| --- och bomben detonerar.  Python räknar inte
+så.  \mintinline{python}{and} binder hårdare än
+\mintinline{python}{or}, på samma sätt som multiplikation binder
+hårdare än addition, så uttrycket betyder
+\mintinline{python}{9 < 10 or (1 < 2 and 2 < 1)}.  Parentesen är falsk,
+eftersom \mintinline{python}{2 < 1} är falskt, men
+\mintinline{python}{9 < 10} är sant.  Sant eller falskt är sant, så det
+rätta svaret är \mintinline{text}|sant|.  Är du osäker på hur ett
+uttryck grupperas kan du skriva ut parenteserna själv; då behöver den
+som läser inte heller vara säker.
 
 \begin{frame}[fragile]
   \begin{example}[En körning som går igenom]
@@ -314,24 +352,22 @@ Programmet är kort: en fråga, tre villkor och ett huvudprogram.
 \begin{frame}[fragile,shrink]
   Samma bomb, en fråga:
 <<[[bomben2.py]]>>=
-"""Bombens sista fråga: en kedja av villkor.
-
-Också här står det i koden vad som räknas som fel svar.
-"""
+"""Bombens sista fråga: svarar du fel detonerar bomben."""
 
 
 def detonera():
-    """Skriver ut att bomben har detonerat."""
+    """Skriver ut att bomben detonerar, och ger True."""
     print("BOM!")
+    return True
 
 
 <<den sista frågan>>
 
 
 def main():
-    """Ställer den sista frågan."""
-    sista_fragan()
-    print("Du tog dig igenom utan att detonera bomben!")
+    """Ställer den sista frågan och säger hur det gick."""
+    if not sista_fragan():
+        print("Du tog dig igenom utan att detonera bomben!")
 
 
 main()
@@ -344,14 +380,16 @@ Frågan i sig är oskyldig.  Det är kedjan under den som avgör saken.
   Tre villkor i en kedja:
 <<den sista frågan>>=
 def sista_fragan():
-    """Ställer den sista frågan och detonerar vid fel svar."""
-    alder = int(input("Nämn en bra ålder? [Ange ett tal] "))
+    """Ställer den sista frågan och ger True om bomben detonerade."""
+    alder = int(input("Nämn en bra ålder. [Ange ett tal] "))
     if alder < 30:
-        detonera()
+        return detonera()
     elif alder > 20 and alder < 40:
-        detonera()
+        return detonera()
     elif not (alder < 65):
-        detonera()
+        return detonera()
+
+    return False
 @
 \end{frame}
 
@@ -438,21 +476,25 @@ svar räknar det rätt.
   lösningsförslagets är \emph{utformningen} och \emph{uppdelningen} ---
   frågornas ordalydelse, var omvandlingen står, vad som händer med ett
   svar som inte går att använda, vad utskriften säger, och att ett rakt
-  skript blir fyra funktioner.  Att uppdelningen varieras med är
+  skript blir funktioner.  Att uppdelningen varieras med är
   avsiktligt och inte ett slarv: att se att ett program \emph{kan}
   delas upp är en del av \cref{OvningConditionalsLOReview}, och
   uppdelningen är dessutom det som gör omfrågningen möjlig att skriva
   på ett enda ställe.  Vad som hålls
-  invariant är uppgiften: två frågor, en prisräkning, ett svar.  Båda
-  körs dessutom på samma svar, så skillnaden syns i utmatningen och
-  behöver inte tros på ord.  Detta är samma kontrast som föreläsningen
+  invariant är uppgiften: två frågor, en prisräkning, ett svar.
+  Lösningsförslaget kör det nya programmet på de svar som fällde det
+  gamla, så skillnaden syns i utmatningen och behöver inte tros på
+  ord.  Detta är samma kontrast som föreläsningen
   \emph{Inmatning och felhantering} gör mellan
   [[prompt3.py]] och [[prompt4.py]], nu på ett helt program.
 
   Formuleringen säger bara att programmet kör och räknar rätt för
   rimliga svar; att bristerna ligger i utformningen och i vad som
   händer vid orimliga svar är vad uppgiften ska pröva och sägs därför
-  inte ut \parencite[13 och 91]{Marton2015}.  Antalet fem är behållet
+  inte ut \parencite[13 och 91]{Marton2015}.  Av samma skäl står
+  ingen körning av det färdiga programmet före uppgiften, till skillnad
+  från de senare uppgifterna: den skulle visa de nya frågorna och
+  kvittot, och därmed flera av bristerna.  Antalet fem är behållet
   ur det gamla materialet: ett tal gör uppgiften avgränsad utan att
   peka ut vilka fem.
 
@@ -501,36 +543,6 @@ en vuxenbiljett.
   \end{example}
 \end{frame}
 
-Och så här ska samma körning se ut när du är klar med uppgiften.
-
-\ltnote{%
-  Körningen av det \emph{färdiga} programmet står före uppgiften, så
-  att målet är konkret innan arbetet börjar.  Svaren är desamma som i
-  \cref{ex:biobiljetter-korning}, och det är hela poängen: det enda som
-  varierar mellan de två körningarna är utformningen --- frågornas
-  ordalydelse och vad utskriften säger --- medan uppgiften och svaren
-  hålls invarianta \parencite[45--47]{Marton2015}.
-
-  Körningen är vald så att den inte avslöjar bristerna: kunden svarar
-  rimligt, så varken kraschen eller det negativa antalet barnbiljetter
-  syns.  De två körningar som \emph{visar} bristerna
-  (\cref{ex:biobiljetter-krasch,ex:biobiljetter-negativ}) ligger kvar i
-  lösningsförslaget av samma skäl som förut.
-}
-
-% REVIEW(C15): den andra läsningen är att körningen före uppgiften ska
-% vara den som misslyckas, alltså det gamla programmets krasch; den
-% avslöjar då en av de brister uppgiften ber studenten hitta.
-\begin{frame}[fragile]
-  \begin{example}[Så här ska det se ut när du är klar]
-    \label{ex:biobiljetter-mal}
-    Kunden svarar \mintinline{text}|3| och \mintinline{text}|1|, precis
-    som förut:
-    \runpython[transcript, stdin={3}, stdin={1}]%
-      {examples/biobiljetter2.py}
-  \end{example}
-\end{frame}
-
 \begin{frame}[fragile]
   \begin{exercise}[Biobiljetterna]
     \label{ovn:biobiljetter}
@@ -548,7 +560,7 @@ Och så här ska samma körning se ut när du är klar med uppgiften.
 
 \subsection{Lösningsförslag}
 
-Det finns fler än fem brister att hitta.  Här är de sju vi bygger om
+Det finns fler än fem brister att hitta.  Här är de vi bygger om
 programmet efter.
 
 % REVIEW(C6): den andra läsningen är att blocket står kvar som
@@ -563,7 +575,7 @@ programmet efter.
 \begin{frame}[fragile]
   \only<presentation>{%
     \begin{solution}[Bristerna vi rättar]
-      Sju stycken, i den ordning programmet möter dem:
+      I den ordning programmet möter dem:
       \begin{enumerate}
         \item Frågorna säger inte vad de vill ha --- och en av dem är
           felstavad.
@@ -571,8 +583,8 @@ programmet efter.
           två namn.
         \item Namnen följer två olika konventioner samtidigt.
         \item Ett svar som inte är ett tal kraschar programmet.
-        \item Fler vuxenbiljetter än biljetter accepteras, och priset
-          blir obegripligt.
+        \item Noll biljetter eller ett negativt antal accepteras.
+        \item Fler vuxenbiljetter än biljetter accepteras.
         \item Utskriften säger inte vad talet är eller i vilken valuta.
         \item Ingenting i filen säger vad programmet är till för.
       \end{enumerate}
@@ -587,7 +599,9 @@ programmet efter.
       finns under två namn och strängversionen ligger kvar; namnen
       blandar dessutom två konventioner, \mintinline{python}{antal_barn}
       och \mintinline{python}{antalVuxen}.  Ett svar som inte är ett
-      tal avbryter programmet med en spårutskrift.  Fler
+      tal avbryter programmet med en spårutskrift.  Noll biljetter,
+      eller ett negativt antal, accepteras och ger ett pris på noll
+      eller under noll.  Fler
       vuxenbiljetter än biljetter accepteras, och då blir antalet barn
       negativt.  Utskriften säger bara ett tal, utan att säga vad talet
       är eller i vilken valuta.  Och ingenting i filen säger vad
@@ -598,8 +612,8 @@ programmet efter.
   }
 \end{frame}
 
-De två sista är de allvarligaste, eftersom de drabbar den som kör
-programmet.  Så här ser kraschen ut.
+Kraschen och de orimliga antalen är de allvarligaste, eftersom de
+drabbar den som kör programmet.  Så här ser kraschen ut.
 
 \ltnote{%
   Att programmet kraschar på bokstäver är inte bara en brist utan
@@ -642,16 +656,15 @@ använda, och utskriften säger vad den handlar om.
 \begin{frame}[fragile]
   Programmet i sin nya form:
 <<[[biobiljetter2.py]]>>=
-"""Räknar ut vad biobiljetterna kostar.
-
-Priserna står som konstanter, frågorna ställs om tills svaren går att
-använda, och kvittot säger vad som köptes.
-"""
+"""Frågar efter en beställning av biobiljetter och skriver ett kvitto."""
 
 <<biljettpriserna>>
 
 
 <<fråga efter ett heltal>>
+
+
+<<fråga efter antalet biljetter>>
 
 
 <<fråga efter antalet vuxenbiljetter>>
@@ -739,11 +752,26 @@ Yourself})%
   bilaga E.%
 } handlar om\autocite{HuntThomas1999}.
 
-Antalet vuxenbiljetter har ett krav till: det får inte vara negativt,
-och inte större än antalet biljetter.  Det kravet är vårt eget och inte
-\mintinline{python}{int}:s, och därför är det en kontroll med
-\mintinline{python}{if} och inte ett
-\texttt{except}.
+Båda antalen har dessutom krav som är våra egna och inte
+\mintinline{python}{int}:s.  Antalet biljetter måste vara minst ett, och
+antalet vuxenbiljetter får inte vara negativt och inte större än antalet
+biljetter.  Därför är de kontroller med \mintinline{python}{if} och inte
+något \texttt{except}.
+
+\begin{frame}[fragile]
+  Funktionen som frågar efter antalet biljetter:
+<<fråga efter antalet biljetter>>=
+def fraga_biljetter():
+    """Frågar tills antalet biljetter är minst ett."""
+    while True:
+        antal = fraga_heltal("Hur många biljetter? [Ange ett tal] ")
+        if antal >= 1:
+            break
+        print("Svara med ett heltal som är minst 1.")
+
+    return antal
+@
+\end{frame}
 
 % REVIEW(C9): den andra läsningen av strecket är att inledningsraden
 % ska bort helt; här är den i stället omskriven så att den säger vad
@@ -763,7 +791,7 @@ def fraga_vuxenbiljetter(antal_biljetter):
 @
 \end{frame}
 
-Lägg märke till villkoret: två fullständiga jämförelser bundna med
+Lägg märke till det sista villkoret: två fullständiga jämförelser bundna med
 \mintinline{python}{and}.  Det är samma regel som bomben i
 \cref{sec:bomben} byggde på, och den gäller lika mycket när villkoret
 är vårt eget.
@@ -803,7 +831,7 @@ köpte.
 <<biljettköpets huvudprogram>>=
 def main():
     """Frågar efter beställningen och skriver ut kvittot."""
-    antal_biljetter = fraga_heltal("Hur många biljetter? [Ange ett tal] ")
+    antal_biljetter = fraga_biljetter()
     antal_vuxna = fraga_vuxenbiljetter(antal_biljetter)
     antal_barn = antal_biljetter - antal_vuxna
 
@@ -820,23 +848,24 @@ Samma svar som förut, men nu händer något annat med dem.
 \begin{frame}[fragile]
   \begin{example}[Samma svar, det nya programmet]
     \label{ex:biobiljetter2-korning}
-    Kunden svarar \mintinline{text}|tre|, sedan
-    \mintinline{text}|3|, sedan \mintinline{text}|5| och sist
+    Kunden svarar \mintinline{text}|tre|, \mintinline{text}|-2|,
+    \mintinline{text}|3|, \mintinline{text}|5| och sist
     \mintinline{text}|1|:
-    \runpython[transcript, stdin={tre}, stdin={3}, stdin={5},
-      stdin={1}]{examples/biobiljetter2.py}
+    \runpython[transcript, stdin={tre}, stdin={-2}, stdin={3},
+      stdin={5}, stdin={1}]{examples/biobiljetter2.py}
   \end{example}
 \end{frame}
 
 Svaret \mintinline{text}|tre| ger inte längre någon spårutskrift utan
-en uppmaning, och frågan kommer tillbaka.  Fem vuxenbiljetter av tre
-avvisas med en fråga som säger vilka svar som duger.  Och lägg märke
+en uppmaning, och frågan kommer tillbaka.  Minus två biljetter avvisas,
+och fem vuxenbiljetter av tre avvisas med en fråga som säger vilka svar
+som duger.  Och lägg märke
 till frågorna själva: de säger nu vilken form svaret ska ha,
 \mintinline{text}|[Ange ett tal]|, i stället för att lämna det åt
 kunden att gissa.  Ingen av rättelserna krävde något utanför
 föreläsningarnas stoff --- allt är \mintinline{python}{if},
 \mintinline{python}{while}, \mintinline{python}{try}, egna funktioner
-och text.  Programmet ser däremot inte ut som förut: fyra funktioner
+och text.  Programmet ser däremot inte ut som förut: funktioner
 har ersatt ett rakt skript, och det är den uppdelningen som gör att
 frågan kan ställas om på ett enda ställe.
 
