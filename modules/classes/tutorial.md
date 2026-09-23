@@ -41,14 +41,20 @@ vi tillsammans, i den här ordningen:
 Resten av uppgifterna finns kvar att göra på egen tid; lösningsförslagen
 i dokumentet låter dig kontrollera dina egna svar.
 
-1. **Uppgift 3: Två böcker.** Förutsäga vad två program skriver ut.
+1. **Uppgift 3: Två böcker.** Förutsäga vad ett program med två böcker
+   skriver ut, [trace.py][trace]. För att köra det behöver du din egen
+   `book.py` i samma mapp.
 2. **Uppgift 9: Klass eller uppslagslista.** Välja mellan att
    representera samma data som en klass eller som en uppslagslista,
    beroende på vad programmet behöver.
 3. **Uppgift 10: Någon annans klass.** Granska och skriva om en illa
-   skriven klass: inkapsling, namn, kodupprepning och dundermetoder.
+   skriven klass, [review.py][review]: inkapsling, namn, kodupprepning
+   och dundermetoder.
 4. **Fördjupning: Uppgift 11: Författaren.** Välja mellan arv och
    komposition (is-a mot has-a) för en ny klass `Author`.
+
+[trace]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/examples/trace.py
+[review]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/examples/review.py
 
 ## Förberedelser
 
