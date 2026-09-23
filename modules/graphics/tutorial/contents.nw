@@ -83,31 +83,60 @@ att skriva innan du gör samma sak i ett fönster.
 
 \subsection{Lösningsförslag}
 
-Programmet har en enda uppgift, så det får en enda funktion.  Slingan
-gör om och om igen två saker som är värda att skilja på: den skriver
-tiden så att den ersätter den förra, och den ser till att utskriften
-verkligen når skärmen innan den väntar.  Den andra delen är den som
-överraskar.
+Vi skriver programmet uppifrån och ner: först filens upplägg, i
+pseudokod, och sedan preciserar vi pseudokoden med pythonkod, en del i
+taget, när vi kommer till den.  Upplägget är överst en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan importen, huvudprogrammet och till sist anropet som sätter
+igång det.  Programmet har en enda uppgift, så det får ingen annan
+funktion än huvudprogrammet.
 
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje lösningsförslag som byggs upp av
+  namngivna delar börjar i filens upplägg, med namn som hör till just
+  det programmet, och skisserar sedan huvudprogrammet.  En funktion
+  eller metod läggs till först där resonemanget behöver den
+  (författaren, 2026-09-23: \enquote{it too early outlines what
+  functions we need, without having started discussing the details of
+  the problem yet}), så filens ordning blir upptäcktens.  Klasserna har
+  ett eget namn i upplägget, och en klass metoder samlas under ett namn
+  som hör till just den klassen.  En del som ett senare program
+  återanvänder oförändrad står under ett eget namn, som båda programmen
+  tar med.
+}
+
+\mode<article>{\needspace{12\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[\texttt{term\_clock.py}]
-    Programmet i sin helhet, med två steg kvar att förfina:
+    Terminalklockans upplägg:
 <<[[term_clock.py]]>>=
 """A clock in the terminal"""
 
 import sys
 import time
 
+<<terminalklockans huvudprogram>>
 
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är en slinga som aldrig tar slut, och den gör om och om
+igen två saker som är värda att skilja på: den skriver tiden så att den
+ersätter den förra, och den ser till att utskriften verkligen når
+skärmen innan den väntar.  Den andra delen är den som överraskar.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    En slinga med två steg i pseudokod:
+<<terminalklockans huvudprogram>>=
 def main():
     """Show the time in the terminal, once a second, in one place"""
     while True:
         <<skriv tiden och backa tillbaka över den>>
         <<se till att utskriften syns, och vänta en sekund>>
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{solution}
 \end{frame}
@@ -344,20 +373,59 @@ räcker: en etikett som visar tiden, ingenting mer --- och
 \subsection{Lösningsförslag}
 
 Det första försöket ser ut som terminalklockan, med skillnaden att tiden
-hamnar på en etikett i stället för i utskriften.  Klassen ärver från
-\mintinline{python}{tk.Tk}, som i föreläsningens exempel, så att
-fönstret \emph{är} objektet.
+hamnar på en etikett i stället för i utskriften.  Upplägget är
+terminalklockans med en del till: fönstret är en klass, och klasserna
+får ett eget namn i upplägget, mellan importen och huvudprogrammet.
 
-\begin{frame}[fragile,shrink=20]
+\begin{frame}[fragile]
   \begin{solution}[\texttt{clock\_loop.py}]
-    Det första försöket, med klassen skriven som i föreläsningen:
+    Det första försökets upplägg:
 <<[[clock_loop.py]]>>=
 """A clock in a window, driven by a loop of its own"""
 
 import time
 import tkinter as tk
 
+<<första försökets klasser>>
 
+<<första försökets huvudprogram>>
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är terminalklockans, ord för ord, med
+\mintinline{python}{clock.show_time()} i stället för
+\mintinline{python}{print}.  Klassen \mintinline{python}{Clock} och dess
+metod \mintinline{python}{show_time} finns inte än, men vi kan anropa
+dem ändå och skriva dem sedan.
+
+\mode<article>{\needspace{10\baselineskip}}
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet i första försöket]
+    Skapa fönstret, och uppdatera det en gång per sekund:
+<<första försökets huvudprogram>>=
+def main():
+    """Update the clock once a second, as in the terminal"""
+    clock = Clock()
+    while True:
+        clock.show_time()
+        time.sleep(1)
+@
+  \end{solution}
+\end{frame}
+
+Klassen ärver från \mintinline{python}{tk.Tk}, som i föreläsningens
+exempel, så att fönstret \emph{är} objektet.  Konstruktorn sätter en
+etikett i fönstret, och \mintinline{python}{show_time} skriver tiden på
+den.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen i första försöket]
+    Klassen, skriven som i föreläsningen:
+<<första försökets klasser>>=
 class Clock(tk.Tk):
     """A window with the time on a label"""
 
@@ -369,31 +437,6 @@ class Clock(tk.Tk):
     def show_time(self):
         """Put the current time on the label"""
         self.clockface["text"] = time.strftime("%H:%M:%S")
-
-
-<<huvudprogram som uppdaterar klockan i en egen slinga>>
-
-
-if __name__ == "__main__":
-    main()
-@
-  \end{solution}
-\end{frame}
-
-Huvudprogrammet är terminalklockans, ord för ord, med
-\mintinline{python}{clock.show_time()} i stället för
-\mintinline{python}{print}.
-
-\begin{frame}[fragile]
-  \begin{solution}[Huvudprogrammet i första försöket]
-    Skapa fönstret, och uppdatera det en gång per sekund:
-<<huvudprogram som uppdaterar klockan i en egen slinga>>=
-def main():
-    """Update the clock once a second, as in the terminal"""
-    clock = Clock()
-    while True:
-        clock.show_time()
-        time.sleep(1)
 @
   \end{solution}
 \end{frame}
@@ -438,27 +481,52 @@ klockan.
 
 \begin{frame}[fragile]
   \begin{solution}[\texttt{clock.py}]
-    Klockan som fungerar, med tre steg kvar att förfina:
+    Klockans upplägg, samma som i det första försöket:
 <<[[clock.py]]>>=
 """A clock in a window"""
 
 import time
 import tkinter as tk
 
+<<klockans klasser>>
 
-class Clock(tk.Tk):
-    """A window with the time on a label, updated once a second"""
-
-    <<konstruktor som skapar urtavlan och visar den första tiden>>
-
-    <<metod som visar tiden och beställer nästa anrop>>
-
-
-<<huvudprogram som lämnar över takten till händelseslingan>>
-
+<<klockans huvudprogram>>
 
 if __name__ == "__main__":
     main()
+@
+  \end{solution}
+\end{frame}
+
+Det är i huvudprogrammet skillnaden syns först.  Det skapar fönstret,
+som förut, men i stället för en egen slinga lämnar det över takten till
+händelseslingan med \mintinline{python}{mainloop}, och sedan är det
+händelseslingan som bestämmer vad som händer och när.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över takten:
+<<klockans huvudprogram>>=
+def main():
+    """Run the clock"""
+    clock = Clock()
+    clock.mainloop()
+@
+  \end{solution}
+\end{frame}
+
+Fönstret är en klass som ärver från \mintinline{python}{tk.Tk}, som
+förut.  Dess metoder samlar vi under ett namn, och vi lägger till dem
+där resonemanget kommer till dem.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    Klassen, med metoderna kvar att skriva:
+<<klockans klasser>>=
+class Clock(tk.Tk):
+    """A window with the time on a label, updated once a second"""
+
+    <<klockans metoder>>
 @
   \end{solution}
 \end{frame}
@@ -473,11 +541,13 @@ better.py} gör, och det gör att klockans metod inte behöver veta
 någonting om etiketten.
 Konstruktorn anropar dessutom \mintinline{python}{update_time} en gång,
 så att den första tiden syns direkt och den första beställningen läggs.
+Metoden finns inte än; vi skriver den när konstruktorn är klar.
 
+\mode<article>{\needspace{13\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Strängen, etiketten som visar den, och det första anropet:
-<<konstruktor som skapar urtavlan och visar den första tiden>>=
+<<klockans metoder>>=
 def __init__(self):
     super().__init__()
 
@@ -494,12 +564,15 @@ def __init__(self):
 Kvar är metoden som gör att klockan går.  Den gör två saker: sätter
 tiden, och beställer nästa anrop om tusen millisekunder.  Den andra
 raden är den som ersätter slingan --- varje anrop lämnar efter sig
-beställningen på nästa.
+beställningen på nästa.  Metoden hör också till klockans metoder.  Ett
+namn som får flera delar får \(\equiv\) första gången och +\(\equiv\)
+varje gång därefter, och i programmet står delarna efter varandra, i
+den ordning de kommer.
 
 \begin{frame}[fragile]
   \begin{solution}[Metoden som går]
     Sätt tiden, och beställ nästa anrop:
-<<metod som visar tiden och beställer nästa anrop>>=
+<<klockans metoder>>=
 def update_time(self):
     """Show the current time, then ask to be called again"""
     self.current_time.set(time.strftime("%H:%M:%S"))
@@ -515,18 +588,6 @@ dess returvärde, alltså \mintinline{python}{None}: ingenting att anropa
 senare.  Det är utan parenteser man lämnar över själva metoden, och en
 metod eller funktion som lämnas över för att anropas vid en händelse
 kallas en \foreignlanguage{english}{callback}-funktion.
-
-\begin{frame}[fragile]
-  \begin{solution}[Huvudprogrammet]
-    Skapa fönstret, och lämna över takten:
-<<huvudprogram som lämnar över takten till händelseslingan>>=
-def main():
-    """Run the clock"""
-    clock = Clock()
-    clock.mainloop()
-@
-  \end{solution}
-\end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -623,10 +684,81 @@ kvar tar vi en av dem och sätter både minuter och sekunder till 59; och
 finns ingenting kvar står tiden still.  Skrivna i den ordningen blir
 reglerna en rad var.
 
+Filen skriver vi uppifrån och ner, som klockorna.  Upplägget är en
+\foreignlanguage{english}{docstring}, nedräkningens funktioner,
+huvudprogrammet och anropet som sätter igång det.  Att anropet står
+bakom frågan om filen körs som huvudprogram, och inte importeras, är
+vad som gör att nästa uppgift kan importera funktionerna utan att
+nedräkningen skrivs ut på nytt.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{countdown.py}]
+    Nedräkningens upplägg:
+<<[[countdown.py]]>>=
+"""Counting down one second at a time"""
+
+<<nedräkningens funktioner>>
+
+<<nedräkningens huvudprogram>>
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet ska visa att reglerna gör rätt där de är lätta att få
+fel, och det är i övergångarna mellan dem: precis vid en hel minut, där
+sekunderna ska växla till 59 och minuterna minska, och precis vid noll,
+där tiden ska stanna.  Båda fallen prövas på samma sätt, med en tid och
+de närmast följande stegen, så det blir en hjälpfunktion,
+\mintinline{python}{show_steps}, som vi anropar här och skriver sedan.
+
+\mode<article>{\needspace{10\baselineskip}}
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    De två fallen, ett i taget:
+<<nedräkningens huvudprogram>>=
+def main():
+    """Show the two cases that are easy to get wrong"""
+    print("en hel minut:")
+    show_steps(0, 1, 0, 2)
+    print("noll:")
+    show_steps(0, 0, 1, 2)
+@
+  \end{solution}
+\end{frame}
+
+Hjälpfunktionen skriver ut tiden, räknar ner en sekund och gör om det.
+Att göra en tid till en sträng och att räkna ner en sekund är de två
+funktioner uppgiften ber om, \mintinline{python}{format_time} och
+\mintinline{python}{count_down}, och dem skriver vi när hjälpfunktionen
+är klar.
+
+\begin{frame}[fragile]
+  \begin{solution}[Att pröva nedräkningen]
+    Hjälpfunktionen skriver en tid och stegen efter den:
+<<nedräkningens funktioner>>=
+def show_steps(hour, minute, second, steps):
+    """Print the time, then each of the next steps seconds"""
+    for _ in range(steps + 1):
+        print(format_time(hour, minute, second))
+        hour, minute, second = count_down(hour, minute, second)
+@
+  \end{solution}
+\end{frame}
+
+Slingan behöver bara räkna varv, inte använda talen
+\mintinline{python}{range} ger, och namnet [[_]] är det vanliga sättet
+att säga att ett värde inte används.
+
+Nu till själva nedräkningen, med reglerna en rad var i den ordning vi
+sa dem.
+
 \begin{frame}[fragile]
   \begin{solution}[Funktionen \texttt{count\_down}]
     En regel per villkor, i tur och ordning:
-<<funktion som räknar ner en sekund, men aldrig under noll>>=
+<<nedräkningens funktioner>>=
 def count_down(hour, minute, second):
     """Return the time one second before hour:minute:second"""
     if second > 0:
@@ -654,7 +786,7 @@ med ögat.
   \end{remark}
 \end{frame}
 
-En tid ska också kunna visas, och \texttt{hh:mm:ss} betyder två siffror
+Kvar är att visa en tid, och \texttt{hh:mm:ss} betyder två siffror
 per del även när talet är ensiffrigt.  Det sköter formatsträngen
 \mintinline{python}{:02d}, som betyder \enquote{som heltal, minst två
 tecken, utfyllt med nollor}.
@@ -662,76 +794,10 @@ tecken, utfyllt med nollor}.
 \begin{frame}[fragile]
   \begin{solution}[Funktionen \texttt{format\_time}]
     Tre tal in, en sträng ut:
-<<funktion som gör en tid till en sträng hh:mm:ss>>=
+<<nedräkningens funktioner>>=
 def format_time(hour, minute, second):
     """Return the time as hh:mm:ss"""
     return f"{hour:02d}:{minute:02d}:{second:02d}"
-@
-  \end{solution}
-\end{frame}
-
-Huvudprogrammet prövar de två fall som är lätta att få fel: precis vid
-en hel minut, där sekunderna ska växla till 59 och minuterna minska, och
-precis vid noll, där tiden ska stanna.  Båda prövas av samma
-hjälpfunktion, som skriver en tid och sedan de närmast följande.
-
-\begin{frame}[fragile]
-  \begin{solution}[Att pröva nedräkningen]
-    Hjälpfunktionen skriver en tid och stegen efter den:
-<<funktion som skriver en tid och stegen efter den>>=
-def show_steps(hour, minute, second, steps):
-    """Print the time, then each of the next steps seconds"""
-    for _ in range(steps + 1):
-        print(format_time(hour, minute, second))
-        hour, minute, second = count_down(hour, minute, second)
-@
-  \end{solution}
-\end{frame}
-
-Slingan behöver bara räkna varv, inte använda talen
-\mintinline{python}{range} ger, och namnet [[_]] är det vanliga sättet
-att säga att ett värde inte används.
-
-\begin{frame}[fragile]
-  \begin{solution}[Huvudprogrammet]
-    De två fallen, ett i taget:
-<<huvudprogram som prövar de två fall som är lätta att få fel>>=
-def main():
-    """Show the two cases that are easy to get wrong"""
-    print("en hel minut:")
-    show_steps(0, 1, 0, 2)
-    print("noll:")
-    show_steps(0, 0, 1, 2)
-@
-  \end{solution}
-\end{frame}
-
-Delarna sätts ihop till en fil, och då kan vi köra den.  Att
-huvudprogrammet ligger bakom frågan om filen körs som huvudprogram, och
-inte importeras, är vad som gör att nästa uppgift kan importera
-funktionerna utan att nedräkningen skrivs ut på nytt.
-
-\begin{frame}[fragile]
-  \begin{solution}[\texttt{countdown.py}]
-    Hela filen består av de fyra delarna:
-<<[[countdown.py]]>>=
-"""Counting down one second at a time"""
-
-
-<<funktion som räknar ner en sekund, men aldrig under noll>>
-
-
-<<funktion som gör en tid till en sträng hh:mm:ss>>
-
-
-<<funktion som skriver en tid och stegen efter den>>
-
-
-<<huvudprogram som prövar de två fall som är lätta att få fel>>
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{solution}
 \end{frame}
@@ -843,9 +909,12 @@ föreläsningen \emph{Moduler och paket} visar --- och det är just den
 uppdelningen som gör att logiken kunde prövas i terminalen medan
 gränssnittet prövas i fönstret.
 
-\begin{frame}[fragile,shrink=20]
+Upplägget är klockans, med en import till: de två funktioner vi skrev i
+\cref{sec:countdown}.
+
+\begin{frame}[fragile]
   \begin{solution}[\texttt{timer.py}]
-    Programmet i sin helhet, med fem steg kvar att förfina:
+    Timerns upplägg:
 <<[[timer.py]]>>=
 """A timer with tkinter"""
 
@@ -853,24 +922,42 @@ import tkinter as tk
 
 from countdown import count_down, format_time
 
+<<timerns klasser>>
 
-class Timer(tk.Tk):
-    """A window where a time is set, started and counted down"""
-
-    <<konstruktor som skapar timerns minne och gränssnitt>>
-
-    <<metod som skapar ett fält för tiden>>
-
-    <<metod som läser av fälten och startar nedräkningen>>
-
-    <<metod som visar tiden och räknar ner en sekund till>>
-
-
-<<huvudprogram som kör timern>>
-
+<<timerns huvudprogram>>
 
 if __name__ == "__main__":
     main()
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är också klockans: det skapar fönstret och lämnar över
+takten till händelseslingan.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Som klockans, med en timer i stället:
+<<timerns huvudprogram>>=
+def main():
+    """Run the timer"""
+    timer = Timer()
+    timer.mainloop()
+@
+  \end{solution}
+\end{frame}
+
+Fönstret är klassen \mintinline{python}{Timer}, och dess metoder lägger
+vi till när vi kommer till dem.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    Klassen, med metoderna kvar att skriva:
+<<timerns klasser>>=
+class Timer(tk.Tk):
+    """A window where a time is set, started and counted down"""
+
+    <<timerns metoder>>
 @
   \end{solution}
 \end{frame}
@@ -894,7 +981,7 @@ behöver minnas mellan två händelser måste ligga i objektets attribut.
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Minnet först, sedan gränssnittet:
-<<konstruktor som skapar timerns minne och gränssnitt>>=
+<<timerns metoder>>=
 def __init__(self):
     super().__init__()
 
@@ -926,7 +1013,7 @@ self.hour_box = self.make_box(0)
 self.minute_box = self.make_box(1)
 self.second_box = self.make_box(2)
 @
-<<metod som skapar ett fält för tiden>>=
+<<timerns metoder>>=
 def make_box(self, column):
     """Create one entry field for the time, prefilled with a zero"""
     box = tk.Entry(width=4)
@@ -987,7 +1074,7 @@ felmeddelandet i etiketten, där tiden skulle ha stått.
 \begin{frame}[fragile,shrink=10]
   \begin{solution}[Metoden \texttt{start}]
     Gör ingenting om timern redan går, läs annars av fälten:
-<<metod som läser av fälten och startar nedräkningen>>=
+<<timerns metoder>>=
 def start(self, event=None):
     """Read the three fields and start counting down"""
     if self.running:
@@ -1020,10 +1107,11 @@ frågan ställs \emph{före} avläsningen av fälten är också ett val: ett
 tryck under nedräkningen ska inte göra någonting alls, och läste vi av
 fälten först skulle tiden hoppa tillbaka till den inställda.
 
+\mode<article>{\needspace{16\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{tick}]
     Visa tiden, och beställ nästa sekund så länge det finns någon:
-<<metod som visar tiden och räknar ner en sekund till>>=
+<<timerns metoder>>=
 def tick(self):
     """Show the time left, then count down one more second"""
     hour, minute, second = self.time_left
@@ -1044,18 +1132,6 @@ med ett slut: när ingenting är kvar visas noll, kedjan bryts genom att
 ingen ny beställning läggs, och \mintinline{python}{running} blir falsk
 så att knappen kan starta om timern.  Det är hela skillnaden mellan en
 klocka och en timer.
-
-\begin{frame}[fragile]
-  \begin{solution}[Huvudprogrammet]
-    Som klockans, med en timer i stället:
-<<huvudprogram som kör timern>>=
-def main():
-    """Run the timer"""
-    timer = Timer()
-    timer.mainloop()
-@
-  \end{solution}
-\end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -1152,29 +1228,24 @@ som delar samma variabel utgör ett val mellan varandra, och var och en
 skriver sitt eget värde i variabeln när den trycks.  Då behövs ingen
 metod per färg --- ingen metod alls.
 
-\begin{frame}[fragile,shrink=15]
+Upplägget är klockans och timerns, med en del till: ritprogrammet får
+en konstant, och konstanterna får ett eget namn i upplägget, före
+klasserna.
+
+\mode<article>{\needspace{14\baselineskip}}
+\begin{frame}[fragile]
   \begin{solution}[\texttt{draw\_colors.py}]
-    Programmet i sin helhet, med fem steg kvar att förfina:
+    Ritprogrammets upplägg:
 <<[[draw_colors.py]]>>=
 """A drawing program where you choose the colour"""
 
 import tkinter as tk
 
-<<färgerna att välja bland>>
+<<ritprogrammets konstanter>>
 
+<<ritprogrammets klasser>>
 
-class DrawGUI(tk.Tk):
-    """A window you draw lines in with the mouse"""
-
-    <<konstruktor som skapar ritytan och färgknapparna>>
-
-    <<metod som ritar en linje när musen dras>>
-
-    <<metod som glömmer den förra punkten>>
-
-
-<<huvudprogram som kör ritprogrammet>>
-
+<<ritprogrammets huvudprogram>>
 
 if __name__ == "__main__":
     main()
@@ -1182,15 +1253,32 @@ if __name__ == "__main__":
   \end{solution}
 \end{frame}
 
-Färgerna är en lista, och det är den listan som gör att en färg till
-bara är en färg till.  Namnen är de \mintinline{python}{tkinter} känner
-igen; de flesta engelska färgnamn fungerar.
+Huvudprogrammet är klockans och timerns: det skapar fönstret och
+lämnar över takten till händelseslingan.
 
 \begin{frame}[fragile]
-  \begin{solution}[Färgerna]
-    Fem färger, och den första är den som gäller från början:
-<<färgerna att välja bland>>=
-COLORS = ["black", "red", "blue", "green", "orange"]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över takten:
+<<ritprogrammets huvudprogram>>=
+def main():
+    """Run the drawing program"""
+    window = DrawGUI()
+    window.mainloop()
+@
+  \end{solution}
+\end{frame}
+
+Fönstret är klassen \mintinline{python}{DrawGUI}, som i föreläsningen,
+och dess metoder lägger vi till när vi kommer till dem.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    Klassen, med metoderna kvar att skriva:
+<<ritprogrammets klasser>>=
+class DrawGUI(tk.Tk):
+    """A window you draw lines in with the mouse"""
+
+    <<ritprogrammets metoder>>
 @
   \end{solution}
 \end{frame}
@@ -1201,7 +1289,7 @@ och färgknapparna, som är det nya.
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Ritytan, och sedan färgknapparna under den:
-<<konstruktor som skapar ritytan och färgknapparna>>=
+<<ritprogrammets metoder>>=
 def __init__(self):
     super().__init__()
 
@@ -1214,8 +1302,11 @@ def __init__(self):
 
 Ritytan är en vit \mintinline{python}{Canvas}, två attribut för den
 förra punkten och två bindningar: en för musrörelse med knappen nere,
-en för när knappen släpps.
+en för när knappen släpps.  Bindningarna lämnar över två metoder,
+\mintinline{python}{paint} och \mintinline{python}{reset_old_coord},
+som vi skriver när konstruktorn är klar.
 
+\mode<article>{\needspace{10\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Ritytan]
     Ritytan, minnet av den förra punkten och de två bindningarna:
@@ -1227,6 +1318,20 @@ self.x_old = self.y_old = None
 
 self.canvas.bind("<B1-Motion>", self.paint)
 self.canvas.bind("<ButtonRelease-1>", self.reset_old_coord)
+@
+  \end{solution}
+\end{frame}
+
+Färgknapparna behöver färgerna att välja bland.  Färgerna är en lista,
+och det är den listan som gör att en färg till bara är en färg till.
+Namnen är de \mintinline{python}{tkinter} känner igen; de flesta
+engelska färgnamn fungerar.
+
+\begin{frame}[fragile]
+  \begin{solution}[Färgerna]
+    Fem färger, och den första är den som gäller från början:
+<<ritprogrammets konstanter>>=
+COLORS = ["black", "red", "blue", "green", "orange"]
 @
   \end{solution}
 \end{frame}
@@ -1281,10 +1386,11 @@ musrörelsen i ett drag har ingen föregående punkt att dra från, så då
 sparas bara punkten; alla följande drar en linje från den förra punkten
 till den nya och blir i sin tur den förra punkten.
 
+\mode<article>{\needspace{20\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{paint}]
     Spara punkten om den är den första, annars rita:
-<<metod som ritar en linje när musen dras>>=
+<<ritprogrammets metoder>>=
 def paint(self, event):
     """Draw a line from the previous point to this one"""
     <<spara den första punkten eller rita en linje från den förra>>
@@ -1307,27 +1413,19 @@ self.canvas.create_line(
 \end{frame}
 
 När knappen släpps glöms punkten, så att nästa drag börjar om i stället
-för att dra en linje från det förra dragets slut.
+för att dra en linje från det förra dragets slut.  Metoden får ett eget
+namn bland ritprogrammets metoder, eftersom vi tar med den oförändrad
+när vi bygger ut ritprogrammet i \cref{sec:rect}.
 
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{reset\_old\_coord}]
     Glöm den förra punkten:
+<<ritprogrammets metoder>>=
+<<metod som glömmer den förra punkten>>
 <<metod som glömmer den förra punkten>>=
 def reset_old_coord(self, _):
     """Forget the previous point, so the next stroke starts fresh"""
     self.x_old = self.y_old = None
-@
-  \end{solution}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{solution}[Huvudprogrammet]
-    Skapa fönstret, och lämna över takten:
-<<huvudprogram som kör ritprogrammet>>=
-def main():
-    """Run the drawing program"""
-    window = DrawGUI()
-    window.mainloop()
 @
   \end{solution}
 \end{frame}
@@ -1436,31 +1534,23 @@ samma delar som i \cref{sec:colors}.
   används, och den sista frågan ber om en av dem.
 }
 
-\begin{frame}[fragile,shrink=20]
+Upplägget är ritprogrammets, och konstanterna och huvudprogrammet tar
+vi med oförändrade.  Klassen är det som ändras, så den får ett eget
+namn, och dess metoder likaså.
+
+\begin{frame}[fragile]
   \begin{solution}[\texttt{draw\_rect.py}]
-    Tre delar är samma som förut, två är ersatta och en är ny:
+    Ritprogrammets upplägg, med en ny klass:
 <<[[draw_rect.py]]>>=
 """A drawing program with lines and rectangles"""
 
 import tkinter as tk
 
-<<färgerna att välja bland>>
+<<ritprogrammets konstanter>>
 
+<<rektangelprogrammets klasser>>
 
-class DrawGUI(tk.Tk):
-    """A window you draw lines and rectangles in with the mouse"""
-
-    <<konstruktor som skapar ritytan, färg- och formknapparna>>
-
-    <<metod som ritar en linje när musen dras, i linjeläget>>
-
-    <<metod som ritar en rektangel, i rektangelläget>>
-
-    <<metod som glömmer den förra punkten>>
-
-
-<<huvudprogram som kör ritprogrammet>>
-
+<<ritprogrammets huvudprogram>>
 
 if __name__ == "__main__":
     main()
@@ -1468,13 +1558,29 @@ if __name__ == "__main__":
   \end{solution}
 \end{frame}
 
+Klassen heter som förut, och dess metoder lägger vi till när vi kommer
+till dem.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    Klassen, med metoderna kvar att skriva:
+<<rektangelprogrammets klasser>>=
+class DrawGUI(tk.Tk):
+    """A window you draw lines and rectangles in with the mouse"""
+
+    <<rektangelprogrammets metoder>>
+@
+  \end{solution}
+\end{frame}
+
 Konstruktorn är den förra med en del till: formknapparna, under
 färgknapparna.
 
+\mode<article>{\needspace{10\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Tre delar i stället för två:
-<<konstruktor som skapar ritytan, färg- och formknapparna>>=
+<<rektangelprogrammets metoder>>=
 def __init__(self):
     super().__init__()
 
@@ -1547,10 +1653,11 @@ ingenting annars.  Det är den enda skillnaden mot metoden i
   \end{solution}
 \end{frame}
 
+\mode<article>{\needspace{9\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{paint} med lägeskontroll]
     Samma metod som förut, med en fråga först:
-<<metod som ritar en linje när musen dras, i linjeläget>>=
+<<rektangelprogrammets metoder>>=
 def paint(self, event):
     """Draw a line, unless the rectangle mode is chosen"""
     if self.shape.get() != "line":
@@ -1574,10 +1681,11 @@ skillnad uppgiften handlar om --- ett drag \emph{börjar} med en
 nedtryckning, och \mintinline{python}{draw_rect} kan inte se om
 nedtryckningen var ett klick eller början på ett drag.
 
+\mode<article>{\needspace{20\baselineskip}}
 \begin{frame}[fragile,shrink=10]
   \begin{solution}[Metoden \texttt{draw\_rect}]
     Spara det första hörnet, rita på det andra:
-<<metod som ritar en rektangel, i rektangelläget>>=
+<<rektangelprogrammets metoder>>=
 def draw_rect(self, event):
     """Draw a rectangle between two clicked corners"""
     if self.shape.get() != "rect":
@@ -1597,6 +1705,18 @@ self.x_press = self.y_press = None
 self.canvas.create_rectangle(
     x_start, y_start, event.x, event.y, fill=self.color.get()
 )
+@
+  \end{solution}
+\end{frame}
+
+Kvar är metoden som glömmer den förra punkten när musknappen släpps.
+Den är ritprogrammets, och vi tar med den oförändrad under sitt namn.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{reset\_old\_coord}]
+    Samma metod som förut:
+<<rektangelprogrammets metoder>>=
+<<metod som glömmer den förra punkten>>
 @
   \end{solution}
 \end{frame}
