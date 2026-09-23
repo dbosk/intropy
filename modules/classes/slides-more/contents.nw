@@ -10,9 +10,9 @@
 
   \textbf{Pedagogisk strategi}: vi bygger \emph{ett} komplett exempel,
   klassen \mintinline{python}{Fraction}, som demonstrerar alla dessa
-  begrepp.  Helheten visas innan den bryts ner i delar: den litterära
-  formen ger först programmets överblick med namngivna delar, sedan
-  förfinas varje del där den behövs.  När vi bygger klassen stegvis
+  begrepp.  Filens och klassens upplägg visas först, och klassen växer
+  sedan en metod i taget, där resonemanget behöver den.  När vi bygger
+  klassen stegvis
   använder vi \emph{separation} för att isolera varje begrepp, och sedan
   måste studenterna uppnå \emph{fusion} genom att integrera alla begrepp
   i sina egna klasser \parencite{Marton2015}.
@@ -39,76 +39,80 @@ Detta är ett utmärkt exempel eftersom:
   \item vi lär oss om egenskaper (\foreignlanguage{english}{properties}).
 \end{itemize}
 
-Vi börjar med helheten.  Filen \texttt{fraction.py} innehåller det som
-behöver importeras, klassen och ett testprogram.
+Vi bygger filen \texttt{fraction.py} uppifrån och ner: först filens
+upplägg, med ett namn för varje del, och sedan delarna, var och en när
+vi kommer till den.  Namnen är pseudokod, och senare preciserar vi
+pseudokoden med pythonkod.  Överst i filen står en
+\foreignlanguage{english}{docstring} som säger vad filen är till för,
+sedan det som behöver importeras, klassen och till sist testprogrammet,
+som bara körs när filen körs som program och inte när den importeras.
 
 \begin{frame}[fragile]
-  \begin{example}[Filen i sin helhet]
+  \begin{example}[Bråkbibliotekets upplägg]
     \label{ex:fraction-file}
-    Tre delar, i den ordning de kommer i filen:
+    Delarna i den ordning de kommer i filen:
 <<[[fraction.py]]>>=
 """Fractions library"""
 
-<<importera det som behövs>>
+<<bråkbibliotekets importer>>
 
+<<bråkbibliotekets klasser>>
 
-<<klassen [[Fraction]]>>
-
-
-<<testprogram för [[Fraction]]>>
+<<bråkbibliotekets testprogram>>
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
 
-Klassen består av en konstruktor, förkortning, egenskaper för täljare
-och nämnare, typkonvertering och de aritmetiska operationerna.  Var och
-en av delarna förfinar vi i tur och ordning.
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Filens och klassens upplägg kommer först,
+  med namn som hör till just bråkbiblioteket, och varje metod läggs
+  till klassens metoder först där resonemanget når den (författaren,
+  2026-09-23: \enquote{it too early outlines what functions we need,
+  without having started discussing the details of the problem yet}).
+  Den tidigare versionen räknade upp klassens sju delar innan
+  konstruktorn hade diskuterats, och avslöjade därmed den omvända
+  additionen innan frågan om \mintinline{python}{1 + frac_a} ställts.
+  Filens ordning blir upptäcktens: \mintinline{python}{__simplify} står
+  nu sist i klassen.
+}
 
+Filen har en enda klass, bråkklassen.  Också den lägger vi upp först:
+dess \foreignlanguage{english}{docstring}, konstruktorn, som skapar
+bråket, och sedan klassens metoder, som vi lägger till en i taget när vi
+kommer till dem.
+
+% The \needspace keeps the class's layout on one page in the notes.
+\mode<article>{\needspace{9\baselineskip}}
 \begin{frame}[fragile]
-  \begin{example}[Bråkklassen i sin helhet]
+  \begin{example}[Bråkklassens upplägg]
     \label{ex:fraction}
-    Delarna namngivna, i den ordning de kommer i klassen:
-<<klassen [[Fraction]]>>=
+    Konstruktorn först, och sedan metoderna:
+<<bråkbibliotekets klasser>>=
 class Fraction:
     """Class for fractions"""
 
     <<konstruktorn för [[Fraction]]>>
 
-    <<förkortning>>
-
-    <<egenskaper för täljare och nämnare>>
-
-    <<typkonvertering>>
-
-    <<addition>>
-
-    <<negation och subtraktion>>
-
-    <<multiplikation>>
+    <<bråkklassens metoder>>
 @
   \end{example}
 \end{frame}
 
-Testprogrammet provar varje del i tur och ordning, så att vi kan se
-resultatet av alltihop sist.  Också det förfinar vi del för del.
+Testprogrammet börjar nästan tomt.  Varje gång vi har skrivit en del av
+klassen lägger vi till ett prov av den, så att testprogrammet provar
+delarna i den ordning vi skrev dem och vi kan se resultatet av alltihop
+sist.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:fraction-main}
-    Ett prov per del av klassen:
-<<testprogram för [[Fraction]]>>=
+    Proven läggs till ett i taget:
+<<bråkbibliotekets testprogram>>=
 def main():
     """Test program"""
-    <<prova att skapa bråk>>
-    <<prova typkonvertering>>
-    <<prova addition>>
-    <<prova subtraktion>>
-    <<prova multiplikation>>
-    <<prova förkortning>>
-
-
-if __name__ == "__main__":
-    main()
+    <<prov av bråkklassen>>
 @
   \end{example}
 \end{frame}
@@ -169,9 +173,9 @@ olika sätt att skapa bråk:
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
     \label{ex:fraction-init}
-    Konstruktorn tittar på vilken typ argumentet har.  Ett steg lämnar
-    vi tomt tills vidare: att förkorta bråket, som vi återkommer
-    till\only<article>{ i \cref{sec:forkortning}}.
+    Konstruktorn tittar på vilken typ argumentet har.  Ett steg, att
+    förkorta bråket, står kvar som pseudokod; den preciserar vi med
+    pythonkod senare\only<article>{, i \cref{sec:forkortning}}.
 <<konstruktorn för [[Fraction]]>>=
 def __init__(self, numerator, denominator=1):
     if isinstance(numerator, Fraction):
@@ -191,7 +195,7 @@ def __init__(self, numerator, denominator=1):
   \begin{example}[Några sätt att skapa bråk]
     \label{ex:fraction-create}
     Testprogrammet skapar bråk på alla fyra sätten:
-<<prova att skapa bråk>>=
+<<prov av bråkklassen>>=
 frac = Fraction(1, 2)
 int_as_frac = Fraction(2)
 frac_from_frac = Fraction(Fraction(1, 2))
@@ -226,10 +230,10 @@ den något annat än ett heltal eller ett bråk kastar den ett särfall,
   som alla fungerar med samma konstruktor; mönstret blir synligt genom
   de varierande instanserna \parencite{MartonPang2006}.
 
-  Det tomma steget \enquote{förkorta bråket} är den litterära formens
-  sätt att skjuta upp ett designbeslut: konstruktorn står färdig här,
-  medan förkortningen förfinas i \cref{sec:forkortning} när frågan
-  \emph{när} bråket ska förkortas har ställts.
+  Pseudokoden \enquote{förkorta bråket} är den litterära formens sätt
+  att skjuta upp ett designbeslut: konstruktorn står färdig här, medan
+  pseudokoden preciseras med pythonkod i \cref{sec:forkortning}, när
+  frågan \emph{när} bråket ska förkortas har ställts.
 }
 
 
@@ -282,14 +286,15 @@ oss ett mer elegant sätt: egenskaper (\foreignlanguage{english}{properties}).
 }
 
 Egenskaper låter oss använda attributliknande syntax medan vi fortfarande
-behåller kontrollen över hur data läses och skrivs.
+behåller kontrollen över hur data läses och skrivs.  Två egenskaper, för
+täljaren och nämnaren, blir de första av bråkklassens metoder.
 
 \begin{frame}[fragile]
   \begin{example}[Egenskaper]
     \label{ex:fraction-property}
     Dekoratorn \mintinline{python}{@property} gör en metod läsbar som
     ett attribut:
-<<egenskaper för täljare och nämnare>>=
+<<bråkklassens metoder>>=
 @property
 def numerator(self):
     """numerator getter"""
@@ -438,23 +443,25 @@ det till andra typer?
 }
 
 Vi behöver implementera dundermetoder för att konvertera vårt bråk till
-olika representationer.
+olika representationer.  De läggs till bland bråkklassens metoder, efter
+egenskaperna, och proven av dem läggs till i testprogrammet.  Ett namn
+som får flera delar får \(\equiv\) första gången och +\(\equiv\) varje
+gång därefter, och i programmet står delarna efter varandra, i den
+ordning de kommer.
 
 \begin{frame}[fragile]
   \begin{example}[Typkonvertering]
     \label{ex:fraction-conversion}
     En dundermetod per måltyp:
-<<typkonvertering>>=
+<<bråkklassens metoder>>=
 def __str__(self):
     return f"{self.numerator}/{self.denominator}"
 
 def __float__(self):
     return self.numerator / self.denominator
-
-<<konvertering till heltal>>
 @
     Vi provar att typkonvertera:
-<<prova typkonvertering>>=
+<<prov av bråkklassen>>=
 print(frac)
 print(float(frac))
 @
@@ -488,12 +495,12 @@ För att implementera det behöver vi dundermetoden
   \begin{example}[Konvertering till heltal]
     \label{ex:fraction-int}
     Heltalsdivision ger heltalsdelen:
-<<konvertering till heltal>>=
+<<bråkklassens metoder>>=
 def __int__(self):
     return self.numerator // self.denominator
 @
     Testprogrammet provar även den:
-<<prova typkonvertering>>=
+<<prov av bråkklassen>>=
 print(int(Fraction(7, 2)))
 @
   \end{example}
@@ -569,7 +576,7 @@ Python anropar \mintinline{python}{frac_a.__add__(frac_b)} när vi kör
   \begin{example}[Addition]
     \label{ex:fraction-add}
     Ett heltal görs först om till ett bråk; sedan gäller formeln:
-<<addition>>=
+<<bråkklassens metoder>>=
 def __add__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
@@ -580,8 +587,6 @@ def __add__(self, other):
             self.denominator * other.denominator,
         )
     raise TypeError(f"can't add with type {type(other)}")
-
-<<omvänd addition>>
 @
   \end{example}
 \end{frame}
@@ -590,7 +595,7 @@ def __add__(self, other):
   \begin{example}[Prova addition]
     \label{ex:fraction-add-test}
     Vi adderar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prova addition>>=
+<<prov av bråkklassen>>=
 frac_a = Fraction(1, 2)
 frac_b = Fraction(1, 3)
 print(frac_a + frac_b)
@@ -656,12 +661,12 @@ hantera operationen.\footnote{\label{fn:radd}%
   \begin{example}[Omvänd addition]
     \label{ex:fraction-radd}
     Den anropas med \mintinline{python}{self} som högra operand:
-<<omvänd addition>>=
+<<bråkklassens metoder>>=
 def __radd__(self, other):
     return self + other
 @
     Vi provar \(1 + \frac{1}{2}\) igen, med heltalet på båda sidor:
-<<prova addition>>=
+<<prov av bråkklassen>>=
 print(frac_a + 1)
 print(1 + frac_a)
 @
@@ -714,14 +719,12 @@ negation.
   \begin{example}[Negation]
     \label{ex:fraction-neg}
     Vi negerar täljaren:
-<<negation och subtraktion>>=
+<<bråkklassens metoder>>=
 def __neg__(self):
     return Fraction(-self.numerator, self.denominator)
-
-<<subtraktion>>
 @
     Vi negerar \(\frac{1}{2}\):
-<<prova subtraktion>>=
+<<prov av bråkklassen>>=
 print(-frac_a)
 @
   \end{example}
@@ -761,14 +764,12 @@ subtraktion!  Tänk på att \(a - b = a + (-b)\).
   \begin{example}[Subtraktion]
     \label{ex:fraction-sub}
     Subtraktion är addition med det negerade bråket:
-<<subtraktion>>=
+<<bråkklassens metoder>>=
 def __sub__(self, other):
     return self + (-other)
-
-<<omvänd subtraktion>>
 @
     Vi subtraherar \(\frac{1}{4}\) från \(\frac{1}{2}\):
-<<prova subtraktion>>=
+<<prov av bråkklassen>>=
 print(frac_a - Fraction(1, 4))
 @
   \end{example}
@@ -828,12 +829,12 @@ Nej!  Subtraktion är \emph{inte} kommutativ:
     \label{ex:fraction-rsub}
     Heltalet görs om till ett bråk, och sedan dras vårt eget bråk från
     det:
-<<omvänd subtraktion>>=
+<<bråkklassens metoder>>=
 def __rsub__(self, other):
     return Fraction(other) - self
 @
     Vi provar \(1 - \frac{1}{2}\):
-<<prova subtraktion>>=
+<<prov av bråkklassen>>=
 print(1 - frac_a)
 @
   \end{example}
@@ -861,7 +862,7 @@ multiplicerar täljare med täljare och nämnare med nämnare.
   \begin{example}[Multiplikation]
     \label{ex:fraction-mul}
     Samma mönster som för addition, med en enklare formel:
-<<multiplikation>>=
+<<bråkklassens metoder>>=
 def __mul__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
@@ -871,11 +872,9 @@ def __mul__(self, other):
             self.denominator * other.denominator,
         )
     raise TypeError(f"can't multiply type {type(other)}")
-
-<<omvänd multiplikation>>
 @
     Vi multiplicerar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prova multiplikation>>=
+<<prov av bråkklassen>>=
 print(frac_a * frac_b)
 @
   \end{example}
@@ -905,12 +904,12 @@ Precis som med addition och subtraktion behöver vi
     \label{ex:fraction-rmul}
     Multiplikation är kommutativ, så vi återanvänder
     \mintinline{python}{__mul__}:
-<<omvänd multiplikation>>=
+<<bråkklassens metoder>>=
 def __rmul__(self, other):
     return self * other
 @
     Vi multiplicerar \(\frac{1}{2}\) och \(2\), åt båda hållen:
-<<prova multiplikation>>=
+<<prov av bråkklassen>>=
 print(frac_a * 2)
 print(2 * frac_a)
 @
@@ -946,8 +945,8 @@ print(2 * frac_a)
   bråk \emph{alltid} är förkortade.  Det är ett designval --- vi hade
   kunnat välja att förkorta endast för visning.  Varje val har
   avvägningar, och studenterna måste lära sig att utvärdera dem.  I den
-  litterära formen är det just det tomma steget i konstruktorn
-  (\cref{ex:fraction-init}) som nu förfinas.
+  litterära formen är det just pseudokoden i konstruktorn
+  (\cref{ex:fraction-init}) som nu preciseras med pythonkod.
 }
 
 Nu har vi en fungerande bråkklass, men det finns ett problem: bråken
@@ -1035,19 +1034,20 @@ konstruktorn.
 
 Låt oss titta på hur vi implementerar förkortning.  Vi behöver importera
 modulen \mintinline{python}{math} för att få tillgång till funktionen
-\mintinline{python}{gcd()}; det är vad steget överst i filen
-(\cref{ex:fraction-file}) är till för.  Sedan skapar vi en (privat) metod
-\mintinline{python}{__simplify()} som gör själva förkortningen, och
-anropar den sist i konstruktorn.
+\mintinline{python}{gcd()}, och importen hör hemma bland bråkbibliotekets
+importer, överst i filen (\cref{ex:fraction-file}).  Sedan lägger vi
+till en (privat) metod \mintinline{python}{__simplify()}, som gör själva
+förkortningen, bland bråkklassens metoder.  Och till sist preciserar vi
+pseudokoden i konstruktorn med pythonkod: den anropar metoden.
 
 \begin{frame}[fragile]
   \begin{example}[Förkortning]
     \label{ex:fraction-simplify}
     Importen, metoden och anropet i konstruktorn:
-<<importera det som behövs>>=
+<<bråkbibliotekets importer>>=
 import math
 @
-<<förkortning>>=
+<<bråkklassens metoder>>=
 def __simplify(self):
     """Simplify the fraction by dividing by GCD"""
     gcd = math.gcd(self.__numerator, self.__denominator)
@@ -1103,7 +1103,7 @@ konstruktorn och efter operationer.
   \begin{example}[Prova förkortningen]
     \label{ex:fraction-test-simplify}
     Bråk som ska förkortas vid skapandet och efter räkning:
-<<prova förkortning>>=
+<<prov av bråkklassen>>=
 frac1 = Fraction(6, 12)
 print(f"Fraction(6, 12) = {frac1}")
 frac2 = Fraction(2, 6)
@@ -1118,11 +1118,24 @@ print(f"2/3 - 1/6 = {frac5}")
   \end{example}
 \end{frame}
 
+Därmed är all pseudokod preciserad med pythonkod.
+
+% The assembled file belongs to the notes only: a minted listing cannot
+% break across slides, and the chunks above are the slides' view of it.
+\mode<article>{%
+\begin{example}[\texttt{fraction.py}]
+  \label{ex:fraction-all}
+  Sätter vi in varje del där dess namn står får vi hela filen:
+  \inputminted{python}{examples/fraction.py}
+\end{example}
+
+}
+
 \begin{frame}
   \begin{exercise}
     \label{ovn:utmatning}
     Vad skriver testprogrammet ut, rad för rad?  Gå igenom
-    proven\only<article>{ i \cref{ex:fraction-main}} i ordning.
+    proven\only<article>{ i \cref{ex:fraction-all}} i ordning.
   \end{exercise}
 \end{frame}
 
@@ -1166,7 +1179,8 @@ blir \mintinline{python}{1/1}.
   (\mintinline{python}{__str__}, \mintinline{python}{__float__},
   \mintinline{python}{__int__}), aritmetiska operatorer
   (\mintinline{python}{__add__}, \mintinline{python}{__radd__} och så
-  vidare) och förkortning (ett designbeslut).  Nu ser studenterna den
+  vidare) och förkortning (ett designbeslut).  I hela filen
+  (\cref{ex:fraction-all}) och dess körning ser studenterna den
   kompletta klassen där \emph{alla} aspekter fungerar \emph{tillsammans}.
   Det är \emph{fusion} --- att erfara flera kritiska aspekter samtidigt
   som en integrerad helhet \parencite{Marton2015}: studenterna måste
@@ -1201,19 +1215,6 @@ Vi har nu en komplett bråkklass med:
   \item typkonvertering till sträng, flyttal och heltal;
   \item automatisk förkortning.
 \end{itemize}
-
-% The assembled file belongs to the notes only: a minted listing cannot
-% break across slides, and the chunks above are the slides' view of it.
-\mode<article>{%
-Hela koden för klassen, som den tanglas ur källan, ser ut så här.
-
-\begin{example}[\texttt{fraction.py}]
-  \label{ex:fraction-all}
-  Hela filen:
-  \inputminted{python}{examples/fraction.py}
-\end{example}
-
-}
 
 \begin{frame}
   \begin{exercise}
