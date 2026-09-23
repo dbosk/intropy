@@ -9,19 +9,26 @@ modules:
   - module: '^Klasser och objekt$'
     position: 1
 ---
-Den här veckan (vecka 41) handlar om *klasser och objekt*: hur du skapar
-egna datatyper som samlar data och de funktioner som hör till datan på ett
-ställe. Hittills har du beskrivit till exempel en person med flera lösa
-variabler eller en uppslagslista; med klasser får programmet en tydligare
-struktur och mindre kodupprepning, och det är grunden för nästan all kod
-du kommer att läsa och skriva framöver.
+Den här veckan (vecka 41) handlar om *uppslagslistor* och *klasser och
+objekt*. Först uppslagslistan: behållaren som slår upp ett värde med en
+nyckel, till exempel telefonnumret som hör till ett namn, i stället för
+med en plats som i listan. Sedan klasser: hur du skapar egna datatyper
+som samlar data och de funktioner som hör till datan på ett ställe.
+Med en uppslagslista kan du beskriva till exempel en person, ett fält
+per nyckel; med en klass får programmet en tydligare struktur och mindre
+kodupprepning, och det är grunden för nästan all kod du kommer att läsa
+och skriva framöver.
 
 Innan du börjar bör du vara bekväm med funktioner (parametrar och
-returvärden), villkor, upprepningar samt listor och uppslagslistor från de
-tidigare veckorna.
+returvärden), villkor, upprepningar, felhantering med `try` och `except`
+samt listor och tupler från de tidigare veckorna.
 
 ## Efter veckan ska du kunna
 
+- använda uppslagslistor för att lagra och slå upp data, hantera att en
+  nyckel saknas och gå igenom en uppslagslista med `for`,
+- välja mellan lista och uppslagslista utifrån vilka operationer
+  programmet behöver, och motivera valet,
 - förklara skillnaden mellan en klass och ett objekt,
 - skapa klasser med attribut och metoder och förstå vad parametern `self`
   är,
@@ -38,7 +45,8 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
 ## Gör så här, i ordning
 
 1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
-   frågor. Föreläsningen har en egen sida här i modulen, *Föreläsning:
+   frågor. Föreläsningen har två delar, *Behållare: Uppslagslistor* och
+   *Klasser och objekt*, och en egen sida här i modulen, *Föreläsning:
    Klasser och objekt*, som beskriver dess innehåll och länkar till
    anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
    inspelningen och föreläsningsanteckningarna där i stället.
