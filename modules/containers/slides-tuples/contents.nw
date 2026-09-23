@@ -1,0 +1,533 @@
+\mode*
+
+% Videogenomgång som följer den här föreläsningen:
+%   Tupler   https://youtu.be/DCEaExdOeww
+% Se README.md för länken till FeedbackFruits.
+
+\section{Tupler}
+\label{sec:tupler}
+
+En lista håller många värden och kan ändras hur som helst medan
+programmet kör.  Det är precis vad vi vill ha när vi samlar in namn
+eller bygger upp ett resultat.  Men ibland är föränderligheten inte en
+förmån utan en risk.
+
+\begin{frame}
+  \begin{exercise}
+    En position på jorden är ett par av två tal: latitud och longitud.
+    Om vi lagrar paret i en lista --- vad kan gå fel längre fram i
+    programmet, som inte kan gå fel med två separata variabler?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOImmutable}.
+
+  \foreignlanguage{english}{Try-first}, diagnostiskt.  Frågan pekar inte
+  ut föränderligheten; den ber om vad som kan gå fel, och svaren visar
+  om studenten redan urskilt att en lista kan ändras var som helst i
+  programmet \parencite[13]{Marton2015}.  Att svaret \enquote{någon kan
+  lägga till ett tredje tal} eller \enquote{någon kan ändra latituden}
+  ligger nära till hands är avsikten: det är just den möjligheten
+  tupeln tar bort.
+
+  Exemplet är en koordinat och inte ett namn, för att paret ska vara
+  \emph{homogent} (två tal av samma slag).  Ett namn --- förnamn och
+  efternamn --- kommer i \cref{sec:uppackning}, när uppackningen införs;
+  att paret då är heterogent hjälper till att skilja de två
+  användningarna åt.
+
+  Talparet \((58.4, 15.6)\) är Linköpings koordinater och latituden
+  \(59.3\) i programmet därefter Stockholms; ingendera uppgiften nämns i
+  studenttexten.
+}
+
+Ett par av latitud och longitud är två tal som hör ihop.  De ska läsas
+tillsammans, i den ordningen, och ingen del av programmet ska kunna
+ändra det ena utan det andra --- eller lägga till ett tredje tal.  För
+just detta har Python en egen behållare: \emph{tupeln}.  Den skrivs med
+parenteser i stället för hakparenteser.
+
+Alla program här är skrivna i den form du känner från föreläsningen
+\emph{Funktioner}: arbetet ligger i en funktion, och längst ner står
+anropet som startar programmet.  Det gäller också de kortaste exemplen.
+
+\ltnote{%
+  Varje program i materialet är funktionsversionen, också de minsta
+  demonstrationerna; regeln sägs en gång, här, och inte vid varje
+  exempel.  Skälet är att ett material som slutar tillämpa en
+  genomgången praxis lär ut att praxisen var frivillig.
+  % TODO(claim-audit): att en utebliven tillämpning lär ut att praxisen
+  % var frivillig är ett empiriskt påstående utan underlag.
+
+  Anropet är bart och inte en vaktsats kring [[__name__]], eftersom
+  modulbegreppet införs först i föreläsningen \emph{Moduler och paket}.
+}
+
+\begin{frame}[fragile]
+  Samma två element, i två behållare:
+<<[[tupler.py]]>>=
+def main():
+    """Gör samma saker med en lista och med en tupel."""
+    names = ["Ronja", "Pippi"]
+    position = (58.4, 15.6)
+
+    print(names[0], names[1], len(names))
+    print(position[0], position[1], len(position))
+
+    for name in names:
+        print(name)
+
+    for number in position:
+        print(number)
+
+
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/tupler.py}
+  \end{example}
+\end{frame}
+
+Index, \mintinline{python}{len} och \mintinline{python}{for} fungerar
+likadant på båda.  Ur den synvinkeln är tupeln bara en lista med andra
+parenteser.  Skillnaden syns först när vi försöker \emph{ändra} något.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad händer vid de två tilldelningarna?
+    \begin{minted}{python}
+def main():
+    """Tilldelar nya värden till ett element i varje behållare."""
+    names = ["Ronja", "Pippi"]
+    position = (58.4, 15.6)
+
+    names[0] = "Ada"
+    position[0] = 59.3
+
+
+main()
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  Vi kör och ser efter:
+<<[[tupel1.py]]>>=
+def main():
+    """Tilldelar nya värden till ett element i varje behållare."""
+    names = ["Ronja", "Pippi"]
+    position = (58.4, 15.6)
+
+    names[0] = "Ada"
+    print(names)
+
+    try:
+        position[0] = 59.3
+    except TypeError as error:
+        print("Gick inte att ändra tupeln:")
+        print(error)
+
+
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/tupel1.py}
+  \end{example}
+\end{frame}
+
+Listan gick att ändra; tupeln gick inte.  En tupel är \emph{oföränderlig}
+(\foreignlanguage{english}{immutable}): när den väl skapats kan inget
+element bytas ut, tas bort eller läggas till.  Det låter som en
+begränsning, och det är det --- men det är en begränsning vi väljer.  Den
+som läser koden vet att paret ser likadant ut hela vägen, och den som
+skriver koden kan inte råka ändra det.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOImmutable}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: behållarens sort, och därmed om
+  tilldelningen till ett index går.
+  \textbf{Vad som hålls invariant}: allt annat --- antalet element,
+  indexeringen, \mintinline{python}{len}, \mintinline{python}{for} och
+  själva raden som gör ändringen.
+
+  De två behållarna står i \emph{samma} program och ändras på
+  \emph{samma} rad, så att den enda skillnaden är parentesernas form
+  \parencite[45--47]{Marton2015}.  Programmet [[tupler.py]] visar först
+  att allt \emph{annat} är sig likt --- index, [[len]] och [[for]] körs
+  där på båda behållarna, eftersom prosan påstår just det --- och det är
+  avsiktligt, eftersom det som ska urskiljas är föränderligheten och
+  inget annat.
+
+  Filen heter [[tupel1.py]] efter behållaren och inte efter vad som
+  händer: ett namn som [[oforanderlig.py]] hade avslöjat vad som ska
+  urskiljas innan studenten hunnit förutsäga det.  Den heter inte
+  [[byt.py]], eftersom föreläsningen \emph{Behållare: Listor} tanglar en
+  fil med det namnet där bytet \emph{lyckas}.
+
+  Missuppfattningen som mönstret riktar sig mot är att tupeln vore en
+  \enquote{fryst lista} --- en lista som råkar vara låst --- i stället
+  för en egen sorts värde med ett eget syfte.  Därför handlar prosan
+  efteråt om \emph{varför} man väljer en tupel, inte bara om att den
+  inte går att ändra.
+
+  Felet fångas med [[try]]/[[except]] i stället för att visas som en
+  krasch, så att programmet i övrigt kan köras klart och båda halvorna
+  av kontrasten hinner skrivas ut.  Felmeddelandet visas ordagrant: det
+  är det studenterna kommer att möta i laborationerna.
+}
+
+\begin{frame}
+  \begin{exercise}
+    Vilka av de här skulle du lagra i en tupel, och vilka i en lista?
+    En veckas temperaturer, en RGB-färg, gästlistan till en fest,
+    en dags datum, kursens studenter.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOImmutable}.
+
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- om
+  antalet delar är givet av vad saken \emph{är}, och om delarna ändras
+  var för sig.
+  \textbf{Vad som varierar}: sakerna själva, från tal till färger till
+  personer.
+
+  Uppgiften har inget entydigt facit --- en veckas temperaturer kan
+  försvaras åt båda hållen --- och det är meningen.  Det som ska
+  urskiljas är kriteriet, inte svaret, och en uppgift med ett givet
+  svar skulle låta studenten gissa i stället för att motivera.
+  Att välja den enklaste behållare som klarar de operationer man
+  behöver är principen \foreignlanguage{english}{KISS}; det
+  vetenskapliga underlaget för att enkelhet är ett etablerat designvärde
+  --- och för att den vanliga tillskrivningen till Kelly Johnson inte går
+  att bekräfta --- finns i föreläsningen \emph{Funktioner}, bilaga~C.
+}
+
+En färg har tre delar därför att en färg \emph{är} rött, grönt och blått;
+ett datum har tre därför att ett datum är år, månad och dag.  Antalet är
+givet av vad saken är, och delarna byts inte ut var för sig --- tupel.
+En gästlista och en kurs studenter växer och krymper, och antalet är
+inte en egenskap hos saken --- lista.
+
+\section{Att packa upp en tupel}
+\label{sec:uppackning}
+
+Att skriva \mintinline{python}{position[0]} och
+\mintinline{python}{position[1]} går, men säger ingenting om vad talen
+betyder.  Tupler kan i stället \emph{packas upp}: vi ger elementen namn
+i samma veva som vi plockar ut dem.
+
+\begin{frame}[fragile]
+  Ett namn per element, i en enda tilldelning:
+<<[[uppackning.py]]>>=
+def main():
+    """Packar upp en tupel, och byter värden mellan två namn."""
+    position = (58.4, 15.6)
+
+    latitude, longitude = position
+    print(f"Latitud {latitude}, longitud {longitude}.")
+
+    first = "Ronja"
+    second = "Pippi"
+    first, second = second, first
+    print(first, second)
+
+
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/uppackning.py}
+  \end{example}
+\end{frame}
+
+Uppackningen kräver att antalet namn stämmer med antalet element.  Bytet
+\mintinline{python}{first, second = second, first} är samma sak sedd
+baklänges: högerledet \mintinline{python}{second, first} \emph{är} en
+tupel --- parenteserna behövs inte --- och vänsterledet packar upp den
+igen.  Det är därför två variabler kan byta värde med varandra på en
+rad, utan någon tredje variabel att lägga det ena värdet i så länge.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOUnpack}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: åt vilket håll tupeln går --- från en
+  färdig tupel till namn, eller från namn till en tupel och tillbaka.
+  \textbf{Vad som hålls invariant}: att kommatecknet, inte parentesen,
+  är det som gör en tupel.
+
+  Bytet av två variabler är valt för att det är ett problem
+  studenterna redan har mött och löst med en hjälpvariabel.  Att
+  lösningen nu blir en rad är kontrasten mot deras tidigare lösning ---
+  och det som gör kontrasten begriplig är just att högerledet är en
+  tupel.  Utan det ser raden ut som magi.
+}
+
+Det är den här möjligheten som gör att en funktion kan lämna tillbaka
+flera värden.  \mintinline{python}{return} tar ett värde --- men det
+värdet får vara en tupel.
+
+% shrink: med huvudprogrammet i main() är de två programmen 1,4 pt för
+% höga för bilden.  Båda halvorna av kontrastparet får samma behandling,
+% så att bara parenteserna skiljer dem.
+\begin{frame}[fragile, shrink]
+  En funktion som frågar efter både förnamn och efternamn:
+<<[[fullname.py]]>>=
+"""Program som visar tuplar."""
+
+
+def input_full_name():
+    """Ber om namn och returnerar (förnamn, efternamn)."""
+    firstname = input("Ange förnamn: ")
+    lastname = input("Ange efternamn: ")
+    return firstname, lastname
+
+
+def main():
+    """Hälsar på den som matar in sitt namn."""
+    first, last = input_full_name()
+    print(f"Hej, {first.capitalize()}, välkommen till programmet!")
+    print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
+
+
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Vi kör programmet och svarar \enquote{ada} och \enquote{lovelace}:
+    \runpython[transcript, stdin={ada}, stdin={lovelace}]{examples/fullname.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile, shrink]
+  Samma program, men med parenteser utsatta:
+<<[[fullname-alt.py]]>>=
+"""Program som visar tuplar."""
+
+
+def input_full_name():
+    """Ber om namn och returnerar (förnamn, efternamn)."""
+    firstname = input("Ange förnamn: ")
+    lastname = input("Ange efternamn: ")
+    return (firstname, lastname)
+
+
+def main():
+    """Hälsar på den som matar in sitt namn."""
+    (first, last) = input_full_name()
+    print(f"Hej, {first.capitalize()}, välkommen till programmet!")
+    print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
+
+
+main()
+@
+\end{frame}
+
+De två programmen gör exakt samma sak.  Parenteserna får skrivas ut, och
+ibland gör de koden tydligare --- men det är kommatecknet som skapar
+tupeln.  Det är också därför ett ensamt värde med ett kommatecken efter,
+\mintinline{python}{(5,)}, är en tupel med ett element, medan
+\mintinline{python}{(5)} bara är talet fem inom parentes.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOUnpack}.
+
+  \textbf{Variationsmönster}: kontrast, med minsta möjliga skillnad.
+  \textbf{Vad som varierar}: enbart parenteserna.
+  \textbf{Vad som hålls invariant}: hela programmet i övrigt, tecken
+  för tecken.
+
+  De två filerna tanglas ur samma källa och skiljer sig därför bevisligen
+  bara i det som varieras.  Att visa dem efter varandra i stället för
+  att bara säga \enquote{parenteserna är valfria} är poängen: påståendet
+  går att tro på eller inte, kontrasten går att se.
+
+  Namnet som matas in i körningen av [[fullname.py]] är Ada Lovelaces;
+  uppgiften stannar i den här anteckningen och sägs inte i
+  studenttexten.
+
+  Den enelementiga tupeln [[(5,)]] nämns i prosan men får inget eget
+  exempel.  Den är en vanlig fälla, men den hör inte till den kritiska
+  aspekten här, och ett eget exempel skulle variera en andra dimension
+  samtidigt.
+}
+
+\section{Nummer och element på en gång}
+\label{sec:enumerate}
+
+När vi går igenom en lista med \mintinline{python}{for} får vi
+elementen, ett i taget, men inte deras nummer.  Behöver vi numret också
+--- för att numrera en utskrift, till exempel --- brukar man ta till
+\mintinline{python}{range(len(...))} och slå upp elementet själv.
+
+\begin{frame}
+  \begin{exercise}
+    Skriv en funktion som tar en lista och lämnar tillbaka en ny lista,
+    där varje element är parat med sitt nummer.  Vad ska elementen i den
+    nya listan vara för sorts värden?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOEnumerate,TupleLOCreate}.
+
+  \foreignlanguage{english}{Try-first} inför [[enumerate]].  Den andra
+  frågan är den viktiga: den som svarar \enquote{en lista med två
+  element} har inte urskilt tupelns roll, och den som svarar
+  \enquote{ett par} har det.  Att låta studenterna först \emph{bygga}
+  det [[enumerate]] lämnar tillbaka, innan funktionen visas, gör
+  [[enumerate]] till något igenkännbart i stället för ett nytt namn att
+  lära sig utantill.
+}
+
+\begin{frame}[fragile]
+  Vår egen version, som bygger listan med par:
+<<[[my_enumerate.py]]>>=
+def my_enumerate(iterable):
+    """Returnerar listan av par (n, item) ur iterable."""
+    result = []
+
+    for i in range(len(iterable)):
+        result.append((i, iterable[i]))
+
+    return result
+
+
+def main():
+    """Provkör my_enumerate på en lista med namn."""
+    print(my_enumerate(["ronja", "pippi", "madicken"]))
+
+
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/my_enumerate.py}
+  \end{example}
+\end{frame}
+
+Varje element i resultatet är en tupel med två delar: numret och
+elementet.  Det är precis vad Pythons egen
+\mintinline{python}{enumerate} ger oss --- och eftersom elementen är
+tupler kan vi packa upp dem direkt i slingans huvud.
+
+\begin{frame}[fragile]
+  Slingvariabeln blir två namn i stället för ett:
+<<[[tuples.py]]>>=
+def main():
+    """Skriver ut varje namn tillsammans med sitt nummer."""
+    for counter, name in enumerate(["ronja", "pippi", "madicken"]):
+        print(f"{counter}: {name}")
+
+
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/tuples.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOEnumerate,TupleLOUnpack}.
+
+  \textbf{Variationsmönster}: fusion.
+  \textbf{Vad som varieras samtidigt}: att elementen är tupler
+  (\cref{TupleLOCreate}), att tupler kan packas upp
+  (\cref{TupleLOUnpack}) och att [[for]] går igenom en behållare.
+
+  Ordningen --- egen version först, [[enumerate]] sedan --- är vald så
+  att [[for counter, name in ...]] kan \emph{härledas} i stället för att
+  memoreras: slingan går igenom en följd av par, och uppackningen är
+  densamma som i \cref{sec:uppackning}.  Den vanliga frågan
+  \enquote{varför står det två namn efter [[for]]?} besvaras då av
+  materialet innan den ställs.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Slå upp \mintinline{python}{enumerate} i Pythons dokumentation.
+    Hur får man numreringen att börja på 1 i stället för 0?  Och vad
+    lämnar \mintinline{python}{enumerate} egentligen tillbaka?
+  \end{exercise}
+\end{frame}
+
+Den sista frågan går också att svara på genom att köra.
+
+\mode<article>{\needspace{14\baselineskip}}
+\begin{frame}[fragile]
+  \begin{exercise}
+    Här är ett program som anropar \mintinline{python}{enumerate} utan
+    någon slinga.  Vad skriver det ut?
+<<[[numrering.py]]>>=
+def main():
+    """Skriver ut vad enumerate lämnar tillbaka."""
+    numbers = enumerate(["ronja", "pippi"])
+
+    print(type(numbers))
+    print(list(numbers))
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/numrering.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{enumerate} lämnar alltså inte tillbaka en lista,
+utan något som producerar paren ett i taget medan slingan går.  Det
+räcker gott för en \mintinline{python}{for}-slinga, och behöver vi
+verkligen en lista kan vi be om en med \mintinline{python}{list} --- och
+då får vi paren.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{TupleLODocs,TupleLOEnumerate}.
+
+  Dokumentationsuppgiften avslutar materialet, som i de andra
+  föreläsningarna om behållare.  Den andra frågan är medvetet öppen:
+  svaret --- att [[enumerate]] ger en \emph{iterator} --- ligger utanför
+  materialets lärandemål och tas inte upp i någon av föreläsningarna.
+  Prosan ger därför svaret i vardagliga ord och utan att namnge
+  begreppet.
+
+  \textbf{Kontrast.}  Vad som varierar: om vi ber om paren ett i taget
+  eller om hela följden på en gång ([[type]] mot [[list]]).  Vad som
+  hålls invariant: anropet av [[enumerate]] och dess argument.
+  Kontrasten ska urskilja att det [[enumerate]] lämnar tillbaka inte
+  \emph{är} en lista men kan \emph{bli} en --- lärandemålet säger att
+  studenten ska kunna förklara vad [[enumerate]] lämnar tillbaka, och
+  det gick tidigare bara att läsa sig till.  Objektet självt skrivs inte
+  ut: dess representation innehåller en minnesadress som ändras vid
+  varje bygge, så utmatningen skulle inte gå att upprepa.
+}

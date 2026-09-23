@@ -1,0 +1,1086 @@
+% Let the generated longtables start on the page where they are input
+% instead of waiting for room for a 20-row chunk (round 5, reader R19).
+\setcounter{LTchunksize}{4}
+
+\chapter{Att kontrollera ett påstående}
+\label{app:verifiera}
+
+Det här materialet gör, som allt undervisningsmaterial, en rad
+påståenden.  De flesta går att pröva vid datorn: lämnar
+\mintinline{python}{input} tillbaka en sträng eller inte?  Avbryts
+programmet när ett särfall inte tas om hand?  Sådana påståenden ska du
+inte tro på, du ska prova dem.
+
+Men några av påståendena handlar om något annat --- om vad
+\emph{forskningen} säger, oftast om vad nybörjare brukar missförstå.
+Dem kan ingen körning avgöra:
+\begin{enumerate}
+  \item att nybörjare ofta tror att ett tal som lästs in från terminalen
+    redan är ett tal, och att den uteblivna omvandlingen är ett
+    dokumenterat återkommande fel (\cref{sec:vad-far-vi-tillbaka});
+  \item att heltalsdivision och typomvandling hör till de vanligaste
+    felen när nybörjare räknar ut vad ett uttryck ger
+    (\cref{sec:datatyper});
+  \item att eleverna i grundskolan räknar med de fyra räknesätten på
+    hela tal innan decimaltalen kommer, och i vilka årskurser vart och
+    ett av dem står i kursplanen (\cref{sec:datatyper});
+  \item att studenter systematiskt missförstår felhantering --- att de
+    bara använder den allmännaste sorten, och att de inte har tagit till
+    sig att resten av \mintinline{python}{try}-blocket hoppas över
+    (\cref{sec:fanga,sec:flera}) --- och att felmeddelanden i sig är
+    svåra för nybörjare (\cref{sec:felmeddelande});
+  \item att det är en känd dålig vana att fånga alla särfall med en enda
+    allmän gren (\cref{sec:flera});
+  \item att en kontrast måste upplevas \emph{samtidigt} för att den
+    varierande aspekten ska kunna urskiljas --- skälet till att
+    exemplen i materialet står parvis (hela materialet).
+\end{enumerate}
+Hur vet man om sådant stämmer?  Samma fråga möter dig varje gång du läser
+en lärobok, en webbsida eller ett svar från en språkmodell --- och varje
+gång du själv ska skriva en rapport.  Den här bilagan sammanfattar
+arbetsgången; \cref{app:nyborjare,app:catchall} visar den genomförd med
+egna sökningar, \cref{app:missuppfattningar} visar hur källor som
+hämtats ur en annan genomgång kontrolleras på nytt, \cref{app:lgr22}
+visar det enklare fallet där en primärkälla räcker och ingen sökning
+behövs, och
+\cref{tab:paastaaenden} sammanfattar frågorna,
+var svaren står och vad de blev.  Arbetsgången beskrivs utförligare i
+bilagan med samma namn i föreläsningen \emph{Algoritmiskt tänkande}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Påståendena i den här föreläsningen som frågor, var svaret
+    står och vad det blev.  \enquote{Med förbehåll} betyder att svaret
+    gäller med de inskränkningar som redovisas i kapitlets slutsats.
+    De två sista
+    frågorna är besvarade i andra föreläsningars bilagor och görs inte
+    om här.}
+  \label{tab:paastaaenden}
+  \begin{tabular}{@{}p{0.44\linewidth}p{0.29\linewidth}p{0.18\linewidth}@{}}
+    \toprule
+    Fråga & Var svaret står & Svar \\
+    \midrule
+    Tror nybörjare att inläst text redan är ett tal, och är det
+      dokumenterat? & \Cref{app:missuppfattningar} & Ja, med förbehåll \\
+    Hör heltalsdivision och typomvandling till de vanligaste
+      nybörjarfelen? & \Cref{app:missuppfattningar} & Ja, med
+      förbehåll \\
+    I vilka årskurser står de fyra räknesätten med hela tal
+      respektive tal i decimalform i grundskolans kursplan? &
+      \Cref{app:lgr22} & Årskurs 1--3 respektive 4--6 \\
+    Måste en kontrast upplevas samtidigt för att kunna urskiljas? &
+      \Cref{app:missuppfattningar} & Ja, med förbehåll \\
+    Missförstår studenter felhantering, och i så fall hur? &
+      \Cref{app:nyborjare} & Ja, med förbehåll \\
+    Är felmeddelanden svåra för nybörjare? & \Cref{app:nyborjare};
+      \emph{Hello, World!}, bilaga D & Ja, med förbehåll \\
+    Är det en känd dålig vana att fånga alla särfall med en allmän
+      gren? & \Cref{app:catchall} & Ja, med förbehåll \\
+    Är det bra att inte upprepa sig i ett program, och kommer
+      principen \foreignlanguage{english}{DRY} från Hunt och Thomas? &
+      \emph{Algoritmiskt tänkande}, bilaga E & Ja, med förbehåll \\
+    Kommer \foreignlanguage{english}{KISS} från Kelly Johnson, och är
+      det etablerad praxis? & \emph{Funktioner}, bilaga C & Nej
+      respektive ja \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Gör påståendet till en fråga}
+
+Ett påstående går att kontrollera först när det är tydligt vad som skulle
+kunna visa att det är \emph{fel}.  Formulera det därför som en fråga med
+ett svar: \enquote{tror nybörjare att inläsning ger ett tal?} kan
+besvaras med ja eller nej, medan \enquote{typer är viktigt} inte kan
+det.  Ingen tänkbar källa skulle visa att det senare är fel, eftersom
+\enquote{viktigt} är ett omdöme och inte ett faktum.
+
+Ofta döljer sig flera påståenden i ett.  \enquote{En etablerad metod som
+härrör från A} är två frågor --- \emph{ursprung} och \emph{etablering}
+--- och de kräver olika slags källor.  Detsamma gäller \enquote{en känd
+dålig vana}: är den \emph{dålig}, alltså kostar den något, och är den
+\emph{känd} som dålig, alltså är det inte bara den här kursens åsikt?
+
+\section{Välj rätt sorts källa}
+
+Olika frågor besvaras av olika källor.
+\begin{description}
+  \item[Uppslagsverk] för vad ett ord \emph{betyder}.
+  \item[Primärkällan] för var en idé \emph{kommer ifrån}, och för ett
+    specifikt resultat.  Vill man veta om en princip härrör från en viss
+    författare läser man författarens egen text, inte en lärobok som
+    återger den; vill man veta vad studenter faktiskt gjorde läser man
+    studien som mätte det.
+  \item[Översikter] (\foreignlanguage{english}{reviews}) för om något är
+    \emph{etablerat}, eller för vad forskningen \emph{sammantaget}
+    säger.  En systematisk översikt går igenom hundratals studier efter
+    en angiven metod och väger därför tyngre än en enskild studie.
+  \item[Enskilda studier] för ett specifikt resultat --- med förbehållet
+    att en enskild studie bara visar att något observerats en gång, i en
+    viss population.
+\end{description}
+Var man hittar dem: universitetsbibliotekets söktjänst, och databaser som
+Scopus, Web of Science, IEEE Xplore, ACM Digital Library, DBLP (datalogi)
+och OpenAlex (OA; inte \foreignlanguage{english}{open access}).  Google
+Scholar täcker brett men rankar ogenomskinligt.  I bilagorna användes
+kommandoradsverktyget \texttt{scholar}\footnote{Paketet
+  \texttt{scholarcli} på PyPI: \url{https://pypi.org/project/scholarcli/}.},
+som ställer samma fråga till flera databaser på en gång och sparar allt
+som hände i en \emph{session}.  Det du får ut av bibliotekets söktjänst
+är detsamma, bara långsammare.
+
+\section{Sök så att du kan ha fel}
+
+Den som söker på namn hon redan känner till hittar det hon väntar sig.
+Sök därför \emph{ämnesdrivet} --- på begrepp, inte författare.  Alla
+sökningar som gjorts i bilagorna är gjorda så.  Några praktiska regler:
+\begin{itemize}
+  \item Håll frågorna korta.  Flera korta frågor slår en lång.
+  \item Ställ \emph{samma} frågor i alla databaser, och sök begreppets
+    alla namn.  En sökning som bara prövat ett av namnen, i en av
+    databaserna, säger inte att invändningar saknas.  Det låter enklare
+    än det är: databaserna har olika frågespråk, och en fråga som
+    fungerar i en kan ge noll träffar i en annan av rena tekniska skäl.
+    \Cref{app:catchall} visar ett exempel --- DBLP indexerar bara
+    titlar och kräver att varje ord förekommer, så en lång boolesk
+    fråga ger noll där även när databasen \emph{har} rätt artikel.  Det
+    är inte ett svar; det är en fråga som ställdes fel, och den ska
+    ställas om.
+  \item Sök också efter \emph{invändningar}: lägg till ord som
+    \enquote{critique}, \enquote{limitations} eller \enquote{justified}.
+    Ett påstående som överlevt en motsökning är värt mer än ett som
+    aldrig prövats, och en invändning som hittas blir ett
+    \emph{förbehåll} i svaret, inte ett nederlag.  \Cref{app:catchall}
+    är just ett sådant fall.
+  \item Räkna med att databasernas rankning missar somligt --- äldre
+    tidskrifter, konferensrapporter utan \textsc{doi}, examensarbeten.
+    Vissa tidskrifter är inte indexerade alls i de stora databaserna.
+    Då hämtas källan som \emph{känt dokument}: man vet att den finns och
+    slår upp den direkt.  Det är i sin ordning, bara det sägs ---
+    \cref{app:nyborjare} innehåller ett sådant fall.
+\end{itemize}
+
+\section{Läs i fulltext, och skriv ner hur}
+
+En träff i en databas är inte ett belägg.  Sammanfattningen
+(\foreignlanguage{english}{abstract}) räcker inte heller: den säger vad
+författarna vill ha sagt, inte vad de visat.  Läs hela texten och leta
+upp \emph{det ställe} som styrker påståendet --- ett ordagrant citat med
+sidnummer.  Hittar du inget sådant ställe stöder källan inte påståendet,
+hur passande titeln än är.  Räkna aldrig en källa du inte läst.
+
+Skriv sedan ner hur du gick till väga, så att någon annan kan följa
+spåret.  I det här materialet står den anteckningen som en kommentar
+ovanför varje post i litteraturlistans källfil, med fasta fält:
+\begin{description}
+  \item[\texttt{CLAIM}] vilket påstående källan ska styrka;
+  \item[\texttt{FOUND-VIA}] hur den hittades --- sökfråga och databas,
+    eller \enquote{känt dokument};
+  \item[\texttt{PICKED}] varför just den, framför andra träffar;
+  \item[\texttt{QUOTE}] det ordagranna citatet, med sida;
+  \item[\texttt{VERIFIED}] att fulltexten lästs, och var;
+  \item[\texttt{COUNTER}] motsökningen och vad den gav;
+  \item[\texttt{DATE}] när.
+\end{description}
+Det ser byråkratiskt ut och tar ett par minuter per källa.  Det är också
+det enda som gör det möjligt att om ett år svara på frågan \enquote{hur
+vet du det?}
+
+En källa som du återanvänder från en annan text är \emph{inte} redan
+kontrollerad.  Att någon annan --- eller du själv, för ett år sedan ---
+har citerat den säger ingenting om att citatet stämmer eller att det
+stöder just det påstående du gör nu.  Läs stället igen.
+
+\section{Dra slutsatsen --- med förbehåll}
+
+Svaret skrivs ut tillsammans med det som talar emot, och de flesta
+svaren i \cref{tab:paastaaenden} är ett ja med förbehåll:
+nybörjarna tar mycket riktigt inläst text för tal, men ingen av
+källorna säger hur ofta det sker i just den här kursen; studenterna i
+undersökningarna missförstod mycket riktigt felhanteringen, men de läste
+Java och gick sista året, inte Python och första --- så resultatet säger
+att svårigheten är verklig och överlever undervisning, inte hur vanlig
+den är här; och att fånga allt är mycket riktigt en känd dålig vana, men
+den studie som säger det säger också att de buggar den faktiskt orsakar
+är ovanligare än man kunde tro.  Förbehållen avgör hur påståendet
+används i materialet: därför står det i \cref{sec:flera} \enquote{fånga
+det du vet hur du ska
+svara på} och inte \enquote{fånga aldrig allt}.  Varje kapitel slutar
+därför med ett avsnitt \emph{Fortsatt arbete}: vad just den sökningen
+lämnade ogjort, och vad som skulle behöva undersökas för ett säkrare
+svar.
+
+\section{En anmärkning om språkmodeller}
+
+En ämnessökning ger ofta hundratals träffar, och sökningarna i
+\cref{app:nyborjare,app:catchall} gav just det.  En språkmodell kan
+användas för att \emph{sortera} dem --- hör träffen till ämnet över
+huvud taget, och åt vilket håll pekar den? --- så att gallringen kan
+granskas.  Lägg märke till arbetsfördelningen: modellen sorterar, men
+varje källa som citeras ska läsas och väljas av en människa, och även
+sorteringen ska bekräftas av en människa.  Modellens klassning står med
+sin konfidens i tabellerna, så att den kan ifrågasättas.  Använd gärna
+språkmodeller för att hitta och sortera; låt dem aldrig vara det sista
+ledet.  De kan göra fel, men det är du själv som måste stå till svars
+för innehållet.
+
+\section{Fortsatt arbete}
+\label{sec:verifiera-fortsatt}
+
+Några av materialets råd är inte prövade mot litteraturen.  Ett råd påstår
+att det lönar sig att följa det, och det påståendet är empiriskt precis
+som de andra; för följande råd är ingen sökning gjord ännu.
+\begin{itemize}
+  \item Reglerna för frågor i \cref{sec:anvandarvanligt}: en sak i
+    taget, enheten i frågan, och ett svar som säger vad talet är.
+  \item Reglerna för felmeddelanden i \cref{sec:begripligt}: säg vad
+    programmet ville ha, på användarens språk, gärna med ett exempel.
+    Föreläsningen \emph{Hello, World!}, bilaga~D, gäller Pythons egna
+    meddelanden till den som skriver programmet, inte ett programs
+    meddelanden till den som använder det.
+  \item Rådet i \cref{sec:titta-forst} att låta
+    \mintinline{python}{try} avgöra det som är
+    \mintinline{python}{int}:s ensak och bara kontrollera först det som
+    är ens eget.  Det vilar i dag på DRY, vars underlag finns i
+    föreläsningen \emph{Algoritmiskt tänkande}, bilaga~E, men inte på
+    någon studie av de två sätten att skriva.
+  \item Materialets egen regel att varje program följer det materialet
+    redan lärt ut, här att allt arbete ligger i funktioner.  Att en
+    skillnad mellan det ett material säger och det det visar kostar
+    något i lärande är ett påstående om verkan, inte bara ett designval.
+\end{itemize}
+Varje punkt är en fråga av samma slag som de i
+\cref{tab:paastaaenden}, och den ska besvaras på samma sätt: ämnesdrivet,
+åt båda hållen, och med förbehållen redovisade.
+
+\chapter{Är missuppfattningarna om inmatning och typer belagda?}
+\label{app:missuppfattningar}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Den här föreläsningens avsnitt om inmatning och typer är byggda kring
+ett par saker som nybörjare brukar missförstå.  Kontrastparen är valda
+för att göra just
+dem synliga: att
+\mintinline{python}|"3" + "4"| och \mintinline{python}{3 + 4} ger olika
+svar, och att \mintinline{python}{input} ger en sträng även när
+användaren skriver siffror.  Frågan den här bilagan besvarar är:
+\emph{är de missuppfattningar materialet är byggt kring faktiskt
+belagda, och räcker beläggen för det materialet påstår?}
+
+\section{Metod}
+\label{sec:input-metod}
+
+Ingen ny litteratursökning har gjorts för den här föreläsningen.
+Källorna är hämtade ur en systematisk genomgång av forskningen om
+nybörjares missuppfattningar som kursens lärare gjort inom ett
+pågående forskningsarbete \parencite{SooriBosk2026}.  Den genomgången
+söktes ämnesdrivet i flera
+databaser --- Semantic Scholar, OpenAlex, DBLP, arXiv, Web of Science,
+IEEE Xplore och Scopus --- på frågan vilka missuppfattningar nybörjare
+har i grundläggande programmering, och träffarna sorterades först
+maskinellt och sedan för hand.
+
+Att återanvända en källa är inte detsamma som att ha kontrollerat den.
+För varje källa som citeras här har därför tre saker gjorts om:
+påståendet har formulerats så som \emph{den här} föreläsningen gör det;
+det ordagranna citat föreläsningen stöder sig på har lästs upp igen i
+källan; och det har antecknats vilken nivå kontrollen nådde --- fulltext
+eller enbart sammanfattning.  Anteckningarna står i materialets källfil
+för litteraturlistan, ovanför varje post.
+
+Den här bilagan innehåller därför ingen träfflista och inga sökfrågor,
+utan redovisar vilka källor som bär vilket påstående och hur långt
+kontrollen av dem räcker.
+
+\section{Resultat}
+\label{sec:input-resultat}
+
+\paragraph{Inläst text är en sträng.}  Att nybörjare tror att numeriska
+data som läses in redan är tal är belagt i den hittills största samlingen
+av nybörjarförklaringar, drygt 16\,000 stycken insamlade under tre år på
+en webbplats för programvisualisering.  \Textcite{GuoMarkelZhang2020}
+noterar att data som läses från fil eller terminal
+\textcquote{GuoMarkelZhang2020}{often start as strings.  If they are not
+properly converted to numbers, it is still possible to use math operators
+like + and > on them, which will perform string concatenation and
+comparison}.  Att felet är just den uteblivna omvandlingen bekräftas
+oberoende av en katalog över antimönster, byggd ur 95 dokumenterade
+missuppfattningar i verklig kod från grundkursstudenter:
+\textcite{Bosse2021Antipatterns} tar upp \emph{missing type conversion}
+och skriver: \textcquote{Bosse2021Antipatterns}{Failure to convert, when
+necessary, will make the data not be in the proper format so that the
+program can work}.  De två källorna är av olika slag --- den ena en
+korpus av studenters egna förklaringar, den andra en granskning av deras
+kod --- vilket gör samstämmigheten mer värd än två studier av samma slag
+hade varit.
+
+\paragraph{Heltalsdivision och typomvandling.}  Att det inte bara handlar
+om inmatning stöds av en studie av nybörjares fel vid utvärdering av
+uttryck: \textcite{Gobil2009Errors} rapporterar att de vanligaste felen
+vid utvärdering av aritmetiska uttryck är att inte klara heltalsdivision
+och typomvandling.  Det är precis de två operationer föreläsningen
+kontrasterar (\mintinline{python}{/} mot \mintinline{python}{//}) och den
+omvandling den bygger på.
+
+\paragraph{Kontrast före generalisering.}  Att exemplen står parvis, och
+att kontrasten kommer före generaliseringen, vilar på variationsteorin.
+\Textcite[45--47]{Marton2015} visar att en aspekt bara kan urskiljas om
+den varierar mot en invariant bakgrund, och att den variationen måste
+upplevas samtidigt: \textcquote[46]{Marton2015}{if you cannot see the
+greenness of any of three green, though otherwise different, things, you
+cannot see what they have in common, either}.  Därför står de två
+programmen i \cref{ovn:plus-tva-typer} tillsammans och skiljer sig
+bara i operandernas typ.
+
+\section{Diskussion och begränsningar}
+\label{sec:input-diskussion}
+
+Tre saker begränsar svaret.
+
+För det första är en av källorna läst enbart i sammanfattning, inte i
+fulltext: studien om fel vid utvärdering av uttryck, vars förlag håller
+texten stängd.  Det påverkar vad den får bära: den citeras för att en
+typ av fel är \emph{vanlig}, vilket sammanfattningen säger rakt ut, inte
+för någon detalj i hur felen mättes.
+
+För det andra säger ingen av källorna något om hur ofta felen
+förekommer i just den här kursen.  De säger att felen finns och
+återkommer i flera länder och språk; de säger inte att just våra
+studenter gör dem lika ofta.  Kursens egna diagnostiska frågor finns
+till för det.
+
+För det tredje: samstämmighet är inte bevis.  Att två oberoende slags
+material --- studenters egna förklaringar och granskad kod --- pekar åt
+samma håll är starkare än en enda studie, men båda kommer ur
+grundkurser som liknar varandra, och ingen av dem är ett experiment.
+Påståendet materialet gör är också svagare än så: att det \emph{är värt
+att undervisa mot} den här missuppfattningen, inte att den drabbar alla.
+
+\section{Slutsats}
+\label{sec:input-slutsats}
+
+Ja, missuppfattningarna är belagda, med det förbehållet att beläggen
+säger att felen är vanliga och inte hur vanliga de är hos oss.  Att
+inläst text tas för ett tal är dokumenterat både i studenters egna
+förklaringar\autocite{GuoMarkelZhang2020} och i granskad
+studentkod\autocite{Bosse2021Antipatterns}; att heltalsdivision och
+typomvandling hör till de vanligaste felen vid utvärdering av uttryck är
+dokumenterat i en enskild studie, läst i
+sammanfattning\autocite{Gobil2009Errors}.  Att materialets exempel står
+parvis, med kontrasten före generaliseringen, följer av
+variationsteorins villkor för urskiljning\autocite[45--47]{Marton2015}.
+Materialet använder beläggen till det de räcker till: att välja
+\emph{vilka} kontraster som är värda tid på en föreläsning --- inte till
+att påstå hur många i salen som har missuppfattningen.
+
+
+\section{Fortsatt arbete}
+\label{sec:input-fortsatt}
+
+Det största som saknas är en egen sökning.  Kapitlet vilar på källor
+som hämtats ur en genomgång gjord för en annan fråga
+(\cref{sec:input-metod}), och därför finns här varken sökfrågor,
+motsökning för just de här formuleringarna eller en träfflista att
+granska.  Nästa steg är att ställa den tvåsidiga frågan för vart och
+ett av kapitlets tre påståenden och redovisa den med tabell och
+träfflista, så som andra föreläsningars bilagor gör.  Därtill är
+studien om fel vid utvärdering av uttryck läst enbart i
+sammanfattning\autocite{Gobil2009Errors}, eftersom förlaget håller
+texten stängd; fulltexten skulle säga hur felen mättes, i vilken
+population, och om heltalsdivision och typomvandling är de två
+vanligaste felen eller bara två vanliga.  Den läsningen står kvar att
+göra.
+
+För ett säkrare svar saknas mätningar i den population materialet
+vänder sig till.  Källorna kommer från användarna av en webbplats och
+från en grundkurs i ett annat land, delvis i ett annat programspråk;
+ingen av dem säger hur vanliga felen är i den här kursen.  En räkning
+av de två felen i kursens egna inlämningar skulle svara på det, och
+kursens diagnostiska frågor är redan formulerade så att de kan användas
+till den räkningen.  Otestad är dessutom själva utformningen: att en
+kontrast måste upplevas samtidigt är en teoretisk
+betingelse\autocite[45--47]{Marton2015}, inte ett resultat om just de
+här två programmen.  Ett experiment som visar de två programmen
+samtidigt för en grupp och efter varandra för en annan skulle pröva den
+saken.  Visar räkningen att felen är ovanliga här, kan kontrastparet
+krympa till ett exempel; visar experimentet ingen skillnad mellan
+samtidigt och i följd, står paret kvar men bilagan slutar hävda att
+samtidigheten är nödvändig.
+
+% Author's note (verification and reproduction):
+%   sources           : reused from the author's misconceptions study
+%                       (~/devel/edu/research/vt-prog-misconceptions,
+%                       types.tex; literature protocol app:litprotocol),
+%                       plus Marton2015 reused from
+%                       modules/computational-thinking/slides/ltnotes.bib
+%   no new search     : deliberately none; see sec:input-metod.  If a new
+%                       claim is added to this deck, run the two-sided
+%                       protocol under a session named input-<claim-slug>
+%                       and add a chapter with a query table and a
+%                       classified hit list.
+%   provenance        : ltnotes.bib, keys GuoMarkelZhang2020
+%                       Bosse2021Antipatterns Gobil2009Errors Marton2015
+%                       (CLAIM / FOUND-VIA / PICKED / QUOTE / VERIFIED /
+%                       DATE, with "(here)" lines for this deck)
+%   abstract-level    : Gobil2009Errors (IEEE Xplore closed)
+%   already backed    : DRY in modules/computational-thinking/slides,
+%                       bilaga E (HuntThomas1999 and the clone-cost
+%                       literature); KISS in modules/variables/
+%                       slides-functions, bilaga C (Rich1995Johnson,
+%                       Popik2019KISS, entries carried here).
+%   merged deck       : this chapter came from the deck Inmatning och
+%                       datatyper; bilagorna C and D came from the deck
+%                       Felhantering when the two were merged
+%                       (2026-09-16).  Bilaga A is the two decks'
+%                       method chapters merged into one.
+
+\chapter{Missförstår studenter felhantering?}
+\label{app:nyborjare}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Materialet påstår på flera ställen något om hur studenter tänker.  I
+\cref{sec:fanga} sägs att det \enquote{brukar sitta löst} att resten av
+\mintinline{python}{try}-blocket hoppas över, i \cref{sec:flera} att
+det är lätt att falla i vanan att bara använda den allmänna sorten, och
+i \cref{sec:felmeddelande} att felmeddelanden är svåra för nybörjare.
+Alla är empiriska påståenden om en population, och de styr materialets
+utformning: hela kontrasten i \cref{sec:fanga} är byggd kring ett
+\mintinline{python}{try}-block med två rader just därför.  Frågan som ska
+besvaras är alltså: \emph{missförstår studenter felhantering, och i så
+fall hur?}
+
+Kursens eget underlag om missuppfattningar räckte inte.  Kursens
+sammanställning över dokumenterade
+missuppfattningar hos nybörjare \parencite{SooriBosk2026} behandlar
+varken särfall, tracebackar eller \mintinline{python}{try} --- den
+närmaste posten gäller
+felmeddelanden som en \emph{svårighet}, inte som en missuppfattning.
+Påståendena i det här kapitlet är därför sökta från början, inte
+återanvända.
+
+\section{Metod}
+\label{sec:nyb-metod}
+
+Arbetsgången är den i \cref{app:verifiera}: \emph{finn}, \emph{verifiera},
+\emph{registrera}.  Frågan söktes ämnesdrivet och tvåsidigt den 3
+september 2026 med verktyget \texttt{scholar}.  Två stödfrågor sökte
+belägg för att svårigheterna finns, och två motfrågor sökte arbeten som
+säger att de inte finns eller är överdrivna.  Samma begrepp användes åt
+båda hållen.  Varje fråga ställdes till alla databaser som var i drift:
+OpenAlex, DBLP, IEEE Xplore, Web of Science och Scopus.  Semantic
+Scholar avvisade sin nyckel och saknas därför helt.
+\Cref{tab:nyb-queries} visar frågorna och antalet träffar per databas.
+
+% Author's note (verification and reproduction): sessions
+% exceptions-novice (support S1-S2, counter M1-M2, plus the DBLP keyword
+% queries); classification with `scholar llm classify --no-examples`,
+% model github_copilot/gpt-5.4; hit-list table generated with
+% `scholar sessions export exceptions-novice -f table --bearing-only
+% --lang sv --label sok-nyborjare --track "..." -o
+% litteratursokning/nyborjare-full`.  The query counts in
+% tab:nyb-queries were re-measured per provider with a separate,
+% session-free run of the same queries on 2026-09-03.  Bib keys:
+% RashkovitsLavy2011, RashkovitsLavy2012, Prather2017CEM.
+\begin{table}[htbp]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, 3
+    september 2026, verktyget \texttt{scholar}.  S = stödfråga,
+    M = motfråga, D = samma begrepp som kort ordlista till DBLP.
+    Databaser: OpenAlex (OA; inte \foreignlanguage{english}{open
+    access}), DBLP, IEEE Xplore (IEEE), Web of Science (WoS), Scopus.
+    Högst 40 träffar hämtades per databas och fråga, så 40 betyder
+    \enquote{minst 40}.  Frågan visas i den booleska form som skickades
+    till OpenAlex och IEEE Xplore.  De långa booleska frågorna ger noll
+    i DBLP av tekniska skäl (se \cref{app:verifiera}); D-raderna är
+    omsökningen som rättar det och ställdes bara till DBLP; ett
+    tankstreck betyder att frågan inte ställdes till den
+    databasen.}
+  \label{tab:nyb-queries}
+  \footnotesize
+  \begin{tabular}{@{}lp{0.42\linewidth}rrrrr@{}}
+    \toprule
+    & Nyckelord & OA & DBLP & IEEE & WoS & Scopus \\
+    \midrule
+    S1 & (exceptions \textsc{or} \enquote{exception handling})
+      \textsc{and} (novice \textsc{or} student \textsc{or} CS1
+      \textsc{or} \enquote{introductory programming}) \textsc{and}
+      (misconception \textsc{or} \enquote{mental model} \textsc{or}
+      understanding \textsc{or} difficulties)
+      & 40 & 0 & 40 & 40 & 40 \\
+    S2 & \enquote{exception handling} \textsc{and} programming
+      \textsc{and} (novice \textsc{or} students \textsc{or} learners)
+      \textsc{and} (misconception \textsc{or} \enquote{mental model}
+      \textsc{or} comprehension)
+      & 40 & 0 & 10 & 1 & 2 \\
+    M1 & \enquote{exception handling} \textsc{and} (novice \textsc{or}
+      students \textsc{or} learners) \textsc{and} (teaching \textsc{or}
+      education \textsc{or} curriculum) \textsc{and} (effective
+      \textsc{or} successful \textsc{or} \enquote{no difficulty}
+      \textsc{or} critique \textsc{or} limitations)
+      & 40 & 0 & 40 & 1 & 5 \\
+    M2 & \enquote{exception handling} \textsc{and} (students
+      \textsc{or} novices \textsc{or} learners) \textsc{and}
+      (\enquote{flow of control} \textsc{or} \enquote{control flow}
+      \textsc{or} propagation) \textsc{and} (understand \textsc{or}
+      mastery \textsc{or} \enquote{not a difficulty} \textsc{or}
+      overstated)
+      & 40 & 0 & 3 & 0 & 1 \\
+    D1 & students exception handling & --- & 1 & --- & --- & --- \\
+    D2 & novice exception handling misconceptions
+      & --- & 0 & --- & --- & --- \\
+    D3 & exception handling education & --- & 0 & --- & --- & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+En källa kunde inte nås med ämnessökning och hämtades som känt dokument.
+Rashkovits och Lavys studie av förståelsen av särfallens mer avancerade
+egenskaper\autocite{RashkovitsLavy2012} är publicerad i en tidskrift som
+ingen av de fem databaserna indexerar; den hittades i stället när
+fulltexten till författarnas andra artikel söktes på webben, och lästes
+sedan i tidskriftens eget öppna arkiv.  Att ämnessökningen inte gav den
+betyder alltså \enquote{inte indexerad här}, inte \enquote{finns inte}.
+Databasernas frågespråk krävde också översättning: den booleska strängen
+skickades som den var till OpenAlex och IEEE Xplore, Web of Science fick
+den som \texttt{TS=(\dots)} och Scopus som
+\texttt{TITLE-ABS-KEY(\dots)}, medan DBLP fick en kort ordlista med samma
+begrepp.
+
+\section{Resultat}
+\label{sec:nyb-resultat}
+
+\paragraph{Använder studenter bara den allmänna sorten?}
+Ja.  Rashkovits och Lavy lät 56 studenter lösa en uppgift där
+felhantering var poängen, och analyserade sedan vad de faktiskt hade
+skrivit.  Resultatet var att \enquote{only few participants (7 out of 56)
+provided a solution that was classified to one of the two highest
+assimilation levels, while many (23 out of 56) did not use exception
+mechanism at all.  The rest of the students (25 out of 56) used the
+exception mechanism poorly (i.e., used only Exception class or did not
+use hierarchy of exceptions)}\autocite[183]{RashkovitsLavy2011}.  I
+intervjuerna beskriver studenterna själva varför: den allmänna sorten är
+den enklaste, och meddelandet får skilja fallen
+åt\autocite[203]{RashkovitsLavy2011}.
+
+\paragraph{Missförstår de vad som händer med resten av blocket?}
+Ja.  I en uppföljande studie ställde samma författare frågor om vad som
+händer när ett särfall uppstår mitt i ett block med flera satser.  Om de
+studenter som svarade fel skriver de att de \enquote{had not assimilated
+the fact that once an exception is thrown, the program jumps to the
+closest catch clause that is appropriate for the exception and continues
+from there}, och att de därför \enquote{could not cope properly with
+try-catch blocks containing more than one
+command}\autocite[343]{RashkovitsLavy2012}.  Samma studie räknar upp
+\enquote{flow of control in the context of exceptions} och
+\enquote{handling exceptions further up the calling chain} bland de
+aspekter studenterna hade svårast
+för\autocite[350]{RashkovitsLavy2012} --- vilket är precis de två
+aspekter \cref{sec:fanga,sec:kasta} är byggda kring.
+
+\paragraph{Är felmeddelandena i sig svåra?}
+Ja.  Prather med flera inleder sin studie av hur nybörjare beter sig
+inför kompilatorns felmeddelanden med att \enquote{the difficulty in
+understanding compiler error messages can be a major impediment to
+novice student learning}\autocite{Prather2017CEM}, vilket är det enda
+det här materialet stöder sig på från den källan --- motiveringen till
+att \cref{sec:felmeddelande} finns alls.
+
+\paragraph{Motsökningen.}
+Ingen av de två motfrågorna gav något arbete som säger att studenterna
+\emph{inte} har dessa svårigheter, att svårigheten är överdriven eller
+att den försvinner med vanlig undervisning.  Frågorna gav träffar
+(\cref{tab:nyb-queries}), men de handlade om andra saker: bland de mer
+närliggande fanns arbeten om var studenter kör fast i
+programvarutestning och om hur AI-assistenter används i
+Java-undervisning, ingen av dem med ett motresultat.  Att ingen
+invändning hittades betyder inte att ingen finns.
+
+\section{Diskussion och begränsningar}
+\label{sec:nyb-diskussion}
+
+Förbehållen syns i materialets formuleringar.
+
+Det första är \emph{språket}.  Båda studierna gäller Java.  Java och
+Python har samma mekanism --- ett block, en eller flera grenar, ett hopp
+till den passande grenen --- men Java tvingar dessutom fram deklarerade
+undantag i signaturen, vilket Python inte gör.  Det som mättes är därför
+inte identiskt med det som lärs ut här, och materialet anger språket
+i \cref{sec:fanga}.
+
+Det andra är \emph{populationen}.  Deltagarna var inte förstaårsstudenter
+utan studenter som gått en hel utbildning; den senare studien beskriver
+dem som \enquote{on the verge of their graduation}.  Det gör resultatet
+starkare i ett avseende och svagare i ett annat.  Starkare, därför att
+svårigheten uppenbarligen överlever ordinarie undervisning --- den är
+inte något som går över av sig självt.  Svagare, därför att det inte
+säger hur vanlig missuppfattningen är i en första kurs.  Vad
+materialet därför gör är att \emph{designa} mot svårigheten och låta
+övningsfrågorna avslöja hur vanlig den är i just den här gruppen; det är
+också vad \cref{ovn:hoppas-over} är till för.
+
+Det tredje är \emph{sorten av felmeddelanden}.  Prathers studie
+handlar om kompilatorers felmeddelanden, medan Python är ett tolkat
+språk.  Materialet drar
+slutsatsen i sin svagare form --- att felmeddelanden är svåra --- och
+inte i någon starkare.
+
+\section{Slutsats}
+\label{sec:nyb-slutsats}
+
+Ja, studenter missförstår felhantering, och de två sätt materialet bygger
+på är belagda: de använder den allmänna sorten i stället för att skilja
+felen åt, och de har inte tagit till sig att körningen lämnar resten av
+blocket när ett särfall uppstår.  Förbehållet är att beläggen kommer från
+Java och från studenter i slutet av utbildningen, inte från nybörjare i
+Python, och att ingen studie hittades som mäter samma sak i den här
+kursens population.  Påståendena bär därför materialets \emph{utformning}
+--- vilka kontraster som byggs och vilka frågor som ställs --- men
+används inte för att säga åt studenterna vad de tror.
+
+\section{Fortsatt arbete}
+\label{sec:nyb-fortsatt}
+
+Sökningen har luckor.  Semantic Scholar avvisade sin
+nyckel och kom aldrig med: frågorna ställdes till fem databaser av sex,
+och att motsökningen inte gav något väger lättare av just det skälet.
+Prathers studie är läst enbart i
+sammanfattning\autocite{Prather2017CEM}, och fulltexten återstår att
+läsa; den skulle avgöra om resultatet gäller även tolkade språks
+felmeddelanden och inte bara kompilatorers --- det förbehåll
+\cref{sec:nyb-diskussion} redovisar.  Den tidskrift som publicerade den
+senare av de två studierna indexeras inte av någon av de fem
+databaserna, utan hämtades som känt dokument; vad som mer står i den
+tidskriften vet sökningen alltså ingenting om.  Varje fråga hämtade
+dessutom högst 40 träffar per databas, vilket räcker för att se det
+högst rankade men inte för att räkna hur mycket som finns.
+
+För ett säkrare svar saknas en studie i den population materialet
+vänder sig till.  Ingen av källorna mätte nybörjare i en första kurs,
+och ingen mätte Python.  Det som skulle avgöra saken är en upprepning
+av Rashkovits och Lavys uppgift och frågor med förstaårsstudenter i
+Python: samma uppgift, samma sätt att klassa svaren, en annan
+population.  En sådan studie skulle svara på båda de frågor
+\cref{sec:nyb-diskussion} lämnar öppna --- om språket spelar roll, och
+hur vanlig missuppfattningen är från början.  Visar den att
+missuppfattningen är lika vanlig hos nybörjare, kan materialet ange hur
+vanlig den är och använda övningsfrågorna som mätning; visar den att
+den är ovanlig i Python, krymper kontrasten i \cref{sec:fanga} till ett
+exempel och tiden går någon annanstans.
+
+\section{Träffar som rör påståendet}
+
+\Cref{tab:sok-nyborjare} listar de träffar som rör påståendet.
+Klassningen i den är maskinell och har inte rättats för hand: raderna om
+programvarutestning och om AI-assistenter och AI-driven återkoppling i
+Java-undervisning är märkta som stödjande men rör inte påståendet, och
+ska läsas som felträffar.
+
+\input{litteratursokning/nyborjare-full}
+
+\chapter{Är det dåligt att fånga alla särfall?}
+\label{app:catchall}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:flera} står att ett allmänt \mintinline{python}{except} är en
+\enquote{känd dålig vana}.  Det är två påståenden i ett.  Det ena är att
+vanan är \emph{dålig} --- att den kostar något.  Det andra är att den är
+\emph{känd} som dålig, alltså att det inte är den här kursens privata
+åsikt.  Frågan som ska besvaras är: \emph{är det en känd dålig vana att
+fånga alla särfall med en allmän gren, och vad kostar den?}
+
+\section{Metod}
+\label{sec:ca-metod}
+
+Arbetsgången är den i \cref{app:verifiera}.  Frågan söktes ämnesdrivet
+och tvåsidigt den 3 september 2026 med verktyget \texttt{scholar}: två
+stödfrågor om vanan som antimönster respektive om tomma hanterare, och
+två motfrågor som letade efter arbeten som försvarar vanan eller
+begränsar rådet.  Motfrågorna använder samma begrepp som stödfrågorna
+plus fältets egna ord för motsatsen (\enquote{justified},
+\enquote{intentional}, \enquote{criticism}).  Varje fråga ställdes till
+OpenAlex, DBLP, IEEE Xplore, Web of Science och Scopus; Semantic Scholar
+avvisade sin nyckel.  \Cref{tab:ca-queries} visar frågorna och antalet
+träffar.
+
+% Author's note (verification and reproduction): session
+% exceptions-catch-all (support S1-S2, counter M1-M2, known-item K1, DBLP
+% redo D1-D3); classification with `scholar llm classify --no-examples`,
+% model github_copilot/gpt-5.4; hit-list table generated with
+% `scholar sessions export exceptions-catch-all -f table --bearing-only
+% --lang sv --label sok-catchall --track "..." -o
+% litteratursokning/catchall-full`.  Per-provider counts re-measured in a
+% separate session-free run on 2026-09-03.  Bib key: EbertCastor2015.
+\begin{table}[htbp]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, 3
+    september 2026, verktyget \texttt{scholar}.  S = stödfråga,
+    M = motfråga, D = samma begrepp som kort ordlista till DBLP.
+    Databaser: OpenAlex (OA; inte \foreignlanguage{english}{open
+    access}), DBLP, IEEE Xplore (IEEE), Web of Science (WoS), Scopus.
+    Högst 40 träffar hämtades per databas och fråga, så 40 betyder
+    \enquote{minst 40}.  Frågan visas i den booleska form som skickades
+    till OpenAlex och IEEE Xplore; Web of Science fick samma sträng som
+    \texttt{TS=(\dots)} och Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  De långa booleska frågorna ger noll
+    i DBLP av tekniska skäl (se \cref{app:verifiera}); D-raderna är
+    omsökningen som rättar det och ställdes bara till DBLP; ett
+    tankstreck betyder att frågan inte ställdes till den
+    databasen.}
+  \label{tab:ca-queries}
+  \footnotesize
+  \begin{tabular}{@{}lp{0.42\linewidth}rrrrr@{}}
+    \toprule
+    & Nyckelord & OA & DBLP & IEEE & WoS & Scopus \\
+    \midrule
+    S1 & \enquote{exception handling} \textsc{and} (anti-pattern
+      \textsc{or} antipattern \textsc{or} \enquote{code smell})
+      \textsc{and} (\enquote{catch all} \textsc{or} \enquote{generic
+      exception} \textsc{or} swallow)
+      & 40 & 0 & 1 & 0 & 1 \\
+    S2 & \enquote{exception handling} \textsc{and} (\enquote{empty
+      catch} \textsc{or} \enquote{empty exception handler} \textsc{or}
+      \enquote{exception swallowing}) \textsc{and} (practice
+      \textsc{or} quality \textsc{or} bug \textsc{or} study)
+      & 40 & 0 & 6 & 6 & 7 \\
+    M1 & \enquote{exception handling} \textsc{and} (\enquote{catch
+      all} \textsc{or} \enquote{generic exception} \textsc{or}
+      \enquote{empty catch}) \textsc{and} (justified \textsc{or}
+      beneficial \textsc{or} appropriate \textsc{or} intentional
+      \textsc{or} \enquote{false positive} \textsc{or} criticism)
+      & 40 & 0 & 0 & 0 & 1 \\
+    M2 & \enquote{exception handling} \textsc{and} (developers
+      \textsc{or} practitioners) \textsc{and} (ignore \textsc{or}
+      swallow \textsc{or} suppress) \textsc{and} (rationale \textsc{or}
+      deliberate \textsc{or} intentional \textsc{or} perception)
+      & 40 & 0 & 0 & 1 & 1 \\
+    D1 & empty exception handlers & --- & 1 & --- & --- & --- \\
+    D2 & exception handling bugs & --- & 8 & --- & --- & --- \\
+    D3 & exception handling empty catch blocks
+      & --- & 0 & --- & --- & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Här inträffade det fel \cref{app:verifiera} varnar för.  De fyra
+booleska frågorna gav noll träffar i DBLP --- inte därför att DBLP saknar
+litteraturen, utan därför att DBLP bara indexerar titlar och kräver att
+varje ord förekommer.  Sökningen gjordes därför om mot DBLP med korta
+ordlistor med samma begrepp (raderna D1--D3), och först då gav den
+träffar, bland dem den artikel om tomma hanterare som stöder
+påståendet.  Det är den siffran som står i tabellen.
+
+Klassificeringen av träffarna är delvis maskinell, och en rad har
+rättats för hand: priset \enquote{AAPM Coolidge Award, 1976} hade
+märkts som stödjande, vilket det uppenbart inte är, och räknas här som
+felträff.  Modellens konfidens säger alltså vad modellen trodde, inte
+vad som stämmer --- den är ett skäl att läsa raderna, inte ett facit.
+
+\section{Resultat}
+\label{sec:ca-resultat}
+
+\paragraph{Är vanan känd som dålig?}
+Ja, och den har ett etablerat namn.  Ebert, Castor och Serebrenik ---
+som undersökt 220 felrapporter och frågat 154 utvecklare --- beskriver i
+förbigående, som något självklart, \enquote{overly general catch blocks,
+a well-known bad smell in programs that use
+exceptions}\autocite[83]{EbertCastor2015}, och hänvisar för namnet
+vidare till två äldre arbeten.  Formuleringen står som en bisats i en
+resultatmening: författarna förutsätter att läsaren redan känner till
+vanan.
+
+\paragraph{Vad kostar den?}
+Mindre än man kunde tro, och det är kapitlets viktigaste fynd.  Samma
+mening fortsätter: rapporter om buggar som beror på alltför allmänna
+grenar \enquote{are rare, even though there are many opportunities for
+them to occur and developers report that they have encountered this kind
+of bug in the past}\autocite[83]{EbertCastor2015}.  Studien behandlar
+också ett närliggande antimönster för sig, \emph{tomma hanterare} ---
+en gren som fångar felet och sedan inte gör något alls --- och siffrorna
+den ger om dem gäller just dem, inte allmänna grenar: bara 2 av 220
+buggar berodde på tomma hanterare, och de är ofta medvetna: \enquote{it
+is common for developers to employ empty catch blocks in circumstances
+where the implementation of the system guarantees that the exception
+will not be thrown}\autocite[99]{EbertCastor2015}.
+
+\paragraph{Motsökningen.}
+De två motfrågorna gav inget arbete som förnekar att vanan är ett
+antimönster.  Det som kvalificerar påståendet kom i stället från
+stödsidan --- ur samma studie som namnger vanan --- vilket är ett bra
+skäl att läsa källor i fulltext i stället för att stanna vid titeln:
+titeln lovade stöd, texten gav både stöd och förbehåll.
+
+\section{Diskussion och begränsningar}
+\label{sec:ca-diskussion}
+
+Beläggen kommer från stora Java-system (Eclipse och Tomcat) och deras
+utvecklare, inte från nybörjarprogram i Python.  Det spelar mindre roll
+för \emph{namnet} --- att vanan är känd som dålig är en utsaga om
+fältet, inte om ett språk --- men mer för \emph{kostnaden}.  Ett moget
+projekt med kodgranskning och statisk analys är inte samma miljö som de
+första programmen någon skriver, och \enquote{ovanliga buggar} i Eclipse
+säger inte att en nybörjares allmänna gren är ofarlig.  Tvärtom illustrerar
+\cref{ex:catchall} en kostnad som studien inte mäter alls: att ett fångat
+och omskrivet fel ger användaren \emph{fel} information.
+
+Ett förbehåll om urvalet: de äldre arbeten som Ebert med flera hänvisar
+till för namnet har inte lästs i fulltext här.  Påståendet stöder sig
+alltså på att en primärstudie behandlar namnet som allmängods, inte på en
+egen läsning av dess ursprung.
+
+\section{Slutsats}
+\label{sec:ca-slutsats}
+
+Ja, det är en känd dålig vana --- \enquote{a well-known bad smell} är
+fältets egen formulering --- men förbehållet är stort nog att ändra
+rådet.  De buggar vanan bevisligen orsakar är ovanligare än dess
+utbredning antyder, och det närliggande antimönstret, tomma hanterare,
+är ofta medvetet.  Materialet formulerar därför
+regeln som \enquote{fånga det du vet hur du ska svara på, och låt resten
+synas} och inte som ett förbud, och motiverar den med vad som händer i
+\cref{ex:catchall} snarare än med en regel utifrån.
+
+\section{Fortsatt arbete}
+\label{sec:ca-fortsatt}
+
+Också den här sökningen saknar Semantic Scholar, som avvisade sin
+nyckel: fem databaser av sex svarade.  De två äldre arbeten som Ebert
+med flera hänvisar till när de kallar vanan ett känt problem ---
+Cabral och Marques från 2007 och Robillard och Murphy från 2003 --- är
+varken hämtade eller lästa här, och deras fullständiga uppgifter står i
+källförteckningen till den studie kapitlet citerar.  Att läsa dem
+skulle visa hur långt tillbaka namnet går och vem som myntade det,
+vilket är just det förbehåll \cref{sec:ca-diskussion} redovisar.  De
+två citaten på sidorna 83 och 99 återstår dessutom att stämma av mot
+den tryckta artikeln.  Omsökningen mot DBLP gjordes med tre korta
+ordlistor, och fler formuleringar av samma begrepp skulle rimligen ge
+fler träffar där.
+
+Vad som saknas för ett säkrare svar är en mätning i nybörjarnas egen
+miljö.  Kostnaden är mätt i stora, mogna Java-system med kodgranskning
+och statisk analys, inte i de första programmen någon skriver, och den
+kostnad materialet självt visar --- att ett fångat och omskrivet fel
+ger användaren fel besked --- mäter studien inte alls.  Det som skulle
+avgöra saken är en frekvensstudie i kursens egna inlämningar: hur ofta
+en allmän gren förekommer, vad den döljer, och hur lång tid det tar för
+studenten att hitta felet ändå.  Visar en sådan studie att den allmänna
+grenen sällan kostar något på den här nivån, blir rådet i
+\cref{sec:flera} en vana att ta med sig till större program snarare än
+en regel för de första; visar den att grenen regelmässigt döljer
+skrivfel under felsökning, kan materialet ange kostnaden med källa i
+stället för att bara visa den i \cref{ex:catchall}.
+
+% Keep the heading with the table's first rows (round 5, reader R19).
+\needspace{10\baselineskip}
+\section{Träffar som rör påståendet}
+
+\Cref{tab:sok-catchall} listar de träffar som rör påståendet.
+
+\input{litteratursokning/catchall-full}
+
+% Author's note (verification and reproduction):
+%   no search         : deliberately none, and the chapter says so in
+%                       sec:lgr22-metod.  The question is what one named
+%                       primary document says, so no scholar session was
+%                       opened and there is no hit-list table.
+%   sources           : the printed Lgr22 (Upplaga 2, 2024, ISBN
+%                       978-91-38-32792-0), pp. 55--57, read in full
+%                       text; the same kursplan was read first on
+%                       Skolverket's own site.  And Lgr11 (sjatte
+%                       upplagan 2019, ISBN 978-91-38-32750-0),
+%                       pp. 55--56, read in full text from a course-
+%                       document mirror because Skolverket's own Lgr11
+%                       page now redirects to Lgr22.  URLs and access
+%                       dates in the provenance blocks.
+%   provenance        : ltnotes.bib, keys Skolverket2022Lgr22 and
+%                       Skolverket2019Lgr11 (CLAIM / FOUND-VIA / PICKED /
+%                       QUOTE / VERIFIED / COUNTER / DATE).  The
+%                       print/web wording difference for Lgr22 and the
+%                       two Lgr11/Lgr22 wording differences are recorded
+%                       there and in the chapter.
+%   requested by      : the author, 2026-09-18 ("the deck should say in
+%                       which years, from the Skolverket curriculum");
+%                       Lgr11 added on team-lead's correction the same
+%                       day (the cohort left grundskolan before 2022, so
+%                       Lgr22 alone answers for the wrong årskull).
+%   pointed at from   : sec:datatyper.  The deck Variabler och utskrifter
+%                       makes the same / vs // contrast and is to point
+%                       here in a later round.
+
+\chapter{När möter eleverna heltalsdivision och decimaltal?}
+\label{app:lgr22}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:datatyper} säger materialet att du har mött båda sorternas
+division i skolan, och i vilken ordning: hela tal först, decimaltal
+sedan.  Det är ett påstående om den svenska grundskolan och inte om
+Python, och det styr hur kontrasten mellan \mintinline{python}{/} och
+\mintinline{python}{//} presenteras --- som två saker studenten redan
+kan, inte som två nyheter.  Frågan som ska besvaras är: \emph{i vilka
+årskurser står de fyra räknesätten med hela tal respektive tal i
+decimalform i grundskolans kursplan i matematik --- i den läroplan
+studenterna gick under och i den som gäller i dag?}
+
+\section{Metod}
+\label{sec:lgr22-metod}
+
+Det här kapitlet redovisar ingen sökning.  Frågan gäller vad namngivna
+styrdokument
+säger, och de är både offentliga och primära.  Arbetsgången i
+\cref{app:verifiera} börjar med att välja rätt sorts källa, och för en
+fråga om vad skolan ska undervisa om är rätt sorts källa
+styrdokumentet självt; ingen sekundärlitteratur kan säga det mer
+direkt, och en databassökning skulle bara leda tillbaka till samma
+text.
+
+Vilket styrdokument som gäller beror på \emph{när} eleven gick i
+grundskolan, och därför läses två.  Den nu gällande läroplanen, Lgr22,
+har en kursplan i matematik som gäller från den 1 juli
+2022\autocite[55--57]{Skolverket2022Lgr22}; den beskriver undervisningen
+för dem som går i grundskolan i dag.  Studenterna i den här kursen
+lämnade grundskolan före 2022 och följde alltså företrädaren, Lgr11 i
+sin sjätte upplaga från 2019\autocite[55--56]{Skolverket2019Lgr11}.  Ett
+kapitel som bara läste den nu gällande läroplanen skulle alltså svara
+på en fråga om fel årskull.  Båda är därför lästa i fulltext, och
+resultatet redovisas per läroplan.
+
+Lgr22 lästes först på Skolverkets egen webbplats och därefter i den
+tryckta utgåvan --- andra upplagan, från 2024 --- som är den som citeras
+här, eftersom den har sidnummer.  De två versionerna stämmer ordagrant i
+de punkter kapitlet vilar på, med ett undantag som inte rör frågan: i
+tryck följs punkten om metoder för beräkningar av meningen
+\enquote{Användning av digitala verktyg vid beräkningar.} i båda
+årskursintervallen, medan webbversionen håller den meningen för sig.
+Lgr11 finns inte längre på Skolverkets webbplats --- adressen leder
+vidare till Lgr22 --- och lästes därför i ett lärosätes
+kursdokumentarkiv, i en fil vars eget tryckortsblad anger sjätte
+upplagan 2019 och samma utgivare.
+
+\section{Resultat}
+\label{sec:lgr22-resultat}
+
+\paragraph{Lgr22, årskurs 1--3.}
+Under rubriken \enquote{Taluppfattning och tals användning} står
+\enquote{naturliga tal och deras egenskaper samt hur talen delas upp
+och används för att ange antal och ordning} och
+\enquote{positionssystemet och hur det används för att beskriva
+naturliga tal}.  Räknesätten står där som \enquote{de fyra räknesättens
+egenskaper och samband samt användning i olika situationer}, och
+metoderna som \enquote{metoder för beräkningar med naturliga tal, vid
+huvudräkning, överslagsräkning och skriftlig
+beräkning}\autocite[55]{Skolverket2022Lgr22}.  Division är ett av de
+fyra räknesätten, och talen är naturliga: det är alltså division av
+hela tal som står i de tre lägsta årskurserna.
+
+\paragraph{Lgr22, årskurs 4--6.}
+Först här kommer decimaltalen.  Positionssystemet används nu
+\enquote{för att beskriva hela tal och tal i decimalform}, och
+\enquote{tal i procentform} knyts till \enquote{tal i bråk- och
+decimalform}\autocite[56]{Skolverket2022Lgr22}.  Räknesätten står kvar,
+fortfarande med hela tal --- \enquote{de fyra räknesätten och regler
+för deras användning vid beräkningar med naturliga tal} --- medan
+metoderna utvidgas till \enquote{beräkningar med naturliga tal och
+enkla tal i bråk- och
+decimalform}\autocite[57]{Skolverket2022Lgr22}.
+
+\paragraph{Lgr11, årskurs 1--3.}
+Samma placering, med andra ord.  Under samma rubrik står
+\enquote{naturliga tal och deras egenskaper samt hur talen kan delas upp
+och hur de kan användas för att ange antal och ordning} och
+\enquote{naturliga tal och enkla tal i bråkform och deras användning i
+vardagliga situationer}.  Räknesätten står ordagrant som i Lgr22 ---
+\enquote{de fyra räknesättens egenskaper och samband samt användning i
+olika situationer} --- och metoderna som \enquote{centrala metoder för
+beräkningar med naturliga tal, vid huvudräkning och överslagsräkning
+samt vid beräkningar med skriftliga metoder och digitala
+verktyg}\autocite[55]{Skolverket2019Lgr11}.  Talen är naturliga även
+här.
+
+\paragraph{Lgr11, årskurs 4--6.}
+Och även här kommer decimaltalen först nu:
+\enquote{positionssystemet för tal i decimalform} och \enquote{tal i
+bråk- och decimalform och deras användning i vardagliga situationer},
+med metoderna utvidgade till \enquote{centrala metoder för beräkningar
+med naturliga tal och enkla tal i decimalform}%
+\autocite[56]{Skolverket2019Lgr11}.  En skillnad mot Lgr22 är värd att
+notera utan att den ändrar något: Lgr11 räknar bara upp de fyra
+räknesätten under årskurs 1--3, medan Lgr22 nämner dem under båda
+intervallen.  Det gör om något ordningen tydligare i Lgr11.
+
+\paragraph{Vad som inte står där.}
+Orden \enquote{rest}, \enquote{kvot} och \enquote{heltalsdivision}
+förekommer inte i någon av kursplanerna.  Att en division av två
+naturliga tal kan redovisas som en kvot och en rest är aritmetik och
+följer av att talen är naturliga; det är inte ett citat ur
+styrdokumentet.  Materialet formulerar sig därefter: det säger att
+\enquote{7 delat med 2 är 3, rest 1} hör hemma bland de fyra
+räknesätten med hela tal, inte att kursplanen skriver så.
+
+\section{Diskussion och begränsningar}
+\label{sec:lgr22-diskussion}
+
+Källorna är starka för den fråga som ställdes och svaga för en fråga som
+ligger nära.  En kursplan är ett styrdokument: den säger vad
+undervisningen \emph{ska} innehålla och i vilka årskurser, inte vad
+någon enskild elev lärde sig, i vilken ordning hon lärde sig det eller
+hur mycket som satte sig.  Materialets formulering \enquote{du har mött
+dem båda} vilar därför på skolans uppdrag och inte på en mätning.
+
+Att de två läroplanerna placerar innehållet likadant är det som gör
+svaret användbart här.  Hade de skilt sig åt skulle kapitlet ha svarat
+på en fråga om fel årskull, eftersom studenterna i den här kursen gick
+under Lgr11 och inte under Lgr22.  Nu gäller svaret båda: den som
+lämnade grundskolan före 2022 och den som gör det i dag har mött
+räknesätten med hela tal i årskurs 1--3 och decimaltalen i årskurs
+4--6.  Kvar står förbehållet om skolgång i ett annat land --- de
+läroplanerna är inte lästa här, och för studenter som gått i skolan
+utomlands är påståendet en generalisering.
+
+En andra inskränkning gäller ordningen.  Ingen av kursplanerna ger
+decimaltalen först i årskurs 4--6 i betydelsen att eleverna aldrig sett
+dem tidigare --- de anger när de blir centralt innehåll.  Redan i
+årskurs 1--3 står bråken: \enquote{tal i bråkform som del av helhet och
+del av antal} i Lgr22\autocite[55]{Skolverket2022Lgr22} och \enquote{del
+av helhet och del av antal} i Lgr11\autocite[55]{Skolverket2019Lgr11}.
+Det är alltså inte alla tal utom de hela som saknas i lågstadiet; det är
+\emph{decimalformen}.  Den skillnaden avgör hur påståendet får
+formuleras, och materialet säger därför decimaltal och inte \enquote{tal
+som inte är hela}.
+
+\section{Slutsats}
+\label{sec:lgr22-slutsats}
+
+Båda läroplanerna placerar innehållet likadant: de fyra räknesätten med
+naturliga tal är centralt innehåll redan i årskurs 1--3, medan tal i
+decimalform och beräkningar med dem kommer först i årskurs 4--6.  Den
+ordning materialet stödjer sig på är alltså den kursplanen föreskriver
+--- både den studenterna i den här kursen gick under och den som gäller
+i dag --- och påståendet i \cref{sec:datatyper} står kvar som det är
+skrivet, med förbehållet att en kursplan anger innehåll och inte utfall,
+att kvoten och resten är aritmetik och inte ett citat, och att
+utländska läroplaner inte är lästa.
+
+\section{Fortsatt arbete}
+\label{sec:lgr22-fortsatt}
+
+Två läsningar återstår om påståendet ska bära mer än det gör nu.  Den
+ena är kommentarmaterialet till kursplanen, som Skolverket ger ut
+separat och som säger mer om hur innehållet är tänkt att behandlas än
+punktlistorna gör; det skulle visa om heltalsdivision med rest är den
+avsedda läsningen av \enquote{de fyra räknesättens egenskaper och
+samband} eller bara en möjlig.  Den andra är de utländska läroplanerna.
+Den svenska sidan är nu läst i båda leden --- Lgr11 för dem som lämnade
+grundskolan före 2022 och Lgr22 för dem som gör det i dag --- men för
+studenter som gått i skolan i ett annat land vilar \enquote{du har mött
+dem båda} fortfarande på att placeringen är densamma i de flesta
+läroplaner, vilket det här kapitlet inte har prövat.
+
+Vad som skulle avgöra saken för den här kursen är enklare än en
+dokumentstudie: en fråga till studenterna själva om vilken av de två
+divisionerna de känner igen.  Svarar de flesta att de känner igen båda
+står kontrasten kvar som en påminnelse; svarar de att heltalsdivisionen
+är ny för dem är det den, och inte flyttalsdivisionen, som behöver
+utrymmet i \cref{sec:datatyper}.

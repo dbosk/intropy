@@ -2,34 +2,102 @@
 all: notes.pdf slides.pdf
 
 LATEXFLAGS+=	-shell-escape
+# The example programs' terminal sessions are run and embedded with
+# PythonTeX (didactic's \runpython[transcript]), so code and output cannot
+# drift apart.
+TEX_PYTHONTEX=	yes
+# The exercises are Mentipy questions, so the interpreter PythonTeX runs
+# must be able to import mentipy; the system python3 cannot (pipx isolates
+# the CLI), so PythonTeX runs in a deck-local virtualenv.  mentipy init
+# creates it (and installs mentipy into it) on the first build.
+MENTIPY_VENV=	$(CURDIR)/.venv
+PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
+
+${MENTIPY_VENV}/bin/python3:
+	mentipy init --venv ${MENTIPY_VENV}
+
+# Order-only: the venv must exist before latexmk runs pythontex, but its
+# timestamp must not trigger a rebuild.
+notes.pdf slides.pdf: | ${MENTIPY_VENV}/bin/python3
+
+# mentipy serve rewrites the QR images and their .pdf_tex sidecars (the
+# address under each QR code) when the poll's address changes, so a
+# rebuilt slide deck must follow them.  The wildcard is empty until the
+# first build has written them, which is fine: that build makes them.
+notes.pdf slides.pdf: $(wildcard mentipy-obj/Q-*.pdf_tex)
 
 # The deck is a literate program: contents.nw is the single source.
 # contents.tex is woven from it and the example programs are tangled
 # from it (the examples/ directory is all generated files).  noweb.mk
-# provides the weave (tominted, so the PDFs need the Pygments lexer
-# classes in ${NOWEB_LEXER} at compile time) and the tangle rules.
+# provides the weave (tominted, which finds its bundled Pygments lexer
+# itself) and the tangle rules.  See modules/CLAUDE.md for the pattern.
+
+# The greeting is shown in seven languages; noweb.mk only knows tangle
+# rules for some of the suffixes, so declare the rest before including it.
+# (default_tangling gives each of them empty NOTANGLEFLAGS, which is what a
+# teaching example wants.)  autolang infers the minted lexer from the chunk
+# name: gas for .s, lean4 for .lean, javascript for .js.
+NOWEB_SUFFIXES+=	.s .js .lean
 
 # Teaching examples must match the slides byte for byte: no #line
-# directives in the tangled C++.
+# directives in the tangled C, C++ or Haskell.
+NOTANGLEFLAGS.c=
 NOTANGLEFLAGS.cpp=
+NOTANGLEFLAGS.hs=
 
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
+SRC+=		sokprotokoll.tex
+# The appendices \input the generated hit-list tables; a regenerated table
+# must trigger a rebuild even when no .tex source changed.
+SRC+=		$(wildcard litteratursokning/*-full.tex)
+SRC+=		ltnotes.bib
 
-EXAMPLES+=	examples/hello.py
+EXAMPLES+=	examples/hello.s
+EXAMPLES+=	examples/hello.c
 EXAMPLES+=	examples/hello.cpp
+EXAMPLES+=	examples/hello.hs
+EXAMPLES+=	examples/hello.py
+EXAMPLES+=	examples/hello.js
+EXAMPLES+=	examples/hello.lean
 EXAMPLES+=	examples/hello.sh
 EXAMPLES+=	examples/hello-name.py
 EXAMPLES+=	examples/hello-function.py
+EXAMPLES+=	examples/hello-error.py
 
-contents.tex: contents.nw noweb_lexer.py
+FIGS+=		figs/atom.png
+FIGS+=		figs/codium-hello.png
+FIGS+=		figs/codium.png
+FIGS+=		figs/idle-cropped.png
+FIGS+=		figs/idle.jpg
+FIGS+=		figs/idle.png
+FIGS+=		figs/pycharm.png
+FIGS+=		figs/python-terminal.png
+FIGS+=		figs/vim-hello.png
+
+contents.tex: contents.nw
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+examples/%.s: contents.nw
+	@mkdir -p ${@D}
+	${NOTANGLE.s}
+examples/%.c: contents.nw
+	@mkdir -p ${@D}
+	${NOTANGLE.c}
 examples/%.cpp: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.cpp}
+examples/%.hs: contents.nw
+	@mkdir -p ${@D}
+	${NOTANGLE.hs}
+examples/%.js: contents.nw
+	@mkdir -p ${@D}
+	${NOTANGLE.js}
+examples/%.lean: contents.nw
+	@mkdir -p ${@D}
+	${NOTANGLE.lean}
 examples/%.sh: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.sh}
@@ -40,13 +108,13 @@ examples: ${EXAMPLES}
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
-notes.pdf slides.pdf: ${SRC} ${EXAMPLES} noweb_lexer.py
+notes.pdf slides.pdf: ${SRC} ${EXAMPLES} ${FIGS}
 
 
 .PHONY: clean
 clean:
 	${RM} notes.pdf slides.pdf
-	${RM} contents.tex noweb_lexer.py
+	${RM} contents.tex
 	${RM} ${EXAMPLES}
 
 

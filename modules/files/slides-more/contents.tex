@@ -1,0 +1,615 @@
+\mode*
+
+\section{Felhantering och validering}
+
+När vi arbetar med filer från grundläggande modulen lärde vi oss att öppna, läsa och skriva till filer. Men vad händer om användaren anger ett filnamn som inte existerar? I terminalen fungerar \mintinline{python}{input()} alltid --- det finns alltid en terminal att läsa från. Men filer är annorlunda: de kanske inte finns, eller så har vi inte rättigheter att läsa dem.
+
+Detta kräver att vi tänker på \emph{felhantering och validering} --- hur vi hanterar situationer när något går fel. Detta är en generalisering av principen vi redan känner från input-validering i terminalen. När vi bad användaren mata in ett tal eller välja mellan alternativ, validerade vi att inputen var giltig och bad om ny input om den inte var det. Samma princip gäller för filer, men nu validerar vi att \emph{filnamnet} pekar på en existerande fil.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesMoreLOValidation}
+
+  \textbf{Variationsmönster}: Separation + Generalisering
+
+  \textbf{Separation av hanteringsstrategier}: Varierar felhanteringsmetod
+  (krascha vs fånga med \mintinline{python}{try-except} vs förebygga med validering).
+  Invariant: Problemet (fil kanske inte finns). Studenten måste urskilja
+  skillnaden mellan reaktiv (fånga fel) och proaktiv (förebygga) hantering.
+
+  \textbf{Generalisering från terminal-validering}: Samma valideringsmönster som
+  för terminal-input (loopa tills giltigt input), nu applicerat på filnamn.
+  Invariant: Valideringsstrukturen (läs $\to$ validera $\to$ upprepa $\to$ returnera).
+  Varierar: Valideringskriteriet (numer vs existerande fil).
+
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOValidation}
+  \parencite{MartonPang2006}:
+  \begin{itemize}
+    \item \textbf{Filers osäkerhet}: Filer kan saknas, till skillnad från
+      terminalen där \mintinline{python}{input()} alltid finns tillgänglig.
+      Studenten måste förstå denna fundamentala skillnad mellan resurser.
+    \item \textbf{Exception-hantering}: \mintinline{python}{try-except} fångar
+      \mintinline{python}{FileNotFoundError}, programmet kan fortsätta med
+      alternativ hantering. Fel blir kontrollerbara händelser, inte krascher.
+    \item \textbf{Proaktiv validering}: Kontrollera filexistens FÖRE öppning ger
+      bättre användarupplevelse (tydligare felmeddelanden, möjlighet att välja
+      igen).
+    \item \textbf{Mönstergeneralisering}: Samma loop-struktur som använd för
+      numerisk input-validering. Studenten känner igen mönstret i ny kontext.
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad händer om användaren anger ett filnamn som inte existerar?
+    Hur kan vi hantera detta på ett användarvänligt sätt?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOValidation}
+
+  \textbf{Try-first}: Aktiverar tidigare erfarenhet av felmeddelanden, skapar kunskapslucka.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet kraschar]
+    Programmet kraschar om filen inte finns:
+    \begin{minted}{python}
+filnamn = input("Vilken fil? ")
+with open(filnamn, "r") as fil:
+    innehåll = fil.read()
+    \end{minted}
+  \end{example}
+
+  \pause
+
+  \begin{example}[Körning]
+    Felmeddelandet när filen saknas:
+    \begin{minted}{text}
+Vilken fil? saknas.txt
+FileNotFoundError: [Errno 2] No such file or directory
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Fånga felet med try-except]
+    Använda exception-hantering för att fånga \mintinline{python}{FileNotFoundError}:
+    \begin{minted}{python}
+try:
+    with open(filnamn, "r") as fil:
+        innehåll = fil.read()
+except FileNotFoundError:
+    print(f"Filen {filnamn} finns inte!")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOValidation}
+
+  \textbf{Kontrast}: Krascha vs fånga. Endast felhantering varierar, gör exception-hanteringens värde urskiljbart.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Validera INNAN öppning]
+    Skapa en funktion som kontrollerar om fil existerar:
+    \begin{minted}{python}
+def fil_finns(filnamn):
+    """Returnerar sant om filen finns"""
+    try:
+        with open(filnamn, "r") as fil:
+            pass
+        return True
+    except FileNotFoundError:
+        return False
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Loopa tills giltig fil]
+    Upprepa inläsning tills användaren anger en existerande fil:
+    \begin{minted}{python}
+def läs_filnamn(prompt=""):
+    filnamn = input(prompt)
+    while not fil_finns(filnamn):
+        print(f"Finns ingen fil {filnamn}, försök igen.")
+        filnamn = input(prompt)
+    return filnamn
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOValidation}
+
+  \textbf{Generalisering}: Samma mönster som input-validering: läs $\rightarrow$ validera $\rightarrow$ upprepa $\rightarrow$ returnera.
+}
+
+\begin{frame}
+  \begin{remark}[Tre sätt att hantera filfel]
+    Exemplen ovan visar tre huvudsakliga strategier:
+    \begin{description}
+      \item[Krascha] Låt programmet avbrytas. Enklast, men dålig användarupplevelse.
+      \item[Fånga] Använd \mintinline{python}{try-except} för att fånga felet och
+        hantera det efter att det uppstått.
+      \item[Förebygg] Kontrollera att filen finns \emph{innan} vi försöker öppna
+        den --- ger bättre användarupplevelse.
+    \end{description}
+  \end{remark}
+\end{frame}
+
+\ltnote{%
+  \textbf{Variationsmönster}: Kontrast + Generalisering
+
+  \textbf{Vad som varierar}: Felhanteringsstrategi (krascha vs fånga vs förebygga).
+
+  \textbf{Vad som hålls invariant}: Problemet (filen kanske inte finns).
+
+  \textbf{Pedagogisk sekvens}: Exemplen visades först (krasch, try-except,
+  validering), sedan generaliseras de tre strategierna i en remark.
+  Studenter erfar variationen genom kodexempel innan mönstret artikuleras
+  \parencite{MartonPang2006}.
+}
+
+
+\section{Dictionary-baserad filbearbetning}
+
+Nu när vi kan hantera filer på ett robust sätt är det dags att göra något mer intressant med dem än att bara läsa och skriva. En av de vanligaste uppgifterna när vi arbetar med textfiler är att \emph{analysera} innehållet: räkna ord, analysera frekvenser, hitta mönster. För denna typ av uppgifter är dictionaries vårt perfekta verktyg.
+
+Vi har redan arbetat med dictionaries för att lagra nyckel-värde-par. Nu ska vi se hur dictionaries kan användas för \emph{räkning och analys} av filinnehåll. Mönstret är enkelt men kraftfullt: använd det vi vill räkna (ord, bokstäver, etc.) som nyckel i en dictionary, och antalet förekomster som värde. Detta är samma räknarmönster vi sett tidigare, men nu tillämpar vi det på data från filer.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesMoreLODictProcessing}, \cref{FilesMoreLOCSVOutput}
+
+  \textbf{Variationsmönster}: Fusion + Generalisering
+
+  \textbf{Fusion av koncept}: Detta avsnitt integrerar flera tidigare lärda koncept
+  i ett verkligt problem \parencite{Marton2015}. Filer (input/output), dictionaries (datastruktur),
+  loopar (iteration), strängar (text-processering), och CSV (strukturerad output).
+  Studenten måste koordinera alla dessa verktyg samtidigt. Detta är essensen
+  av verklig programmering.
+
+  \textbf{Generalisering av räknarmönstret}: Varierar vad som räknas (ord vs
+  bokstäver). Invariant: Grundstrukturen (läs $\to$ iterera $\to$ uppdatera
+  dict $\to$ skriv CSV). Studenten urskiljer att mönstret är oberoende av
+  vad som räknas --- samma teknik för olika domäner.
+
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLODictProcessing}:
+  \begin{itemize}
+    \item \textbf{Dict som räknarstruktur}: Nyckel representerar det räknade
+      objektet, värde dess frekvens. Naturlig mappning från problem till
+      datastruktur.
+    \item \textbf{Bearbetningsmönster}: Läs fil $\to$ iterera över enheter $\to$
+      uppdatera dict (initiera eller inkrementera). Fast sekvens oavsett domän.
+    \item \textbf{Granularitetens betydelse}: Olika enheter (bokstäver vs ord)
+      kräver olika parsing (\mintinline{python}{for c in text} vs
+      \mintinline{python}{text.split()}), men samma räknarlogik.
+  \end{itemize}
+
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOCSVOutput}:
+  \begin{itemize}
+    \item \textbf{Dict-CSV naturlig koppling}: Dictionary (nyckel-värde-par)
+      mappar direkt till CSV-rad (kolumn1,kolumn2). Formatet speglar
+      datastrukturen.
+    \item \textbf{Strukturerad output}: CSV gör dict-data analysabel utanför
+      Python (Excel, statistikverktyg). Data blir delbar och persistent.
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}[Problemet]
+    Givet en textfil, hur räknar vi förekomsten av varje ord?
+    Hur lagrar vi resultatet på ett användbart sätt?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLODictProcessing}
+
+  \textbf{Try-first}: Produktiv förvirring. Har verktygen (dict, loopar) men inte sett kombinationen med filer.
+}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Hur uppdaterar vi räknaren för varje ord?
+    Vad händer första gången vi ser ett nytt ord?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLODictProcessing}
+
+  \textbf{Try-first}: Kritisk aspekt --- uppdatera dict-nyckel som kanske inte finns.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Uppdatera räknaren --- try-except]
+    Uppdatera dictionary-räknare med exception-hantering:
+    \begin{minted}{python}
+try:
+    ord_antal[ord] += 1
+except KeyError:
+    ord_antal[ord] = 1
+    \end{minted}
+  \end{example}
+
+  \pause
+
+  \begin{example}[Uppdatera räknaren --- if-else]
+    Alternativ: kontrollera om nyckeln finns först:
+    \begin{minted}{python}
+if ord not in ord_antal:
+    ord_antal[ord] = 1
+else:
+    ord_antal[ord] += 1
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLODictProcessing}
+
+  \textbf{Kontrast}: try-except vs if-check. Båda korrekta, try-except mer pythonic.
+}
+
+Båda metoderna ovan fungerar, men de representerar två olika filosofier: \mintinline{python}{try-except} följer principen \enquote{be om förlåtelse snarare än tillstånd} (\foreignlanguage{english}{ask forgiveness, not permission}), medan \mintinline{python}{if}-kontrollen följer principen att kontrollera innan vi agerar. I Python anses \mintinline{python}{try-except}-varianten ofta vara mer idiomatisk, men båda är legitima lösningar.
+
+Det intressanta är att detta mönster --- att räkna förekomster i en dictionary --- är helt oberoende av \emph{vad} vi räknar. Vi kan räkna ord, bokstäver, eller vilket annat objekt som helst. Låt oss se hur samma grundmönster fungerar för bokstavsräkning.
+
+\begin{frame}[fragile]
+  \begin{example}[Bokstavsräkning --- samma mönster]
+    Samma räknarmönster applicerat på bokstäver istället för ord:
+    \begin{minted}{python}
+def räkna_bokstäver(text):
+    bokstäver_antal = {}
+    for rad in text.split("\n"):
+        for bokstav in rad:
+            if bokstav not in bokstäver_antal:
+                bokstäver_antal[bokstav] = 1
+            else:
+                bokstäver_antal[bokstav] += 1
+    return bokstäver_antal
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLODictProcessing}
+
+  \textbf{Generalisering}: Samma mönster på olika nivå (bokstäver vs ord). Gör mönstret urskiljbart.
+}
+
+Ser du likheten? Koden är nästan identisk --- endast iterationsnivån skiljer sig. För ordräkning delar vi först upp texten i ord med \mintinline{python}{split()}, för bokstavsräkning itererar vi direkt över varje tecken. Men \emph{grundmönstret} --- iterera över enheter, kontrollera om nyckeln finns, uppdatera räknaren --- förblir exakt detsamma. Detta är kraften i att förstå mönster: när du väl har lärt dig dictionary-räkningsmönstret kan du tillämpa det på många olika problem.
+
+Nu när vi har analyserat vår data och lagrat resultatet i en dictionary, hur presenterar vi det på ett användbart sätt? CSV-formatet är perfekt för detta eftersom det naturligt mappar nyckel-värde-par till tabellrader.
+
+\begin{frame}[fragile]
+  \begin{example}[Skriv resultat till CSV]
+    Exportera dictionary-data till CSV-format:
+    \begin{minted}{python}
+import csv
+
+def skriv_csv(data, filnamn):
+    with open(filnamn, "w") as fil:
+        writer = csv.writer(fil)
+        writer.writerow(["Ord", "Antal"])
+        for ord, antal in data.items():
+            writer.writerow([ord, antal])
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOCSVOutput}
+
+  \textbf{Koppling}: Dict (nyckel-värde) och CSV (kolumner) naturligt kompatibla.
+}
+
+Detta visar hur olika koncept vi lärt oss --- filer, dictionaries, loopar, CSV --- kommer samman i ett verkligt problem. Vi läser från en fil, bearbetar innehållet med dictionaries och loopar, och skriver resultatet i ett strukturerat format. Detta är \emph{fusion} av flera programmeringskoncept, vilket är så verklig programmering ser ut. Inte isolerade tekniker, utan integration av många verktyg för att lösa ett problem.
+
+
+\section{Modulkomposition}
+
+Hittills har vi arbetat med funktioner och kod inom samma fil eller samma program. Men när våra program växer och vi utvecklar flera olika verktyg, upptäcker vi snart att vi vill \emph{återanvända} kod från ett program i ett annat. Detta är kärnan i modulär programmering.
+
+Vi har redan sett hur \mintinline{python}{import} fungerar när vi använde \mintinline{python}{csv}-modulen från Pythons standardbibliotek. Men vi kan också importera våra \emph{egna} moduler --- filer med Python-kod som vi själva har skrivit. Detta möjliggör \emph{modulkomposition}: att bygga nya program genom att kombinera funktioner från flera olika moduler.
+
+Tänk på det här sättet: istället för att skriva om samma kod om och om igen, skriver vi den en gång i en modul och importerar sedan den modulen varje gång vi behöver funktionaliteten. Detta följer DRY-principen (\foreignlanguage{english}{Don't Repeat Yourself}) och gör vår kod mer underhållbar och återanvändbar.
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesMoreLOComposition}
+
+  \textbf{Variationsmönster}: Generalisering + Fusion
+
+  \textbf{Generalisering av funktionsanvändning}: Varierar omfattning (samma fil
+  $\to$ separata filer $\to$ flera moduler). Invariant: Funktioner som
+  återanvändbara byggstenar. Studenten urskiljer att principen för funktioner
+  (abstrahera, namnge, återanvänd) gäller över filgränser.
+
+  \textbf{Fusion genom komposition}: Funktioner från olika moduler kombineras
+  för att lösa nya problem de inte designades för. Exempel: \mintinline{python}{räkna_bokstäver()}
+  från \texttt{wc.py} + \mintinline{python}{översätt_till()} från
+  \texttt{rövare.py} $\to$ analysera översatt text. Ingen modul \enquote{vet} om den
+  andra, ändå fungerar kombinationen.
+
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOComposition}:
+  \begin{itemize}
+    \item \textbf{Import gör funktioner tillgängliga}: \mintinline{python}{import wc}
+      ger åtkomst till alla funktioner i \texttt{wc.py} via \mintinline{python}{wc.funktionsnamn()}.
+      Modulen blir ett namnrum.
+    \item \textbf{Komponerbarhetsegenskapen}: Funktioner med tydliga I/O-kontrakt
+      kan kombineras utan att ha designats för varandra. Studenten urskiljer att
+      väldefinierade gränssnitt möjliggör komposition.
+    \item \textbf{Återanvändning över domäner}: Samma funktion användbar i
+      flera sammanhang. \mintinline{python}{räkna_bokstäver()} skriven för
+      vanlig text fungerar lika bra på rövarspråk. Abstraktionens kraft.
+    \item \textbf{DRY-principen i praktiken}: Skriva kod en gång, använda många
+      gånger. Ändringar på ett ställe propagerar automatiskt till alla
+      användare.
+  \end{itemize}
+}
+
+\begin{frame}[fragile]
+  \begin{example}[wc.py]
+    En modul för ordräkning (\foreignlanguage{english}{word count}) som innehåller
+    funktionerna \mintinline{python}{räkna_ord()} och \mintinline{python}{räkna_bokstäver()}.
+  \end{example}
+
+  \pause
+
+  \begin{example}[rövare.py]
+    En modul för översättning till och från rövarspråket som innehåller
+    \mintinline{python}{översätt_till()} och \mintinline{python}{översätt_från()}.
+  \end{example}
+
+  \pause
+
+  \begin{example}[analys.py]
+    Ett program som kombinerar funktioner från både \texttt{wc.py} och
+    \texttt{rövare.py} för att analysera översatt text.
+  \end{example}
+\end{frame}
+
+I det här exemplet har vi tre separata filer: \texttt{wc.py} innehåller funktioner för ordräkning (en slags \foreignlanguage{english}{word count}), \texttt{rövare.py} innehåller funktioner för att översätta till och från rövarspråket, och \texttt{analys.py} är ett nytt program som kombinerar funktioner från båda de andra modulerna. Detta är modulkomposition i praktiken --- att bygga nytt från existerande delar.
+
+\begin{frame}[fragile]
+  \begin{example}[Använd funktioner från annan modul]
+    Importera och kombinera funktioner från olika moduler:
+    \begin{minted}{python}
+import wc
+import rövare
+
+text = "Hej på dig!"
+översatt = rövare.översätt_till(text)
+
+original_bokstäver = wc.räkna_bokstäver(text)
+översatt_bokstäver = wc.räkna_bokstäver(översatt)
+
+# Jämför fördelningarna...
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOComposition}
+
+  \textbf{Fusion}: Import, funktionsanrop mellan moduler, dict-hantering. Verklig programmering.
+
+  \textbf{Nyckel}: Tydliga I/O-kontrakt gör funktioner naturligt komponerbara.
+}
+
+Exemplet ovan visar något fascinerande: funktionen \mintinline{python}{räkna_bokstäver()} från \texttt{wc.py} skrevs för att analysera vanlig text, och funktionen \mintinline{python}{översätt_till()} från \texttt{rövare.py} skrevs för att översätta text. De designades aldrig för att användas tillsammans. Men eftersom båda har tydliga input/output-kontrakt (ta emot text, returnera resultat) kan vi \emph{komponera} dem naturligt. Detta är styrkan med bra funktionsdesign: funktioner blir återanvändbara byggstenar som kan kombineras på sätt vi kanske inte förutsåg när vi skrev dem.
+
+\begin{frame}[fragile]
+  \begin{remark}[Fördelar med modulkomposition]
+    Modulkomposition ger flera viktiga fördelar: vi undviker kodduplicering genom
+    att skriva en gång och använda många gånger (DRY-principen), testning blir
+    enklare eftersom varje modul kan testas separat, vi får bättre organisation
+    genom att samla relaterad kod i samma fil, och vi möjliggör komplexa lösningar
+    genom att kombinera enkla byggstenar.
+  \end{remark}
+\end{frame}
+
+
+\section{Filtransformation}
+
+Ett av de vanligaste användningsområdena för filer är att \emph{transformera} data: läsa innehållet från en fil, bearbeta det på något sätt, och skriva resultatet tillbaka --- antingen till samma fil eller till en ny fil. Detta mönster --- läs, bearbeta, skriv --- är fundamentalt i programmering och dyker upp överallt.
+
+Tänk på det här sättet: Vi har redan sett hur funktioner transformerar värden (tar emot input, bearbetar, returnerar output). Filtransformation är samma princip, men på filnivå istället för funktionsnivå. En funktion transformerar ett värde i minnet; ett program transformerar en fil på disken. \emph{Samma princip, olika skala.}
+
+Detta är ytterligare en generalisering av koncept vi redan känner. Och precis som med funktioner finns det viktiga överväganden: Ska vi bevara originaldata? Vad händer om något går fel under bearbetningen? Hur säkerställer vi att transformationen lyckas innan vi skriver över original?
+
+\ltnote{%
+  Relevanta lärandemål:
+  \cref{FilesMoreLOTransformation}
+
+  \textbf{Variationsmönster}: Generalisering + Kontrast
+
+  \textbf{Generalisering från funktionstransformation}: Varierar skala (funktion
+  i minnet vs program på disk). Invariant: Transformationsmönstret (input $\to$
+  bearbetning $\to$ output) \parencite{MartonPang2006}. Studenten urskiljer att samma princip gäller på
+  olika abstraktionsnivåer. Funktion transformerar värde, program transformerar
+  fil --- samma koncept, olika medium.
+
+  \textbf{Kontrast in-place vs separata filer}: Varierar antal filer och risk
+  (en fil, överskrivning vs två filer, original bevarad). Invariant:
+  Transformationslogiken. Studenten måste väga enkelhet mot datasäkerhet.
+
+  \textbf{Kritiska aspekter för} \cref{FilesMoreLOTransformation}:
+  \begin{itemize}
+    \item \textbf{Läs-bearbeta-skriv som fundamentalt mönster}: Detta är essensen
+      av dataprocessering. Läs input, applicera transformation, producera output.
+      Mönstret återkommer i alla databehandlingssystem (compiler, bildbehandling,
+      dataanalys).
+    \item \textbf{Mellanlagringskravet}: Kan ej läsa från och skriva till samma
+      fil samtidigt i denna enkla modell. Måste läsa hela innehållet först,
+      stänga filen, sedan öppna för skrivning. Studenten förstår sekvensiell
+      natur.
+    \item \textbf{In-place farorna}: Överskrivning förstör original. Om
+      transformation misslyckas (exception, strömavbrott) är data förlorad.
+      Studenten urskiljer risken.
+    \item \textbf{Temporär fil-mönster}: Skriv till \texttt{fil.tmp}, om framgång
+      använd \mintinline{python}{os.replace()} för atomär ersättning. Defensiv
+      programmering --- skydda mot dataförlust.
+  \end{itemize}
+
+  \textbf{Pedagogisk progression}: Visa enkel in-place transformation först
+  (problem synligt), sedan temporär fil-lösning (kontrast gör säkerhetstekniken
+  urskiljbar) \parencite{Marton2015}.
+}
+
+Låt oss se hur vi kan transformera en fil genom att översätta dess innehåll till rövarspråket:
+
+\begin{frame}[fragile]
+  \begin{example}[Översättning till rövarspråket]
+    Transformation av fil in-place (observera risken!):
+    \begin{minted}{python}
+filnamn = input("Vilken fil? ")
+
+with open(filnamn, "r") as fil:
+    text = fil.read()
+
+översatt = översätt_till_rövarspråket(text)
+
+with open(filnamn, "w") as fil:
+    fil.write(översatt)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOTransformation}
+
+  \textbf{Kritiskt}: Fil måste stängas före öppning för skrivning. Mellanlagring nödvändig.
+}
+
+I exemplet ovan ser vi att vi måste mellanlagra texten i variabeln \texttt{text}. Första \mintinline{python}{with}-blocket läser filen och stänger den automatiskt när blocket avslutas. Sedan transformerar vi texten. Slutligen öppnar andra \mintinline{python}{with}-blocket \emph{samma fil} igen, men nu i skrivläge, vilket raderar det gamla innehållet och ersätter det med det översatta resultatet.
+
+Men det finns en fara här: Om något går fel under översättningen --- om \mintinline{python}{översätt_till_rövarspråket()} kraschar eller om vi tappar strömmen mitt under skrivningen --- har vi förlorat originalfilen utan att ha en korrekt översättning. Detta är ett exempel på varför det är viktigt att tänka på \emph{datasäkerhet} när vi arbetar med filer.
+
+\begin{frame}[fragile]
+  \begin{remark}[Varning vid överskrivning]
+    Att skriva till samma fil ersätter originalinnehållet omedelbart. Om något
+    går fel under bearbetningen är originalet förlorat. En säkrare strategi är
+    att skriva till en ny fil först, och endast när transformationen lyckas
+    byta namn och ersätta originalfilen.
+  \end{remark}
+\end{frame}
+
+En säkrare strategi är att skriva till en \emph{temporär fil} först, och endast när vi är helt säkra på att transformationen lyckades ersätta originalfilen med den nya versionen. Detta skyddar mot dataförlust och är ett exempel på defensiv programmering --- att alltid tänka på vad som kan gå fel och skydda mot det.
+
+\begin{frame}[fragile]
+  \begin{example}[Säkrare: Skriv till temporär fil]
+    Säkrare strategi med temporär fil och atomär ersättning:
+    \begin{minted}{python}
+with open("input.txt", "r") as fil:
+    innehåll = fil.read()
+
+resultat = transformera(innehåll)
+
+with open("input.txt.tmp", "w") as fil:
+    fil.write(resultat)
+
+# Om allt gick bra: byt namn
+import os
+os.replace("input.txt.tmp", "input.txt")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FilesMoreLOTransformation}
+
+  \textbf{Kontrast}: Direkt överskrivning vs temporär fil. Skydda originaldata tills transformation lyckats.
+}
+
+Metoden med temporär fil ovan är betydligt säkrare. Vi skriver först till en temporär fil (\texttt{input.txt.tmp}). Om något går fel under denna process finns originalfilen (\texttt{input.txt}) fortfarande kvar oförändrad. Endast när skrivningen lyckat kan vi använda \mintinline{python}{os.replace()} för att atomärt ersätta originalfilen med den nya versionen. Funktionen \mintinline{python}{replace()} är designad för att göra denna ersättning så säkert som möjligt på olika operativsystem.
+
+Detta exemplifierar en viktig princip: när vi arbetar med värdefull data måste vi alltid tänka på robusthet och säkerhet, inte bara funktionalitet.
+
+\begin{frame}
+  \begin{remark}[Transformationsmönstret]
+    Båda exemplen ovan följer det grundläggande läs-bearbeta-skriv-mönstret:
+    \begin{enumerate}
+      \item \textbf{Läs}: Öppna fil, läs innehåll, stäng fil
+      \item \textbf{Bearbeta}: Transformera innehållet i minnet
+      \item \textbf{Skriv}: Öppna fil (samma eller ny), skriv resultat, stäng fil
+    \end{enumerate}
+    Vi kan \emph{inte} läsa och skriva till samma fil samtidigt på detta enkla sätt
+    --- mellanlagring i minnet krävs.
+  \end{remark}
+\end{frame}
+
+
+\section{Sammanfattning}
+
+Nu har vi gått igenom avancerade tekniker för filhantering. Men innan vi avslutar är det viktigt att stanna upp och reflektera över vad vi egentligen har lärt oss. Det är inte bara \enquote{hur man arbetar med filer} --- det är något mycket mer fundamentalt.
+
+Alla tekniker vi sett i denna modul --- validering, dictionary-baserad analys, modulkomposition, filtransformation --- är \emph{generaliseringar} av principer vi redan kände från tidigare. Filvalidering är samma mönster som input-validering från terminalen. Dictionary-räkning är samma teknik vi använt tidigare, bara tillämpad på fildata. Transformationer följer samma input-bearbeta-output-princip som funktioner. Och modulkomposition är samma idé om återanvändning som vi sett med funktioner, bara över filgränser.
+
+Detta är den viktigaste insikten: programmering handlar inte om att lära sig tusentals olika tekniker. Det handlar om att förstå ett \emph{begränsat antal fundamentala mönster} och sedan känna igen dessa mönster i nya kontexter. När du ser ett nytt problem frågar du dig: \enquote{Vilket mönster känner jag igen här? Hur kan jag tillämpa det jag redan vet?}
+
+\begin{frame}
+  \begin{block}{Återkommande mönster}
+    Under denna modul har vi stött på flera fundamentala programmeringsmönster
+    som återkommer i olika sammanhang:
+    \begin{itemize}
+      \item Validera input (filer, användardata) --- loopa tills giltigt
+      \item Dictionary för räkning och analys --- nyckel-värde för frekvens
+      \item Läs-bearbeta-skriv för transformationer --- tre separata steg
+      \item Modulkomposition --- kombinera funktioner från olika källor
+      \item CSV för strukturerad output --- från dictionaries till tabeller
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\ltnote{%
+  \textbf{Sammanfattning}: Alla mönster är generaliseringar:
+  \begin{itemize}
+    \item Validering: Samma som terminal-input
+    \item Dict-räkning: Samma struktur, nu med fildata
+    \item Transformation: Som funktioner, nu filnivå
+    \item Komposition: Som funktioner, nu över modulgränser
+    \item CSV: Som print-output, nu till fil
+  \end{itemize}
+
+  \textbf{Metainsikt}: Filhantering = tillämpning av kända principer i ny kontext. Begränsade fundamentala mönster återkommer.
+}
+
+Låt oss också reflektera över progressionen vi gått igenom. Vi började med grundläggande fil-I/O i basmodulen: hur man öppnar, läser och skriver till filer. Sedan lade vi till validering för att hantera fel robusthet. Därefter kombinerade vi filer med andra koncept som dictionaries för att göra mer avancerad dataanalys. Vi lärde oss att komponera moduler för att bygga större system från mindre delar. Och slutligen såg vi hur vi kan transformera filer på ett säkert sätt.
+
+Varje steg byggde på de föregående, och varje steg introducerade nya sätt att \emph{kombinera} koncept vi redan kände. Detta är hur programmeringskunskap växer: inte genom isolerade fakta, utan genom att se hur allt hänger ihop.
+
+\begin{frame}
+  \begin{remark}[Från enkelt till komplext]
+    Progressionen genom denna modul har visat hur vi bygger från grundläggande
+    tekniker till alltmer sofistikerade lösningar:
+    \begin{itemize}
+      \item Grundläggande fil-I/O: Läsa och skriva enkla filer
+      \item Validering: Hantera fel och ogiltiga filer
+      \item Bearbetning: Kombinera filer med dictionaries för analys
+      \item Komposition: Bygga komplexa program från enkla moduler
+      \item Transformation: Läsa-bearbeta-skriva-mönstret
+    \end{itemize}
+  \end{remark}
+
+  \begin{uncoverenv}<2->
+    \begin{block}{Nyckeln}
+      Alla dessa bygger på SAMMA grundprincip: \emph{strukturera data för ett
+      syfte}. Filer är bara ett sätt att göra data PERSISTENT och DELBAR.
+    \end{block}
+  \end{uncoverenv}
+\end{frame}
+
+Den avslutande insikten är denna: filer är bara ett medium, ett sätt att göra data persistent och delbar mellan program och körningar. Den underliggande principen --- att strukturera data för ett syfte --- är densamma som när vi använde \mintinline{python}{print()} för att strukturera output till terminalen. Samma princip, olika destination.
+
+När du går vidare från denna kurs kommer du att stöta på många andra sätt att lagra och överföra data: databaser, nätverk, molnlagring, och så vidare. Men principerna du lärt dig här --- validering, strukturering, transformation, komposition --- kommer att följa dig genom hela din programmerarkarriär. Det är inte \emph{filerna} som är viktiga, det är \emph{tänkandet} bakom hur vi arbetar med data.
+
+\ltnote{%
+  \textbf{Avslut}: Filer följer samma princip som print/input --- strukturera data. Terminal (flyktigt) $\rightarrow$ filer (persistent) $\rightarrow$ avancerad bearbetning. Samma princip.
+}

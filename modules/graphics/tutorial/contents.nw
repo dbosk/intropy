@@ -1,0 +1,1606 @@
+\mode*
+
+Övningen består av ett antal uppgifter som alla handlar om program med
+ett grafiskt gränssnitt.  Arbeta med dem i tur och ordning: varje uppgift
+bygger på den förra, och den första uppgiften är den som gör den andra
+begriplig.  Försök lösa uppgiften innan du läser lösningsförslaget ---
+det som ger effekt är att du efteråt kan jämföra ditt eget försök med
+förslaget, inte att du väntar med att
+läsa\autocite{SinhaKapur2021}.\footnote{%
+  Det vetenskapliga underlaget för att jämförelsen hjälper, och för de
+  förbehåll som hör till, finns i \emph{Övning: Funktioner och
+  variabler}, bilaga~B.%
+}
+Och förslaget är just ett förslag: de flesta uppgifterna kan
+lösas på flera sätt, och där ett annat sätt är minst lika rimligt säger
+texten det och varför just det här valdes.
+
+Det mesta du behöver kommer från föreläsningen \emph{Grafiska
+användargränssnitt}: fönstret, etiketten, textfältet, knappen,
+händelseslingan och det ritprogram som de två sista uppgifterna bygger
+vidare på.  Resten står i Pythons egen dokumentation för
+\mintinline{python}{tkinter}, och ett par av uppgifterna går inte att
+lösa utan att du letar där.
+
+\section{Klockan i terminalen}
+\label{sec:term-clock}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOEventLoop}.  Uppgiften
+  pekar på \texttt{pydoc3 time}, men slår bara upp färdiga svar och
+  räknas därför inte mot \cref{OvningGraphicsLODocs}, som gäller problem
+  biblioteket inte redan löst.
+
+  \textbf{Variationsmönster}: Kontrast, första ledet.
+
+  \textbf{Vad som varierar}: ingenting än.  Uppgiften finns för att
+  etablera den invarianta bakgrunden --- uppgiften \enquote{visa tiden
+  och håll den aktuell} --- som nästa uppgift varierar \emph{ett} ting
+  mot: vem som driver upprepningen.
+
+  \textbf{Vad som hålls invariant}: hädanefter tiden, formatet
+  \texttt{hh:mm:ss} och rytmen en gång per sekund.
+
+  \textbf{Varför uppgiften behålls}: den kommer från den gamla övningens
+  första uppgift och är inte ett grafiskt program alls.  Den behålls
+  just därför: kontrasten kräver att studenten först har \emph{skrivit}
+  den slinga som sedan inte längre går att använda.  Att urskilja något
+  kräver att man erfar vad det är i kontrast till vad det inte är, och
+  de två fallen måste erfaras samtidigt \parencite[45--47]{Marton2015};
+  därför står terminalklockan och fönsterklockan tätt efter varandra och
+  inte i skilda delar av övningen.
+
+  % TODO(claim-audit): att nybörjare uppfattar utskrift som \enquote{en
+  % rad i taget} och därför inte väntar sig buffring är ett påstående om
+  % missuppfattningar utan källa här.
+  \textbf{Missuppfattning som uppgiften riktar sig mot}: att utskrift
+  sker i samma ögonblick som \mintinline{python}{print} körs.  Den som
+  tror det får ett program som ser trasigt ut utan att förstå varför.
+}
+
+Vi börjar utan grafik.  En klocka i terminalen kräver bara det du redan
+kan --- en slinga, en modul och utskrift --- och den lösningen är värd
+att skriva innan du gör samma sak i ett fönster.
+
+% REVIEW(C15): inget körexempel före den här uppgiften.  Programmet
+% avslutar aldrig (en klocka har inget slut), så \runpython kan inte
+% köra det, och det som skulle synas --- samma rad som byter siffror
+% --- går inte att visa i en avskrift.  Den enda körbara
+% demonstrationen, \texttt{overwrite.py}, röjer lösningen (bakstegen).
+% Den andra läsningen --- körexempel före varje uppgift utan undantag
+% --- kräver ett nytt program som räknar ut ett par tider och
+% avslutar.
+\begin{frame}[fragile]
+  \begin{exercise}[Klockan i terminalen]\label{ovn:term-clock}
+    Skriv ett program som visar tiden i terminalen på formen
+    \texttt{hh:mm:ss} och håller den aktuell: en gång per sekund ska den
+    nya tiden visas på samma ställe, så att terminalen inte fylls med en
+    ny rad per sekund.  Pythons modul \mintinline{python}{time} ger dig
+    både tiden och ett sätt att vänta; \texttt{pydoc3 time} beskriver
+    den.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Programmet har en enda uppgift, så det får en enda funktion.  Slingan
+gör om och om igen två saker som är värda att skilja på: den skriver
+tiden så att den ersätter den förra, och den ser till att utskriften
+verkligen når skärmen innan den väntar.  Den andra delen är den som
+överraskar.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{term\_clock.py}]
+    Programmet i sin helhet, med två steg kvar att förfina:
+<<[[term_clock.py]]>>=
+"""A clock in the terminal"""
+
+import sys
+import time
+
+
+def main():
+    """Show the time in the terminal, once a second, in one place"""
+    while True:
+        <<skriv tiden och backa tillbaka över den>>
+        <<se till att utskriften syns, och vänta en sekund>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+\ltnote{%
+  Varje program i övningen har samma form: filens högsta nivå bär bara
+  import, konstanter, definitioner och det anrop som startar programmet,
+  och allt arbete ligger i funktioner eller metoder.  Det gäller också
+  den minsta demonstrationen, \texttt{overwrite.py}, som lika väl kunde
+  ha stått som tre satser i rad.  Formen är den föreläsningen
+  \emph{Funktioner} lär ut, och den följs överallt därför att ett
+  material som frångår en genomgången praktik lär ut att praktiken var
+  frivillig.
+  % TODO(claim-audit): att ett material som frångår en genomgången
+  % praktik lär ut att praktiken var frivillig är ett påstående om
+  % materialets verkan utan källa här.
+  Att anropet står bakom
+  \mintinline{python}|if __name__ == "__main__":| är formen från
+  föreläsningen \emph{Moduler och paket}, och den behövs:
+  \cref{sec:timer} importerar \texttt{countdown.py}, och ett
+  huvudprogram på högsta nivån hade då skrivit ut nedräkningen vid
+  importen.
+}
+
+Tiden får vi från modulen [[time]]: [[time.strftime]] gör den aktuella
+tiden till en sträng efter ett mönster, där \texttt{\%H}, \texttt{\%M} och
+\texttt{\%S} står för timmar, minuter och sekunder med två siffror var.
+För att skriva över den förra tiden behövs sedan två saker.
+\mintinline{python}{print} avslutar normalt med ett radslut, och det
+flyttar skrivläget till nästa rad; \mintinline{python}{end=""} tar bort
+radslutet.  Sedan måste skrivläget tillbaka till radens början, och dit
+flyttar terminalen det när den tar emot ett bakstegstecken
+(\foreignlanguage{english}{backspace}), som skrivs
+\mintinline{python}{"\b"}.  Ett bakstegstecken per tecken som ska
+skrivas över, alltså åtta för \texttt{hh:mm:ss}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Skriv och backa]
+    Tiden och bakstegen blir en rad, som skrivs utan radslut:
+<<skriv tiden och backa tillbaka över den>>=
+line = time.strftime("%H:%M:%S") + "\b" * 8
+print(line, end="")
+@
+  \end{solution}
+\end{frame}
+
+Bakstegen är inte ett kommando till Python utan åtta helt vanliga tecken
+i utskriften, precis som siffrorna.  Det går att se genom att skriva ut
+samma sträng med \mintinline{python}{repr}, som visar en sträng med de
+tecken den faktiskt innehåller.
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{overwrite.py}]\label{ex:overwrite}
+    Ett litet program som bara visar tecknen:
+<<[[overwrite.py]]>>=
+"""The characters a clock writes to overwrite the previous time"""
+
+
+def main():
+    """Show the characters that overwrite the previous time"""
+    line = "10:25:20" + "\b" * 8
+    print(len(line))
+    print(repr(line))
+
+
+if __name__ == "__main__":
+    main()
+@
+    och när det körs:
+    \runpython[showcommand, chdir]{examples/overwrite.py}
+  \end{example}
+\end{frame}
+
+Sexton tecken, varav åtta bakstegstecken.  I en terminal flyttar de
+skrivläget; i en fil blir de bara tecken i filen.  Det är därför en
+klocka i terminalen måste köras i en terminal för att se ut som en
+klocka.
+
+Kvar är den del som gör att något syns alls, och den syns bäst genom
+att vi först låter bli att skriva den.  Utan den är slingan bara
+utskriften och väntan, och väntan sköter [[time.sleep(1)]], som låter
+programmet stå still en sekund innan det fortsätter.
+
+\begin{frame}[fragile]
+  \begin{example}[Slingan utan den sista delen]
+    Tiden skrivs, och programmet väntar en sekund:
+    \begin{minted}{python}
+while True:
+    line = time.strftime("%H:%M:%S") + "\b" * 8
+    print(line, end="")
+    time.sleep(1)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Kör du den slingan i en terminal syns ingenting.  Python skickar inte
+utskriften vidare tecken för tecken, utan samlar upp den i en buffert
+och skickar den när en rad är färdig eller när bufferten är full.
+Klockan avslutar aldrig någon rad, och bufferten rymmer tusentals
+sekunders tider, så skärmen förblir tom mycket länge --- och när
+bufferten till sist töms står tiden sedan still lika länge igen.
+Alltså måste programmet tömma bufferten själv, och det är vad
+[[sys.stdout.flush()]] gör: den skickar vidare det som samlats upp.
+
+\begin{frame}[fragile]
+  \begin{solution}[Varför utskriften inte syns när den skrivs]
+    Python samlar upp utskriften och skickar den vidare först när en rad
+    är färdig eller bufferten är full.  Klockan avslutar aldrig någon
+    rad, så den måste tömma bufferten själv med
+    \mintinline{python}{sys.stdout.flush()}.
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Tvinga fram utskriften och vänta]
+    Först töms bufferten, sedan väntar programmet:
+<<se till att utskriften syns, och vänta en sekund>>=
+sys.stdout.flush()
+time.sleep(1)
+@
+  \end{solution}
+\end{frame}
+
+Ordningen är inte likgiltig: väntar programmet först och tömmer sedan
+ligger tiden på skärmen en sekund fel hela tiden.  Kör programmet i en
+terminal; avbryta gör du med \texttt{Ctrl-C}, för slingan har inget slut
+--- en klocka har inget slut.
+
+Ett annat rimligt sätt är returtecknet
+(\foreignlanguage{english}{carriage return}),
+\mintinline{python}{"\r"}, som flyttar skrivläget till radens början med
+ett enda tecken i stället för åtta.  Det är kortare och blir inte fel om
+tidsformatet ändras.  Bakstegen valdes här för att de gör synligt
+\emph{hur många} tecken som skrivs över, vilket är precis den aspekt
+\cref{ex:overwrite} handlar om.
+
+\section{Klockan i ett fönster}
+\label{sec:clock}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOEventLoop},
+  \cref{OvningGraphicsLOWidgets}, \cref{OvningGraphicsLOBind} och
+  \cref{OvningGraphicsLOStructure}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: två ting, inte ett.  Dels vem som driver
+  upprepningen --- programmets egen slinga eller händelseslingan, genom
+  \mintinline{python}{after} --- dels mediet, från terminal till fönster.
+  Mediebytet går inte att undvika: händelseslingan finns inte i
+  terminalen, så den aspekt uppgiften gäller kan inte varieras utan att
+  mediet följer med.  Priset betalas en gång, och därför ligger den rena
+  kontrasten \emph{inne} i avsnittet, där
+  \texttt{clock\_loop.py} och \texttt{clock.py} har samma medium, samma
+  uppgift, samma format och samma rytm och visas tätt efter varandra
+  \parencite[45--47]{Marton2015}.
+
+  \textbf{Vad som hålls invariant}: uppgiften, tidsformatet och rytmen
+  från \cref{sec:term-clock}, och att tiden hämtas med
+  \mintinline{python}{time.strftime}.
+
+  \textbf{Varför uppgiften förbättras}: den gamla övningen bad om en
+  grafisk klocka och berättade i samma andetag att
+  \mintinline{python}{time.sleep} inte går att använda och att
+  \mintinline{python}{Tk} har en metod \mintinline{python}{after}.  Då
+  finns inget kvar att urskilja: den kritiska aspekten är utpekad
+  \parencite[13]{Marton2015}.  Uppgiften ber nu i stället studenten lösa
+  problemet på samma sätt som i terminalen och se vad som händer, och
+  lösningsförslaget visar det misslyckade försöket \emph{tillsammans}
+  med det som fungerar, så att de två kan erfaras samtidigt.
+
+  % TODO(claim-audit): att nybörjare läser \mintinline{python}{mainloop}
+  % som \enquote{starta programmet} i stället för \enquote{lämna över
+  % kontrollen} är ett påstående om missuppfattningar utan källa här.
+  \textbf{Missuppfattning som uppgiften riktar sig mot}: att
+  \mintinline{python}{mainloop} betyder \enquote{visa fönstret} och att
+  raderna efter den körs som vanligt.  Den som tror det förstår inte
+  varför en egen slinga före \mintinline{python}{mainloop} ger ett
+  fönster som aldrig syns.
+}
+
+Nu samma klocka, men i ett fönster.  Det enklaste tänkbara gränssnittet
+räcker: en etikett som visar tiden, ingenting mer --- och
+\cref{fig:clock} visar vad det färdiga programmet ska göra.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.3\textwidth]{figs/clock.png}
+    \caption{Fönstret klockan ska visa: en enda etikett, vars text byts
+      en gång per sekund.  Bilden är förstorad fyra gånger.  Bilden
+      visar programmets egen yta; fönsterramen ritas av
+      skrivbordsmiljön och är inte en del av den.}
+    \label{fig:clock}
+  \end{figure}
+\end{frame}
+
+% REVIEW(C15): körexempel före uppgiften är omöjligt här --- programmet
+% kräver ett fönster och avslutar aldrig, så \runpython kan inte köra
+% det (se Makefile).  Skärmbilden flyttades i stället hit från
+% lösningsförslaget och fyller samma roll: den visar målet utan att
+% visa metoden (händelseslingan och \mintinline{python}{after} syns
+% inte i en bild).  Den andra läsningen --- bilden kvar i
+% lösningsförslaget --- lämnar uppgiften utan konkret mål.
+\begin{frame}[fragile]
+  \begin{exercise}[Klockan i ett fönster]\label{ovn:clock}
+    Skriv om klockan så att tiden visas i ett fönster i stället för i
+    terminalen, med en etikett (\mintinline{python}{tk.Label}) som
+    innehåll.  Lös det först på samma sätt som i terminalen --- en
+    slinga som skriver tiden, väntar en sekund och skriver igen --- och
+    kör programmet.  Skriv ner en mening om vad som händer, så att du
+    kan jämföra den med lösningsförslaget.  Lös det sedan så att
+    fönstret verkligen visar en klocka som går; \texttt{pydoc3
+    tkinter.Tk} beskriver vad ett fönster kan göra.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Det första försöket ser ut som terminalklockan, med skillnaden att tiden
+hamnar på en etikett i stället för i utskriften.  Klassen ärver från
+\mintinline{python}{tk.Tk}, som i föreläsningens exempel, så att
+fönstret \emph{är} objektet.
+
+\begin{frame}[fragile,shrink=20]
+  \begin{solution}[\texttt{clock\_loop.py}]
+    Det första försöket, med klassen skriven som i föreläsningen:
+<<[[clock_loop.py]]>>=
+"""A clock in a window, driven by a loop of its own"""
+
+import time
+import tkinter as tk
+
+
+class Clock(tk.Tk):
+    """A window with the time on a label"""
+
+    def __init__(self):
+        super().__init__()
+        self.clockface = tk.Label(text="")
+        self.clockface.pack()
+
+    def show_time(self):
+        """Put the current time on the label"""
+        self.clockface["text"] = time.strftime("%H:%M:%S")
+
+
+<<huvudprogram som uppdaterar klockan i en egen slinga>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är terminalklockans, ord för ord, med
+\mintinline{python}{clock.show_time()} i stället för
+\mintinline{python}{print}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet i första försöket]
+    Skapa fönstret, och uppdatera det en gång per sekund:
+<<huvudprogram som uppdaterar klockan i en egen slinga>>=
+def main():
+    """Update the clock once a second, as in the terminal"""
+    clock = Clock()
+    while True:
+        clock.show_time()
+        time.sleep(1)
+@
+  \end{solution}
+\end{frame}
+
+Meningen du skrev om vad som händer lyder förmodligen ungefär så här:
+ingenting händer.  Inget fönster syns, och programmet ser ut att hänga.
+Anledningen är att ett fönster inte ritas av den rad som
+skapar det.  Att skapa etiketten och sätta dess text ändrar bara
+uppgifter i programmets minne; det är händelseslingan som läser av dem
+och ritar fönstret, och den startar vi aldrig.  Slingan i
+\mintinline{python}{main} upptar programmet för alltid, och
+\mintinline{python}{mainloop}, som skulle ha startat händelseslingan,
+finns inte ens med --- i terminalversionen behövdes den inte.  Ett sätt
+att se det själv är att fråga fönstret om det är ritat:
+\mintinline{python}{clock.winfo_ismapped()} svarar
+\mintinline{python}{0} före händelseslingan och \mintinline{python}{1}
+efter.
+
+Ett grafiskt program kan alltså inte ha en slinga av sitt eget som
+bestämmer takten, för takten tillhör händelseslingan.  Vad det kan göra
+är att be om att bli anropat: \mintinline{python}{after} lägger en
+beställning i händelseslingan om att en metod ska anropas när en viss
+tid har gått.  Metoden lägger sedan en ny beställning, och därmed går
+klockan.
+
+\begin{frame}[fragile]
+  \begin{solution}[Varför det första försöket inte syns]
+    Fönstret ritas av händelseslingan, inte av raden som skapar det.
+    Slingan i \mintinline{python}{main} upptar programmet för alltid, så
+    \mintinline{python}{mainloop} nås aldrig och händelseslingan får
+    aldrig köra.  Ett grafiskt program kan därför inte bestämma takten
+    själv --- det ber om att bli anropat, med
+    \mintinline{python}{after}.
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{clock.py}]
+    Klockan som fungerar, med tre steg kvar att förfina:
+<<[[clock.py]]>>=
+"""A clock in a window"""
+
+import time
+import tkinter as tk
+
+
+class Clock(tk.Tk):
+    """A window with the time on a label, updated once a second"""
+
+    <<konstruktor som skapar urtavlan och visar den första tiden>>
+
+    <<metod som visar tiden och beställer nästa anrop>>
+
+
+<<huvudprogram som lämnar över takten till händelseslingan>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Urtavlan är en etikett, men texten sätts inte på etiketten direkt.  I
+stället får etiketten hämta sin text ur en
+\mintinline{python}{tk.StringVar}, en sträng som
+\mintinline{python}{tkinter} håller reda på: ändras den, ritas etiketten
+om av sig själv.  Det är samma sak som föreläsningens
+\texttt{hello\_\allowbreak user\_\allowbreak even\_\allowbreak
+better.py} gör, och det gör att klockans metod inte behöver veta
+någonting om etiketten.
+Konstruktorn anropar dessutom \mintinline{python}{update_time} en gång,
+så att den första tiden syns direkt och den första beställningen läggs.
+
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn]
+    Strängen, etiketten som visar den, och det första anropet:
+<<konstruktor som skapar urtavlan och visar den första tiden>>=
+def __init__(self):
+    super().__init__()
+
+    self.current_time = tk.StringVar()
+
+    self.clockface = tk.Label(textvariable=self.current_time)
+    self.clockface.pack()
+
+    self.update_time()
+@
+  \end{solution}
+\end{frame}
+
+Kvar är metoden som gör att klockan går.  Den gör två saker: sätter
+tiden, och beställer nästa anrop om tusen millisekunder.  Den andra
+raden är den som ersätter slingan --- varje anrop lämnar efter sig
+beställningen på nästa.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden som går]
+    Sätt tiden, och beställ nästa anrop:
+<<metod som visar tiden och beställer nästa anrop>>=
+def update_time(self):
+    """Show the current time, then ask to be called again"""
+    self.current_time.set(time.strftime("%H:%M:%S"))
+    self.after(1000, self.update_time)
+@
+  \end{solution}
+\end{frame}
+
+Lägg märke till att \mintinline{python}{after} får
+\mintinline{python}{self.update_time} utan parenteser.  Med parenteser
+hade metoden anropats på plats och \mintinline{python}{after} hade fått
+dess returvärde, alltså \mintinline{python}{None}: ingenting att anropa
+senare.  Det är utan parenteser man lämnar över själva metoden, och en
+metod eller funktion som lämnas över för att anropas vid en händelse
+kallas en \foreignlanguage{english}{callback}-funktion.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över takten:
+<<huvudprogram som lämnar över takten till händelseslingan>>=
+def main():
+    """Run the clock"""
+    clock = Clock()
+    clock.mainloop()
+@
+  \end{solution}
+\end{frame}
+
+Och därmed går klockan i \cref{fig:clock}.  Ett annat sätt att lösa
+uppgiften är att behålla slingan och anropa
+\mintinline{python}{clock.update()} i
+varje varv; då får händelseslingan köra en omgång per varv och fönstret
+syns.  Det fungerar för en klocka och ingenting annat: så länge slingan
+kör är det programmet som bestämmer vad som hinner hända, och den dag
+programmet ska göra två saker --- gå \emph{och} svara på en
+knapptryckning --- håller det inte.  Med \mintinline{python}{after}
+lämnas takten till händelseslingan, och nästa uppgift lägger till just
+en knapp.
+
+\section{Nedräkningen}
+\label{sec:countdown}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOStructure} och
+  \cref{OvningGraphicsLOState}.
+
+  \textbf{Variationsmönster}: Kontrast (som separerar gränssnittet från
+  logiken).
+
+  \textbf{Vad som varierar}: två aspekter, var för sig och båda mot
+  \cref{sec:timer}.  Den ena är om det finns ett gränssnitt alls.  Den
+  andra är om programmet måste minnas något mellan två anrop:
+  \mintinline{python}{count_down} och \mintinline{python}{format_time}
+  minns ingenting --- samma tre tal in ger alltid samma tre tal ut ---
+  medan timern i \cref{sec:timer} är samma logik i något som måste
+  minnas både tiden som är kvar och om nedräkningen pågår.  Det är den
+  kontrast \cref{OvningGraphicsLOState} behöver: målet införs annars
+  mitt i en sammanfogning av fyra aspekter, och det som aldrig varierats
+  ensamt kan inte urskiljas \parencite[45--47]{Marton2015}.
+
+  \textbf{Vad som hålls invariant}: tidsformatet, och att det är en tid
+  som ändras en sekund i taget.
+
+  \textbf{Varför uppgiften är ny}: den finns inte i den gamla övningen,
+  och sekvensen hade ett hål utan den.  Två skäl.  För det första är
+  varje annan uppgift ett grafiskt program, och då finns ingen plats där
+  \cref{OvningGraphicsLOStructure} --- att hålla gränssnitt och
+  programlogik isär --- kan urskiljas, eftersom allt är gränssnitt.  Här
+  är allt logik, och nästa uppgift är samma logik med ett gränssnitt
+  runt om, importerad ur den här filen.  För det andra är det den enda
+  uppgiften vars resultat går att visa som en riktig körning; de
+  grafiska programmen kan bara visas som skärmbilder.
+
+  % TODO(claim-audit): att en uppgift blir lättare att felsöka när
+  % logiken kan köras utan gränssnittet är ett påstående om nytta utan
+  % källa här.  Näraliggande är SRP, belagd i föreläsningen
+  % \emph{Funktioner}, bilaga~B, men den gäller ansvarsfördelning och
+  % inte felsökning.
+  \textbf{Vad uppgiften ska avslöja}: om studenten kommer på de två fall
+  som är lätta att få fel --- växlingen vid en hel minut och golvet vid
+  noll --- innan de dyker upp som ett fel i ett fönster.
+}
+
+Nästa uppgift är en timer, och en timer räknar ner.  Innan vi bygger
+gränssnittet till den skriver vi ner själva nedräkningen, som ingenting
+har att göra med fönster: en tid in, tiden en sekund tidigare ut.  Det
+går att pröva i terminalen, och det är lättare att få rätt där.
+
+% REVIEW(C15): inget körexempel före den här uppgiften, trots att
+% \texttt{countdown.py} är övningens enda program som går att köra.
+% Körningen \emph{är} svaret: uppgiften ber studenten välja starttider
+% \enquote{så att de fall som är lätta att få fel syns}, och avskriften
+% visar precis de två fallen.  Den andra läsningen --- körexempel före
+% varje uppgift utan undantag --- kräver att den frågan stryks ur
+% uppgiften.
+\begin{frame}[fragile]
+  \begin{exercise}[Nedräkningen]\label{ovn:countdown}
+    Skriv en funktion som tar en tid i timmar, minuter och sekunder och
+    ger tiden en sekund tidigare.  Timern du sedan bygger ska aldrig visa
+    en negativ tid.  Skriv också en funktion som gör en tid till en
+    sträng på formen \texttt{hh:mm:ss}, och ett huvudprogram som visar
+    några steg i följd så att du ser att nedräkningen gör rätt.  Välj
+    starttiderna så att de fall som är lätta att få fel syns.  Lägg allt
+    i en fil som heter \texttt{countdown.py}: nästa uppgift importerar
+    den.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Nedräkningen är tre regler och ett undantag, och de går att säga högt:
+finns det sekunder kvar tar vi en av dem; annars, finns det minuter kvar
+tar vi en av dem och sätter sekunderna till 59; annars, finns det timmar
+kvar tar vi en av dem och sätter både minuter och sekunder till 59; och
+finns ingenting kvar står tiden still.  Skrivna i den ordningen blir
+reglerna en rad var.
+
+\begin{frame}[fragile]
+  \begin{solution}[Funktionen \texttt{count\_down}]
+    En regel per villkor, i tur och ordning:
+<<funktion som räknar ner en sekund, men aldrig under noll>>=
+def count_down(hour, minute, second):
+    """Return the time one second before hour:minute:second"""
+    if second > 0:
+        return hour, minute, second - 1
+    if minute > 0:
+        return hour, minute - 1, 59
+    if hour > 0:
+        return hour - 1, 59, 59
+    return 0, 0, 0
+@
+  \end{solution}
+\end{frame}
+
+Funktionen tar tre tal och ger tre tal tillbaka, som en tupel.  Att den
+inte ändrar någonting utanför sig själv är det som gör den lätt att
+pröva: samma indata ger alltid samma utdata, och det går att kontrollera
+med ögat.
+
+\begin{frame}
+  \begin{remark}[Logik utan gränssnitt]
+    Nedräkningen minns ingenting mellan två anrop: samma tre tal in ger
+    alltid samma tre tal ut.  Därför går den att pröva i terminalen, med
+    ögat, innan ett enda fönster finns --- och därför är det den och
+    inte gränssnittet som avgör om timern räknar rätt.
+  \end{remark}
+\end{frame}
+
+En tid ska också kunna visas, och \texttt{hh:mm:ss} betyder två siffror
+per del även när talet är ensiffrigt.  Det sköter formatsträngen
+\mintinline{python}{:02d}, som betyder \enquote{som heltal, minst två
+tecken, utfyllt med nollor}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Funktionen \texttt{format\_time}]
+    Tre tal in, en sträng ut:
+<<funktion som gör en tid till en sträng hh:mm:ss>>=
+def format_time(hour, minute, second):
+    """Return the time as hh:mm:ss"""
+    return f"{hour:02d}:{minute:02d}:{second:02d}"
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet prövar de två fall som är lätta att få fel: precis vid
+en hel minut, där sekunderna ska växla till 59 och minuterna minska, och
+precis vid noll, där tiden ska stanna.  Båda prövas av samma
+hjälpfunktion, som skriver en tid och sedan de närmast följande.
+
+\begin{frame}[fragile]
+  \begin{solution}[Att pröva nedräkningen]
+    Hjälpfunktionen skriver en tid och stegen efter den:
+<<funktion som skriver en tid och stegen efter den>>=
+def show_steps(hour, minute, second, steps):
+    """Print the time, then each of the next steps seconds"""
+    for _ in range(steps + 1):
+        print(format_time(hour, minute, second))
+        hour, minute, second = count_down(hour, minute, second)
+@
+  \end{solution}
+\end{frame}
+
+Slingan behöver bara räkna varv, inte använda talen
+\mintinline{python}{range} ger, och namnet [[_]] är det vanliga sättet
+att säga att ett värde inte används.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    De två fallen, ett i taget:
+<<huvudprogram som prövar de två fall som är lätta att få fel>>=
+def main():
+    """Show the two cases that are easy to get wrong"""
+    print("en hel minut:")
+    show_steps(0, 1, 0, 2)
+    print("noll:")
+    show_steps(0, 0, 1, 2)
+@
+  \end{solution}
+\end{frame}
+
+Delarna sätts ihop till en fil, och då kan vi köra den.  Att
+huvudprogrammet ligger bakom frågan om filen körs som huvudprogram, och
+inte importeras, är vad som gör att nästa uppgift kan importera
+funktionerna utan att nedräkningen skrivs ut på nytt.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{countdown.py}]
+    Hela filen består av de fyra delarna:
+<<[[countdown.py]]>>=
+"""Counting down one second at a time"""
+
+
+<<funktion som räknar ner en sekund, men aldrig under noll>>
+
+
+<<funktion som gör en tid till en sträng hh:mm:ss>>
+
+
+<<funktion som skriver en tid och stegen efter den>>
+
+
+<<huvudprogram som prövar de två fall som är lätta att få fel>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Och då kan vi köra den.
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen av \texttt{countdown.py}]\label{ex:countdown}
+    Båda fallen syns i utskriften:
+    \runpython[showcommand, chdir]{examples/countdown.py}
+  \end{example}
+\end{frame}
+
+Nedräkningen går att skriva kortare: räkna om tiden till sekunder, dra
+bort en, och räkna tillbaka till timmar, minuter och sekunder.  Den
+versionen har färre fall att få fel, men den flyttar i stället in två
+omräkningar i funktionen och gör reglerna svårare att läsa ur koden.
+Versionen med ett villkor per regel valdes eftersom varje rad då är en av
+de regler du kan säga högt, och det är reglerna --- inte omräkningen ---
+uppgiften handlar om.
+
+\section{Timern}
+\label{sec:timer}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOWidgets},
+  \cref{OvningGraphicsLOBind}, \cref{OvningGraphicsLOStructure} och
+  \cref{OvningGraphicsLOState}.
+
+  \textbf{Variationsmönster}: Fusion.
+
+  \textbf{Vad som varierar}: flera aspekter samtidigt --- inmatning från
+  textfält, en händelse från användaren, en händelse från klockan, och
+  tillstånd som måste överleva mellan två händelser.
+
+  \textbf{Vad som hålls invariant}: \mintinline{python}{after}, klassen
+  som ärver från \mintinline{python}{tk.Tk}, och nedräkningen från
+  \cref{sec:countdown}, som importeras oförändrad.
+
+  \textbf{Varför uppgiften förbättras}: den gamla övningens timer
+  räknade ner i samma fält som användaren skriver i, och började räkna
+  så fort programmet startade.  Då blir tillståndet osynligt --- det
+  \emph{är} fältet --- och det finns inget läge där programmet väntar,
+  alltså ingenting att urskilja för \cref{OvningGraphicsLOState}.  Med
+  en startknapp finns två lägen och två sorters händelser, och
+  tillståndet måste ligga någonstans som varken är fältet eller
+  etiketten.
+
+  % TODO(claim-audit): att nybörjare läser av komponenten i stället för
+  % att lagra värdet, och därför tror att komponenten \enquote{är}
+  % värdet, är ett påstående om missuppfattningar utan källa här.
+  \textbf{Missuppfattning som uppgiften riktar sig mot}: att komponenten
+  är värdet, så att det räcker att läsa av textfältet varje sekund i
+  stället för att minnas tiden.  Den som gör så får en timer som räknar
+  fel så snart användaren rör fältet.
+}
+
+Nu bygger vi gränssnittet runt nedräkningen.  Timern skiljer sig från
+klockan på två sätt: den börjar inte förrän användaren säger till, och
+den slutar när den är klar.  Båda skillnaderna handlar om vad programmet
+måste minnas mellan två händelser.  \Cref{fig:timer} visar vad det
+färdiga programmet ska göra.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figs/timer.png}
+    \caption{Fönstret timern ska visa, en sekund in i en nedräkning
+      från en och en halv minut.  De tre fälten är timmar, minuter och
+      sekunder och innehåller det användaren ställde in; etiketten
+      under dem visar tiden som är kvar och ändras en gång per sekund.
+      Bilden är förstorad tre gånger och visar programmets egen yta,
+      utan skrivbordsmiljöns fönsterram.}
+    \label{fig:timer}
+  \end{figure}
+\end{frame}
+
+% REVIEW(C15): körexempel före uppgiften är omöjligt --- programmet
+% kräver ett fönster och avslutar aldrig (se Makefile).  Skärmbilden
+% flyttades hit från lösningsförslaget och visar målet: tre fält, en
+% startknapp och en etikett som räknar ner.  Den röjer ingen metod ---
+% var tillståndet lagras är det som ska urskiljas och syns inte i en
+% bild.
+\begin{frame}[fragile]
+  \begin{exercise}[Timern]\label{ovn:timer}
+    Skriv ett program med ett fönster där du ställer in en tid i timmar,
+    minuter och sekunder, startar nedräkningen och ser den räkna ner en
+    sekund i taget.  Importera funktionerna du skrev i uppgiften
+    \emph{Nedräkningen} i stället för att skriva dem igen.  Programmet
+    ska inte räkna ner förrän du har startat det --- med knappen eller
+    med returtangenten i ett fält --- det ska sluta räkna när tiden är
+    ute, och det ska tåla att du skriver något annat än ett tal i ett
+    fält.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Gränssnittet har tre delar: fälten där tiden ställs in, knappen som
+startar, och etiketten som visar hur mycket som är kvar.  Nedräkningen
+ligger kvar i sin egen fil och importeras --- samma uppdelning som
+föreläsningen \emph{Moduler och paket} visar --- och det är just den
+uppdelningen som gör att logiken kunde prövas i terminalen medan
+gränssnittet prövas i fönstret.
+
+\begin{frame}[fragile,shrink=20]
+  \begin{solution}[\texttt{timer.py}]
+    Programmet i sin helhet, med fem steg kvar att förfina:
+<<[[timer.py]]>>=
+"""A timer with tkinter"""
+
+import tkinter as tk
+
+from countdown import count_down, format_time
+
+
+class Timer(tk.Tk):
+    """A window where a time is set, started and counted down"""
+
+    <<konstruktor som skapar timerns minne och gränssnitt>>
+
+    <<metod som skapar ett fält för tiden>>
+
+    <<metod som läser av fälten och startar nedräkningen>>
+
+    <<metod som visar tiden och räknar ner en sekund till>>
+
+
+<<huvudprogram som kör timern>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+De två tilldelningarna först i konstruktorn är timerns minne.
+\mintinline{python}{time_left} är tiden som är kvar, och
+\mintinline{python}{running} är om nedräkningen pågår.  Ingen av dem går
+att läsa ur gränssnittet: fältet innehåller vad användaren skrev, inte
+vad som är kvar, och etiketten innehåller en text.  Det programmet
+behöver minnas mellan två händelser måste ligga i objektets attribut.
+
+\begin{frame}[fragile]
+  \begin{solution}[Tillståndet ligger i attributen]
+    Timern måste minnas två ting mellan två händelser: tiden som är kvar
+    och om nedräkningen pågår.  Inget av dem går att läsa ur
+    gränssnittet --- fältet innehåller vad användaren skrev, etiketten
+    en text --- så båda ligger i attribut hos objektet.
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn]
+    Minnet först, sedan gränssnittet:
+<<konstruktor som skapar timerns minne och gränssnitt>>=
+def __init__(self):
+    super().__init__()
+
+    self.time_left = (0, 0, 0)
+    self.running = False
+
+    <<skapa fälten där tiden ställs in>>
+
+    <<skapa startknappen och etiketten som visar tiden>>
+@
+  \end{solution}
+\end{frame}
+
+De tre fälten skapas på samma sätt, bara i olika kolumner, så de får en
+egen metod i stället för tre nästan likadana kopior.  Att inte upprepa
+sig i koden --- principen \emph{DRY}\autocite{HuntThomas1999} --- är
+värt något just här, där kopiorna annars skulle behöva ändras
+tillsammans.\footnote{%
+  Det vetenskapliga underlaget för principen --- både var den kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga~E.%
+}
+
+\begin{frame}[fragile]
+  \begin{solution}[Fälten]
+    Tre anrop, och metoden som gör ett fält:
+<<skapa fälten där tiden ställs in>>=
+self.hour_box = self.make_box(0)
+self.minute_box = self.make_box(1)
+self.second_box = self.make_box(2)
+@
+<<metod som skapar ett fält för tiden>>=
+def make_box(self, column):
+    """Create one entry field for the time, prefilled with a zero"""
+    box = tk.Entry(width=4)
+    box.insert(0, "0")
+    box.grid(row=0, column=column)
+    box.bind("<Return>", self.start)
+    return box
+@
+  \end{solution}
+\end{frame}
+
+Metoden \mintinline{python}{insert} skriver in text i fältet på en
+given plats, här en nolla först, så att ett fält du inte rör ändå
+innehåller ett tal.  Sista raden gör att returtangenten i ett fält
+startar nedräkningen, så
+att du slipper flytta handen till musen.  Den avslöjar samtidigt en
+skillnad mellan de två sätten att koppla en
+\foreignlanguage{english}{callback}: \mintinline{python}{bind} lämnar
+över en händelse till metoden, medan \mintinline{python}{command} inte
+gör det.  Därför har \mintinline{python}{start} en parameter med
+standardvärde, och fungerar för båda.
+
+Knappen och etiketten är av samma slag som föreläsningens.
+Knappen får metoden \mintinline{python}{start} som
+\foreignlanguage{english}{callback}, utan parenteser, av samma skäl som
+\mintinline{python}{after} fick \mintinline{python}{update_time} utan
+parenteser.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  \begin{solution}[Knappen och nedräkningen]
+    Knappen till höger om fälten, etiketten under dem:
+<<skapa startknappen och etiketten som visar tiden>>=
+self.start_button = tk.Button(text="Starta", command=self.start)
+self.start_button.grid(row=0, column=3)
+
+self.display = tk.StringVar(value="00:00:00")
+
+self.display_label = tk.Label(textvariable=self.display)
+self.display_label.grid(row=1, column=0, columnspan=4)
+@
+  \end{solution}
+\end{frame}
+
+Med \mintinline{python}{columnspan=4} sträcker sig etiketten över alla
+fyra kolumnerna, och \mintinline{python}|value="00:00:00"| ger variabeln
+ett värde redan när den skapas.
+
+När knappen trycks ska tiden i fälten bli tiden som är kvar.  Ett
+textfält innehåller text, inte tal, så texten måste tolkas som ett tal
+--- och användaren kan ha skrivit vad som helst.  Det är samma problem
+som med \mintinline{python}{input} i föreläsningen \emph{Inmatning och
+felhantering}, och det löses på samma sätt: försök, och fånga
+\mintinline{python}{ValueError} om det inte gick.  Här kan programmet
+dessutom svara på ett sätt terminalen inte kan --- det skriver
+felmeddelandet i etiketten, där tiden skulle ha stått.
+
+\begin{frame}[fragile,shrink=10]
+  \begin{solution}[Metoden \texttt{start}]
+    Gör ingenting om timern redan går, läs annars av fälten:
+<<metod som läser av fälten och startar nedräkningen>>=
+def start(self, event=None):
+    """Read the three fields and start counting down"""
+    if self.running:
+        return
+
+    try:
+        <<läs av den inställda tiden>>
+    except ValueError:
+        self.display.set("bara siffror")
+        return
+
+    self.running = True
+    self.tick()
+@
+<<läs av den inställda tiden>>=
+hour = int(self.hour_box.get())
+minute = int(self.minute_box.get())
+second = int(self.second_box.get())
+self.time_left = (hour, minute, second)
+@
+  \end{solution}
+\end{frame}
+
+Frågan \mintinline{python}{if self.running} först i metoden är det andra
+stället där minnet behövs.  Utan den lägger varje tryck på knappen en ny
+kedja av beställningar i händelseslingan, och timern räknar ner dubbelt
+så fort efter två tryck, tre gånger så fort efter tre.  Felet syns inte
+i koden utan bara i fönstret, och det är svårt att gissa sig till.  Att
+frågan ställs \emph{före} avläsningen av fälten är också ett val: ett
+tryck under nedräkningen ska inte göra någonting alls, och läste vi av
+fälten först skulle tiden hoppa tillbaka till den inställda.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{tick}]
+    Visa tiden, och beställ nästa sekund så länge det finns någon:
+<<metod som visar tiden och räknar ner en sekund till>>=
+def tick(self):
+    """Show the time left, then count down one more second"""
+    hour, minute, second = self.time_left
+    self.display.set(format_time(hour, minute, second))
+
+    if self.time_left == (0, 0, 0):
+        self.running = False
+        return
+
+    self.time_left = count_down(hour, minute, second)
+    self.after(1000, self.tick)
+@
+  \end{solution}
+\end{frame}
+
+\mintinline{python}{tick} är klockans \mintinline{python}{update_time}
+med ett slut: när ingenting är kvar visas noll, kedjan bryts genom att
+ingen ny beställning läggs, och \mintinline{python}{running} blir falsk
+så att knappen kan starta om timern.  Det är hela skillnaden mellan en
+klocka och en timer.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Som klockans, med en timer i stället:
+<<huvudprogram som kör timern>>=
+def main():
+    """Run the timer"""
+    timer = Timer()
+    timer.mainloop()
+@
+  \end{solution}
+\end{frame}
+
+Timern i \cref{fig:timer} räknar därmed ner.  Den gamla lösningen
+räknade i stället ner i fälten själva, vilket sparar en komponent men
+låter fälten användas till två saker: den sekund användaren rör ett fält
+under nedräkningen är tiden förlorad.  Med inmatning i fälten och
+utmatning i etiketten behöver fälten dessutom bara läsas av på ett
+ställe, i \mintinline{python}{start}.
+
+\section{Färgknapparna}
+\label{sec:colors}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOBind},
+  \cref{OvningGraphicsLOStructure}, \cref{OvningGraphicsLODocs} och
+  \cref{OvningGraphicsLOState}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: sammanhanget --- musrörelser på en rityta i
+  stället för en knapp och en klocka --- antalet värden i samma
+  dimension, fem färger i stället för en, och \emph{hur} tillståndet
+  lagras: i \cref{sec:timer} är det vanliga attribut, en tupel och ett
+  sanningsvärde, här en \mintinline{python}{tk.StringVar} som knapparna
+  skriver i utan att någon metod anropas.
+
+  \textbf{Vad som generaliseras}: att det programmet behöver minnas
+  mellan två händelser ligger hos objektet och inte i den komponent som
+  visar det.  Det är \cref{OvningGraphicsLOState} i ett nytt
+  sammanhang och med en ny mekanism, och det är det som gör detta till
+  en generalisering och inte en ny kontrast.
+
+  \textbf{Vad som hålls invariant}: uppgiften att rita, och ritytan och
+  bindningarna, som är föreläsningens ord för ord, så att det som
+  varierar är färgvalet och ingenting annat.
+
+  \textbf{Varför uppgiften förbättras}: den gamla övningen bad om
+  \enquote{knappar för att byta färg}, men föreläsningen visar redan den
+  lösningen i \texttt{draw\_colors.py}: två knappar och en metod per
+  färg.  Uppgiften hade alltså fått sitt svar berättat innan den
+  ställdes.  Kravet är nu minst fyra färger \emph{och} att en femte färg
+  inte ska kräva en ny metod, vilket gör föreläsningens lösning
+  otillräcklig och tvingar studenten att leta i dokumentationen
+  (\cref{OvningGraphicsLODocs}).
+
+  % TODO(claim-audit): att förväxlingen mellan att anropa och att lämna
+  % över en callback är ett vanligt nybörjarfel är ett påstående utan
+  % källa här.
+  \textbf{Missuppfattning som uppgiften riktar sig mot}: att
+  \mintinline{python}{command=self.set_color("red")} lämnar över
+  metoden.  Den anropar den i stället, en gång, medan fönstret byggs.
+  Att kravet är många färger gör felet troligare, eftersom det är då man
+  vill skicka med ett argument.
+}
+
+I de två sista uppgifterna bygger vi vidare på ritprogrammet från
+föreläsningen \emph{Grafiska användargränssnitt}: en rityta där du drar
+med musen och programmet ritar en linje efter den.  Ritytan och
+bindningarna behålls som de är; det är vad som ritas som ska ändras.
+
+% REVIEW(C15): inget körexempel före den här uppgiften --- programmet
+% kräver ett fönster (se Makefile).  Skärmbilden lämnades kvar i
+% lösningsförslaget med flit: den visar radioknappar, och att hitta
+% \mintinline{python}{tk.Radiobutton} i dokumentationen \emph{är}
+% uppgiften (\cref{OvningGraphicsLODocs}).  Den andra läsningen ---
+% bilden flyttad hit som mål, så som den är i \cref{sec:clock} och
+% \cref{sec:timer} --- röjer lösningen.
+\begin{frame}[fragile]
+  \begin{exercise}[Färgknapparna]\label{ovn:colors}
+    Utöka ritprogrammet så att du kan välja färg på det du ritar, med
+    minst fyra färger att välja bland.  Koden ska inte upprepa sig: att
+    lägga till en femte färg ska inte kräva en ny metod.  Metoden
+    \mintinline{python}{create_line} tar färgen som
+    \mintinline{python}{fill="yellow"}, och \mbox{\texttt{pydoc3
+    tkinter}} räknar upp de komponenter du kan välja bland.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Färgen är något programmet måste minnas mellan två händelser --- valet
+görs en gång, och varje musrörelse efteråt ska rita i den färgen --- så
+den hör hemma i ett attribut, som timerns tid.  Skillnaden är att här
+ska gränssnittet både visa vilken färg som gäller och kunna byta den,
+och det finns en komponent i \mintinline{python}{tkinter} som är gjord
+för just det: \mintinline{python}{tk.Radiobutton}.  Flera radioknappar
+som delar samma variabel utgör ett val mellan varandra, och var och en
+skriver sitt eget värde i variabeln när den trycks.  Då behövs ingen
+metod per färg --- ingen metod alls.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{solution}[\texttt{draw\_colors.py}]
+    Programmet i sin helhet, med fem steg kvar att förfina:
+<<[[draw_colors.py]]>>=
+"""A drawing program where you choose the colour"""
+
+import tkinter as tk
+
+<<färgerna att välja bland>>
+
+
+class DrawGUI(tk.Tk):
+    """A window you draw lines in with the mouse"""
+
+    <<konstruktor som skapar ritytan och färgknapparna>>
+
+    <<metod som ritar en linje när musen dras>>
+
+    <<metod som glömmer den förra punkten>>
+
+
+<<huvudprogram som kör ritprogrammet>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Färgerna är en lista, och det är den listan som gör att en färg till
+bara är en färg till.  Namnen är de \mintinline{python}{tkinter} känner
+igen; de flesta engelska färgnamn fungerar.
+
+\begin{frame}[fragile]
+  \begin{solution}[Färgerna]
+    Fem färger, och den första är den som gäller från början:
+<<färgerna att välja bland>>=
+COLORS = ["black", "red", "blue", "green", "orange"]
+@
+  \end{solution}
+\end{frame}
+
+Konstruktorn gör två saker: ritytan, som är föreläsningens oförändrade,
+och färgknapparna, som är det nya.
+
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn]
+    Ritytan, och sedan färgknapparna under den:
+<<konstruktor som skapar ritytan och färgknapparna>>=
+def __init__(self):
+    super().__init__()
+
+    <<skapa ritytan>>
+
+    <<skapa färgknapparna>>
+@
+  \end{solution}
+\end{frame}
+
+Ritytan är en vit \mintinline{python}{Canvas}, två attribut för den
+förra punkten och två bindningar: en för musrörelse med knappen nere,
+en för när knappen släpps.
+
+\begin{frame}[fragile]
+  \begin{solution}[Ritytan]
+    Ritytan, minnet av den förra punkten och de två bindningarna:
+<<skapa ritytan>>=
+self.canvas = tk.Canvas(width=800, height=600, bg="white")
+self.canvas.pack()
+
+self.x_old = self.y_old = None
+
+self.canvas.bind("<B1-Motion>", self.paint)
+self.canvas.bind("<ButtonRelease-1>", self.reset_old_coord)
+@
+  \end{solution}
+\end{frame}
+
+Knapparna skapas i en slinga över färglistan, en per färg, i en egen ram
+under ritytan.  Alla får samma \mintinline{python}{variable}, vilket är
+det som gör dem till ett val, och var sitt
+\mintinline{python}{value}, vilket är det som hamnar i variabeln.  Att
+knappen dessutom får sin text i sin egen färg, med
+\mintinline{python}{fg} (förgrundsfärgen), är bara för att det ska gå
+att se vad man väljer.
+
+\begin{frame}[fragile]
+  \begin{solution}[En variabel som knapparna delar]
+    Radioknapparna byter inte färg genom att anropa varsin metod.  De
+    delar en \mintinline{python}{tk.StringVar}, och var och en skriver
+    sitt eget värde i den när den trycks.  Därför kostar en färg till en
+    rad i listan och ingen ny metod.
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Färgknapparna]
+    Variabeln, ramen och en knapp per färg:
+<<skapa färgknapparna>>=
+self.color = tk.StringVar(value=COLORS[0])
+
+self.color_frame = tk.Frame()
+self.color_frame.pack()
+
+self.color_buttons = []
+for column in range(len(COLORS)):
+    color = COLORS[column]
+    button = tk.Radiobutton(
+        self.color_frame,
+        text=color,
+        value=color,
+        variable=self.color,
+        fg=color,
+    )
+    button.grid(row=0, column=column)
+    self.color_buttons.append(button)
+@
+  \end{solution}
+\end{frame}
+
+Metoden som ritar är \texttt{draw.py}:s ur föreläsningen, med två
+skillnader: färgen läses ur variabeln i stället för att stå skriven i
+koden, och uppdateringen av den förra punkten står på egna rader i
+stället för i en kedjad tilldelning.  Den första
+musrörelsen i ett drag har ingen föregående punkt att dra från, så då
+sparas bara punkten; alla följande drar en linje från den förra punkten
+till den nya och blir i sin tur den förra punkten.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{paint}]
+    Spara punkten om den är den första, annars rita:
+<<metod som ritar en linje när musen dras>>=
+def paint(self, event):
+    """Draw a line from the previous point to this one"""
+    <<spara den första punkten eller rita en linje från den förra>>
+@
+<<spara den första punkten eller rita en linje från den förra>>=
+if self.x_old is None:
+    self.x_old = event.x
+    self.y_old = event.y
+    return
+
+x_start, y_start = self.x_old, self.y_old
+x_dest, y_dest = event.x, event.y
+self.x_old, self.y_old = x_dest, y_dest
+
+self.canvas.create_line(
+    x_start, y_start, x_dest, y_dest, fill=self.color.get()
+)
+@
+  \end{solution}
+\end{frame}
+
+När knappen släpps glöms punkten, så att nästa drag börjar om i stället
+för att dra en linje från det förra dragets slut.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{reset\_old\_coord}]
+    Glöm den förra punkten:
+<<metod som glömmer den förra punkten>>=
+def reset_old_coord(self, _):
+    """Forget the previous point, so the next stroke starts fresh"""
+    self.x_old = self.y_old = None
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över takten:
+<<huvudprogram som kör ritprogrammet>>=
+def main():
+    """Run the drawing program"""
+    window = DrawGUI()
+    window.mainloop()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \begin{sidecaption}{\texttt{draw\_colors.py} efter två drag med
+      musen, ett i svart och ett i rött.  Radioknapparna under ritytan
+      är en per färg i listan \texttt{COLORS}, och den intryckta är den
+      färg nästa drag får.  Bilden visar programmets egen yta, utan
+      skrivbordsmiljöns fönsterram.}[fig:draw-colors]
+      \includegraphics[width=0.6\textwidth]{figs/draw-colors.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\Cref{fig:draw-colors} visar resultatet.  Den lösning föreläsningen
+visar --- en \mintinline{python}{tk.Button} per färg och en metod per
+färg --- fungerar också, och för två färger är den kortare.  Den växer
+dock med en metod per färg, vilket är precis vad uppgiften förbjuder,
+och försöket att komma undan det leder ofta till
+\mintinline{python}{command=self.set_color("red")}.  Det ser ut som att
+metoden lämnas över med ett argument, men parenteserna anropar den
+medan fönstret byggs; det \mintinline{python}{command} får är
+returvärdet, alltså \mintinline{python}{None}, och knappen gör sedan
+ingenting.  En \mintinline{python}{Radiobutton} behöver inget
+\mintinline{python}{command} alls, eftersom variabeln är det som ändras.
+
+\section{Rektanglarna}
+\label{sec:rect}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOBind},
+  \cref{OvningGraphicsLODocs} och \cref{OvningGraphicsLOState}.
+
+  \textbf{Variationsmönster}: Fusion.
+
+  \textbf{Vad som varierar}: två sorters händelser på samma musknapp
+  (rörelse med knappen nere, och själva nedtryckningen) och två lägen,
+  samtidigt.
+
+  \textbf{Vad som hålls invariant}: ritytan, färgmekanismen och metoden
+  \mintinline{python}{reset_old_coord} från \cref{sec:colors}, som
+  återanvänds som de är --- i den litterata källan är det samma delar,
+  inte kopior av dem.
+}
+
+I den sista uppgiften utökar vi samma ritprogram.  En linje ritas genom
+att man drar; en rektangel är inte ett drag utan två hörn, och programmet
+måste alltså kunna två olika saker med samma musknapp.
+
+% REVIEW(C15): inget körexempel före den här uppgiften --- programmet
+% kräver ett fönster (se Makefile).  Skärmbilden (\cref{fig:draw-rect})
+% skulle kunna flyttas hit som mål, så som den är i \cref{sec:clock}
+% och \cref{sec:timer}: den röjer ingen metod, eftersom de två
+% händelserna och minnet av det första hörnet inte syns i en bild.  Den
+% ligger kvar därför att den har en sidocaption som konkurrerar med
+% avsnittets långa \ltnote om marginalen.
+\begin{frame}[fragile]
+  \begin{exercise}[Rektanglarna]\label{ovn:rect}
+    Utöka ritprogrammet så att du kan välja mellan att rita linjer och
+    att rita rektanglar, och rita en rektangel genom att klicka på dess
+    två motsatta hörn.  Metoden \mintinline{python}{create_rectangle}
+    fungerar som \mintinline{python}{create_line}; \texttt{pydoc3
+    tkinter.Canvas} beskriver den och de andra metoder ritytan har.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Programmet får ett läge till att minnas, och ett minne av det första
+hörnet.  Läget är ett val mellan två, precis som färgen är ett val
+mellan fem, så det blir en \mintinline{python}{StringVar} till med
+radioknappar.  Ritytan, färgknapparna och metoden som glömmer punkten är
+samma delar som i \cref{sec:colors}.
+
+% Andra halvan av avsnittets anteckning, förankrad här och inte vid
+% avsnittets början: där trycks den upp i sidocaptionen till figuren i
+% avsnittet före.
+\ltnote{%
+  \textbf{Varför uppgiften behålls}: den kommer från den gamla övningens
+  andra punkt om ritprogrammet, och till skillnad från färgknapparna har
+  föreläsningen inte visat svaret.  Den står sist eftersom den kräver
+  att både bindningar och tillstånd redan är urskilda: läget avgör
+  vilken av två metoder som får göra något, och rektangeln kräver ett
+  eget minne av det första klicket.
+
+  % TODO(claim-audit): att nybörjare väntar sig att en ny bindning till
+  % samma musknapp ersätter den förra är ett påstående om
+  % missuppfattningar utan källa här.
+  \textbf{Missuppfattning som uppgiften riktar sig mot}: att en händelse
+  är \enquote{ett musklick} snarare än en av flera sorter, så att
+  nedtryckning och rörelse inte hålls isär.  Den som tror det får
+  antingen en linje vid varje försök att rita en rektangel, eller en
+  bindning som tros ersätta den förra.
+
+  Uppgiften lämnar \cref{OvningGraphicsLODocs} öppen med flit:
+  \texttt{pydoc3 tkinter.Canvas} räknar upp fler metoder än de två som
+  används, och den sista frågan ber om en av dem.
+}
+
+\begin{frame}[fragile,shrink=20]
+  \begin{solution}[\texttt{draw\_rect.py}]
+    Tre delar är samma som förut, två är ersatta och en är ny:
+<<[[draw_rect.py]]>>=
+"""A drawing program with lines and rectangles"""
+
+import tkinter as tk
+
+<<färgerna att välja bland>>
+
+
+class DrawGUI(tk.Tk):
+    """A window you draw lines and rectangles in with the mouse"""
+
+    <<konstruktor som skapar ritytan, färg- och formknapparna>>
+
+    <<metod som ritar en linje när musen dras, i linjeläget>>
+
+    <<metod som ritar en rektangel, i rektangelläget>>
+
+    <<metod som glömmer den förra punkten>>
+
+
+<<huvudprogram som kör ritprogrammet>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Konstruktorn är den förra med en del till: formknapparna, under
+färgknapparna.
+
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn]
+    Tre delar i stället för två:
+<<konstruktor som skapar ritytan, färg- och formknapparna>>=
+def __init__(self):
+    super().__init__()
+
+    <<skapa ritytan>>
+
+    <<skapa färgknapparna>>
+
+    <<skapa formknapparna>>
+@
+  \end{solution}
+\end{frame}
+
+Formknapparna ser ut som färgknapparna, men de skrivs ut en och en i
+stället för i en slinga.  Det är ett val: två former kommer inte att bli
+fem, och slingan skulle då bara göra koden svårare att läsa utan att
+spara något.  \emph{DRY} är ett skäl att inte upprepa sig, inte en regel
+utan undantag.\footnote{%
+  Bilaga~E i föreläsningen \emph{Algoritmiskt tänkande} redovisar både
+  var principen kommer ifrån och de förbehåll som hör till den.%
+}
+Här finns dessutom raden som binder nedtryckningen av musknappen till
+den nya metoden.
+
+\begin{frame}[fragile,shrink=20]
+  \begin{solution}[Formknapparna]
+    Läget, hörnet, de två knapparna och den nya bindningen:
+<<skapa formknapparna>>=
+self.shape = tk.StringVar(value="line")
+self.x_press = self.y_press = None
+
+self.shape_frame = tk.Frame()
+self.shape_frame.pack()
+
+self.line_button = tk.Radiobutton(
+    self.shape_frame,
+    text="linje",
+    value="line",
+    variable=self.shape,
+)
+self.line_button.grid(row=0, column=0)
+
+self.rect_button = tk.Radiobutton(
+    self.shape_frame,
+    text="rektangel",
+    value="rect",
+    variable=self.shape,
+)
+self.rect_button.grid(row=0, column=1)
+
+self.canvas.bind("<ButtonPress-1>", self.draw_rect)
+@
+  \end{solution}
+\end{frame}
+
+Den nya bindningen ersätter inte den förra.
+\mintinline{python}{"<ButtonPress-1>"} och
+\mintinline{python}{"<B1-Motion>"} är två olika händelser, och när du
+drar med musen inträffar båda: först nedtryckningen, sedan rörelserna.
+Därför måste varje metod själv kontrollera om läget är dess och göra
+ingenting annars.  Det är den enda skillnaden mot metoden i
+\cref{sec:colors}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Två sorters händelser på samma musknapp]
+    \mintinline{python}{"<ButtonPress-1>"} och
+    \mintinline{python}{"<B1-Motion>"} är två olika händelser, och den
+    nya bindningen ersätter inte den förra.  När du drar inträffar båda:
+    först nedtryckningen, sedan rörelserna.  Därför frågar varje metod
+    själv om läget är dess.
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{paint} med lägeskontroll]
+    Samma metod som förut, med en fråga först:
+<<metod som ritar en linje när musen dras, i linjeläget>>=
+def paint(self, event):
+    """Draw a line, unless the rectangle mode is chosen"""
+    if self.shape.get() != "line":
+        return
+
+    <<spara den första punkten eller rita en linje från den förra>>
+@
+  \end{solution}
+\end{frame}
+
+Rektangeln ritas på det andra klicket, inte det första, och det första
+klicket måste alltså sparas.  Det är samma mönster som linjens förra
+punkt, med skillnaden att hörnet glöms så snart rektangeln är ritad ---
+annars hade det tredje klicket blivit ett andra hörn till en rektangel
+som redan är klar.
+
+Prova att dra med musen i rektangelläget, som du just gjorde för linjer:
+ingen rektangel dyker upp, men nästa enkla klick ritar en från den punkt
+där draget började.  Det är inte ett fel i programmet utan just den
+skillnad uppgiften handlar om --- ett drag \emph{börjar} med en
+nedtryckning, och \mintinline{python}{draw_rect} kan inte se om
+nedtryckningen var ett klick eller början på ett drag.
+
+\begin{frame}[fragile,shrink=10]
+  \begin{solution}[Metoden \texttt{draw\_rect}]
+    Spara det första hörnet, rita på det andra:
+<<metod som ritar en rektangel, i rektangelläget>>=
+def draw_rect(self, event):
+    """Draw a rectangle between two clicked corners"""
+    if self.shape.get() != "rect":
+        return
+
+    <<spara det första hörnet eller rita rektangeln>>
+@
+<<spara det första hörnet eller rita rektangeln>>=
+if self.x_press is None:
+    self.x_press = event.x
+    self.y_press = event.y
+    return
+
+x_start, y_start = self.x_press, self.y_press
+self.x_press = self.y_press = None
+
+self.canvas.create_rectangle(
+    x_start, y_start, event.x, event.y, fill=self.color.get()
+)
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[shrink=5]
+  \begin{figure}[htbp]
+    \centering
+    \begin{sidecaption}{\texttt{draw\_rect.py} med ett drag i svart, en
+      blå rektangel och en röd.  Den övre raden av radioknappar väljer
+      färg, den nedre väljer mellan \texttt{linje} och
+      \texttt{rektangel}; en rektangel ritas genom att klicka på två
+      motsatta hörn.  Bilden visar programmets egen yta, utan
+      skrivbordsmiljöns fönsterram.}[fig:draw-rect]
+      \includegraphics[width=0.6\textwidth]{figs/draw-rect.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\Cref{fig:draw-rect} visar resultatet.  Ett annat sätt att rita en
+rektangel är att dra: tryck ner i ett hörn, dra, och släpp i det
+motsatta.  Det är det ritprogram brukar göra, och det kräver att
+rektangeln ritas om vid varje musrörelse, alltså att den förra ritas
+bort igen --- ritytan har en metod \mintinline{python}{delete} för det.
+Två klick valdes här eftersom det räcker med den nya händelsen och det
+nya minnet, och därmed håller uppgiften ihop med den förra.
+
+% REVIEW(C15): inget körexempel före den här uppgiften.  Uppgiften har
+% inget bestämt facit --- studenten väljer själv vilken form som ska
+% läggas till --- så det finns inget färdigt program att köra eller
+% visa en bild av.
+\begin{frame}[fragile]
+  \begin{exercise}[Vidare, om du vill]\label{ovn:more}
+    \texttt{pydoc3 tkinter.Canvas} räknar upp fler metoder än
+    \mintinline{python}{create_line} och
+    \mintinline{python}{create_rectangle}.  Välj en av dem, lägg till
+    ytterligare en form i ritprogrammet, och se hur mycket av koden du
+    behöver ändra.
+  \end{exercise}
+\end{frame}
+
+Att den sista frågan har ett svar du får leta upp själv är meningen: ett
+programbibliotek är alltid större än vad en föreläsning eller en övning
+hinner visa, och dokumentationen är där resten står.
+
+\begin{frame}
+  \begin{summary}
+    Ett grafiskt program bestämmer inte när saker händer.  Det beskriver
+    vad som ska hända --- vid en knapptryckning, vid en musrörelse, när
+    en sekund har gått --- och lämnar över takten till händelseslingan.
+    Därför blir en slinga av programmets eget ett fönster som aldrig
+    syns, och därför måste det programmet ska minnas mellan två
+    händelser ligga i objektets attribut.
+  \end{summary}
+\end{frame}

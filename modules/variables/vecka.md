@@ -16,8 +16,8 @@ problem i delproblem som var och en löses av en *funktion*. Det sättet att
 tänka, att bryta ner ett problem i hanterbara delar, är kursens röda tråd
 och kommer igen varje vecka.
 
-Innan du börjar bör du ha gjort klart förra veckans modul *Terminalen och
-"Hello World!"*: du ska kunna köra ett pythonprogram från terminalen och
+Innan du börjar bör du ha gjort klart förra veckans modul *Terminalen,
+programmeringens grunder och "Hello World!"*: du ska kunna köra ett pythonprogram från terminalen och
 redigera det i din textredigerare.
 
 ## Efter veckan ska du kunna
@@ -36,16 +36,20 @@ redigera det i din textredigerare.
 ## Gör så här, i ordning
 
 1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
-   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
-   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
-2. **Gå på övningen för din grupp:** *Övning funktioner och variabler*. Vi
-   går igenom veckans innehåll genom att lösa problem tillsammans i mindre
-   grupper. Vi hinner bara ett urval av problemen; resten finns med lösningar
-   på övningens sida så att du kan fortsätta på egen hand. Ha *pep8.org — The
-   Prettiest Way to View the PEP 8 Python Style Guide* och *PEP 257 –
-   Docstring Conventions* till hands; du behöver inte kunna dem utantill, men
-   veta vad som finns där.
-3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter* i
+   frågor. Den har två delar med var sin sida här i modulen, *Föreläsning:
+   Variabler och utskrifter* och *Föreläsning: Funktioner*. Kan du inte
+   komma, eller föredrar du att läsa, finns föreläsningsanteckningarna som
+   interaktiva dokument och videogenomgångar här i modulen; sidorna säger
+   vilka.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Funktioner och
+   variabler* här i modulen. Vi går igenom veckans innehåll genom att lösa
+   problem tillsammans i mindre grupper. Vi hinner bara ett urval av
+   problemen; uppgifterna och lösningarna till alla finns i det interaktiva
+   dokumentet (FeedbackFruits) så att du kan fortsätta på egen hand. Ha
+   *pep8.org — The Prettiest Way to View the PEP 8 Python Style Guide* och
+   *PEP 257 – Docstring Conventions* till hands; du behöver inte kunna dem
+   utantill, men veta vad som finns där.
+3. **Arbeta med** *Laboration (1) funktioner, variabler och utskrifter (kamratgranskning)* i
    par. Se gärna *Genomgång inför laboration 1* innan ni börjar. På
    labbpassen finns lärare och assistenter för att hjälpa er när ni fastnar;
    det mesta av arbetet gör ni på egen tid.
