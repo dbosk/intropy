@@ -61,6 +61,22 @@ examples/%.py: contents.nw
 .PHONY: examples
 examples: ${EXAMPLES}
 
+# The programs a task hands the student to run, read or build on are
+# committed, because the tutorial's Canvas page (../tutorial.md) links
+# them for download.  check-committed tangles each one afresh, formats it
+# as the tangle rule does, and compares it with the committed copy, so a
+# copy left stale by a change to contents.nw is caught.
+COMMITTED+=	examples/bomben.py
+COMMITTED+=	examples/biobiljetter1.py
+
+.PHONY: check-committed
+check-committed:
+	@status=0; for f in ${COMMITTED}; do \
+	  notangle -R"[[$$(basename $$f)]]" contents.nw | \
+	    black -q --stdin-filename $$f - | \
+	    diff -u $$f - || { echo "$$f: stale" >&2; status=1; }; \
+	done; exit $$status
+
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
