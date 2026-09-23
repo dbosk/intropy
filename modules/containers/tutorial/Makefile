@@ -47,6 +47,7 @@ EXAMPLES+=	examples/nyckel.py
 EXAMPLES+=	examples/bank.py
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py
+EXAMPLES+=	examples/ko_utan_r.py
 EXAMPLES+=	examples/cowsay.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/humor.py
