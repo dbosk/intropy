@@ -99,12 +99,20 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   `if __name__ == "__main__":`, the guard from then on (week 40's
   *Upprepningar*, *Behållare: Listor* and *Behållare: Tupler* are
   lectured before it and call `main()` bare).
+  The function version means that a computation gets its own named
+  function: `main` reads, calls and prints, and a formula never sits
+  inline in a `print` (author, 2026-09-23, beside an inline BMI formula:
+  "Use a function for computing BMI").
 - Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
 - A tutorial may introduce a small new thing the lectures did not teach,
   if the student can find it with what was taught, e.g. `str.replace`
   through `pydoc str` (author, 2026-09-23: "It's fine if we introduce new
   things in the tutorials too. But only small things."). Say where to
   look, not just the name.
+- A construct no earlier lecture taught is explained where a deck first
+  uses it, in a sentence or two of the prose, not only by a pointer to
+  the tutorial where it appeared (author, 2026-09-23, circling `:.1f`:
+  "Explain this too").
 - Commands follow *Hello, World!*, which has the student type `python3`:
   the same holds for `pydoc3` (and `python3 -m pip`). A deck that shows
   the unsuffixed form, or a run made with it, says once that the student
