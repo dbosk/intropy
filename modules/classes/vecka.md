@@ -1,0 +1,95 @@
+---
+title: "Veckoöversikt: Klasser och objekt"
+regex: '^Veckoöversikt: Klasser och objekt$'
+published: true
+front_page: false
+editing_roles: teachers
+weeks: 2026w41
+modules:
+  - module: '^Klasser och objekt$'
+    position: 1
+---
+Den här veckan (vecka 41) handlar om *uppslagslistor* och *klasser och
+objekt*. Först uppslagslistan: behållaren som slår upp ett värde med en
+nyckel, till exempel telefonnumret som hör till ett namn, i stället för
+med en plats som i listan. Sedan klasser: hur du skapar egna datatyper
+som samlar data och de funktioner som hör till datan på ett ställe.
+Med en uppslagslista kan du beskriva till exempel en person, ett fält
+per nyckel; med en klass får programmet en tydligare struktur och mindre
+kodupprepning, och det är grunden för nästan all kod du kommer att läsa
+och skriva framöver.
+
+Innan du börjar bör du vara bekväm med funktioner (parametrar och
+returvärden), villkor, upprepningar, felhantering med `try` och `except`
+samt listor och tupler från de tidigare veckorna.
+
+## Efter veckan ska du kunna
+
+- använda uppslagslistor för att lagra och slå upp data, hantera att en
+  nyckel saknas och gå igenom en uppslagslista med `for`,
+- välja mellan lista och uppslagslista utifrån vilka operationer
+  programmet behöver, och motivera valet,
+- förklara skillnaden mellan en klass och ett objekt,
+- skapa klasser med attribut och metoder och förstå vad parametern `self`
+  är,
+- implementera dundermetoder som `__init__`, `__str__`, `__eq__` och
+  `__lt__`,
+- använda inkapsling för att skydda ett objekts data,
+- välja mellan att representera data med en klass eller med en
+  uppslagslista och motivera valet.
+
+Vill du mer har du dessutom möjlighet att lära dig att skapa underklasser
+med arv, överlagra metoder och anropa föräldraklassens metoder med
+`super()`, samt att avgöra när arv respektive komposition passar bäst.
+
+## Gör så här, i ordning
+
+1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
+   frågor. Föreläsningen har två delar, *Behållare: Uppslagslistor* och
+   *Klasser och objekt*, och en egen sida här i modulen, *Föreläsning:
+   Klasser och objekt*, som beskriver dess innehåll och länkar till
+   anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
+   inspelningen och föreläsningsanteckningarna där i stället.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Klasser och objekt*
+   här i modulen. Vi går igenom veckans innehåll genom att lösa problem
+   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
+   uppgifterna och lösningarna till alla finns i det interaktiva dokumentet
+   (FeedbackFruits) så att du kan fortsätta på egen hand.
+3. **Arbeta med** *Laboration (4) klasser och objekt (kamratgranskning)* i
+   par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
+   fastnar; det mesta av arbetet gör ni på egen tid.
+4. **Redovisa laboration 3** på måndagens eller tisdagens redovisningspass
+   för din grupp. Boka en tid i kalendern i Canvas.
+5. **Vill du fördjupa dig?** Gör *Fördjupande övning klasser och objekt*.
+
+## Schema
+
+<!-- schema:start -->
+- **Mån 5/10**
+  - 13:00–17:00 Redovisning (grupp A–F) — boka tid i kalendern i Canvas.
+- **Tis 6/10**
+  - 08:00–10:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
+  - 10:00–12:00 Övning (grupp A–F) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 15:00–19:00 Redovisning (grupp G–L) — boka tid i kalendern i Canvas.
+- **Ons 7/10**
+  - 10:00–12:00 Övning (grupp G–L) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+- **Tor 8/10**
+  - 08:00–10:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
+  - 15:00–17:00 Labb (grupp G–L) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
+<!-- schema:end -->
+
+Du går bara på övnings- och labbpassen för din grupp (A–F eller G–L);
+föreläsningen är gemensam för hela klassen. Tiderna anges som i TimeEdit,
+utan akademisk kvart: föreläsningar och övningar börjar kvart över.
+
+## Deadlines och hjälp
+
+Datum för inlämningar står på respektive uppgift i Canvas; se sidan
+*Deadlines, examination av olika moment, betyg och fusk* för hur momenten
+examineras. Fastnar du mellan passen, se sidan *Få hjälp*.
+
+## Nästa vecka
+
+Vecka 42 och 43 är tentaperiod utan undervisning i kursen; använd dem
+gärna till att bli klar med laboration 4. Vecka 44 fortsätter vi med
+modulen *Fler behållare och mer om klasser*.

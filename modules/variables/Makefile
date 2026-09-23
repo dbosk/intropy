@@ -1,7 +1,9 @@
 SUBDIR+=		slides
+SUBDIR+=		slides-functions
+SUBDIR+=		tutorial
 SUBDIR_GOALS=	all clean distclean
 
-HTML_FILES= 	lecture.html exercise.html pythonic.html
+HTML_FILES= 	lecture.html pythonic.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos
 
@@ -10,7 +12,6 @@ PANDOCFLAGS= 	--filter pandoc-xnos
 all: ${HTML_FILES} ${PDF_FILES}
 
 lecture.html: lecture.md
-exercise.html: exercise.md
 pythonic.html: pythonic.md
 
 

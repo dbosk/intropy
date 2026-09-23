@@ -1,0 +1,2385 @@
+\mode*
+
+\ltnote{%
+  Varje tanglat program i den här föreläsningen är
+  funktionsversionen.  Föreläsningen \emph{Funktioner} argumenterar
+  för att dela upp ett program i namngivna funktioner, och ett
+  material som därefter visar program utan funktioner lär ut att
+  uppdelningen var frivillig.
+  % TODO(claim-audit): att en inkonsekvens mellan det materialet lär
+  % ut och det materialet visar kostar något i lärande är ett påstående
+  % om verkan, inte ett designval.  Ingen sökning är gjord; regeln är
+  % författarens (2026-09-18).
+
+  Regeln: arbetet ligger i namngivna funktioner med docstringar, flödet
+  i en \mintinline{python}{main}, och toppnivån innehåller bara
+  definitionerna och \emph{ett} startanrop, \mintinline{python}{main()}
+  --- också i de program som bara anropar en funktion med givna värden
+  ([[plus.py]], strängprogrammen, de tre felprogrammen), eftersom de
+  skriver ut något.  Att startanropet är ett bart anrop och inte en
+  \mintinline{python}{if}-sats om \mintinline{python}{__name__} är
+  avsiktligt: den konstruktionen hör till föreläsningen \emph{Moduler
+  och paket}.
+
+  Priset är ett steg per anrop i spårutskriften.  Det är därför
+  \cref{sec:felmeddelande} lär ut den flerstegsform Python faktiskt
+  skriver.
+}
+
+\section[Programmet]{Ett program som frågar}
+\label{sec:programmet}
+
+I föreläsningen \emph{Variabler och utskrifter} skrev vi ett program som
+räknar ut hur gammal någon är, och i föreläsningen \emph{Funktioner}
+delade vi upp det i en funktion som räknar och en som hälsar.  Det
+frågade efter ett namn och ett födelseår, och vi sa bara ett par
+meningar om hur det gick till: \mintinline{python}{input} skriver ut sin
+fråga och lämnar tillbaka det som skrevs, och \mintinline{python}{int}
+gör om det till ett heltal.  Där lämnade vi saken.  Nu är det de två
+raderna som är ämnet: vad är det \mintinline{python}{input} lämnar
+tillbaka, och vad gör \mintinline{python}{int} där?
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet som frågar]
+    \label{ex:age1}
+    Programmet frågar, räknar och hälsar:
+<<[[age1.py]]>>=
+<<årtalet och funktionerna>>
+
+
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = int(input("Vilket år är du född? "))
+    greet(name, birthyear)
+
+
+main()
+@
+  \end{example}
+\end{frame}
+
+Det som står i den första delen är oförändrat sedan föreläsningen
+\emph{Funktioner}, och alla åldersprogram här delar den.
+
+\begin{frame}[fragile]
+  \begin{example}[Funktionerna programmet bygger på]
+    \label{ex:age1-delar}
+    Årtalet, funktionen som räknar och funktionen som hälsar:
+<<årtalet och funktionerna>>=
+"""Åldersberäkning som frågar den som kör programmet."""
+
+THIS_YEAR = 2026
+
+
+def age(birthyear):
+    """Returnerar åldern i år för den som föddes år birthyear."""
+    return THIS_YEAR - birthyear
+
+
+def greet(name, birthyear):
+    """Hälsar på name och skriver ut hur gammal personen är."""
+    print(f"Hej, {name}!")
+    print(f"Du är {age(birthyear)} år gammal.")
+@
+  \end{example}
+\end{frame}
+
+Kör vi det får vi en dialog: två frågor, två svar och en uträkning som
+beror på svaren.
+
+\begin{frame}[fragile]
+  \begin{example}[Vi kör det]
+    \label{ex:age1-kor}
+    Vi svarar \enquote{Malvina} och \enquote{1927}:
+    \runpython[transcript, stdin={Malvina}, stdin={1927}]%
+      {examples/age1.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOConvert}.
+
+  Programmet är hämtat ur föreläsningen \emph{Variabler och utskrifter},
+  där det redan läser in namn och födelseår; den föreläsningen förklarar
+  \mintinline{python}{input} och \mintinline{python}{int} med en mening
+  var och lämnar dem därhän.  Materialet låtsas alltså inte att
+  inläsning är något nytt --- det gör de två raderna till objekt för
+  lärande.  Ändras åldersprogrammet där, ska det här avsnittet ses över.
+
+  Programmet står i den uppdelning föreläsningen \emph{Funktioner} gav
+  det: samma funktionsnamn och samma docstringar.  Inläsningen och
+  anropet ligger i \mintinline{python}{main} enligt regeln i kapitlets
+  inledande anteckning; funktionerna ligger i en egen chunk som alla
+  åldersprogram i det här avsnittet delar, så att det som varierar
+  mellan [[age1.py]] och [[age2.py]] är en enda rad inne i
+  \mintinline{python}{main} och ingenting annat.
+
+  Priset är ett steg per anrop i spårutskriften --- felutskriften i
+  \cref{ex:age2-krasch} har fyra, eftersom subtraktionen sker tre anrop
+  ner i \mintinline{python}{age} --- och prosan där riktar därför
+  uppmärksamheten mot sista raden och pekar fram mot
+  \cref{sec:felmeddelande}.
+
+  Årtalet 1927 är det år då Kvinnliga Teknologers Sammanslutning, i dag
+  nätverket Malvina, bildades vid KTH \parencite{MalvinaHistoria} --- ett
+  faktum exempeldata får bära utan att studenttexten säger det.  Samma
+  namn och samma årtal används genom hela föreläsningen, så att det som
+  varierar är programmet och inte personen.
+
+  Dialogen typsätts med didactic-paketets
+  \mintinline{latex}{\runpython[transcript, stdin={...}]}, som kör den
+  tanglade filen under en pseudoterminal och svarar på frågorna.  Koden
+  på bilden och dialogen under den kommer därför ur samma källa och kan
+  inte glida isär.
+}
+
+Programmet fungerar, och det fungerar för vem som helst som kör det.
+Innan vi tar isär de två raderna som frågar: en fråga att svara på
+först.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:utan-int}
+    Samma program, med en enda ändring.  Vad skriver det ut om du svarar
+    \enquote{Malvina} och \enquote{1927}?
+<<[[age2.py]]>>=
+<<årtalet och funktionerna>>
+
+
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = input("Vilket år är du född? ")
+    greet(name, birthyear)
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOConvert}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan
+  \mintinline{python}{input} och typkonverteringen har behandlats, och
+  den pekar inte ut vad som är kritiskt --- den frågar efter utskriften,
+  inte efter typen.  Svaren visar vilka som redan urskiljer att det
+  inlästa är text tills någon gör om det, och vilka som läser
+  \mintinline{python}{int} som en formalitet.  Svaret ges först i
+  \cref{sec:vad-far-vi-tillbaka}, där det är objektet för lärande.
+
+  \textbf{Kontrast}: vad som varierar är om omvandlingen finns; vad som
+  hålls invariant är programmet, frågorna och användarens svar.  Det är
+  också den dimension som löper genom avsnitten om inmatning och typer:
+  vad programmet gör med det användaren skrev --- tar det som det är,
+  omvandlar det, granskar det, tar hand om att omvandlingen inte gick.
+  Att hålla programmet invariant är vad som gör omvandlingen urskiljbar
+  \parencite[45--47]{Marton2015}.
+
+  Filerna heter [[age1.py]] och [[age2.py]]: namn som beskriver
+  skillnaden --- med eller utan omvandling --- hade avslöjat vad som ska
+  urskiljas.  Två filer behövs här, till skillnad från
+  \cref{ovn:plus-tva-typer}: [[age2.py]] avbryts, och de två
+  varianterna kan därför inte stå i samma program.
+}
+
+Svaret hänger på vad \mintinline{python}{input} lämnar tillbaka.  Vi
+börjar därför med frågan själv.
+
+\section{Inmatning}
+\label{sec:inmatning}
+
+\subsection{Att läsa in text}
+
+I Python heter funktionen för att ställa en fråga och få ett svar
+\mintinline{python}{input}.  Den skriver ut en uppmaning, väntar tills
+användaren tryckt \textsc{retur}, och lämnar tillbaka det som skrevs.
+Som all annan utmatning från en funktion måste vi ta hand om svaret ---
+vi lägger det i en variabel.
+
+% C4: \Large is right on the slide and wrong in the notes; the article
+% job gets the normal body size.
+\begin{frame}
+  \begin{center}
+    \mode<presentation>{\setminted{fontsize=\Large}}%
+    \mintinline{python}|variabel = input("Fråga: ")|
+  \end{center}
+\end{frame}
+
+Uppmaningen är frivillig.  Vi kan skriva ut frågan med
+\mintinline{python}{print} i stället och låta \mintinline{python}{input}
+bara vänta på svaret.  De två programmen gör samma sak; skillnaden syns
+i terminalen.
+
+\begin{frame}[fragile]
+  \begin{example}[Frågan som argument]
+    \label{ex:prompt1}
+    Frågan skickas med till \mintinline{python}{input}:
+<<[[prompt1.py]]>>=
+"""Hälsar på den som kör programmet."""
+
+
+def main():
+    """Frågar efter ett namn och hälsar."""
+    name = input("Vad heter du? ")
+    print(f"Hej {name}!")
+
+
+main()
+@
+    \runpython[transcript, stdin={Malvina}]{examples/prompt1.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Frågan som egen utskrift]
+    \label{ex:prompt2}
+    Samma sak, men frågan skrivs ut för sig:
+<<[[prompt2.py]]>>=
+"""Hälsar på den som kör programmet."""
+
+
+def main():
+    """Frågar efter ett namn och hälsar."""
+    print("Vad heter du?")
+    name = input()
+    print(f"Hej {name}!")
+
+
+main()
+@
+    \runpython[transcript, stdin={Malvina}]{examples/prompt2.py}
+  \end{example}
+\end{frame}
+
+Skickar vi med frågan till \mintinline{python}{input} stannar markören
+på samma rad som frågan, och användaren skriver sitt svar direkt efter
+den; skrivs frågan ut för sig hamnar svaret på raden under.  Lägg också
+märke till mellanslaget sist i \mintinline{text}|"Vad heter du? "|: det
+är det som skiljer svaret från frågetecknet i den första körningen.  Det
+är en petitess, men det är den sortens petitess som avgör om ett program
+känns färdigt eller inte, och vi återkommer till den i
+\cref{sec:anvandarvanligt}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOPrompt}.
+
+  \textbf{Kontrast}: vad som varierar är var frågan skrivs ut --- som
+  argument till \mintinline{python}{input} eller som ett eget
+  \mintinline{python}{print}.  Vad som hålls invariant är programmet i
+  övrigt och det användaren ser sig göra.  Kontrasten ska urskilja att
+  uppmaningen är ett \emph{argument}, inte en del av inläsningen: det är
+  samma \mintinline{python}{input} i båda fallen.  Den lägger också
+  grunden för utformningsfrågan i \cref{sec:anvandarvanligt}, där
+  mellanslaget och radbrytningen blir det som varierar.
+
+  Båda programmen är tanglade och körs med
+  \mintinline{latex}{\runpython}, så att markörens plats \emph{syns} i
+  terminalen i stället för att påstås i prosan; samma svar
+  (\enquote{Malvina}) matas in i båda.  Prosan om skillnaden står efter
+  körningarna av samma skäl.  Namnen [[prompt1.py]] och [[prompt2.py]]
+  är neutrala: ett namn som sade var frågan skrevs ut hade pekat ut vad
+  som ska urskiljas.
+
+  Programmen är \mintinline{python}{main}-varianten av formen: en
+  utskrift av frågan hör inte på toppnivån, och
+  \mintinline{python}{main} håller dessutom ihop de rader kontrasten
+  gäller --- huvud, docstring och anrop är ordagrant desamma i de två
+  filerna, så det som varierar är enbart hur frågan skrivs ut.
+}
+
+Var man slår upp vad en inbyggd funktion gör är värt att veta.  Pythons
+egen dokumentation listar dem alla, och \mintinline{python}{input} står
+där bland de andra (\cref{fig:docs-builtins}).\footnote{\label{fn:builtins}%
+  \emph{Built-in Functions}, Python Documentation.
+  \url{https://docs.python.org/3/library/functions.html} (hämtad
+  2026-09-03).}
+
+% The margin beside this figure is occupied by the \ltnote queue, so a
+% sidecaption would overprint it (memoir sets side captions with \rlap).
+% A normal caption with the same text instead.
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=.95\linewidth,height=.72\textheight,%
+      keepaspectratio]{figs/docs-builtins.png}
+    \caption{De inbyggda funktionerna i Pythons dokumentation.}
+    \label{fig:docs-builtins}
+  \end{figure}
+\end{frame}
+
+Samma beskrivning finns i terminalen: vi kan också läsa Pythons
+dokumentation för \mintinline{python}{input} med [[pydoc input]].
+Precis som med [[python3]] kan du behöva skriva [[pydoc3]].
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Dokumentationen i terminalen]
+    \label{ex:pydoc}
+    Kommandot skriver ut vad funktionen gör, vad den tar emot och vad
+    den lämnar tillbaka:
+    \runshell[showcommand, breaklines]{pydoc input}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead}.
+
+  Avsnittet visar två vägar till samma beskrivning: webbsidan och
+  terminalen.  \textbf{Vad som varierar} är var man slår upp
+  funktionen; \textbf{vad som hålls invariant} är funktionen och den
+  beskrivning man får.  Aspekten som ska urskiljas är att
+  dokumentationen är en \emph{källa} man går till, inte en webbplats
+  man råkar hamna på --- och att den finns där man ändå står när man
+  programmerar.
+
+  Utskriften från \mintinline{text}|pydoc input| körs med didactics
+  \mintinline{latex}{\runshell} och kommer alltså ur samma terminal som
+  studenten har framför sig; den är inte avskriven.  Att den står här
+  och inte i \cref{sec:strangmetoder} är avsiktligt: den efterfrågan
+  materialet vill bygga uppstår när \mintinline{python}{input} nyss
+  blivit intressant.
+}
+
+\subsection{Vad är det vi får tillbaka?}
+\label{sec:vad-far-vi-tillbaka}
+
+Nu har vi ett sätt att fråga.  Men vad är det frågan ger oss?  Det är
+här det är lätt att göra fel första gången --- och det är också svaret
+på \cref{ovn:utan-int}.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet utan omvandlingen]
+    \label{ex:age2-krasch}
+    Vi svarar \enquote{Malvina} och \enquote{1927}:
+    \runpython[transcript, stdin={Malvina}, stdin={1927}]%
+      {examples/age2.py}
+  \end{example}
+\end{frame}
+
+Hälsningen kommer, men åldern kommer aldrig: programmet avbryts med ett
+felmeddelande.  Utskriften har ett steg för varje anrop på vägen ner
+till det som inte gick att utföra, och den läser vi i
+\cref{sec:felmeddelande}; det som avgör saken här står på sista raden.
+Meddelandet säger vad som är fel: \mintinline{python}{birthyear} är en
+\mintinline{python}{str}, en sträng, och ett heltal går inte att
+subtrahera med en sträng.  Användaren skrev visserligen siffror --- men
+\mintinline{python}{input} bryr sig inte om \emph{vad} som skrevs.  Den
+lämnar alltid tillbaka en sträng.
+
+Att ta det inlästa för ett tal är ett vanligt misstag bland
+nybörjare\autocite{GuoMarkelZhang2020}.%
+\footnote{%
+  Det vetenskapliga underlaget för att missuppfattningen är belagd ---
+  och för hur långt beläggen räcker --- finns i
+  \cref{app:missuppfattningar}, och hur man kontrollerar ett påstående i
+  allmänhet står i \cref{app:verifiera}.}
+
+% REVIEW(C9): "som detta" is removed (round 5, reader R20): in the notes
+% it had nothing to point at.
+% REVIEW(C10): the block was an \emph{Anmärkning}; it summarises rather
+% than qualifies, so it is now a \emph{Sammanfattning}.
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}[\texttt{input()}]
+      \begin{itemize}
+        \item Returnerar \emph{alltid} en sträng.
+        \item Även när användaren skriver siffror.
+        \item Vill vi ha ett tal måste vi omvandla själva.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}[\texttt{input()}]
+      \mintinline{python}{input} returnerar alltid en sträng, även när
+      användaren skriver siffror.  Vill vi räkna med
+      svaret måste vi omvandla det själva.
+    \end{summary}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOConvert}.
+
+  Frågan i \cref{ovn:utan-int} riktar sig mot en belagd missuppfattning:
+  att tal som läses in från terminalen automatiskt blir heltal
+  \parencite{GuoMarkelZhang2020}.  Samma sak står i
+  antimönsterkatalogen som \emph{missing type conversion}
+  \parencite{Bosse2021Antipatterns}.
+
+  Att svaret kommer som ett \emph{felmeddelande} och inte som ett
+  konstigt värde är avsiktligt utnyttjat: här kraschar programmet
+  direkt, medan samma missuppfattning i andra lägen ger tyst fel
+  resultat (att multiplicera en sträng med ett tal är ett giltigt
+  uttryck).  Kraschen är alltså den snällaste varianten, och den
+  varianten kommer först.
+
+  Att hälsningen \emph{kommer} innan avbrottet är ingen slump: den
+  raden använder bara namnet, som lästes in utan problem, och gör
+  därmed avbrottet till något som händer mitt i körningen snarare än
+  till att \enquote{programmet inte gick att köra}.  Aspekten
+  \emph{avbrott} tas upp för sig i \cref{sec:krasch}.
+}
+
+Det som saknas är en \emph{typkonvertering}: en funktion som tar ett
+värde av en typ och ger tillbaka motsvarande värde av en annan.  De
+heter som typerna själva: \mintinline{python}{int} ger ett heltal och
+\mintinline{python}{float} ett flyttal.  Den tredje,
+\mintinline{python}{str}, gör tvärtom och användes redan i
+föreläsningen \emph{Variabler och utskrifter} för att få in ett tal i en
+text.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}[Typkonvertering]
+      \begin{itemize}
+        \item \mintinline{python}{int(x)} ger heltalet
+        \item \mintinline{python}{float(x)} ger flyttalet
+        \item \mintinline{python}{str(x)} ger textsträngen
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}[Typkonvertering]
+      \mintinline{python}{int(x)} ger heltalet, \mintinline{python}{float(x)}
+      flyttalet och \mintinline{python}{str(x)} textsträngen som svarar mot
+      \mintinline{python}{x}.
+    \end{summary}%
+  }
+\end{frame}
+
+\subsection{Var hör omvandlingen hemma?}
+\label{sec:var-omvandling}
+
+Med \mintinline{python}{int} kan vi rätta programmet.  Men det finns två
+ställen att sätta in den på, och de ger olika program.
+
+% REVIEW(C11): other reading --- make this subsection an excursus
+% (exkurs) instead of a try-first exercise.
+% The two programs must be compared without recreating one from memory,
+% so they may not be split by a page break in the notes.
+\mode<article>{\needspace{32\baselineskip}}
+\begin{frame}[fragile,shrink=20]
+  \begin{exercise}[Vad skriver programmen ut?]
+    \label{ovn:var-omvandling}
+    Här är två program.  Vad skriver vart och ett av programmen ut, och
+    var i programmet finns talet?
+<<[[age2a.py]]>>=
+<<årtalet och funktionerna>>
+
+
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = input("Vilket år är du född? ")
+    greet(name, int(birthyear))
+
+
+main()
+<<[[age2b.py]]>>=
+<<årtalet och funktionerna>>
+
+
+def main():
+    """Frågar efter namn och födelseår och hälsar."""
+    name = input("Vad heter du? ")
+    birthyear = int(input("Vilket år är du född? "))
+    greet(name, birthyear)
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    \label{ex:var-omvandling}
+    Det första programmet skriver
+    \runpython[transcript, stdin={Malvina}, stdin={1927}]%
+      {examples/age2a.py}
+    och det andra
+    \runpython[transcript, stdin={Malvina}, stdin={1927}]%
+      {examples/age2b.py}
+  \end{example}
+\end{frame}
+
+Båda skriver ut samma sak.  Skillnaden är var talet finns: i det första
+programmet ligger en sträng i \mintinline{python}{birthyear}, och talet
+uppstår först i anropet; i det andra ligger talet i variabeln.  Ska
+årtalet användas mer än en gång vinner det andra --- annars måste vi
+skriva \mintinline{python}{int(birthyear)} varje gång, och en dag
+glömmer vi det på ett ställe.  Att låta variabeln innehålla det den
+heter, ett årtal och inte en textrad, är också det som gör resten av
+programmet lättare att läsa.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOConvert}.
+
+  \textbf{Kontrast}: vad som varierar är \emph{var} omvandlingen står ---
+  vid inläsningen eller vid användningen.  Vad som hålls invariant är
+  programmets utskrift, som är exakt densamma.  Kontrasten ska urskilja
+  att typkonverteringen är en operation på ett \emph{värde} och kan
+  placeras var som helst där värdet finns, och att valet av plats bestämmer
+  vad variabeln innehåller.  Eftersom utskriften är identisk kan
+  skillnaden inte upptäckas i utmatningen: det är just poängen, och det
+  är därför resonemanget om upprepning (varje användning måste omvandla)
+  får bära valet.
+
+  De två programmen står i \emph{en} övning, och körningarna kommer
+  efter frågan, inte före: den som får se utskrifterna först har inget
+  kvar att förutsäga \parencite[13]{Marton2015}.  Att utskrifterna är
+  identiska är vad som gör frågans andra hälft --- var i programmet
+  talet finns --- till den som bär.  Namnen [[age2a.py]] och
+  [[age2b.py]] är neutrala av samma skäl som [[age1.py]] och
+  [[age2.py]]: ett namn som sade var omvandlingen stod hade gjort
+  urskiljningen åt studenten \parencite[45--47]{Marton2015}.
+
+  Det andra av de två programmen är ordagrant [[age1.py]], så kontrasten
+  landar i det program föreläsningen startade i.
+
+  Argumentet \enquote{annars måste vi skriva
+  \mintinline{python}{int(birthyear)} varje gång} är
+  \foreignlanguage{english}{DRY} i miniatyr; principen namnges i
+  föreläsningen \emph{Algoritmiskt tänkande} och används här utan att
+  namnges om.
+}
+
+\section[Typer]{Datatyper och operationer}
+\label{sec:datatyper}
+
+Missuppfattningen som fällde programmet var inte egentligen en
+missuppfattning om \mintinline{python}{input}.  Den var en
+missuppfattning om \emph{typer}: att det som ser ut som ett tal är ett
+tal.  Så låt oss titta närmare på vad typen egentligen bestämmer.
+
+\subsection{Samma tecken, olika typ}
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ovn:plus-tva-typer}
+    Vad skriver programmet ut?
+<<[[plus.py]]>>=
+def plus(x, y):
+    """Returnerar x + y."""
+    return x + y
+
+
+def main():
+    """Skriver ut vad plus ger för två par av värden."""
+    print(plus("3", "4"))
+    print(plus(3, 4))
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Programmet skriver
+    \runpython[transcript]{examples/plus.py}
+  \end{example}
+\end{frame}
+
+Samma tecken på skärmen, samma operator, samma funktion, olika
+resultat.  För strängar betyder \mintinline{python}{+} \enquote{sätt
+ihop}, för tal betyder det \enquote{addera}.  Det är alltså inte bara
+operatorn som avgör vad som händer, utan också \emph{typen} hos det den
+arbetar på --- och typen syns inte i tecknen.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOTypes}.
+
+  \textbf{Kontrast}: vad som varierar är operandernas typ; vad som hålls
+  invariant är deras utseende (\mintinline{python}{3} och
+  \mintinline{python}{4}), operatorn och funktionen
+  \mintinline{python}{plus}, som står skriven \emph{en} gång med två
+  anrop under sig.  Att invarianten syns en gång i stället för i två
+  likadana kopior är vad som gör att det enda som skiljer anropen ---
+  citattecknen --- går att se utan att jämföra två program rad för rad.
+  Kontrasten ska urskilja aspekten \emph{typ} som något skilt från
+  värdets utseende.  Exemplet är hämtat ur författarens manuskript om
+  nybörjares missuppfattningar \parencite{SooriBosk2026}, där det är
+  det centrala kontrastparet för objektet \enquote{ett värdes typ är
+  oberoende av hur värdet ser ut}.  Övningen säger inte vad som skiljer
+  anropen: den frågan är studentens \parencite[13]{Marton2015}.
+
+  Kontrasten kommer före generaliseringen till andra operatorer: den som
+  ännu inte urskilt att typen finns kan inte se den som gemensam för
+  flera operatorer \parencite[45--47]{Marton2015}.
+}
+
+Samma sak gäller de andra operatorerna.  Multiplikation mellan två tal är
+multiplikation; multiplikation mellan en sträng och ett tal upprepar
+strängen, vilket vi ser i \cref{sec:strangmetoder}.  Och division finns i
+två varianter, som ger olika typ tillbaka.
+
+\begin{frame}[fragile]
+  \begin{example}[Heltalsdivision och vanlig division]
+    Programmet visar tre sätt att dela:
+<<[[heltalsdivision.py]]>>=
+def divide(a, b):
+    """Skriver ut de tre sätten att dela a med b."""
+    print(f"{a} / {b} == {a / b}")
+    print(f"{a} // {b} == {a // b}")
+    print(f"{a} % {b} == {a % b}")
+
+
+def main():
+    """Delar två par av tal på de tre sätten."""
+    divide(7, 2)
+    print()
+    divide(10, 5)
+
+
+main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi det får vi
+    \runpython[transcript]{examples/heltalsdivision.py}
+  \end{example}
+\end{frame}
+
+Lägg märke till \mintinline{python}{10 / 5}: svaret är
+\mintinline{python}{2.0}, inte \mintinline{python}{2}.  Operatorn
+\mintinline{python}{/} ger alltid ett flyttal, även när divisionen går
+jämnt ut, medan \mintinline{python}{//} ger heltalet och
+\mintinline{python}{%} resten.  Det är två sorters division, och du har
+mött dem båda, fast i omvänd ordning.  De fyra räknesätten med hela
+tal står i grundskolans kursplan i matematik redan för årskurs 1--3,
+och det är där \enquote{7 delat med 2 är 3, rest 1} hör hemma; tal i
+decimalform, och beräkningar med dem, kommer först i årskurs 4--6.%
+\footnote{%
+  Det vetenskapliga underlaget för när kursplanen låter eleverna möta
+  det ena och det andra --- och för hur långt det svaret räcker ---
+  finns i \cref{app:lgr22}.}
+Operatorerna
+\mintinline{python}{//} och \mintinline{python}{%} är alltså den
+division du lärde dig först, och \mintinline{python}{/} den du lärde
+dig sedan.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOTypes}.
+
+  \textbf{Kontrast}: vad som varierar är operatorn
+  (\mintinline{python}{/} mot \mintinline{python}{//} och
+  \texttt{\%}); vad som hålls invariant är operanderna, två
+  heltal i varje anrop.  Resultatets typ följer med operatorn, så
+  kontrasten ska urskilja att det inte bara är operandernas typ som
+  avgör resultatet --- operatorn gör det också.  Att
+  \mintinline{python}{/} ger flyttal även vid jämn division är valt som
+  andra värde i dimensionen just för att det inte går att gissa ur
+  utseendet --- det andra anropet \mintinline{python}{divide(10, 5)}
+  finns bara för den kontrasten.  Nybörjares fel vid heltalsdivision och
+  typomvandling är belagda som bland de vanligaste
+  \parencite{Gobil2009Errors}.
+
+  Årskurserna är hämtade ur kursplanen i matematik i två läroplaner:
+  Lgr11, som studenterna själva gick under
+  \parencite[55--56]{Skolverket2019Lgr11}, och Lgr22, som gäller i dag
+  \parencite[55--57]{Skolverket2022Lgr22}.  De placerar innehållet
+  likadant, så prosan gäller båda årskullarna.  Den stannar samtidigt
+  vid vad de säger: ordet \enquote{rest} förekommer inte i någon av
+  dem, och en kursplan anger innehåll och årskurs, inte vad någon
+  enskild elev lärde sig.  Underlaget står i \cref{app:lgr22}.  Poängen
+  med att nämna skolan är att de två divisionsoperatorerna inte är två
+  nyheter utan två saker studenten redan kan, i den ordning hon lärde
+  sig dem.
+}
+
+% REVIEW(C14): the block was an \emph{Anmärkning}; it summarises rather
+% than qualifies, so it is now a \emph{Sammanfattning}.  The qualifier
+% written above it, read as "grand" (or "grund"), is not applied.
+\begin{frame}[fragile]
+  \begin{summary}[Operationer på tal]
+    De aritmetiska operatorerna är:
+    \begin{itemize}
+      \item \mintinline{python}|a + b|, \mintinline{python}|a - b| och
+        \mintinline{python}|a * b| som väntat,
+      \item \mintinline{python}|a / b| som alltid ger ett flyttal,
+      \item \mintinline{python}|a // b| som ger heltalsdivisionen och
+        \mintinline{python}|a % b| som ger resten,
+      \item \mintinline{python}|a ** b| som ger \(a^b\).
+    \end{itemize}
+  \end{summary}
+\end{frame}
+
+\subsection{Operationer och metoder på strängar}
+\label{sec:strangmetoder}
+
+Strängar har sina egna operationer.  Två av dem känner vi igen till
+utseendet, och det är just därför de är värda att titta på.
+
+% REVIEW(C13): the ink says "not commutative"; the run shows str*int is
+% commutative, str+str is not --- wording chosen from the run.
+\begin{frame}[fragile,shrink=5]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:strangoperationer}
+    Programmet gör några saker med ett ord.  Vad skriver det ut?
+<<[[strangoperationer.py]]>>=
+def show_operations(word):
+    """Skriver ut vad några operationer gör med word."""
+    print(word + "smet")
+    print("smet" + word)
+    print(word * 2)
+    print(2 * word)
+    print(word[0])
+    print(word[0:4])
+    print(len(word))
+
+
+def main():
+    """Prövar operationerna på ett ord."""
+    show_operations("pannkaka")
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+% Keep the run whole in the notes (it broke over a page, round 5).
+\mode<article>{\needspace{11\baselineskip}}
+\begin{frame}[fragile]
+  \begin{example}[Svaret]
+    Utskriften blir
+    \runpython[transcript]{examples/strangoperationer.py}
+  \end{example}
+\end{frame}
+
+Här står \mintinline{python}{+} för sammanslagning och
+\mintinline{python}{*} för upprepning.  Lägg märke
+till vad som händer när operanderna byter plats.  För
+\mintinline{python}{*} blir svaret detsamma:
+\mintinline{python}|word * 2| och \mintinline{python}|2 * word| skriver
+båda \mintinline{text}|pannkakapannkaka|.  För \mintinline{python}{+}
+blir det inte detsamma: \mintinline{python}|word + "smet"| skriver
+\mintinline{text}|pannkakasmet| och \mintinline{python}|"smet" + word|
+skriver \mintinline{text}|smetpannkaka|.  Ordningen spelar alltså roll
+för sammanslagningen, men inte för upprepningen.  Raderna med
+\mintinline{python}{word[0]} och \mintinline{python}{word[0:4]} är nya:
+den första ger ett enskilt tecken och den andra en delsträng.  Räkningen
+börjar på noll, så \mintinline{python}{word[0]} är det \emph{första}
+tecknet, och \mintinline{python}{word[0:4]} är tecknen från plats 0 fram
+till, men inte med, plats 4: de fyra första,
+\mintinline{text}|pann|.  Vi återkommer till indexering i föreläsningen
+\emph{Behållare: Listor}; här räcker det att veta att den finns.  Den
+sista raden är också ny: den inbyggda funktionen
+\mintinline{python}{len} ger strängens längd, antalet tecken i den ---
+åtta för \mintinline{text}|pannkaka|.
+
+Utöver operatorerna har en sträng \emph{metoder} --- funktioner som hör
+till strängen själv och skrivs efter en punkt.  Vi tar de tre vi snart
+får användning för.
+
+\begin{frame}[fragile,shrink=5]
+  \begin{example}[Tre användbara strängmetoder]
+    Funktionen prövar metoderna på ett svar, och vi ger den några svar
+    en användare kan tänkas skriva --- det första med extra mellanslag:
+<<[[strangmetoder.py]]>>=
+def show_methods(answer):
+    """Skriver ut vad strip, isdigit och capitalize ger."""
+    stripped = answer.strip()
+    print(stripped, stripped.isdigit(), stripped.capitalize())
+
+
+def main():
+    """Prövar metoderna på några svar."""
+    show_methods("  17  ")
+    show_methods("fem")
+    show_methods("-5")
+    show_methods("1.75")
+    show_methods("malvina")
+
+
+main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Programmet skriver en rad per svar:
+    \runpython[transcript]{examples/strangmetoder.py}
+  \end{example}
+\end{frame}
+
+Metoden \mintinline{python}{strip} klipper bort mellanslag i början och
+slutet, \mintinline{python}{capitalize} gör första bokstaven stor, och
+\mintinline{python}{isdigit} svarar på en fråga: består strängen bara av
+siffror?  Lägg märke till vad den frågan utesluter.  Både
+\mintinline{text}|-5| och \mintinline{text}|1.75| får nej, fast båda är
+tal: minustecknet och punkten är inte siffror.  Svaret
+\mintinline{python}{True} eller
+\mintinline{python}{False} är ett värde av ännu en datatyp, den
+\emph{booleska}, och den är hela ämnet för föreläsningen \emph{Villkor
+och styrstrukturer}.  Att vi kan \emph{fråga} en sträng om den ser ut
+som ett tal gör att programmet kan låta bli att omvandla det som inte
+går att omvandla, men vi ser här att det kan vara svårt att testa rätt.
+Den vägen ställer vi mot en annan i \cref{sec:titta-forst}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOTypes,InputLOConvert}.
+
+  Metoderna presenteras inte som en katalog utan som tre verktyg med ett
+  syfte: att granska det användaren skrev.  \mintinline{python}{isdigit}
+  är den som bär mest --- den är den ena halvan av kontrasten i
+  \cref{sec:titta-forst}, och den återkommer i föreläsningen
+  \emph{Villkor och styrstrukturer} som villkoret i den slinga som
+  frågar om igen tills svaret går att använda --- och den introducerar
+  den booleska typen \emph{i ett sammanhang} i stället för som en
+  definition utan användning.
+
+  Att regeln sägs ut här --- enbart siffror --- är en förutsättning för
+  att \cref{ovn:isdigit} ska fungera som förutsägelse: den som vet
+  regeln kan själv räkna ut vad \mintinline{text}|+1927| ger, i stället
+  för att gissa.  Därför står \mintinline{text}|-5| och
+  \mintinline{text}|1.75| i programmet och inte bara i prosan: det
+  \cref{sec:titta-forst} senare hänvisar tillbaka till ska vara något
+  studenten har \emph{sett} svaret på, inte något materialet har
+  påstått.
+
+  Den tidigare versionen av materialet listade ett tiotal strängmetoder på
+  en bild.  Listan är borttagen: ingen av dem användes någonstans, och en
+  uppräkning utan variation ger inget att urskilja.  Referensen finns i
+  dokumentationen (\cref{fn:builtins}), som är där man ska leta ändå.
+
+  Att programmet kör både \mintinline{python}|word * 2| och
+  \mintinline{python}|2 * word|, och både
+  \mintinline{python}|word + "smet"| och
+  \mintinline{python}|"smet" + word|, är en tillagd
+  \textbf{kontrast}: vad som varierar är operandernas ordning, vad som
+  hålls invariant är operanderna själva och operatorn.  Den ska
+  urskilja att ordningen betyder något för sammanslagningen men
+  ingenting för upprepningen.  Programmet står därför som övning
+  (\cref{ovn:strangoperationer}), och inledningen säger bara att det
+  gör några saker med ett ord: att operanderna byter plats är det
+  studenten ska lägga märke till, inte något materialet pekar ut.
+  Påståendet är formulerat \emph{efter} körningen och inte före:
+  förhandsantagandet att \mintinline{python}|sträng * tal| inte skulle
+  vara kommutativt håller inte, och det är utmatningen som avgör saken
+  --- inte prosan.
+
+  I [[strangmetoder.py]] är metoderna invarianta och svaren det som
+  varierar: samma funktion anropas en gång per svar, så en rad i
+  utskriften svarar mot ett anrop.
+}
+
+\section[Frågan]{Att fråga så att någon förstår}
+\label{sec:anvandarvanligt}
+
+Ett interaktivt program har en användare, och användaren ser bara det
+programmet skriver ut.  Två program kan räkna exakt likadant och ändå
+vara olika lätta att använda.  Vi börjar därför med det användaren ser.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ovn:prompt}
+    Programmet kör utan fel.  Så här ser det ut när det körs, med svaren
+    170 och 65:
+    \runpython[transcript, stdin={170}, stdin={65}]{examples/prompt3.py}
+    Vad skulle du ändra, och varför?
+  \end{exercise}
+\end{frame}
+
+Så här ser programmet bakom dialogen ut.
+
+\begin{frame}[fragile]
+  \begin{example}[Programmet bakom dialogen]
+    \label{ex:prompt3}
+    Det räknar ut ett BMI ur de två svaren:
+<<[[prompt3.py]]>>=
+"""Räknar ut ett BMI ur två svar."""
+
+
+<<funktion som räknar ut BMI ur vikt och längd>>
+
+
+def main():
+    """Frågar efter två tal och skriver ut ett BMI."""
+    x = int(input("x:"))
+    y = float(input("y"))
+    print(bmi(y, x))
+
+
+main()
+@
+  \end{example}
+\end{frame}
+
+Själva uträkningen ligger i en egen funktion, och
+\mintinline{python}{main} gör bara tre saker: frågar, anropar funktionen
+och skriver ut det den lämnar tillbaka.
+
+\begin{frame}[fragile]
+  \begin{example}[Funktionen som räknar]
+    \label{ex:bmi-funktion}
+    Formeln, med längden omräknad till meter:
+<<funktion som räknar ut BMI ur vikt och längd>>=
+def bmi(weight_kg, height_cm):
+    """Returnerar BMI för en vikt i kilogram och en längd i cm."""
+    return weight_kg / (height_cm / 100) ** 2
+@
+  \end{example}
+\end{frame}
+
+BMI (\foreignlanguage{english}{body mass index}) är vikten i kilogram
+delad med längden i meter i kvadrat --- samma uträkning, och samma
+funktion \mintinline{python}{bmi(weight_kg, height_cm)}, som i
+\emph{Övning: Funktioner och variabler}, men med kvadraten skriven som
+\mintinline{python}{** 2}.  Funktionen får längden i centimeter och
+räknar själv om den till meter.  Längden läses som ett heltal och
+vikten som ett flyttal, eftersom en vikt ofta har decimaler.
+
+Men det ser användaren ingenting av.  Frågorna säger inte vad de vill
+ha: \mintinline{text}|"x:"| talar om att programmet vill ha något, men
+inte vad, inte i vilken enhet och inte i vilken form, och den andra
+frågan saknar dessutom både kolon och mellanslag, så svaret klistras
+fast i frågan.  Svaret till sist säger inte vad talet är, och det har
+fler decimaler än någon kan använda.  Allt det går att rätta utan att
+röra funktionen som räknar.
+
+% Keep the run and the program together in the notes.
+\mode<article>{\needspace{24\baselineskip}}
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Samma uträkning, begriplig]
+    \label{ex:prompt4}
+    Samma svar, 170 och 65, till ett program vars frågor säger vad de
+    vill ha:
+    \runpython[transcript, stdin={170}, stdin={65}]{examples/prompt4.py}
+    Programmet bakom dialogen:
+<<[[prompt4.py]]>>=
+"""Räknar ut ett BMI ur längd och vikt."""
+
+
+<<funktion som räknar ut BMI ur vikt och längd>>
+
+
+def main():
+    """Frågar efter längd och vikt och skriver ut BMI."""
+    length = int(input("Hur lång är du (cm)? "))
+    weight = float(input("Hur mycket väger du (kg)? "))
+    print(f"Ditt BMI är {bmi(weight, length):.1f}.")
+
+
+main()
+@
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOPrompt}.
+
+  \textbf{Kontrast}: vad som varierar är det användaren ser ---
+  frågorna, svarets text och avrundningen --- och med dem
+  variabelnamnen; vad som hålls invariant är uträkningen (samma
+  omvandlingar och samma funktion \mintinline{python}{bmi}, skriven en
+  gång i en chunk som båda programmen delar och anropad på samma rad i
+  \mintinline{python}{main}) och svaren, 170 och 65.  Kontrasten ska
+  urskilja att användbarheten sitter i utformningen och inte i
+  beräkningen.  Namnen varierar med eftersom de hör till samma slarv;
+  prosan tar upp dem i en parentes, som programmerarens sak.
+
+  Körningarna står före koden, i övningen och i exemplet: avsnittet
+  handlar om det användaren ser, och den som läser koden först bedömer
+  programmet som programmerare.  Övningen säger bara att programmet kör
+  utan fel och frågar vad studenten skulle ändra; att felen sitter i
+  dialogen sägs inte ut \parencite[13 och 91]{Marton2015}.  Att granska
+  ett program är dessutom kursmålet Lo11.
+
+  Programmen räknar ett BMI i stället för att skriva ut svaren igen: ett
+  program som bara upprepar det det läst har inget skäl att läsa.
+  Uträkningen ligger i en egen funktion enligt kursens regel att varje
+  uträkning efter föreläsningen \emph{Funktioner} får en namngiven
+  funktion (författaren, 2026-09-23).  Namn, parametrar och mått, 65~kg
+  och 170~cm, är desamma som i \emph{Övning: Funktioner och variabler};
+  funktionen skrivs av, eftersom \mintinline{python}{import} hör till
+  föreläsningen \emph{Moduler och paket}.
+
+  \mintinline{python}{:.1f} förklaras här, där en föreläsning först
+  använder den; den oavrundade körningen av [[prompt3.py]] är
+  kontrasten.
+}
+
+Några enkla regler räcker långt.  Fråga efter en sak i taget.  Skriv ut
+enheten i frågan.  Säg i svaret vad talet är, och skriv det med en
+precision som går att använda.
+% TODO(claim-audit): reglerna för frågor (en sak i taget, enheten i
+% frågan, svaret säger vad talet är) påstår en nytta för användaren.
+% Ingen sökning är gjord; listad i bilaga A, Fortsatt arbete.
+
+Den sista regeln sköts av \mintinline{python}{:.1f} i f-strängen, en
+skrivform som ingen föreläsning har tagit upp tidigare.  Inne i
+klamrarna står först värdet som ska skrivas ut,
+\mintinline{python}{bmi(weight, length)}, och efter kolonet \emph{hur}
+det ska skrivas: \mintinline{python}{.1} betyder en decimal och
+\mintinline{python}{f} att talet skrivs som ett decimaltal.  Talet
+avrundas alltså till en decimal, \mintinline{text}|22.5|.  Utan kolonet
+och det som står efter det skrivs talet med alla decimaler Python har,
+och det är precis vad körningen av [[prompt3.py]] i \cref{ovn:prompt}
+visar: \mintinline{text}|22.49134948096886|.
+
+Rättelsen byter också namnen \mintinline{python}{x} och
+\mintinline{python}{y} mot \mintinline{python}{length} och
+\mintinline{python}{weight}.  Det märker inte användaren, men den som
+läser koden ser direkt vad talen är.  Det är programmerarens sak, och
+det här avsnittet handlar om användaren.
+
+Lägg märke till vad rättelsen kostade: funktionen som räknar är orörd,
+och den anropas på samma rad som förut.  Det som ändrades är texter,
+namn och fyra tecken som bestämmer hur svaret skrivs --- programmet
+fick inte en enda rad till.  Det är i den andan principen
+\foreignlanguage{english}{KISS}
+(\foreignlanguage{english}{Keep It Simple, Stupid}) ska läsas, den som
+fick namn i föreläsningen \emph{Funktioner}: den billigaste lösning som
+duger är oftast den rätta.%
+\footnote{%
+  Det vetenskapliga underlaget för var uttrycket kommer ifrån --- och
+  för att enkelhet som designvärde är etablerat --- finns i
+  föreläsningen \emph{Funktioner}, bilaga C.}
+
+\ltnote{%
+  Beläggen för \foreignlanguage{english}{KISS} --- Rich, som tillskriver
+  Johnson mottot, och Popiks belägg för att uttrycket fanns i tryck
+  redan 1958 --- är hämtade ur föreläsningen \emph{Funktioner}
+  \parencite{Rich1995Johnson,Popik2019KISS} och beläggs inte om.
+
+  Avsnittet är samma lärandemål som \cref{sec:begripligt}, fast före
+  felet: först utformas frågan, sedan svaret när något gått snett ---
+  samma aspekt, mottagaren, sedd i två lägen.
+}
+
+\section[Särfall]{När programmet går sönder}
+\label{sec:krasch}
+
+Programmet är nu interaktivt och begripligt.  Det är också skört: så
+länge vi själva skrev in värdena bestämde vi vad de var, och det gör vi
+inte längre.  Vad användaren skriver rår vi inte över, och en del av det
+hon kan skriva går helt enkelt inte att räkna med.  Frågan i det här
+avsnittet är vad programmet ska göra då.
+
+Vi bantar ner programmet till det som är intressant här: en fråga, en
+omvandling, funktionen som räknar och en hälsning som inte har med
+årtalet att göra.  Årtalet och funktionen som räknar är desamma som
+förut, och de delas av åldersprogrammet här och de två i
+\cref{sec:fanga}:
+
+\begin{frame}[fragile]
+  \begin{example}[Årtalet och funktionen som räknar]
+    \label{ex:artalet-och-aldern}
+    Programmets första del:
+<<årtalet och åldern>>=
+"""Åldersberäkning som frågar efter ett födelseår."""
+
+THIS_YEAR = 2026
+
+
+def age(birthyear):
+    """Returnerar åldern i år för den som föddes år birthyear."""
+    return THIS_YEAR - birthyear
+@
+  \end{example}
+\end{frame}
+
+Flödet ligger som förut i \mintinline{python}{main}, och det enda som
+står på toppnivån är anropet av den.
+
+\begin{frame}[fragile]
+  Programmet frågar, räknar och hälsar:
+<<[[age3.py]]>>=
+<<årtalet och åldern>>
+
+
+def main():
+    """Frågar efter ett födelseår och skriver ut åldern."""
+    birthyear = int(input("Vilket år är du född? "))
+    print(f"Då är du {age(birthyear)} år.")
+    print("Trevligt att träffas!")
+
+
+main()
+@
+\end{frame}
+
+Kör vi programmet och svarar med ett årtal fungerar allt som väntat.
+
+\begin{frame}[fragile]
+  \begin{example}[En körning som går bra]
+    \label{ex:age-ok}
+    Vi svarar \enquote{1927} på frågan:
+    \runpython[transcript, stdin={1927}]{examples/age3.py}
+  \end{example}
+\end{frame}
+
+Men användaren vet inte att vi vill ha siffror.  Hon kan lika gärna
+skriva årtalet med bokstäver, och det är ett fullt rimligt svar på
+frågan \enquote{vilket år är du född?}.  Innan du läser vidare: vad tror
+du händer?
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:krasch}
+    Vad skriver programmet ut om användaren svarar
+    \enquote{nittonhundratjugosju} i stället för \enquote{1927}?  Skriv ner
+    både vad du tror att programmet skriver ut och i vilken ordning.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan svaret visas,
+  och den pekar avsiktligt \emph{inte} ut vilken aspekt som är den
+  kritiska.  Den ber om två saker --- vad som skrivs ut och i vilken
+  ordning --- eftersom det är ordningen som avslöjar om studenten tror
+  att programmet fortsätter efteråt.  Den som svarar \enquote{ett
+  felmeddelande, och sedan Trevligt att träffas} har just den
+  föreställning som resten av avsnittet ska bryta.  Att låta bli att
+  fråga \enquote{fortsätter programmet?} är avsiktligt: den frågan
+  skulle ge bort svaret \parencite[13]{Marton2015}.
+
+  Kraschen visas \emph{en} gång, här, och inte redan när inmatningen
+  behandlas: avsnitten om inmatning och typer bygger upp det program som
+  går sönder, och först när inläsning och typer är urskilda varieras
+  undantagshanteringen.  Två konstruktioner som varierar samtidigt hade
+  gjort ingendera urskiljbar.
+
+  Programmet är nedbantat till en fråga, en omvandling, en uträkning och
+  en sista rad som är oberoende av årtalet.  Den sista raden ---
+  \mintinline{python}{main}:s sista --- bär
+  kontrasten i \cref{ex:age-krasch}: utan den skulle utebliven utmatning
+  kunna förklaras med att beräkningen misslyckades, och avbrottet skulle
+  inte gå att urskilja.
+
+  Flödet ligger i \mintinline{python}{main} enligt regeln: de två
+  utskrifterna hör inte på toppnivån.  Konsekvensen syns i
+  \cref{ex:age-krasch}, där spårutskriften har två steg --- anropet av
+  \mintinline{python}{main} och raden inne i den --- och det är den
+  formen \cref{sec:felmeddelande} tar isär.
+}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma program, ett annat svar]
+    \label{ex:age-krasch}
+    Nu svarar vi \enquote{nittonhundratjugosju}:
+    \runpython[transcript, stdin={nittonhundratjugosju}]{examples/age3.py}
+  \end{example}
+\end{frame}
+
+Jämför de två körningarna.  Programmet är detsamma, raderna är desamma
+och de körs i samma ordning.  Det enda som skiljer är vad användaren
+skrev --- och ändå slutar de två körningarna på helt olika sätt.  Två
+saker är värda att lägga märke till.
+
+Det första är att programmet \emph{avbröts}.  Hälsningen \enquote{Trevligt
+att träffas!} är det sista \mintinline{python}{main} gör och skrevs
+aldrig ut, trots att den
+inte har någonting med årtalet att göra.  När något går fel fortsätter
+alltså inte programmet till nästa rad: det slutar där och då.  Det andra
+är att programmet inte tystnade.  Det skrev ut något --- och det som står
+där är inte ett gnäll utan en beskrivning.  Vi återkommer till den i
+\cref{sec:felmeddelande}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Användarens inmatning
+  (\enquote{1927} respektive \enquote{nittonhundratjugosju}).
+
+  \textbf{Vad som hålls invariant}: Programmet, dess rader och deras
+  ordning.
+
+  Kontrasten ska urskilja aspekten \emph{avbrott}: att körningen slutar
+  mitt i, inte att den skriver något annat.  De två körningarna står i
+  två bilder efter varandra så att de kan
+  jämföras utan att den första behöver återskapas ur minnet
+  \parencite[45--47]{Marton2015}.
+
+  Båda körningarna typsätts med \mintinline{latex}{\runpython}, som kör
+  den tanglade \texttt{examples/age3.py} under en pseudoterminal och
+  fångar både utskrifter och felutskrifter.  Felmeddelandet i materialet
+  är alltså producerat av programmet självt och kan inte glida isär från
+  koden.
+}
+
+Det är samma sorts fel som i \cref{sec:vad-far-vi-tillbaka}, men inte
+samma fel.  Där saknades omvandlingen, och subtraktionen gick inte att
+utföra på en sträng; här finns omvandlingen, men det är den som inte går
+att utföra.  Båda kommer ur att det användaren skrev inte var det
+programmet räknade med.
+
+Det som hände har ett namn.  När Python stöter på något som gör att en
+instruktion inte går att exekvera --- att omvandla
+\enquote{nittonhundratjugosju} till ett heltal, att dividera med noll,
+att använda ett namn som inte finns --- så \emph{uppstår ett särfall}.
+
+\begin{frame}
+  \begin{definition}[Särfall]
+    \label{def:sarfall}
+    Ett \emph{särfall}
+    (\foreignlanguage{english}{exception}) är en situation där en
+    instruktion inte går att exekvera.  När ett särfall uppstår avbryts
+    körningen på den raden.  Tas särfallet inte om hand avbryts hela
+    programmet, och de rader som skulle ha kommit efter körs aldrig.
+  \end{definition}
+\end{frame}
+
+Ordet är väl valt: det är inte fel på datorn, och oftast inte heller på
+programmet.  Det är ett \emph{fall} som instruktionen inte täcker.  Att
+omvandla en sträng till ett heltal är en fullt begriplig sak att be om,
+så länge strängen består av siffror; \enquote{nittonhundratjugosju} är
+det särfall där begäran inte går att uppfylla --- i alla fall inte med
+\mintinline{python}{int}.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOException}.
+
+  Definitionen kommer \emph{efter} de två körningarna, inte före: det är
+  kontrasten som gör avbrottet urskiljbart, och en definition som ges
+  innan variationen upplevts har inget att fästa i.
+
+  Stycket efter definitionen är riktat mot en tolkning som är lätt att
+  hamna i när ett program plötsligt slutar med en röd textmassa --- att
+  något är trasigt --- och som gör felmeddelandet till något att blunda
+  för i stället för att läsa.  Vi har inte hittat den föreställningen
+  belagd som en katalogiserad missuppfattning i litteraturen (se
+  \cref{app:nyborjare}), så materialet påstår ingenting om hur vanlig
+  den är; ordvalet \enquote{särfall} och stycket om det är ett
+  designval, inte ett forskningsresultat.
+}
+
+\section[Läsa felet]{Att läsa ett felmeddelande}
+\label{sec:felmeddelande}
+
+Felutskriften i \cref{ex:age-krasch} är det enda programmet säger om vad
+som gick fel, och den säger faktiskt allt vi behöver.  Men den ser
+avskräckande ut, och det är lätt att avfärda den som obegriplig.  Att
+felmeddelanden är svåra för nybörjare är belagt: de kan vara \enquote{a
+major impediment to novice student
+learning}\autocite{Prather2017CEM}.%
+\footnote{%
+  Det vetenskapliga underlaget för att felmeddelanden är ett hinder för
+  nybörjare --- och för hur långt det räcker --- finns i
+  \cref{app:nyborjare} och i föreläsningen \emph{Hello, World!},
+  bilaga~D, som också svarar på vilka de första felen brukar vara och
+  att omskrivna felmeddelanden inte har visats hjälpa.}
+Därför ägnar vi ett helt avsnitt åt att läsa dem.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:lasa}
+    Titta på felutskriften\only<article>{ i \cref{ex:age-krasch}} en
+    gång till.  Vilka olika saker står det i den?  Försök dela upp den
+    i delar och sätt ord på vad varje del berättar.
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOTraceback}.
+
+  \foreignlanguage{english}{Try-first}: uppgiften säger inte att
+  utskriften har tre delar, och räknar inte upp dem.  Den ber
+  studenterna att själva urskilja strukturen i något de redan har
+  framför sig.  Svaren visar vilka som redan läser felmeddelanden och
+  vilka som ser dem som en enda odelbar textmassa; de senare behöver
+  generaliseringen i \cref{ex:tre-fel,ex:tre-fel-noll,ex:tre-fel-namn}
+  innan de kan använda meddelandet till något.
+}
+
+Felutskriften kallas \emph{spårutskrift}
+(\foreignlanguage{english}{traceback}), och den svarar på tre frågor.
+
+% REVIEW(C10): the block was an \emph{Anmärkning}; it collects what the
+% exercise asked the student to discern, so it is now a
+% \emph{Sammanfattning}.
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}[Vad en spårutskrift säger]
+      \begin{description}
+        \item[Var] ett anrop per rad på vägen dit, underst den rad som
+          inte gick att exekvera.
+        \item[Vilken sorts fel] namnet före kolon, till exempel
+          \mintinline{python}{ValueError}.
+        \item[Vad som var fel] beskrivningen efter kolon.
+      \end{description}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}[Vad en spårutskrift säger]
+      Överst står \emph{var}: ett par rader per anrop på vägen ner till
+      det som inte gick att exekvera --- filen och radnumret, och under
+      dem raden själv, ofta med Pythons egna tecken under den del av
+      raden som körningen var i.  Det \emph{sista} paret är där felet
+      uppstod; paren över det säger hur körningen kom dit.  Nederst står
+      \emph{vilken sorts fel} det var --- namnet före kolonet, till
+      exempel \mintinline{python}{ValueError} --- och efter kolonet
+      \emph{vad} som var fel, i klartext.
+    \end{summary}%
+  }
+\end{frame}
+
+Läser vi utskriften i \cref{ex:age-krasch} med de tre frågorna i handen
+säger den: körningen startade på rad 18 i \texttt{age3.py}, där
+\mintinline{python}{main} anropas, och kom till rad 13 inne i
+\mintinline{python}{main}, där \mintinline{python}{int(input(...))}
+står.  Där uppstod ett
+\mintinline{python}{ValueError}, därför att
+\enquote{nittonhundratjugosju} inte är något \mintinline{python}{int}
+kan tolka som ett tal i bas 10.  Det är
+inte en klagan.  Det är en ganska exakt felanmälan, och den pekar ut
+precis den rad vi ska titta på.
+
+Kedjan av anrop är också förklaringen till namnet: utskriften
+\emph{spårar tillbaka} vägen till felet, från det som satte i gång
+körningen till det som inte gick att utföra.  Har programmet flera
+funktioner blir kedjan längre --- jämför \cref{ex:age2-krasch}, där
+subtraktionen sker tre anrop ner --- men det är alltid det
+nedersta paret som pekar ut raden att titta på.
+
+Att det alltid ser ut så är lättare att se om vi tittar på flera fel i
+följd: tre helt olika misstag, ett i taget.  Programmen är byggda
+likadant --- en funktion, en \mintinline{python}{main} som anropar den
+och startanropet --- så \emph{var} är detsamma i alla tre och bara felet
+skiljer.
+
+% C2: the three tracebacks were typed into the source; they are now real
+% runs of three tangled programs.
+% C7 (round 5): the \needspace{30\baselineskip} that kept the three
+% examples on one page left the page before it a third empty; the
+% examples may now run over a page break.
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Ett värde som inte går att tolka]
+    \label{ex:tre-fel}
+    Bokstäver där ett tal väntades:
+<<[[fel-varde.py]]>>=
+def convert(text):
+    """Returnerar text som ett heltal."""
+    return int(text)
+
+
+def main():
+    """Omvandlar en text med bokstäver."""
+    convert("a")
+
+
+main()
+@
+    \runpython[transcript]{examples/fel-varde.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Division med noll]
+    \label{ex:tre-fel-noll}
+    En räkning som inte går att utföra:
+<<[[fel-noll.py]]>>=
+def divide(a, b):
+    """Returnerar a delat med b."""
+    return a / b
+
+
+def main():
+    """Delar ett tal med noll."""
+    divide(5, 0)
+
+
+main()
+@
+    \runpython[transcript]{examples/fel-noll.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Ett namn som inte finns]
+    \label{ex:tre-fel-namn}
+    Ett felstavat namn:
+<<[[fel-namn.py]]>>=
+def show(x):
+    """Skriver ut x."""
+    prynt(x)
+
+
+def main():
+    """Skriver ut ett tal."""
+    show(3)
+
+
+main()
+@
+    \runpython[transcript]{examples/fel-namn.py}
+  \end{example}
+\end{frame}
+
+Formen är identisk i alla tre: överst startanropet på rad 11, sedan
+anropet inne i \mintinline{python}{main} på rad 8, sedan raden inne i
+funktionen på rad 3, och nederst felets namn och beskrivning.  Under
+raderna står ofta Pythons egna tecken, \mintinline{text}|^| under den
+del som körningen var i och \mintinline{text}|~| under resten av
+uttrycket, men inte alltid: under \mintinline{python}{return int(text)}
+i \cref{ex:tre-fel} står inga, så där är det raden själv vi får läsa.
+Det som skiljer dem åt är bara namnet på sista raden och texten efter
+kolonet: \mintinline{python}{ValueError}
+när ett värde har fel innehåll, \mintinline{python}{ZeroDivisionError} när
+vi delar med noll, \mintinline{python}{NameError} när vi använt ett namn
+som inte finns --- där är det för övrigt inte användaren som gjort fel
+utan programmeraren, som stavat \mintinline{python}{print} fel, och
+Python gissar till och med vad som menades.  Namnet
+är alltså inte bara en etikett: det säger vilken \emph{sorts} fel det
+var, och det ska vi snart använda.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOTraceback}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: Vilket fel som uppstår, och därmed namnet
+  och beskrivningen.
+
+  \textbf{Vad som hålls invariant}: Spårutskriftens form --- samma
+  ordning, samma platser för var, vilken sort och vad --- och att de
+  tre programmen är byggda ordagrant likadant: en funktion med en rad
+  i, en \mintinline{python}{main} som anropar den och startanropet.
+  Felet uppstår därför varje gång på rad 3, anropat från rad 8 och 11,
+  så att \emph{var} inte varierar med.
+
+  Felen står i var sitt exempel --- ett fall per exempel --- på tre
+  bilder efter varandra utan mellanliggande text, eftersom
+  generaliseringen kräver att formen kan jämföras
+  \parencite[46]{Marton2015}.  I anteckningarna får exemplen gå över en
+  sidbrytning: att hålla ihop dem lämnade en tredjedel av sidan före
+  tom.
+  Att Pythons markeringstecken saknas under en av raderna sägs ut i
+  prosan, eftersom sammanfattningen annars hade lovat något körningen
+  inte visar.
+
+  De tre spårutskrifterna var tidigare skrivna för hand i källan.  Nu
+  är de tre tanglade program som körs med
+  \mintinline{latex}{\runpython}, så att formen studenten ska
+  generalisera är den Python faktiskt skriver ut --- inklusive den rad
+  som pekar ut var i källkoden felet uppstod, vilket en
+  \mintinline{text}|<stdin>| i en avskriven dialog inte kunde visa.
+  Ordningen kontrast före generalisering är medveten ---
+  \cref{ex:age-ok,ex:age-krasch} urskiljer först \emph{att} ett fel
+  avbryter, sedan generaliserar
+  \cref{ex:tre-fel,ex:tre-fel-noll,ex:tre-fel-namn} \emph{formen} hos
+  beskedet.
+
+  Att de tre programmen har en \mintinline{python}{main} och inte är
+  tre enradiga uttryck följer av regeln.  Formen som ska generaliseras
+  blir därmed den flerstegsform varje program i föreläsningen
+  producerar, och kedjan
+  av anrop --- och därmed namnet \enquote{traceback} --- förklaras här,
+  där den syns första gången, i stället för i \cref{sec:kasta}.
+
+  \mintinline{python}{NameError}-exemplet är valt för att felet där
+  ligger hos programmeraren och inte hos användaren.  Det behövs som
+  förberedelse: kontrasten i \cref{sec:flera} bygger på att ett
+  allmänt \texttt{except} sväljer just ett sådant fel och
+  skyller det på användaren.
+}
+
+\section[Fånga]{Att fånga ett särfall}
+\label{sec:fanga}
+
+Att programmet avbryts är inte alltid orimligt --- ett program som inte
+kan göra sitt jobb ska inte låtsas att det kan.  Men spårutskriften är
+skriven för den som skrivit programmet, inte för den som använder det.
+Användaren som skrev \enquote{nittonhundratjugosju} har inte gjort något
+brottsligt; hon har missförstått frågan, och det enda hon behöver är att
+få veta det.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:fanga}
+    Du ska ändra programmet så att användaren som svarar
+    \enquote{nittonhundratjugosju} får veta vad hon ska göra i stället, utan
+    spårutskrift.  Vad behöver programmet kunna göra som det inte kan i
+    dag?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,InputLOPrompt}.
+
+  \foreignlanguage{english}{Try-first} av designtyp: frågan ber om vad
+  som \emph{saknas}, inte om syntax.  Poängen är att studenterna själva
+  ska formulera behovet av att fortsätta köra efter ett fel, eftersom
+  det är den egenskap \mintinline{python}{try} har och en
+  \mintinline{python}{if}-sats inte har.  Många kommer att föreslå en
+  kontroll före omvandlingen (\enquote{kolla om det är siffror}) --- och
+  de har verktyget för det sedan \cref{sec:strangmetoder}; det svaret är
+  värdefullt att få upp, eftersom det leder rakt in i den kritiska
+  aspekten i \cref{sec:titta-forst} --- att \mintinline{python}{try}
+  inte hindrar felet utan tar emot det.
+}
+
+Python har en konstruktion för just det.  Vi märker ut de instruktioner
+som kan gå fel med \mintinline{python}{try}, och säger med
+\texttt{except} vad som ska hända om de gör det.
+
+\begin{frame}[fragile,shrink=15]
+  Vi lägger de riskabla raderna i ett \mintinline{python}{try}-block och
+  ger \mintinline{python}{ValueError} ett eget svar:
+<<[[age-try.py]]>>=
+<<årtalet och åldern>>
+
+
+def main():
+    """Frågar efter ett födelseår och skriver ut åldern."""
+    try:
+        birthyear = int(input("Vilket år är du född? "))
+        print(f"Då är du {age(birthyear)} år.")
+    except ValueError:
+        print("Årtalet måste skrivas med siffror, till exempel 1927.")
+    print("Trevligt att träffas!")
+
+
+main()
+@
+\end{frame}
+
+Innan vi kör det: läs programmet en gång till, rad för rad.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:hoppas-over}
+    Användaren svarar \enquote{nittonhundratjugosju}.  Vilka av programmets
+    utskrifter kommer, och i vilken ordning?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Med \texttt{try} och
+    \texttt{except}]
+    \label{ex:age-try}
+    Samma svar som förut, \enquote{nittonhundratjugosju}:
+    \runpython[transcript, stdin={nittonhundratjugosju}]{examples/age-try.py}
+  \end{example}
+\end{frame}
+
+Tre saker hände, och alla tre är värda att fundera på.  Åldersutskriften
+inuti \mintinline{python}{try}-blocket kom \emph{inte}: när felet uppstod
+på raden före hoppade Python direkt till
+\texttt{except}-blocket och lämnade resten av
+\mintinline{python}{try}-blocket okört.  I stället kom vårt eget
+meddelande.  Och därefter kom hälsningen \enquote{Trevligt att träffas!},
+som ligger utanför blocket --- programmet kraschade alltså inte, det
+fortsatte.
+
+\begin{frame}
+  \begin{remark}[\texttt{try} tar inte bort felet]
+    Felet uppstår precis som förut.  Det
+    \mintinline{python}{try} gör är att ge oss ett ställe att ta emot
+    det på, i stället för att programmet avbryts.  Resten av
+    \mintinline{python}{try}-blocket körs \emph{inte}: körningen hoppar
+    till \texttt{except} och fortsätter därifrån.
+  \end{remark}
+\end{frame}
+
+Det är just den här punkten som brukar sitta löst.  I en studie av
+studenter som gått en hel programmeringsutbildning i Java fann
+Rashkovits och Lavy att många \enquote{had not assimilated the fact
+that once an exception is thrown, the program jumps to the closest catch
+clause that
+is appropriate for the exception and continues from there}, och att de
+därför \enquote{could not cope properly with try-catch blocks containing
+more than one command}\autocite[343]{RashkovitsLavy2012}.%
+\footnote{%
+  Det vetenskapliga underlaget för att svårigheten är verklig --- och
+  för hur långt den mätningen räcker --- finns i \cref{app:nyborjare}.}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Om de riskabla raderna står i ett
+  \mintinline{python}{try}-block eller inte.
+
+  \textbf{Vad som hålls invariant}: Programmets uppgift, användarens
+  svar (\enquote{nittonhundratjugosju}) och den sista hälsningsraden.
+
+  Kontrasten mot \cref{ex:age-krasch} ska urskilja aspekten
+  \emph{fångat kontra ofångat}.  Att svaret och sista raden hålls
+  identiska är det som gör att skillnaden går att tillskriva
+  \mintinline{python}{try} och ingenting annat.
+
+  \mintinline{python}{try}-blocket har medvetet \emph{två} rader, med
+  felet på den första.  Ett enradigt block hade gjort exemplet enklare
+  men hade gjort den kritiska aspekten --- att resten av blocket hoppas
+  över --- osynlig, eftersom det inte hade funnits någon rest.
+  \Cref{ovn:hoppas-over} ställs före körningen just för att den frågan
+  ska hinna bli en förutsägelse.  Detta är den aspekt Rashkovits och
+  Lavys studenter oftast fallerade på \parencite[343]{RashkovitsLavy2012}.
+}
+
+% Article-only heading: a \subsection would give the Berlin theme's
+% headline a second row of miniframes on every slide in the deck, for
+% the sake of one subsection --- and the extra row makes the
+% section-divider frames overflow.  The notes, which want the
+% navigation, get the heading; the slides do not need it.
+\mode<article>{%
+  \subsection{Att titta efter först --- eller be om ursäkt efteråt}
+  \label{sec:titta-forst}%
+}
+
+Många svarar på \cref{ovn:fanga} med en annan idé, och det är en bra
+idé: kontrollera svaret \emph{innan} vi omvandlar det.  Verktyget finns
+--- \mintinline{python}{str.isdigit()} säger om en sträng bara består av
+siffror --- och du såg det i \cref{sec:strangmetoder}.  Där såg du
+också vilken fråga det egentligen svarar på, och att den är
+snävare än man först tror: den vänder bort både \mintinline{text}|-5|
+och \mintinline{text}|1.75|, fast båda är tal.  Att kontrollen är sträng
+vet du alltså redan.  Det vi ska titta på här är något annat: varför
+dess regel inte är \emph{samma} regel som \mintinline{python}{int}:s ---
+och vem av dem som egentligen borde få avgöra saken.
+
+\begin{frame}[fragile,shrink=15]
+  Samma uppgift, men med en kontroll i stället för
+  \mintinline{python}{try}:
+<<[[age-isdigit.py]]>>=
+<<årtalet och åldern>>
+
+
+def main():
+    """Frågar efter ett födelseår och granskar svaret."""
+    answer = input("Vilket år är du född? ")
+    if answer.isdigit():
+        print(f"Då är du {age(int(answer))} år.")
+    else:
+        print("Årtalet måste skrivas med siffror, till exempel 1927.")
+    print("Trevligt att träffas!")
+
+
+main()
+@
+\end{frame}
+
+Programmet väljer mellan två utskrifter med en
+\mintinline{python}{if}-sats, som vi går igenom ordentligt i
+föreläsningen \emph{Villkor och styrstrukturer}.  Det räcker här att
+läsa den som den låter: raden under \mintinline{python}{if} körs om
+\mintinline{python}{answer.isdigit()} ger \mintinline{python}{True},
+och raden under \mintinline{python}{else} körs annars.  Hälsningen
+står utanför båda och körs i båda fallen.
+
+För \enquote{nittonhundratjugosju} beter sig de två programmen precis
+likadant.
+Men de är inte likvärdiga, och skillnaden syns först när svaret ligger i
+gränslandet.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:isdigit}
+    Användaren skriver \mintinline{text}|+1927| --- med plustecken.
+    Vad gör programmet med \mintinline{python}{isdigit}, och vad hade
+    programmet med \mintinline{python}{try} gjort?  Och den viktigare
+    frågan: vem av dem är det som bestämmer vad som räknas som ett
+    årtal?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett årtal som kontrollen underkänner]
+    \label{ex:age-isdigit}
+    Vi svarar \mintinline{text}|+1927|:
+    \runpython[transcript, stdin={+1927}]{examples/age-isdigit.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma svar, programmet med \texttt{try}]
+    \label{ex:age-try-plus}
+    Vi svarar \mintinline{text}|+1927| en gång till:
+    \runpython[transcript, stdin={+1927}]{examples/age-try.py}
+  \end{example}
+\end{frame}
+
+Kontrollen underkänner ett svar som \mintinline{python}{int} hade
+godtagit --- och det är svaret på frågan om vem som bestämmer.  Med
+kontrollen är det \emph{vi}: \mintinline{python}{isdigit} är inte
+\mintinline{python}{int}:s regel utan vår egen, och den råkar vara en
+annan.  Skillnaden är inte ett slarvfel på just den raden.  För att
+kontrollen ska stämma måste vi skriva om \mintinline{python}{int}:s
+regler --- tecken, mellanslag, allt --- och sedan hålla vår kopia i takt
+med dem.  Vi har alltså skrivit ner samma kunskap på två ställen, vilket
+är precis vad DRY varnar för;%
+\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga E.}
+och ska programmet en dag ta emot decimaltal finns det inte ens någon
+\mintinline{python}{isdigit} att kopiera.
+
+Konstruktionen \mintinline{python}{try} slipper det, därför att den
+frågar den som vet: den låter \mintinline{python}{int} själv avgöra, och
+tar hand om svaret om det blev nej.  Kontrollera först när villkoret är
+\emph{ditt eget}, och låt \mintinline{python}{try} sköta det som är
+\mintinline{python}{int}:s ensak.  Att årtalet inte får ligga i
+framtiden är ett sådant eget villkor, och det har
+\mintinline{python}{int} ingen åsikt om: svarar vi \enquote{3000}
+räknar programmet med \mintinline{python}{try} glatt ut att vi är
+\(-974\) år.
+% TODO(claim-audit): rådet att låta try sköta det som är int:s ensak och
+% kontrollera först bara det som är ens eget (EAFP före LBYL) påstår en
+% nytta.  Ingen sökning är gjord utöver DRY-bilagan i föreläsningen
+% Algoritmiskt tänkande; listad i bilaga A, Fortsatt arbete.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Var beslutet om svaret duger fattas --- i
+  vår egen kontroll eller hos \mintinline{python}{int}.
+
+  \textbf{Vad som hålls invariant}: Uppgiften, meddelandet och
+  användarens svar.
+
+  Avsnittet finns för att \cref{ovn:fanga} \emph{bjuder in} svaret
+  \enquote{kolla om det är siffror}, och ett try-first-moment som inte
+  följs upp lämnar den studenten utan besked.  Här får svaret sitt
+  bemötande: det är rätt tänkt, det fungerar för det typiska felet, och
+  det går sönder i gränsfallen.
+
+  \mintinline{text}|+1927| är valt därför att skillnaden är
+  \emph{verklig} --- \mintinline{python}{int} godtar strängen, och det
+  gör den även för inledande blanksteg och för negativa tal.  Båda
+  programmen körs på samma svar
+  (\cref{ex:age-isdigit,ex:age-try-plus}), så skillnaden går att se i
+  utmatningen i stället för att behöva tros på ord.
+
+  Att kontrollen är sträng är däremot \emph{inte} poängen här, och får
+  inte framställas som en upptäckt: \cref{sec:strangmetoder} anger redan
+  \mintinline{python}{isdigit}:s regel --- består strängen enbart av
+  siffror? --- och att den därför vänder bort \mintinline{text}|-5| och
+  \mintinline{text}|1.75|.  Vore strängheten nyheten skulle momentet
+  falla platt för den som just sett den.  Avsnittet bygger i stället
+  vidare på regeln och flyttar frågan ett steg: varför är den inte
+  \emph{samma} regel som \mintinline{python}{int}:s, och vem borde få
+  bestämma?  Det är den frågan \cref{ovn:isdigit} ställer i sin andra
+  hälft, och den kritiska aspekt som ska urskiljas är att kontrollen
+  \emph{duplicerar} en regel som redan finns, inte att den är illa
+  avvägd.
+
+  Att strängmetoderna och särfallen nu står i samma föreläsning är hela
+  vinsten med sammanslagningen: kopplingen till
+  \cref{sec:strangmetoder} är bärande här, inte kosmetisk, och den går
+  inte längre att tappa bort mellan två föreläsningar.
+
+  Argumentet knyts till DRY, vars underlag finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga E, och görs därför inte om här.
+  Ordningen
+  --- \mintinline{python}{try} först, kontrollen efteråt --- är vald med
+  avsikt: hade kontrollen kommit först hade den framstått som det
+  normala och \mintinline{python}{try} som undantaget, vilket är tvärtom
+  mot hur Python skrivs.
+
+  \mintinline{python}{if}-satsen kommer före föreläsningen \emph{Villkor
+  och styrstrukturer} och förklaras därför med några meningar som pekar
+  dit, så att \cref{ovn:isdigit} inte frågar efter något som inte är
+  genomgånget.  [[age-isdigit.py]] slutar med samma hälsning som
+  [[age-try.py]], så att programmen skiljer sig bara i kontrollen.
+}
+
+\section[Flera fel]{Flera sorters fel}
+\label{sec:flera}
+
+Hittills har bara en sorts fel kunnat uppstå i det vi fångar.  Så snart
+programmet gör mer än en sak blir det flera.  Vi utökar exemplet: nu
+räknar vi ut en medelålder, och frågar därför om två tal.
+
+\begin{frame}[fragile]
+  Programmet läser två tal och dividerar:
+<<[[average.py]]>>=
+"""Medelålder för en grupp."""
+
+
+<<funktion som räknar ut medelåldern>>
+
+
+def main():
+    """Frågar efter två tal och skriver ut medelåldern."""
+    try:
+        <<fråga efter sammanlagd ålder och antal, skriv ut medelåldern>>
+    <<ge varje sorts fel ett eget svar>>
+
+
+main()
+@
+\end{frame}
+
+Divisionen ligger i en egen funktion, och \mintinline{python}{try}-blocket
+är tre rader: två frågor och en utskrift av det funktionen lämnar
+tillbaka, med en decimal --- \mintinline{python}{:.1f}, som i
+\cref{sec:anvandarvanligt}.
+
+\begin{frame}[fragile]
+  Funktionen som räknar, och raderna i \mintinline{python}{try}-blocket:
+<<funktion som räknar ut medelåldern>>=
+def average_age(total, people):
+    """Returnerar medelåldern för people personer, total år tillsammans."""
+    return total / people
+<<fråga efter sammanlagd ålder och antal, skriv ut medelåldern>>=
+total = int(input("Hur många år är ni tillsammans? "))
+people = int(input("Hur många är ni? "))
+print(f"Medelåldern är {average_age(total, people):.1f} år.")
+@
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:tva-fel}
+    Vilka fel kan uppstå i de tre raderna i
+    \mintinline{python}{try}-blocket?  Och vad ska
+    \mintinline{python}{except}-delen göra åt vart och ett av dem?
+  \end{exercise}
+\end{frame}
+
+Två olika saker kan gå fel, och de kräver olika svar.  Skriver
+användaren bokstäver blir det ett \mintinline{python}{ValueError} som
+förut.  Svarar hon att de är noll personer blir det ett
+\mintinline{python}{ZeroDivisionError}.  Att be henne \enquote{svara med
+siffror} vore i det andra fallet både obegripligt och osant --- hon
+\emph{gjorde} det.  Alltså ger vi varje sorts fel sitt eget
+\texttt{except}.
+
+\begin{frame}[fragile]
+  Varje sorts fel får ett eget svar, och sist ett skyddsnät:
+<<ge varje sorts fel ett eget svar>>=
+except ValueError:
+    print("Svara med siffror, till exempel 84.")
+except ZeroDivisionError:
+    print("Ni måste vara minst en person.")
+except Exception as err:
+    print(f"Något oväntat gick fel: {err}")
+@
+\end{frame}
+
+Den sista grenen har något nytt: \mintinline{python}{as err} ger
+särfallet ett namn, så att grenen kan använda det, och
+\mintinline{python}|{err}| i f-strängen skriver ut dess beskrivning ---
+texten efter kolonet på sista raden i en spårutskrift.  Resten av
+spårutskriften, den som säger \emph{var} felet uppstod, skrivs inte ut.
+
+\begin{frame}[fragile]
+  \begin{example}[Bokstäver och noll personer]
+    \label{ex:average}
+    Vi svarar \enquote{84} och sedan \enquote{0}, och i en andra körning
+    \enquote{åttiofyra}:
+    \runpython[transcript, stdin={84}, stdin={0}]{examples/average.py}
+    \runpython[transcript, stdin={åttiofyra}]{examples/average.py}
+  \end{example}
+\end{frame}
+
+Varje fel hamnade i sin egen gren.  Python provar
+\texttt{except}-grenarna uppifrån och ner och kör den första som passar.
+\mintinline{python}{Exception} är det allmänna namnet --- det passar på
+i stort sett allt --- så en sådan gren som stod först skulle passa
+först, och grenarna under den skulle aldrig komma i fråga.  Därför står
+den \emph{sist}.  Lägg också märke till vad programmet inte tar hand
+om: svarar vi att vi är \(-2\) personer räknar det glatt ut en
+medelålder på \(-42.0\) år.  Det är inget särfall, för divisionen går
+att utföra; det är ett villkor som är vårt eget.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,InputLOPrompt}.
+
+  \textbf{Variationsmönster}: Generalisering.
+
+  \textbf{Vad som varierar}: Vilket särfall som uppstår, och därmed
+  vilken gren som körs.
+
+  \textbf{Vad som hålls invariant}: Konstruktionen
+  \mintinline{python}{try}/\texttt{except} och programmets
+  uppgift.
+
+  Exemplet byter uppgift (medelålder i stället för ålder) men stannar
+  inom samma område, så att bytet inte i sig blir en dimension som
+  varierar.  Skälet till bytet är att två \emph{olika} särfall behövs
+  för att grenordningen ska bli en fråga över huvud taget, och
+  åldersprogrammet har bara ett.
+
+  Programmet är dekomponerat i chunkar snarare än visat i ett stycke,
+  eftersom \mintinline{python}{try}-delen och grenarna hör till två
+  olika resonemang --- vad som kan gå fel respektive vad vi svarar ---
+  och prosan mellan dem behöver plats.  Divisionen ligger i en egen
+  funktion enligt regeln att en uträkning får en namngiven funktion;
+  \mintinline{python}{ZeroDivisionError} uppstår därför ett anrop ner
+  och fångas i \mintinline{python}{main}, som
+  \mintinline{python}{NameError} i [[age-catchall.py]].  Att ett
+  särfall sprider sig till anroparen sägs ut först i \cref{sec:kasta}.
+}
+
+Skyddsnätet sist är bekvämt, men det är också farligt.  Här är ett
+åldersprogram som bara har det allmänna.
+
+% Keep the listing whole in the notes.
+\mode<article>{\needspace{20\baselineskip}}
+\begin{frame}[fragile,shrink=15]
+  \begin{exercise}
+    \label{ovn:catchall}
+    Användaren svarar \enquote{1927}.  Vad skriver programmet ut?
+<<[[age-catchall.py]]>>=
+"""Åldersberäkning som frågar efter ett födelseår."""
+
+THIS_YEAR = 2026
+
+
+def age(birthyear):
+    """Returnerar åldern i år för den som föddes år birthyear."""
+    return THIS_YAER - birthyear
+
+
+def main():
+    """Frågar efter ett födelseår och skriver ut åldern."""
+    try:
+        birthyear = int(input("Vilket år är du född? "))
+        print(f"Då är du {age(birthyear)} år.")
+    except Exception as err:
+        print(f"Årtalet måste skrivas med siffror: {err}")
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett korrekt svar som får skulden]
+    \label{ex:catchall}
+    Användaren svarar \enquote{1927}, alltså precis rätt:
+    \runpython[transcript, stdin={1927}]{examples/age-catchall.py}
+  \end{example}
+\end{frame}
+
+Användaren gjorde ingenting fel.  Felet är vårt stavfel, ett
+\mintinline{python}{NameError} av samma slag som
+\mintinline{python}{prynt} i \cref{ex:tre-fel-namn} --- men eftersom
+\mintinline{python}{except Exception} fångar allt hamnade det i grenen
+som var skriven för användarens misstag, och programmet anklagade henne
+för något hon inte gjort.  Värre: utan spårutskrift får \emph{vi} heller
+aldrig veta att stavfelet finns: \mintinline{python}{THIS_YAER} på den
+rad i \mintinline{python}{age} där det skulle ha stått
+\mintinline{python}{THIS_YEAR}.  Ett allmänt
+\texttt{except} döljer alltså inte bara felet för
+användaren utan också för den som ska laga det.
+
+Ett alltför allmänt \texttt{except}-block är en känd dålig vana,
+\enquote{a well-known bad smell in programs that use
+exceptions}\autocite[83]{EbertCastor2015}.%
+\footnote{%
+  Det vetenskapliga underlaget för att vanan är känd som dålig --- och
+  för hur stor kostnaden faktiskt är --- finns i \cref{app:catchall}.}
+Att den är lätt att falla i syns
+också hos studenter: Rashkovits och Lavy fann att av 56 studenter använde
+23 ingen felhantering alls, medan 25 använde den illa, det vill säga
+\enquote{used only Exception class or did not use hierarchy of
+exceptions}\autocite[183]{RashkovitsLavy2011}.
+
+Samma studie fann också att de \emph{buggar} som faktiskt uppstår ur
+alltför allmänna \texttt{except}-block är ovanliga, \enquote{even though
+there are many opportunities for them to
+occur}\autocite[83]{EbertCastor2015}.  Regeln är därför inte
+\enquote{aldrig}, utan: fånga det du vet hur du ska svara på, och låt
+resten synas.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}[Fånga det du kan svara på]
+      \begin{itemize}
+        \item Ett \texttt{except} per sorts fel du vet hur
+          du ska bemöta.
+        \item De specifika först, det allmänna sist eller inte alls.
+        \item Ett fel du inte väntade dig är information --- göm det
+          inte.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}[Fånga det du kan svara på]
+      Skriv ett \texttt{except} för varje sorts fel du vet
+      hur du ska bemöta, med de specifika först och det allmänna sist
+      eller inte alls.  Ett fel du inte väntade dig är information om
+      programmet --- göm det inte.
+    \end{summary}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch,InputLOPrompt}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Hur specifik
+  \texttt{except}-grenen är.
+
+  \textbf{Vad som hålls invariant}: Programmets uppgift och det
+  \emph{korrekta} svaret \enquote{1927}.
+
+  Att användarens svar hålls korrekt är hela poängen med exemplet.  Ett
+  felaktigt svar hade gjort utfallet tvetydigt --- meddelandet hade ju
+  varit sant --- och den kritiska aspekten, att grenen fångar fel den
+  inte var skriven för, hade inte gått att urskilja.  Stavfelet
+  \mintinline{python}{THIS_YAER} är valt framför ett påhittat undantag
+  därför att det är en realistisk nybörjarbugg och därför att
+  \mintinline{python}{NameError} redan är bekant från
+  \cref{ex:tre-fel-namn}.
+
+  \Cref{ovn:catchall} visar programmet utan att peka ut stavfelet ---
+  inledningen, titeln och docstringen är neutrala --- och frågar bara
+  vad det skriver ut för ett korrekt svar.  Den som hittar
+  \mintinline{python}{THIS_YAER} kan förutsäga utfallet; den som inte gör
+  det får se det i körningen, i samma läge som programmets användare.
+  Att materialet kan visa exakt det utfall som påstås --- och inte bara
+  påstå det --- beror på att utmatningen körs
+  av didactic och kommer ur samma källa som koden.
+}
+
+\section[Meddelandet]{Ett begripligt meddelande}
+\label{sec:begripligt}
+
+Att fånga särfallet är halva arbetet.  Den andra halvan är vad
+programmet säger sedan, och där är det lätt att stanna för tidigt.  Det
+enklaste är att skriva ut felet som det är: \mintinline{python}{print(err)}.
+Jämför de två meddelandena.
+
+% C2: the two messages were typed into the source; they are now the two
+% real runs, on the same answer.
+% The two runs carry the contrast, so they may not be split by a page
+% break in the notes.
+\mode<article>{\needspace{17\baselineskip}}
+\begin{frame}[fragile]
+  \begin{example}[Två svar på samma fel]
+    \label{ex:tva-meddelanden}
+    Samma svar, \enquote{nittonhundratjugosju}, först utan
+    \mintinline{python}{try} och sedan med:
+    \runpython[transcript, stdin={nittonhundratjugosju}]{examples/age3.py}
+    \runpython[transcript, stdin={nittonhundratjugosju}]%
+      {examples/age-try.py}
+  \end{example}
+\end{frame}
+
+Det felet självt säger är sant, men det är skrivet till en
+programmerare: det är på engelska, det nämner
+\mintinline{python}{int} och bas 10, som användaren
+aldrig har hört talas om, och det säger ingenting om vad hon ska göra.
+Vårt eget meddelande namnger vad programmet ville ha, i användarens ord,
+och visar ett exempel.  Det andra meddelandet går att agera på.
+% TODO(claim-audit): reglerna för felmeddelanden (säg vad programmet
+% ville ha, på användarens språk, med ett exempel) påstår en nytta för
+% användaren.  Ingen sökning är gjord; föreläsningen Hello, World!,
+% bilaga D, gäller kompilatorns meddelanden till programmeraren, inte
+% ett programs meddelanden till användaren.  Listad i bilaga A,
+% Fortsatt arbete.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}[Ett meddelande användaren kan använda]
+      \begin{itemize}
+        \item Säg vad programmet ville ha, inte vilken funktion som
+          klagade.
+        \item Skriv det på användarens språk.
+        \item Ge ett exempel på ett svar som fungerar.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}[Ett meddelande användaren kan använda]
+      Ett användbart felmeddelande säger vad programmet ville ha ---
+      inte vilken funktion som klagade --- på användarens språk, och
+      gärna med ett exempel på ett svar som fungerar.
+    \end{summary}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLOPrompt}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Vem meddelandet är skrivet för.
+
+  \textbf{Vad som hålls invariant}: Felet, programmet och tillfället.
+
+  Aspekten som ska urskiljas är \emph{mottagaren}.  De två meddelandena
+  står bredvid varandra i ett och samma exempel eftersom skillnaden
+  annars måste återskapas ur minnet.  Avsnittet bär kursmålet om
+  användbara utskrifter även när något går fel, och är därför det enda
+  av avsnitten om särfall som inte handlar om mekanik alls; det är
+  samma mål som \cref{sec:anvandarvanligt} bär före felet.
+
+  Skyddsnätets utskrift i [[<<ge varje sorts fel ett eget svar>>]]
+  skriver ut felets beskrivning, eftersom mottagaren där är en
+  programmerare: ett oväntat fel ska rapporteras vidare, inte åtgärdas
+  av användaren.  Prosan säger
+  där vad den utskriften ändå döljer --- var felet uppstod.
+}
+
+Ett begripligt meddelande är bra, men programmet i \cref{ex:age-try} ger
+ändå upp: användaren får veta vad hon skulle ha skrivit, och sedan är
+det för sent.  Att fråga om tills svaret går att använda tas upp i
+föreläsningen \emph{Villkor och styrstrukturer}.
+
+\section[Kasta]{Att kasta särfall vidare}
+\label{sec:kasta}
+
+Ett sista steg.  Hittills har det alltid varit Python som avgjort att
+något inte gick: \mintinline{python}{int} som inte kunde tolka texten,
+divisionen som inte kunde dela med noll, namnet som inte fanns ---
+också när raden stod i en funktion vi skrivit själva.  Men våra egna
+funktioner kan också råka ut för fall som Python inte ser något fel i,
+där bara vi vet att svaret blir orimligt, och då står de inför samma
+fråga.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:raise}
+    En funktion \mintinline{python}{age(birthyear)} ska räkna ut en
+    ålder.  Någon anropar den med årtalet 2100.  Funktionen kan omöjligt
+    ge ett vettigt svar.  Vad borde den göra?  Räcker det att den skriver
+    ut ett felmeddelande själv?
+  \end{exercise}
+\end{frame}
+
+Att skriva ut ett meddelande räcker inte, av två skäl: funktionen måste
+ändå returnera \emph{något}, och den vet inte i vilket sammanhang den
+anropas --- kanske ska programmet fråga om, kanske avbryta, kanske
+försöka något annat.  Beslutet hör hemma hos den som anropar.  Alltså
+\emph{kastar} funktionen ett särfall med \mintinline{python}{raise}:
+den säger ifrån i stället för att svara fel, och låter anroparen
+bestämma.
+
+% Keep the listing whole in the notes.
+\mode<article>{\needspace{14\baselineskip}}
+\begin{frame}[fragile]
+  \begin{example}[En funktion som säger ifrån]
+    \label{ex:age-raise-funktion}
+    Funktionen vägrar årtal i framtiden:
+<<årtalet och en ålder som vägrar framtiden>>=
+"""Åldersberäkning som vägrar årtal i framtiden."""
+
+THIS_YEAR = 2026
+
+
+def age(birthyear):
+    """Returnerar åldern; kastar ValueError för årtal i framtiden."""
+    if birthyear > THIS_YEAR:
+        raise ValueError(f"{birthyear} har inte inträffat än")
+    return THIS_YEAR - birthyear
+@
+  \end{example}
+\end{frame}
+
+Funktionen säger ifrån med en \mintinline{python}{if}-sats, som i
+\cref{sec:titta-forst}.  Operatorn \mintinline{python}{>} jämför två tal
+och ger \mintinline{python}{True} om det vänstra är störst, så
+\mintinline{python}{raise}-raden körs bara för ett årtal efter
+\mintinline{python}{THIS_YEAR}; jämförelserna går vi igenom ordentligt i
+föreläsningen \emph{Villkor och styrstrukturer}.  Efter
+\mintinline{python}{raise} står särfallet: sorten,
+\mintinline{python}{ValueError}, och inom parentes beskrivningen --- den
+text som hamnar efter kolonet i en spårutskrift.
+
+Vad händer om ingen tar hand om det?  Här är ett program som anropar
+funktionen utan \mintinline{python}{try}.
+
+% Keep the listing whole in the notes; its run may follow on the next
+% page.
+\mode<article>{\needspace{15\baselineskip}}
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Ingen tar hand om det]
+    \label{ex:age-raise-ofangat}
+    Programmet och en körning där användaren svarar \enquote{2100}:
+<<[[age-raise1.py]]>>=
+<<årtalet och en ålder som vägrar framtiden>>
+
+
+def main():
+    """Frågar efter ett födelseår och skriver ut åldern."""
+    birthyear = int(input("Vilket år är du född? "))
+    print(f"Då är du {age(birthyear)} år.")
+
+
+main()
+@
+    \runpython[transcript, stdin={2100}]{examples/age-raise1.py}
+  \end{example}
+\end{frame}
+
+Det är kedjan från \cref{sec:felmeddelande} igen, ett steg längre:
+överst anropet av \mintinline{python}{main}, sedan raden i
+\mintinline{python}{main} som anropar \mintinline{python}{age}, och
+nederst \mintinline{python}{raise}-raden inne i \mintinline{python}{age}.
+Särfallet uppstod inuti funktionen, och när ingen tog hand om det där
+\emph{spred det sig} uppåt till den som anropade, och därifrån vidare,
+tills programmet tog slut och spårutskriften skrevs ut.
+
+Tar anroparen hand om det slutar kedjan där i stället.  Programmet har nu
+två sorters \mintinline{python}{ValueError} att svara på: det
+\mintinline{python}{int} kastar när användaren skriver bokstäver, och
+det vår egen \mintinline{python}{age} kastar när årtalet ligger i
+framtiden.  De får var sitt meddelande, enligt \cref{sec:begripligt}:
+\mintinline{python}{int}:s engelska beskrivning är skriven för en
+programmerare, men den vi själva skrev efter \mintinline{python}{raise}
+kan användaren läsa.
+
+% Keep the listing whole in the notes.
+\mode<article>{\needspace{21\baselineskip}}
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Anroparen tar hand om det]
+    \label{ex:age-raise}
+    Två \mintinline{python}{try}, ett för varje sorts fel:
+<<[[age-raise2.py]]>>=
+<<årtalet och en ålder som vägrar framtiden>>
+
+
+def main():
+    """Frågar efter ett födelseår och tar hand om orimliga svar."""
+    try:
+        birthyear = int(input("Vilket år är du född? "))
+    except ValueError:
+        print("Årtalet måste skrivas med siffror, till exempel 1927.")
+        return
+    try:
+        print(f"Då är du {age(birthyear)} år.")
+    except ValueError as err:
+        print(f"Det årtalet går inte att räkna med: {err}.")
+
+
+main()
+@
+  \end{example}
+\end{frame}
+
+Ett \mintinline{python}{return} utan något värde efter avslutar
+funktionen direkt, precis som när den når sitt slut: har vi inget årtal
+finns det ingenting att räkna med.  Två körningar, en för varje fel:
+
+\begin{frame}[fragile]
+  \begin{example}[Två svar, två meddelanden]
+    \label{ex:age-raise-korningar}
+    Användaren svarar \enquote{2100}, och i en andra körning
+    \enquote{nittonhundratjugosju}:
+    \runpython[transcript, stdin={2100}]{examples/age-raise2.py}
+    \runpython[transcript, stdin={nittonhundratjugosju}]%
+      {examples/age-raise2.py}
+  \end{example}
+\end{frame}
+
+Särfallet från \mintinline{python}{age} uppstod inuti funktionen men
+fångades utanför den, hos anroparen, och där slutade kedjan.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{ExcLORaise,ExcLOTraceback}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Om anroparen tar hand om särfallet som
+  \mintinline{python}{age} kastar.
+
+  \textbf{Vad som hålls invariant}: Funktionen
+  \mintinline{python}{age}, skriven en gång och delad av båda
+  programmen, och svaret \enquote{2100}.
+
+  Det ofångade särfallet visas som en körning i stället för att
+  beskrivas: spårutskriften med \mintinline{python}{raise}-raden längst
+  ner är det som gör spridningen synlig utan att något behöver ritas.
+  Programmen är två eftersom det första avbryts.
+
+  De två sorternas \mintinline{python}{ValueError} får var sitt
+  meddelande, så att programmet följer det \cref{sec:begripligt} just
+  lärt ut: \mintinline{python}{int}:s engelska text når aldrig
+  användaren.  Priset är två \mintinline{python}{try} och ett
+  \mintinline{python}{return}, som förklaras med en mening.
+
+  \Cref{ovn:raise} frågar vad funktionen borde göra snarare än hur
+  \mintinline{python}{raise} skrivs.  Frågan riktar sig mot en vana
+  studenterna redan hunnit skaffa sig --- att låta funktionen själv
+  skriva ut och fortsätta --- och Rashkovits och Lavy pekar ut just
+  hanteringen längre upp i anropskedjan som en av de svåraste
+  aspekterna \parencite[350]{RashkovitsLavy2012}.  Avsnittet är
+  medvetet kort: lärandemålen kräver att kunna \emph{fånga}, inte att
+  designa egna särfallsklasser.
+}
+
+\section[Sammanfattning]{Sammanfattning}
+\label{sec:sammanfattning}
+
+\begin{frame}[fragile,shrink=20]
+  \only<presentation>{%
+    \begin{summary}
+      \begin{itemize}
+        \item \mintinline{python}{input} lämnar alltid tillbaka en
+          sträng; vill vi räkna måste vi omvandla själva.
+        \item Inte bara operatorn utan också typen avgör vad
+          \mintinline{python}{+} och de andra operatorerna gör.
+        \item Frågor och utskrifter skrivs för den som kör programmet.
+        \item Ett särfall avbryter körningen där det uppstår, och
+          Python skriver en spårutskrift: var --- kedjan av anrop,
+          underst raden som inte gick --- vilken sorts fel, vad
+          som var fel.
+        \item Med \mintinline{python}{try} och \texttt{except} hoppas
+          resten av \mintinline{python}{try}-blocket över, och
+          körningen fortsätter i den första gren som passar.
+        \item En gren per sorts fel vi kan bemöta, det allmänna
+          \mintinline{python}{Exception} sist eller inte alls, och
+          meddelanden användaren kan göra något med.
+        \item En egen funktion som inte kan svara vettigt kastar
+          särfallet vidare till den som kan bestämma.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}
+      Ett interaktivt program frågar med \mintinline{python}{input},
+      och det som kommer tillbaka är alltid en sträng --- även när
+      användaren skriver siffror.  Ska vi räkna med svaret omvandlar vi
+      det själva, helst vid inläsningen, så att variabeln innehåller
+      det den heter och vi inte behöver omvandla på nytt vid varje
+      användning.  Vad ett uttryck betyder avgör inte bara operatorn
+      utan också typen.  Frågorna och utskrifterna skriver vi för den
+      som kör programmet: en sak i taget, enheten i frågan, och svaret
+      som säger vad talet är.
+
+      Svarar användaren något vi inte kan räkna med uppstår ett
+      särfall: ett fall en instruktion inte täcker, och det avbryter
+      körningen där det uppstår.  Fångar vi det inte avbryts hela
+      programmet och Python skriver en spårutskrift, som säger var
+      felet uppstod --- kedjan av anrop dit, underst raden som inte
+      gick --- vilken sorts fel det var och vad som var fel.
+      Fångar vi det med \mintinline{python}{try} och \texttt{except}
+      hoppas resten av \mintinline{python}{try}-blocket över och
+      körningen fortsätter i den gren som passar --- den första
+      uppifrån.  Därför skriver vi en gren per sorts fel vi vet hur vi
+      ska bemöta, med det allmänna \mintinline{python}{Exception} sist
+      eller inte alls, och därför skriver vi meddelanden som användaren
+      kan göra något med.  Och kan vår egen funktion inte svara vettigt
+      kastar den själv ett särfall vidare till den som kan bestämma vad
+      som ska hända.
+    \end{summary}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{InputLORead,InputLOConvert,InputLOTypes,%
+  InputLOPrompt,ExcLOException,ExcLOTraceback,ExcLOCatch,ExcLORaise}.
+
+  Sammanfattningen står som löpande text och inte som punktlista, dels
+  för att anteckningarna ska läsa som text hela vägen, dels för att
+  ordningen i stycket är densamma som föreläsningens och därför fungerar
+  som en repetition av vägen genom den.  Att den är \emph{en}
+  sammanfattning och inte två är hela poängen med att inmatningen och
+  särfallen står i samma föreläsning: inmatningen är det som gör
+  särfallen oundvikliga, och särfallen är det som gör inmatningen
+  användbar.
+}

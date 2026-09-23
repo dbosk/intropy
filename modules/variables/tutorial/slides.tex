@@ -1,0 +1,134 @@
+\documentclass[ignoreframetext]{beamer}
+\input{preamble.tex}
+% The solutions are whole programs, and a program with docstrings runs
+% both longer and wider than a lecture example: several lines pass 70
+% characters.  The slides therefore set code one step smaller than the
+% notes do, so the lines fit the frame without [shrink].
+\setminted{fontsize=\scriptsize}
+
+% contents.tex is woven from contents.nw; noweb.sty defines the chunk
+% markup macros the weave emits.  The [minted] option makes the chunks
+% render through minted (the weave runs tominted).  Frames have no real
+% margin, so the sub-page tags go (nomargintag).
+\usepackage[minted]{noweb}
+\noweboptions{breakcode,nomargintag,noxref}
+% The chunk cross-referencing apparatus (sub-page tags, defines/uses
+% lists) is for the notes; on slides it is noise, and beamer overlays
+% re-execute frame bodies so the sub-page labels would be multiply
+% defined.  Gut it here; the notes keep it.
+\def\sublabel#1{}
+\def\subpageref#1{}
+\def\nwindexdefn#1#2#3{}
+\def\nwindexuse#1#2#3{}
+\def\nwidentdefs#1{}
+\def\nwidentuses#1{}
+\def\nwused#1{}
+\def\nwnotused#1{}
+\def\nwalsodefined#1{}
+% The "(used in ...)" tag on a definition line resolves a \subpageref, and
+% the sub-page labels are gutted above, so it would leave undefined
+% references behind.  Gut it too.
+\def\nwusesondefline#1{}
+\def\nwprevnextdefs#1#2{}
+
+% PROJECT: language-specific.  beamer names its own example/definition/
+% theorem blocks through the translator package, which ships no Swedish
+% dictionary, so the titles come out in English.  Give it the words of the
+% document's language, before \usetheme.  Delete this block for an English
+% deck; translate the right-hand sides for another language.
+\uselanguage{Swedish}
+\languagepath{Swedish}
+\deftranslation[to=Swedish]{Example}{Exempel}
+\deftranslation[to=Swedish]{Definition}{Definition}
+\deftranslation[to=Swedish]{Theorem}{Sats}
+\deftranslation[to=Swedish]{Lemma}{Lemma}
+\deftranslation[to=Swedish]{Corollary}{Följdsats}
+\deftranslation[to=Swedish]{Proof}{Bevis}
+% translator's Swedish theorem dictionary calls a solution "Lösning",
+% while didactic's own translation (which the notes job uses) says
+% "Lösningsförslag".  The two jobs must agree, and this deck's solutions
+% are proposals, not the only answers, so override the dictionary here ---
+% after \uselanguage{Swedish}, which is what loads it.
+\deftranslation[to=Swedish]{Solution}{Lösningsförslag}
+\deftranslation[to=Swedish]{Solutions}{Lösningsförslagen}
+% Add this one if didactic's summary block still shows "Summary":
+% \deftranslation[to=Swedish]{Summary}{Sammanfattning}
+
+\usetheme{Berlin}
+\setbeamertemplate{footline}%{miniframes theme}
+{%
+  \begin{beamercolorbox}[colsep=1.5pt]{upper separation line foot}
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+    leftskip=.3cm,rightskip=.3cm plus1fil]{author in head/foot}%
+    \leavevmode{\usebeamerfont{author in head/foot}\insertshortauthor}%
+    \hfill%
+    {\usebeamerfont{institute in head/foot}%
+     \usebeamercolor[fg]{institute in head/foot}\insertshortinstitute}%
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[ht=2.5ex,dp=1.125ex,%
+    leftskip=.3cm,rightskip=.3cm plus1fil]{title in head/foot}%
+    {\usebeamerfont{title in head/foot}\insertshorttitle}
+    \hfill \insertframenumber%
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[colsep=1.5pt]{lower separation line foot}
+  \end{beamercolorbox}
+}
+\setbeamercovered{transparent}
+\setbeamertemplate{bibliography item}[text]
+
+\AtBeginSection[]{%
+  \begin{frame}<beamer>
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+% didactic's default puts a table-of-contents frame at every subsection
+% too, which in this deck means one between every exercise and its
+% solution.  Six sections, six such frames, no information in any of
+% them: silence it.
+\AtBeginSubsection[]{}
+
+% didactic defines its own remark/idea/question/exercise for beamer, so
+% the template's \ProvideDocumentEnvironment copies of them never took
+% effect; they are gone.  The solution environment is the exception: it
+% reaches this job through didactic's theorem branch instead of its
+% beamer branch, so its title came out as a theorem head and its body
+% centred, which breaks the description lists inside it.  Map it onto a
+% block like the other didactic environments, ragged right.
+\DeclareDocumentEnvironment{solution}{o}{%
+  \IfValueTF{#1}{%
+    \begin{block}{\GetTranslationWarn{Solution}: #1}
+  }{%
+    \begin{block}{\GetTranslationWarn{Solution}}
+  }%
+  \raggedright
+}{%
+  \end{block}
+}
+
+\begin{document}
+\title{%
+  Övning: Funktioner och variabler
+}
+\author{Daniel Bosk}
+\institute{%
+  KTH EECS
+}
+
+\begin{frame}
+  \maketitle
+\end{frame}
+
+\mode<all>
+\input{contents.tex}
+\mode*
+%
+%%% REFERENCES %%%
+% The sources belong to the notes (the ltnotes are instructor-facing and
+% the search protocol is an appendix of the notes); a bibliography frame
+% on the slides would just be a wall of references.
+%\begin{frame}[allowframebreaks]
+%  \printbibliography
+%\end{frame}
+\end{document}

@@ -1,8 +1,11 @@
-SUBDIR+=		slides-input
+SUBDIR+=		slides-input-exceptions
 SUBDIR+=		slides-conditionals
+# The tutorial is a deck of the same kind as the slides directories:
+# one contents.nw building notes.pdf and slides.pdf.
+SUBDIR+=		tutorial
 SUBDIR_GOALS=	all clean distclean
 
-HTML_FILES= 	lecture.html exercise.html tutorial.html
+HTML_FILES= 	lecture.html
 
 PANDOCFLAGS= 	--filter pandoc-xnos
 
@@ -11,7 +14,6 @@ PANDOCFLAGS= 	--filter pandoc-xnos
 all: ${HTML_FILES} ${PDF_FILES}
 
 lecture.html: lecture.md
-exercise.html: exercise.md
 
 
 .PHONY: clean

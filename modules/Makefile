@@ -8,7 +8,6 @@ SUBDIR+=	iterations
 SUBDIR+=	packages
 SUBDIR+=	containers
 #SUBDIR+=	functions
-#SUBDIR+=	exceptions
 SUBDIR+=	classes
 SUBDIR+=	files
 #SUBDIR+=	recap

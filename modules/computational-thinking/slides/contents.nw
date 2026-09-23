@@ -1,0 +1,1529 @@
+\mode<all>
+\begin{pycode}
+import os
+import re
+
+from mentipy.latex import mc, open_text, word_cloud
+from mentipy.store import Store
+
+mentipy_common = {
+    "store": Store("mentipy.json"),
+    "qr_dir": "mentipy-obj",
+    "qr_format": "png",
+    "environment": "",
+    "show_url": False,
+    "layout": "auto",
+    "base_url": "http://faculty-shell.sys.kth.se:8080",
+}
+
+# Mentipy sätter sina egna etiketter på engelska; föreläsningen är på
+# svenska, så den renderade LaTeX-koden översätts innan den skrivs ut.
+# Bara etiketterna rörs --- frågetexten och alternativen går oförändrade
+# till Mentipy, så frågornas identitet i frågelagret påverkas inte.
+ETIKETTER = [
+    ("Choose exactly one:", "Välj exakt ett alternativ:"),
+    ("Choose one or more:", "Välj ett eller flera alternativ:"),
+    ("\\item[Type] Free-text answer", "\\item[Svarstyp] fritext"),
+    ("\\item[Type] Word-cloud (free-text)",
+     "\\item[Svarstyp] ordmoln av fritext"),
+    ("\\item[Mode] Whole answer counts as one entry",
+     "\\item[Räknesätt] hela svaret räknas som ett bidrag"),
+]
+
+def sv(latex):
+    for engelska, svenska in ETIKETTER:
+        latex = latex.replace(engelska, svenska)
+    latex = re.sub(r"\\item\[Limit\] (\d+) characters",
+                   r"\\item[Längd] högst \1 tecken", latex)
+    return latex
+
+
+def fraga(namn, latex):
+    """Skriv frågans LaTeX till en fil som övningsuppgiften inkluderar.
+
+    Blocken står utanför bilderna med avsikt.  Beamer läser en bilds
+    kropp en gång per överlägg, så ett pycode-block inne i kroppen får
+    ett nytt PythonTeX-index per läsning; indexen glider isär mellan
+    körningarna och en frågas utskrift hamnar då på fel bild.
+    """
+    os.makedirs("mentipy-obj", exist_ok=True)
+    with open("mentipy-obj/%s.tex" % namn, "w", encoding="utf-8") as fil:
+        fil.write(sv(latex))
+\end{pycode}
+
+% Frågefilerna skrivs av PythonTeX under körningen, så de saknas i den
+% allra första genomkörningen.
+\providecommand{\mentipyfraga}[1]{%
+  \IfFileExists{mentipy-obj/#1.tex}{\input{mentipy-obj/#1.tex}}{}%
+}
+
+% Adressen under QR-koden står i omslaget mentipy-obj/Q-*.pdf_tex, som
+% mentipy serve skriver om när adressen ändras.  Därför får den inte
+% kopieras in i frågefilen ovan: kopian fryser vid kompileringen.  Bara
+% sättningen ändras, via Mentipys krok: liten och radbrytbar (\url
+% bryter efter kolon, punkt och snedstreck), så att den ryms i bildens
+% smala högerkolumn.
+\newcommand{\mentipyqrcaption}[1]{{\tiny\url{#1}}}
+
+\mode*
+
+\section{Algoritmer}
+\label{sec:algoritmer}
+
+% diska
+% sortera tvätt innan tvätt
+% hänga tvätt
+% vika tvätt
+
+Att programmera är att beskriva för en dator hur ett problem ska lösas,
+steg för steg.  Innan vi skriver en enda rad Python behöver vi därför
+kunna tänka i termer av sådana stegvisa beskrivningar.  Det är inget nytt
+--- vi följer dem varje dag, i recept, monteringsanvisningar och rutiner.
+Vi börjar därför i köket, med något de flesta har en känsla för.
+
+\begin{frame}[shrink=25]
+  \begin{example}[Pannkakssmet för fyra personer]
+    \label{ex:pannkakssmet}
+    Följ stegen:
+    \begin{enumerate}
+      \item \label{knäck-ägg} Knäck tre ägg i en bunke.
+      \item \label{vispa-ägg} Vispa ordentligt.
+      \item Häll i \SI{3}{\deci\litre} mjölk.
+      \item Vispa ordentligt.
+      \item \label{mjöl} Häll i \SI{1}{\deci\litre} mjöl.
+      \item Vispa ordentligt.
+      \item Häll i \SI{1}{\deci\litre} mjöl.
+      \item Vispa ordentligt.
+      \item Häll i \SI{1}{\deci\litre} mjöl.
+      \item \label{vispa-mjöl-sista} Vispa ordentligt.
+      \item Häll i \SI{1/2}{tsk} salt.
+      \item Häll i \SI{2}{msk} smält smör.
+      \item Vispa ordentligt.
+    \end{enumerate}
+  \end{example}
+\end{frame}
+
+\mode<all>
+\begin{pycode}
+fraga("f01-sekvens", mc(
+    "Vi byter plats på de två första stegen i pannkakssmeten: vispa "
+    "först, knäck äggen sedan. Vad händer då?",
+    [
+        "Vi vispar en tom bunke; äggen förblir ovispade.",
+        "Ingenting: ordningen spelar ingen roll.",
+        "Ingenting: vi kan göra stegen samtidigt.",
+        "Receptet avbryts: vi kan inte vispa något som inte finns.",
+    ],
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink]
+  \begin{exercise}
+    \mentipyfraga{f01-sekvens}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOAlgorithm,CompThinkLOComponents}.
+
+  Föreläsningen börjar med en algoritm som \emph{helhet}, innan någon av
+  dess beståndsdelar har fått namn.  Den enda aspekt som syns i
+  \cref{ex:pannkakssmet} är \emph{sekvensen}: stegen exekveras ett i
+  taget, i ordning.  Övriga beståndsdelar urskiljs sedan genom att receptet
+  varieras en dimension i taget medan allt annat hålls invariant:
+  mängderna byts mot uttryck i \(n\) (variabler,
+  \cref{ex:pannkakssmet-n}), de utskrivna mjölstegen byts mot
+  \enquote{repetera} (upprepning, \cref{ex:pannkakssmet-upprepning}),
+  ett steg blir ett val mellan två bunkar (förgrening,
+  \cref{ex:pannkakssmet-forgrening}) och hela receptet blir ett steg i
+  ett större recept (funktioner, \cref{ex:steka-pannkakor}).
+  Tvättsorteringen (\cref{ex:sortera-tvatt})
+  generaliserar sedan begreppen till en annan kontext.  Ordningen
+  kontrast före generalisering följer Marton
+  \parencite[45--47]{Marton2015}: den som ännu inte urskilt en aspekt kan
+  inte heller se den som gemensam för flera exempel.
+
+  Därför skrivs upprepningen av mjölstegen \emph{ut} här (tre gånger
+  \enquote{häll i, vispa}), trots att receptet blir längre: hade
+  \enquote{repetera} stått redan i det första exemplet hade sekvens och
+  upprepning varierat samtidigt, och upprepningen hade bara kunnat
+  \emph{pekas ut} i texten i stället för att urskiljas genom kontrast.
+}
+
+Receptet är en typisk stegvis beskrivning: en följd av instruktioner som
+exekveras i tur och ordning, ett steg i taget, uppifrån och ner.  Att
+stegen har en bestämd \emph{ordning} och görs \emph{ett i taget} är
+inget att ta
+för givet --- det är kanske den mest grundläggande egenskapen hos en
+algoritm, och en som lätt glöms bort när program blir längre.  Byter vi
+plats på \cref{knäck-ägg,vispa-ägg} vispar vi en tom bunke, och äggen
+förblir ovispade: samma steg, men i annan ordning, ger ett annat
+resultat.  Och samtidigt går inte heller --- varje steg utgår från
+resultatet av stegen före.  (Vi kan vispa samtidigt som vi knäcker
+äggen, men då måste vi vara två personer, eller vispa med en visp som
+kan vispa själv medan vi själva knäcker äggen.  Men för det mesta är det
+svårt för en person att göra flera saker samtidigt.)
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Kontrast} i övningen på bilden: vad som varierar är stegens
+  ordning respektive ett-i-taget; vad som hålls invariant är stegen
+  själva.  Kontrasten ska urskilja \emph{sekvens} och
+  \emph{exekveringsordning} som en egen aspekt --- tidigare
+  \emph{påstods} det bara i texten att ordningen spelar roll, utan att
+  något varierade.  Den riktar sig mot missuppfattningen att raderna i
+  ett program är aktiva samtidigt eller i godtycklig ordning, Peas
+  parallellism-bugg \parencite{pea1986}.
+  \foreignlanguage{english}{Try-first}: frågan ställs på bilden innan
+  svaret sägs i texten.
+
+  Frågan ställs som flervalsfråga i Mentipy, så fördelningen syns innan
+  svaret sägs.  Två distraktorer bär parallellism-buggen ovan ---
+  ordningen spelar ingen roll, stegen kan göras samtidigt --- och den
+  tredje bär idén att algoritmen avbryts när ett steg inte går att
+  utföra, samma missuppfattning som \cref{sec:forgrening} tar upp med
+  belägg.
+}
+
+Det vi har skrivit --- en ändlig följd av entydiga steg som löser en
+uppgift --- är just vad som i matematik och datalogi kallas en
+\emph{algoritm}.
+
+\begin{frame}[fragile]
+  \begin{definition}[Algoritm]
+    En algoritm är \enquote{inom matematik och databehandling en
+    systematisk procedur som i ett ändligt antal steg anger hur man utför
+    en beräkning eller löser ett givet problem}.\footnote{\label{fn:ne}%
+      \emph{Nationalencyklopedin}, algoritm.
+      \url{https://www.ne.se/uppslagsverk/encyklopedi/lång/algoritm}
+      (hämtad 2022-09-04).
+    }
+  \end{definition}
+\end{frame}
+
+Ordet \emph{algoritm} (algorism) är enligt samma uppslagsverk ursprungligen
+en förvanskning av namnet på den persisk-arabiska matematikern al-Khwarizmi.
+Definitionen ställer två krav värda att lägga märke till.  Stegen ska vara
+\emph{entydiga} --- var och en ska gå att utföra utan att gissa --- och de
+ska vara \emph{ändligt} många, så att proceduren tar slut.  Ett recept som
+aldrig blev klart vore ingen algoritm.
+
+Lägg märke till \cref{fn:ne} vid definitionen: den anger var
+definitionen är hämtad, och när.  Det är ingen formalitet.  Ett
+påstående i en text ska gå att kontrollera av den som läser --- så
+arbetar vetenskapen --- och därför följs varje påstående om vad någon
+annan har sagt eller visat av en källa som läsaren kan slå upp.  Hur man
+kontrollerar vad som står i ett undervisningsmaterial, inklusive det
+här, beskrivs i \cref{app:verifiera}.
+
+Recept är en sak; låt oss pröva att själva formulera en algoritm för något
+annat vardagligt.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOAlgorithm}.
+
+  Uppgiften ställs som en fritextfråga i Mentipy.  Svaren visar vilka
+  steg studenterna själva formulerar innan begreppet algoritm har
+  generaliserats bort från receptet, och ger de formuleringar som
+  \cref{ex:sortera-tvatt} sedan kan hållas emot.
+}
+
+\mode<all>
+\begin{pycode}
+fraga("f02-sortera-tvatt", open_text(
+    "Beskriv din algoritm för att sortera tvätt innan den åker in i "
+    "tvättmaskinen.",
+    max_chars=400,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}
+  \begin{exercise}[Sortera tvätt]
+    \mentipyfraga{f02-sortera-tvatt}
+  \end{exercise}
+\end{frame}
+
+\mode<all>
+\begin{pycode}
+fraga("f03-bestandsdelar", word_cloud(
+    "Vad är beståndsdelarna av en algoritm? Skriv en beståndsdel du kan "
+    "se i tvättsorteringen. Börja med att titta på vad som varierar.",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Sortera tvätt]
+    \label{ex:sortera-tvatt}
+    Följ stegen:
+    \begin{enumerate}
+      \item \label{ta-från-tvättkorg} Ta \alert<3>{en textil} ur
+        tvättkorgen, eller avsluta om den är tom.
+      \item Om \alert<3>{textilen} är vit, lägg i vit 60; annars
+      \item Om \alert<3>{textilen} är mörk och underkläder, lägg i mörk 60; 
+        annars
+      \item Om \alert<3>{textilen} är mörk, lägg i mörk 40; annars
+      \item Om \alert<3>{textilen} är ljus och underkläder, lägg i ljus 60; 
+        annars
+      \item Om \alert<3>{textilen} är ljus, lägg i ljus 40; annars
+      \item Lägg \alert<3>{textilen} i högen för handtvätt.
+      \item Repetera från \cref{ta-från-tvättkorg}.
+    \end{enumerate}
+  \end{example}
+
+  \begin{onlyenv}<2>
+    \begin{exercise}
+    \mentipyfraga{f03-bestandsdelar}
+    \end{exercise}
+  \end{onlyenv}
+\end{frame}
+
+Här upprepas samma steg för varje plagg --- en \emph{upprepning} ---
+men \emph{vilket} plagg vi hanterar skiljer sig från varv till varv.  Och
+beroende på plaggets färg och typ väljer vi olika hög: ett val mellan
+alternativ, en \emph{förgrening}.  Upprepning och förgrening är två av de
+byggstenar en algoritm är gjord av; vi återkommer till dem i
+\cref{sec:upprepning,sec:forgrening}.  Men först en
+fråga som visar sig central i all programmering: vad är det egentligen som
+varierar?
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOAlgorithm,CompThinkLOComponents}.
+
+  \Cref{ex:sortera-tvatt} är en \emph{generalisering} av begreppet
+  algoritm: den kritiska aspekten --- en ändlig följd av entydiga steg som
+  löser en uppgift --- hålls invariant, medan kontexten varierar från kök
+  till tvättstuga och från recept till egenformulerad rutin.  Förgrening
+  och upprepning dyker upp i exemplet, men de bara \emph{namnges} i texten;
+  ingen av dem är ännu det som varieras, så de urskiljs inte här.
+
+  Exemplet är valt för att kunna återanvändas.  I \cref{sec:variabler}
+  blir det generaliseringen av begreppet \emph{variabel}: textilen spelar
+  där samma roll som antalet personer \(n\) i receptet, i en annan slags
+  storhet (ett plagg i stället för ett tal).  Övningen på bilden är därför en
+  \foreignlanguage{english}{try-first}-fråga i två led: den ber
+  studenterna att själva försöka urskilja en algoritms beståndsdelar
+  innan någon av dem har fått namn, med \enquote{vad som varierar} som
+  ingång.  Ingången sår den tanke som variabelavsnittet sedan tar upp,
+  och svaren visar vilka beståndsdelar (upprepningen, förgreningen, det
+  utbytbara plagget) studenterna redan kan urskilja.  Frågan ställs som
+  ett ordmoln i Mentipy, där hela svaret räknas som ett bidrag: molnet
+  visar vilka beståndsdelar som urskiljs oftast, och vilka som ingen
+  nämner och som föreläsningen alltså måste varieras fram.
+  I \cref{sec:upprepning,sec:forgrening} återanvänds exemplet på samma
+  sätt som generalisering av upprepning
+  (\enquote{repetera från steg 1}) respektive förgrening (kedjan av
+  \enquote{annars}).
+}
+
+\subsection{Variabler}
+\label{sec:variabler}
+
+I pannkaksreceptet stod det \enquote{tre ägg} och \enquote{3 dl mjölk} ---
+lagom till några få personer.  Men vad gör vi om vi ska tillaga
+pannkakor till en hel klass?  Då måste alla mängder ändras.  Just det som
+kan ändras är vad vi ska fästa blicken på.
+
+\mode<all>
+\begin{pycode}
+fraga("f04-vad-varierar", word_cloud(
+    "Vad varierar i receptet på pannkakssmet för fyra personer? "
+    "Svara med några få ord.",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}
+  \begin{exercise}
+    \mentipyfraga{f04-vad-varierar}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[Pannkakssmet för \(n\) personer]
+    \label{ex:pannkakssmet-n}
+    Följ stegen:
+    \begin{enumerate}
+      \item Knäck \(\frac{3n}{4}\) ägg i en bunke.
+      \item Vispa ordentligt.
+      \item Häll i \SI{\frac{3n}{4}}{\deci\litre} mjölk.
+      \item Vispa ordentligt.
+      \item \label{mjöl-loop} För totalt \SI{\frac{3n}{4}}{\deci\litre}
+        mjöl:
+        \begin{enumerate}
+          \item Häll i \SI{1}{\deci\litre} mjöl.
+          \item Vispa ordentligt.
+        \end{enumerate}
+      \item Häll i \SI{\frac{n}{2\cdot 4}}{tsk} salt.
+      \item Häll i \SI{\frac{2n}{4}}{msk} smält smör.
+      \item Vispa ordentligt.
+    \end{enumerate}
+  \end{example}
+\end{frame}
+
+Det som varierar är antalet personer.  I ett vanligt recept är det
+underförstått --- mängderna anges för fyra, och den som lagar mat till
+åtta får själv multiplicera --- men här skriver vi ut det.  Jämför med
+\cref{ex:pannkakssmet}.  Stegen är desamma och kommer i samma ordning;
+det som skiljer är mängderna --- och hur vi behövde skriva upprepningen
+av mjölstegen, som vi återkommer till.  Genom att låta \(n\) beteckna
+antalet personer kan vi skriva \emph{ett} recept som fungerar för
+godtyckligt många.  Mängderna står nu inte som fasta tal utan uttryckta
+som produkter av \(n\): \(\frac{3n}{4}\) ägg, och så vidare.  Storheten
+\(n\) är det vi kallar en \emph{variabel} --- ett värde vi väljer, och
+som resten av receptet räknar utifrån.  I tvättexemplet
+(\cref{ex:sortera-tvatt}) spelade plagget samma roll: det var variabeln
+som stegen handlade om, fast där var det inte ett tal utan en textil som
+byttes ut från varv till varv.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Kontrast} mellan \cref{ex:pannkakssmet,ex:pannkakssmet-n}.
+  Vad som varierar: mängderna, från fasta tal till uttryck i \(n\).
+  Vad som hålls invariant: stegen, deras ordning och receptet som helhet.
+  Kontrasten ska urskilja aspekten \emph{variabel}: det som kan bytas ut
+  medan proceduren står kvar.  Övningen \enquote{vad varierar?} ställs
+  före exemplet med \(n\) så att studenterna själva letar efter den
+  varierande dimensionen innan den pekas ut.  Den ställs som ett ordmoln
+  i Mentipy: molnet visar om gruppen pekar ut mängderna eller antalet
+  personer, eller något som receptet tvärtom håller invariant --- stegen,
+  deras ordning, redskapen.
+
+  \textbf{Generalisering} via \cref{ex:sortera-tvatt}.  Vad som varierar:
+  kontexten och variabelns slag --- ett plagg i stället för ett tal.  Vad
+  som hålls invariant: att stegen handlar om något som byts ut från gång
+  till gång.  Först kontrast, sedan generalisering
+  \parencite[45--47]{Marton2015}.
+
+  Tidigare visades receptet en gång till, oförändrat, före
+  \cref{ex:pannkakssmet-n}.  Det tillförde ingen variation, så det är
+  borttaget; i stället hänvisas till \cref{ex:pannkakssmet}.  (I
+  bildspelet finns ingen sådan hänvisning; där bläddrar man tillbaka.)
+
+  Mjölsteget i \cref{ex:pannkakssmet-n} --- \enquote{för totalt
+  \(\frac{3n}{4}\) dl: häll i, vispa} --- är en upprepning, och den står
+  här innan upprepning har fått namn.  Det fungerar av tre skäl.
+  Vardagssvenskan bär konstruktionen utan att den behöver namnges, så
+  steget är läsbart som det står.  Kontrasten isolerar ändå mängderna:
+  övningen riktar uppmärksamheten dit, och texten namnger den andra
+  skillnaden uttryckligen så att den inte smyger förbi.  Och upprepningen
+  är oundviklig: så snart antalet varv beror på \(n\) går stegen inte att
+  skriva ut, vilket gör detta till den allmänna form som
+  \cref{sec:upprepning} sedan bygger på.
+}
+
+\mode<all>
+\begin{pycode}
+fraga("f05-tillstand", open_text(
+    "I receptet på pannkakssmet för n personer lyder mjölsteget: för "
+    "totalt 3n/4 dl mjöl, häll i 1 dl mjöl och vispa ordentligt. Hur "
+    "vet du när du ska sluta hälla i mjöl? Vad måste du hålla reda på?",
+    max_chars=200,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}
+  \begin{exercise}
+    \mentipyfraga{f05-tillstand}
+  \end{exercise}
+\end{frame}
+
+För att veta när mjölet är slut måste vi hålla reda på hur mycket vi
+redan hällt i --- eller hur många varv vi gått.  Det är också en
+variabel, men av ett annat slag än \(n\): den \emph{ändras} medan
+receptet pågår, en deciliter i taget, från noll till \(\frac{3n}{4}\).
+En variabel behöver alltså inte stå still.  Samma sak när vi diskar:
+högen med diskad disk växer medan högen med odiskad krymper.  Algoritmen
+bär ett \emph{tillstånd} som förändras medan den körs, och det är just
+det tillståndet variablerna håller reda på.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan tillståndet
+  namnges.  Mjölräknaren i \cref{ex:pannkakssmet-n} är den första
+  variabel studenterna möter som \emph{ändras} under körningen; \(n\)
+  väljs en gång och textilen står stilla inom ett varv.  Kontrasten
+  mellan \(n\) (väljs en gång) och mängden mjöl hittills (ändras varje
+  varv) ska urskilja aspekten \emph{tillstånd}; diskexemplet
+  generaliserar den, och \cref{ex:handdisk} pekar senare ut den i ett
+  fullständigt exempel.  Frågan ställs som fritext i Mentipy: svaren
+  visar om studenterna nämner något som måste hållas reda på \emph{under}
+  körningen --- mängden hittills, eller antalet varv --- eller bara läser
+  av det färdiga måttet ur receptet.
+}
+
+\begin{frame}[fragile]
+  \begin{definition}[Variabel]
+    Något som hänvisar till något som kan variera kallar vi för en
+    \emph{variabel}.
+  \end{definition}
+
+  \pause
+
+  \only<presentation>{%
+    \begin{example}[Variabler]
+      \begin{itemize}
+        \item Textilen.
+        \item Antalet personer, \(n\).
+        \item Mängden mjöl vi hittills vispat i.
+      \end{itemize}
+    \end{example}%
+  }%
+  \only<article>{%
+    \begin{example}[Variabler]
+      Tre variabler har dykt upp: textilen i tvättexemplet, antalet
+      personer \(n\) i receptet, och mängden mjöl vi hittills vispat i
+      (\cref{mjöl-loop} i \cref{ex:pannkakssmet-n}).
+    \end{example}%
+  }
+\end{frame}
+
+\subsection{Upprepning}
+\label{sec:upprepning}
+
+I \cref{ex:pannkakssmet} skrev vi ut mjölstegen tre gånger:
+\crefrange{mjöl}{vispa-mjöl-sista} är samma två instruktioner om och om
+igen.  Det går, men det är omständligt --- och i \cref{ex:pannkakssmet-n}
+gick det inte alls, för hur många gånger vi ska hälla i en deciliter
+beror på \(n\).  Där skrev vi i stället \enquote{för totalt
+\(\frac{3n}{4}\) dl mjöl: häll i, vispa} (\cref{mjöl-loop}): ett sätt att
+säga \enquote{gör det här igen} som fungerar för vilket antal som helst.
+Det är upprepningens allmänna form.  Samma sak kan vi göra med
+\cref{ex:pannkakssmet}, där antalet är känt.
+
+\begin{frame}[shrink=5]
+  \begin{example}[Pannkakssmet för fyra personer, med upprepning]
+    \label{ex:pannkakssmet-upprepning}
+    Följ stegen:
+    \begin{enumerate}
+      \item Knäck tre ägg i en bunke.
+      \item Vispa ordentligt.
+      \item Häll i \SI{3}{\deci\litre} mjölk.
+      \item Vispa ordentligt.
+      \item \label{mjöl-upprepning} Häll i \SI{1}{\deci\litre} mjöl.
+      \item \label{vispa-mjöl-upprepning} Vispa ordentligt.
+      \item Repetera \cref{mjöl-upprepning,vispa-mjöl-upprepning} två
+        gånger till.
+      \item Häll i \SI{1/2}{tsk} salt.
+      \item Häll i \SI{2}{msk} smält smör.
+      \item Vispa ordentligt.
+    \end{enumerate}
+  \end{example}
+\end{frame}
+
+De två recepten ger samma smet.  Det enda som skiljer dem är hur mjölstegen
+\emph{uttrycks}: i \cref{ex:pannkakssmet} står de utskrivna, i
+\cref{ex:pannkakssmet-upprepning} står de en gång följda av
+\enquote{repetera}.  Det är en \emph{upprepning}: en enda instruktion som
+låter tidigare steg exekveras igen, tillsammans med ett villkor för när
+det ska sluta --- här \enquote{två gånger till}.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Upprepning]
+      \begin{itemize}
+        \item Ett eller flera tidigare steg exekveras igen.
+        \item Ett villkor säger hur länge: ett antal gånger, tills något
+          är slut, så länge något gäller.
+        \item Sedan fortsätter algoritmen med nästa steg.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Upprepning]
+      En upprepning låter ett eller flera tidigare steg exekveras igen,
+      så många gånger som ett villkor säger --- ett antal gånger, tills
+      något är slut, så länge något gäller.  Sedan fortsätter algoritmen
+      med nästa steg.
+    \end{definition}%
+  }
+\end{frame}
+
+Villkoret behöver inte vara ett fast antal.  I \cref{ex:pannkakssmet-n}
+lyder det \enquote{för totalt \(\frac{3n}{4}\) dl mjöl}: antalet varv ges av
+variabeln, vilket är just därför stegen inte gick att skriva ut där.  I
+\cref{ex:sortera-tvatt} upprepas hela algoritmen från
+\cref{ta-från-tvättkorg} tills tvättkorgen är tom.  Samma byggsten,
+olika sätt att säga när den är klar.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Kontrast} mellan
+  \cref{ex:pannkakssmet,ex:pannkakssmet-upprepning}.  Vad som varierar:
+  hur mjölstegen uttrycks, utskrivna eller som \enquote{repetera}.  Vad som
+  hålls invariant: receptet, resultatet och alla övriga steg.  Kontrasten
+  ska urskilja aspekten \emph{upprepning} som en egen beståndsdel, skild
+  från sekvensen.  Den allmänna formen (\cref{mjöl-loop} i
+  \cref{ex:pannkakssmet-n}, räknad i \(n\)) har studenterna redan sett;
+  \cref{ex:pannkakssmet-upprepning} skriver om det fasta receptet på
+  samma sätt, så att kontrasten mot \cref{ex:pannkakssmet} blir ren.
+
+  \textbf{Generalisering} över \cref{ex:pannkakssmet-n} (stoppvillkor i
+  \(n\)), \cref{ex:sortera-tvatt} (tills korgen är tom) och senare
+  handdisken (\cref{ex:handdisk}, tills glasen är slut): samma
+  konstruktion, olika
+  stoppvillkor.
+
+  Avsnittet ligger \emph{efter} variablerna med avsikt.  Så länge alla
+  mängder är fasta tal är det utskrivna receptet fullt godtagbart, bara
+  längre; först när en mängd beror på \(n\) blir upprepningen nödvändig,
+  och det är den nödvändigheten som motiverar konstruktionen.  I en
+  tidigare version stod \enquote{repetera} redan i det första exemplet, så
+  upprepningen bara pekades ut i texten utan kontrast; nu varieras sekvens
+  och upprepning var för sig.
+}
+
+\subsection{Förgrening}
+\label{sec:forgrening}
+
+I recepten hittills har varje steg alltid exekverats.  Men i köket väljer
+vi hela tiden: ska vi tillaga åt många behöver vi den stora bunken,
+annars räcker den lilla.  Låt oss skriva in det valet i receptet.
+
+\begin{frame}[shrink=15]
+  \begin{example}[Pannkakssmet för \(n\) personer, med val av bunke]
+    \label{ex:pannkakssmet-forgrening}
+    Följ stegen:
+    \begin{enumerate}
+      \item \label{val-bunke} \alert<2>{Om \(n > 4\), ta fram den stora
+        bunken.}
+      \item \label{liten-bunke} \alert<2>{Annars, ta fram den lilla
+        bunken.}
+      \item \label{efter-val} Knäck \(\frac{3n}{4}\) ägg i bunken.
+      \item Vispa ordentligt.
+      \item Häll i \SI{\frac{3n}{4}}{\deci\litre} mjölk.
+      \item Vispa ordentligt.
+      \item För totalt \SI{\frac{3n}{4}}{\deci\litre} mjöl:
+        \begin{enumerate}
+          \item Häll i \SI{1}{\deci\litre} mjöl.
+          \item Vispa ordentligt.
+        \end{enumerate}
+      \item Häll i \SI{\frac{n}{2\cdot 4}}{tsk} salt.
+      \item Häll i \SI{\frac{2n}{4}}{msk} smält smör.
+      \item Vispa ordentligt.
+    \end{enumerate}
+  \end{example}
+\end{frame}
+
+\mode<all>
+\begin{pycode}
+fraga("f06-forgrening", mc(
+    "I pannkakssmeten med val av bunke: är n större än 4 tas den stora "
+    "bunken fram, annars den lilla. Sedan knäcks äggen i bunken. "
+    "Vilka steg utförs om n är 2, och vilka om n är 10?",
+    [
+        "n = 2 ger den lilla bunken, n = 10 den stora; sedan knäcks "
+        "äggen i båda fallen.",
+        "För n = 10 tas båda bunkarna fram.",
+        "För n = 2 avbryts receptet: villkoret är falskt.",
+        "När bunken är vald är receptet slut.",
+    ],
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink]
+  \begin{exercise}
+    \mentipyfraga{f06-forgrening}
+  \end{exercise}
+\end{frame}
+
+Receptet är \cref{ex:pannkakssmet-n} med ett tillägg: valet av bunke.
+Följ stegen för \(n = 2\): villkoret i \cref{val-bunke} är falskt, så vi
+tar fram den lilla bunken i \cref{liten-bunke} och fortsätter med
+\cref{efter-val}.  För \(n = 10\) är villkoret sant: vi tar fram den
+stora bunken och hoppar över \cref{liten-bunke} --- men även nu
+fortsätter receptet med \cref{efter-val}.  Två saker är värda att lägga
+märke till.  Exakt \emph{ett} av alternativen exekveras, aldrig båda och
+aldrig inget.  Och i båda fallen går receptet vidare: ett falskt villkor
+avslutar inte algoritmen, det väljer bara väg.  Ett sådant val mellan
+alternativ kallar vi en \emph{förgrening}.
+
+Vi har redan mött en förgrening i \cref{ex:sortera-tvatt}: en hel kedja
+av alternativ, där varje \enquote{annars} lämnar över till nästa villkor.
+Exakt en hög får plagget --- och oavsett vilken följer
+\enquote{repetera från \cref{ta-från-tvättkorg}} efteråt.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Kontrast} mellan
+  \cref{ex:pannkakssmet-n,ex:pannkakssmet-forgrening}.  Vad som varierar:
+  ett steg blir ett val mellan två alternativ.  Vad som hålls invariant:
+  resten av receptet.  Ovanpå den läggs en inre kontrast i övningen: vad
+  som varierar är villkorets sanningsvärde (\(n = 2\) respektive
+  \(n = 10\)), medan algoritmen hålls invariant.  Spårningen ska urskilja
+  två kritiska aspekter: att exakt ett alternativ exekveras och att
+  algoritmen \emph{fortsätter} efter valet.  De svarar mot två belagda
+  missuppfattningar: att ett falskt villkor avslutar programmet
+  \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation} och att båda
+  grenarna exekveras \parencite{qian2017}.  Spårningen ställs som en
+  flervalsfråga i Mentipy, och varje distraktor bär en av dem: att båda
+  bunkarna tas fram är \enquote{båda grenarna exekveras}
+  \parencite{qian2017}, medan \enquote{receptet avbryts när villkoret är
+  falskt} och \enquote{receptet är slut när bunken är vald} är två
+  former av att ett falskt villkor, respektive ett taget val, avslutar
+  programmet \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}.
+  Fördelningen visar vilken av dem som dominerar i gruppen, innan
+  spårningen görs i texten.
+
+  \textbf{Generalisering} via \cref{ex:sortera-tvatt}: en kedja av
+  alternativ med olika villkor, samma regel --- exakt en gren, sedan
+  vidare.  Exemplet skrevs i formen \enquote{om \ldots; annars} redan
+  från början just för att kunna återanvändas så här.
+
+  Avsnittet ligger efter \cref{sec:variabler} eftersom villkoret prövar
+  en variabel, och efter \cref{sec:upprepning} för att kontrasten mellan
+  \enquote{om} och \enquote{så länge} förutsätter upprepningen.
+}
+
+Villkor känner vi igen från upprepningarna --- \enquote{två gånger
+till}, \enquote{tills tvättkorgen är tom} --- så vad är egentligen
+skillnaden mellan de två byggstenarna?
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Förgrening]
+      \begin{itemize}
+        \item Ett val, utifrån ett villkor, mellan två eller flera
+          alternativ.
+        \item Exakt ett alternativ exekveras.
+        \item Sedan fortsätter algoritmen med nästa steg.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Förgrening]
+      En förgrening väljer, utifrån ett villkor, vilket av två eller
+      flera alternativ som exekveras.  Exakt ett alternativ exekveras,
+      och sedan fortsätter algoritmen med nästa steg.
+    \end{definition}%
+  }
+\end{frame}
+
+\mode<all>
+\begin{pycode}
+fraga("f07-om-eller-sa-lange", mc(
+    "Vad skiljer steget: om smeten är för tjock, häll i lite mjölk; "
+    "från steget: så länge smeten är för tjock, häll i lite mjölk?",
+    [
+        "Det första häller i högst en gång, det andra tills smeten är "
+        "lagom.",
+        "Ingen skillnad: båda gör samma sak.",
+        "Det första häller i tills smeten är lagom, det andra en gång.",
+        "Är smeten inte för tjock avbryts receptet.",
+    ],
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink]
+  \begin{exercise}
+    \mentipyfraga{f07-om-eller-sa-lange}
+  \end{exercise}
+\end{frame}
+
+Uppgiften är densamma och villkoret är detsamma; det enda som skiljer är
+konstruktionen.  \enquote{Om} häller i mjölk \emph{en gång}, om smeten
+råkar vara för tjock just då.  \enquote{Så länge} häller i mjölk
+\emph{om och om igen}, tills smeten inte längre är för tjock.  En
+förgrening och en upprepning kan alltså dela villkor; skillnaden är hur
+många gånger något görs.  Väljer vi fel konstruktion blir resultatet fel
+--- en upprepning där ett val räcker ger en alldeles för lös smet, inte
+bara en längre text.
+
+\ltnote{%
+  \textbf{Kontrast} mellan \enquote{om} och \enquote{så länge}.  Vad som
+  varierar: konstruktionen --- förgrening eller upprepning.  Vad som
+  hålls invariant: uppgiften och villkoret.  Kontrasten ska urskilja
+  aspekten \emph{en gång} kontra \emph{så länge villkoret gäller}, och
+  riktar sig mot antimönstret att ta till en upprepning där ett val
+  räcker \parencite{Bosse2021Antipatterns}.
+  \foreignlanguage{english}{Try-first}: skillnaden ställs som fråga
+  innan den sägs ut.
+
+  Frågan är en flervalsfråga i Mentipy.  Distraktorn \enquote{ingen
+  skillnad} är antimönstret självt --- konstruktionerna hålls för
+  utbytbara \parencite{Bosse2021Antipatterns}; den omkastade
+  beskrivningen visar att de hålls isär men förväxlas; och
+  \enquote{receptet avbryts om smeten inte är för tjock} är
+  missuppfattningen att ett falskt villkor avslutar programmet
+  \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}.  Svaren avgör
+  om texten efter bilden räcker eller om skillnaden måste spåras steg
+  för steg.
+}
+
+\subsection{(Del)algoritmer, eller funktioner}
+
+En algoritm kan använda andra algoritmer som byggstenar.  När vi ska steka
+pannkakor behöver vi först göra smet --- men \enquote{gör pannkakssmet} är
+ju i sig en hel algoritm, den vi redan skrivit.  I stället för att skriva
+ut den på nytt hänvisar vi till den vid namn.
+
+\mode<all>
+\begin{pycode}
+fraga("f08-det-resterande", word_cloud(
+    "I steget gör pannkakssmet för fyra personer är antalet personer "
+    "en variabel. Vad är det som återstår av steget, det som inte "
+    "varierar?",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink=10]
+  \begin{example}[Att steka pannkakor\only<2>{ \alert{för fyra personer}}]
+    \label{ex:steka-pannkakor}
+    Följ stegen:
+    \begin{enumerate}
+      \item \alert<2>{Gör pannkakssmet för fyra personer.}
+      \item För varje portion, medan det finns pannkakssmet kvar:
+        \begin{enumerate}
+          \item Häll \SI{1}{\deci\litre} smet i en het stekpanna.
+          \item Vänta \SI{2}{\minute}.
+          \item Vänd pannkakan.
+          \item Vänta \SI{2}{\minute}.
+          \item Servera pannkakan.
+        \end{enumerate}
+    \end{enumerate}
+  \end{example}
+
+  \begin{onlyenv}<1>
+    \begin{exercise}
+    \mentipyfraga{f08-det-resterande}
+    \end{exercise}
+  \end{onlyenv}
+  
+  \begin{onlyenv}<2>
+    \only<presentation>{%
+      \begin{definition}[Funktion]
+        \begin{itemize}
+          \item En funktion är en fixerad procedur.
+          \item Den tar variabler som inmatning och returnerar någon
+            utmatning.
+        \end{itemize}
+      \end{definition}%
+    }%
+    \only<article>{%
+      \begin{definition}[Funktion]
+        En funktion är en fixerad procedur.  Den tar variabler som
+        inmatning och returnerar någon utmatning.
+      \end{definition}%
+    }
+  \end{onlyenv}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs på bilden innan
+  \emph{funktion} definieras på nästa överlägg.  Den ställs som ett
+  ordmoln i Mentipy: molnet visar vilka ord studenterna själva tar till
+  för det som står kvar när variabeln räknats bort --- recept, steg,
+  instruktion, delalgoritm --- och därmed vilken förförståelse
+  definitionen ska knyta an till.
+}
+
+En namngiven delalgoritm som tar variabler som inmatning och ger något som
+utmatning kallar vi en \emph{funktion}.  \enquote{Gör pannkakssmet för
+\(n\) personer} är en funktion: ge den ett antal personer, och den ger dig
+rätt mängd smet.
+
+\section{Uppdelning i delalgoritmer (funktioner)}
+
+Att lösa ett problem handlar därför ofta om att \emph{dela upp} det i
+mindre delalgoritmer som var för sig är enkla.  Ett tecken på en funktion
+är att den svarar mot ett \emph{verb} i vardagsspråket: att knäcka, att
+vispa, att steka, att diska.  Letar vi efter verben i en algoritm hittar vi
+ofta de funktioner den bygger på.
+
+\mode<all>
+\begin{pycode}
+fraga("f09-hitta-funktioner", word_cloud(
+    "Vilka funktioner kan du hitta i receptet på pannkakssmet med val "
+    "av bunke och i receptet på att steka pannkakor? Skriv en av dem.",
+    split_words=False,
+    max_chars=60,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}[shrink=20]
+  \begin{exercise}
+    \mentipyfraga{f09-hitta-funktioner}
+  \end{exercise}
+
+  \only<presentation>{%
+    \begin{example}[Pannkakssmet för \(n\) personer]
+      Följ stegen:
+      \begin{enumerate}
+        \item \alert<2>{Knäck} \(\frac{3n}{4}\) ägg i en bunke.
+        \item \alert<2>{Vispa} ordentligt.
+        \item \alert<2>{Häll} i \SI{\frac{3n}{4}}{\deci\litre} mjölk.
+        \item \alert<2>{Vispa} ordentligt.
+        \item För totalt \SI{\frac{3n}{4}}{\deci\litre} mjöl:
+          \begin{enumerate}
+            \item \alert<2>{Häll} i \SI{1}{\deci\litre} mjöl.
+            \item \alert<2>{Vispa} ordentligt.
+          \end{enumerate}
+        \item \alert<2>{Häll} i \SI{\frac{n}{2\cdot 4}}{tsk} salt.
+        \item \alert<2>{Häll} i \SI{\frac{2n}{4}}{msk} smält smör.
+        \item \alert<2>{Vispa} ordentligt.
+      \end{enumerate}
+    \end{example}%
+  }
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \foreignlanguage{english}{Try-first}: frågan ställs innan verben pekas
+  ut i texten.  Ordmolnet i Mentipy tar ett svar per person, så det som
+  blir stort är de verb gruppen ser lättast.  Det som saknas i molnet är
+  det föreläsningen behöver peka ut --- oftast \enquote{gör
+  pannkakssmet}, den delalgoritm som i sin tur är en hel algoritm och
+  därför är svårast att se som ett enda steg.
+}
+
+I \cref{ex:pannkakssmet-forgrening} är verben att ta fram, att knäcka,
+att vispa och att hälla; i \cref{ex:steka-pannkakor} att göra smet, att
+hälla, att vänta, att vända och att servera.  Vart och ett är en
+delalgoritm som vi hänvisar till vid namn: \enquote{vispa} står för en
+hel rad rörelser som vi slipper skriva ut.
+
+\mode<presentation>{%
+  \begin{frame}
+    \begin{remark}
+      Funktioner motsvarar verb i dagligt språk!
+    \end{remark}
+  \end{frame}
+}
+
+\mode<all>
+\begin{pycode}
+fraga("f10-handdisk", open_text(
+    "Vilka funktioner och variabler använder du i din algoritm för "
+    "handdisk i köket?",
+    max_chars=300,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}
+  \begin{exercise}
+    \mentipyfraga{f10-handdisk}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Generalisering}: samma två beståndsdelar söks nu i en algoritm
+  studenterna själva formulerat, i stället för i ett recept de fått.
+  Fritextsvaren i Mentipy visar om de skiljer det som \emph{görs}
+  (funktionerna) från det som \emph{byts ut} (variablerna) innan
+  \cref{ex:handdisk} visar uppdelningen.
+}
+
+I en algoritm för handdisk återkommer samma handling --- ta, diska, lägg
+--- för varje sorts disk: först glasen, sedan besticken, sedan tallrikarna.
+
+\begin{frame}
+  \begin{example}[Algoritm för handdisk]
+    \label{ex:handdisk}
+    Följ stegen:
+    \begin{enumerate}
+      \item \alert{Lägg} \emph{all disk} i diskhon med diskvattnet i.
+      \item \label{glas} \alert{Ta} \emph{ett glas}, \alert{diska} \emph{det}, 
+        \alert{lägg} \emph{det} i diskhon för diskad disk.
+      \item Repetera \cref{glas} tills att \emph{glasen} är slut.
+      \item \label{bestick} \alert{Ta} \emph{ett bestick}, \alert{diska} 
+        \emph{det}, \alert{lägg} \emph{det} i diskhon för diskad disk.
+      \item Repetera \cref{bestick} tills att besticken är slut.
+      \item \label{tallrik} \alert{Ta} \emph{en tallrik}, \alert{diska} 
+        \emph{den}, \alert{lägg} \emph{den} i diskhon för diskad disk.
+      \item Repetera \cref{tallrik} tills att tallrikarna är slut.
+    \end{enumerate}
+  \end{example}
+\end{frame}
+
+Variablerna här är det vi diskar just nu --- ett glas, ett bestick, en
+tallrik --- och diskhögarna.  Lägg märke till de senare: medan algoritmen
+kör töms diskhon med diskvattnet på odiskad disk, medan diskhon för
+diskad disk fylls på.  Det är just ett sådant föränderligt
+\emph{tillstånd} som vi mötte i \cref{sec:variabler}, och det är
+variablerna som bär det.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Generalisering} av \emph{tillstånd}: aspekten infördes i
+  \cref{sec:variabler} med samma diskexempel, men bara i prosa; här
+  pekas den ut i ett konkret exempel där den syns --- diskhoarnas
+  innehåll förändras steg för steg medan algoritmen kör.  Tidigare
+  påstods tillståndet bara; nu kan det urskiljas i \cref{ex:handdisk}.
+  Den fulla behandlingen av tillstånd (att en tilldelning ersätter det
+  gamla värdet) hör hemma i modulen om variabler.
+}
+
+Det enda som saknas nu är att skölja disken.
+
+\mode<all>
+\begin{pycode}
+fraga("f11-skolja-disken", open_text(
+    "Skriv en algoritm för att skölja disken. Vilka variabler, "
+    "upprepningar och funktioner använder du?",
+    max_chars=500,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}
+  \begin{exercise}[Skölja disken]
+    \mentipyfraga{f11-skolja-disken}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents}.
+
+  \textbf{Fusion}: efter kontrast och generalisering av varje
+  beståndsdel för sig får studenterna här använda alla samtidigt, i en
+  uppgift som ligger nära \cref{ex:handdisk} men inte är given
+  \parencite{Marton2015}.  Svaren visar vilka beståndsdelar de själva
+  tar till --- en upprepning över disken, en variabel för det som sköljs
+  just nu, sköljandet som funktion --- och vilka som ännu inte urskilts.
+  Uppgiften ställs som en fritextfråga i Mentipy, så svaren går att läsa
+  under föreläsningen och de beståndsdelar som saknas kan tas upp direkt.
+}
+
+
+% The section opens with a citation and a long instructor note listing the
+% sources behind the components; both fit beside their markers only if the
+% section starts at the top of a page (the page before carries the notes
+% of the two dishwashing exercises).
+\mode<article>{\clearpage}
+\section{Stegvis förfining}
+\label{sec:stegvis-forfining}
+
+Vi har nu mött en algoritms huvudbeståndsdelar: att stegen exekveras i
+\emph{sekvens}, ett i taget; att \emph{variabler} bär ett \emph{tillstånd}
+som ändras under körningen; \emph{förgreningar} som väljer mellan
+alternativ; \emph{upprepningar} som gör om steg; och \emph{funktioner} som
+namnger delalgoritmer.  Att just dessa är beståndsdelarna är inte något
+vi hittat på.\footnote{%
+  Det vetenskapliga underlaget --- att uppdelningen håller i tre
+  forskningstraditioner, och de två förbehåll som hör till ---
+  finns i \cref{app:sokprotokoll}, som dessutom visar kontrollen av
+  påståendet som ett exempel i sig.}  Med dessa beståndsdelar kan vi
+gå från en vardagsalgoritm till ett riktigt program.  Det som återstår är
+ett sätt att skriva ner en algoritm så att vi kan utveckla den \emph{en
+bit i taget} --- grovt först, sedan mer och mer detaljerat --- ända tills
+stegen är så precisa att en dator kan följa dem.  Metoden kallas
+\emph{stegvis förfining} (\foreignlanguage{english}{stepwise
+refinement}); den beskrevs först av Niklaus
+Wirth 1971\autocite{wirth1971}.\footnote{%
+  Det vetenskapliga underlaget --- både att metoden är Wirths och hur
+  etablerad den är, med förbehållet att den som fullständig designmetod
+  är förenklad --- finns i \cref{app:stegvis-forfining}.}  Vi börjar
+med ett problem vi redan har stött på.
+
+\ltnote{%
+  Uppdelningen i huvudbeståndsdelar är litteraturförankrad från två håll.
+  Från strukturerad programmering och missuppfattningsforskning: styrflödet
+  reduceras till sekvens, val och upprepning \parencite{bohm1966}, och kring
+  just dessa konstruktioner (plus variabler och funktioner) samlas
+  nybörjares missuppfattningar \parencite{qian2017}.  Att
+  \emph{sekvens/exekveringsordning} i sig är en kritisk aspekt --- programmet
+  läses som statisk text där raderna är aktiva samtidigt, parallellism-buggen
+  --- är belagt \parencite{pea1986}.  Från beräkningstänkandet
+  (\foreignlanguage{english}{computational thinking}) återkommer samma
+  uppdelning som \emph{computational concepts}: sekvenser, slingor, villkor
+  och data \parencite{brennan2012}, medan dekomposition, abstraktion och
+  generalisering där räknas som \emph{färdigheter} kring algoritmer, inte
+  beståndsdelar i dem.  Funktioner är gränsfallet (beståndsdel i strukturerad
+  programmering, abstraktionsfärdighet i \foreignlanguage{english}{CT}), och
+  tillstånd ryms oftast i \enquote{data}.  Två förbehåll från
+  motsökningen: de tre styrkonstruktionerna räcker bara om extra
+  variabler får införas \parencite{elgot1976} --- vilket gör variabler
+  och tillstånd till en nödvändig beståndsdel, inte en förfining --- och
+  det empiriska stödet för strukturerad programmering som
+  undervisningsföreskrift är svagt \parencite{vesseyWeber1984}, liksom
+  beräkningstänkandets begrepp är omstritt \parencite{lodiMartini2021}.
+  Utöver de citerade källorna \emph{stöder} en rad ytterligare arbeten
+  samma uppdelning; de är förtecknade i träfflistorna (raderna märkta
+  \enquote{stöder påståendet}, \cref{sec:fulltrafflistor}).  Det
+  fullständiga sök- och verifieringsprotokollet, med alla tre sökspår,
+  står i \cref{app:sokprotokoll}.
+}
+
+% Sektionsnoten är 434 punkter hög och avsnittets belägg-not 586, av
+% marginalens 618: två noter som var för sig kräver nästan en hel
+% marginal.  Stod sektionsnoten först i kön sköts fotnoten till Wirth
+% en sida bort från sin markör, och belägg-noten två sidor --- dit
+% fotnoten till DRY hörde.  Sektionsnoten står därför efter
+% belägg-noten: fotnoterna vid avsnittets första stycke kommer först i
+% kön och får plats på sin egen sida, belägg-noten tar nästa sidas
+% marginal och sektionsnoten den därpå.  Kön räcker ändå fram till
+% DRY-stycket; det är därför de två sidbrytningarna kring exemplet
+% \enquote{Handdisk med funktion, hopsatt} behövs.
+\ltnote{%
+  Sektionen introducerar notationen \LA{}namn\RA{} för namngivna steg och
+  idén att utveckla ett program genom \emph{stegvis förfining} av
+  pseudokod \parencite{wirth1971}: i varje steg bryts en instruktion
+  ner i mer detaljerade instruktioner, tills allt kan uttryckas i
+  programspråket.  Notationen är den som verktyget noweb använder för
+  litterär programmering (\foreignlanguage{english}{literate programming})
+  \parencite{knuth1984};
+  kursens föreläsningsmaterial visar alla program i den formen, så
+  sektionen lär studenterna läsa den notation de möter resten av kursen.
+  Beläggen för de två påståendena --- att stegvis förfining är en etablerad
+  metod som härrör från Wirth, och att notationen hör till den etablerade
+  praktiken litterär programmering som härrör från Knuth --- dokumenteras
+  fristående i \cref{app:stegvis-forfining} respektive
+  \cref{app:literate-programming}.
+
+  Sektionen ligger sist i föreläsningen: den förutsätter variabler och
+  delalgoritmer (funktioner) från tidigare sektioner och knyter ihop dem
+  --- från vardagsalgoritm till körbart program.
+
+  Medvetet uppskjutet: att ett funktionsanrop \emph{hoppar} till en
+  definition någon annanstans.  Förfining med \LA{}namn\RA{} är ren
+  textinkludering --- det hopsatta programmet läses uppifrån och ner ---
+  så notationen kräver ingen förståelse av anropssemantik; den kommer i
+  modulen om funktioner.  Funktionsvarianten av handdisken är det
+  första undantaget: en definition (\enquote{funktion diska alla x:})
+  följd av tre anrop, där \(x\) ersätts av det som står i anropet.  Den
+  hopsatta versionen visas för att studenterna ska se att kroppen står
+  en gång och anropas tre gånger; hoppet till definitionen används men
+  förklaras inte.  Pythonprogrammet sist i sektionen har sedan en riktig
+  \mintinline{python}{def} och ett anrop, och läses på samma sätt
+  uppifrån och ner: definiera, fråga, använd.
+}
+
+\mode<all>
+\begin{pycode}
+fraga("f12-handdisk-utan-upprepning", open_text(
+    "Algoritmen för handdisk upprepar nästan samma steg tre gånger: "
+    "för glasen, för besticken och för tallrikarna. Skriv om "
+    "algoritmen så att du slipper upprepa dig.",
+    max_chars=500,
+    **mentipy_common,
+))
+\end{pycode}
+\mode*
+
+\begin{frame}
+  \begin{exercise}[Handdisk utan upprepning]
+    \mentipyfraga{f12-handdisk-utan-upprepning}
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  \foreignlanguage{english}{Try-first}: uppgiften avslöjar inte att stegen
+  kan \emph{namnges} --- det är den kritiska aspekt studenterna själva ska
+  upptäcka.  Svaren visar vilka som redan urskiljer
+  dekomposition-genom-namngivning (de inför egna namn eller
+  \enquote{gör som med glasen}-hänvisningar) och vilka som bara stryker
+  upprepningen.  Fritextsvaren i Mentipy gör den fördelningen läsbar
+  under föreläsningen: står det egna namn i svaren kan notationen
+  \LA{}namn\RA{} införas som en skrivform för något studenterna redan
+  gjort, annars måste själva idén att namnge ett steg införas först.
+}
+
+\subsection{Namngivna steg}
+
+Knepet är att \emph{ge stegen namn}.  I stället för att skriva ut
+disknings\-stegen tre gånger säger vi en gång vad \enquote{diska alla
+glas} betyder, och hänvisar sedan bara till namnet.  Vi skriver ett namn
+inom vinkelparenteser, \LA{}diska alla glas\RA{}, där det annars skulle ha
+stått en hel grupp steg.
+
+\begin{frame}[fragile]
+  \begin{example}[Handdisk med namngivna steg]
+    Vi ger varje grupp av steg ett namn och hänvisar till namnet:
+<<diska allt>>=
+lägg all disk i diskhon med diskvattnet i
+<<diska alla glas>>
+<<diska alla bestick>>
+<<diska alla tallrikar>>
+@
+  \end{example}
+\end{frame}
+
+Överblicken ryms nu på fyra rader, och varje namn står för ett steg vi
+ännu inte har skrivit ut.  Nästa steg är att \emph{förfina} dem, ett i
+taget: vi definierar vad varje namn betyder.
+
+\begin{frame}[fragile]
+  \begin{example}[Förfining av ett namngivet steg]
+    Varje namngivet steg förfinar vi sedan för sig:
+<<diska alla glas>>=
+repetera tills glasen är slut:
+  ta ett glas
+  diska glaset
+  lägg glaset i diskhon för diskad disk
+@
+  \end{example}
+
+\end{frame}
+
+De två återstående stegen förfinas på samma sätt --- bara vad som diskas
+skiljer.
+
+\begin{frame}[fragile]
+  \begin{example}[De återstående stegen]
+    Besticken och tallrikarna:
+<<diska alla bestick>>=
+repetera tills besticken är slut:
+  ta ett bestick
+  diska besticket
+  lägg besticket i diskhon för diskad disk
+<<diska alla tallrikar>>=
+repetera tills tallrikarna är slut:
+  ta en tallrik
+  diska tallriken
+  lägg tallriken i diskhon för diskad disk
+@
+  \end{example}
+\end{frame}
+
+Sätter vi in varje förfining där dess namn står får vi hela algoritmen
+tillbaka, utskriven.
+
+\begin{frame}[fragile]
+  \begin{example}[Hela algoritmen, hopsatt]
+    Så här ser algoritmen ut när varje namn ersatts med sin förfining:
+    \inputminted{text}{examples/handdisk.txt}
+  \end{example}
+\end{frame}
+
+Nu syns det tydligt att vi skrivit nästan samma sak tre gånger.  Det
+enda som skiljer de tre förfiningarna är \emph{vad} som diskas --- en
+variabel.  Så låt oss skriva förfiningen en gång, som en funktion med
+en variabel \(x\) för det som diskas, och sedan bara ange vad \(x\) är
+varje gång vi använder den.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Handdisk, med en funktion]
+    Diskningen skriven en gång, som en funktion av vad som diskas:
+<<diska allt, med funktion>>=
+lägg all disk i diskhon med diskvattnet i
+
+funktion diska alla x:
+  <<diska alla x>>
+
+diska alla glas
+diska alla bestick
+diska alla tallrikar
+<<diska alla x>>=
+repetera tills x är slut:
+  ta ett x
+  diska det
+  lägg det i diskhon för diskad disk
+@
+  \end{example}
+\end{frame}
+
+% Marginalen är slut just här.  Sektionens belägg-not tar sidan före,
+% sektionsnoten och try-first-noten den därpå, och DRY-stycket bär två
+% marginalnoter tätt ihop: källan till DRY och fotnoten som pekar på
+% bilagan.  Utan de två brytningarna hamnar bilagepekaren en sida från
+% sin markör.  Den första låter kön dränera bredvid exemplet, den andra
+% ger DRY-stycket en egen, tom marginal.
+\mode<article>{\clearpage}
+\begin{frame}[fragile]
+  \begin{example}[Handdisk med funktion, hopsatt]
+    Hopsatt ser den ut så här:
+    \inputminted{text}{examples/handdisk-funktion.txt}
+  \end{example}
+\end{frame}
+\mode<article>{\clearpage}
+
+Den som följer den hopsatta versionen diskar fortfarande tre gånger ---
+en gång för varje anrop av funktionen --- men diskningen står skriven en
+gång.  Ska sättet att
+diska ändras, säg att vi ska torka varje sak också, ändrar vi på ett
+ställe i stället för tre, och de tre kopiorna kan inte glida isär.
+Principen kallas \emph{DRY}, \foreignlanguage{english}{Don't Repeat
+Yourself}: varje kunskap i ett program ska stå på ett enda
+ställe\autocite{HuntThomas1999}.  Att det är en bra princip, och att den
+kommer från Hunt och Thomas, är två påståenden som går att pröva mot
+forskningen.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i
+  \cref{app:dry}.}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{CompThinkLOComponents,CompThinkLONotation}.
+
+  \textbf{Kontrast} mellan de två källtexterna: tre förfiningar mot en
+  förfining och en variabel.  Vad som hålls invariant: vad som utförs
+  --- tre omgångar diskning --- vilket den hopsatta versionen efter var
+  och en ska göra synligt.  Kontrasten ska urskilja att upprepningen
+  ligger i \emph{källan}, inte i vad som utförs --- det är det DRY handlar om.
+  Att principen är bra är ett påstående med belägg och förbehåll; de
+  står i \cref{app:dry}.
+}
+
+Så länge ett steg är för grovt för att uttryckas i ett programspråk
+skriver vi det helt enkelt i ord --- \emph{pseudokod} --- och förfinar det
+senare.  Namnen och förfiningarna tillsammans ger oss ett sätt att skriva
+en algoritm uppifrån och ner, utan att drunkna i detaljerna med en gång.
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{definition}[Stegvis förfining, pseudokod]
+      \begin{itemize}
+        \item \LA{}namn\RA{} hänvisar till ett namngivet steg.
+        \item \LA{}namn\RA{}\(\equiv\) inleder förfiningen av steget
+          \LA{}namn\RA{}.
+        \item Steg som ännu inte kan uttryckas i programspråk skriver vi i
+          ord --- \emph{pseudokod}.
+        \item Vi förfinar tills alla steg kan uttryckas i programspråket.
+      \end{itemize}
+    \end{definition}%
+  }%
+  \only<article>{%
+    \begin{definition}[Stegvis förfining, pseudokod]
+      Notationen \LA{}namn\RA{} hänvisar till ett namngivet steg, och
+      \LA{}namn\RA{}\(\equiv\) inleder förfiningen av det steget.  Steg
+      som ännu inte kan uttryckas i programspråk skriver vi i ord ---
+      \emph{pseudokod} --- och förfinar tills alla steg kan uttryckas i
+      programspråket.
+    \end{definition}%
+  }
+\end{frame}
+
+\mode<presentation>
+\subsection{[[learnlog]]}
+
+\begin{frame}[fragile]
+  \begin{example}[ [[learnlog]] ]
+    \begin{minted}{bash}
+pipx install learnlog
+learnlog init python
+eval $(learnlog activate)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+\mode*
+
+
+\subsection{Från pseudokod till program}
+
+Samma metod tar oss hela vägen till ett körbart program.  Vi förfinar då
+stegen inte bara till tydlig svenska, utan ända ner till Python.  Vi tar
+receptberäkningen ur pannkaksalgoritmen som exempel.
+
+Men innan vi bygger något: vad ska programmet åstadkomma?  Målet är att
+datorn ska räkna ut mängderna och skriva ut receptet --- så här:
+
+\begin{frame}[fragile]
+  \begin{example}[Målet]
+    Kör vi det färdiga programmet i terminalen, och svarar \enquote{4}
+    på dess fråga, ska det skriva ut:
+    \runpython[transcript, stdin={4}]{examples/pannkakor.py}
+  \end{example}
+\end{frame}
+
+Med målet klart för oss bygger vi programmet uppifrån och ner, och börjar
+med överblicken.  Receptet blir en funktion, som \enquote{gör
+pannkakssmet} i receptet på att steka pannkakor; programmet definierar
+den, frågar hur många personer det gäller, och använder den.
+
+\begin{frame}[fragile]
+  Receptberäkningen ur pannkaksalgoritmen, som förfinad pseudokod:
+<<[[pannkakor.py]]>>=
+<<definiera funktionen pannkakssmet>>
+
+<<fråga efter antalet personer>>
+<<gör pannkakssmet för så många>>
+@
+
+  \pause
+
+  \only<presentation>{%
+    \begin{remark}
+      \begin{itemize}
+        \item Än så länge kan bara människor följa stegen.
+        \item Förfinar vi ända ner till programspråk kan datorn följa dem.
+      \end{itemize}
+    \end{remark}%
+  }%
+  \only<article>{%
+    \begin{remark}
+      Än så länge kan bara människor följa stegen; förfinar vi ända ner
+      till programspråk kan datorn följa dem.
+    \end{remark}%
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+  Receptet är en funktion av antalet personer.  I Python inleds en
+  funktion med \mintinline{python}{def}, följt av namnet och, inom
+  parentes, dess variabler; stegen står indragna under:
+<<definiera funktionen pannkakssmet>>=
+def pannkakssmet(antal_personer):
+  <<beräkna mängderna>>
+  <<skriv ut receptet>>
+@
+  \pause
+
+  Mängderna beräknar vi som tidigare, men uttryckt i programspråket
+  Python:
+<<beräkna mängderna>>=
+ägg = 3 * antal_personer / 4
+mjölk = 3 * antal_personer / 4  # deciliter
+mjöl = 3 * antal_personer / 4  # deciliter
+salt = antal_personer / (2 * 4)  # teskedar
+smör = 2 * antal_personer / 4  # matskedar
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Till sist skriver vi ut receptet:
+<<skriv ut receptet>>=
+print(ägg, "ägg")
+print(mjölk, "dl mjölk")
+print(mjöl, "dl mjöl")
+print(salt, "tsk salt")
+print(smör, "msk smält smör")
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Antalet personer frågar vi den som kör programmet om.
+  \mintinline{python}{input} skriver ut frågan och väntar på svaret;
+  \mintinline{python}{int} gör om svaret till ett tal:
+<<fråga efter antalet personer>>=
+antal_personer = int(input("Antal personer: "))
+@
+  \pause
+
+  Till sist använder vi funktionen, för så många personer som svaret
+  sa:
+<<gör pannkakssmet för så många>>=
+pannkakssmet(antal_personer)
+@
+\end{frame}
+
+Nu är varje namn förfinat ända ner till Python.  Sätter vi ihop bitarna
+--- ersätter varje \LA{}namn\RA{} med sin förfining --- får vi ett helt,
+körbart program.
+
+\begin{exercise}
+  Hur ser det färdiga, hopsatta programmet pannkakor.py ut när varje namn 
+  ersatts med sin förfining? Skriv programmet.
+\end{exercise}
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Hela programmet]
+    Så här ser det hopsatta programmet ut:
+    \lstexample{python}{examples/pannkakor.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Vi kör det genom att skriva \texttt{python3 pannkakor.py} i
+    terminalen och svara på frågan --- och får mycket riktigt vår
+    efterlängtade utmatning, precis det mål vi satte upp:
+    \runpython[transcript, stdin={4}]{examples/pannkakor.py}
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Utmatningen visas två gånger, och båda körs och typsätts med
+  didactic-paketets \mintinline{latex}{\runpython[transcript, stdin={4}]}:
+  först som \emph{mål} längst upp, innan pseudokoden, så studenten vet
+  vad programmet ska åstadkomma; sedan här som \emph{bekräftelse} när
+  programmet är hopsatt.  Makrot kör den tanglade
+  \texttt{examples/pannkakor.py} via PythonTeX under en pseudoterminal i
+  programmets egen katalog, skriver in svaret \enquote{4} när programmet
+  frågar, och sätter hela terminalsessionen --- kommandorad, fråga, svar,
+  utskrift --- med minted.  Kod och utmatning kommer ur \emph{samma}
+  källa och kan inte glida isär.
+}
+
+\ltnote{%
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: Presentationen av programmet --- förfinade,
+  namngivna steg eller den hopsatta, platta texten.
+
+  \textbf{Vad som hålls invariant}: Programmet självt; den hopsatta
+  versionen är ordagrant den som tanglas ur föreläsningens källa.
+
+  Den hopsatta versionen visas direkt efter förutsägelsen: kontrasten
+  ska upplevas simultant, inte återskapas ur minnet
+  \parencite[45--47]{Marton2015}.
+
+  Förutsägelsen ställs som en fritextfråga i Mentipy, med
+  Python-inramning så att svaren kan visas som kod.  Svaren visar om
+  studenterna sätter in varje förfining på sitt namns plats, uppifrån
+  och ner, eller läser \LA{}namn\RA{} som ett anrop som hoppar --- den
+  anropssemantik som medvetet är uppskjuten till modulen om funktioner.
+  Det är föreläsningens sista fråga.
+}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}
+      \begin{itemize}
+        \item Samma program --- två presentationer.
+        \item Datorn ser bara den hopsatta versionen: varje \LA{}namn\RA{}
+          ersätts av sin förfining, uppifrån och ner.
+        \item Namnen är för människor: de låter oss skriva och läsa
+          programmet ett steg i taget.
+        \item Notationen kommer från verktyget
+          noweb\footnote{\url{https://www.cs.tufts.edu/~nr/noweb/}}; så
+          visas programmen i kursens alla föreläsningar.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}
+      Vi har sett samma program i två skepnader.  Datorn ser bara den
+      hopsatta versionen: varje \LA{}namn\RA{} ersätts av sin förfining,
+      uppifrån och ner.  Namnen är i stället till för människor --- de
+      låter oss skriva och läsa programmet ett steg i taget.  Notationen
+      kommer från verktyget noweb\footnote{%
+        \url{https://www.cs.tufts.edu/~nr/noweb/}}, som Norman Ramsey
+      beskriver i \enquote{Literate programming
+      simplified}\autocite{Ramsey1994Noweb}; så visas programmen i
+      kursens alla föreläsningar.  Idén att skriva program på det sättet
+      --- \emph{litterär programmering}
+      (\foreignlanguage{english}{literate programming}) --- är Donald
+      Knuths\autocite{knuth1984}.\footnote{%
+        Det vetenskapliga underlaget --- att praktiken är etablerad och
+        härrör från Knuth, att noweb är Ramseys förenklade form av den,
+        och att den aldrig blev dominerande i vanlig programmering ---
+        finns i \cref{app:literate-programming}.}
+    \end{summary}%
+  }
+\end{frame}
