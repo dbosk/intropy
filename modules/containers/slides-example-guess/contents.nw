@@ -48,37 +48,32 @@ och det gör vi bäst genom att bygga ett program som behöver alla fyra.
 
 Genomsnittet kan räknas ut först när alla omgångar är spelade, så
 programmet måste komma ihåg resultaten under tiden.  Vi bygger det
-uppifrån och ner: först överblicken, sedan varje del för sig.
+uppifrån och ner: först filens upplägg, i pseudokod, och sedan
+preciserar vi pseudokoden med pythonkod, en del i taget, när vi kommer
+till den.
 
-\begin{frame}[fragile,shrink]
-  Programmet som helhet:
+\begin{frame}[fragile]
+  Gissningsspelets upplägg:
 <<[[guess.py]]>>=
 """Ett gissningsspel som minns hur många försök varje omgång tog."""
 
-import random
-import sys
+<<gissningsspelets importer>>
 
-<<konstanter>>
+<<gissningsspelets konstanter>>
 
+<<gissningsspelets hjälpfunktioner>>
 
-<<läs in en gissning>>
+<<gissningsspelets huvudprogram>>
 
-
-<<spela en omgång>>
-
-
-<<huvudprogrammet>>
-
-
-<<starta programmet>>
+<<starta gissningsspelet>>
 @
 \end{frame}
 
-Överblicken visar den form varje program i det här materialet har:
-högst upp det programmet hämtar in utifrån, sedan konstanterna, sedan
-funktionerna, och allra sist det som startar programmet.  Ingenting
-annat står längst ut till vänster --- inte heller i de kortaste
-exemplen.
+Upplägget visar den form varje program i det här materialet har:
+högst upp det programmet importerar, sedan konstanterna, sedan
+hjälpfunktionerna och huvudprogrammet, och allra sist det som startar
+programmet.  Ingenting annat står längst ut till vänster --- inte heller
+i de kortaste exemplen.
 
 \ltnote{%
   Relevanta lärandemål: \cref{GuessLOCombine}.
@@ -100,14 +95,62 @@ exemplen.
   och skillnaden mellan dem är inget studenten ska behöva urskilja.
 }
 
-Spelets regler --- vilket intervall talet ligger i, hur många omgångar
-och hur många försök per omgång --- skriver vi som konstanter högst upp.
-Då står de på ett ställe, och den som vill ändra spelet behöver inte
-leta i koden.
+Varje namn inom vinkelparenteser är pseudokod: det säger vad som ska
+stå där, och senare preciserar vi pseudokoden med pythonkod.  Ett namn
+som får flera delar får \(\equiv\) första gången och +\(\equiv\) varje
+gång därefter, och i programmet står delarna efter varandra, i den
+ordning de kommer.
+
+\subsection{Att spela omgångarna}
+\label{sec:omgangar}
+
+Vi börjar i huvudprogrammet, för det är där resultaten samlas.  Det
+spelar omgångarna, en i taget, och efter varje omgång sparar det hur
+många försök den tog, i en lista som växer med en post per omgång.  När
+alla omgångar är spelade sammanfattar det listan.
+
+\begin{frame}[fragile]
+  Huvudprogrammet i stora drag:
+<<gissningsspelets huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    results = []
+
+    for round_number in range(1, NUM_OF_ROUNDS + 1):
+        print(f"Omgång {round_number}!")
+
+        <<dra ett tal och spara antalet försök i [[attempts]]>>
+        results.append(attempts)
+
+        <<säg hur omgången gick>>
+
+    <<sammanfatta resultaten>>
+@
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOCombine}.
+
+  \textbf{Uppifrån och ner.}  Programmet byggs i upptäcktens ordning:
+  upplägget först, sedan huvudprogrammet i pseudokod, och varje
+  hjälpfunktion först där resonemanget behöver den (författaren,
+  2026-09-23: \enquote{it too early outlines what functions we need,
+  without having started discussing the details of the problem yet}).
+  Därför står [[ask_question]] före [[input_guess]] i filen: omgången
+  är det huvudprogrammet behöver, och inläsningen det omgången behöver.
+  Huvudprogrammet preciseras färdigt innan vi går ner till inläsningen,
+  så att listan och sammanfattningen står nära varandra.
+}
+
+Slingan går \mintinline{python}{NUM_OF_ROUNDS} varv.  Spelets
+regler --- vilket intervall talet ligger i, hur många omgångar och hur
+många försök per omgång --- skriver vi som konstanter högst upp.  Då
+står de på ett ställe, och den som vill ändra spelet behöver inte leta
+i koden.
 
 \begin{frame}[fragile]
   Reglerna, samlade:
-<<konstanter>>=
+<<gissningsspelets konstanter>>=
 INTERVAL = (0, 10)
 NUM_OF_ROUNDS = 3
 MAX_ATTEMPTS = 3
@@ -141,95 +184,39 @@ MAX_ATTEMPTS = 3
   heller här.
 }
 
-\subsection{Att läsa in en gissning}
-\label{sec:inlasning}
-
-Användaren skriver vad som helst: bokstäver, tomma rader, tal utanför
-intervallet.  Programmet ska inte krascha av det, utan fråga om igen.
-
-\begin{frame}[fragile]
-  \begin{exercise}
-    Vad kan användaren skriva som gör att
-    \mintinline{python}{int(input("Gissa: "))} kraschar?  Och vad kan
-    hen skriva som \emph{inte} kraschar men ändå är fel?
-  \end{exercise}
-\end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{GuessLOValidate}.
-
-  \foreignlanguage{english}{Try-first} i två led, och de två leden
-  motsvarar precis de två fall funktionen måste hantera: det som ger ett
-  \emph{undantag} och det som ger ett \emph{giltigt värde med fel
-  innebörd}.  Den skillnaden är kritisk och lätt att missa --- ett
-  program som bara har [[try]]/[[except]] tar hand om det första fallet
-  och släpper igenom det andra.  Frågan pekar inte ut skillnaden, den
-  ber bara om exempel på båda sorterna.
-}
-
-Två olika saker kan gå fel, och de kräver olika slags kontroll.
-\enquote{Sju} går inte att göra om till ett tal alls, och ger ett
-undantag som vi måste fånga.  \(42\) går utmärkt att göra om till ett
-tal --- men ligger utanför intervallet, och det märks bara om vi
-frågar efter det.
+En omgång börjar med att datorn tänker på ett tal, ett slumptal i
+intervallet.  Slumptalet drar vi med funktionen
+\mintinline{python}{randint} ur modulen \mintinline{python}{random},
+och därför importerar programmet den modulen.  Sedan
+gissar användaren tills talet är hittat eller försöken är slut.  Det är
+en upprepning i sig, mer än en rad, så den blir en egen funktion,
+\mintinline{python}{ask_question}, som får talet och antalet försök och
+lämnar tillbaka hur många försök som gick åt.  Den är den första
+hjälpfunktionen, och vi skriver den härnäst.
 
 \begin{frame}[fragile]
-  Funktionen frågar om igen tills båda kontrollerna går igenom:
-<<läs in en gissning>>=
-def input_guess(interval):
-    """Läser in en gissning som ligger i interval."""
-    prompt = f"Vilket tal tänker jag på? {interval}: "
-
-    while True:
-        try:
-            guess = int(input(prompt))
-        except ValueError:
-            print("Det där var inget heltal.")
-            continue
-
-        if interval[0] <= guess <= interval[1]:
-            return guess
-
-        print(f"Gissningen måste ligga i intervallet {interval}.")
+  Talet och försöken:
+<<dra ett tal och spara antalet försök i [[attempts]]>>=
+answer = random.randint(INTERVAL[0], INTERVAL[1])
+attempts = ask_question(answer, MAX_ATTEMPTS)
+<<gissningsspelets importer>>=
+import random
 @
 \end{frame}
-
-Funktionen tar intervallet som parameter i stället för att läsa
-konstanten direkt.  Det gör den återanvändbar --- den fungerar för
-vilket intervall som helst --- och det gör den möjlig att pröva utan att
-resten av spelet är på plats.
-
-\ltnote{%
-  Relevanta lärandemål: \cref{GuessLOValidate,GuessLOCombine}.
-
-  Att funktionen tar intervallet som parameter i stället för att
-  använda konstanten är ett tillfälle att peka ut att en funktion med
-  ett tydligt ansvar och utan dolda beroenden går att återanvända och
-  att pröva --- principerna \foreignlanguage{english}{SRP} och
-  \foreignlanguage{english}{KISS}.  Det vetenskapliga underlaget för
-  \foreignlanguage{english}{SRP} --- att principen härrör från Martin
-  och är etablerad, medan vad som räknas som \emph{ett} ansvar förblir
-  en bedömningsfråga --- finns i föreläsningen \emph{Funktioner},
-  bilaga~B; underlaget för \foreignlanguage{english}{KISS} --- att
-  enkelhet är ett etablerat designvärde, medan den vanliga
-  upphovsuppgiften inte går att bekräfta --- finns i bilaga~C i samma
-  föreläsning.
-
-  Prosan efteråt säger \emph{varför} valet är gjort, inte bara att det
-  är gjort.  Det är skillnaden mellan att visa kod och att lära ut
-  design, och det är den delen studenterna annars hoppar över.
-}
 
 \subsection{Att spela en omgång}
 \label{sec:omgang}
 
 En omgång är en upprepning med ett bestämt antal varv, och den ska
 lämna tillbaka \emph{hur många försök som gick åt} --- det är det
-huvudprogrammet ska samla på.
+huvudprogrammet ska samla på.  I varje varv läser den in en gissning.
+Inläsningen blir en funktion för sig, \mintinline{python}{input_guess},
+som får intervallet gissningen ska ligga i; vad den måste ta hänsyn
+till tar vi upp i \cref{sec:inlasning}, när huvudprogrammet är klart.
 
 \begin{frame}[fragile,shrink]
   Omgången räknar sina egna försök:
-<<spela en omgång>>=
+<<gissningsspelets hjälpfunktioner>>=
 def ask_question(answer, max_attempts):
     """Frågar tills answer gissas; returnerar antalet försök som gick åt."""
     for attempt in range(1, max_attempts + 1):
@@ -271,37 +258,27 @@ def ask_question(answer, max_attempts):
   startpunkt är ett val och inte en naturlag.
 }
 
+Nu kan huvudprogrammet säga hur omgången gick.  Har omgången tagit fler
+försök än \mintinline{python}{MAX_ATTEMPTS} hittades talet aldrig, och
+då får användaren veta vilket det var.
+
+\begin{frame}[fragile]
+  Beskedet efter omgången:
+<<säg hur omgången gick>>=
+if attempts > MAX_ATTEMPTS:
+    print(f"Tyvärr, talet var {answer}.")
+else:
+    print("Snyggt gissat!")
+@
+\end{frame}
+
 \subsection{Att samla resultaten}
 \label{sec:resultat}
 
 Nu kan huvudprogrammet spela sina omgångar.  För varje omgång får det
-ett tal tillbaka, och det talet ska sparas.
-
-\begin{frame}[fragile,shrink]
-  Listan växer med en post per omgång:
-<<huvudprogrammet>>=
-def main():
-    """Huvudprogrammet"""
-    results = []
-
-    for round_number in range(1, NUM_OF_ROUNDS + 1):
-        print(f"Omgång {round_number}!")
-
-        answer = random.randint(INTERVAL[0], INTERVAL[1])
-        attempts = ask_question(answer, MAX_ATTEMPTS)
-        results.append(attempts)
-
-        if attempts > MAX_ATTEMPTS:
-            print(f"Tyvärr, talet var {answer}.")
-        else:
-            print("Snyggt gissat!")
-
-    <<sammanfatta resultaten>>
-@
-\end{frame}
-
-När alla omgångar är spelade har vi en lista med ett tal per omgång, och
-då --- men inte förr --- går genomsnittet att räkna ut.
+ett tal tillbaka, och det talet sparas i listan.  När alla omgångar är
+spelade har vi en lista med ett tal per omgång, och då --- men inte
+förr --- går genomsnittet att räkna ut.
 
 \begin{frame}[fragile]
   Sammanfattningen använder hela listan:
@@ -340,6 +317,87 @@ print(f"Bästa omgången tog {min(results)} försök.")
 
   Raden [[min(results)]] är alltså inte en utfyllnad; den är hela skälet
   till att behållaren finns i programmet.
+}
+
+\subsection{Att läsa in en gissning}
+\label{sec:inlasning}
+
+Huvudprogrammet är klart, och av hjälpfunktionerna återstår den som
+omgången anropar i varje varv.  Användaren skriver vad som helst:
+bokstäver, tomma rader, tal utanför intervallet.  Programmet ska inte
+krascha av det, utan fråga om igen.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    Vad kan användaren skriva som gör att
+    \mintinline{python}{int(input("Gissa: "))} kraschar?  Och vad kan
+    hen skriva som \emph{inte} kraschar men ändå är fel?
+  \end{exercise}
+\end{frame}
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOValidate}.
+
+  \foreignlanguage{english}{Try-first} i två led, och de två leden
+  motsvarar precis de två fall funktionen måste hantera: det som ger ett
+  \emph{undantag} och det som ger ett \emph{giltigt värde med fel
+  innebörd}.  Den skillnaden är kritisk och lätt att missa --- ett
+  program som bara har [[try]]/[[except]] tar hand om det första fallet
+  och släpper igenom det andra.  Frågan pekar inte ut skillnaden, den
+  ber bara om exempel på båda sorterna.
+}
+
+Två olika saker kan gå fel, och de kräver olika slags kontroll.
+\enquote{Sju} går inte att göra om till ett tal alls, och ger ett
+undantag som vi måste fånga.  \(42\) går utmärkt att göra om till ett
+tal --- men ligger utanför intervallet, och det märks bara om vi
+frågar efter det.
+
+\begin{frame}[fragile]
+  Funktionen frågar om igen tills båda kontrollerna går igenom:
+<<gissningsspelets hjälpfunktioner>>=
+def input_guess(interval):
+    """Läser in en gissning som ligger i interval."""
+    prompt = f"Vilket tal tänker jag på? {interval}: "
+
+    while True:
+        try:
+            guess = int(input(prompt))
+        except ValueError:
+            print("Det där var inget heltal.")
+            continue
+
+        if interval[0] <= guess <= interval[1]:
+            return guess
+
+        print(f"Gissningen måste ligga i intervallet {interval}.")
+@
+\end{frame}
+
+Funktionen tar intervallet som parameter i stället för att läsa
+konstanten direkt, och så anropar omgången den.  Det gör den
+återanvändbar --- den fungerar för vilket intervall som helst --- och
+det gör den möjlig att pröva för sig, utan resten av spelet.
+
+\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOValidate,GuessLOCombine}.
+
+  Att funktionen tar intervallet som parameter i stället för att
+  använda konstanten är ett tillfälle att peka ut att en funktion med
+  ett tydligt ansvar och utan dolda beroenden går att återanvända och
+  att pröva --- principerna \foreignlanguage{english}{SRP} och
+  \foreignlanguage{english}{KISS}.  Det vetenskapliga underlaget för
+  \foreignlanguage{english}{SRP} --- att principen härrör från Martin
+  och är etablerad, medan vad som räknas som \emph{ett} ansvar förblir
+  en bedömningsfråga --- finns i föreläsningen \emph{Funktioner},
+  bilaga~B; underlaget för \foreignlanguage{english}{KISS} --- att
+  enkelhet är ett etablerat designvärde, medan den vanliga
+  upphovsuppgiften inte går att bekräfta --- finns i bilaga~C i samma
+  föreläsning.
+
+  Prosan efteråt säger \emph{varför} valet är gjort, inte bara att det
+  är gjort.  Det är skillnaden mellan att visa kod och att lära ut
+  design, och det är den delen studenterna annars hoppar över.
 }
 
 \subsection{Att kunna köra om samma spel}
@@ -412,7 +470,11 @@ säger det rakt ut, och tillägger att generatorn just därför inte duger
 till kryptografi\autocite{PythonRandom}.  Utan startvärde tar Python
 sitt från klockan eller från operativsystemets slumpkälla, så att spelet
 blir nytt varje gång --- men vi låter den som startar programmet ange
-ett startvärde om hen vill.
+ett startvärde om hen vill.  Det skrivs efter programmets namn på
+kommandoraden, och det som står där finns i listan
+\mintinline{python}{sys.argv}: först programmets namn, sedan
+argumenten, som strängar.  Därför importerar programmet också modulen
+\mintinline{python}{sys}.
 
 \ltnote{%
   Relevanta lärandemål: \cref{GuessLOReproduce}.
@@ -438,12 +500,14 @@ ett startvärde om hen vill.
 
 \begin{frame}[fragile]
   Ett frivilligt startvärde på kommandoraden:
-<<starta programmet>>=
+<<starta gissningsspelet>>=
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         random.seed(int(sys.argv[1]))
 
     main()
+<<gissningsspelets importer>>=
+import sys
 @
   \pause
 
@@ -452,6 +516,11 @@ if __name__ == "__main__":
     \mintinline{bash}|python3 guess.py 42| spelas exakt samma spel som
     förra gången argumentet var 42.
   \end{remark}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/guess.py}
 \end{frame}
 
 \begin{frame}[fragile]
