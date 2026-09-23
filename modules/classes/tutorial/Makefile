@@ -33,6 +33,7 @@ EXAMPLES+=	examples/shelf.py
 EXAMPLES+=	examples/copies.py
 EXAMPLES+=	examples/same.py
 EXAMPLES+=	examples/frac.py
+EXAMPLES+=	examples/own_gcd.py
 EXAMPLES+=	examples/review.py
 EXAMPLES+=	examples/review_better.py
 EXAMPLES+=	examples/plain.py
