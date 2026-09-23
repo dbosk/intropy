@@ -1102,32 +1102,55 @@ ett positivt heltal och skriva ut dess siffersumma.\footnote{%
 \end{frame}
 
 Frågan har inget enda svar, och det är poängen: vilken upprepning som
-passar beror på hur man tänker sig problemet.  Vi bygger programmet i tre
-delar, en för varje angreppssätt, och sätter ihop dem till sist.
+passar beror på hur man tänker sig problemet.  Vi skriver programmet
+uppifrån och ner: först filens upplägg, i pseudokod, och sedan
+preciserar vi pseudokoden med pythonkod, en del i taget, när vi kommer
+till den.
 
-\begin{frame}[fragile,shrink]
-  \begin{example}[Programmet i sin helhet]
-    \label{ex:siffersumma-helhet}
-    Det består av tre funktioner och ett huvudprogram:
+\ltnote{%
+  \textbf{Uppifrån och ner.}  De två program i materialet som byggs upp
+  av namngivna delar, siffersumman och gissningsspelet, börjar i filens
+  upplägg, med namn som hör till just det programmet, och skisserar
+  sedan huvudprogrammet.  En hjälpfunktion läggs till först där
+  resonemanget behöver den (författaren, 2026-09-23: \enquote{it too
+  early outlines what functions we need, without having started
+  discussing the details of the problem yet}), så filens ordning blir
+  upptäcktens.  När alla delar är preciserade visas programmet i sin
+  helhet, bara i anteckningarna: på bilderna har delarna redan stått var
+  för sig.  De övriga programmen ska studenten läsa, förutsäga eller
+  jämföra, och de står därför hela från början.
+}
+
+\begin{frame}[fragile]
+  Siffersummans upplägg:
 <<[[siffersumma.py]]>>=
 """Beräknar siffersumman för ett tal, på tre sätt."""
 
+<<siffersummans hjälpfunktioner>>
 
-<<siffersumma med rekursion>>
-
-
-<<siffersumma med while>>
-
-
-<<siffersumma med for>>
-
-
-<<huvudprogrammet>>
-
-
+<<siffersummans huvudprogram>>
 main()
 @
-  \end{example}
+\end{frame}
+
+Huvudprogrammet gör det uppgiften säger: det frågar efter talet och
+skriver ut dess siffersumma.  Att räkna ut siffersumman är det som
+kräver en upprepning, och det blir en hjälpfunktion som tar talet och
+lämnar siffersumman ifrån sig.  Vi skriver den på tre sätt, ett för
+varje angreppssätt.  De tre ger samma svar, så vilken av dem
+huvudprogrammet anropar spelar ingen roll för resultatet; här anropar
+det \mintinline{python}{siffersumma_for}, som vi skriver sist.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Vi frågar och skriver ut:
+<<siffersummans huvudprogram>>=
+def main():
+    """Frågar efter ett tal och skriver ut dess siffersumma."""
+    talet = int(input("Ett positivt heltal: "))
+    print(f"Siffersumman för {talet} är {siffersumma_for(talet)}.")
+@
+  \end{solution}
 \end{frame}
 
 Ser man talet som \enquote{sista siffran, plus siffersumman av resten} är
@@ -1140,7 +1163,7 @@ kvar.
 \begin{frame}[fragile]
   \begin{solution}[Rekursivt]
     Sista siffran plus siffersumman av resten:
-<<siffersumma med rekursion>>=
+<<siffersummans hjälpfunktioner>>=
 def siffersumma_rekursivt(heltal):
     """Returnerar siffersumman för heltal (int)."""
     if heltal <= 0:
@@ -1157,10 +1180,14 @@ kvar --- och \enquote{tills} är \mintinline{python}{while}.  Det vi i
 rekursionen lämnade till anroparen att summera får vi nu samla ihop själva,
 i en variabel.
 
+Också den funktionen hör till hjälpfunktionerna.  Ett namn som får flera
+delar får \(\equiv\) första gången och +\(\equiv\) varje gång därefter,
+och i programmet står delarna efter varandra, i den ordning de kommer.
+
 \begin{frame}[fragile]
   \begin{solution}[Med \texttt{while}]
     Vi plockar av en siffra i taget tills talet är slut:
-<<siffersumma med while>>=
+<<siffersummans hjälpfunktioner>>=
 def siffersumma_while(heltal):
     """Returnerar siffersumman för heltal (int)."""
     summan = 0
@@ -1183,7 +1210,7 @@ behöver bara omvandla varje tecken tillbaka till ett tal.
 \begin{frame}[fragile]
   \begin{solution}[Med \texttt{for}]
     Talet som en följd av tecken:
-<<siffersumma med for>>=
+<<siffersummans hjälpfunktioner>>=
 def siffersumma_for(heltal):
     """Returnerar siffersumman för heltal (int)."""
     summan = 0
@@ -1196,20 +1223,9 @@ def siffersumma_for(heltal):
   \end{solution}
 \end{frame}
 
-Kvar är huvudprogrammet: fråga efter talet och skriva ut svaret.  De tre
-funktionerna ger samma svar, så vilken vi anropar spelar ingen roll för
-resultatet.
-
-\begin{frame}[fragile]
-  \begin{solution}[Huvudprogrammet]
-    Vi frågar och skriver ut:
-<<huvudprogrammet>>=
-def main():
-    """Frågar efter ett tal och skriver ut dess siffersumma."""
-    talet = int(input("Ett positivt heltal: "))
-    print(f"Siffersumman för {talet} är {siffersumma_for(talet)}.")
-@
-  \end{solution}
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/siffersumma.py}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1440,48 +1456,91 @@ Till sist ett program som använder modulens alla delar samtidigt: en
 en förgrening som avgör om gissningen var rätt, och funktioner som håller
 isär delarna.
 
-\begin{frame}[fragile,shrink]
-  \begin{example}[Gissningsspelet i sin helhet]
-    \label{ex:guess}
-    Programmet består av två funktioner:
+Programmet väljer ett hemligt tal, och användaren får ett bestämt antal
+gissningar på sig att hitta det.  Vi skriver programmet som
+siffersumman, uppifrån och ner, och börjar i filens upplägg.
+
+\begin{frame}[fragile]
+  Gissningsspelets upplägg:
 <<[[guess.py]]>>=
 """Ett litet gissningsspel."""
 
 import random
 
-MAX_TAL = 10
-ANTAL_FÖRSÖK = 5
+<<gissningsspelets konstanter>>
 
+<<gissningsspelets hjälpfunktioner>>
 
-<<fråga efter en giltig gissning>>
-
-
-<<spela en omgång>>
-
-
+<<gissningsspelets huvudprogram>>
 spela_omgång()
 @
-  \end{example}
 \end{frame}
 
-Två konstanter styr spelet: det hemliga talet ligger mellan
-\mintinline{python}{0} och \mintinline{python}{MAX_TAL}, och användaren
-får \mintinline{python}{ANTAL_FÖRSÖK} gissningar på sig.  Att de står som
-namngivna konstanter högst upp, i stället för som siffror inne i koden,
-gör att spelets svårighetsgrad går att ändra på ett enda ställe --- samma
-DRY-resonemang som i \cref{sec:upprepa}.
+Huvudprogrammet är en omgång av spelet, funktionen
+\mintinline{python}|spela_omgång|, som anropet sist i filen startar.
+Själva omgången är en \mintinline{python}{for}-slinga över försöken.  Att
+den är en \mintinline{python}{for} och inte en \mintinline{python}{while}
+är ett medvetet val: antalet försök är känt i förväg.  I varje försök
+ska användaren gissa, och frågan efter en gissning ska ställas om tills
+svaret går att använda.  Det är mer än en rad, så den blir en
+hjälpfunktion, \mintinline{python}|fråga_gissning|, som vi anropar redan
+här och skriver sedan.
 
-Den första funktionen är samma mönster som
+\begin{frame}[fragile]
+  \begin{solution}[Att spela en omgång]
+    Vi ger användaren ett bestämt antal försök:
+<<gissningsspelets huvudprogram>>=
+def spela_omgång():
+    """Spelar en omgång; sant om användaren gissade rätt."""
+    talet = random.randint(0, MAX_TAL)
+
+    for försök in range(1, ANTAL_FÖRSÖK + 1):
+        if fråga_gissning(försök) == talet:
+            print(f"Rätt, på {försök} försök!")
+            return True
+
+    print(f"Tyvärr, talet var {talet}.")
+    return False
+@
+  \end{solution}
+\end{frame}
+
+Lägg märke till att \mintinline{python}{return} avslutar hela funktionen,
+och därmed också slingan: gissar användaren rätt på tredje försöket körs
+inget fjärde varv.  Kommer slingan däremot ända igenom sina fem varv har
+användaren inte gissat rätt, och raderna efter slingan körs.  Det är
+samma indragsregel som i \cref{sec:indrag}, nu med en
+\mintinline{python}{for}-slinga inuti en funktion.
+
+Omgången använder två konstanter, och de styr spelet: det hemliga talet
+ligger mellan \mintinline{python}{0} och \mintinline{python}{MAX_TAL}, och
+användaren får \mintinline{python}{ANTAL_FÖRSÖK} gissningar på sig.  Att
+de står som namngivna konstanter högst upp, i stället för som siffror
+inne i koden, gör att spelets svårighetsgrad går att ändra på ett enda
+ställe --- samma DRY-resonemang som i \cref{sec:upprepa}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Spelets konstanter]
+    Den övre gränsen för talet och antalet försök:
+<<gissningsspelets konstanter>>=
+MAX_TAL = 10
+ANTAL_FÖRSÖK = 5
+@
+  \end{solution}
+\end{frame}
+
+Kvar är frågan efter en gissning.  Den är samma mönster som
 \mintinline{python}|fråga_tal| i början av \cref{sec:inmatning}, byggt
 vidare: den heter något annat, tar reda på vilket försök i ordningen det
 är, och prövar ett krav till --- gissningen ska också ligga inom det
-tillåtna intervallet.  Båda kraven hör till samma ansvar, att lämna ifrån
-sig en gissning som går att använda, så de hör hemma i samma funktion.
+tillåtna intervallet, upp till samma \mintinline{python}{MAX_TAL}.  Båda
+kraven hör till samma ansvar, att lämna ifrån sig en gissning som går att
+använda, så de hör hemma i samma funktion.
 
 \begin{frame}[fragile]
   \begin{solution}[Att fråga efter en gissning]
     Vi frågar tills svaret är både ett heltal och inom intervallet:
-<<fråga efter en giltig gissning>>=
+<<gissningsspelets hjälpfunktioner>>=
 def fråga_gissning(försök):
     """Frågar tills svaret är ett tal mellan 0 och MAX_TAL."""
     while True:
@@ -1504,35 +1563,10 @@ varv i slingan, utan att köra resten av kroppen.  Utan det skulle
 intervallkontrollen efter \mintinline{python}{except}-grenen köras på en
 \mintinline{python}{gissning} som aldrig blev satt.
 
-Själva omgången är en \mintinline{python}{for}-slinga över försöken.  Att
-den är en \mintinline{python}{for} och inte en \mintinline{python}{while}
-är ett medvetet val: antalet försök är känt i förväg.
-
-\begin{frame}[fragile]
-  \begin{solution}[Att spela en omgång]
-    Vi ger användaren ett bestämt antal försök:
-<<spela en omgång>>=
-def spela_omgång():
-    """Spelar en omgång; sant om användaren gissade rätt."""
-    talet = random.randint(0, MAX_TAL)
-
-    for försök in range(1, ANTAL_FÖRSÖK + 1):
-        if fråga_gissning(försök) == talet:
-            print(f"Rätt, på {försök} försök!")
-            return True
-
-    print(f"Tyvärr, talet var {talet}.")
-    return False
-@
-  \end{solution}
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/guess.py}
 \end{frame}
-
-Lägg märke till att \mintinline{python}{return} avslutar hela funktionen,
-och därmed också slingan: gissar användaren rätt på tredje försöket körs
-inget fjärde varv.  Kommer slingan däremot ända igenom sina fem varv har
-användaren inte gissat rätt, och raderna efter slingan körs.  Det är
-samma indragsregel som i \cref{sec:indrag}, nu med en
-\mintinline{python}{for}-slinga inuti en funktion.
 
 \ltnote{%
   Relevanta lärandemål:
