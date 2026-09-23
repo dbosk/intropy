@@ -73,23 +73,25 @@ varor i en lämplig datastruktur, har metoder för att lägga till, visa
 och ta bort varor, och håller koll på vilka varor som är avbockade.
 Filen \texttt{shopping.py} innehåller klassen och ett testprogram.
 
+Vi skriver inte filen i ett svep, utan uppifrån och ner: först filens
+upplägg, i pseudokod, och sedan preciserar vi pseudokoden med
+pythonkod, en del i taget, när vi kommer till den.  Överst står en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan klasserna, huvudprogrammet och till sist anropet som sätter
+igång det.
+
 \begin{frame}[fragile]
   \begin{example}[En enkel inköpslista]
     \label{ex:shopping}
-    Klassen med sina delar namngivna:
+    Inköpslistans upplägg:
 <<[[shopping.py]]>>=
 """Inköpslista med klasser"""
 
+<<klasserna i inköpslistan>>
 
-class ShoppingList:
-    <<konstruktorn för [[ShoppingList]]>>
-
-    <<lägga till och visa varor>>
-
-    <<bocka av och ta bort varor>>
-
-
-<<testprogram för inköpslistor>>
+<<huvudprogrammet i inköpslistan>>
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
@@ -109,17 +111,51 @@ class ShoppingList:
   % lärande, och det är inte belagt här.
 }
 
+Programmet har en enda klass, \mintinline{python}{ShoppingList}.  Dess
+upplägg är en konstruktor och metoderna, som vi fyller på en i taget
+när vi behöver dem.  Konstruktorn får ett eget namn, eftersom vi
+kommer att använda den igen.
+
 \begin{frame}[fragile]
-  \begin{example}[Attribut och de första metoderna]
-    \label{ex:shopping-add}
+  \begin{example}[Klassen och dess konstruktor]
+    \label{ex:shopping-init}
+    Klassens upplägg:
+<<klasserna i inköpslistan>>=
+class ShoppingList:
+    <<konstruktorn för [[ShoppingList]]>>
+    <<metoderna i [[ShoppingList]]>>
+@
     Listan har ett namn och en lista av varor:
 <<konstruktorn för [[ShoppingList]]>>=
 def __init__(self, name):
     self.name = name
     self.items = []
 @
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje program som byggs upp av namngivna
+  delar börjar i filens upplägg, med namn som hör till just det
+  programmet, och varje klass som byggs upp metod för metod börjar i
+  klassens upplägg.  En klass eller metod läggs till först där
+  resonemanget når den (författaren, 2026-09-23: \enquote{it too early
+  outlines what functions we need, without having started discussing
+  the details of the problem yet}).  Konstruktorn står för sig i
+  upplägget därför att inköpslistan med varuobjekt tar med den
+  oförändrad.
+}
+
+Nu fyller vi på klassens metoder, först med de två som lägger till och
+visar varor.  Ett namn som får flera delar får \(\equiv\) första gången
+och +\(\equiv\) varje gång därefter, och i programmet står delarna
+efter varandra, i den ordning de kommer.
+
+\begin{frame}[fragile]
+  \begin{example}[De första metoderna]
+    \label{ex:shopping-add}
     Varje vara läggs till som en uppslagslista:
-<<lägga till och visa varor>>=
+<<metoderna i [[ShoppingList]]>>=
 def add_item(self, item):
     self.items.append({"name": item, "checked": False})
 
@@ -153,7 +189,7 @@ eller inte.
   \begin{example}[Fler metoder för \texttt{ShoppingList}]
     \label{ex:shopping-check}
     Bocka av och ta bort:
-<<bocka av och ta bort varor>>=
+<<metoderna i [[ShoppingList]]>>=
 def check_item(self, index):
     if 0 <= index < len(self.items):
         self.items[index]["checked"] = True
@@ -189,22 +225,20 @@ avbockade.
   \mintinline{python}{item["name"]}.
 }
 
-Testprogrammet skapar en lista och använder metoderna.
+Testprogrammet är inköpslistans huvudprogram.  Det skapar en lista och
+använder metoderna, och sedan hanterar det flera listor.  Båda delarna
+skriver vi först som pseudokod.
 
 \begin{frame}[fragile]
   \begin{example}[Användning av \texttt{ShoppingList}]
     \label{ex:shopping-main}
     Skapa en lista och hantera varor:
-<<testprogram för inköpslistor>>=
+<<huvudprogrammet i inköpslistan>>=
 def main():
     """Exempel på användning"""
     <<skapa en inköpslista och hantera varor>>
 
     <<hantera flera listor>>
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -263,6 +297,11 @@ for lista in listor:
     lista.list_items()
 @
   \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/shopping.py}
 \end{frame}
 
 \begin{frame}
@@ -413,18 +452,15 @@ situationen.  De två klasserna och ett testprogram ligger i filen
 \begin{frame}[fragile]
   \begin{example}[Alternativ: en \texttt{Item}-klass]
     \label{ex:items-file}
-    Filen i sin helhet:
+    Samma upplägg som förut:
 <<[[shopping_with_items.py]]>>=
 """Inköpslista med Item-klass"""
 
+<<klasserna i inköpslistan med varuobjekt>>
 
-<<klassen [[Item]]>>
-
-
-<<klassen [[ShoppingList]] med varuobjekt>>
-
-
-<<testprogram för inköpslistor med varuobjekt>>
+<<huvudprogrammet i inköpslistan med varuobjekt>>
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
@@ -433,19 +469,15 @@ situationen.  De två klasserna och ett testprogram ligger i filen
   \begin{example}[Klassen \texttt{Item}]
     \label{ex:item}
     En separat klass för varor, med privata attribut:
-<<klassen [[Item]]>>=
+<<klasserna i inköpslistan med varuobjekt>>=
 class Item:
     """En vara på inköpslistan"""
 
-    def __init__(self, name, checked=False):
-        self.__name = name
-        self.__checked = checked
-
-    <<egenskaper för namn och avbockning>>
-
-    <<bocka av och bocka ur>>
-
-    <<strängrepresentation av en vara>>
+    <<metoderna i [[Item]]>>
+<<metoderna i [[Item]]>>=
+def __init__(self, name, checked=False):
+    self.__name = name
+    self.__checked = checked
 @
   \end{example}
 \end{frame}
@@ -454,7 +486,7 @@ class Item:
   \begin{example}[Egenskaper och metoder i \texttt{Item}]
     \label{ex:item-methods}
     Attributen läses som egenskaper:
-<<egenskaper för namn och avbockning>>=
+<<metoderna i [[Item]]>>=
 @property
 def name(self):
     return self.__name
@@ -470,7 +502,7 @@ def checked(self):
   \begin{example}[Avbockning och utskrift av en vara]
     \label{ex:item-str}
     Avbockningen ändras bara genom metoder:
-<<bocka av och bocka ur>>=
+<<metoderna i [[Item]]>>=
 def check(self):
     """Bocka av varan"""
     self.__checked = True
@@ -480,7 +512,7 @@ def uncheck(self):
     self.__checked = False
 @
     Varan vet själv hur den ska skrivas ut:
-<<strängrepresentation av en vara>>=
+<<metoderna i [[Item]]>>=
 def __str__(self):
     status = "[X]" if self.__checked else "[ ]"
     return f"{status} {self.__name}"
@@ -492,20 +524,20 @@ Nu har vi inkapsling av varans information i en egen klass.  Varje
 \mintinline{python}{Item} har privata attribut och publika egenskaper för
 att läsa dem.  Metoden \mintinline{python}{__str__()} gör det enkelt
 att skriva ut varan.  Konstruktorn för \mintinline{python}{ShoppingList}
-är densamma som förut --- det är samma namngivna steg som i
-\cref{ex:shopping-add} --- men metoderna arbetar nu med
-\mintinline{python}{Item}-objekt.
+är densamma som förut --- det är samma namngivna del som i
+\cref{ex:shopping-init} --- men metoderna arbetar nu med
+\mintinline{python}{Item}-objekt, och därför samlar vi dem under ett
+eget namn.
 
 \begin{frame}[fragile]
   \begin{example}[Uppdaterad \texttt{ShoppingList}]
     \label{ex:shopping-items}
     Nu använder \mintinline{python}{ShoppingList}
     \mintinline{python}{Item}-objekt:
-<<klassen [[ShoppingList]] med varuobjekt>>=
+<<klasserna i inköpslistan med varuobjekt>>=
 class ShoppingList:
     <<konstruktorn för [[ShoppingList]]>>
-
-    <<metoder som arbetar med varuobjekt>>
+    <<metoderna i [[ShoppingList]] med varuobjekt>>
 @
   \end{example}
 \end{frame}
@@ -513,8 +545,8 @@ class ShoppingList:
 \begin{frame}[fragile]
   \begin{example}[Metoderna med varuobjekt]
     \label{ex:shopping-items-methods}
-    Samma fyra metoder som förut, men varje vara är ett objekt:
-<<metoder som arbetar med varuobjekt>>=
+    Samma metoder som förut, men varje vara är ett objekt:
+<<metoderna i [[ShoppingList]] med varuobjekt>>=
 def add_item(self, item_name):
     """Lägg till en vara (skapar Item-objekt)"""
     item = Item(item_name)
@@ -524,8 +556,6 @@ def list_items(self):
     """Visa alla varor"""
     for i, item in enumerate(self.items, 1):
         print(f"{i}. {item}")  # Använder Item.__str__()
-
-<<bocka av och ta bort varuobjekt>>
 @
   \end{example}
 \end{frame}
@@ -534,7 +564,7 @@ def list_items(self):
   \begin{example}[Bocka av och ta bort varuobjekt]
     \label{ex:shopping-items-check}
     Avbockningen sker genom varans egen metod:
-<<bocka av och ta bort varuobjekt>>=
+<<metoderna i [[ShoppingList]] med varuobjekt>>=
 def check_item(self, index):
     """Bocka av en vara"""
     if 0 <= index < len(self.items):
@@ -565,14 +595,10 @@ Lägg märke till förändringarna:
   \begin{example}[Testprogrammet med varuobjekt]
     \label{ex:items-main}
     Samma användning som förut, med utskrift efter varje steg:
-<<testprogram för inköpslistor med varuobjekt>>=
+<<huvudprogrammet i inköpslistan med varuobjekt>>=
 def main():
     """Exempel på användning"""
     <<prova inköpslistan med varuobjekt>>
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -600,6 +626,11 @@ mat_lista.remove_checked()
 mat_lista.list_items()
 @
   \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/shopping_with_items.py}
 \end{frame}
 
 \begin{frame}[fragile,shrink]
@@ -777,50 +808,32 @@ prioritet, kategori, antal, pris och så vidare, skulle
   \textbf{Variationsmönster}: Separation --- komposition införs först,
   för sig (\cref{sec:komposition}), sedan arv för sig
   (\cref{sec:arv-medborgare}), och först därefter ställs de mot
-  varandra.  Programmet visas som i den litterära programmeringens
-  anda: först filens delar, sedan varje klass där den behövs; kontot
-  visas i två steg (insättning, uttag) som i den tidigare versionen.
+  varandra.  Programmet byggs uppifrån och ner: först filens upplägg,
+  sedan läggs varje klass till där resonemanget når den; kontot byggs
+  metod för metod i två steg (insättning, uttag) som i den tidigare
+  versionen, och testprogrammet skrivs när alla fem klasserna finns, så
+  att dess pseudokod inte nämner medborgaren innan arvet har
+  diskuterats.
 }
 
 Nu ska vi bygga ett mer komplext system där flera klasser samverkar.
 Vi ska skapa ett enkelt banksystem med konton och ägare.  Detta exempel
 illustrerar koncepten komposition och arv.  Filen \texttt{bank.py}
-innehåller fem klasser och ett testprogram.
+innehåller fem klasser och ett testprogram.  Vi lägger upp filen som
+inköpslistan och lägger till varje klass när vi kommer till den.
 
 \begin{frame}[fragile]
-  \begin{example}[Banksystemet i sin helhet]
+  \begin{example}[Ett banksystem]
     \label{ex:bank-file}
-    Klasserna och ett testprogram:
+    Banksystemets upplägg:
 <<[[bank.py]]>>=
 """Banksystem med klasser"""
 
-
 <<klasserna i banksystemet>>
 
-
-<<testprogram för banksystemet>>
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Klasserna i banksystemet]
-    \label{ex:bank-classes}
-    De fem klasserna, i den ordning de kommer i filen:
-<<klasserna i banksystemet>>=
-<<klassen [[Person]]>>
-
-
-<<klassen [[Address]]>>
-
-
-<<klassen [[PersonWithAddress]]>>
-
-
-<<klassen [[BankAccount]]>>
-
-
-<<klassen [[Citizen]]>>
+<<huvudprogrammet i banksystemet>>
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
@@ -845,7 +858,7 @@ attribut som telefonnummer och adress.
   \begin{example}[En enkel personklass]
     \label{ex:bank-person}
     Namn, ålder och strängrepresentation:
-<<klassen [[Person]]>>=
+<<klasserna i banksystemet>>=
 class Person:
     def __init__(self, name, age):
         self.name = name
@@ -917,7 +930,7 @@ enda klass.
   \begin{example}[Adressklass]
     \label{ex:bank-address}
     Gata, stad och postnummer:
-<<klassen [[Address]]>>=
+<<klasserna i banksystemet>>=
 class Address:
     def __init__(self, street, city, zipcode):
         self.street = street
@@ -937,7 +950,7 @@ Nu kan vi uppdatera personklassen för att använda
   \begin{example}[Person med adress]
     \label{ex:bank-person-address}
     Komposition av ett \mintinline{python}{Address}-objekt:
-<<klassen [[PersonWithAddress]]>>=
+<<klasserna i banksystemet>>=
 class PersonWithAddress:
     def __init__(self, name, age, address):
         self.name = name
@@ -999,25 +1012,26 @@ Fördelarna med komposition inkluderar:
 Ett bankkonto behöver hålla reda på vem som äger kontot (en person) och
 hur mycket pengar som finns på kontot (saldot).  Vi behöver också
 metoder för att sätta in och ta ut pengar.  Uttag ska bara tillåtas om
-det finns tillräckligt med pengar på kontot.
+det finns tillräckligt med pengar på kontot.  Kontots metoder samlar vi
+under ett eget namn, som vi fyller på i två steg.
 
 \begin{frame}[fragile]
   \begin{example}[Bankkontoklass]
     \label{ex:bank-account}
     Ägare, saldo och insättning; uttaget kommer strax:
-<<klassen [[BankAccount]]>>=
+<<klasserna i banksystemet>>=
 class BankAccount:
-    def __init__(self, owner, initial_balance=0):
-        self.owner = owner  # Ett Person-objekt
-        self.balance = initial_balance
+    <<metoderna i [[BankAccount]]>>
+<<metoderna i [[BankAccount]]>>=
+def __init__(self, owner, initial_balance=0):
+    self.owner = owner  # Ett Person-objekt
+    self.balance = initial_balance
 
-    def deposit(self, amount):
-        if amount > 0:
-            self.balance += amount
-            return True
-        return False
-
-    <<uttag och utskrift av kontot>>
+def deposit(self, amount):
+    if amount > 0:
+        self.balance += amount
+        return True
+    return False
 @
   \end{example}
 \end{frame}
@@ -1045,7 +1059,7 @@ till valet i \cref{ovn:uttag-for-mycket}.
   \begin{example}[Ta ut pengar från kontot]
     \label{ex:bank-withdraw}
     Uttag med kontroll, och en utskrift av kontot:
-<<uttag och utskrift av kontot>>=
+<<metoderna i [[BankAccount]]>>=
 def withdraw(self, amount):
     if 0 < amount <= self.balance:
         self.balance -= amount
@@ -1083,23 +1097,89 @@ uttaget görs.
   hänvisning, inte som kod.
 }
 
-Testprogrammet skapar en person med adress och ett konto, och gör
-några transaktioner.
+\subsection{Arv: medborgare med personnummer}
+\label{sec:arv-medborgare}
+
+Nu ska vi se hur \emph{arv} kan användas för att utöka funktionalitet.
+Arv innebär att vi skapar en ny klass baserad på en befintlig klass.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:citizen-hur}
+    Om vi vill ha en specialiserad typ av person som också har ett
+    personnummer, skulle du:
+    \begin{enumerate}
+      \item lägga till personnummer som attribut i personklassen;
+      \item skapa en helt ny klass med all kod duplicerad;
+      \item använda arv för att skapa en \mintinline{python}{Citizen}-klass
+        som ärver från personklassen?
+    \end{enumerate}
+    Motivera ditt val.
+  \end{exercise}
+\end{frame}
+
+Vi använder arv för att skapa en \mintinline{python}{Citizen}-klass som
+ärver från \mintinline{python}{PersonWithAddress}.  Detta betyder att
+\mintinline{python}{Citizen} får alla attribut och metoder från
+föräldraklassen, men kan lägga till eller ändra funktionalitet.
+
+\begin{frame}[fragile]
+  \begin{example}[Medborgare med personnummer]
+    \label{ex:bank-citizen}
+    Arv från personklassen med adress:
+<<klasserna i banksystemet>>=
+class Citizen(PersonWithAddress):
+    def __init__(self, name, age, address, ssn):
+        super().__init__(name, age, address)
+        self.ssn = ssn  # Personnummer
+
+    def __str__(self):
+        parent_str = super().__str__()
+        return f"{parent_str}\nPersonnummer: {self.ssn}"
+@
+  \end{example}
+\end{frame}
+
+Här använder vi \mintinline{python}{super()} för att anropa
+föräldraklassens metoder.  Det är viktigt för att inte duplicera kod.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:super}
+    Vad gör \mintinline{python}{super().__init__(name, age, address)}?
+    Varför är det bra att använda \mintinline{python}{super()} istället
+    för att duplicera initieringskoden?
+  \end{exercise}
+\end{frame}
+
+\mintinline{python}{super()} ger oss tillgång till föräldraklassen.
+Genom att anropa \mintinline{python}{super().__init__()} säkerställer vi
+att föräldraklassens initieringskod körs.  Det besparar oss en kopia av
+initieringskoden --- en kopia som skulle behöva ändras i takt med
+originalet, den risk principen \emph{DRY}, \foreignlanguage{english}{don't
+repeat yourself}\autocite{HuntThomas1999}, varnar för.\footnote{%
+  Principen kommer från föreläsningen \emph{Algoritmiskt tänkande},
+  vars bilaga~E prövar både var den kommer ifrån och om den håller,
+  med sina förbehåll.}
+
+\subsection{Banksystemets testprogram}
+\label{sec:bank-test}
+
+Nu har vi alla fem klasserna, och testprogrammet kan pröva dem.  Det
+gör två saker: först skapar det en person, en person med adress och ett
+konto och gör några transaktioner, och sedan skapar det en medborgare
+med ett eget konto.  Båda delarna skriver vi först som pseudokod.
 
 \begin{frame}[fragile]
   \begin{example}[Använda banksystemet]
     \label{ex:bank-main}
     Skapa person, konto och transaktioner:
-<<testprogram för banksystemet>>=
+<<huvudprogrammet i banksystemet>>=
 def main():
     """Exempel på användning"""
     <<skapa person, adress och konto>>
 
     <<skapa en medborgare med konto>>
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -1142,71 +1222,6 @@ else:
   \end{example}
 \end{frame}
 
-\subsection{Arv: medborgare med personnummer}
-\label{sec:arv-medborgare}
-
-Nu ska vi se hur \emph{arv} kan användas för att utöka funktionalitet.
-Arv innebär att vi skapar en ny klass baserad på en befintlig klass.
-
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:citizen-hur}
-    Om vi vill ha en specialiserad typ av person som också har ett
-    personnummer, skulle du:
-    \begin{enumerate}
-      \item lägga till personnummer som attribut i personklassen;
-      \item skapa en helt ny klass med all kod duplicerad;
-      \item använda arv för att skapa en \mintinline{python}{Citizen}-klass
-        som ärver från personklassen?
-    \end{enumerate}
-    Motivera ditt val.
-  \end{exercise}
-\end{frame}
-
-Vi använder arv för att skapa en \mintinline{python}{Citizen}-klass som
-ärver från \mintinline{python}{PersonWithAddress}.  Detta betyder att
-\mintinline{python}{Citizen} får alla attribut och metoder från
-föräldraklassen, men kan lägga till eller ändra funktionalitet.
-
-\begin{frame}[fragile]
-  \begin{example}[Medborgare med personnummer]
-    \label{ex:bank-citizen}
-    Arv från personklassen med adress:
-<<klassen [[Citizen]]>>=
-class Citizen(PersonWithAddress):
-    def __init__(self, name, age, address, ssn):
-        super().__init__(name, age, address)
-        self.ssn = ssn  # Personnummer
-
-    def __str__(self):
-        parent_str = super().__str__()
-        return f"{parent_str}\nPersonnummer: {self.ssn}"
-@
-  \end{example}
-\end{frame}
-
-Här använder vi \mintinline{python}{super()} för att anropa
-föräldraklassens metoder.  Det är viktigt för att inte duplicera kod.
-
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:super}
-    Vad gör \mintinline{python}{super().__init__(name, age, address)}?
-    Varför är det bra att använda \mintinline{python}{super()} istället
-    för att duplicera initieringskoden?
-  \end{exercise}
-\end{frame}
-
-\mintinline{python}{super()} ger oss tillgång till föräldraklassen.
-Genom att anropa \mintinline{python}{super().__init__()} säkerställer vi
-att föräldraklassens initieringskod körs.  Det besparar oss en kopia av
-initieringskoden --- en kopia som skulle behöva ändras i takt med
-originalet, den risk principen \emph{DRY}, \foreignlanguage{english}{don't
-repeat yourself}\autocite{HuntThomas1999}, varnar för.\footnote{%
-  Principen kommer från föreläsningen \emph{Algoritmiskt tänkande},
-  vars bilaga~E prövar både var den kommer ifrån och om den håller,
-  med sina förbehåll.}
-
 \begin{frame}[fragile]
   \begin{example}[Användning av \texttt{Citizen}]
     \label{ex:bank-citizen-main}
@@ -1236,6 +1251,11 @@ Eftersom \mintinline{python}{Citizen} är en
 överallt där en sådan person förväntas.  Kontot behöver inte veta att
 ägaren är en medborgare; det räcker att ägaren har det en person har.
 Detta kallas \emph{polymorfism}.
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/bank.py}
+\end{frame}
 
 \begin{frame}
   \begin{exercise}
