@@ -25,7 +25,7 @@ styrstrukturer (videoföreläsning)*.
 
 Föreläsningen spelas in. Inspelningen läggs upp här när den är klar.
 
-<!-- TODO: ersätt med länk till inspelningen (kaltura/Canvas Studio). -->
+<iframe id="kmsembed-0_wkocb39u" class="kmsembed" title="Kaltura Player" src="https://play.kth.se/embed/secure/iframe/entryId/0_wkocb39u/uiConfId/23453971" width="650" height="366" sandbox="allow-forms allow-same-origin allow-scripts allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" allow="autoplay *; fullscreen *; encrypted-media *" frameborder="0" loading="lazy"></iframe>
 
 ## Översikt
 
