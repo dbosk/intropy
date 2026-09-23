@@ -252,38 +252,49 @@ Först valet av dans.  En vals duger: en takt är tre steg, och nästa takt
 just den likheten som avgör uppdelningen --- takten skrivs en gång och
 anropas två gånger, med olika argument.
 
+Vi lägger upp programmet som \texttt{walk.py}: överst en docstring som
+säger vad programmet är till för, sedan hjälpfunktionerna, huvudprogrammet
+--- funktionen för hela dansen --- och till sist anropet som sätter igång
+det.  Men vi skriver det inte i ett svep, utan uppifrån och ner, med
+stegvis förfining som i föreläsningen \emph{Algoritmiskt tänkande}: först
+upplägget, i pseudokod, och sedan preciserar vi pseudokoden med
+pythonkod, en del i taget, när vi kommer till den.
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje lösningsförslag som byggs upp av
+  namngivna delar börjar i filens upplägg, med namn som hör till just
+  det programmet, och skisserar sedan huvudprogrammet.  En
+  hjälpfunktion läggs till först där resonemanget behöver den
+  (författaren, 2026-09-23: \enquote{it too early outlines what
+  functions we need, without having started discussing the details of
+  the problem yet}), så filens ordning blir upptäcktens.  En funktion
+  som ett senare program återanvänder står under ett eget namn, som
+  hjälpfunktionerna tar med.
+}
+
 \begin{frame}[fragile]
-  \begin{example}[Programmet i överblick]
-    Delarna, i den ordning de står i filen:
+  \begin{example}[Dansprogrammets upplägg]
+    Filens delar, uppifrån och ner:
 <<[[dance.py]]>>=
-<<beskrivning av dansprogrammet>>
+"""Skriver ut stegen i en vals."""
 
+<<dansprogrammets hjälpfunktioner>>
 
-<<funktion för dansen: två takter vals>>
-
-
-<<funktion för en takt vals>>
-
-
-<<funktion för ett steg med en fot>>
-
-
-<<funktion för att sätta ihop fötterna>>
-
-
-<<anrop som sätter igång dansen>>
+<<dansprogrammets huvudprogram>>
+dance_waltz()
 @
   \end{example}
 \end{frame}
 
-Dansen som helhet är de två takterna, och det är här skillnaden mellan
-dem står: vilken fot som börjar, vilken som följer, och vilken riktning
-takten går i.
+Huvudprogrammet är dansen som helhet: de två takterna, och det är här
+skillnaden mellan dem står --- vilken fot som börjar, vilken som följer,
+och vilken riktning takten går i.  Takten finns inte än, men vi kan ge
+den ett namn och anropa den ändå.
 
 \begin{frame}[fragile]
   \begin{example}[Dansen]
     Två anrop, ett per takt:
-<<funktion för dansen: två takter vals>>=
+<<dansprogrammets huvudprogram>>=
 def dance_waltz():
     """Skriver ut stegen i två takter vals."""
     waltz_bar("vänster", "höger", "framåt")
@@ -292,13 +303,14 @@ def dance_waltz():
   \end{example}
 \end{frame}
 
-Takten är den del som går igen.  Den vet ingenting om vilken takt i
-ordningen den är --- den får sina tre uppgifter av anropet och utför dem.
+Takten är den del som går igen, och den blir den första
+hjälpfunktionen.  Den vet ingenting om vilken takt i ordningen den är
+--- den får sina tre uppgifter av anropet och utför dem.
 
 \begin{frame}[fragile]
   \begin{example}[En takt vals]
     Tre steg, varav det sista sätter ihop fötterna:
-<<funktion för en takt vals>>=
+<<dansprogrammets hjälpfunktioner>>=
 def waltz_bar(first_foot, second_foot, direction):
     """Skriver ut en takt vals som börjar med first_foot."""
     take_step(first_foot, direction)
@@ -308,40 +320,29 @@ def waltz_bar(first_foot, second_foot, direction):
   \end{example}
 \end{frame}
 
-Längst ner ligger de två stegen som verkligen skriver ut något.  De är
-små med avsikt: de vet bara hur ett steg beskrivs, inte vilka steg som
-ingår i en vals, och de går därför att använda i nästa dans också.
+Takten anropar två steg vi ännu inte har skrivit, och de är de enda som
+verkligen skriver ut något.  De är små med avsikt: de vet bara hur ett
+steg beskrivs, inte vilka steg som ingår i en vals, och de går därför
+att använda i nästa dans också.  Båda läggs till bland
+hjälpfunktionerna.  Ett namn som får flera delar får \(\equiv\) första
+gången och +\(\equiv\) varje gång därefter, och i programmet står
+delarna efter varandra, i den ordning de kommer.  Steget med en fot står
+dessutom under ett eget namn, eftersom vi återanvänder det i
+\cref{sec:diska}.
 
 \begin{frame}[fragile]
   \begin{example}[Stegen]
     De två delarna som skriver ut, en funktion var:
+<<dansprogrammets hjälpfunktioner>>=
+<<funktion för ett steg med en fot>>
 <<funktion för ett steg med en fot>>=
 def take_step(the_foot, direction):
     """Skriver ut att the_foot sätts ner i riktningen direction."""
     print(f"sätt ner {the_foot} fot {direction}")
-<<funktion för att sätta ihop fötterna>>=
+<<dansprogrammets hjälpfunktioner>>=
 def close_feet(the_foot):
     """Skriver ut att the_foot flyttas intill den andra foten."""
     print(f"flytta {the_foot} fot intill den andra")
-@
-  \end{example}
-\end{frame}
-
-Kvar är de två yttersta delarna: raden som säger vad filen är till för,
-och anropet som sätter igång dansen.
-
-\begin{frame}[fragile]
-  \begin{example}[Vad programmet gör]
-    Överst i filen står en beskrivning:
-<<beskrivning av dansprogrammet>>=
-"""Skriver ut stegen i en vals."""
-@
-  \end{example}
-
-  \begin{example}[Huvudprogrammet]
-    Och till sist står anropet:
-<<anrop som sätter igång dansen>>=
-dance_waltz()
 @
   \end{example}
 \end{frame}
@@ -469,43 +470,54 @@ aldrig.  Nu förfinar vi just det.
 \subsection{Lösningsförslag}
 
 Uppdelningen kommer ur uppgiftens egen formulering: tre steg, tre
-funktioner, och en fjärde som är hela disken.  Det nya mot dansen visar
-sig så fort du försöker: skriver varje steg ut sin rad blir det tre
-rader, och uppgiften ber om en.  Stegen måste alltså \emph{lämna
-tillbaka} sitt resultat i stället, och disken som helhet skicka det
-vidare från steg till steg.
+funktioner, och en fjärde som är hela disken.  Vi lägger upp programmet
+som dansprogrammet i \cref{sec:dansa}, uppifrån och ner, men med ett
+huvudprogram som heter \mintinline{python}{main}.
 
-\begin{frame}[fragile,shrink=15]
-  \begin{example}[Programmet i överblick]
-    Delarna, i den ordning de står i filen:
+\begin{frame}[fragile]
+  \begin{example}[Diskprogrammets upplägg]
+    Filens delar, uppifrån och ner:
 <<[[dishes.py]]>>=
-<<beskrivning av diskprogrammet>>
+"""Skriver ut vad som händer med en sak i handdisken."""
 
+<<diskprogrammets hjälpfunktioner>>
 
-<<funktion för hela disken, ett steg per rad>>
-
-
-<<funktion för att doppa saken i diskvattnet>>
-
-
-<<funktion för att gnugga saken>>
-
-
-<<funktion för att skölja saken>>
-
-
-<<huvudprogram: skriv ut vad ett glas blir i disken>>
+<<diskprogrammets huvudprogram>>
+main()
 @
   \end{example}
 \end{frame}
 
-Hela disken är de tre stegen efter varandra, och varje mellanresultat får
-ett namn som säger vad saken är just då.
+Uppgiften ber om en enda rad, som beskriver glaset efter disken, och den
+raden skriver huvudprogrammet ut.  Lägg märke till två saker.  Det är
+\emph{huvudprogrammet} som skriver ut, och ingen annan del.  Och
+argumentet är saken som den är \emph{före} disken: hade det stått
+\mintinline{python}{"smutsigt glas"} skulle utskriften påstå att glaset
+fortfarande är smutsigt efter att det diskats.  Hela disken ger vi ett
+namn, \mintinline{python}{wash}, och skriver den sedan.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Ett huvudprogram som skriver ut en enda rad:
+<<diskprogrammets huvudprogram>>=
+def main():
+    """Skriver ut vad ett glas har blivit efter disken."""
+    print(wash("glas"))
+@
+  \end{example}
+\end{frame}
+
+Hela disken är de tre stegen efter varandra.  Här visar sig det nya mot
+dansen: skulle varje steg skriva ut sin rad blev det tre rader, och
+uppgiften ber om en.  Stegen måste alltså \emph{lämna tillbaka} sitt
+resultat i stället, och disken som helhet skicka det vidare från steg
+till steg.  Varje mellanresultat får ett namn som säger vad saken är
+just då.
 
 \begin{frame}[fragile]
   \begin{example}[Hela disken]
     Ett steg per rad, och det sista stegets värde lämnas tillbaka:
-<<funktion för hela disken, ett steg per rad>>=
+<<diskprogrammets hjälpfunktioner>>=
 def wash(item):
     """Returnerar item efter alla stegen i handdisken."""
     soaked = soak(item)
@@ -517,11 +529,17 @@ def wash(item):
 
 De tre stegen är varandras like: var och en tar emot saken som den är och
 lämnar tillbaka saken som den blev.  Ingen av dem skriver ut något, och
-ingen av dem vet vad som händer före eller efter.
+ingen av dem vet vad som händer före eller efter.  De läggs till bland
+hjälpfunktionerna, var och en under ett eget namn, eftersom vi
+återanvänder dem i två program till senare i avsnittet.
 
-\begin{frame}[fragile,shrink=20]
+\begin{frame}[fragile,shrink=25]
   \begin{example}[Diskens tre steg]
     En funktion per steg:
+<<diskprogrammets hjälpfunktioner>>=
+<<funktion för att doppa saken i diskvattnet>>
+<<funktion för att gnugga saken>>
+<<funktion för att skölja saken>>
 <<funktion för att doppa saken i diskvattnet>>=
 def soak(item):
     """Returnerar item doppat i diskvattnet."""
@@ -534,34 +552,6 @@ def scrub(item):
 def rinse(item):
     """Returnerar item avsköljt under kranen."""
     return f"avsköljt {item}"
-@
-  \end{example}
-\end{frame}
-
-Kvar är beskrivningen av filen och huvudprogrammet.  Lägg märke till två
-saker.
-Det är \emph{huvudprogrammet} som skriver ut, inte något av de tre
-stegen.  Och argumentet är saken som den är \emph{före} disken:
-hade det stått \mintinline{python}{"smutsigt glas"} skulle utskriften
-påstå att glaset fortfarande är smutsigt efter att det diskats.
-
-\begin{frame}[fragile]
-  \begin{example}[Vad programmet gör]
-    Överst i filen:
-<<beskrivning av diskprogrammet>>=
-"""Skriver ut vad som händer med en sak i handdisken."""
-@
-  \end{example}
-
-  \begin{example}[Huvudprogrammet]
-    Och till sist ett huvudprogram som skriver ut en enda rad:
-<<huvudprogram: skriv ut vad ett glas blir i disken>>=
-def main():
-    """Skriver ut vad ett glas har blivit efter disken."""
-    print(wash("glas"))
-
-
-main()
 @
   \end{example}
 \end{frame}
@@ -600,21 +590,17 @@ första steget i disken --- och gör ett litet program av vart och ett.
 <<[[dance-step.py]]>>=
 <<funktion för ett steg med en fot>>
 
-
 def main():
     """Skriver ut ett steg ur valsen."""
     take_step("vänster", "framåt")
-
 
 main()
 <<[[wash-step.py]]>>=
 <<funktion för att doppa saken i diskvattnet>>
 
-
 def main():
     """Skriver ut ett glas doppat i diskvattnet."""
     print(soak("glas"))
-
 
 main()
 @
@@ -676,29 +662,24 @@ def wash(item):
   \end{example}
 \end{frame}
 
-Resten av filen är densamma, ordagrant: samma tre steg, samma
-huvudprogram.
+Resten av filen är densamma, ordagrant: samma docstring, samma tre steg,
+samma huvudprogram.  Bland hjälpfunktionerna står den nästlade disken i
+stället för den flata, och de tre stegen tar vi med under sina egna
+namn.
 
-\begin{frame}[fragile,shrink=15]
+\begin{frame}[fragile]
   \begin{example}[Den andra formen som eget program]
     Bara den ena delen är utbytt:
 <<[[dishes-nested.py]]>>=
-<<beskrivning av diskprogrammet>>
-
+"""Skriver ut vad som händer med en sak i handdisken."""
 
 <<funktion för hela disken, som nästlade anrop>>
-
-
 <<funktion för att doppa saken i diskvattnet>>
-
-
 <<funktion för att gnugga saken>>
-
-
 <<funktion för att skölja saken>>
 
-
-<<huvudprogram: skriv ut vad ett glas blir i disken>>
+<<diskprogrammets huvudprogram>>
+main()
 @
   \end{example}
 \end{frame}
@@ -827,47 +808,76 @@ ett steg är ett steg.  Nu kommer en där uppdelningen inte är given.
 
 \subsection{Lösningsförslag}
 
-Frågan är vilka funktioner det ska bli.  Leta efter verben, som i
-föreläsningen \emph{Algoritmiskt tänkande}: programmet räknar ut
-\emph{areor} --- tre olika --- och räknar om \emph{area till färg} --- en
-gång, likadant för alla tre.  Det blir fyra funktioner, och den fjärde är
-den som gör att färgåtgången per kvadratcentimeter bara står på ett
-ställe.
+Vi lägger upp programmet som de förra, uppifrån och ner, med en del
+till: konstanterna, som står efter docstringen.
 
 \begin{frame}[fragile]
-  \begin{example}[Programmet i överblick]
-    Delarna, i den ordning de står i filen:
+  \begin{example}[Kakelprogrammets upplägg]
+    Filens delar, uppifrån och ner:
 <<[[tiles.py]]>>=
-<<beskrivning av kakelprogrammet>>
+"""Räknar ut hur mycket färg tre kakelmönster kräver."""
 
-<<konstant för färgåtgången per kvadratcentimeter>>
+<<kakelprogrammets konstanter>>
 
-<<konstanter för talen som areaformlerna behöver>>
+<<kakelprogrammets hjälpfunktioner>>
 
-
-<<funktion som räknar om en area till färg>>
-
-
-<<funktioner som räknar ut de tre mönstrens areor>>
-
-
-<<huvudprogram: skriv ut färgåtgången för varje mönster>>
+<<kakelprogrammets huvudprogram>>
+main()
 @
   \end{example}
 \end{frame}
 
-Vi börjar i den del som är gemensam.  Den vet ingenting om kakel: den tar
-en area och lämnar tillbaka en mängd färg.  Därför kan de tre mönstren
-dela på den.
+Huvudprogrammet gör det uppgiften ber om: det räknar ut färgåtgången för
+vart och ett av de tre mönstren och skriver ut den.  Båda delarna är mer
+än en rad, så vi skriver dem först som pseudokod, och senare preciserar
+vi pseudokoden med pythonkod.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet i stora drag]
+    Först uträkningarna, sedan utskrifterna:
+<<kakelprogrammets huvudprogram>>=
+def main():
+    """Skriver ut färgåtgången för de tre mönstren."""
+    <<räkna ut varje mönsters färgåtgång>>
+
+    <<skriv ut varje mönsters färgåtgång>>
+@
+  \end{example}
+\end{frame}
+
+Frågan är vilka funktioner uträkningarna behöver.  Leta efter verben, som
+i föreläsningen \emph{Algoritmiskt tänkande}: programmet räknar ut
+\emph{areor} --- tre olika --- och räknar om \emph{area till färg} ---
+en gång, likadant för alla tre.  Det blir fyra funktioner, en area per
+mönster och en fjärde som alla tre delar, och den fjärde är den som gör
+att färgåtgången per kvadratcentimeter bara står på ett ställe.  De tre
+måtten hör till en och samma kakelplatta med sidan 20~cm: cirkeln fyller
+plattan, ramen löper längs dess kanter och sexhörningen är lika bred som
+den.
+
+\begin{frame}[fragile]
+  \begin{example}[Uträkningarna]
+    En area per mönster, omräknad till färg:
+<<räkna ut varje mönsters färgåtgång>>=
+circle = paint_for_area(circle_area(10))
+frame = paint_for_area(frame_area(20, 2))
+hexagon = paint_for_area(hexagon_area(10))
+@
+  \end{example}
+\end{frame}
+
+Vi skriver den del som är gemensam först.  Den vet ingenting om kakel:
+den tar en area och lämnar tillbaka en mängd färg.  Därför kan de tre
+mönstren dela på den.  Färgåtgången blir den första konstanten, och
+funktionen den första hjälpfunktionen.
 
 \begin{frame}[fragile]
   \begin{example}[Från area till färg]
     Färgåtgången står som konstant, och funktionen använder den:
-<<konstant för färgåtgången per kvadratcentimeter>>=
+<<kakelprogrammets konstanter>>=
 # Milliliter färg per kvadratcentimeter målad yta.
 PAINT_PER_CM2 = 0.05
-@
-<<funktion som räknar om en area till färg>>=
+<<kakelprogrammets hjälpfunktioner>>=
 def paint_for_area(area_cm2):
     """Returnerar antalet milliliter färg för arean area_cm2."""
     return area_cm2 * PAINT_PER_CM2
@@ -875,18 +885,17 @@ def paint_for_area(area_cm2):
   \end{example}
 \end{frame}
 
-Sedan de tre areorna, en funktion per mönster.  Var och en tar just de
-mått mönstret behöver, och ingen av dem vet något om färg; de två
-konstanterna \mintinline{python}{PI} och \mintinline{python}{SQRT3} som
-formlerna använder står längre ner i filen.  Ramens
-docstring behöver säga två saker och ryms därför inte på en rad.  Då
-gäller den flerradiga formen: första raden sammanfattar, resten står
-efter en blank rad, och de avslutande citattecknen får en rad för sig.
+Sedan de tre areorna, en funktion per mönster bland hjälpfunktionerna.
+Var och en tar just de mått mönstret behöver, och ingen av dem vet något
+om färg.  Ramens docstring behöver säga två saker och ryms därför inte
+på en rad.  Då gäller den flerradiga formen: första raden sammanfattar,
+resten står efter en blank rad, och de avslutande citattecknen får en
+rad för sig.
 
 \begin{frame}[fragile,shrink=30]
   \begin{example}[De tre areorna]
     En funktion per mönster:
-<<funktioner som räknar ut de tre mönstrens areor>>=
+<<kakelprogrammets hjälpfunktioner>>=
 def circle_area(radius_cm):
     """Returnerar arean av en cirkel med radien radius_cm."""
     return PI * radius_cm * radius_cm
@@ -908,31 +917,28 @@ def hexagon_area(side_cm):
   \end{example}
 \end{frame}
 
-De två talen formlerna behöver, \(\pi\) och \(\sqrt{3}\), finns färdiga i
-Pythons standardbibliotek, men att hämta hem dem hör till föreläsningen
+Två av formlerna behöver talen \(\pi\) och \(\sqrt{3}\).  De finns färdiga
+i Pythons standardbibliotek, men att hämta hem dem hör till föreläsningen
 \emph{Moduler och paket}.  Här skriver vi dem som konstanter i stället,
 med versaler: de är just sådana värden som inte ska ändras medan
 programmet kör\autocite{pep8}.
 
 \begin{frame}[fragile]
   \begin{example}[Talen formlerna behöver]
-    Två konstanter:
-<<konstanter för talen som areaformlerna behöver>>=
+    Två konstanter till:
+<<kakelprogrammets konstanter>>=
 PI = 3.14159
 SQRT3 = 1.73205
 @
   \end{example}
 \end{frame}
 
-Huvudprogrammet sätter ihop delarna: en area, omräknad till färg, per
-mönster.  De tre måtten hör till en och samma kakelplatta med sidan
-20~cm: cirkeln fyller plattan, ramen löper längs dess kanter och
-sexhörningen är lika bred som den.  Utskriften är det den som målar
-faktiskt läser, så den säger vilket mönster och vilket mått svaret
-gäller.  Och den avrundar, med en skrivform som är ny här: ingen av
-föreläsningarna \emph{Variabler och utskrifter} och \emph{Funktioner}
-tar upp den.  Vad den gör syns bäst om vi skriver ut samma tal utan och
-med den.
+Kvar i huvudprogrammet är utskrifterna, en per mönster.  Utskriften är
+det den som målar faktiskt läser, så den säger vilket mönster och vilket
+mått svaret gäller.  Och den avrundar, med en skrivform som är ny här:
+ingen av föreläsningarna \emph{Variabler och utskrifter} och
+\emph{Funktioner} tar upp den.  Vad den gör syns bäst om vi skriver ut
+samma tal utan och med den.
 
 \begin{frame}[fragile]
   \begin{example}[Utan och med avrundning]
@@ -955,20 +961,14 @@ main()
 
 \begin{frame}<article>[fragile]
   \begin{example}[\texttt{rounding.py} i överblick]
-    Kakelprogrammets delar, och huvudprogrammet i \cref{ex:avrundning}:
+    Kakelprogrammets konstanter och hjälpfunktioner, och huvudprogrammet i
+    \cref{ex:avrundning}:
 <<[[rounding.py]]>>=
 """Skriver ut en färgåtgång utan och med avrundning."""
 
-<<konstant för färgåtgången per kvadratcentimeter>>
+<<kakelprogrammets konstanter>>
 
-<<konstanter för talen som areaformlerna behöver>>
-
-
-<<funktion som räknar om en area till färg>>
-
-
-<<funktioner som räknar ut de tre mönstrens areor>>
-
+<<kakelprogrammets hjälpfunktioner>>
 
 <<huvudprogram: skriv ut samma tal utan och med avrundning>>
 @
@@ -981,29 +981,13 @@ fem decimaler, en precision som ingen som blandar färg kan använda.
 \enquote{skriv talet med en decimal}, och du behöver den bara när ett
 uträknat tal ska läsas av en människa.
 
-\begin{frame}[fragile,shrink=20]
-  \begin{example}[Huvudprogrammet]
-    Tre uträkningar och tre utskrifter, och anropet som startar dem:
-<<huvudprogram: skriv ut färgåtgången för varje mönster>>=
-def main():
-    """Skriver ut färgåtgången för de tre mönstren."""
-    circle = paint_for_area(circle_area(10))
-    frame = paint_for_area(frame_area(20, 2))
-    hexagon = paint_for_area(hexagon_area(10))
-
-    print(f"Cirkel med radien 10 cm: {circle:.1f} ml")
-    print(f"Ram, 20 cm kakel med 2 cm ram: {frame:.1f} ml")
-    print(f"Sexhörning med sidan 10 cm: {hexagon:.1f} ml")
-
-
-main()
-@
-  \end{example}
-
-  \begin{example}[Vad programmet gör]
-    Och överst i filen:
-<<beskrivning av kakelprogrammet>>=
-"""Räknar ut hur mycket färg tre kakelmönster kräver."""
+\begin{frame}[fragile]
+  \begin{example}[Utskrifterna]
+    En rad per mönster, med en decimal:
+<<skriv ut varje mönsters färgåtgång>>=
+print(f"Cirkel med radien 10 cm: {circle:.1f} ml")
+print(f"Ram, 20 cm kakel med 2 cm ram: {frame:.1f} ml")
+print(f"Sexhörning med sidan 10 cm: {hexagon:.1f} ml")
 @
   \end{example}
 \end{frame}
@@ -1319,31 +1303,53 @@ till håller ordningen mellan dem.
   \parencite{SooriBosk2026}.
 }
 
+Vi lägger upp omskrivningen som dansprogrammet i \cref{sec:dansa},
+uppifrån och ner, och överst står nu den docstring som saknades.
+
 \begin{frame}[fragile]
-  \begin{example}[Programmet i överblick]
-    Delarna, i den ordning de står i filen:
+  \begin{example}[Hushållsprogrammets upplägg]
+    Filens delar, uppifrån och ner:
 <<[[house-chores-fixed.py]]>>=
-<<beskrivning av hushållsprogrammet>>
+"""Skriver ut vilka hushållssysslor som ska göras."""
 
+<<hushållsprogrammets hjälpfunktioner>>
 
-<<funktioner för de enskilda sysslorna>>
-
-
-<<funktion som gör sysslorna i tur och ordning>>
-
-
-<<anrop som sätter igång sysslorna>>
+<<hushållsprogrammets huvudprogram>>
+do_chores()
 @
   \end{example}
 \end{frame}
 
-Sysslorna först.  Var och en gör en sak, heter efter den saken, och har
-en docstring som säger vad den gör.
+Huvudprogrammet är den funktion som håller ordningen.  Den bestämmer vad
+som görs och i vilken följd, och ingenting annat.  Inledningsraden kommer
+nu före sysslorna i stället för efter, och den räknar inte längre upp
+dem: koden säger redan vilka de är, och en uppräkning i text är en till
+sak att hålla i takt när listan ändras.  Sysslorna anropar vi redan här,
+och skriver dem sedan.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Sysslorna i tur och ordning]
+    En funktion som anropar sysslorna:
+<<hushållsprogrammets huvudprogram>>=
+def do_chores():
+    """Skriver ut alla sysslorna i tur och ordning."""
+    print("I dag ska vi:")
+    water_flowers()
+    take_out_rubbish()
+    empty_dishwasher()
+    walk_the_dog()
+    vacuum_grandmas_house()
+@
+  \end{example}
+\end{frame}
+
+Sysslorna blir hjälpfunktionerna.  Var och en gör en sak, heter efter den
+saken, och har en docstring som säger vad den gör.
 
 \begin{frame}[fragile,shrink=40]
   \begin{example}[De enskilda sysslorna]
     En funktion per syssla:
-<<funktioner för de enskilda sysslorna>>=
+<<hushållsprogrammets hjälpfunktioner>>=
 def water_flowers():
     """Skriver ut att blommorna vattnas."""
     print("Vattnar blommorna")
@@ -1371,44 +1377,6 @@ def vacuum_grandmas_house():
   \end{example}
 \end{frame}
 
-Sedan den som håller ordningen.  Den bestämmer vad som görs och i vilken
-följd, och ingenting annat.  Inledningsraden kommer nu före sysslorna i
-stället för efter, och den räknar inte längre upp dem: koden säger redan
-vilka de är, och en uppräkning i text är en till sak att hålla i takt
-när listan ändras.
-
-\begin{frame}[fragile,shrink=15]
-  \begin{example}[Sysslorna i tur och ordning]
-    En funktion som anropar sysslorna:
-<<funktion som gör sysslorna i tur och ordning>>=
-def do_chores():
-    """Skriver ut alla sysslorna i tur och ordning."""
-    print("I dag ska vi:")
-    water_flowers()
-    take_out_rubbish()
-    empty_dishwasher()
-    walk_the_dog()
-    vacuum_grandmas_house()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Vad programmet gör]
-    Överst i filen:
-<<beskrivning av hushållsprogrammet>>=
-"""Skriver ut vilka hushållssysslor som ska göras."""
-@
-  \end{example}
-
-  \begin{example}[Huvudprogrammet]
-    Och till sist ett enda anrop:
-<<anrop som sätter igång sysslorna>>=
-do_chores()
-@
-  \end{example}
-\end{frame}
-
 \begin{frame}<article>[fragile]
   \begin{example}[Hela programmet, hopsatt]
     Sätter vi in varje del där dess namn står får vi:
@@ -1425,15 +1393,15 @@ do_chores()
 
 Ett val i omskrivningen är värt att ifrågasätta:
 \mintinline{python}{do_chores} kunde ha utelämnats och de fem anropen
-stått direkt i huvudprogrammet.  Programmet hade blivit en funktion
-enklare, och KISS --- välj den enklaste lösning som gör jobbet --- talar
-för det.  Skälet att behålla den är att den har ett eget ansvar: den vet
-vilka sysslorna är och i vilken ordning de görs, och det är det som
-kommer att ändras när listan ändras.  Att enkelhet är ett designvärde är
-väl underbyggt, medan den vanliga tillskrivningen av slagordet till Kelly
-Johnson inte är det.\footnote{Det vetenskapliga underlaget för båda
-  delarna --- etableringen och upphovsuppgiften --- finns i
-  föreläsningen \emph{Funktioner}, bilaga C.}
+stått sist i filen, där anropet av den står nu.  Programmet hade blivit
+en funktion enklare, och KISS --- välj den enklaste lösning som gör
+jobbet --- talar för det.  Skälet att behålla den är att den har ett
+eget ansvar: den vet vilka sysslorna är och i vilken ordning de görs,
+och det är det som kommer att ändras när listan ändras.  Att enkelhet
+är ett designvärde är väl underbyggt, medan den vanliga tillskrivningen
+av slagordet till Kelly Johnson inte är det.\footnote{Det vetenskapliga
+  underlaget för båda delarna --- etableringen och upphovsuppgiften ---
+  finns i föreläsningen \emph{Funktioner}, bilaga C.}
 
 
 \section{Räkna ut BMI}
@@ -1496,34 +1464,65 @@ utifrån, med enheter som måste stämma.
 \subsection{Lösningsförslag}
 
 Uppdelningen är given av uppgiften: en funktion som räknar, ett
-huvudprogram som skriver ut.  Det enda som kräver eftertanke är
-enheterna.  Funktionen får längden i centimeter men formeln vill ha
-meter, så omräkningen måste göras någonstans --- och den görs inuti
-funktionen, så att den som anropar bara behöver veta vad docstringen
-säger.
+huvudprogram som skriver ut.  Vi lägger upp programmet som
+kakelprogrammet i \cref{sec:kakel}, med konstanterna efter docstringen.
 
 \begin{frame}[fragile]
-  \begin{example}[Programmet i överblick]
-    Delarna, i den ordning de står i filen:
+  \begin{example}[BMI-programmets upplägg]
+    Filens delar, uppifrån och ner:
 <<[[bmi.py]]>>=
-<<beskrivning av bmi-programmet>>
+"""Räknar ut BMI för en person."""
 
+<<bmi-programmets konstanter>>
 
-<<funktion som räknar ut BMI ur vikt och längd>>
+<<bmi-programmets hjälpfunktioner>>
 
-
-<<konstanter för personen programmet handlar om>>
-
-
-<<huvudprogram: skriv ut personens BMI>>
+<<bmi-programmets huvudprogram>>
+main()
 @
   \end{example}
 \end{frame}
 
+Huvudprogrammet skriver ut en rad: personens namn och hennes BMI.  Det
+skriver ut svaret med en decimal, av samma skäl som i \cref{sec:kakel}
+--- och skälet är tydligare här: utan avrundning skriver programmet ut
+ett BMI med fjorton decimaler.  Uträkningen ger vi ett namn,
+\mintinline{python}{bmi}, och anropar den; den skriver vi sedan.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    En enda utskrift:
+<<bmi-programmets huvudprogram>>=
+def main():
+    """Skriver ut Malvinas BMI med en decimal."""
+    print(f"{NAME} har BMI {bmi(WEIGHT_KG, HEIGHT_CM):.1f}")
+@
+  \end{example}
+\end{frame}
+
+Personens uppgifter står som konstanter, med versaler: de ska inte ändras
+medan programmet kör\autocite{pep8}.
+
+\begin{frame}[fragile]
+  \begin{example}[Personen]
+    Namnet, vikten och längden:
+<<bmi-programmets konstanter>>=
+NAME = "Malvina"
+WEIGHT_KG = 65
+HEIGHT_CM = 170
+@
+  \end{example}
+\end{frame}
+
+Det enda som kräver eftertanke är enheterna.  Längden står i
+centimeter, som uppgiften kräver, men formeln vill ha meter, så
+omräkningen måste göras någonstans --- och den görs inuti funktionen, så
+att den som anropar bara behöver veta vad docstringen säger.
+
 \begin{frame}[fragile]
   \begin{example}[Från centimeter till BMI]
     Omräkningen först, formeln sedan:
-<<funktion som räknar ut BMI ur vikt och längd>>=
+<<bmi-programmets hjälpfunktioner>>=
 def bmi(weight_kg, height_cm):
     """Returnerar BMI för en vikt i kilogram och en längd i cm."""
     height_m = height_cm / 100
@@ -1540,8 +1539,8 @@ artighet.  Innan du läser vidare: vad skriver de här två raderna ut?
 % The program the student predicts is shown whole, as one chunk with no
 % named parts (the author's rule for programs the student reads, stated
 % 2026-09-20 and again 2026-09-23).  The function is therefore written
-% out a second time: keep it identical to the chunk "funktion som räknar
-% ut BMI ur vikt och längd" above whenever that changes.
+% out a second time: keep it identical to the definition of bmi in the
+% chunk "bmi-programmets hjälpfunktioner" whenever that changes.
 \begin{frame}[fragile]
   \begin{exercise}[Vad skriver raderna ut?]
     Samma funktion, två anrop:
@@ -1597,38 +1596,6 @@ säger vilka enheter parametrarna har: enheten hör till
 felmeddelande.  Kvadraten är skriven som en multiplikation; Python har
 också en operator för upphöjt till, men en multiplikation räcker här och
 kräver inget nytt.
-
-Personens uppgifter står som konstanter, med versaler: de ska inte ändras
-medan programmet kör\autocite{pep8}.  Huvudprogrammet skriver ut svaret
-med en decimal, av samma skäl som i \cref{sec:kakel} --- och skälet är
-tydligare här: utan avrundning skriver programmet ut ett BMI med fjorton
-decimaler.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Personen och utskriften]
-    Personens uppgifter, och ett huvudprogram som skriver ut en rad:
-<<konstanter för personen programmet handlar om>>=
-NAME = "Malvina"
-WEIGHT_KG = 65
-HEIGHT_CM = 170
-@
-<<huvudprogram: skriv ut personens BMI>>=
-def main():
-    """Skriver ut Malvinas BMI med en decimal."""
-    print(f"{NAME} har BMI {bmi(WEIGHT_KG, HEIGHT_CM):.1f}")
-
-
-main()
-@
-  \end{example}
-
-  \begin{example}[Vad programmet gör]
-    Överst i filen:
-<<beskrivning av bmi-programmet>>=
-"""Räknar ut BMI för en person."""
-@
-  \end{example}
-\end{frame}
 
 \begin{frame}<article>[fragile]
   \begin{example}[Hela programmet, hopsatt]
