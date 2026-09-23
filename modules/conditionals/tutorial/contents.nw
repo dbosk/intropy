@@ -93,10 +93,7 @@ vi för sig, i \cref{sec:bomben-sista}.
 """Ett spel: svarar du fel på en fråga detonerar bomben."""
 
 
-def detonera():
-    """Skriver ut att bomben detonerar, och ger True."""
-    print("BOM!")
-    return True
+<<funktionen som detonerar>>
 
 
 <<den första frågan>>
@@ -105,10 +102,23 @@ def detonera():
 <<frågorna om ett intervall>>
 
 
-<<den fjärde och den femte frågan>>
+<<den fjärde frågan>>
+
+
+<<den femte frågan>>
 
 
 <<bombens huvudprogram>>
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Funktionen som detonerar bomben:
+<<funktionen som detonerar>>=
+def detonera():
+    """Skriver ut att bomben detonerar, och ger True."""
+    print("BOM!")
+    return True
 @
 \end{frame}
 
@@ -148,8 +158,8 @@ def tredje_fragan():
 \end{frame}
 
 \begin{frame}[fragile]
-  Den fjärde och den femte frågan:
-<<den fjärde och den femte frågan>>=
+  Den fjärde frågan:
+<<den fjärde frågan>>=
 def fjarde_fragan():
     """Ställer den fjärde frågan och ger True om bomben detonerade."""
     svar = input("9 < 10 or 1 < 2 and 2 < 1, sant eller falskt? ")
@@ -157,16 +167,25 @@ def fjarde_fragan():
         return detonera()
 
     return False
+@
+\end{frame}
 
-
+\begin{frame}[fragile]
+  Den femte frågan:
+<<den femte frågan>>=
 def femte_fragan():
     """Ställer den femte frågan och ger True om bomben detonerade."""
     alder = int(input("Nämn en bra ålder. [Ange ett tal] "))
+    trad = "blå"
     if alder < 30:
-        return detonera()
+        trad = "röd"
     elif alder > 20 and alder < 40:
-        return detonera()
+        trad = "grön"
     elif not (alder < 65):
+        trad = "röd"
+
+    print(f"Du klipper den {trad} tråden.")
+    if trad == "röd":
         return detonera()
 
     return False
@@ -389,6 +408,14 @@ tittat på än.
   och ett av dem mot de villkor som står ovanför det.  En tidigare
   version frågade om ledet \mintinline{python}{alder > 20} vid namn,
   vilket tog bort just den urskiljningen.
+
+  Uppgiftens sista fråga och [[tradar.py]] är en kontrast inom
+  kontrasten: samma tre villkor, en gång som kedja och en gång
+  fristående, med samma svar.  Grenarna väljer en tråd i stället för att
+  lämna tillbaka ett värde, för med ett \mintinline{python}{return} i
+  varje gren skulle kedjan och de fristående villkoren bete sig likadant
+  och skillnaden inte gå att se (författaren, 2026-09-23: \enquote{Then
+  we should come up with another contrasting example}).
 }
 
 % REVIEW(C15): ingen körning står före den här uppgiften heller ---
@@ -404,6 +431,11 @@ tittat på än.
 
     Titta sedan på kedjan som helhet: finns det något led i den som
     aldrig kan ändra utfallet?  Vilket, och varför?
+    \only<presentation>{\medskip}
+
+    Tänk dig till sist att båda \mintinline{python}{elif} byts mot
+    \mintinline{python}{if}.  Vilken tråd klipper du då om du svarar
+    25, och gäller ditt svar om ledet fortfarande?
   \end{exercise}
 \end{frame}
 
@@ -412,21 +444,23 @@ tittat på än.
 Villkoren prövas uppifrån och ner, och det första som är sant vinner.
 Gå därför igenom dem i den ordningen, ett åldersintervall i taget.
 
-Är \mintinline{python}{alder} mindre än 30 är det första villkoret
-sant, och bomben detonerar direkt.  Är den 30 eller mer prövas det
-andra: \mintinline{python}{alder > 20 and alder < 40}.  För 30 till 39
-är båda leden sanna, så bomben detonerar även där.  För 40 och uppåt är
-det andra ledet falskt, och då prövas det tredje,
-\mintinline{python}{not (alder < 65)}.  Det är sant från 65 och uppåt,
-så där detonerar bomben igen.  Kvar blir 40 till 64.
+Tråden är blå om ingen gren körs, och bomben detonerar bara när den
+röda tråden klipps.  Är \mintinline{python}{alder} mindre än 30 är det
+första villkoret sant: tråden blir röd, och resten av kedjan prövas
+inte.  Är den 30 eller mer prövas det andra villkoret,
+\mintinline{python}{alder > 20 and alder < 40}.  För 30 till 39 är båda
+leden sanna, och tråden blir grön.  För 40 och uppåt är det andra ledet
+falskt, och då prövas det tredje, \mintinline{python}{not (alder < 65)}.
+Det är sant från 65 och uppåt, och där blir tråden röd igen.  Mellan
+40 och 64 körs ingen gren, och tråden förblir blå.  Bomben klarar sig
+alltså för 30 till 64.
 
 För till exempel 42 blir de tre villkoren i tur och ordning
 \mintinline{python}{42 < 30} som är falskt,
 \mintinline{python}{42 > 20 and 42 < 40} som är falskt eftersom det
 andra ledet är falskt, och \mintinline{python}{not (42 < 65)} som är
-falskt eftersom parentesen är sann.  Ingen gren körs, och funktionen
-fortsätter till raden efter kedjan, som lämnar tillbaka
-\mintinline{python}{False}.
+falskt eftersom parentesen är sann.  Ingen gren körs, tråden förblir
+blå, och funktionen lämnar tillbaka \mintinline{python}{False}.
 
 \begin{frame}[fragile]
   \begin{example}[En ålder som håller]
@@ -447,14 +481,87 @@ aldrig ändra utfallet: det andra villkoret \emph{är} i praktiken
 uppgiften.  En gren i en kedja bär med sig att alla villkor ovanför den
 var falska, och läser man grenen utan det får man fel.
 
+Att ledet är överflödigt beror på \mintinline{python}{elif}.  Byts båda
+\mintinline{python}{elif} mot \mintinline{python}{if} prövas alla tre
+villkoren, vart och ett för sig, och en senare gren kan skriva över det
+en tidigare valde.  Programmet nedan har kedjan i båda formerna, med
+samma villkor, och svarar 25 till båda.
+
+\begin{frame}[fragile]
+  Kedjan, som i bomben, och samma villkor fristående:
+<<[[tradar.py]]>>=
+<<kedjan>>
+
+
+<<de fristående villkoren>>
+
+
+<<båda formerna för samma ålder>>
+@
+<<kedjan>>=
+def trad1(alder):
+    """Väljer tråd med en kedja av villkor."""
+    trad = "blå"
+    if alder < 30:
+        trad = "röd"
+    elif alder > 20 and alder < 40:
+        trad = "grön"
+    elif not (alder < 65):
+        trad = "röd"
+    return trad
+@
+\end{frame}
+
+\begin{frame}[fragile]
+<<de fristående villkoren>>=
+def trad2(alder):
+    """Väljer tråd med tre fristående villkor."""
+    trad = "blå"
+    if alder < 30:
+        trad = "röd"
+    if alder > 20 and alder < 40:
+        trad = "grön"
+    if not (alder < 65):
+        trad = "röd"
+    return trad
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma villkor, två former]
+    \label{ex:elif-if}
+    Huvudprogrammet frågar båda funktionerna om samma ålder:
+<<båda formerna för samma ålder>>=
+def main():
+    """Väljer tråd på båda sätten för samma ålder."""
+    print(trad1(25))
+    print(trad2(25))
+
+
+main()
+@
+    \runpython[showcommand]{examples/tradar.py}
+  \end{example}
+\end{frame}
+
+Med kedjan blir tråden röd: det första villkoret är sant, och resten
+prövas aldrig.  Med tre fristående \mintinline{python}{if} är det
+första villkoret också sant, men sedan prövas det andra, och för 25 är
+\mintinline{python}{alder > 20 and alder < 40} sant --- tråden blir
+grön, och bomben klarar sig.  Nu är ledet
+\mintinline{python}{alder > 20} inte längre överflödigt: utan det
+skulle också 10 ge grönt.  Vad ett villkor betyder beror alltså på om
+det står i en kedja eller för sig självt.
+
 \begin{frame}[fragile]
   \only<presentation>{%
     \begin{solution}[Bombens sista fråga]
-      Åldrarna 40 till 64.  Under 30 är det första villkoret sant, 30
-      till 39 det andra och från 65 det tredje.  Ledet
+      Åldrarna 30 till 64: under 30 och från 65 blir tråden röd.  Ledet
       \mintinline{python}{alder > 20} kan aldrig ändra utfallet: den
       andra grenen nås bara när \mintinline{python}{alder} är 30 eller
-      mer, och då är ledet redan sant.
+      mer, och då är ledet redan sant.  Med tre fristående
+      \mintinline{python}{if} blir tråden för 25 grön, och då behövs
+      ledet.
     \end{solution}%
   }
 \end{frame}
@@ -1011,7 +1118,10 @@ Ett annat rimligt sätt är att ta emot kommatecknet, eftersom det är så
 ett decimaltal skrivs på svenska: byt kommatecknet mot en punkt innan
 \mintinline{python}{float} får svaret.  Strängar har en metod för det,
 \mintinline{python}{replace}, som föreläsningarna inte tar upp; du
-hittar den med \mintinline{python}{help(str.replace)}.  Förslaget gör
+hittar den bland strängarnas metoder med [[pydoc str]] (eller
+[[pydoc3 str]]) i terminalen, på samma sätt som vi läste om
+\mintinline{python}{input} i föreläsningen \emph{Inmatning och
+felhantering}.  Förslaget gör
 inte det, därför
 att meddelandet redan säger hur talet ska skrivas och funktionen då har
 samma form som de två andra.

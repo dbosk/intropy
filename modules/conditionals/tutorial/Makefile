@@ -37,6 +37,7 @@ SRC+=		ltnotes.bib
 # One line per tangled example program.  Recaps re-display these files
 # with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/bomben.py
+EXAMPLES+=	examples/tradar.py
 EXAMPLES+=	examples/biobiljetter1.py
 EXAMPLES+=	examples/biobiljetter2.py
 EXAMPLES+=	examples/fraga.py
