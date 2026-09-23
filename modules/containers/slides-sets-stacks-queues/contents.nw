@@ -437,40 +437,76 @@ medan den sköljda disken torkar i den ordning den sköljdes --- en kö.
   \end{exercise}
 \end{frame}
 
-Vi bygger programmet uppifrån och ner.  Överblicken är de tre faserna.
+Vi bygger programmet uppifrån och ner: först filens upplägg, sedan
+huvudprogrammet i pseudokod, och till sist preciserar vi pseudokoden med
+pythonkod, en del i taget.
 
 \begin{frame}[fragile]
-  Programmets tre faser:
+  Diskprogrammets upplägg:
 <<[[diska.py]]>>=
 """Ett program som diskar med en stack och en kö"""
 
 import collections
 
-
-<<diska allt>>
-
-
+<<diskprogrammets huvudprogram>>
 if __name__ == "__main__":
     diska(["tallrik", "glas", "gaffel", "kastrull"])
 @
 \end{frame}
 
+Överst står en \foreignlanguage{english}{docstring} som säger vad
+programmet gör, sedan importen och till sist huvudprogrammet och anropet
+som sätter igång det.  Programmet har varken konstanter eller
+hjälpfunktioner, så de delarna saknas i upplägget.  Huvudprogrammet är
+här funktionen \mintinline{python}{diska}, som får disken som argument,
+och anropet ger den fyra saker att diska.  Vad vi behöver ur
+\mintinline{python}{collections} ser vi när vi väljer behållare.
+
+Uppgiften beskriver tre faser: allt läggs i diskhon, sedan diskas en sak
+i taget och läggs i sköljhon, och till sist torkas sakerna.  Före
+faserna behöver funktionen två behållare: diskhon, och en för det som
+sköljts och väntar på att torkas, som vi kallar sköljkön.  Det blir
+huvudprogrammets pseudokod:
+
 \begin{frame}[fragile]
-  Funktionen gör tre saker, en fas i taget:
-<<diska allt>>=
+  Huvudprogrammet i pseudokod:
+<<diskprogrammets huvudprogram>>=
 def diska(disk):
     """Diskar sakerna i disk och skriver ut vad som händer."""
-    <<fyll diskhon>>
+    <<ställ fram diskhon och sköljkön>>
+
+    <<lägg all disk i diskhon>>
     <<diska ur diskhon och lägg i sköljkön>>
     <<torka det som sköljts>>
 @
-  \pause
+\end{frame}
 
+\ltnote{%
+  Relevanta lärandemål: \cref{ContLOStack,ContLOQueue}.
+
+  \textbf{Uppifrån och ner.}  Pseudokoden följer uppgiftens tre faser,
+  och behållarna får ett eget steg före dem.  Därmed besvaras uppgiftens
+  fråga --- vilken behållare som passar var --- där resonemanget når
+  den, när pseudokoden preciseras, och inte redan i upplägget.
+}
+
+När vi preciserar pseudokoden kommer uppgiftens fråga först: vilken
+behållare passar var?  Ur diskhon tar vi den sak som ligger överst,
+alltså den som lades i sist.  Diskhon är en stack, och där räcker en
+lista.  Det som sköljts ska torkas i den ordning det sköljdes, först in,
+först ut.  Sköljkön är en kö, alltså en \mintinline{python}{deque} ur
+\mintinline{python}{collections}.
+
+\begin{frame}[fragile]
   Diskhon är en stack och sköljkön en kö:
-<<fyll diskhon>>=
+<<ställ fram diskhon och sköljkön>>=
 diskho = []
 skoljko = collections.deque()
+@
+  \pause
 
+  All disk läggs i diskhon, den senaste överst:
+<<lägg all disk i diskhon>>=
 for sak in disk:
     diskho.append(sak)
     print(f"Lägger {sak} i diskhon: {diskho}")
@@ -498,15 +534,15 @@ while skoljko:
 @
 \end{frame}
 
-Nu är varje namngivet steg förfinat ända ner till Python.  Sätter vi
-ihop bitarna --- ersätter varje \LA{}namn\RA{} med sin förfining --- får
-vi ett helt, körbart program.
+Nu är all pseudokod preciserad med pythonkod, och programmet går att
+köra.
 
-\begin{frame}[fragile,shrink]
-  \begin{example}[Hela programmet]
-    Sätter vi ihop bitarna får vi:
-    \lstexample{python}{examples/diska.py}
-  \end{example}
+% The whole program in one piece: without this the notes break the
+% listing after its first two lines.
+\mode<article>{\needspace{22\baselineskip}}
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/diska.py}
 \end{frame}
 
 \begin{frame}[fragile]
