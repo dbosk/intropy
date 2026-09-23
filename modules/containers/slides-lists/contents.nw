@@ -860,38 +860,81 @@ main()
   alltså två aspekter samtidigt.  Det är \foreignlanguage{english}{fusion}
   i variationsteorins mening, och den ligger därför sist i avsnittet.
   Lösningen utvecklas sedan med stegvis förfining, i samma notation som
-  infördes i föreläsningen \emph{Algoritmiskt tänkande}.
+  infördes i föreläsningen \emph{Algoritmiskt tänkande}, och uppifrån och
+  ner: filens upplägg först, sedan huvudprogrammet i pseudokod, och en
+  hjälpfunktion först där resonemanget behöver den (författaren,
+  2026-09-23: \enquote{it too early outlines what functions we need,
+  without having started discussing the details of the problem yet}).
 }
 
-Vi bygger lösningen uppifrån och ner.  Programmet har två faser, och de
-märks tydligt i namnen på stegen.
+Vi bygger lösningen uppifrån och ner, och vi börjar i filens upplägg:
+överst en docstring som säger vad programmet är till för, sedan
+hjälpfunktionerna, huvudprogrammet och till sist anropet som sätter
+igång det.  Upplägget skriver vi i pseudokod, och sedan preciserar vi
+pseudokoden med pythonkod, en del i taget, när vi kommer till den.
 
 \begin{frame}[fragile]
-  Överblicken först:
+  Sökprogrammets upplägg:
 <<[[search.py]]>>=
 """Program om sökning i lista"""
 
-<<läs in ett namn>>
+<<sökprogrammets hjälpfunktioner>>
 
+<<sökprogrammets huvudprogram>>
+main()
+@
+\end{frame}
 
+Huvudprogrammet har två faser, och uppgiften säger vilka: först byggs
+namnlistan upp, sedan söker användaren i den.  Båda är mer än en rad,
+så vi skriver dem först som pseudokod.
+
+\begin{frame}[fragile]
+  Huvudprogrammet i två faser:
+<<sökprogrammets huvudprogram>>=
 def main():
     """Huvudprogrammet"""
     <<bygg upp namnlistan>>
 
     <<sök bland namnen>>
-
-
-main()
 @
 \end{frame}
 
-Båda faserna frågar användaren efter ett namn, och båda vill jämföra
-namn utan att bry sig om stora och små bokstäver.  Det är samma sak på
-två ställen --- så vi skriver det en gång, som en funktion.
+Första fasen börjar med en tom lista och lägger till namnen, ett i
+taget, som användaren matar in.  Att fråga användaren efter ett namn
+behöver sökfasen också, och båda faserna vill jämföra namn utan att
+bry sig om stora och små bokstäver.  Det är samma sak på två ställen ---
+så vi skriver det en gång, som en funktion,
+\mintinline{python}{input_name}.  Fasen anropar den, och vi skriver den
+när fasen är klar.
+
+\begin{frame}[fragile]
+  Första fasen läser namn tills användaren svarar med en blankrad:
+<<bygg upp namnlistan>>=
+names = []
+
+print(
+    "Nu bygger vi upp namndatabasen. Ange namn. "
+    "Ange tom sträng för att gå vidare."
+)
+
+name = input_name()
+while name:
+    names.append(name)
+    name = input_name()
+@
+\end{frame}
+
+Villkoret \mintinline{python}{while name} är kort för \enquote{så länge
+namnet inte är den tomma strängen}: en tom sträng är falsk i Python,
+alla andra strängar är sanna.
+
+Nu skriver vi funktionen som fasen anropar.  Den hamnar bland
+sökprogrammets hjälpfunktioner.
 
 \begin{frame}[fragile]
   Inläsningen blir en egen funktion:
-<<läs in ett namn>>=
+<<sökprogrammets hjälpfunktioner>>=
 def input_name():
     """Läser in ett namn och returnerar det i sökbar form."""
     return input("Ange namn: ").casefold()
@@ -924,27 +967,6 @@ Principen är Hunt och Thomas.\footnote{%
 }
 
 \begin{frame}[fragile]
-  Första fasen läser namn tills användaren svarar med en blankrad:
-<<bygg upp namnlistan>>=
-names = []
-
-print(
-    "Nu bygger vi upp namndatabasen. Ange namn. "
-    "Ange tom sträng för att gå vidare."
-)
-
-name = input_name()
-while name:
-    names.append(name)
-    name = input_name()
-@
-\end{frame}
-
-Villkoret \mintinline{python}{while name} är kort för \enquote{så länge
-namnet inte är den tomma strängen}: en tom sträng är falsk i Python,
-alla andra strängar är sanna.
-
-\begin{frame}[fragile]
   Andra fasen söker, tills användaren svarar med en blankrad igen:
 <<sök bland namnen>>=
 print(
@@ -971,7 +993,7 @@ while name:
 }
 \mode<article>{%
   \begin{example}[Hela programmet]
-    Sätter vi ihop bitarna får vi:
+    Sätter vi in varje del där dess namn står får vi hela programmet:
     \lstexample{python}{examples/search.py}
   \end{example}
 }
@@ -992,12 +1014,71 @@ skriva \enquote{ron} och hitta \enquote{ronja}.
 \end{frame}
 
 Nu räcker det inte med ett ja eller nej: vi vill ha \emph{alla} namn som
-passar.  Sökningen blir därför en egen funktion som lämnar tillbaka en
-lista --- tom om ingenting matchade.
+passar.  Programmet är annars detsamma som sökprogrammet, så vi börjar
+i dess upplägg.  Hjälpfunktionerna därifrån tar vi med som de är, och
+det nya samlar vi under egna namn.
+
+\begin{frame}[fragile]
+  Delsökningens upplägg:
+<<[[partial_search.py]]>>=
+"""Program om sökning i lista"""
+
+<<sökprogrammets hjälpfunktioner>>
+<<delsökningens hjälpfunktioner>>
+
+<<delsökningens huvudprogram>>
+main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Resten av programmet ändras bara i sökfasen:
+<<delsökningens huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    <<bygg upp namnlistan>>
+
+    <<sök efter delar av namnen>>
+@
+\end{frame}
+
+Sökfasen ska skriva ut alla namn som passar, och att leta fram dem är
+en uppgift för sig.  Sökningen blir därför en egen funktion,
+\mintinline{python}{partial_search}, som lämnar tillbaka en lista ---
+tom om ingenting matchade.  Sökfasen anropar den och skriver ut
+träffarna, och funktionen skriver vi när fasen är klar.
+
+\begin{frame}[fragile]
+  Den nya sökfasen skriver ut alla träffar:
+<<sök efter delar av namnen>>=
+print(
+    "Nu ska vi söka bland namnen. Skriv namn för att söka. "
+    "Skriv blankrad för att avsluta."
+)
+
+name = input_name()
+while name:
+    result = partial_search(name, names)
+
+    if result:
+        print(f"Hittade '{name}' i namndatabasen: ")
+        for match in result:
+            print(match.capitalize())
+    else:
+        print(f"Hittade INTE '{name}' i namndatabasen.")
+
+    name = input_name()
+@
+\end{frame}
+
+Villkoret \mintinline{python}{if result} fungerar som
+\mintinline{python}{while name}: en tom lista är falsk, alla andra
+listor är sanna.  Det är därför den tomma listan är ett bra svar när
+ingenting matchade.
 
 \begin{frame}[fragile]
   Sökfunktionen bygger upp en lista med träffarna:
-<<sök efter delsträng>>=
+<<delsökningens hjälpfunktioner>>=
 def partial_search(substring, strings):
     """Söker efter substring i strängarna i strings."""
     result = []
@@ -1042,51 +1123,6 @@ def partial_search(substring, strings):
   \emph{Upprepningar}, och tas därför inte upp här.
 }
 
-\begin{frame}[fragile]
-  Resten av programmet ändras bara i sökfasen:
-<<[[partial_search.py]]>>=
-"""Program om sökning i lista"""
-
-<<läs in ett namn>>
-
-
-<<sök efter delsträng>>
-
-
-def main():
-    """Huvudprogrammet"""
-    <<bygg upp namnlistan>>
-
-    <<sök efter delar av namnen>>
-
-
-main()
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  Den nya sökfasen skriver ut alla träffar:
-<<sök efter delar av namnen>>=
-print(
-    "Nu ska vi söka bland namnen. Skriv namn för att söka. "
-    "Skriv blankrad för att avsluta."
-)
-
-name = input_name()
-while name:
-    result = partial_search(name, names)
-
-    if result:
-        print(f"Hittade '{name}' i namndatabasen: ")
-        for match in result:
-            print(match.capitalize())
-    else:
-        print(f"Hittade INTE '{name}' i namndatabasen.")
-
-    name = input_name()
-@
-\end{frame}
-
 \mode<presentation>{%
 \begin{frame}[allowframebreaks]
   \frametitle{Hela programmet}
@@ -1095,7 +1131,7 @@ while name:
 }
 \mode<article>{%
   \begin{example}[Hela programmet]
-    Sätter vi ihop bitarna får vi:
+    Sätter vi in varje del där dess namn står får vi hela programmet:
     \lstexample{python}{examples/partial_search.py}
   \end{example}
 }
