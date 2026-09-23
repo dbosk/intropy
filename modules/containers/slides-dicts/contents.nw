@@ -723,46 +723,95 @@ användaren fylla telefonboken, och sedan söka i den.
   tillför.
 
   Lösningen utvecklas med stegvis förfining i samma notation som
-  infördes i föreläsningen \emph{Algoritmiskt tänkande}.
+  infördes i föreläsningen \emph{Algoritmiskt tänkande}, uppifrån och
+  ner: filens upplägg först, med namn som hör till just det här
+  programmet, sedan huvudprogrammet i pseudokod, och varje
+  hjälpfunktion läggs till först där resonemanget behöver den
+  (författaren, 2026-09-23: \enquote{it too early outlines what
+  functions we need, without having started discussing the details of
+  the problem yet}).  Funktionerna står därför i filen i den ordning de
+  upptäcks, anroparen före den anropade.
 }
 
-Vi bygger uppifrån och ner.  Programmet har två faser, precis som
-sökprogrammet i föreläsningen \emph{Behållare: Listor}.
+Vi lägger upp programmet som vanligt: överst en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan hjälpfunktionerna, huvudprogrammet och till sist villkoret
+som startar huvudprogrammet när filen körs som program.  Men vi skriver
+det inte i ett svep, utan uppifrån och ner: först upplägget, i
+pseudokod, och sedan preciserar vi pseudokoden med pythonkod, en del i
+taget, när vi kommer till den.
 
-\begin{frame}[fragile,shrink]
-  Överblicken först:
+\begin{frame}[fragile]
+  Sökprogrammets upplägg:
 <<[[search.py]]>>=
 """Program om sökning i en telefonbok"""
 
-<<läs in ett namn>>
+<<sökprogrammets hjälpfunktioner>>
 
-
-<<kontrollera ett telefonnummer>>
-
-
-<<läs in ett telefonnummer>>
-
-
-<<fyll telefonboken>>
-
-
-<<sök i telefonboken>>
-
-
-def main():
-    """Huvudprogrammet"""
-    print("Nu bygger vi upp telefonboken. Ange namn och nummer.")
-    print("Ange tom sträng för att gå vidare.")
-    phonebook = fill_phonebook()
-
-    print()
-    print("Nu ska vi söka bland namnen. Skriv namn för att söka.")
-    print("Skriv blankrad för att avsluta.")
-    search_phonebook(phonebook)
-
-
+<<sökprogrammets huvudprogram>>
 if __name__ == "__main__":
     main()
+@
+\end{frame}
+
+Programmet har två faser, precis som sökprogrammet i föreläsningen
+\emph{Behållare: Listor}: först fyller användaren telefonboken, sedan
+söker hon i den.  Huvudprogrammet blir de två faserna efter varandra,
+skrivna som pseudokod.
+
+\begin{frame}[fragile]
+  Huvudprogrammet i stora drag:
+<<sökprogrammets huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    <<låt användaren fylla telefonboken>>
+
+    <<låt användaren söka i telefonboken>>
+@
+\end{frame}
+
+Den första fasen säger till användaren vad som ska hända och låter henne
+sedan fylla boken.  Att fylla boken är mer än en rad --- det är en
+slinga som frågar tills användaren svarar med en blankrad --- och
+resultatet behövs i nästa fas.  Därför blir det en funktion som lämnar
+tillbaka boken, \mintinline{python}{fill_phonebook}, som vi anropar här
+och skriver strax.
+
+\begin{frame}[fragile]
+  Den första fasen:
+<<låt användaren fylla telefonboken>>=
+print("Nu bygger vi upp telefonboken. Ange namn och nummer.")
+print("Ange tom sträng för att gå vidare.")
+phonebook = fill_phonebook()
+@
+\end{frame}
+
+Här är det uppslagslistan gör sitt jobb: namnet blir nyckeln och numret
+värdet, och paret hålls ihop av behållaren i stället för av oss.
+Namnet och numret läser vi in med två funktioner,
+\mintinline{python}{input_name} och \mintinline{python}{input_phonenum},
+som vi skriver efter den här: namnet ska läsas in på samma sätt i båda
+faserna, och numret ska kontrolleras.  Funktionen är den första av
+sökprogrammets hjälpfunktioner.  Ett namn som får flera delar får
+\(\equiv\) första gången och +\(\equiv\) varje gång därefter, och i
+programmet står delarna efter varandra, i den ordning de kommer.
+
+\begin{frame}[fragile]
+  Inmatningsfasen:
+<<sökprogrammets hjälpfunktioner>>=
+def fill_phonebook():
+    """Låter användaren fylla telefonboken och returnerar den."""
+    phonebook = {}
+
+    name = input_name("Ange namn för en ny kontakt: ")
+    while name:
+        phonebook[name] = input_phonenum(
+            f"Ange telefonnummer för {name.capitalize()}: "
+        )
+        print()
+        name = input_name("Ange namn för en ny kontakt: ")
+
+    return phonebook
 @
 \end{frame}
 
@@ -772,30 +821,23 @@ inte bryr sig om stora bokstäver.
 
 \begin{frame}[fragile]
   Inläsningen av ett namn:
-<<läs in ett namn>>=
+<<sökprogrammets hjälpfunktioner>>=
 def input_name(prompt="Ange namn: "):
     """Läser in ett namn och returnerar det i sökbar form."""
     return input(prompt).strip().casefold()
 @
 \end{frame}
 
-Numret är svårare, för ett telefonnummer får bara innehålla siffror ---
-och mellanslag och bindestreck, som vi struntar i när vi kontrollerar.
-Kontrollen blir en egen funktion med ett enda ansvar, så att
-inläsningsfunktionen bara behöver fråga om igen.
+Numret är svårare: inläsningen ska fråga om tills svaret ser ut som ett
+telefonnummer.  Vad som ser ut som ett telefonnummer är en fråga för
+sig, så kontrollen blir en egen funktion med ett enda ansvar,
+\mintinline{python}{is_phonenum}, och inläsningsfunktionen behöver bara
+fråga om igen.  Ett telefonnummer får bara innehålla siffror --- och
+mellanslag och bindestreck, som vi struntar i när vi kontrollerar.
 
 \begin{frame}[fragile,shrink]
-  Först kontrollen:
-<<kontrollera ett telefonnummer>>=
-def is_phonenum(phonenum):
-    """Returnerar True om phonenum ser ut som ett telefonnummer."""
-    clean_phonenum = phonenum.replace("-", "").replace(" ", "")
-    return clean_phonenum.isdigit()
-@
-  \pause
-
-  Sedan inläsningen, som frågar om igen tills numret duger:
-<<läs in ett telefonnummer>>=
+  Först inläsningen, som frågar om igen tills numret duger:
+<<sökprogrammets hjälpfunktioner>>=
 def input_phonenum(
     prompt="Ange telefonnummer: ",
     fail_prompt="Det ser inte ut som ett telefonnummer.",
@@ -808,6 +850,15 @@ def input_phonenum(
         phonenum = input(prompt)
 
     return phonenum
+@
+  \pause
+
+  Sedan kontrollen:
+<<sökprogrammets hjälpfunktioner>>=
+def is_phonenum(phonenum):
+    """Returnerar True om phonenum ser ut som ett telefonnummer."""
+    clean_phonenum = phonenum.replace("-", "").replace(" ", "")
+    return clean_phonenum.isdigit()
 @
 \end{frame}
 
@@ -825,33 +876,28 @@ def input_phonenum(
   kontrollen går att testa utan att någon behöver mata in något.
 }
 
-Nu kan telefonboken fyllas.  Här är det uppslagslistan gör sitt jobb:
-namnet blir nyckeln och numret värdet, och paret hålls ihop av
-behållaren i stället för av oss.
+Den andra fasen är byggd på samma sätt som den första: ett besked till
+användaren och sedan en funktion som gör jobbet, nu med boken som
+argument.
 
 \begin{frame}[fragile]
-  Inmatningsfasen:
-<<fyll telefonboken>>=
-def fill_phonebook():
-    """Låter användaren fylla telefonboken och returnerar den."""
-    phonebook = {}
-
-    name = input_name("Ange namn för en ny kontakt: ")
-    while name:
-        phonebook[name] = input_phonenum(
-            f"Ange telefonnummer för {name.capitalize()}: "
-        )
-        print()
-        name = input_name("Ange namn för en ny kontakt: ")
-
-    return phonebook
+  Den andra fasen:
+<<låt användaren söka i telefonboken>>=
+print()
+print("Nu ska vi söka bland namnen. Skriv namn för att söka.")
+print("Skriv blankrad för att avsluta.")
+search_phonebook(phonebook)
 @
 \end{frame}
+
+Sökningen läser namnen med samma \mintinline{python}{input_name} som
+inmatningen, och det var därför inläsningen av ett namn blev en
+funktion.  Varje namn slås upp i boken.
 
 \mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   Sökfasen, där en saknad nyckel är ett väntat fall:
-<<sök i telefonboken>>=
+<<sökprogrammets hjälpfunktioner>>=
 def search_phonebook(phonebook):
     """Låter användaren söka i phonebook."""
     name = input_name()
@@ -865,6 +911,11 @@ def search_phonebook(phonebook):
         print()
         name = input_name()
 @
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/search.py}
 \end{frame}
 
 För att kunna visa en körning matar vi programmet med en färdig
@@ -935,28 +986,69 @@ Bredden på en kolumn måste vara det längsta namnets bredd, plus lite
 luft.  Alltså måste vi gå igenom alla namn en gång innan vi skriver ut
 det första.
 
+Modulen får samma upplägg som programmen, men utan huvudprogram: den är
+till för att importeras, och den som importerar den vill bara ha
+funktionerna.  Funktionen skriver vi först i pseudokod, i två steg: det
+den måste veta innan den skriver något, och själva utskriften.
+
 \begin{frame}[fragile]
-  Modulen börjar med att räkna ut kolumnbredden:
+  Modulens upplägg:
 <<[[phonebook.py]]>>=
 """En modul med funktioner för telefonböcker"""
 
-<<skriv ut i kolumner>>
+<<telefonboksmodulens funktioner>>
 @
   \pause
 
-<<skriv ut i kolumner>>=
+  Funktionen i stora drag:
+<<telefonboksmodulens funktioner>>=
 def print_sorted(names, max_row_width=60):
     """Skriver ut names i bokstavsordning, i jämna kolumner."""
-    column_width = len(max(names, key=len)) + 2
-    per_row = max(1, max_row_width // column_width)
+    <<räkna ut kolumnbredden och hur många kolumner som får plats>>
 
-    for count, name in enumerate(sorted(names)):
-        if count > 0 and count % per_row == 0:
-            print()
-        print(f"{name:{column_width}s}", end="")
-
-    print()
+    <<skriv ut namnen i bokstavsordning, en rad i taget>>
 @
+\end{frame}
+
+Luften blir två tecken.  Det längsta namnet ger
+\mintinline{python}{max} med \mintinline{python}{key=len}, samma nyckel
+som vi sorterade efter längd med i föreläsningen \emph{Behållare:
+Listor}.  Hur många kolumner som
+får plats på en rad ger heltalsdivisionen, men alltid minst en, så att
+ett namn som är längre än hela raden ändå skrivs ut.
+
+\begin{frame}[fragile]
+  Först det funktionen måste veta innan den skriver något:
+<<räkna ut kolumnbredden och hur många kolumner som får plats>>=
+column_width = len(max(names, key=len)) + 2
+per_row = max(1, max_row_width // column_width)
+@
+\end{frame}
+
+Sedan skrivs namnen ut, i bokstavsordning, på samma rad med
+\mintinline{python}|end=""|.  Varje namn fylls ut till kolumnbredden,
+som \mintinline{python}{:4d} fyllde ut talen i
+multiplikationstabellen i föreläsningen \emph{Upprepningar}, men här
+står bredden i en variabel, inom egna klamrar, och
+\mintinline{python}{s} säger att det är en sträng som fylls ut.  Före
+varje namn som börjar en ny rad --- utom det första --- byter vi rad,
+och till sist avslutar vi den sista raden.
+
+\begin{frame}[fragile]
+  Sedan utskriften:
+<<skriv ut namnen i bokstavsordning, en rad i taget>>=
+for count, name in enumerate(sorted(names)):
+    if count > 0 and count % per_row == 0:
+        print()
+    print(f"{name:{column_width}s}", end="")
+
+print()
+@
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela modulen:
+  \inputminted{python}{examples/phonebook.py}
 \end{frame}
 
 Funktionen tar en behållare av namn --- den bryr sig inte om det är en
