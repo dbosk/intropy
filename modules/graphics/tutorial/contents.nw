@@ -132,7 +132,10 @@ if __name__ == "__main__":
   importen.
 }
 
-För att skriva över den förra tiden behövs två saker.
+Tiden får vi från modulen [[time]]: [[time.strftime]] gör den aktuella
+tiden till en sträng efter ett mönster, där \texttt{\%H}, \texttt{\%M} och
+\texttt{\%S} står för timmar, minuter och sekunder med två siffror var.
+För att skriva över den förra tiden behövs sedan två saker.
 \mintinline{python}{print} avslutar normalt med ett radslut, och det
 flyttar skrivläget till nästa rad; \mintinline{python}{end=""} tar bort
 radslutet.  Sedan måste skrivläget tillbaka till radens början, och dit
@@ -143,9 +146,10 @@ skrivas över, alltså åtta för \texttt{hh:mm:ss}.
 
 \begin{frame}[fragile]
   \begin{solution}[Skriv och backa]
-    Tiden och bakstegen skrivs i samma anrop:
+    Tiden och bakstegen blir en rad, som skrivs utan radslut:
 <<skriv tiden och backa tillbaka över den>>=
-print(time.strftime("%H:%M:%S") + "\b" * 8, end="")
+line = time.strftime("%H:%M:%S") + "\b" * 8
+print(line, end="")
 @
   \end{solution}
 \end{frame}
@@ -182,11 +186,31 @@ skrivläget; i en fil blir de bara tecken i filen.  Det är därför en
 klocka i terminalen måste köras i en terminal för att se ut som en
 klocka.
 
-Kvar är den del som gör att något syns alls.  Python skickar inte
-utskriften vidare tecken för tecken, utan samlar upp den och skickar den
-när en rad är färdig eller när bufferten är full.  Klockan avslutar
-aldrig någon rad, så inget av det händer, och skärmen förblir tom hur
-länge programmet än kör.  Alltså måste programmet tömma bufferten själv.
+Kvar är den del som gör att något syns alls, och den syns bäst genom
+att vi först låter bli att skriva den.  Utan den är slingan bara
+utskriften och väntan, och väntan sköter [[time.sleep(1)]], som låter
+programmet stå still en sekund innan det fortsätter.
+
+\begin{frame}[fragile]
+  \begin{example}[Slingan utan den sista delen]
+    Tiden skrivs, och programmet väntar en sekund:
+    \begin{minted}{python}
+while True:
+    line = time.strftime("%H:%M:%S") + "\b" * 8
+    print(line, end="")
+    time.sleep(1)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Kör du den slingan i en terminal syns ingenting.  Python skickar inte
+utskriften vidare tecken för tecken, utan samlar upp den i en buffert
+och skickar den när en rad är färdig eller när bufferten är full.
+Klockan avslutar aldrig någon rad, och bufferten rymmer tusentals
+sekunders tider, så skärmen förblir tom mycket länge --- och när
+bufferten till sist töms står tiden sedan still lika länge igen.
+Alltså måste programmet tömma bufferten själv, och det är vad
+[[sys.stdout.flush()]] gör: den skickar vidare det som samlats upp.
 
 \begin{frame}[fragile]
   \begin{solution}[Varför utskriften inte syns när den skrivs]
@@ -331,7 +355,7 @@ class Clock(tk.Tk):
         self.clockface["text"] = time.strftime("%H:%M:%S")
 
 
-<<huvudprogrammet i [[clock_loop.py]]>>
+<<huvudprogram som uppdaterar klockan i en egen slinga>>
 
 
 if __name__ == "__main__":
@@ -347,7 +371,7 @@ Huvudprogrammet är terminalklockans, ord för ord, med
 \begin{frame}[fragile]
   \begin{solution}[Huvudprogrammet i första försöket]
     Skapa fönstret, och uppdatera det en gång per sekund:
-<<huvudprogrammet i [[clock_loop.py]]>>=
+<<huvudprogram som uppdaterar klockan i en egen slinga>>=
 def main():
     """Update the clock once a second, as in the terminal"""
     clock = Clock()
@@ -403,12 +427,12 @@ import tkinter as tk
 class Clock(tk.Tk):
     """A window with the time on a label, updated once a second"""
 
-    <<konstruktorn för [[Clock]]>>
+    <<konstruktor som skapar urtavlan och visar den första tiden>>
 
-    <<metoden [[update_time]]>>
+    <<metod som visar tiden och beställer nästa anrop>>
 
 
-<<huvudprogrammet i [[clock.py]]>>
+<<huvudprogram som lämnar över takten till händelseslingan>>
 
 
 if __name__ == "__main__":
@@ -431,7 +455,7 @@ så att den första tiden syns direkt och den första beställningen läggs.
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Strängen, etiketten som visar den, och det första anropet:
-<<konstruktorn för [[Clock]]>>=
+<<konstruktor som skapar urtavlan och visar den första tiden>>=
 def __init__(self):
     super().__init__()
 
@@ -453,7 +477,7 @@ beställningen på nästa.
 \begin{frame}[fragile]
   \begin{solution}[Metoden som går]
     Sätt tiden, och beställ nästa anrop:
-<<metoden [[update_time]]>>=
+<<metod som visar tiden och beställer nästa anrop>>=
 def update_time(self):
     """Show the current time, then ask to be called again"""
     self.current_time.set(time.strftime("%H:%M:%S"))
@@ -473,7 +497,7 @@ kallas en \foreignlanguage{english}{callback}-funktion.
 \begin{frame}[fragile]
   \begin{solution}[Huvudprogrammet]
     Skapa fönstret, och lämna över takten:
-<<huvudprogrammet i [[clock.py]]>>=
+<<huvudprogram som lämnar över takten till händelseslingan>>=
 def main():
     """Run the clock"""
     clock = Clock()
@@ -574,7 +598,7 @@ reglerna en rad var.
 \begin{frame}[fragile]
   \begin{solution}[Funktionen \texttt{count\_down}]
     En regel per villkor, i tur och ordning:
-<<funktionen [[count_down]]>>=
+<<funktion som räknar ner en sekund, men aldrig under noll>>=
 def count_down(hour, minute, second):
     """Return the time one second before hour:minute:second"""
     if second > 0:
@@ -610,7 +634,7 @@ tecken, utfyllt med nollor}.
 \begin{frame}[fragile]
   \begin{solution}[Funktionen \texttt{format\_time}]
     Tre tal in, en sträng ut:
-<<funktionen [[format_time]]>>=
+<<funktion som gör en tid till en sträng hh:mm:ss>>=
 def format_time(hour, minute, second):
     """Return the time as hh:mm:ss"""
     return f"{hour:02d}:{minute:02d}:{second:02d}"
@@ -626,7 +650,7 @@ hjälpfunktion, som skriver en tid och sedan de närmast följande.
 \begin{frame}[fragile]
   \begin{solution}[Att pröva nedräkningen]
     Hjälpfunktionen skriver en tid och stegen efter den:
-<<funktionen [[show_steps]]>>=
+<<funktion som skriver en tid och stegen efter den>>=
 def show_steps(hour, minute, second, steps):
     """Print the time, then each of the next steps seconds"""
     for _ in range(steps + 1):
@@ -636,10 +660,14 @@ def show_steps(hour, minute, second, steps):
   \end{solution}
 \end{frame}
 
+Slingan behöver bara räkna varv, inte använda talen
+\mintinline{python}{range} ger, och namnet [[_]] är det vanliga sättet
+att säga att ett värde inte används.
+
 \begin{frame}[fragile]
   \begin{solution}[Huvudprogrammet]
     De två fallen, ett i taget:
-<<huvudprogrammet i [[countdown.py]]>>=
+<<huvudprogram som prövar de två fall som är lätta att få fel>>=
 def main():
     """Show the two cases that are easy to get wrong"""
     print("en hel minut:")
@@ -662,16 +690,16 @@ funktionerna utan att nedräkningen skrivs ut på nytt.
 """Counting down one second at a time"""
 
 
-<<funktionen [[count_down]]>>
+<<funktion som räknar ner en sekund, men aldrig under noll>>
 
 
-<<funktionen [[format_time]]>>
+<<funktion som gör en tid till en sträng hh:mm:ss>>
 
 
-<<funktionen [[show_steps]]>>
+<<funktion som skriver en tid och stegen efter den>>
 
 
-<<huvudprogrammet i [[countdown.py]]>>
+<<huvudprogram som prövar de två fall som är lätta att få fel>>
 
 
 if __name__ == "__main__":
@@ -795,16 +823,16 @@ from countdown import count_down, format_time
 class Timer(tk.Tk):
     """A window where a time is set, started and counted down"""
 
-    <<konstruktorn för [[Timer]]>>
+    <<konstruktor som skapar timerns minne och gränssnitt>>
 
-    <<metoden [[make_box]]>>
+    <<metod som skapar ett fält för tiden>>
 
-    <<metoden [[start]]>>
+    <<metod som läser av fälten och startar nedräkningen>>
 
-    <<metoden [[tick]]>>
+    <<metod som visar tiden och räknar ner en sekund till>>
 
 
-<<huvudprogrammet i [[timer.py]]>>
+<<huvudprogram som kör timern>>
 
 
 if __name__ == "__main__":
@@ -832,7 +860,7 @@ behöver minnas mellan två händelser måste ligga i objektets attribut.
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Minnet först, sedan gränssnittet:
-<<konstruktorn för [[Timer]]>>=
+<<konstruktor som skapar timerns minne och gränssnitt>>=
 def __init__(self):
     super().__init__()
 
@@ -841,7 +869,7 @@ def __init__(self):
 
     <<skapa fälten där tiden ställs in>>
 
-    <<skapa startknappen och nedräkningen>>
+    <<skapa startknappen och etiketten som visar tiden>>
 @
   \end{solution}
 \end{frame}
@@ -864,7 +892,7 @@ self.hour_box = self.make_box(0)
 self.minute_box = self.make_box(1)
 self.second_box = self.make_box(2)
 @
-<<metoden [[make_box]]>>=
+<<metod som skapar ett fält för tiden>>=
 def make_box(self, column):
     """Create one entry field for the time, prefilled with a zero"""
     box = tk.Entry(width=4)
@@ -876,7 +904,10 @@ def make_box(self, column):
   \end{solution}
 \end{frame}
 
-Sista raden gör att returtangenten i ett fält startar nedräkningen, så
+Metoden \mintinline{python}{insert} skriver in text i fältet på en
+given plats, här en nolla först, så att ett fält du inte rör ändå
+innehåller ett tal.  Sista raden gör att returtangenten i ett fält
+startar nedräkningen, så
 att du slipper flytta handen till musen.  Den avslöjar samtidigt en
 skillnad mellan de två sätten att koppla en
 \foreignlanguage{english}{callback}: \mintinline{python}{bind} lämnar
@@ -894,7 +925,7 @@ parenteser.
 \begin{frame}[fragile]
   \begin{solution}[Knappen och nedräkningen]
     Knappen till höger om fälten, etiketten under dem:
-<<skapa startknappen och nedräkningen>>=
+<<skapa startknappen och etiketten som visar tiden>>=
 self.start_button = tk.Button(text="Starta", command=self.start)
 self.start_button.grid(row=0, column=3)
 
@@ -905,6 +936,10 @@ self.display_label.grid(row=1, column=0, columnspan=4)
 @
   \end{solution}
 \end{frame}
+
+Med \mintinline{python}{columnspan=4} sträcker sig etiketten över alla
+fyra kolumnerna, och \mintinline{python}|value="00:00:00"| ger variabeln
+ett värde redan när den skapas.
 
 När knappen trycks ska tiden i fälten bli tiden som är kvar.  Ett
 textfält innehåller text, inte tal, så texten måste tolkas som ett tal
@@ -918,7 +953,7 @@ felmeddelandet i etiketten, där tiden skulle ha stått.
 \begin{frame}[fragile,shrink=10]
   \begin{solution}[Metoden \texttt{start}]
     Gör ingenting om timern redan går, läs annars av fälten:
-<<metoden [[start]]>>=
+<<metod som läser av fälten och startar nedräkningen>>=
 def start(self, event=None):
     """Read the three fields and start counting down"""
     if self.running:
@@ -954,7 +989,7 @@ fälten först skulle tiden hoppa tillbaka till den inställda.
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{tick}]
     Visa tiden, och beställ nästa sekund så länge det finns någon:
-<<metoden [[tick]]>>=
+<<metod som visar tiden och räknar ner en sekund till>>=
 def tick(self):
     """Show the time left, then count down one more second"""
     hour, minute, second = self.time_left
@@ -979,7 +1014,7 @@ klocka och en timer.
 \begin{frame}[fragile]
   \begin{solution}[Huvudprogrammet]
     Som klockans, med en timer i stället:
-<<huvudprogrammet i [[timer.py]]>>=
+<<huvudprogram som kör timern>>=
 def main():
     """Run the timer"""
     timer = Timer()
@@ -1041,7 +1076,7 @@ ställe, i \mintinline{python}{start}.
   vill skicka med ett argument.
 }
 
-De två sista uppgifterna bygger vidare på ritprogrammet från
+I de två sista uppgifterna bygger vi vidare på ritprogrammet från
 föreläsningen \emph{Grafiska användargränssnitt}: en rityta där du drar
 med musen och programmet ritar en linje efter den.  Ritytan och
 bindningarna behålls som de är; det är vad som ritas som ska ändras.
@@ -1084,20 +1119,20 @@ metod per färg --- ingen metod alls.
 
 import tkinter as tk
 
-<<färgerna>>
+<<färgerna att välja bland>>
 
 
 class DrawGUI(tk.Tk):
     """A window you draw lines in with the mouse"""
 
-    <<konstruktorn för [[DrawGUI]]>>
+    <<konstruktor som skapar ritytan och färgknapparna>>
 
-    <<metoden [[paint]]>>
+    <<metod som ritar en linje när musen dras>>
 
-    <<metoden [[reset_old_coord]]>>
+    <<metod som glömmer den förra punkten>>
 
 
-<<huvudprogrammet för ritprogrammet>>
+<<huvudprogram som kör ritprogrammet>>
 
 
 if __name__ == "__main__":
@@ -1113,7 +1148,7 @@ igen; de flesta engelska färgnamn fungerar.
 \begin{frame}[fragile]
   \begin{solution}[Färgerna]
     Fem färger, och den första är den som gäller från början:
-<<färgerna>>=
+<<färgerna att välja bland>>=
 COLORS = ["black", "red", "blue", "green", "orange"]
 @
   \end{solution}
@@ -1125,7 +1160,7 @@ och färgknapparna, som är det nya.
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Ritytan, och sedan färgknapparna under den:
-<<konstruktorn för [[DrawGUI]]>>=
+<<konstruktor som skapar ritytan och färgknapparna>>=
 def __init__(self):
     super().__init__()
 
@@ -1159,7 +1194,8 @@ Knapparna skapas i en slinga över färglistan, en per färg, i en egen ram
 under ritytan.  Alla får samma \mintinline{python}{variable}, vilket är
 det som gör dem till ett val, och var sitt
 \mintinline{python}{value}, vilket är det som hamnar i variabeln.  Att
-knappen dessutom får sin text i sin egen färg är bara för att det ska gå
+knappen dessutom får sin text i sin egen färg, med
+\mintinline{python}{fg} (förgrundsfärgen), är bara för att det ska gå
 att se vad man väljer.
 
 \begin{frame}[fragile]
@@ -1207,12 +1243,12 @@ till den nya och blir i sin tur den förra punkten.
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{paint}]
     Spara punkten om den är den första, annars rita:
-<<metoden [[paint]]>>=
+<<metod som ritar en linje när musen dras>>=
 def paint(self, event):
     """Draw a line from the previous point to this one"""
-    <<rita en linje från den förra punkten>>
+    <<spara den första punkten eller rita en linje från den förra>>
 @
-<<rita en linje från den förra punkten>>=
+<<spara den första punkten eller rita en linje från den förra>>=
 if self.x_old is None:
     self.x_old = event.x
     self.y_old = event.y
@@ -1235,7 +1271,7 @@ för att dra en linje från det förra dragets slut.
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{reset\_old\_coord}]
     Glöm den förra punkten:
-<<metoden [[reset_old_coord]]>>=
+<<metod som glömmer den förra punkten>>=
 def reset_old_coord(self, _):
     """Forget the previous point, so the next stroke starts fresh"""
     self.x_old = self.y_old = None
@@ -1246,7 +1282,7 @@ def reset_old_coord(self, _):
 \begin{frame}[fragile]
   \begin{solution}[Huvudprogrammet]
     Skapa fönstret, och lämna över takten:
-<<huvudprogrammet för ritprogrammet>>=
+<<huvudprogram som kör ritprogrammet>>=
 def main():
     """Run the drawing program"""
     window = DrawGUI()
@@ -1297,31 +1333,11 @@ ingenting.  En \mintinline{python}{Radiobutton} behöver inget
   \mintinline{python}{reset_old_coord} från \cref{sec:colors}, som
   återanvänds som de är --- i den litterata källan är det samma delar,
   inte kopior av dem.
-
-  \textbf{Varför uppgiften behålls}: den kommer från den gamla övningens
-  andra punkt om ritprogrammet, och till skillnad från färgknapparna har
-  föreläsningen inte visat svaret.  Den står sist eftersom den kräver
-  att både bindningar och tillstånd redan är urskilda: läget avgör
-  vilken av två metoder som får göra något, och rektangeln kräver ett
-  eget minne av det första klicket.
-
-  % TODO(claim-audit): att nybörjare väntar sig att en ny bindning till
-  % samma musknapp ersätter den förra är ett påstående om
-  % missuppfattningar utan källa här.
-  \textbf{Missuppfattning som uppgiften riktar sig mot}: att en händelse
-  är \enquote{ett musklick} snarare än en av flera sorter, så att
-  nedtryckning och rörelse inte hålls isär.  Den som tror det får
-  antingen en linje vid varje försök att rita en rektangel, eller en
-  bindning som tros ersätta den förra.
-
-  Uppgiften lämnar \cref{OvningGraphicsLODocs} öppen med flit:
-  \texttt{pydoc3 tkinter.Canvas} räknar upp fler metoder än de två som
-  används, och den sista frågan ber om en av dem.
 }
 
-Sista uppgiften utökar samma ritprogram.  En linje ritas genom att man
-drar; en rektangel är inte ett drag utan två hörn, och programmet måste
-alltså kunna två olika saker med samma musknapp.
+I den sista uppgiften utökar vi samma ritprogram.  En linje ritas genom
+att man drar; en rektangel är inte ett drag utan två hörn, och programmet
+måste alltså kunna två olika saker med samma musknapp.
 
 % REVIEW(C15): inget körexempel före den här uppgiften --- programmet
 % kräver ett fönster (se Makefile).  Skärmbilden (\cref{fig:draw-rect})
@@ -1348,6 +1364,31 @@ mellan fem, så det blir en \mintinline{python}{StringVar} till med
 radioknappar.  Ritytan, färgknapparna och metoden som glömmer punkten är
 samma delar som i \cref{sec:colors}.
 
+% Andra halvan av avsnittets anteckning, förankrad här och inte vid
+% avsnittets början: där trycks den upp i sidocaptionen till figuren i
+% avsnittet före.
+\ltnote{%
+  \textbf{Varför uppgiften behålls}: den kommer från den gamla övningens
+  andra punkt om ritprogrammet, och till skillnad från färgknapparna har
+  föreläsningen inte visat svaret.  Den står sist eftersom den kräver
+  att både bindningar och tillstånd redan är urskilda: läget avgör
+  vilken av två metoder som får göra något, och rektangeln kräver ett
+  eget minne av det första klicket.
+
+  % TODO(claim-audit): att nybörjare väntar sig att en ny bindning till
+  % samma musknapp ersätter den förra är ett påstående om
+  % missuppfattningar utan källa här.
+  \textbf{Missuppfattning som uppgiften riktar sig mot}: att en händelse
+  är \enquote{ett musklick} snarare än en av flera sorter, så att
+  nedtryckning och rörelse inte hålls isär.  Den som tror det får
+  antingen en linje vid varje försök att rita en rektangel, eller en
+  bindning som tros ersätta den förra.
+
+  Uppgiften lämnar \cref{OvningGraphicsLODocs} öppen med flit:
+  \texttt{pydoc3 tkinter.Canvas} räknar upp fler metoder än de två som
+  används, och den sista frågan ber om en av dem.
+}
+
 \begin{frame}[fragile,shrink=20]
   \begin{solution}[\texttt{draw\_rect.py}]
     Tre delar är samma som förut, två är ersatta och en är ny:
@@ -1356,22 +1397,22 @@ samma delar som i \cref{sec:colors}.
 
 import tkinter as tk
 
-<<färgerna>>
+<<färgerna att välja bland>>
 
 
 class DrawGUI(tk.Tk):
     """A window you draw lines and rectangles in with the mouse"""
 
-    <<konstruktorn för [[DrawGUI]] med former>>
+    <<konstruktor som skapar ritytan, färg- och formknapparna>>
 
-    <<metoden [[paint]] i lägesversionen>>
+    <<metod som ritar en linje när musen dras, i linjeläget>>
 
-    <<metoden [[draw_rect]]>>
+    <<metod som ritar en rektangel, i rektangelläget>>
 
-    <<metoden [[reset_old_coord]]>>
+    <<metod som glömmer den förra punkten>>
 
 
-<<huvudprogrammet för ritprogrammet>>
+<<huvudprogram som kör ritprogrammet>>
 
 
 if __name__ == "__main__":
@@ -1386,7 +1427,7 @@ färgknapparna.
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
     Tre delar i stället för två:
-<<konstruktorn för [[DrawGUI]] med former>>=
+<<konstruktor som skapar ritytan, färg- och formknapparna>>=
 def __init__(self):
     super().__init__()
 
@@ -1462,13 +1503,13 @@ ingenting annars.  Det är den enda skillnaden mot metoden i
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{paint} med lägeskontroll]
     Samma metod som förut, med en fråga först:
-<<metoden [[paint]] i lägesversionen>>=
+<<metod som ritar en linje när musen dras, i linjeläget>>=
 def paint(self, event):
     """Draw a line, unless the rectangle mode is chosen"""
     if self.shape.get() != "line":
         return
 
-    <<rita en linje från den förra punkten>>
+    <<spara den första punkten eller rita en linje från den förra>>
 @
   \end{solution}
 \end{frame}
@@ -1489,15 +1530,15 @@ nedtryckningen var ett klick eller början på ett drag.
 \begin{frame}[fragile,shrink=10]
   \begin{solution}[Metoden \texttt{draw\_rect}]
     Spara det första hörnet, rita på det andra:
-<<metoden [[draw_rect]]>>=
+<<metod som ritar en rektangel, i rektangelläget>>=
 def draw_rect(self, event):
     """Draw a rectangle between two clicked corners"""
     if self.shape.get() != "rect":
         return
 
-    <<rita en rektangel mellan två klick>>
+    <<spara det första hörnet eller rita rektangeln>>
 @
-<<rita en rektangel mellan två klick>>=
+<<spara det första hörnet eller rita rektangeln>>=
 if self.x_press is None:
     self.x_press = event.x
     self.y_press = event.y
