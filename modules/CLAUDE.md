@@ -100,6 +100,11 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   *Upprepningar*, *Behållare: Listor* and *Behållare: Tupler* are
   lectured before it and call `main()` bare).
 - Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
+- A tutorial may introduce a small new thing the lectures did not teach,
+  if the student can find it with what was taught, e.g. `str.replace`
+  through `pydoc str` (author, 2026-09-23: "It's fine if we introduce new
+  things in the tutorials too. But only small things."). Say where to
+  look, not just the name.
 - Commands follow *Hello, World!*, which has the student type `python3`:
   the same holds for `pydoc3` (and `python3 -m pip`). A deck that shows
   the unsuffixed form, or a run made with it, says once that the student
