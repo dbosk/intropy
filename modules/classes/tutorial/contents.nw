@@ -119,32 +119,48 @@ det hör till \emph{en} bok, så allt det hör hemma på ett ställe.
 Klassen är den enda plats i programmet som rör en bok, så vi lägger den
 i en egen fil, \texttt{book.py}, och låter övningens övriga program
 importera den därifrån.  Filen växer under övningen: varje uppgift
-lägger till en namngiven del.  Så här långt består den av en
-konstruktor och en utskrift.
+lägger till en del.  Vi skriver den uppifrån och ner: först upplägget,
+i pseudokod, och sedan preciserar vi pseudokoden med pythonkod, en del
+i taget, när vi kommer till den.  Upplägget är kort, eftersom filen
+bara håller en klass: överst en \foreignlanguage{english}{docstring}
+som säger vad filen är till för, och sedan klassen.  Klassen heter
+\mintinline{python}{Book}, och det en bok kan är klassens metoder.  Dem
+samlar vi under ett namn i klassen och lägger till en i taget.
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje lösningsförslag som byggs upp av
+  namngivna delar börjar i filens upplägg, med namn som hör till just
+  den filen; klassen är en del av upplägget, och en metod läggs till
+  först där resonemanget behöver den (författaren, 2026-09-23:
+  \enquote{it too early outlines what functions we need, without having
+  started discussing the details of the problem yet}).  Ett testprogram
+  kommer sist, eftersom det är klassen uppgiften handlar om; i
+  \texttt{shelf.py} är programmet uppgiften, och där kommer
+  huvudprogrammet först och ger klassen dess nya metoder.
+}
 
 \begin{frame}[fragile]
   \begin{example}[Filen \texttt{book.py}]
     \label{ex:book}
-    Två delar, namngivna:
+    Filens upplägg, och klassen i stora drag:
 <<[[book.py]]>>=
 """A book and how far it has been read"""
 
-
+<<[[book.py]]:s klasser>>
+<<[[book.py]]:s klasser>>=
 class Book:
     """A book with a title, an author and a bookmark"""
 
-    <<konstruktor: titel, författare, sidor och bokmärket på noll>>
-
-    <<metod som gör boken till en utskriftsrad>>
+    <<[[Book]]s metoder>>
 @
   \end{example}
 \end{frame}
 
-Konstruktorn tar emot de tre uppgifter som kommer utifrån och sätter
-bokmärket på noll själv --- ingen skapar en bok som redan är halvläst.
-Varje attribut är privat, med dubbla understreck, eftersom uppgiften
-säger att ingen annan del av programmet får ändra dem
-direkt.\footnote{\label{fn:mangling}%
+Den första metoden är konstruktorn.  Den tar emot de tre uppgifter som
+kommer utifrån och sätter bokmärket på noll själv --- ingen skapar en
+bok som redan är halvläst.  Varje attribut är privat, med dubbla
+understreck, eftersom uppgiften säger att ingen annan del av programmet
+får ändra dem direkt.\footnote{\label{fn:mangling}%
   Strängt taget finns inga privata attribut i Python.  Ett namn som
   \mintinline{python}{__title} skrivs om till
   \mintinline{python}{_Book__title}
@@ -154,10 +170,17 @@ direkt.\footnote{\label{fn:mangling}%
   \url{https://docs.python.org/3/tutorial/classes.html\#private-variables}
   (hämtad 2026-09-18).}
 
+Konstruktorn lägger vi till bland klassens metoder under ett eget namn,
+som säger vad den gör.  Så gör vi med varje metod i \texttt{book.py}:
+ett senare program i övningen tar med metoderna en i taget, och då
+behöver de namn.
+
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
     \label{ex:book-init}
     Tre parametrar och fyra attribut:
+<<[[Book]]s metoder>>=
+<<konstruktor: titel, författare, sidor och bokmärket på noll>>
 <<konstruktor: titel, författare, sidor och bokmärket på noll>>=
 def __init__(self, title, author, pages):
     """title: string with the title of the book.
@@ -177,10 +200,16 @@ objekt ska bli en sträng heter \mintinline{python}{__str__}, och det är
 den som gör att \mintinline{python}{print(book)} kan ge den rad
 uppgiften bad om.
 
+Klassens metoder får därmed en del till.  Ett namn som får flera delar
+får \(\equiv\) första gången och +\(\equiv\) varje gång därefter, och i
+filen står delarna efter varandra, i den ordning de kommer.
+
 \begin{frame}[fragile]
   \begin{example}[Utskriften]
     \label{ex:book-str}
     En dundermetod sätter samman raden:
+<<[[Book]]s metoder>>=
+<<metod som gör boken till en utskriftsrad>>
 <<metod som gör boken till en utskriftsrad>>=
 def __str__(self):
     """Returns a string representation suitable for printing"""
@@ -315,7 +344,7 @@ också den enda som kan vägra.
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Filen \texttt{book.py} får en del till.  Metoden räknar först ut var
+Klassen får en metod till.  Metoden räknar först ut var
 bokmärket skulle hamna och jämför det med antalet sidor.  Går det inte
 låter den attributet vara och kastar ett särfall, så att den som
 anropade får veta det --- på det sätt föreläsningen \emph{Inmatning och
@@ -325,10 +354,9 @@ hela poängen: attributet är privat, så det finns ingen väg runt den.
 \begin{frame}[fragile]
   \begin{example}[Metoden som flyttar bokmärket]
     \label{ex:book-read}
-    En del till i klassen:
-<<[[book.py]]>>=
-
-    <<metod som flyttar bokmärket, aldrig förbi sista sidan>>
+    En metod till i klassen:
+<<[[Book]]s metoder>>=
+<<metod som flyttar bokmärket, aldrig förbi sista sidan>>
 @
     Kontrollen först, tilldelningen sist:
 <<metod som flyttar bokmärket, aldrig förbi sista sidan>>=
@@ -622,36 +650,97 @@ sortering är en av dem.
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Programmet behöver två saker av klassen som den inte har.  Det ena är
-att kunna jämföra böcker: sorteringen avgör vilken av två böcker som
-kommer först genom att fråga med \mintinline{python}{<}, och
-dundermetoden bakom \mintinline{python}{<} heter
-\mintinline{python}{__lt__}.  Det andra är att kunna läsa ut ett
-attribut, för summan av lästa sidor räknas utanför klassen.  Båda
-delarna läggs till i \texttt{book.py}.
+Den här gången börjar vi i programmet, uppifrån, i filens upplägg:
+överst en \foreignlanguage{english}{docstring} och importen av klassen,
+sedan programmets hjälpfunktioner och huvudprogrammet, och sist anropet
+som sätter igång det när filen körs som program.  Det är programmet som
+uppgiften ber om, och det som programmet behöver av klassen är det som
+klassen ska få.
 
 \begin{frame}[fragile]
-  \begin{example}[Två delar till i klassen]
-    \label{ex:book-grows}
-    Läsmetoderna först, jämförelsen sedan:
-<<[[book.py]]>>=
+  \begin{example}[Filen \texttt{shelf.py}]
+    \label{ex:shelf}%
+    Hyllprogrammets upplägg:
+<<[[shelf.py]]>>=
+"""Three books on a shelf, sorted shortest first"""
 
-    <<läsmetoder för bokens attribut>>
+from book import Book
 
-    <<metod som jämför två böcker på sidantal>>
+<<[[shelf.py]]:s hjälpfunktioner>>
+
+<<[[shelf.py]]:s huvudprogram>>
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
 
-Läsmetoderna är alla lika enkla: de returnerar attributets värde.  De
-finns för att koden utanför klassen ska kunna fråga objektet om en
-uppgift utan att komma åt attributet, och de dyker upp nu därför att
-det är nu någon frågar.
+Huvudprogrammet gör det uppgiften räknar upp, i samma ordning: tre böcker
+i en lista, 60 sidor i den första, sorteringen, utskriften och till sist
+summan.  Sorteringen är listans egen \mintinline{python}{sort}, eftersom
+vi inte får skriva någon egen.  Summan av lästa sidor är en uträkning,
+och den får en egen funktion, \mintinline{python}{total_read_pages}; vi
+anropar den redan här och skriver den sedan, så att huvudprogrammet bara
+anropar och skriver ut.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    \label{ex:shelf-main}%
+    Tre böcker, en sortering och en summa:
+<<[[shelf.py]]:s huvudprogram>>=
+def main():
+    """Test program"""
+    shelf = [
+        Book("Ronja Rövardotter", "Astrid Lindgren", 235),
+        Book("Madicken", "Astrid Lindgren", 174),
+        Book("Mio min Mio", "Astrid Lindgren", 176),
+    ]
+    shelf[0].read(60)
+    shelf.sort()
+    for book in shelf:
+        print(book)
+    print(f"Sammanlagt {total_read_pages(shelf)} lästa sidor.")
+@
+  \end{example}
+\end{frame}
+
+Programmet självt blir kort, eftersom arbetet ligger i klassen och i
+listans \mintinline{python}{sort}.  Men det behöver två saker av klassen
+som den inte har.  Det ena är att kunna jämföra böcker: sorteringen
+avgör vilken av två böcker som kommer först genom att fråga med
+\mintinline{python}{<}, och dundermetoden bakom \mintinline{python}{<}
+heter \mintinline{python}{__lt__}.  Jämförelsen blir tre rader, och när
+klassen har den kan en lista med böcker sorteras precis som en lista med
+tal.
+
+\begin{frame}[fragile]
+  \begin{example}[Jämförelse på sidantal]
+    \label{ex:book-lt}
+    En metod till i klassen, tre rader:
+<<[[Book]]s metoder>>=
+<<metod som jämför två böcker på sidantal>>
+<<metod som jämför två böcker på sidantal>>=
+def __lt__(self, other):
+    """Returns True if self is shorter than other"""
+    return self.get_pages() < other.get_pages()
+@
+  \end{example}
+\end{frame}
+
+Jämförelsen frågar båda böckerna om deras sidantal, och summan frågar
+varje bok om dess bokmärke.  Det är det andra klassen saknar: att kunna
+läsa ut ett attribut, för summan räknas utanför klassen.  Läsmetoderna
+är alla lika enkla: de returnerar attributets värde.  De finns för att
+koden utanför klassen ska kunna fråga objektet om en uppgift utan att
+komma åt attributet, och de dyker upp nu därför att det är nu någon
+frågar.
 
 \begin{frame}[fragile]
   \begin{example}[Läsmetoderna]
     \label{ex:book-getters}
     En läsmetod per attribut:
+<<[[Book]]s metoder>>=
+<<läsmetoder för bokens attribut>>
 <<läsmetoder för bokens attribut>>=
 def get_title(self):
     """Returns the title"""
@@ -672,60 +761,27 @@ def get_read_pages(self):
   \end{example}
 \end{frame}
 
-Jämförelsen blir tre rader, och när klassen har den kan en lista med
-böcker sorteras precis som en lista med tal.
+Kvar är summan, programmets enda hjälpfunktion.  Den går igenom hyllan
+och lägger ihop varje boks bokmärke, som den får genom läsmetoden.
 
 \begin{frame}[fragile]
-  \begin{example}[Jämförelse på sidantal]
-    \label{ex:book-lt}
-    En metod, tre rader:
-<<metod som jämför två böcker på sidantal>>=
-def __lt__(self, other):
-    """Returns True if self is shorter than other"""
-    return self.get_pages() < other.get_pages()
-@
-  \end{example}
-\end{frame}
-
-Programmet självt blir kort, eftersom allt arbete ligger i klassen och i
-listans egen \mintinline{python}{sort}.  Summan av lästa sidor är en
-uträkning, och den får en egen funktion; huvudprogrammet anropar och
-skriver ut.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Ett program som sorterar hyllan]
-    \label{ex:shelf}%
-    Tre böcker, en sortering och en summa:
-<<[[shelf.py]]>>=
-from book import Book
-
-
+  \begin{example}[Summan av lästa sidor]
+    \label{ex:shelf-total}%
+    En hjälpfunktion som frågar varje bok:
+<<[[shelf.py]]:s hjälpfunktioner>>=
 def total_read_pages(books):
     """Returns the number of pages read in all the books"""
     read_pages = 0
     for book in books:
         read_pages = read_pages + book.get_read_pages()
     return read_pages
-
-
-def main():
-    """Test program"""
-    shelf = [
-        Book("Ronja Rövardotter", "Astrid Lindgren", 235),
-        Book("Madicken", "Astrid Lindgren", 174),
-        Book("Mio min Mio", "Astrid Lindgren", 176),
-    ]
-    shelf[0].read(60)
-    shelf.sort()
-    for book in shelf:
-        print(book)
-    print(f"Sammanlagt {total_read_pages(shelf)} lästa sidor.")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/shelf.py}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -833,20 +889,16 @@ händer utan den.
 <<[[copies.py]]>>=
 """Two copies of one book, compared as the class stands"""
 
-
 class Book:
     """A book with a title, an author and a bookmark"""
 
     <<konstruktor: titel, författare, sidor och bokmärket på noll>>
-
     <<metod som gör boken till en utskriftsrad>>
 
     <<metod som flyttar bokmärket, aldrig förbi sista sidan>>
 
-    <<läsmetoder för bokens attribut>>
-
     <<metod som jämför två böcker på sidantal>>
-
+    <<läsmetoder för bokens attribut>>
 
 def main():
     """Test program"""
@@ -855,7 +907,6 @@ def main():
     my_copy.read(50)
     print(my_copy == your_copy)
     print(my_copy is your_copy)
-
 
 if __name__ == "__main__":
     main()
@@ -885,10 +936,9 @@ författare, så bokmärket får inte vara med.
 \begin{frame}[fragile]
   \begin{example}[Likhet på titel och författare]
     \label{ex:book-eq}
-    Sista delen i klassen, och två villkor som båda måste stämma:
-<<[[book.py]]>>=
-
-    <<metod som avgör likhet på titel och författare>>
+    Sista metoden i klassen, och två villkor som båda måste stämma:
+<<[[Book]]s metoder>>=
+<<metod som avgör likhet på titel och författare>>
 <<metod som avgör likhet på titel och författare>>=
 def __eq__(self, other):
     """Returns True if the books have the same title and author"""
@@ -1100,42 +1150,34 @@ och inte uppgiftens --- det är resultaten som ska stämma.
 
 \mode<article>{\subsection{Lösningsförslag}}
 
-Klassen bor i en egen fil, \texttt{frac.py}, precis som boken.  Delarna
-är namngivna i den ordning uppgiften räknar upp dem, med läsmetoderna
-först eftersom jämförelserna behöver dem, och till sist ligger
-testprogrammet.
+Klassen bor i en egen fil, \texttt{frac.py}, precis som boken, och vi
+skriver den uppifrån och ner på samma sätt.  Den här filen har också
+ett testprogram, så upplägget är ett programs: överst en
+\foreignlanguage{english}{docstring} och det filen importerar, sedan
+klassen, och sist testprogrammet och anropet som sätter igång det när
+filen körs som program.  Klassen heter \mintinline{python}{Fraction}.
+Dess metoder samlar vi under ett namn, som boken, och lägger till dem i
+den ordning uppgiften räknar upp det klassen ska kunna.
 
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   \begin{example}[Filen \texttt{frac.py}]
     \label{ex:frac}%
-    Delarna och testprogrammet, namngivna:
+    Filens upplägg, och klassen i stora drag:
 <<[[frac.py]]>>=
 """Rational numbers, as fractions"""
 
-from math import gcd
+<<[[frac.py]]:s importer>>
 
+<<[[frac.py]]:s klasser>>
 
+<<[[frac.py]]:s testprogram>>
+if __name__ == "__main__":
+    main()
+<<[[frac.py]]:s klasser>>=
 class Fraction:
     """A fraction with a numerator and a denominator"""
 
-    <<konstruktor som vägrar nämnaren noll>>
-
-    <<läsmetoder för täljare och nämnare>>
-
-    <<metoder som jämför bråk genom korsmultiplikation>>
-
-    <<metod som skriver bråket som täljare/nämnare>>
-
-    <<metoder för addition och subtraktion>>
-
-    <<metoder för multiplikation och division>>
-
-    <<metod som omvandlar bråket till ett flyttal>>
-
-    <<metod som ger bråket förkortat>>
-
-
-<<testprogram: prova alla sex punkterna>>
+    <<[[Fraction]]s metoder>>
 @
   \end{example}
 \end{frame}
@@ -1151,7 +1193,7 @@ jämförelserna strax kräver.
   \begin{example}[Konstruktorn]
     \label{ex:frac-init}
     Två parametrar, två villkor och två attribut:
-<<konstruktor som vägrar nämnaren noll>>=
+<<[[Fraction]]s metoder>>=
 def __init__(self, numerator, denominator=1):
     """numerator, denominator: integers, the numerator and the
     denominator.  The denominator must not be 0.  A negative
@@ -1168,26 +1210,7 @@ def __init__(self, numerator, denominator=1):
 \end{frame}
 
 Att nämnaren har ett förvalt värde gör att \mintinline{python}{Fraction(3)}
-är talet tre: ett heltal är ett bråk med nämnaren ett.  Läsmetoderna är
-som bokens --- de finns för att ett bråk ska kunna fråga ett annat om
-täljare och nämnare utan att komma åt attributen, och det är
-jämförelserna som först behöver det.
-
-\begin{frame}[fragile]
-  \begin{example}[Läsmetoderna]
-    \label{ex:frac-getters}
-    En läsmetod per attribut:
-<<läsmetoder för täljare och nämnare>>=
-def get_numerator(self):
-    """Returns the numerator"""
-    return self.__numerator
-
-def get_denominator(self):
-    """Returns the denominator"""
-    return self.__denominator
-@
-  \end{example}
-\end{frame}
+är talet tre: ett heltal är ett bråk med nämnaren ett.
 
 Jämförelserna är det ställe där bråk skiljer sig från böcker.  Två bråk
 kan vara samma tal utan att ha samma täljare och nämnare, så det går
@@ -1201,7 +1224,7 @@ negativt tal vänder den.
   \begin{example}[Likhet och ordning]
     \label{ex:frac-cmp}
     Två metoder, samma korsmultiplikation:
-<<metoder som jämför bråk genom korsmultiplikation>>=
+<<[[Fraction]]s metoder>>=
 def __eq__(self, other):
     """Returns True if the two fractions are the same number"""
     return (
@@ -1219,6 +1242,27 @@ def __lt__(self, other):
   \end{example}
 \end{frame}
 
+Korsmultiplikationen frågar det andra bråket om dess täljare och
+nämnare.  Det gör den med läsmetoder, som bokens: de finns för att ett
+bråk ska kunna fråga ett annat om täljare och nämnare utan att komma åt
+attributen, och det är jämförelserna som först behöver det.
+
+\begin{frame}[fragile]
+  \begin{example}[Läsmetoderna]
+    \label{ex:frac-getters}
+    En läsmetod per attribut:
+<<[[Fraction]]s metoder>>=
+def get_numerator(self):
+    """Returns the numerator"""
+    return self.__numerator
+
+def get_denominator(self):
+    """Returns the denominator"""
+    return self.__denominator
+@
+  \end{example}
+\end{frame}
+
 Utskriften är en rad, precis som bokens, och den skriver bråket som det
 är --- oförkortat.
 
@@ -1226,7 +1270,7 @@ Utskriften är en rad, precis som bokens, och den skriver bråket som det
   \begin{example}[Utskriften]
     \label{ex:frac-str}
     Täljare, snedstreck, nämnare:
-<<metod som skriver bråket som täljare/nämnare>>=
+<<[[Fraction]]s metoder>>=
 def __str__(self):
     """Returns a string representation suitable for printing"""
     return f"{self.__numerator}/{self.__denominator}"
@@ -1243,7 +1287,7 @@ något i de bråk de räknar på, lika lite som \mintinline{python}{1 + 2}
   \begin{example}[Addition och subtraktion]
     \label{ex:frac-add}
     Gemensam nämnare, och den enda skillnaden är tecknet:
-<<metoder för addition och subtraktion>>=
+<<[[Fraction]]s metoder>>=
 def __add__(self, other):
     """Returns the sum of the two fractions"""
     return Fraction(
@@ -1272,7 +1316,7 @@ den säger det på ett ställe för alla fyra räknesätten.
   \begin{example}[Multiplikation och division]
     \label{ex:frac-mul}
     Rakt över, respektive omvänt:
-<<metoder för multiplikation och division>>=
+<<[[Fraction]]s metoder>>=
 def __mul__(self, other):
     """Returns the product of the two fractions"""
     return Fraction(
@@ -1297,7 +1341,7 @@ Omvandlingen till flyttal är en division, och dundermetoden bakom
   \begin{example}[Omvandling till flyttal]
     \label{ex:frac-float}
     En rad:
-<<metod som omvandlar bråket till ett flyttal>>=
+<<[[Fraction]]s metoder>>=
 def __float__(self):
     """Returns the fraction as a floating point number"""
     return self.__numerator / self.__denominator
@@ -1357,11 +1401,14 @@ För 2 och 6 svarar de lika.  För 0 och 6 svarar den egna 1, där svaret
 \mintinline{python}{math.gcd} är beskriven för båda fallen.  Dessutom
 är den kod som inte står i din fil inte din att underhålla.
 
+Vi importerar alltså \mintinline{python}{gcd}, och importen hamnar
+överst i filen, där upplägget har en plats för det filen importerar.
+
 \begin{frame}[fragile]
   \begin{example}[Förkortning]
     \label{ex:frac-reduce}
-    Ett nytt, förkortat bråk:
-<<metod som ger bråket förkortat>>=
+    Ett nytt, förkortat bråk, och importen det kräver:
+<<[[Fraction]]s metoder>>=
 def reduced(self):
     """Returns the same number as a fraction in lowest terms"""
     common = gcd(self.__numerator, self.__denominator)
@@ -1369,6 +1416,8 @@ def reduced(self):
         self.__numerator // common,
         self.__denominator // common,
     )
+<<[[frac.py]]:s importer>>=
+from math import gcd
 @
   \end{example}
 \end{frame}
@@ -1378,11 +1427,15 @@ Pythons inbyggda operationer, utan en metod vi själva har hittat på, och
 då får den ett vanligt namn.  Den ändrar inte bråket den anropas på utan
 lämnar tillbaka ett nytt, som räknesätten.
 
+Klassen kan nu allt uppgiften räknar upp, och kvar är testprogrammet.
+Det provar de sex punkterna i uppgiftens ordning, en rad per punkt, och
+en rad till för heltalet.
+
 \begin{frame}[fragile,shrink]
   \begin{example}[Testprogrammet]
     \label{ex:frac-main}
     En rad per punkt i uppgiften, och en för heltalet:
-<<testprogram: prova alla sex punkterna>>=
+<<[[frac.py]]:s testprogram>>=
 def main():
     """Test program"""
     one_third = Fraction(1, 3)
@@ -1398,10 +1451,6 @@ def main():
     print(f"som flyttal: {float(one_third)}")
     print(f"förkortat: {two_sixths.reduced()}")
     print(f"summan förkortad: {(one_third + two_sixths).reduced()}")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -1633,7 +1682,6 @@ därefter klasserna själva varifrån de har sina metoder.
     Samma fråga till två objektpar, sex frågor till klasserna:
 <<[[plain.py]]>>=
 
-
 <<testprogram: jämför med och utan dundermetoder>>
 @
 <<testprogram: jämför med och utan dundermetoder>>=
@@ -1747,40 +1795,47 @@ Nu den andra uppgiften: samma drag en gång till, mot en basklass du
 själv har skrivit.  Villkoret att ingen rad får upprepas är det som
 pekar på arv: den nya klassen \emph{är} en bok, med ett tillägg, så den
 kan ärva allt \mintinline{python}{Book} har och bara lägga till det som
-är nytt.  Filen blir kort.
+är nytt.  Filen blir kort.  Vi skriver den uppifrån och ner, som
+\texttt{frac.py}: överst en \foreignlanguage{english}{docstring} och
+importen av \mintinline{python}{Book}, sedan den nya klassen, och sist
+ett testprogram och anropet som sätter igång det.  Arvet står i
+klassens första rad: föräldern inom parentes efter namnet.  Allt
+\mintinline{python}{Book} har följer då med, och det klassen själv ska
+innehålla är bara det som är nytt.
 
 \begin{frame}[fragile]
   \begin{example}[Filen \texttt{borrowed.py}]
     \label{ex:borrowed}
-    En underklass med ett attribut mer:
+    Filens upplägg, och en underklass i stora drag:
 <<[[borrowed.py]]>>=
 """A borrowed book"""
 
 from book import Book
 
+<<[[borrowed.py]]:s klasser>>
 
+<<[[borrowed.py]]:s testprogram>>
+if __name__ == "__main__":
+    main()
+<<[[borrowed.py]]:s klasser>>=
 class BorrowedBook(Book):
     """A book with someone to return it to"""
 
-    <<konstruktor som låter föräldern sätta det ärvda>>
-
-    <<utlånarens läsmetod och den överlagrade utskriften>>
-
-
-<<testprogram: läs i en lånad bok och skriv ut den>>
+    <<[[BorrowedBook]]s metoder>>
 @
   \end{example}
 \end{frame}
 
-Konstruktorn tar samma argument som förut, plus utlånaren.  De ärvda
-attributen låter vi föräldern sätta --- den kan det redan --- och sedan
-sätter vi vårt eget.
+Det nya är ett attribut, utlånaren, och det måste konstruktorn sätta.
+Konstruktorn tar därför samma argument som förut, plus utlånaren.  De
+ärvda attributen låter vi föräldern sätta --- den kan det redan --- och
+sedan sätter vi vårt eget.
 
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
     \label{ex:borrowed-init}
     Föräldern först, det nya sist:
-<<konstruktor som låter föräldern sätta det ärvda>>=
+<<[[BorrowedBook]]s metoder>>=
 def __init__(self, title, author, pages, lender):
     """lender: string with the name of the person the book was
     borrowed from.  The other parameters are Book's."""
@@ -1799,7 +1854,7 @@ författare och bokmärke, så vi ber om den raden och lägger till vår egen
   \begin{example}[Läsmetoden och den överlagrade utskriften]
     \label{ex:borrowed-str}
     En ny metod och en överlagrad:
-<<utlånarens läsmetod och den överlagrade utskriften>>=
+<<[[BorrowedBook]]s metoder>>=
 def get_lender(self):
     """Returns the name of the person the book was borrowed from"""
     return self.__lender
@@ -1811,21 +1866,20 @@ def __str__(self):
   \end{example}
 \end{frame}
 
+Kvar är testprogrammet.  Det läser i en lånad bok och skriver ut den, och
+frågar den sedan om både författaren och utlånaren.
+
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:borrowed-main}
     Objektet har metoder från båda klasserna:
-<<testprogram: läs i en lånad bok och skriv ut den>>=
+<<[[borrowed.py]]:s testprogram>>=
 def main():
     """Test program"""
     mio = BorrowedBook("Mio min Mio", "Astrid Lindgren", 176, "Birk")
     mio.read(60)
     print(mio)
     print(f"{mio.get_author()} skrev den, {mio.get_lender()} äger den.")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
