@@ -129,15 +129,121 @@ oss\autocite{PythonTutorialFiles}.\footnote{%
 
 \subsection{Lösningsförslag}
 
-Den fråga allt annat hänger på är den enklaste: finns filen?  Det finns
-inget sätt att veta annat än att be operativsystemet om den, så
-funktionen öppnar filen och ser vad som händer.  Lyckas det finns filen;
-kastas \mintinline{python}{FileNotFoundError} finns den inte.
+Vi skriver modulen uppifrån och ner: först filens upplägg, i pseudokod,
+och sedan preciserar vi pseudokoden med pythonkod, en del i taget, när
+resonemanget kommer fram till den.  Överst står en
+\foreignlanguage{english}{docstring} som säger vad modulen är till för,
+sedan funktionerna, huvudprogrammet och till sist anropet som sätter
+igång det.
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje lösningsförslag som byggs upp av
+  namngivna delar börjar i filens upplägg, med namn som hör till just
+  det programmet, och skisserar sedan huvudprogrammet.  En funktion
+  läggs till först där resonemanget behöver den (författaren,
+  2026-09-23: \enquote{it too early outlines what functions we need,
+  without having started discussing the details of the problem yet}),
+  så filens ordning blir upptäcktens: anroparen före den anropade.
+  Programmen delar funktioner genom att importera varandra, inte genom
+  delade namn; det enda delade namnet är fortuneprogrammets
+  huvudprogram, som \cref{sec:kakor-flera-rader} tar med oförändrat.
+}
+
+\begin{frame}[fragile]
+  Filmodulens upplägg:
+<<[[filer.py]]>>=
+"""Funktioner som svarar på programmens frågor om filer"""
+
+<<filmodulens funktioner>>
+
+<<filmodulens huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\ltnote{%
+  Varje program i övningen har samma form: filens högsta nivå bär bara
+  import, konstanter, definitioner och det anrop som startar programmet,
+  och allt arbete --- frågor, läsning, bearbetning, utskrift --- ligger i
+  funktioner.  Det gäller också provprogrammen, som annars gärna blir
+  satser i rad.  Formen är den föreläsningen \emph{Funktioner} lär ut,
+  och den följs överallt därför att ett material som frångår en
+  genomgången praktik lär ut att praktiken var frivillig.
+  % TODO(claim-audit): att ett material som frångår en genomgången
+  % praktik lär ut att praktiken var frivillig är ett påstående om
+  % materialets verkan utan källa här.
+  Att anropet står bakom
+  \mintinline{python}|if __name__ == "__main__":| är formen från
+  föreläsningen \emph{Moduler och paket}, och den är nödvändig här:
+  varje modul importeras av ett senare program, och ett huvudprogram på
+  högsta nivån skulle då köras vid importen.
+}
+
+Vi börjar med huvudprogrammet, det som ska pröva modulen: det ställer
+de två filfrågorna och redovisar svaren.  Frågorna finns inte än, men vi
+kan ge dem namn och anropa dem ändå.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Huvudprogrammet ställer de två frågorna och redovisar svaren:
+<<filmodulens huvudprogram>>=
+def main():
+    """Frågar efter en fil att läsa och en att skriva till"""
+    infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
+    utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
+    print(f"Läser {infilnamn} och skriver {utfilnamn}.")
+@
+  \end{example}
+\end{frame}
+
+Båda frågorna ska ställas om tills svaret duger, och det enda som
+skiljer dem åt är vilket svar som duger: filen ska finnas, respektive
+inte finnas.  Om filen finns är en fråga för sig, så den får en egen
+funktion, [[fil_finns]], som de två frågorna anropar och som vi skriver
+när de är klara.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[De två filfrågorna]
+    Den ena frågar tills filen finns, den andra tills den inte finns:
+<<filmodulens funktioner>>=
+def läs_infilnamn(prompt):
+    """Frågar tills filen finns, returnerar filnamnet"""
+    filnamn = input(prompt)
+    while not fil_finns(filnamn):
+        print(f"Filen {filnamn} finns inte. Försök igen.")
+        filnamn = input(prompt)
+    return filnamn
+<<filmodulens funktioner>>=
+def läs_utfilnamn(prompt):
+    """Frågar tills filen inte finns, returnerar filnamnet"""
+    filnamn = input(prompt)
+    while fil_finns(filnamn):
+        print(f"Filen {filnamn} finns redan. Försök igen.")
+        filnamn = input(prompt)
+    return filnamn
+@
+  \end{example}
+\end{frame}
+
+Skillnaden är ett [[not]].  Mönstret --- fråga, kontrollera, fråga om
+igen --- är detsamma som när användaren svarade fel på en fråga i
+föreläsningen \emph{Villkor och styrstrukturer}; det enda nya är vad som
+kontrolleras.  Båda läggs till bland filmodulens funktioner.  Ett namn
+som får flera delar får \(\equiv\) första gången och +\(\equiv\) varje
+gång därefter, och i programmet står delarna efter varandra, i den
+ordning de kommer.
+
+Kvar är kontrollen, och den är den fråga allt annat hänger på: finns
+filen?  Det finns inget sätt att veta annat än att be operativsystemet
+om den, så funktionen öppnar filen och ser vad som händer.  Lyckas det
+finns filen; kastas \mintinline{python}{FileNotFoundError} finns den
+inte.
 
 \begin{frame}[fragile]
   \begin{example}[Finns filen?]
     Funktionen öppnar filen bara för att se om det går:
-<<funktion som svarar om filen finns>>=
+<<filmodulens funktioner>>=
 def fil_finns(filnamn):
     """Returnerar True om det finns en fil som heter filnamn"""
     try:
@@ -158,41 +264,13 @@ använda \mintinline{python}{with} också här är billigt och håller
 löftet från föreläsningen \emph{Arbeta med filer}: den som öppnar en fil
 stänger den.
 
-Med den funktionen blir de två frågorna nästan samma program.
-
-\begin{frame}[fragile,shrink=15]
-  \begin{example}[De två filfrågorna]
-    Den ena frågar tills filen finns, den andra tills den inte finns:
-<<funktion som frågar tills filen finns>>=
-def läs_infilnamn(prompt):
-    """Frågar tills filen finns, returnerar filnamnet"""
-    filnamn = input(prompt)
-    while not fil_finns(filnamn):
-        print(f"Filen {filnamn} finns inte. Försök igen.")
-        filnamn = input(prompt)
-    return filnamn
-<<funktion som frågar tills filen inte finns>>=
-def läs_utfilnamn(prompt):
-    """Frågar tills filen inte finns, returnerar filnamnet"""
-    filnamn = input(prompt)
-    while fil_finns(filnamn):
-        print(f"Filen {filnamn} finns redan. Försök igen.")
-        filnamn = input(prompt)
-    return filnamn
-@
-  \end{example}
-\end{frame}
-
-Skillnaden är ett [[not]].  Mönstret --- fråga, kontrollera, fråga om
-igen --- är detsamma som när användaren svarade fel på en fråga i
-föreläsningen \emph{Villkor och styrstrukturer}; det enda nya är vad som
-kontrolleras.  Och eftersom mönstret är detsamma tål det en tredje
-användning: att välja bland givna alternativ.
+Mönstret i de två frågorna tål en tredje användning: att välja bland
+givna alternativ.
 
 \begin{frame}[fragile]
   \begin{example}[Att välja bland alternativ]
     Samma slinga, men nu mot en lista av godkända svar:
-<<funktion som frågar tills svaret är ett alternativ>>=
+<<filmodulens funktioner>>=
 def läs_alternativ(prompt, alternativ):
     """Frågar tills svaret står i alternativ, returnerar svaret"""
     print(prompt)
@@ -218,7 +296,7 @@ skulle varje program som läser en hel fil upprepa samma tre rader.
 \begin{frame}[fragile]
   \begin{example}[Att läsa och skriva hela filen]
     Den ena ger innehållet som en sträng, den andra skriver en sträng:
-<<funktioner som läser och skriver hela filen>>=
+<<filmodulens funktioner>>=
 def läs_fil(filnamn):
     """Returnerar hela innehållet i filen filnamn som en sträng"""
     with open(filnamn, "r") as fil:
@@ -237,68 +315,6 @@ Lägg märke till att [[läs_fil]] returnerar \emph{inifrån}
 \mintinline{python}{with}-blocket.  Filen stängs ändå: blocket lämnas
 när funktionen returnerar, och \mintinline{python}{with} stänger filen
 när blocket lämnas --- oavsett hur det lämnas.
-
-\mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile,shrink=15]
-  Modulen [[filer.py]] består av funktionerna och ett huvudprogram som
-  låter oss pröva dem:
-<<[[filer.py]]>>=
-"""Funktioner som svarar på programmens frågor om filer"""
-
-
-<<funktion som svarar om filen finns>>
-
-
-<<funktion som frågar tills filen finns>>
-
-
-<<funktion som frågar tills filen inte finns>>
-
-
-<<funktion som frågar tills svaret är ett alternativ>>
-
-
-<<funktioner som läser och skriver hela filen>>
-
-
-<<huvudprogram som prövar de två filfrågorna>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-\ltnote{%
-  Varje program i övningen har samma form: filens högsta nivå bär bara
-  import, konstanter, definitioner och det anrop som startar programmet,
-  och allt arbete --- frågor, läsning, bearbetning, utskrift --- ligger i
-  funktioner.  Det gäller också provprogrammen, som annars gärna blir
-  satser i rad.  Formen är den föreläsningen \emph{Funktioner} lär ut,
-  och den följs överallt därför att ett material som frångår en
-  genomgången praktik lär ut att praktiken var frivillig.
-  % TODO(claim-audit): att ett material som frångår en genomgången
-  % praktik lär ut att praktiken var frivillig är ett påstående om
-  % materialets verkan utan källa här.
-  Att anropet står bakom
-  \mintinline{python}|if __name__ == "__main__":| är formen från
-  föreläsningen \emph{Moduler och paket}, och den är nödvändig här:
-  varje modul importeras av ett senare program, och ett huvudprogram på
-  högsta nivån skulle då köras vid importen.
-}
-
-\begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet]
-    Huvudprogrammet ställer de två frågorna och redovisar svaren:
-<<huvudprogram som prövar de två filfrågorna>>=
-def main():
-    """Frågar efter en fil att läsa och en att skriva till"""
-    infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
-    utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
-    print(f"Läser {infilnamn} och skriver {utfilnamn}.")
-@
-  \end{example}
-\end{frame}
 
 \ltnote{%
   \textbf{Helheten efter delarna.}  Varje program i övningen som byggs
@@ -431,8 +447,48 @@ format inleds i stället med några bestämda byte som talar om vad filen
 
 \subsection{Lösningsförslag}
 
-De tre byten är ett bestämt värde som programmet jämför mot, så de hör
-hemma i en konstant.  Skrivsättet \mintinline{python}{b"..."} ger en
+Vi börjar uppifrån, i filens upplägg, som i modulen.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  Bildkollens upplägg:
+<<[[bildkoll.py]]>>=
+"""Ett program som avgör om en fil är en JPEG-bild"""
+
+import filer
+
+<<bildkollens konstanter>>
+
+<<bildkollens hjälpfunktioner>>
+
+<<bildkollens huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet frågar efter filen med [[filer.py]] och svarar.  Om
+filen inleds som en JPEG-bild är en fråga för sig, så den får en egen
+funktion, [[börjar_som_jpeg]], som vi anropar här och skriver sedan.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Huvudprogrammet frågar med [[filer.py]] och svarar:
+<<bildkollens huvudprogram>>=
+def main():
+    """Frågar efter en fil och svarar om den är en JPEG-bild"""
+    filnamn = filer.läs_infilnamn("Vilken fil ska vi titta på? ")
+    if börjar_som_jpeg(filnamn):
+        print(f"{filnamn} inleds som en JPEG-bild.")
+    else:
+        print(f"{filnamn} är ingen JPEG-bild.")
+@
+  \end{example}
+\end{frame}
+
+Funktionen jämför filens första byte med de tre som en JPEG-fil inleds
+med.  De tre byten är ett bestämt värde som programmet jämför mot, så de
+hör hemma i en konstant.  Skrivsättet \mintinline{python}{b"..."} ger en
 [[bytes]] i stället för en [[str]], och \mintinline{python}{b"\xff"} är
 byten med värdet \texttt{FF}.
 
@@ -443,10 +499,9 @@ byten med värdet \texttt{FF}.
 \begin{frame}[fragile]
   \begin{example}[Att känna igen inledningen]
     Filen öppnas i binärläge, och de tre första byten jämförs:
-<<JPEG-inledningen och en funktion som känner igen den>>=
+<<bildkollens konstanter>>=
 JPEG_INLEDNING = b"\xff\xd8\xff"
-
-
+<<bildkollens hjälpfunktioner>>=
 def börjar_som_jpeg(filnamn):
     """Returnerar True om filen filnamn inleds som en JPEG-bild"""
     with open(filnamn, "rb") as fil:
@@ -468,41 +523,6 @@ Argumentet till [[read]] är det andra som behövdes: utan argument läser
 den hela filen, med argumentet 3 bara de tre första byten.  För en
 bildfil på några megabyte är det skillnaden mellan tre byte och hela
 filen i minnet.
-
-\mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile]
-  Programmet [[bildkoll.py]] består av igenkänningen och ett
-  huvudprogram:
-<<[[bildkoll.py]]>>=
-"""Ett program som avgör om en fil är en JPEG-bild"""
-
-import filer
-
-<<JPEG-inledningen och en funktion som känner igen den>>
-
-
-<<huvudprogram som frågar efter en fil och svarar om bilden>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet]
-    Huvudprogrammet frågar med [[filer.py]] och svarar:
-<<huvudprogram som frågar efter en fil och svarar om bilden>>=
-def main():
-    """Frågar efter en fil och svarar om den är en JPEG-bild"""
-    filnamn = filer.läs_infilnamn("Vilken fil ska vi titta på? ")
-    if börjar_som_jpeg(filnamn):
-        print(f"{filnamn} inleds som en JPEG-bild.")
-    else:
-        print(f"{filnamn} är ingen JPEG-bild.")
-@
-  \end{example}
-\end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -607,16 +627,122 @@ står sist i filen.
 
 \subsection{Lösningsförslag}
 
+Vi börjar uppifrån, i filens upplägg.  Programmet importerar modulen
+[[csv]] ur standardbiblioteket och vår egen modul [[filer]].
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  Räkneprogrammets upplägg:
+<<[[wc.py]]>>=
+"""Ett program som räknar ord och bokstäver i en fil"""
+
+import csv
+
+import filer
+
+<<räkneprogrammets hjälpfunktioner>>
+
+<<räkneprogrammets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet gör det uppgiften räknar upp: tre frågor, en läsning,
+en räkning och en skrivning.  Det som är mer än en rad skriver vi först
+som pseudokod som säger vad det gör, och senare preciserar vi
+pseudokoden med pythonkod.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet i stora drag]
+    Tre frågor, en läsning och en skrivning:
+<<räkneprogrammets huvudprogram>>=
+def main():
+    """Räknar ord eller bokstäver, skriver resultatet som CSV"""
+    <<fråga efter filen, vad som ska räknas och filen för resultatet>>
+    text = filer.läs_fil(infilnamn)
+    <<räkna det användaren valde och skriv tabellen till filen>>
+    print(f"Resultatet står nu i {utfilnamn}.")
+@
+  \end{example}
+\end{frame}
+
+Frågorna har vi redan: modulen [[filer.py]] frågar om tills svaret
+duger, för varje sorts fråga uppgiften ställer.
+
+\begin{frame}[fragile]
+  \begin{example}[De tre frågorna]
+    Alla tre ur modulen [[filer.py]]:
+<<fråga efter filen, vad som ska räknas och filen för resultatet>>=
+infilnamn = filer.läs_infilnamn(
+    "Vilken fil ska vi analysera? ",
+)
+vad = filer.läs_alternativ(
+    "Vill du räkna ord eller bokstäver?",
+    ["ord", "bokstäver"],
+)
+utfilnamn = filer.läs_utfilnamn(
+    "Till vilken fil ska vi skriva resultatet (CSV)? ",
+)
+@
+  \end{example}
+\end{frame}
+
+Att ingen av frågorna kan krascha är inte programmets förtjänst utan
+modulens, och det är den vinsten \cref{sec:filnamnet} köpte.
+
+Vad som räknas beror på svaret på den andra frågan, och tabellen ska ut
+på fil i båda fallen.  De två räkningarna och skrivningen blir
+hjälpfunktioner, som vi anropar här och skriver sedan.
+
+\begin{frame}[fragile]
+  \begin{example}[Räkningen och skrivningen]
+    Svaret på frågan avgör vilken räkning som körs:
+<<räkna det användaren valde och skriv tabellen till filen>>=
+if vad == "ord":
+    skriv_csv(utfilnamn, räkna_ord(text))
+else:
+    skriv_csv(utfilnamn, räkna_bokstäver(text))
+@
+  \end{example}
+\end{frame}
+
 Att räkna orden och att räkna bokstäverna ser ut som två uppgifter, men
 det är en.  Båda går igenom en följd av delar och håller reda på hur
 många gånger varje del förekommit; det enda som skiljer dem är vad
 texten delas upp i.  Alltså skriver vi räkningen \emph{en} gång, med
-delarna som parameter.
+delarna som parameter, och kallar den [[räkna]].  Då kostar de två
+räkningarna som huvudprogrammet anropar en rad var.
+
+\begin{frame}[fragile]
+  \begin{example}[Ord eller tecken]
+    Skillnaden är bara vad texten delas upp i:
+<<räkneprogrammets hjälpfunktioner>>=
+def räkna_ord(text):
+    """Returnerar antalet förekomster av varje ord i text"""
+    return räkna(text.split())
+
+
+def räkna_bokstäver(text):
+    """Returnerar antalet förekomster av varje tecken i text"""
+    return räkna(text)
+@
+  \end{example}
+\end{frame}
+
+Metoden [[split]] utan argument delar upp texten vid alla blanktecken,
+radbrytningarna inräknade, och ger en lista med orden.  Att räkna
+tecknen kräver ingen uppdelning alls: en sträng \emph{är} redan en följd
+av tecken, och slingan i [[räkna]] kan gå igenom dem en efter en.  Det
+är samma egenskap hos strängar som slingan
+\mintinline{python}{for bokstav in text} bygger på.
+
+Kvar är själva räkningen.
 
 \begin{frame}[fragile]
   \begin{example}[Att räkna förekomster]
     Uppslagslistan har delen som nyckel och antalet som värde:
-<<funktion som räknar förekomsterna av varje del>>=
+<<räkneprogrammets hjälpfunktioner>>=
 def räkna(delar):
     """Returnerar antalet förekomster av varje del i delar"""
     antal = {}
@@ -635,31 +761,6 @@ det går inte att öka den med ett.  Resten är slingan från
 föreläsningen \emph{Upprepningar} över en behållare från
 \emph{Behållare: Uppslagslistor}.
 
-Och nu kostar de två uppgifterna en rad var.
-
-\begin{frame}[fragile]
-  \begin{example}[Ord eller tecken]
-    Skillnaden är bara vad texten delas upp i:
-<<funktioner som räknar ord och bokstäver>>=
-def räkna_ord(text):
-    """Returnerar antalet förekomster av varje ord i text"""
-    return räkna(text.split())
-
-
-def räkna_bokstäver(text):
-    """Returnerar antalet förekomster av varje tecken i text"""
-    return räkna(text)
-@
-  \end{example}
-\end{frame}
-
-Metoden [[split]] utan argument delar upp texten vid alla blanktecken,
-radbrytningarna inräknade, och ger en lista med orden.  Att räkna
-tecknen kräver ingen uppdelning alls: en sträng \emph{är} redan en följd
-av tecken, och slingan i [[räkna]] går igenom dem en efter en.  Det är
-samma egenskap hos strängar som slingan
-\mintinline{python}{for bokstav in text} bygger på.
-
 Resultatet ska ut på fil, och formatet ska vara CSV.  Modulen [[csv]] i
 standardbiblioteket sköter formateringen: vi ger den en lista med värden
 per rad, och den skriver dem\autocite{PythonCSV}.
@@ -667,7 +768,7 @@ per rad, och den skriver dem\autocite{PythonCSV}.
 \begin{frame}[fragile]
   \begin{example}[Att skriva tabellen som CSV]
     Ett [[csv.writer]]-objekt formaterar en rad per post:
-<<funktion som skriver tabellen som CSV>>=
+<<räkneprogrammets hjälpfunktioner>>=
 def skriv_csv(filnamn, antal):
     """Skriver uppslagslistan antal som CSV till filnamn"""
     with open(filnamn, "w", newline="") as fil:
@@ -698,63 +799,7 @@ oss.\footnote{%
   föreläsningen \emph{Arbeta med filer}, bilaga E.%
 }
 
-\begin{frame}[fragile,shrink=15]
-  Programmet [[wc.py]] består av räkningen, skrivningen och ett
-  huvudprogram:
-<<[[wc.py]]>>=
-"""Ett program som räknar ord och bokstäver i en fil"""
-
-import csv
-
-import filer
-
-
-<<funktion som räknar förekomsterna av varje del>>
-
-
-<<funktioner som räknar ord och bokstäver>>
-
-
-<<funktion som skriver tabellen som CSV>>
-
-
-<<huvudprogram som frågar, räknar och skriver resultatet>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-\begin{frame}[fragile,shrink=10]
-  \begin{example}[Huvudprogrammet]
-    Tre frågor, en läsning och en skrivning:
-<<huvudprogram som frågar, räknar och skriver resultatet>>=
-def main():
-    """Räknar ord eller bokstäver, skriver resultatet som CSV"""
-    infilnamn = filer.läs_infilnamn(
-        "Vilken fil ska vi analysera? ",
-    )
-    vad = filer.läs_alternativ(
-        "Vill du räkna ord eller bokstäver?",
-        ["ord", "bokstäver"],
-    )
-    utfilnamn = filer.läs_utfilnamn(
-        "Till vilken fil ska vi skriva resultatet (CSV)? ",
-    )
-    text = filer.läs_fil(infilnamn)
-    if vad == "ord":
-        skriv_csv(utfilnamn, räkna_ord(text))
-    else:
-        skriv_csv(utfilnamn, räkna_bokstäver(text))
-    print(f"Resultatet står nu i {utfilnamn}.")
-@
-  \end{example}
-\end{frame}
-
-Huvudprogrammet frågar, läser, räknar och skriver, och inget mer.  Att
-ingen av frågorna kan krascha är inte programmets förtjänst utan
-modulens, och det är den vinsten \cref{sec:filnamnet} köpte.
+Huvudprogrammet frågar, läser, räknar och skriver, och inget mer.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -771,7 +816,8 @@ tabellen och läser den tillbaka som text.
 % sättet att pröva ett filformat (påståendet ärvt från föreläsningen
 % Arbeta med filer, där det står utan källa).
 
-\begin{frame}[fragile,shrink]
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
   Provprogrammet [[wcprov.py]] använder både modulen och
   räkneprogrammet:
 <<[[wcprov.py]]>>=
@@ -780,13 +826,28 @@ tabellen och läser den tillbaka som text.
 import filer
 import wc
 
+<<räkneprovets konstanter>>
+
+<<räkneprovets hjälpfunktioner>>
+
+<<räkneprovets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet räknar orden med räkneprogrammets funktioner och skriver
+tabellen, och det tar tre rader.  Filen det räknar på och filen det
+skriver till får var sin konstant.  Att läsa tillbaka tabellen och att
+visa de citerade raderna skriver vi först som pseudokod.
+
+\begin{frame}[fragile,shrink=5]
+  \begin{example}[Provets huvudprogram]
+    Räkna och skriva, sedan läsa tillbaka och visa:
+<<räkneprovets konstanter>>=
 TEXTFIL = "madicken.txt"
 RESULTAT = "ordfrekvens.csv"
-
-
-<<funktion som väljer ut raderna med citattecken>>
-
-
+<<räkneprovets huvudprogram>>=
 def main():
     """Räknar orden, skriver CSV-filen och läser den tillbaka"""
     antal = wc.räkna_ord(filer.läs_fil(TEXTFIL))
@@ -796,11 +857,8 @@ def main():
     <<läs tillbaka tabellen och visa de första raderna>>
 
     <<visa raderna med citattecken>>
-
-
-if __name__ == "__main__":
-    main()
 @
+  \end{example}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -823,7 +881,7 @@ text den får som argument --- här ett citattecken.
 \begin{frame}[fragile,shrink=15]
   \begin{example}[Att hitta de citerade raderna]
     Funktionen väljer ut raderna, huvudprogrammet visar dem:
-<<funktion som väljer ut raderna med citattecken>>=
+<<räkneprovets hjälpfunktioner>>=
 def citerade_rader(rader):
     """Returnerar de rader som inleds med ett citattecken"""
     citerade = []
@@ -985,18 +1043,82 @@ och tillbaka igen.
 
 \subsection{Lösningsförslag}
 
-Åt det ena hållet är regeln en slinga över tecknen: skriv tecknet, och
-är det en konsonant skriv dessutom [[o]] och tecknet igen, i
-gemen.  Vilka tecken som är konsonanter är ett bestämt värde och hör
-hemma i en konstant.
+Vi börjar uppifrån, i filens upplägg.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  Översättarens upplägg:
+<<[[rövare.py]]>>=
+"""Ett program som översätter en fil till och från rövarspråket"""
+
+import filer
+
+<<översättarens konstanter>>
+
+<<översättarens hjälpfunktioner>>
+
+<<översättarens huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet frågar åt vilket håll och vilken fil, läser filen och
+skriver översättningen över den.  Översättningarna åt de två hållen blir
+hjälpfunktioner, [[till_rövarspråket]] och [[från_rövarspråket]], som vi
+anropar här och skriver sedan.  Den ena av dem kan misslyckas: en text
+som inte följer regeln går inte att översätta \emph{från}
+rövarspråket, och då ska översättningen säga ifrån med ett
+[[ValueError]], som huvudprogrammet fångar.
+
+\begin{frame}[fragile,shrink=10]
+  \begin{example}[Huvudprogrammet]
+    Filen läses först i sin helhet, och skrivs sedan över:
+<<översättarens huvudprogram>>=
+def main():
+    """Översätter en fil till eller från rövarspråket"""
+    riktning = filer.läs_alternativ(
+        "Vill du översätta till eller från rövarspråket?",
+        ["till", "från"],
+    )
+    filnamn = filer.läs_infilnamn("Vilken fil ska vi översätta? ")
+    text = filer.läs_fil(filnamn)
+    try:
+        if riktning == "till":
+            filer.skriv_fil(filnamn, till_rövarspråket(text))
+        else:
+            filer.skriv_fil(filnamn, från_rövarspråket(text))
+    except ValueError as fel:
+        print(f"Filen går inte att översätta: {fel}.")
+@
+  \end{example}
+\end{frame}
+
+Två saker i huvudprogrammet är där för att filen ska överleva.  Den
+första är att texten hämtas hem \emph{innan} skrivningen: [[läs_fil]]
+läser hela filen och stänger den, så att [[skriv_fil]] efteråt kan
+öppna samma namn med \mintinline{python}{"w"} utan att något går
+förlorat.  Hade filen fortfarande varit öppen för läsning skulle vi
+tömma den under oss.
+
+Den andra är ordningen inuti anropet.  Python räknar ut argumentet ---
+själva översättningen --- innan [[skriv_fil]] anropas, så kastar
+översättningen ett [[ValueError]] hinner filen aldrig öppnas för
+skrivning.  Det är därför [[except]]-grenen kan lova att filen ligger
+kvar: den behöver inte reparera något, eftersom ingenting hann gå
+sönder.
+
+Kvar är översättningarna.  Åt det ena hållet är regeln en slinga över
+tecknen: skriv tecknet, och är det en konsonant skriv dessutom [[o]] och
+tecknet igen, i gemen.  Vilka tecken som är konsonanter är ett bestämt
+värde och hör hemma i en konstant.
 
 \begin{frame}[fragile]
   \begin{example}[Till rövarspråket]
     Varje konsonant följs av [[o]] och sig själv:
-<<konsonanterna och en funktion som översätter till rövarspråket>>=
+<<översättarens konstanter>>=
 KONSONANTER = "bcdfghjklmnpqrstvwxz"
-
-
+<<översättarens hjälpfunktioner>>=
 def till_rövarspråket(text):
     """Returnerar text översatt till rövarspråket"""
     rövartext = ""
@@ -1027,7 +1149,7 @@ för varje varv.
 \begin{frame}[fragile,shrink=20]
   \begin{example}[Från rövarspråket]
     Efter en konsonant ska det stå [[o]] och konsonanten igen:
-<<funktion som översätter från rövarspråket>>=
+<<översättarens hjälpfunktioner>>=
 def från_rövarspråket(rövartext):
     """Returnerar rövartext översatt till vanlig text"""
     text = ""
@@ -1064,84 +1186,36 @@ bad om översättningen.\footnote{%
 }
 
 \mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile]
-  Programmet [[rövare.py]] består av de två översättningarna och ett
-  huvudprogram:
-<<[[rövare.py]]>>=
-"""Ett program som översätter en fil till och från rövarspråket"""
-
-import filer
-
-<<konsonanterna och en funktion som översätter till rövarspråket>>
-
-
-<<funktion som översätter från rövarspråket>>
-
-
-<<huvudprogram som översätter filen på plats>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-\begin{frame}[fragile,shrink=10]
-  \begin{example}[Huvudprogrammet]
-    Filen läses först i sin helhet, och skrivs sedan över:
-<<huvudprogram som översätter filen på plats>>=
-def main():
-    """Översätter en fil till eller från rövarspråket"""
-    riktning = filer.läs_alternativ(
-        "Vill du översätta till eller från rövarspråket?",
-        ["till", "från"],
-    )
-    filnamn = filer.läs_infilnamn("Vilken fil ska vi översätta? ")
-    text = filer.läs_fil(filnamn)
-    try:
-        if riktning == "till":
-            filer.skriv_fil(filnamn, till_rövarspråket(text))
-        else:
-            filer.skriv_fil(filnamn, från_rövarspråket(text))
-    except ValueError as fel:
-        print(f"Filen går inte att översätta: {fel}.")
-@
-  \end{example}
-\end{frame}
-
-Två saker i huvudprogrammet är där för att filen ska överleva.  Den
-första är att texten hämtas hem \emph{innan} skrivningen: [[läs_fil]]
-läser hela filen och stänger den, så att [[skriv_fil]] efteråt kan
-öppna samma namn med \mintinline{python}{"w"} utan att något går
-förlorat.  Hade filen fortfarande varit öppen för läsning skulle vi
-tömma den under oss.
-
-Den andra är ordningen inuti anropet.  Python räknar ut argumentet ---
-själva översättningen --- innan [[skriv_fil]] anropas, så kastar
-översättningen ett [[ValueError]] hinner filen aldrig öppnas för
-skrivning.  Det är därför [[except]]-grenen kan lova att filen ligger
-kvar: den behöver inte reparera något, eftersom ingenting hann gå
-sönder.
-
-\mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
   \inputminted{python}{examples/rövare.py}
 \end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   Provprogrammet [[rövarprov.py]] skriver en kort fil och översätter den
-  dit och tillbaka:
+  dit och tillbaka.  Upplägget:
 <<[[rövarprov.py]]>>=
 """Provkörning: översätter en kort fil dit och tillbaka igen"""
 
 import filer
 import rövare
 
-PROVFIL = "prov.txt"
+<<översättarprovets konstanter>>
 
+<<översättarprovets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
 
+Huvudprogrammet gör tre prov i tur och ordning, och vi skriver dem först
+som pseudokod.
+
+\begin{frame}[fragile,shrink=5]
+  \begin{example}[Provets huvudprogram]
+    Dit och tillbaka, åt fel håll, och till sist den riktiga filen:
+<<översättarprovets huvudprogram>>=
 def main():
     """Översätter en kort fil dit och tillbaka, och läser rövare.txt"""
     <<skriv en provfil och översätt den dit och tillbaka>>
@@ -1149,16 +1223,18 @@ def main():
     <<försök översätta provfilen åt fel håll>>
 
     <<översätt [[rövare.txt]] och visa första raden>>
-
-
-if __name__ == "__main__":
-    main()
 @
+  \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
+Provfilen får sitt namn i en konstant, eftersom de två första proven
+använder den.
+
+\begin{frame}[fragile,shrink=5]
   \begin{example}[Fram och tillbaka]
     Filen skrivs, översätts, och översätts tillbaka:
+<<översättarprovets konstanter>>=
+PROVFIL = "prov.txt"
 <<skriv en provfil och översätt den dit och tillbaka>>=
 filer.skriv_fil(PROVFIL, "Madicken bor på Junibacken.\n")
 print("Före:     ", filer.läs_fil(PROVFIL), end="")
@@ -1337,6 +1413,41 @@ Det är en lovande dag för dig!
   \end{example}
 \end{frame}
 
+Programmet lägger vi upp uppifrån, som de förra.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  Fortuneprogrammets upplägg:
+<<[[fortune.py]]>>=
+"""Ett program som skriver ut en slumpvis vald fortunekaka"""
+
+import random
+
+<<fortuneprogrammets konstanter>>
+
+<<fortuneprogrammets hjälpfunktioner>>
+
+<<fortuneprogrammets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet laddar databasen och väljer en spådom ur den.  Valet
+gör [[choice]] ur modulen [[random]]; laddningen blir en hjälpfunktion,
+[[ladda_databas]], som vi anropar här och skriver sedan.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Ladda och välj:
+<<fortuneprogrammets huvudprogram>>=
+def main():
+    """Skriver ut en slumpvis vald kaka ur databasen"""
+    print(random.choice(ladda_databas()))
+@
+  \end{example}
+\end{frame}
+
 Eftersom posten \emph{är} raden är raden också den naturliga enheten att
 läsa.  Slingan direkt över filobjektet ger en rad per varv, och behöver
 aldrig ha mer än en rad i minnet
@@ -1350,10 +1461,9 @@ samtidigt\autocite{PythonTutorialFiles}.\footnote{%
 \begin{frame}[fragile]
   \begin{example}[Att ladda databasen]
     En rad in, en post ut:
-<<databasens namn och en funktion som laddar den rad för rad>>=
+<<fortuneprogrammets konstanter>>=
 DATABAS = "fortunes.txt"
-
-
+<<fortuneprogrammets hjälpfunktioner>>=
 def ladda_databas(filnamn=DATABAS):
     """Returnerar en lista med kakorna i filnamn, en per rad"""
     kakor = []
@@ -1380,7 +1490,7 @@ stod där rörs inte.
 \begin{frame}[fragile]
   \begin{example}[Att bygga på databasen]
     Filen öppnas i tilläggsläge, och kakan får sin egen rad:
-<<funktion som lägger till en kaka sist i databasen>>=
+<<fortuneprogrammets hjälpfunktioner>>=
 def lägg_till(kaka, filnamn=DATABAS):
     """Skriver kaka sist i databasen utan att röra de andra"""
     with open(filnamn, "a") as databas:
@@ -1393,38 +1503,6 @@ Radbrytningen måste vi lägga dit själva, precis som i föreläsningen
 \emph{Arbeta med filer}: [[write]] lägger inte till någon.  Utan den
 skulle den nya spådomen klistras ihop med den förra, och formatet ---
 en post per rad --- vore brutet av just det som skulle fylla på det.
-
-\begin{frame}[fragile]
-  Programmet [[fortune.py]] är de två funktionerna och ett huvudprogram:
-<<[[fortune.py]]>>=
-"""Ett program som skriver ut en slumpvis vald fortunekaka"""
-
-import random
-
-<<databasens namn och en funktion som laddar den rad för rad>>
-
-
-<<funktion som lägger till en kaka sist i databasen>>
-
-
-<<huvudprogram som skriver ut en slumpvis vald kaka>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet]
-    Ladda och välj:
-<<huvudprogram som skriver ut en slumpvis vald kaka>>=
-def main():
-    """Skriver ut en slumpvis vald kaka ur databasen"""
-    print(random.choice(ladda_databas()))
-@
-  \end{example}
-\end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -1439,8 +1517,9 @@ läge med [[random.seed]].  Då blir valet detsamma varje körning, vilket
 programmet används.
 
 \mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile,shrink]
-  Provprogrammet [[fortuneprov.py]] gör två saker efter varandra:
+\begin{frame}[fragile]
+  Provprogrammet [[fortuneprov.py]] använder både modulen och
+  fortuneprogrammet.  Upplägget:
 <<[[fortuneprov.py]]>>=
 """Provkörning: databasen, ett slumpvis val och en påbyggnad"""
 
@@ -1449,22 +1528,31 @@ import random
 import filer
 import fortune
 
-PROVDATABAS = "provkakor.txt"
+<<fortuneprovets konstanter>>
 
-
-def main():
-    """Visar databasen, väljer en kaka och bygger på en kopia"""
-    <<visa hela databasen och välj en kaka>>
-
-    <<bygg på en kopia av databasen>>
-
-
+<<fortuneprovets huvudprogram>>
 if __name__ == "__main__":
     main()
 @
 \end{frame}
 
-\begin{frame}[fragile,shrink=20]
+Huvudprogrammet gör två saker efter varandra, och vi skriver dem först
+som pseudokod.
+
+\begin{frame}[fragile]
+  \begin{example}[Provets huvudprogram]
+    Först databasen som den är, sedan en påbyggnad:
+<<fortuneprovets huvudprogram>>=
+def main():
+    """Visar databasen, väljer en kaka och bygger på en kopia"""
+    <<visa hela databasen och välj en kaka>>
+
+    <<bygg på en kopia av databasen>>
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
   \begin{example}[Hela databasen, och ett val ur den]
     Slumptalsgeneratorn ställs först i ett bestämt läge:
 <<visa hela databasen och välj en kaka>>=
@@ -1476,9 +1564,16 @@ for kaka in kakor:
 print("En slumpvis vald:", random.choice(kakor))
 @
   \end{example}
+\end{frame}
 
+Påbyggnaden görs på en kopia av databasen, och kopian får sitt namn i en
+konstant.
+
+\begin{frame}[fragile]
   \begin{example}[Påbyggnaden]
     Kopian skrivs om från grunden, och den nya kakan läggs sist:
+<<fortuneprovets konstanter>>=
+PROVDATABAS = "provkakor.txt"
 <<bygg på en kopia av databasen>>=
 filer.skriv_fil(PROVDATABAS, filer.läs_fil(fortune.DATABAS))
 fortune.lägg_till("Du hittar en ledig dator!", PROVDATABAS)
@@ -1611,18 +1706,44 @@ posten delas mitt itu.  Det är samma svårighet som föreläsningen
 \emph{Arbeta med filer} visar med ett kommatecken inuti ett CSV-fält,
 bara en nivå upp: avgränsaren måste vara något datan inte innehåller.
 
-Och nu blir läsningen en annan.  En slinga över filens rader ser en rad
-i taget och kan inte se en post som sträcker sig över flera; i stället
-läser vi hela filen och delar upp den vid skiljeraden.
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  Programmet [[fortune2.py]] skiljer sig från [[fortune.py]] bara i
+  laddningen:
+<<[[fortune2.py]]>>=
+"""Ett program som skriver ut en slumpvis vald flerradig kaka"""
+
+import random
+
+import filer
+
+<<det flerradiga fortuneprogrammets konstanter>>
+
+<<det flerradiga fortuneprogrammets hjälpfunktioner>>
+
+<<fortuneprogrammets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet är ordagrant detsamma som i \cref{sec:fortune} --- det
+är samma namngivna stycke kod som används igen --- och det säger något
+om var gränsen mellan formatet och programmet går.  Formatet ändrades;
+det som väljer en spådom och skriver ut den märkte ingenting.
+
+Det som märker formatet är [[ladda_databas]], och läsningen blir en
+annan.  En slinga över filens rader ser en rad i taget och kan inte se
+en post som sträcker sig över flera; i stället läser vi hela filen och
+delar upp den vid skiljeraden.
 
 \begin{frame}[fragile]
   \begin{example}[Att ladda den flerradiga databasen]
     Hela filen in, och sedan ett [[split]] vid skiljeraden:
-<<databasens namn, skiljeraden och en funktion som laddar posterna>>=
+<<det flerradiga fortuneprogrammets konstanter>>=
 DATABAS = "fortunes2.txt"
 SKILJERAD = "*** nästa fortune ***"
-
-
+<<det flerradiga fortuneprogrammets hjälpfunktioner>>=
 def ladda_databas(filnamn=DATABAS):
     """Returnerar en lista med kakorna i filnamn, en per post"""
     kakor = []
@@ -1640,32 +1761,6 @@ början och slutet av varje post.  Att de tas bort i \emph{kanterna} och
 inte överallt är det som låter blankraden inuti den sista posten leva
 vidare.  Villkoret sorterar bort det som blir tomt, till exempel om
 filen slutar med en skiljerad.
-
-\begin{frame}[fragile]
-  Programmet [[fortune2.py]] skiljer sig från [[fortune.py]] bara i
-  laddningen:
-<<[[fortune2.py]]>>=
-"""Ett program som skriver ut en slumpvis vald flerradig kaka"""
-
-import random
-
-import filer
-
-<<databasens namn, skiljeraden och en funktion som laddar posterna>>
-
-
-<<huvudprogram som skriver ut en slumpvis vald kaka>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-Huvudprogrammet är ordagrant detsamma som i \cref{sec:fortune} --- det
-är samma namngivna stycke kod som används igen --- och det säger något
-om var gränsen mellan formatet och programmet går.  Formatet ändrades;
-det som väljer en spådom och skriver ut den märkte ingenting.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -1776,6 +1871,91 @@ vad översättningen gör med bokstäverna.
 
 \subsection{Lösningsförslag}
 
+Vi börjar uppifrån, i filens upplägg.  Programmet importerar allt det
+behöver och lägger bara till jämförelsen.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  Analysprogrammets upplägg:
+<<[[analys.py]]>>=
+"""Jämför bokstavsfrekvenser med och utan rövarspråk"""
+
+import csv
+
+import filer
+import rövare
+import wc
+
+<<analysprogrammets konstanter>>
+
+<<analysprogrammets hjälpfunktioner>>
+
+<<analysprogrammets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet räknar samma text två gånger, en gång översatt, med de
+funktioner som redan finns.  Det enda nya är jämförelsen: att skriva
+den till filen och att läsa den tillbaka.  Det blir två hjälpfunktioner,
+[[skriv_jämförelse]] och [[läs_jämförelse]], som vi anropar här och
+skriver sedan.  Filen som jämförelsen skrivs till får sitt namn i en
+konstant.
+
+\begin{frame}[fragile,shrink=10]
+  \begin{example}[Huvudprogrammet]
+    Samma text räknas två gånger, en gång översatt:
+<<analysprogrammets konstanter>>=
+RESULTAT = "analys.csv"
+<<analysprogrammets huvudprogram>>=
+def main():
+    """Jämför bokstäverna i filen före och efter översättning"""
+    filnamn = filer.läs_infilnamn("Vilken fil ska vi analysera? ")
+    text = filer.läs_fil(filnamn)
+    före = wc.räkna_bokstäver(text)
+    efter = wc.räkna_bokstäver(rövare.till_rövarspråket(text))
+    skriv_jämförelse(RESULTAT, före, efter)
+    print(f"Resultatet står i {RESULTAT}. De första raderna:")
+    for rad in läs_jämförelse(RESULTAT)[:7]:
+        print(rad)
+@
+  \end{example}
+\end{frame}
+
+Huvudprogrammet innehåller ingen ny idé.  Det frågar med [[filer]],
+räknar med [[wc]], översätter med [[rövare]] och skriver och läser med
+två funktioner som är programmets egna.  Att de tre modulerna aldrig
+skrevs för att användas tillsammans hindrar ingenting: de tar emot text
+och ger tillbaka text eller tabeller, och det räcker.
+
+Skrivningen först.  Den skriver en rubrikrad och sedan en rad per
+tecken, med tecknet och antalet i vardera tabellen.  Rubrikraden är ny:
+en tabell med tre kolumner behöver den, för att den som öppnar filen i
+ett kalkylprogram ska veta vilken kolumn som är vilken.  Vilka tecken
+raderna gäller, och antalet för ett tecken, lämnar vi åt två
+hjälpfunktioner till, som vi skriver sedan.
+
+\begin{frame}[fragile]
+  \begin{example}[Att skriva jämförelsen]
+    En rubrikrad och sedan en rad per tecken:
+<<analysprogrammets hjälpfunktioner>>=
+def skriv_jämförelse(filnamn, före, efter):
+    """Skriver en CSV med tecken, antal före och antal efter"""
+    with open(filnamn, "w", newline="") as fil:
+        skrivare = csv.writer(fil)
+        skrivare.writerow(["tecken", "original", "rövarspråk"])
+        for tecken in alla_tecken(före, efter):
+            rad = [
+                tecken,
+                antal_av(före, tecken),
+                antal_av(efter, tecken),
+            ]
+            skrivare.writerow(rad)
+@
+  \end{example}
+\end{frame}
+
 Tabellen ska ha en rad per tecken, men vilka tecken?  Originalets
 tecken räcker inte: översättningen kan innehålla tecken som originalet
 inte har --- en text utan ett enda [[o]] får dem i mängd så snart den
@@ -1784,7 +1964,7 @@ inte har --- en text utan ett enda [[o]] får dem i mängd så snart den
 \begin{frame}[fragile]
   \begin{example}[Alla tecken i någon av tabellerna]
     Originalets tecken först, sedan de som bara finns i översättningen:
-<<funktion som samlar alla tecken i båda tabellerna>>=
+<<analysprogrammets hjälpfunktioner>>=
 def alla_tecken(före, efter):
     """Returnerar alla tecken som finns i någon av tabellerna"""
     tecken = list(före)
@@ -1809,7 +1989,7 @@ behövs.
 \begin{frame}[fragile]
   \begin{example}[Ett antal, även när tecknet saknas]
     Noll är svaret när nyckeln inte finns:
-<<funktion som ger antalet, med noll som standardsvar>>=
+<<analysprogrammets hjälpfunktioner>>=
 def antal_av(frekvens, tecken):
     """Returnerar antalet förekomster av tecken (0 om inget)"""
     if tecken in frekvens:
@@ -1819,65 +1999,6 @@ def antal_av(frekvens, tecken):
   \end{example}
 \end{frame}
 
-Med de två funktionerna blir skrivningen rakt fram, och nu med en
-rubrikrad: en tabell med tre kolumner behöver den, för att den som
-öppnar filen i ett kalkylprogram ska veta vilken kolumn som är vilken.
-
-\begin{frame}[fragile]
-  \begin{example}[Att skriva jämförelsen]
-    En rubrikrad och sedan en rad per tecken:
-<<funktion som skriver jämförelsen som CSV>>=
-def skriv_jämförelse(filnamn, före, efter):
-    """Skriver en CSV med tecken, antal före och antal efter"""
-    with open(filnamn, "w", newline="") as fil:
-        skrivare = csv.writer(fil)
-        skrivare.writerow(["tecken", "original", "rövarspråk"])
-        for tecken in alla_tecken(före, efter):
-            rad = [
-                tecken,
-                antal_av(före, tecken),
-                antal_av(efter, tecken),
-            ]
-            skrivare.writerow(rad)
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile,shrink=15]
-  Programmet [[analys.py]] importerar allt det behöver och lägger bara
-  till jämförelsen:
-<<[[analys.py]]>>=
-"""Jämför bokstavsfrekvenser med och utan rövarspråk"""
-
-import csv
-
-import filer
-import rövare
-import wc
-
-RESULTAT = "analys.csv"
-
-
-<<funktion som samlar alla tecken i båda tabellerna>>
-
-
-<<funktion som ger antalet, med noll som standardsvar>>
-
-
-<<funktion som skriver jämförelsen som CSV>>
-
-
-<<funktion som läser jämförelsen tillbaka>>
-
-
-<<huvudprogram som räknar tecknen före och efter översättningen>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
 Tabellen ska också läsas tillbaka, och nu är det inte formatet som är
 lärdomen utan resultatet: vi vill se raderna, inte öva på att tolka dem.
 Då är det modulen som ska läsa, precis som det var modulen som skrev.
@@ -1885,7 +2006,7 @@ Då är det modulen som ska läsa, precis som det var modulen som skrev.
 \begin{frame}[fragile]
   \begin{example}[Att läsa tillbaka jämförelsen]
     Ett [[csv.reader]]-objekt ger en lista med fält per rad:
-<<funktion som läser jämförelsen tillbaka>>=
+<<analysprogrammets hjälpfunktioner>>=
 def läs_jämförelse(filnamn):
     """Returnerar raderna i CSV-filen filnamn, en lista per rad"""
     with open(filnamn, "r", newline="") as fil:
@@ -1897,30 +2018,6 @@ def läs_jämförelse(filnamn):
 Argumentet \mintinline{python}{newline=""} står kvar också vid läsning:
 dokumentationen föreskriver det åt båda hållen, eftersom modulen sköter
 radbrytningarna själv\autocite{PythonCSV}.
-
-\begin{frame}[fragile,shrink=10]
-  \begin{example}[Huvudprogrammet]
-    Samma text räknas två gånger, en gång översatt:
-<<huvudprogram som räknar tecknen före och efter översättningen>>=
-def main():
-    """Jämför bokstäverna i filen före och efter översättning"""
-    filnamn = filer.läs_infilnamn("Vilken fil ska vi analysera? ")
-    text = filer.läs_fil(filnamn)
-    före = wc.räkna_bokstäver(text)
-    efter = wc.räkna_bokstäver(rövare.till_rövarspråket(text))
-    skriv_jämförelse(RESULTAT, före, efter)
-    print(f"Resultatet står i {RESULTAT}. De första raderna:")
-    for rad in läs_jämförelse(RESULTAT)[:7]:
-        print(rad)
-@
-  \end{example}
-\end{frame}
-
-Huvudprogrammet innehåller ingen ny idé.  Det frågar med [[filer]],
-räknar med [[wc]], översätter med [[rövare]] och skriver och läser med
-de två funktioner som är programmets egna.  Att de tre modulerna aldrig
-skrevs för att användas tillsammans hindrar ingenting: de tar emot text
-och ger tillbaka text eller tabeller, och det räcker.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
