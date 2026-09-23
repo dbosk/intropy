@@ -767,7 +767,9 @@ för sammanslagningen, men inte för upprepningen.  Raderna med
 \mintinline{python}{word[0]} och \mintinline{python}{word[0:4]} är nya:
 den första ger ett enskilt tecken och den andra en delsträng.  Räkningen
 börjar på noll, så \mintinline{python}{word[0]} är det \emph{första}
-tecknet.  Vi återkommer till indexering i föreläsningen
+tecknet, och \mintinline{python}{word[0:4]} är tecknen från plats 0 fram
+till, men inte med, plats 4: de fyra första,
+\mintinline{text}|pann|.  Vi återkommer till indexering i föreläsningen
 \emph{Behållare: Listor}; här räcker det att veta att den finns.  Den
 sista raden är också ny: den inbyggda funktionen
 \mintinline{python}{len} ger strängens längd, antalet tecken i den ---
@@ -897,11 +899,14 @@ Så här ser programmet bakom dialogen ut.
 """Räknar ut ett BMI ur två svar."""
 
 
+<<funktion som räknar ut BMI ur vikt och längd>>
+
+
 def main():
     """Frågar efter två tal och skriver ut ett BMI."""
     x = int(input("x:"))
     y = float(input("y"))
-    print(y / (x / 100) ** 2)
+    print(bmi(y, x))
 
 
 main()
@@ -909,11 +914,29 @@ main()
   \end{example}
 \end{frame}
 
+Själva uträkningen ligger i en egen funktion, och
+\mintinline{python}{main} gör bara tre saker: frågar, anropar funktionen
+och skriver ut det den lämnar tillbaka.
+
+\begin{frame}[fragile]
+  \begin{example}[Funktionen som räknar]
+    \label{ex:bmi-funktion}
+    Formeln, med längden omräknad till meter:
+<<funktion som räknar ut BMI ur vikt och längd>>=
+def bmi(weight_kg, height_cm):
+    """Returnerar BMI för en vikt i kilogram och en längd i cm."""
+    return weight_kg / (height_cm / 100) ** 2
+@
+  \end{example}
+\end{frame}
+
 BMI (\foreignlanguage{english}{body mass index}) är vikten i kilogram
-delad med längden i meter i kvadrat --- samma uträkning som i
-\emph{Övning: Funktioner och variabler}, med kvadraten skriven som
-\mintinline{python}{** 2}.  Längden läses som ett heltal och vikten som
-ett flyttal, eftersom en vikt ofta har decimaler.
+delad med längden i meter i kvadrat --- samma uträkning, och samma
+funktion \mintinline{python}{bmi(weight_kg, height_cm)}, som i
+\emph{Övning: Funktioner och variabler}, men med kvadraten skriven som
+\mintinline{python}{** 2}.  Funktionen får längden i centimeter och
+räknar själv om den till meter.  Längden läses som ett heltal och
+vikten som ett flyttal, eftersom en vikt ofta har decimaler.
 
 Men det ser användaren ingenting av.  Frågorna säger inte vad de vill
 ha: \mintinline{text}|"x:"| talar om att programmet vill ha något, men
@@ -921,7 +944,7 @@ inte vad, inte i vilken enhet och inte i vilken form, och den andra
 frågan saknar dessutom både kolon och mellanslag, så svaret klistras
 fast i frågan.  Svaret till sist säger inte vad talet är, och det har
 fler decimaler än någon kan använda.  Allt det går att rätta utan att
-röra uträkningen.
+röra funktionen som räknar.
 
 % Keep the run and the program together in the notes.
 \mode<article>{\needspace{24\baselineskip}}
@@ -936,11 +959,14 @@ röra uträkningen.
 """Räknar ut ett BMI ur längd och vikt."""
 
 
+<<funktion som räknar ut BMI ur vikt och längd>>
+
+
 def main():
     """Frågar efter längd och vikt och skriver ut BMI."""
     length = int(input("Hur lång är du (cm)? "))
     weight = float(input("Hur mycket väger du (kg)? "))
-    print(f"Ditt BMI är {weight / (length / 100) ** 2:.1f}.")
+    print(f"Ditt BMI är {bmi(weight, length):.1f}.")
 
 
 main()
@@ -948,39 +974,14 @@ main()
   \end{example}
 \end{frame}
 
-Några enkla regler räcker långt.  Fråga efter en sak i taget.  Skriv ut
-enheten i frågan.  Säg i svaret vad talet är, och skriv det med en
-precision som går att använda: \mintinline{python}{:.1f} i f-strängen
-skriver talet med en decimal, som i \emph{Övning: Funktioner och
-variabler}.
-% TODO(claim-audit): reglerna för frågor (en sak i taget, enheten i
-% frågan, svaret säger vad talet är) påstår en nytta för användaren.
-% Ingen sökning är gjord; listad i bilaga A, Fortsatt arbete.
-(Rättelsen byter också namnen \mintinline{python}{x} och
-\mintinline{python}{y} mot \mintinline{python}{length} och
-\mintinline{python}{weight}.  Det märker inte användaren, men den som
-läser koden ser direkt vad talen är.  Det är programmerarens sak, och
-det här avsnittet handlar om användaren.)
-
-Lägg märke till vad rättelsen kostade: uträkningen är orörd, och det som
-ändrades är texter, namn och en avrundning du redan mött --- ingen ny
-konstruktion och ingen extra rad kod.  Det är i den andan principen
-\foreignlanguage{english}{KISS}
-(\foreignlanguage{english}{Keep It Simple, Stupid}) ska läsas, den som
-fick namn i föreläsningen \emph{Funktioner}: den billigaste lösning som
-duger är oftast den rätta.%
-\footnote{%
-  Det vetenskapliga underlaget för var uttrycket kommer ifrån --- och
-  för att enkelhet som designvärde är etablerat --- finns i
-  föreläsningen \emph{Funktioner}, bilaga C.}
-
 \ltnote{%
   Relevanta lärandemål: \cref{InputLOPrompt}.
 
   \textbf{Kontrast}: vad som varierar är det användaren ser ---
   frågorna, svarets text och avrundningen --- och med dem
   variabelnamnen; vad som hålls invariant är uträkningen (samma
-  omvandlingar, samma formel, samma rader i samma
+  omvandlingar och samma funktion \mintinline{python}{bmi}, skriven en
+  gång i en chunk som båda programmen delar och anropad på samma rad i
   \mintinline{python}{main}) och svaren, 170 och 65.  Kontrasten ska
   urskilja att användbarheten sitter i utformningen och inte i
   beräkningen.  Namnen varierar med eftersom de hör till samma slarv;
@@ -995,11 +996,56 @@ duger är oftast den rätta.%
 
   Programmen räknar ett BMI i stället för att skriva ut svaren igen: ett
   program som bara upprepar det det läst har inget skäl att läsa.
-  Formeln och måtten, 65~kg och 170~cm, är desamma som i \emph{Övning:
-  Funktioner och variabler}, så uträkningen kräver inget nytt; den visar
-  \mintinline{python}{**} ur sammanfattningen av operatorerna och övar
-  \mintinline{python}{float}.
+  Uträkningen ligger i en egen funktion enligt kursens regel att varje
+  uträkning efter föreläsningen \emph{Funktioner} får en namngiven
+  funktion (författaren, 2026-09-23).  Namn, parametrar och mått, 65~kg
+  och 170~cm, är desamma som i \emph{Övning: Funktioner och variabler};
+  funktionen skrivs av, eftersom \mintinline{python}{import} hör till
+  föreläsningen \emph{Moduler och paket}.
 
+  \mintinline{python}{:.1f} förklaras här, där en föreläsning först
+  använder den; den oavrundade körningen av [[prompt3.py]] är
+  kontrasten.
+}
+
+Några enkla regler räcker långt.  Fråga efter en sak i taget.  Skriv ut
+enheten i frågan.  Säg i svaret vad talet är, och skriv det med en
+precision som går att använda.
+% TODO(claim-audit): reglerna för frågor (en sak i taget, enheten i
+% frågan, svaret säger vad talet är) påstår en nytta för användaren.
+% Ingen sökning är gjord; listad i bilaga A, Fortsatt arbete.
+
+Den sista regeln sköts av \mintinline{python}{:.1f} i f-strängen, en
+skrivform som ingen föreläsning har tagit upp tidigare.  Inne i
+klamrarna står först värdet som ska skrivas ut,
+\mintinline{python}{bmi(weight, length)}, och efter kolonet \emph{hur}
+det ska skrivas: \mintinline{python}{.1} betyder en decimal och
+\mintinline{python}{f} att talet skrivs som ett decimaltal.  Talet
+avrundas alltså till en decimal, \mintinline{text}|22.5|.  Utan kolonet
+och det som står efter det skrivs talet med alla decimaler Python har,
+och det är precis vad körningen av [[prompt3.py]] i \cref{ovn:prompt}
+visar: \mintinline{text}|22.49134948096886|.
+
+Rättelsen byter också namnen \mintinline{python}{x} och
+\mintinline{python}{y} mot \mintinline{python}{length} och
+\mintinline{python}{weight}.  Det märker inte användaren, men den som
+läser koden ser direkt vad talen är.  Det är programmerarens sak, och
+det här avsnittet handlar om användaren.
+
+Lägg märke till vad rättelsen kostade: funktionen som räknar är orörd,
+och den anropas på samma rad som förut.  Det som ändrades är texter,
+namn och fyra tecken som bestämmer hur svaret skrivs --- programmet
+fick inte en enda rad till.  Det är i den andan principen
+\foreignlanguage{english}{KISS}
+(\foreignlanguage{english}{Keep It Simple, Stupid}) ska läsas, den som
+fick namn i föreläsningen \emph{Funktioner}: den billigaste lösning som
+duger är oftast den rätta.%
+\footnote{%
+  Det vetenskapliga underlaget för var uttrycket kommer ifrån --- och
+  för att enkelhet som designvärde är etablerat --- finns i
+  föreläsningen \emph{Funktioner}, bilaga C.}
+
+\ltnote{%
   Beläggen för \foreignlanguage{english}{KISS} --- Rich, som tillskriver
   Johnson mottot, och Popiks belägg för att uttrycket fanns i tryck
   redan 1958 --- är hämtade ur föreläsningen \emph{Funktioner}
@@ -1758,35 +1804,43 @@ räknar vi ut en medelålder, och frågar därför om två tal.
 """Medelålder för en grupp."""
 
 
+<<funktion som räknar ut medelåldern>>
+
+
 def main():
     """Frågar efter två tal och skriver ut medelåldern."""
     try:
-        <<räkna ut medelåldern>>
-    <<except-grenarna>>
+        <<fråga efter sammanlagd ålder och antal, skriv ut medelåldern>>
+    <<ge varje sorts fel ett eget svar>>
 
 
 main()
 @
 \end{frame}
 
-Själva räknandet är tre rader: två frågor och en division som skrivs
-ut med en decimal --- \mintinline{python}{:.1f}, som i \emph{Övning:
-Funktioner och variabler}.
+Divisionen ligger i en egen funktion, och \mintinline{python}{try}-blocket
+är tre rader: två frågor och en utskrift av det funktionen lämnar
+tillbaka, med en decimal --- \mintinline{python}{:.1f}, som i
+\cref{sec:anvandarvanligt}.
 
 \begin{frame}[fragile]
-  Uträkningen:
-<<räkna ut medelåldern>>=
+  Funktionen som räknar, och raderna i \mintinline{python}{try}-blocket:
+<<funktion som räknar ut medelåldern>>=
+def average_age(total, people):
+    """Returnerar medelåldern för people personer, total år tillsammans."""
+    return total / people
+<<fråga efter sammanlagd ålder och antal, skriv ut medelåldern>>=
 total = int(input("Hur många år är ni tillsammans? "))
 people = int(input("Hur många är ni? "))
-print(f"Medelåldern är {total / people:.1f} år.")
+print(f"Medelåldern är {average_age(total, people):.1f} år.")
 @
 \end{frame}
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:tva-fel}
-    Vilka fel kan uppstå i de tre raderna som räknar ut medelåldern?
-    Och vad ska
+    Vilka fel kan uppstå i de tre raderna i
+    \mintinline{python}{try}-blocket?  Och vad ska
     \mintinline{python}{except}-delen göra åt vart och ett av dem?
   \end{exercise}
 \end{frame}
@@ -1801,7 +1855,7 @@ siffror} vore i det andra fallet både obegripligt och osant --- hon
 
 \begin{frame}[fragile]
   Varje sorts fel får ett eget svar, och sist ett skyddsnät:
-<<except-grenarna>>=
+<<ge varje sorts fel ett eget svar>>=
 except ValueError:
     print("Svara med siffror, till exempel 84.")
 except ZeroDivisionError:
@@ -1855,11 +1909,15 @@ att utföra; det är ett villkor som är vårt eget.
   för att grenordningen ska bli en fråga över huvud taget, och
   åldersprogrammet har bara ett.
 
-  Programmet är dekomponerat i tre chunkar snarare än visat i ett
-  stycke, eftersom \mintinline{python}{try}-delen och grenarna hör till
-  två olika resonemang --- vad som kan gå fel respektive vad vi svarar
-  --- och prosan mellan dem behöver plats.  De två inre chunkarna
-  ligger i \mintinline{python}{main}, enligt regeln.
+  Programmet är dekomponerat i chunkar snarare än visat i ett stycke,
+  eftersom \mintinline{python}{try}-delen och grenarna hör till två
+  olika resonemang --- vad som kan gå fel respektive vad vi svarar ---
+  och prosan mellan dem behöver plats.  Divisionen ligger i en egen
+  funktion enligt regeln att en uträkning får en namngiven funktion;
+  \mintinline{python}{ZeroDivisionError} uppstår därför ett anrop ner
+  och fångas i \mintinline{python}{main}, som
+  \mintinline{python}{NameError} i [[age-catchall.py]].  Att ett
+  särfall sprider sig till anroparen sägs ut först i \cref{sec:kasta}.
 }
 
 Skyddsnätet sist är bekvämt, men det är också farligt.  Här är ett
@@ -2060,9 +2118,10 @@ och visar ett exempel.  Det andra meddelandet går att agera på.
   av avsnitten om särfall som inte handlar om mekanik alls; det är
   samma mål som \cref{sec:anvandarvanligt} bär före felet.
 
-  Skyddsnätets utskrift i [[<<except-grenarna>>]] skriver ut felets
-  beskrivning, eftersom mottagaren där är en programmerare: ett oväntat
-  fel ska rapporteras vidare, inte åtgärdas av användaren.  Prosan säger
+  Skyddsnätets utskrift i [[<<ge varje sorts fel ett eget svar>>]]
+  skriver ut felets beskrivning, eftersom mottagaren där är en
+  programmerare: ett oväntat fel ska rapporteras vidare, inte åtgärdas
+  av användaren.  Prosan säger
   där vad den utskriften ändå döljer --- var felet uppstod.
 }
 
