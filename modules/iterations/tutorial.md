@@ -22,7 +22,7 @@ Vi hinner bara ett urval av övningens uppgifter under passet. De här tar
 vi tillsammans, i den här ordningen:
 
 1. **Uppgift 1: Finn fem fel.** Läsa, köra och rätta ett färdigt
-   (rekursivt) program som inte gör vad det ska.
+   (rekursivt) program som inte gör vad det ska, [fib.py][fib].
 2. **Uppgift 2: Frågorna i en lista.** Lägga tre frågor i en lista och gå
    igenom den både med `for` och med `while`.
 3. **Uppgift 3: Antalet försök.** Bygga ut frågesporten så att en lätt
@@ -31,6 +31,8 @@ vi tillsammans, i den här ordningen:
    behöver till en egen modul, med ett testblock som inte körs när
    modulen importeras.
 
+[fib]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/examples/fib.py
+
 ## På egen hand
 
 Resten av uppgifterna finns kvar att göra på egen tid; lösningsförslagen
@@ -38,7 +40,8 @@ i dokumentet låter dig kontrollera dina egna svar.
 
 1. **Uppgift 4: Menyn.** Lägga till en meny som upprepar sig, skriven
    både som en slinga och som ett rekursivt anrop, och avgöra vilken
-   form som är bäst.
+   form som är bäst. Lösningsförslaget frågar också vad ett litet
+   program skriver ut, [lagg_till.py][lagg_till].
 2. **Uppgift 6: Frågorna i blandad ordning.** Slumpa frågornas ordning
    med modulen `random`, genom att leta i dess dokumentation.
 3. **Fördjupning: Uppgift 7: Antalet anrop.** Undersöka hur många anrop
@@ -49,6 +52,8 @@ i dokumentet låter dig kontrollera dina egna svar.
    som primtalsfaktoriserar ett heltal.
 6. **Fördjupning: Uppgift 10: Cowsay.** Skriva ett eget program som
    skriver text i en pratbubbla, som terminalkommandot `cowsay`.
+
+[lagg_till]: https://github.com/dbosk/intropy/blob/master/modules/iterations/tutorial/examples/lagg_till.py
 
 ## Förberedelser
 

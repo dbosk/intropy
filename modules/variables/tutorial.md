@@ -22,15 +22,20 @@ Vi hinner bara ett urval av övningens uppgifter under passet. De här tar
 vi tillsammans, i den här ordningen:
 
 1. **Uppgift 1: Att gå.** Läsa ett program som redan är uppdelat i
-   namngivna funktioner och skriva ner utskriften i rätt ordning, för att
-   öva att följa exekveringen genom ett funktionsanrop.
+   namngivna funktioner, [walk.py][walk], och skriva ner utskriften i
+   rätt ordning, för att öva att följa exekveringen genom ett
+   funktionsanrop.
 2. **Uppgift 2: Att dansa.** Dela upp ett eget program i funktioner som
    skriver ut, där den upprepade delen anropas med olika argument.
 3. **Uppgift 4: Kakelfabriken.** Dela upp en beräkning i tre steg i egna
    funktioner utan att koden upprepas, så att DRY och SRP blir synliga.
 4. **Uppgift 5: Någon annans program.** Läsa, köra och skriva om ett
-   program som fungerar men är illa skrivet: namn, docstrings,
+   program som fungerar men är illa skrivet,
+   [house-chores.py][house-chores]: namn, docstrings,
    ansvarsfördelning och returvärden som ingen använder.
+
+[walk]: https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial/examples/walk.py
+[house-chores]: https://github.com/dbosk/intropy/blob/master/modules/variables/tutorial/examples/house-chores.py
 
 ## På egen hand
 
