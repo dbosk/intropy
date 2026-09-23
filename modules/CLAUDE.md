@@ -106,6 +106,14 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   inline in a `print` (author, 2026-09-23, beside an inline BMI formula:
   "Use a function for computing BMI").
 - Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
+- A program a tutorial task gives the student to run, read or build on
+  (e.g. `bomben.py`) is linked from the Canvas page `tutorial.md`, so the
+  student downloads it instead of typing it from the PDF (author,
+  2026-09-23). Such tangled files are therefore **committed** (an
+  exception in the deck's `.gitignore`), and committed in the same commit
+  as the `contents.nw` change that alters them; the links point to
+  `https://github.com/dbosk/intropy/blob/master/<path>`, which is stable
+  once the branch is merged to `master`.
 - A tutorial may introduce a small new thing the lectures did not teach,
   if the student can find it with what was taught, e.g. `str.replace`
   through `pydoc str` (author, 2026-09-23: "It's fine if we introduce new
