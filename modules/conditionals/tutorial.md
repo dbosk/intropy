@@ -21,14 +21,18 @@ styrstrukturer (övningsanteckningar)*: pröva varje uppgift innan du läser lö
 Vi hinner bara ett urval av övningens uppgifter under passet. De här tar
 vi tillsammans, i den här ordningen:
 
-1. **Uppgift 1: Bomben.** Läsa fyra villkor i ett färdigt spelprogram och
-   räkna ut vad vart och ett ger.
-2. **Uppgift 2: Bombens sista fråga.** Samma spel: läsa bombens femte
-   fråga och räkna ut vilka svar som klarar sig.
-3. **Uppgift 3: Biobiljetterna.** Granska ett färdigt program och rätta
-   det: inmatning, omvandling, felhantering och robusthet.
+1. **Uppgift 1: Bomben.** Läsa fyra villkor i ett färdigt spelprogram,
+   [bomben.py][bomben], och räkna ut vad vart och ett ger.
+2. **Uppgift 2: Bombens sista fråga.** Samma spel, [bomben.py][bomben]:
+   läsa bombens femte fråga och räkna ut vilka svar som klarar sig.
+3. **Uppgift 3: Biobiljetterna.** Granska ett färdigt program,
+   [biobiljetter1.py][biobiljetter1], och rätta det: inmatning,
+   omvandling, felhantering och robusthet.
 4. **Uppgift 4: Frågan som kommer tillbaka.** Bygga ut en
    fråga-om-igen-funktion så att den passar olika krav på svaret.
+
+[bomben]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/examples/bomben.py
+[biobiljetter1]: https://github.com/dbosk/intropy/blob/master/modules/conditionals/tutorial/examples/biobiljetter1.py
 
 ## På egen hand
 
