@@ -379,7 +379,7 @@ bara talet, och programmet ska skriva ut det.
 \begin{frame}[fragile]
   \begin{example}[Öppna och stänga för hand]
     Vi öppnar filen, läser talet och stänger filen igen:
-<<läs talet och stäng för hand>>=
+<<funktion som läser talet och stänger filen för hand>>=
 def read_number_by_hand(filename):
     """Reads the number in the file, closing the file by hand"""
     file = open(filename, "r")
@@ -414,7 +414,7 @@ an exception is raised at some point}}\autocite{PythonTutorialFiles}.
 \begin{frame}[fragile]
   \begin{example}[Med \texttt{with}]
     Samma uppgift, men [[with]] stänger filen åt oss när blocket lämnas:
-<<läs talet med with>>=
+<<funktion som läser talet och låter [[with]] stänga filen>>=
 def read_number(filename):
     """Reads the number in the file, letting with close it"""
     with open(filename, "r") as file:
@@ -563,23 +563,23 @@ inte förrän något går fel.
 
 Vi sätter ihop de två funktionerna till ett program som läser samma tal
 på båda sätten, så att vi ser att de ger samma resultat när allt går väl.
+Programmet kallar vi talläsaren, och vi skriver det uppifrån och ner:
+först filens upplägg, i pseudokod, och sedan preciserar vi pseudokoden
+med pythonkod, en del i taget.  Överst står en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan funktionerna, huvudprogrammet och till sist anropet som
+sätter igång det.  Funktionerna har vi redan, så det är bara
+huvudprogrammet som är kvar att skriva.
 
 \begin{frame}[fragile]
-  Programmet [[open_close.py]] består av de två funktionerna och ett
-  huvudprogram:
+  Talläsarens upplägg, i [[open_close.py]]:
 <<[[open_close.py]]>>=
 """Opening and closing files"""
 
+<<funktion som läser talet och stänger filen för hand>>
+<<funktion som läser talet och låter [[with]] stänga filen>>
 
-<<läs talet och stäng för hand>>
-
-
-<<läs talet med with>>
-
-
-<<läs talet på båda sätten>>
-
-
+<<talläsarens huvudprogram>>
 if __name__ == "__main__":
     main()
 @
@@ -589,7 +589,7 @@ if __name__ == "__main__":
   \begin{example}[Huvudprogrammet]
     Huvudprogrammet frågar efter filnamnet och läser talet på båda
     sätten:
-<<läs talet på båda sätten>>=
+<<talläsarens huvudprogram>>=
 def main():
     """Reads the same number both ways"""
     filename = input("Vilken fil innehåller talet? ")
@@ -607,6 +607,13 @@ def main():
 @
   \end{example}
 \end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/open_close.py}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
 
 \begin{frame}[fragile]
   \begin{example}[Körning]
@@ -708,22 +715,44 @@ föreläsningen \emph{Villkor och styrstrukturer}: vi fångar särfallet
 med [[try]] och [[except]], och lägger frågan i en [[while]]-slinga som
 snurrar tills läsningen lyckas.  Det enda nya är vilken sorts fel vi fångar.
 
+Programmet, den omfrågande talläsaren, lägger vi upp som talläsaren:
+\foreignlanguage{english}{docstring}, hjälpfunktioner, huvudprogram och
+anrop.  Den här gången har vi inga funktioner färdiga i förväg, så
+hjälpfunktionerna skriver vi när resonemanget kommer fram till dem.
+
 \begin{frame}[fragile]
-  \begin{example}[Att läsa talet]
-    Läsningen är som förut, med [[with]]:
-<<läs talet ur filen>>=
-def read_number(filename):
-    """Reads the number in the file"""
-    with open(filename, "r") as file:
-        return int(file.read())
+  Den omfrågande talläsarens upplägg, i [[ask_for_file.py]]:
+<<[[ask_for_file.py]]>>=
+"""Asking for a file name until the file exists"""
+
+<<den omfrågande talläsarens hjälpfunktioner>>
+
+<<den omfrågande talläsarens huvudprogram>>
+if __name__ == "__main__":
+    main()
 @
-  \end{example}
 \end{frame}
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje program som byggs upp av namngivna
+  delar börjar i filens upplägg, med namn som hör till just det
+  programmet, och skisserar sedan huvudprogrammet.  En hjälpfunktion
+  läggs till först där resonemanget behöver den (författaren,
+  2026-09-23: \enquote{it too early outlines what functions we need,
+  without having started discussing the details of the problem yet}),
+  så filens ordning blir upptäcktens.  I [[open_close.py]] fanns
+  funktionerna före programmet, eftersom de var kontrastens två sidor,
+  och upplägget tar med dem direkt.
+}
+
+Frågan ställs i huvudprogrammet, så där börjar vi.  Läsningen av talet
+ger vi namnet [[read_number]] och anropar den redan här; den skriver vi
+när frågan är klar.
 
 \begin{frame}[fragile]
   \begin{example}[Att fråga tills filen finns]
     Huvudprogrammet frågar om och om igen tills [[open()]] lyckas:
-<<fråga tills filen finns>>=
+<<den omfrågande talläsarens huvudprogram>>=
 def main():
     """Asks again until there is a file with the given name"""
     while True:
@@ -739,20 +768,22 @@ def main():
 \end{frame}
 
 \begin{frame}[fragile]
-  Programmet [[ask_for_file.py]] sätter ihop de två:
-<<[[ask_for_file.py]]>>=
-"""Asking for a file name until the file exists"""
-
-
-<<läs talet ur filen>>
-
-
-<<fråga tills filen finns>>
-
-
-if __name__ == "__main__":
-    main()
+  \begin{example}[Att läsa talet]
+    Läsningen, den enda hjälpfunktionen, är som förut, med [[with]]:
+<<den omfrågande talläsarens hjälpfunktioner>>=
+def read_number(filename):
+    """Reads the number in the file"""
+    with open(filename, "r") as file:
+        return int(file.read())
 @
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{18\baselineskip}}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/ask_for_file.py}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1357,19 +1388,76 @@ vill spara talpar \((x, y)\) i en fil, där \(y = f(x)\) för någon
 funktion \(f\).  En enkel lösning är att skriva ett par per rad, med
 \(x\) och \(y\) åtskilda av ett kommatecken.
 
+Programmet som gör det kallar vi talparsprogrammet.  Vi lägger upp det
+som talläsaren, uppifrån och ner, men nu med en plats för konstanter
+mellan \foreignlanguage{english}{docstring}en och hjälpfunktionerna.
+
+\begin{frame}[fragile]
+  Talparsprogrammets upplägg, i [[xy.py]]:
+<<[[xy.py]]>>=
+"""Saving pairs of numbers in a format of our own"""
+
+<<talparsprogrammets konstanter>>
+
+<<talparsprogrammets hjälpfunktioner>>
+
+<<talparsprogrammets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Att skriva och sedan läsa tillbaka är det enklaste sättet att pröva ett
+format: kommer samma data tillbaka har skrivaren och läsaren förstått
+kontraktet lika.  Huvudprogrammet gör just det: det skriver paren och
+läser tillbaka dem.  Skrivningen, läsningen och funktionen \(f\)
+anropar vi redan här, och dem skriver vi när vi kommer till dem.
+
+\begin{frame}[fragile]
+  Huvudprogrammet jämför varje inläst \(y\) med \(f(x)\):
+<<talparsprogrammets huvudprogram>>=
+def main():
+    """Writes the pairs, reads them back and compares"""
+    write_pairs(FILENAME)
+    any_bad = False
+    for x, y in read_pairs(FILENAME):
+        if f(x) != y:
+            print(f"{x} -/> {y}")
+            any_bad = True
+    if not any_bad:
+        print("Alla par lästes tillbaka rätt!")
+@
+\end{frame}
+
+Filnamnet står på ett ställe, i [[FILENAME]], så att skrivningen och
+läsningen säkert gäller samma fil.
+
+\begin{frame}[fragile]
+  Filen paren sparas i:
+<<talparsprogrammets konstanter>>=
+FILENAME = "xy.txt"
+@
+\end{frame}
+
+Först skrivningen, som ger filen dess format.  Värdena \(y\) räknar
+funktionen \(f\) ut, och båda blir hjälpfunktioner.  Funktionen \(f\)
+använder vi igen i nästa program, så den står under ett eget namn, som
+hjälpfunktionerna tar med.
+
 \begin{frame}[fragile]
   \begin{example}[Skriva talpar i eget format]
     Vi sparar paren \(x, f(x)\) för \(f(x) = 2x + 3\):
-<<funktionen [[f]]>>=
-def f(x):
-    """The function whose values we save"""
-    return 2 * x + 3
-<<skriv paren till filen>>=
+<<talparsprogrammets hjälpfunktioner>>=
+<<funktion [[f]] vars värden vi sparar>>
 def write_pairs(filename):
     """Writes the pairs x, f(x) to the file, one pair per line"""
     with open(filename, "w") as file:
         for x in range(10):
             file.write(f"{x},{f(x)}\n")
+<<funktion [[f]] vars värden vi sparar>>=
+def f(x):
+    """The function whose values we save"""
+    return 2 * x + 3
 @
   \end{example}
 \end{frame}
@@ -1379,6 +1467,30 @@ ett enkelt \emph{eget filformat} som vi själva har definierat.  Filen
 kommer att börja med raderna \mintinline{text}|0,3|,
 \mintinline{text}|1,5| och \mintinline{text}|2,7|.
 
+Sedan läsningen, [[read_pairs]].  Den går igenom filen rad för rad,
+som programmet [[read_lines.py]] gjorde, och samlar paren i en lista.
+Den läggs till bland hjälpfunktionerna: ett namn som får flera delar
+får \(\equiv\) första gången och +\(\equiv\) varje gång därefter, och
+i programmet står delarna efter varandra, i den ordning de kommer.
+Varje rad ska bli ett par.  Hur det går till ger vi namnet
+[[parse_pair]], och den funktionen skriver vi när vi har tänkt igenom
+vad en rad innehåller.
+
+\mode<article>{\needspace{11\baselineskip}}
+
+\begin{frame}[fragile]
+  Läsningen samlar paren i en lista:
+<<talparsprogrammets hjälpfunktioner>>=
+def read_pairs(filename):
+    """Reads the pairs in the file into a list"""
+    pairs = []
+    with open(filename, "r") as file:
+        for line in file:
+            pairs.append(parse_pair(line))
+    return pairs
+@
+\end{frame}
+
 \begin{frame}
   \begin{exercise}
     Filen innehåller raden \mintinline{text}|3,9|.  Vad behöver vi göra
@@ -1387,21 +1499,12 @@ kommer att börja med raderna \mintinline{text}|0,3|,
 \end{frame}
 
 \begin{frame}[fragile]
-  En funktion tolkar en rad, en annan läser filen och samlar paren i en
-  lista:
-<<tolka en rad>>=
+  Tolkningen av en rad, den sista hjälpfunktionen:
+<<talparsprogrammets hjälpfunktioner>>=
 def parse_pair(line):
     """Turns a line "x,y" into the pair of numbers (x, y)"""
     x, y = line.strip().split(",")
     return int(x), int(y)
-<<läs paren från filen>>=
-def read_pairs(filename):
-    """Reads the pairs in the file into a list"""
-    pairs = []
-    with open(filename, "r") as file:
-        for line in file:
-            pairs.append(parse_pair(line))
-    return pairs
 @
 \end{frame}
 
@@ -1525,56 +1628,9 @@ finns rör det bara [[read_pairs]].
   underlaget står där och upprepas inte här.
 }
 
-\begin{frame}[fragile]
-  De fyra funktionerna utgör tillsammans programmets verktyg:
-<<funktionerna för eget format>>=
-<<funktionen [[f]]>>
-
-
-<<skriv paren till filen>>
-
-
-<<tolka en rad>>
-
-
-<<läs paren från filen>>
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  Programmet [[xy.py]] består av funktionerna och ett huvudprogram som
-  skriver paren, läser dem tillbaka och jämför:
-<<[[xy.py]]>>=
-"""Saving pairs of numbers in a format of our own"""
-
-FILENAME = "xy.txt"
-
-
-<<funktionerna för eget format>>
-
-
-<<skriv, läs tillbaka och jämför>>
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  Huvudprogrammet jämför varje inläst \(y\) med \(f(x)\):
-<<skriv, läs tillbaka och jämför>>=
-def main():
-    """Writes the pairs, reads them back and compares"""
-    write_pairs(FILENAME)
-    any_bad = False
-    for x, y in read_pairs(FILENAME):
-        if f(x) != y:
-            print(f"{x} -/> {y}")
-            any_bad = True
-    if not any_bad:
-        print("Alla par lästes tillbaka rätt!")
-@
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/xy.py}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1583,11 +1639,6 @@ def main():
     \runpython[transcript]{examples/xy.py}
   \end{example}
 \end{frame}
-
-Filnamnet står på ett ställe, i [[FILENAME]], så att skrivningen och
-läsningen säkert gäller samma fil.  Att skriva och sedan läsa tillbaka är
-det enklaste sättet att pröva ett format: kommer samma data tillbaka har
-skrivaren och läsaren förstått kontraktet lika.
 
 \begin{frame}
   \begin{exercise}
@@ -1668,14 +1719,42 @@ programgränsen.\footnote{%
   \end{figure}
 \end{frame}
 
-Låt oss se hur vi kan skriva samma talpar med CSV-formatet:
+Låt oss skriva samma talpar med CSV-formatet, i programmet
+[[xy_csv.py]].  Det är talparsprogrammet med modulen [[csv]]:
+huvudprogrammet och funktionen \(f\) är desamma, och upplägget tar med
+dem som de är.  Det nya --- filnamnet och de två funktioner som skriver
+och läser filen --- samlar vi under egna namn.
+
+\mode<article>{\needspace{16\baselineskip}}
+
+\begin{frame}[fragile]
+  CSV-talparsprogrammets upplägg, i [[xy_csv.py]]:
+<<[[xy_csv.py]]>>=
+"""Saving pairs of numbers as CSV"""
+
+import csv
+
+<<CSV-talparsprogrammets konstanter>>
+
+<<funktion [[f]] vars värden vi sparar>>
+<<CSV-talparsprogrammets hjälpfunktioner>>
+
+<<talparsprogrammets huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+  Filen får ändelsen för CSV:
+<<CSV-talparsprogrammets konstanter>>=
+FILENAME = "xy.csv"
+@
+\end{frame}
 
 \mode<article>{\needspace{13\baselineskip}}
 
 \begin{frame}[fragile]
   \begin{example}[Skriva talpar som CSV]
     Ett [[csv.writer]]-objekt sköter formateringen av varje rad:
-<<skriv paren som CSV>>=
+<<CSV-talparsprogrammets hjälpfunktioner>>=
 def write_pairs(filename):
     """Writes the pairs x, f(x) to the file as CSV"""
     with open(filename, "w", newline="") as file:
@@ -1697,7 +1776,7 @@ radbrytningar på vissa system\autocite{PythonCSV}.
 \begin{frame}[fragile]
   \begin{example}[Läsa CSV]
     Ett [[csv.reader]]-objekt ger oss en lista av fält per rad:
-<<läs paren från CSV-filen>>=
+<<CSV-talparsprogrammets hjälpfunktioner>>=
 def read_pairs(filename):
     """Reads the pairs in the file into a list"""
     pairs = []
@@ -1712,44 +1791,13 @@ def read_pairs(filename):
 På samma sätt använder vi [[csv.reader()]] för att läsa CSV-filer.
 Modulen tar hand om uppdelningen och ger oss en lista av fält för varje
 rad.  Detta är mycket säkrare och mer robust än vår egen implementation
-med [[split(",")]].  Men lägg märke till att [[int()]] är kvar: modulen
-delar upp raden, men fälten är fortfarande strängar --- vad de betyder
-vet bara vi.
+med [[split(",")]], och [[parse_pair]] behövs inte längre.  Men lägg
+märke till att [[int()]] är kvar: modulen delar upp raden, men fälten
+är fortfarande strängar --- vad de betyder vet bara vi.
 
-\begin{frame}[fragile]
-  Funktionerna är [[f]] och de två nya; tolkningen av en rad behövs
-  inte längre:
-<<funktionerna för CSV>>=
-<<funktionen [[f]]>>
-
-
-<<skriv paren som CSV>>
-
-
-<<läs paren från CSV-filen>>
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  Programmet [[xy_csv.py]] är [[xy.py]] med funktionerna utbytta;
-  huvudprogrammet är detsamma:
-<<[[xy_csv.py]]>>=
-"""Saving pairs of numbers as CSV"""
-
-import csv
-
-FILENAME = "xy.csv"
-
-
-<<funktionerna för CSV>>
-
-
-<<skriv, läs tillbaka och jämför>>
-
-
-if __name__ == "__main__":
-    main()
-@
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/xy_csv.py}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1843,29 +1891,35 @@ strukturerna kan nästlas hur djupt som helst.  Pythons modul [[json]]
 översätter mellan JSON-text och Pythons egna uppslagslistor, listor,
 strängar och tal\autocite{PythonJSON}.
 
+Programmet, JSON-telefonboken, lägger vi upp som de förra, med modulen
+[[json]] överst.
+
+\mode<article>{\needspace{12\baselineskip}}
+
 \begin{frame}[fragile]
-  \begin{example}[Spara och läsa tillbaka en telefonbok]
-    Det räcker med två funktioner.  Strukturen skrivs till filen med
-    [[json.dump]] och läses tillbaka med [[json.load]]:
-<<spara telefonboken>>=
-def save_contacts(contacts, filename):
-    """Saves the phone book (a dictionary) to the file as JSON"""
-    with open(filename, "w") as file:
-        json.dump(contacts, file)
-<<läs tillbaka telefonboken>>=
-def load_contacts(filename):
-    """Reads the phone book back from the file"""
-    with open(filename, "r") as file:
-        return json.load(file)
+  JSON-telefonbokens upplägg, i [[contacts_json.py]]:
+<<[[contacts_json.py]]>>=
+"""Saving a phone book as JSON"""
+
+import json
+
+<<JSON-telefonbokens hjälpfunktioner>>
+
+<<JSON-telefonbokens huvudprogram>>
+if __name__ == "__main__":
+    main()
 @
-  \end{example}
 \end{frame}
+
+Vi vill se både vad som hamnar i filen och vad som kommer tillbaka ur
+den.  Att spara och att läsa tillbaka anropar vi redan här, och dem
+skriver vi sedan.
 
 \begin{frame}[fragile]
   \begin{example}[Spara, visa och läs tillbaka]
     Huvudprogrammet sparar telefonboken, visar filens text och läser
     den tillbaka:
-<<spara, visa och läs tillbaka>>=
+<<JSON-telefonbokens huvudprogram>>=
 def main():
     """Saves a phone book, shows the file and reads it back"""
     contacts = {"Ronja": "070-123 45 67", "Pippi": "08-12 34 56"}
@@ -1877,26 +1931,29 @@ def main():
   \end{example}
 \end{frame}
 
+\mode<article>{\needspace{16\baselineskip}}
+
 \begin{frame}[fragile]
-  Programmet [[contacts_json.py]] sätter ihop delarna:
-<<[[contacts_json.py]]>>=
-"""Saving a phone book as JSON"""
-
-import json
-
-
-<<spara telefonboken>>
-
-
-<<läs tillbaka telefonboken>>
-
-
-<<spara, visa och läs tillbaka>>
-
-
-if __name__ == "__main__":
-    main()
+  \begin{example}[Spara och läsa tillbaka en telefonbok]
+    Det räcker med två funktioner.  Strukturen skrivs till filen med
+    [[json.dump]] och läses tillbaka med [[json.load]]:
+<<JSON-telefonbokens hjälpfunktioner>>=
+def save_contacts(contacts, filename):
+    """Saves the phone book (a dictionary) to the file as JSON"""
+    with open(filename, "w") as file:
+        json.dump(contacts, file)
+<<JSON-telefonbokens hjälpfunktioner>>=
+def load_contacts(filename):
+    """Reads the phone book back from the file"""
+    with open(filename, "r") as file:
+        return json.load(file)
 @
+  \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/contacts_json.py}
 \end{frame}
 
 \begin{frame}[fragile]
