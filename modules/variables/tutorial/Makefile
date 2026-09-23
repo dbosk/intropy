@@ -46,6 +46,7 @@ EXAMPLES+=	examples/dishes-nested.py
 EXAMPLES+=	examples/dance-step.py
 EXAMPLES+=	examples/wash-step.py
 EXAMPLES+=	examples/tiles.py
+EXAMPLES+=	examples/rounding.py
 EXAMPLES+=	examples/house-chores.py
 EXAMPLES+=	examples/house-chores-fixed.py
 EXAMPLES+=	examples/bmi.py
