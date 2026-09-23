@@ -42,14 +42,16 @@ bibliotek du inte använt förut.
 ## Gör så här, i ordning
 
 1. **Gå på föreläsningen (tisdag).** Den ges live så att du kan ställa
-   frågor. Kan du inte komma, eller föredrar du att läsa, finns inspelningen
-   och föreläsningsanteckningarna på föreläsningens sida här i modulen.
-2. **Gå på övningen för din grupp:** *Övning grafiskt gränssnitt eller
-   repetition*. Vi går igenom veckans innehåll genom att lösa problem
+   frågor. Föreläsningen har en egen sida här i modulen, *Föreläsning:
+   Grafiskt gränssnitt*, som beskriver dess innehåll och länkar till
+   anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
+   inspelningen och föreläsningsanteckningarna där i stället.
+2. **Gå på övningen för din grupp:** se sidan *Övning: Grafiskt gränssnitt*
+   här i modulen. Vi går igenom veckans innehåll genom att lösa problem
    tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
-   resten finns med lösningar på övningens sida så att du kan fortsätta på
-   egen hand. Välj spår: grafiska gränssnitt, eller repetition av tidigare
-   veckor inför datorprovet.
+   uppgifterna och lösningarna till alla finns i det interaktiva dokumentet
+   (FeedbackFruits) så att du kan fortsätta på egen hand. Välj spår: grafiska
+   gränssnitt, eller repetition av tidigare veckor inför datorprovet.
 3. **Arbeta med** *Laboration (frivillig) grafiska gränssnitt* om du vill,
    gärna i par. På labbpassen finns lärare och assistenter för att hjälpa er,
    oavsett om ni arbetar med den frivilliga laborationen, laboration 6 eller

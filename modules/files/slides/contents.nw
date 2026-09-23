@@ -438,6 +438,18 @@ fyrtiotvå
   \end{example}
 \end{frame}
 
+\ltnote{%
+  Programmen i materialet är skrivna som funktioner med ett
+  huvudprogram: allt arbete ligger i [[main]], och på toppnivån står
+  bara definitionerna och det anrop som startar programmet, under
+  \mintinline{python}|if __name__ == "__main__":|.  Det gäller också
+  de minsta exempelprogrammen, som annars hade kunnat skrivas som
+  några rader utan funktion.  Skälet är att materialet ska öva det det
+  har lärt ut: ett senare exempel som faller tillbaka på skriptform
+  lär ut att funktionerna var frivilliga.
+  % TODO(claim-audit)
+}
+
 \mode<article>{\needspace{26\baselineskip}}
 
 \begin{frame}[fragile,shrink=30]
@@ -447,22 +459,36 @@ fyrtiotvå
 <<[[close1.py]]>>=
 """Reading a number from a file, closing the file by hand"""
 
-file = open("text.txt", "r")
-try:
-    print("Talet är", int(file.read()))
-    file.close()
-except ValueError:
-    print("Det stod inget tal i filen")
-print("Filen är stängd:", file.closed)
+
+def main():
+    """Reads the number, closing the file by hand"""
+    file = open("text.txt", "r")
+    try:
+        print("Talet är", int(file.read()))
+        file.close()
+    except ValueError:
+        print("Det stod inget tal i filen")
+    print("Filen är stängd:", file.closed)
+
+
+if __name__ == "__main__":
+    main()
 <<[[close2.py]]>>=
 """Reading a number from a file, letting with close it"""
 
-try:
-    with open("text.txt", "r") as file:
-        print("Talet är", int(file.read()))
-except ValueError:
-    print("Det stod inget tal i filen")
-print("Filen är stängd:", file.closed)
+
+def main():
+    """Reads the number, letting with close the file"""
+    try:
+        with open("text.txt", "r") as file:
+            print("Talet är", int(file.read()))
+    except ValueError:
+        print("Det stod inget tal i filen")
+    print("Filen är stängd:", file.closed)
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{exercise}
 \end{frame}
@@ -641,9 +667,19 @@ sparades --- ber programmet öppna en fil som inte finns.
 <<[[read_missing.py]]>>=
 """Reading a file that does not exist"""
 
-with open("finns-inte.txt", "r") as file:
-    print(file.read())
+
+def main():
+    """Prints the contents of a file that does not exist"""
+    with open("finns-inte.txt", "r") as file:
+        print(file.read())
+
+
+if __name__ == "__main__":
+    main()
 @
+\end{frame}
+
+\begin{frame}[fragile]
   \begin{example}[Körning]
     Körningen avbryts med en spårutskrift:
     \runpython[transcript, breaklines]{examples/read_missing.py}
@@ -811,16 +847,23 @@ läsa från en fil och [[file.write()]] för att skriva till en fil.
   först när båda syns samtidigt \parencite[45--47]{Marton2015}.
 }
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=25]
   \begin{example}[Skriva två rader]
     Programmet [[write_text.py]] skriver två rader till filen
     [[test1.txt]]:
 <<[[write_text.py]]>>=
 """Writing two lines to a file"""
 
-with open("test1.txt", "w") as file:
-    file.write("Hej\n")
-    file.write("Världen\n")
+
+def main():
+    """Writes two lines to the file"""
+    with open("test1.txt", "w") as file:
+        file.write("Hej\n")
+        file.write("Världen\n")
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 
@@ -842,9 +885,16 @@ program.  De två läsprogram vi ska skriva avslutar med raden
 <<[[read_all.py]]>>=
 """Reading a whole file at once"""
 
-with open("test1.txt", "r") as file:
-    print(file.read())
-print("(slut)")
+
+def main():
+    """Prints the whole file, read in one go"""
+    with open("test1.txt", "r") as file:
+        print(file.read())
+    print("(slut)")
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 
@@ -878,10 +928,17 @@ du själv skriva det?
 <<[[read_lines.py]]>>=
 """Reading a file line by line"""
 
-with open("test1.txt", "r") as file:
-    for line in file:
-        print(line, end="")
-print("(slut)")
+
+def main():
+    """Prints the file, read line by line"""
+    with open("test1.txt", "r") as file:
+        for line in file:
+            print(line, end="")
+    print("(slut)")
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 
@@ -977,15 +1034,22 @@ Ett sista läge är värt att känna till.  Öppnar vi filen med
 förut försvinner.  Vill vi i stället lägga till i slutet av en fil som
 redan finns öppnar vi den med \mintinline{python}{"a"}.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=25]
   \begin{example}[Lägga till i slutet]
     Programmet [[write_append.py]] lägger till tre rader sist i filen:
 <<[[write_append.py]]>>=
 """Appending three lines to the end of a file"""
 
-with open("test1.txt", "a") as file:
-    for i in range(3):
-        file.write(f"i = {i}\n")
+
+def main():
+    """Appends three lines to the end of the file"""
+    with open("test1.txt", "a") as file:
+        for i in range(3):
+            file.write(f"i = {i}\n")
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 
@@ -1039,18 +1103,25 @@ läge när vi öppnar dem.
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=20]
   \begin{example}[En \texttt{.jpg} läst som text]
     Programmet [[bytes_as_text.py]] skriver de fyra byte en JPEG-fil
     börjar med och läser dem sedan som text:
 <<[[bytes_as_text.py]]>>=
 """Reading raw bytes as if they were text"""
 
-with open("bild.jpg", "wb") as file:
-    file.write(b"\xff\xd8\xff\xe0")
 
-with open("bild.jpg", "r") as file:
-    print(file.read())
+def main():
+    """Writes four bytes to the file and reads them back as text"""
+    with open("bild.jpg", "wb") as file:
+        file.write(b"\xff\xd8\xff\xe0")
+
+    with open("bild.jpg", "r") as file:
+        print(file.read())
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
@@ -1348,19 +1419,33 @@ med [[int()]].  Att den sista omvandlingen behövs är värt att pröva.
 <<[[value1.py]]>>=
 """Reading the number in the file as it comes"""
 
-with open("tal.txt", "r") as file:
-    value = file.read().strip()
 
-print(value == 42)
-print(value * 2)
+def main():
+    """Reads the number in the file and uses it as it comes"""
+    with open("tal.txt", "r") as file:
+        value = file.read().strip()
+
+    print(value == 42)
+    print(value * 2)
+
+
+if __name__ == "__main__":
+    main()
 <<[[value2.py]]>>=
 """Reading the number in the file and converting it"""
 
-with open("tal.txt", "r") as file:
-    value = int(file.read().strip())
 
-print(value == 42)
-print(value * 2)
+def main():
+    """Reads the number in the file and converts it"""
+    with open("tal.txt", "r") as file:
+        value = int(file.read().strip())
+
+    print(value == 42)
+    print(value * 2)
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{exercise}
 \end{frame}
@@ -1410,12 +1495,14 @@ Lägg också märke till att det blev två funktioner och inte en:
 [[read_pairs]] läser filen, [[parse_pair]] tolkar en rad.  Det är
 principen om ett enda ansvar, \emph{SRP}
 (\foreignlanguage{english}{Single Responsibility Principle}) --- en modul
-ska aldrig ha mer än ett skäl att ändras\autocite[kap.~8]{Martin2003Agile}.
+ska aldrig ha mer än ett skäl att
+ändras\autocite[kap.~8]{Martin2003Agile}.\footnote{%
+  Det vetenskapliga underlaget för SRP --- att principen är etablerad,
+  och att avgränsningen av \enquote{ett ansvar} är en bedömningsfråga
+  --- finns i föreläsningen \emph{Funktioner}, bilaga B.%
+}
 Ändras formatet på en rad rör det bara [[parse_pair]]; ändras var paren
-finns rör det bara [[read_pairs]].  Det vetenskapliga underlaget för
-SRP --- att principen är etablerad, och att avgränsningen av
-\enquote{ett ansvar} är en bedömningsfråga --- finns i föreläsningen
-\emph{Funktioner}, bilaga B.
+finns rör det bara [[read_pairs]].
 
 \ltnote{%
   Relevanta lärandemål: \cref{FilesLORead}.
@@ -1549,9 +1636,11 @@ den enklaste lösning som gör jobbet.  Uttrycket tillskrivs
 flygplanskonstruktören Kelly
 Johnson\autocite{Rich1995Johnson,LockheedMartinJohnson}, men
 tillskrivningen är en sägen: det står i tryck redan
-1958\autocite{Popik2019KISS}.  Det vetenskapliga underlaget för KISS ---
-både varifrån uttrycket kommer och om enkelhet som designvärde håller
---- finns i föreläsningen \emph{Funktioner}, bilaga C.
+1958\autocite{Popik2019KISS}.\footnote{%
+  Det vetenskapliga underlaget för KISS --- både varifrån uttrycket
+  kommer och om enkelhet som designvärde håller --- finns i
+  föreläsningen \emph{Funktioner}, bilaga C.%
+}
 
 Python har inbyggt stöd för CSV genom modulen [[csv]], och dess
 dokumentation visar hur filerna läses och skrivs (\cref{fig:docs-csv}).
@@ -1562,10 +1651,12 @@ Modulen är också en gemensam tolk: i stället för att varje program har
 sin egen kopia av [[split(",")]] --- och sina egna buggar i den ---
 använder alla samma.  Det är \emph{DRY}
 (\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
-enda ställe\autocite{HuntThomas1999}, här tillämpat över programgränsen.
-Det vetenskapliga underlaget för DRY --- både var principen kommer
-ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
-\emph{Algoritmiskt tänkande}, bilaga E.
+enda ställe\autocite{HuntThomas1999}, här tillämpat över
+programgränsen.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga E.%
+}
 
 \begin{frame}
   \begin{figure}[htbp]

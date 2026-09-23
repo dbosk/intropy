@@ -26,15 +26,44 @@ Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
 bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
 *Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
-felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Moduler
-och paket*; *Behållare: Listor*, *Behållare: Tupler*,
-*Behållare: Uppslagslistor*, *Behållare: Mängder, stackar och köer*,
-*Behållare: Ett gissningsspel*; *Klasser och objekt*;
-*Operatoröverlagring*; *Praktiska tillämpningar av klasser*; *Arbeta med
-filer*.
+felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Behållare:
+Listor*, *Behållare: Tupler*; *Moduler och paket*; *Behållare:
+Uppslagslistor*; *Klasser och objekt*; *Behållare: Mängder, stackar och
+köer*, *Behållare: Ett gissningsspel*; *Operatoröverlagring*; *Praktiska
+tillämpningar av klasser*; *Arbeta med filer*; *Grafiska
+användargränssnitt*. The tutorial decks
+(`modules/<module>/tutorial/`, one per week, one chapter, one exercise per
+section followed by a literate solution) are titled *Övning: Funktioner och
+variabler*; *Övning: Inmatning, felhantering och styrstrukturer*; *Övning:
+Upprepningar, listor och moduler*; *Övning: Klasser och objekt*; *Övning:
+Fler behållare och mer om klasser*; *Övning: Filhantering*; *Övning:
+Grafiskt gränssnitt*.
+
+**Reading order** (what "an earlier deck" means, e.g. for appendix
+pointers, which may only point to the current deck or an earlier one):
+week by week, and within a week the lectures in the order listed above,
+then the week's tutorial. Week 37: *Algoritmiskt tänkande*, *Hello,
+World!*. Week 38: *Variabler och utskrifter*, *Funktioner*, *Övning:
+Funktioner och variabler*. Week 39: *Inmatning och felhantering*, *Villkor
+och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
+Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
+*Behållare: Uppslagslistor*, *Klasser och objekt*, its Övning (moved
+from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
+dictionaries). Week 44: *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
+tillämpningar av klasser*, its Övning.
+Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
+användargränssnitt*, its Övning. A tutorial deck is named in a pointer by
+its title: "i \emph{Övning: Funktioner och variabler}, bilaga~B".
 
 The reMarkable review family of a deck is `<Titel> — notes (review) vN`
-(the Hello World family keeps its old spelling). Learning objectives carry
+(the Hello World family keeps its old spelling); a tutorial deck's family
+is `Övning: <Vecka> — notes (review) vN`. On the tablet they live in `/prgi/<week
+folder>/`, named after the Canvas module with the week first (`v39
+Inmatning, felhantering och styrstrukturer`); upload a new version there
+(`parent_folder`) and move the version it replaces into that folder's
+`Äldre versioner` (author, 2026-09-22: "It's getting a bit crowded in the
+root"). Learning objectives carry
 the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
 
 ## Course-specific rules
@@ -60,13 +89,62 @@ the week page's Lo-codes in a comment (`learning-outcomes.md`, `vecka.md`).
   bilagan i sin helhet.}`.
 - "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
   it keeps its spelling.
+- Practise what has been taught (author, 2026-09-18: "once we've said
+  it's better to use functions, we'd better be non-hypocritical and use
+  the function version everywhere"): from *Funktioner* (week 38) on,
+  every program in every deck and tutorial is the function version. From
+  *Moduler och paket* (week 40) on, a program that needs a function an
+  earlier deck already wrote imports that file instead of re-implementing
+  it; the wiring is in `didactic-decks/references/build-and-gotchas.md`
+  ("Reusing a program another deck tangles"). The start call follows the
+  same rule: a bare `main()` until *Moduler och paket* introduces
+  `if __name__ == "__main__":`, the guard from then on (week 40's
+  *Upprepningar*, *Behållare: Listor* and *Behållare: Tupler* are
+  lectured before it and call `main()` bare).
+  The function version means that a computation gets its own named
+  function: `main` reads, calls and prints, and a formula never sits
+  inline in a `print` (author, 2026-09-23, beside an inline BMI formula:
+  "Use a function for computing BMI").
+- Tutorial tasks are `exercise`, never `activity` (author, 2026-09-18).
+- A program a tutorial task gives the student to run, read or build on
+  (e.g. `bomben.py`) is linked from the Canvas page `tutorial.md`, so the
+  student downloads it instead of typing it from the PDF (author,
+  2026-09-23). Such tangled files are therefore **committed** (an
+  exception in the deck's `.gitignore`), and committed in the same commit
+  as the `contents.nw` change that alters them; the links point to
+  `https://github.com/dbosk/intropy/blob/master/<path>`, which is stable
+  once the branch is merged to `master`.
+- A tutorial may introduce a small new thing the lectures did not teach,
+  if the student can find it with what was taught, e.g. `str.replace`
+  through `pydoc str` (author, 2026-09-23: "It's fine if we introduce new
+  things in the tutorials too. But only small things."). Say where to
+  look, not just the name.
+- A construct no earlier lecture taught is explained where a deck first
+  uses it, in a sentence or two of the prose, not only by a pointer to
+  the tutorial where it appeared (author, 2026-09-23, circling `:.1f`:
+  "Explain this too").
+- Commands follow *Hello, World!*, which has the student type `python3`:
+  the same holds for `pydoc3` (and `python3 -m pip`). A deck that shows
+  the unsuffixed form, or a run made with it, says once that the student
+  may have to type the suffixed name, just as with `python3` (author,
+  2026-09-22, beside `pydoc input`: "they might have to type pydoc3 just as
+  they have to write python3").
+- *Övning: Klasser och objekt* covers both operator overloading and
+  inheritance, in that order: overloading first (comparison and
+  arithmetic dunder methods; the old exercise *En bråkig klass* is back),
+  then inheritance as the generalisation, since overloading `__eq__` or
+  `__str__` already overrides a method inherited from `object` (author,
+  2026-09-18: "probably the same phenomenon").
 
 ## Backed claims (the ledger)
 
 A claim already backed in another deck is not redone: cite the same
 source with the provenance block copied (plus `% FOUND-VIA (here): backed
-in <deck>, bilaga <X>`) and point to it in prose, saying what the appendix
-answers and stating the claim at the strength the appendix supports.
+in <deck>, bilaga <X>`) and point to it in a footnote anchored at the
+claim, saying what the appendix answers, with the claim stated in the
+prose at the strength the appendix supports (author, 2026-09-20: pointer
+sentences go in footnotes; the decks written before that date still
+carry them in the body and are converted when next revised).
 
 Backed so far (question → answer):
 - *Algoritmiskt tänkande* B: algorithm components → sequence, selection,
@@ -85,9 +163,19 @@ Backed so far (question → answer):
   misconceptions → backed (Java, late-stage students); D: catch-all → a
   known bad habit, but the actual bugs are rarer than the habit, so the
   advice is "fånga det du vet hur du ska svara på", not "aldrig".
+  E: when pupils meet integer division and decimals → both Lgr11 (the
+  cohort's curriculum, `Skolverket2019Lgr11`) and Lgr22
+  (`Skolverket2022Lgr22`) place the four operations with natural numbers
+  in årskurs 1–3 and decimal form in 4–6; "rest" does not occur, the
+  curriculum names content not outcomes, schooling abroad is the caveat.
+  *Variabler och utskrifter* makes the same `/` vs `//` contrast and
+  should point here.
+- *Övning: Funktioner och variabler* B: productive failure → moderate
+  effect, from comparing the attempt with the answer, not from delay
+  itself (moved here from *Upprepningar* C on 2026-09-22, the first deck
+  that makes the claim).
 - *Upprepningar* B: loop misconceptions → five of six backed in primary
-  sources; C: productive failure → moderate effect, from comparing the
-  attempt with the answer, not from delay itself.
+  sources.
 - *Hello, World!* B: origin → Kernighan (B tutorial), tradition
   questioned since 1996; C: interpreter reads statement by statement →
   yes, but bytecode first; D: error messages → a real obstacle, first
@@ -103,9 +191,10 @@ Backed so far (question → answer):
   backed (no direct study).
 - *Klasser och objekt* B: class/object misconceptions → three backed
   (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
-  defined and contested in its classic form. *Praktiska tillämpningar*
-  B: composition over inheritance → Design Patterns, established,
-  maintenance experiments on inheritance point both ways.
+  defined and contested in its classic form. D: composition over inheritance → Design Patterns, established,
+  maintenance experiments on inheritance point both ways (moved here from
+  *Praktiska tillämpningar av klasser* B on 2026-09-22; *Klasser och
+  objekt* is the first deck that recommends composition).
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
@@ -124,7 +213,10 @@ on that lineage: after the campaign branch is merged to master, run
 `files/slides/examples/scb/*.py` are exempt from `black --check`, and so
 is `conditionals/slides-conditionals/examples/villkor.py`, a deliberately
 unparsable program (its tangle rule in that deck's Makefile skips black;
-build with `--exempt 'examples/villkor.py'`); the
+build with `--exempt 'examples/villkor.py'`), and so is
+`containers/slides-tuples/examples/fullname-alt.py`, whose optional
+parentheses black would strip (tangled raw; build with
+`--exempt 'examples/fullname-alt.py'`); the
 tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
 ## Where the general rules went (2026-09-07)

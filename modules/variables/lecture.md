@@ -1,7 +1,7 @@
 ---
 title: 'Föreläsning: Variabler och utskrifter'
 regex: '^Föreläsning: Variabler och utskrifter$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:

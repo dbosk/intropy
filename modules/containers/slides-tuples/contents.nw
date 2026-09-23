@@ -48,20 +48,41 @@ tillsammans, i den ordningen, och ingen del av programmet ska kunna
 just detta har Python en egen behållare: \emph{tupeln}.  Den skrivs med
 parenteser i stället för hakparenteser.
 
+Alla program här är skrivna i den form du känner från föreläsningen
+\emph{Funktioner}: arbetet ligger i en funktion, och längst ner står
+anropet som startar programmet.  Det gäller också de kortaste exemplen.
+
+\ltnote{%
+  Varje program i materialet är funktionsversionen, också de minsta
+  demonstrationerna; regeln sägs en gång, här, och inte vid varje
+  exempel.  Skälet är att ett material som slutar tillämpa en
+  genomgången praxis lär ut att praxisen var frivillig.
+  % TODO(claim-audit): att en utebliven tillämpning lär ut att praxisen
+  % var frivillig är ett empiriskt påstående utan underlag.
+
+  Anropet är bart och inte en vaktsats kring [[__name__]], eftersom
+  modulbegreppet införs först i föreläsningen \emph{Moduler och paket}.
+}
+
 \begin{frame}[fragile]
   Samma två element, i två behållare:
 <<[[tupler.py]]>>=
-names = ["Ronja", "Pippi"]
-position = (58.4, 15.6)
+def main():
+    """Gör samma saker med en lista och med en tupel."""
+    names = ["Ronja", "Pippi"]
+    position = (58.4, 15.6)
 
-print(names[0], names[1], len(names))
-print(position[0], position[1], len(position))
+    print(names[0], names[1], len(names))
+    print(position[0], position[1], len(position))
 
-for name in names:
-    print(name)
+    for name in names:
+        print(name)
 
-for number in position:
-    print(number)
+    for number in position:
+        print(number)
+
+
+main()
 @
 \end{frame}
 
@@ -78,13 +99,18 @@ parenteser.  Skillnaden syns först när vi försöker \emph{ändra} något.
 
 \begin{frame}[fragile]
   \begin{exercise}
-    Vad händer på de två sista raderna?
+    Vad händer vid de två tilldelningarna?
     \begin{minted}{python}
-names = ["Ronja", "Pippi"]
-position = (58.4, 15.6)
+def main():
+    """Tilldelar nya värden till ett element i varje behållare."""
+    names = ["Ronja", "Pippi"]
+    position = (58.4, 15.6)
 
-names[0] = "Ada"
-position[0] = 59.3
+    names[0] = "Ada"
+    position[0] = 59.3
+
+
+main()
     \end{minted}
   \end{exercise}
 \end{frame}
@@ -92,17 +118,22 @@ position[0] = 59.3
 \begin{frame}[fragile]
   Vi kör och ser efter:
 <<[[tupel1.py]]>>=
-names = ["Ronja", "Pippi"]
-position = (58.4, 15.6)
+def main():
+    """Tilldelar nya värden till ett element i varje behållare."""
+    names = ["Ronja", "Pippi"]
+    position = (58.4, 15.6)
 
-names[0] = "Ada"
-print(names)
+    names[0] = "Ada"
+    print(names)
 
-try:
-    position[0] = 59.3
-except TypeError as error:
-    print("Gick inte att ändra tupeln:")
-    print(error)
+    try:
+        position[0] = 59.3
+    except TypeError as error:
+        print("Gick inte att ändra tupeln:")
+        print(error)
+
+
+main()
 @
 \end{frame}
 
@@ -202,15 +233,20 @@ i samma veva som vi plockar ut dem.
 \begin{frame}[fragile]
   Ett namn per element, i en enda tilldelning:
 <<[[uppackning.py]]>>=
-position = (58.4, 15.6)
+def main():
+    """Packar upp en tupel, och byter värden mellan två namn."""
+    position = (58.4, 15.6)
 
-latitude, longitude = position
-print(f"Latitud {latitude}, longitud {longitude}.")
+    latitude, longitude = position
+    print(f"Latitud {latitude}, longitud {longitude}.")
 
-first = "Ronja"
-second = "Pippi"
-first, second = second, first
-print(first, second)
+    first = "Ronja"
+    second = "Pippi"
+    first, second = second, first
+    print(first, second)
+
+
+main()
 @
 \end{frame}
 
@@ -221,12 +257,12 @@ print(first, second)
   \end{example}
 \end{frame}
 
-Uppackningen kräver att antalet namn stämmer med antalet element.  Den
-sista raden är samma sak sedd baklänges: högerledet
-\mintinline{python}{second, first} \emph{är} en tupel --- parenteserna
-behövs inte --- och vänsterledet packar upp den igen.  Det är därför två
-variabler kan byta värde med varandra på en rad, utan någon tredje
-variabel att lägga det ena värdet i så länge.
+Uppackningen kräver att antalet namn stämmer med antalet element.  Bytet
+\mintinline{python}{first, second = second, first} är samma sak sedd
+baklänges: högerledet \mintinline{python}{second, first} \emph{är} en
+tupel --- parenteserna behövs inte --- och vänsterledet packar upp den
+igen.  Det är därför två variabler kan byta värde med varandra på en
+rad, utan någon tredje variabel att lägga det ena värdet i så länge.
 
 \ltnote{%
   Relevanta lärandemål: \cref{TupleLOUnpack}.
@@ -248,7 +284,10 @@ Det är den här möjligheten som gör att en funktion kan lämna tillbaka
 flera värden.  \mintinline{python}{return} tar ett värde --- men det
 värdet får vara en tupel.
 
-\begin{frame}[fragile]
+% shrink: med huvudprogrammet i main() är de två programmen 1,4 pt för
+% höga för bilden.  Båda halvorna av kontrastparet får samma behandling,
+% så att bara parenteserna skiljer dem.
+\begin{frame}[fragile, shrink]
   En funktion som frågar efter både förnamn och efternamn:
 <<[[fullname.py]]>>=
 """Program som visar tuplar."""
@@ -261,9 +300,14 @@ def input_full_name():
     return firstname, lastname
 
 
-first, last = input_full_name()
-print(f"Hej, {first.capitalize()}, välkommen till programmet!")
-print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
+def main():
+    """Hälsar på den som matar in sitt namn."""
+    first, last = input_full_name()
+    print(f"Hej, {first.capitalize()}, välkommen till programmet!")
+    print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
+
+
+main()
 @
 \end{frame}
 
@@ -274,7 +318,7 @@ print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile, shrink]
   Samma program, men med parenteser utsatta:
 <<[[fullname-alt.py]]>>=
 """Program som visar tuplar."""
@@ -287,9 +331,14 @@ def input_full_name():
     return (firstname, lastname)
 
 
-(first, last) = input_full_name()
-print(f"Hej, {first.capitalize()}, välkommen till programmet!")
-print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
+def main():
+    """Hälsar på den som matar in sitt namn."""
+    (first, last) = input_full_name()
+    print(f"Hej, {first.capitalize()}, välkommen till programmet!")
+    print(f"Dear Mr/Mrs/Miss {last.capitalize()}, welcome!")
+
+
+main()
 @
 \end{frame}
 
@@ -363,7 +412,12 @@ def my_enumerate(iterable):
     return result
 
 
-print(my_enumerate(["ronja", "pippi", "madicken"]))
+def main():
+    """Provkör my_enumerate på en lista med namn."""
+    print(my_enumerate(["ronja", "pippi", "madicken"]))
+
+
+main()
 @
 \end{frame}
 
@@ -382,8 +436,13 @@ tupler kan vi packa upp dem direkt i slingans huvud.
 \begin{frame}[fragile]
   Slingvariabeln blir två namn i stället för ett:
 <<[[tuples.py]]>>=
-for counter, name in enumerate(["ronja", "pippi", "madicken"]):
-    print(f"{counter}: {name}")
+def main():
+    """Skriver ut varje namn tillsammans med sitt nummer."""
+    for counter, name in enumerate(["ronja", "pippi", "madicken"]):
+        print(f"{counter}: {name}")
+
+
+main()
 @
 \end{frame}
 
@@ -420,16 +479,21 @@ for counter, name in enumerate(["ronja", "pippi", "madicken"]):
 
 Den sista frågan går också att svara på genom att köra.
 
-\mode<article>{\needspace{9\baselineskip}}
+\mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   \begin{exercise}
     Här är ett program som anropar \mintinline{python}{enumerate} utan
     någon slinga.  Vad skriver det ut?
 <<[[numrering.py]]>>=
-numbers = enumerate(["ronja", "pippi"])
+def main():
+    """Skriver ut vad enumerate lämnar tillbaka."""
+    numbers = enumerate(["ronja", "pippi"])
 
-print(type(numbers))
-print(list(numbers))
+    print(type(numbers))
+    print(list(numbers))
+
+
+main()
 @
   \end{exercise}
 \end{frame}

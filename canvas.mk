@@ -42,6 +42,19 @@ PAGES+=		modules/computational-thinking/lecture.md
 PAGES+=		modules/helloworld/lecture.md
 PAGES+=		modules/variables/lecture.md
 PAGES+=		modules/variables/lecture-functions.md
+PAGES+=		modules/variables/tutorial.md
+PAGES+=		modules/conditionals/lecture.md
+PAGES+=		modules/conditionals/tutorial.md
+PAGES+=		modules/iterations/lecture.md
+PAGES+=		modules/iterations/tutorial.md
+PAGES+=		modules/classes/lecture.md
+PAGES+=		modules/classes/tutorial.md
+PAGES+=		modules/containers/lecture.md
+PAGES+=		modules/containers/tutorial.md
+PAGES+=		modules/files/lecture.md
+PAGES+=		modules/files/tutorial.md
+PAGES+=		modules/graphics/lecture.md
+PAGES+=		modules/graphics/tutorial.md
 PAGES+=		${WEEK_PAGES}
 
 ${ICS}:

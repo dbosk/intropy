@@ -38,6 +38,19 @@ examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
 
+# examples/fullname-alt.py exists to show the optional parentheses around
+# the unpacking, `(first, last) = ...` and `return (firstname, lastname)`.
+# The default .py tangle rule pipes the file through black, which strips
+# exactly those parentheses, so the program on the slide and the program
+# that ran would differ.  This target tangles raw; the file must also be
+# excluded from the style check:
+#
+#     build_deck.sh --deck ... --exempt 'examples/fullname-alt.py'
+#
+examples/fullname-alt.py: contents.nw
+	@mkdir -p ${@D}
+	notangle -R"[[$(@F)]]" $< | ${CPIF} $@
+
 .PHONY: examples
 examples: ${EXAMPLES}
 

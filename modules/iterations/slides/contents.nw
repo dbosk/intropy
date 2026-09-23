@@ -5,6 +5,11 @@
 % build with \runpython, so the shown output cannot drift from the code.
 % (The four that are not run either print fifty identical lines or need
 % interactive input that adds nothing to the point being made.)
+% Every program here is the function version: the top level holds only
+% the docstring, imports, constants and the call that starts the program,
+% and all the work lives in a function.  The rule, and why the wrong
+% programs follow it too, is in the \ltnote at the first program.  The
+% start call is bare; the __main__ guard belongs to Moduler och paket.
 % A program that merely fails is tangled and run like any other, so that
 % the error output on the slide is the one Python produced: hundra.py is
 % the non-iterable after "in" and hej_rekursion2.py the missing base case.
@@ -35,7 +40,9 @@ enklaste tänkbara uppgiften.
 
   Materialet är genomgående byggt så att en fråga kommer före
   förklaringen.  Att det lönar sig är ett påstående med belägg och
-  förbehåll; det prövas i \cref{app:produktivt}.  Två saker därifrån styr
+  förbehåll; det prövas i \emph{Övning: Funktioner och variabler},
+  bilaga~B, med svaret att effekten är måttlig och kommer av jämförelsen
+  mellan försöket och svaret.  Två saker därifrån styr
   hur frågorna är skrivna här.
 
   Den första: vinsten kommer inte av att svaret skjuts upp, utan av att
@@ -48,31 +55,64 @@ enklaste tänkbara uppgiften.
   Den andra: effekten uteblir när materialet kräver att många delar hålls
   i huvudet samtidigt \parencite{Ashman2020}, och den vänder för
   nybörjare med mycket låga förkunskaper \parencite{Fyfe2014}.  Därför är
-  frågorna korta och konkreta --- två till sju rader kod --- och därför
-  ställs de bara om ämnen studenterna har förutsättningar för.  Frågan här
-  bygger på \mintinline{python}{print} från föreläsningen \emph{Variabler
-  och utskrifter} och på funktioner från \emph{Funktioner}.
+  frågorna korta och konkreta --- som mest ett tiotal rader kod --- och
+  därför ställs de bara om ämnen studenterna har förutsättningar för.
+  Frågan här bygger på \mintinline{python}{print} från föreläsningen
+  \emph{Variabler och utskrifter} och på funktioner från \emph{Funktioner}.
 }
 
 Nästan alla börjar likadant, och det är inte fel: skriv utskriften, och
 skriv den igen, och igen.  Ett sådant program gör precis det som
 efterfrågas.
 
+Alla program i det här materialet är skrivna på samma sätt: det
+programmet gör ligger i en funktion, och sist i filen står anropet som
+startar den.  Det gäller också de allra kortaste exemplen, och därför har
+också det här första försöket en funktion runt sina femtio utskrifter.
+
+\ltnote{%
+  Varje program i det här materialet är funktionsversionen: högst upp
+  docstring, importer och konstanter, sedan funktionerna, och sist
+  anropet som startar programmet.  Ett program som bara har ett flöde får
+  en funktion som heter \mintinline{python}{main}; har det redan
+  namngivna funktioner flyttar huvudprogrammet in i
+  \mintinline{python}{main}.  Regeln gäller också de minsta
+  demonstrationerna, och den gäller de program som visas för att de är
+  fel: i ett kontrastpar ska bara \emph{en} sak skilja de två halvorna
+  --- får den ena en funktion får den andra det också.
+
+  Skälet är att materialet ska öva det som det lär ut.  Föreläsningen
+  \emph{Funktioner} säger att det programmet gör hör hemma i funktioner,
+  och ett material som sedan skriver sina egna exempel utan funktioner
+  lär ut att den saken var valfri.
+  % TODO(claim-audit): att ett material som inte följer sin egen utlärda
+  % praktik därmed lär ut att praktiken var valfri är ett påstående om
+  % lärande som inte är belagt här.
+
+  Anropet står utan villkor sist i filen.  Villkoret
+  \mintinline{python}|if __name__ == "__main__":| hör till föreläsningen
+  \emph{Moduler och paket} och används först där.
+}
+
 \begin{frame}[fragile]
   \begin{solution}[En lösning som fungerar]
     Den ser ut så här:
     \begin{minted}{python}
-print("hej")
-print("hej")
-print("hej")
-...
-print("hej")
+def main():
+    print("hej")
+    print("hej")
+    print("hej")
+    ...
+    print("hej")
+
+
+main()
     \end{minted}
   \end{solution}
 \end{frame}
 
-Programmet fungerar, men det är femtio rader långt, och femtio rader är
-just precis vad vi inte vill skriva.  Värre är att raderna måste ändras
+Programmet fungerar, men det är femtio likadana rader, och femtio rader
+är just precis vad vi inte vill skriva.  Värre är att raderna måste ändras
 \emph{tillsammans}: ska hälsningen bli \enquote{hej!} måste alla femtio
 ändras, och den som glömmer en får ett program som säger två olika saker.
 Det vi vill är att säga \emph{en} gång vad som ska göras, och en gång hur
@@ -80,10 +120,14 @@ många gånger.  Det är precis vad en \emph{slinga} gör.
 
 \begin{frame}[fragile]
   \begin{solution}[Samma sak, sagt en gång]
-    Med en \mintinline{python}{for}-slinga blir det två rader:
+    Med en \mintinline{python}{for}-slinga blir upprepningen två rader:
 <<[[hej.py]]>>=
-for gång in range(50):
-    print("hej")
+def main():
+    for gång in range(50):
+        print("hej")
+
+
+main()
 @
   \end{solution}
 \end{frame}
@@ -91,10 +135,12 @@ for gång in range(50):
 Två rader i stället för femtio, och --- viktigare --- \emph{en} plats att
 ändra på.  Att varje kunskap i ett program ska stå på ett enda ställe är
 en namngiven princip: \emph{DRY}, \foreignlanguage{english}{Don't Repeat
-Yourself}\autocite{HuntThomas1999}.  Det vetenskapliga underlaget för DRY
---- både varifrån principen kommer och om den håller, med de förbehåll som
-hör till --- finns i föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.
-Vi återanvänder svaret här i stället för att pröva det på nytt.
+Yourself}\autocite{HuntThomas1999}.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både varifrån principen
+  kommer och om den håller, med de förbehåll som hör till --- finns i
+  föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.  Vi återanvänder
+  svaret här i stället för att pröva det på nytt.%
+}
 
 \ltnote{%
   Relevanta lärandemål: \cref{IterLOFor}.
@@ -176,11 +222,19 @@ till det.  Låt oss börja med att ta reda på vad som egentligen upprepas.
     \label{ex:vad-upprepas}
     Här är två program.  Vad skriver vart och ett av dem ut?
 <<[[loop1.py]]>>=
-for x in [10, 20, 30]:
-    print("Hej")
+def main():
+    for x in [10, 20, 30]:
+        print("Hej")
+
+
+main()
 <<[[loop2.py]]>>=
-for x in [10, 20, 30]:
-    print(x)
+def main():
+    for x in [10, 20, 30]:
+        print(x)
+
+
+main()
 @
   \end{exercise}
 \end{frame}
@@ -259,15 +313,23 @@ består av.
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Vad skrivs ut?]
     \label{ex:indrag}
-    Här är två program om tre rader.  Vad skriver vart och ett av dem ut?
+    Här är två korta program.  Vad skriver vart och ett av dem ut?
 <<[[streck1.py]]>>=
-for x in [1, 2, 3]:
-    print(x)
-    print("---")
+def main():
+    for x in [1, 2, 3]:
+        print(x)
+        print("---")
+
+
+main()
 <<[[streck2.py]]>>=
-for x in [1, 2, 3]:
-    print(x)
-print("---")
+def main():
+    for x in [1, 2, 3]:
+        print(x)
+    print("---")
+
+
+main()
 @
   \end{exercise}
 \end{frame}
@@ -297,7 +359,7 @@ gånger än när det körs en gång.
   Relevanta lärandemål: \cref{IterLOFor}.
 
   \textbf{Variationsmönster}: Kontrast.
-  \textbf{Vad som varierar}: indraget på den sista raden.
+  \textbf{Vad som varierar}: indraget på den sista utskriften.
   \textbf{Vad som hålls invariant}: alla tre satserna, och deras ordning.
 
   Aspekten är slingans \emph{utsträckning}.  Missuppfattningen att kod
@@ -334,16 +396,24 @@ går igenom, bara att det går att gå igenom ett element i taget.
     \label{ex:tre-samlingar-range}
     Samma slinga en gång till:
 <<[[loop_range.py]]>>=
-for x in range(10, 40, 10):
-    print(x)
+def main():
+    for x in range(10, 40, 10):
+        print(x)
+
+
+main()
 @
   \end{example}
   \begin{example}[En sträng]
     \label{ex:tre-samlingar-strang}
     Och en gång till:
 <<[[loop_strang.py]]>>=
-for tecken in "abc":
-    print(tecken)
+def main():
+    for tecken in "abc":
+        print(tecken)
+
+
+main()
 @
   \end{example}
 \end{frame}
@@ -390,8 +460,12 @@ Men slingan ställer ett krav på det som står efter
     \label{ex:hundra}
     Programmet är skrivet för att skriva ut talen noll till nittionio:
 <<[[hundra.py]]>>=
-for i in 100:
-    print(i)
+def main():
+    for i in 100:
+        print(i)
+
+
+main()
 @
   \end{exercise}
 \end{frame}
@@ -407,9 +481,10 @@ for i in 100:
 Efter \mintinline{python}{in} måste det stå något som går att gå igenom
 --- en lista, en tupel, ett \mintinline{python}{range}, en sträng.  Ett
 ensamt tal är inte sådant: det finns inget första, andra och tredje
-element i talet hundra, och Python säger det rakt ut med
-\mintinline{text}|'int' object is not iterable|.  Vill vi ha hundra varv
-får vi be om hundra tal, med \mintinline{python}{range(100)}.
+element i talet hundra.  Python säger det rakt ut i
+\cref{ex:hundra-svar}: talet går inte att gå igenom
+(\foreignlanguage{english}{not iterable}).  Vill vi ha hundra varv får vi
+be om hundra tal, med \mintinline{python}{range(100)}.
 
 \ltnote{%
   Relevanta lärandemål: \cref{IterLOFor,IterLOString}.
@@ -477,10 +552,15 @@ den yttre.
 <<[[multtable.py]]>>=
 """Skriver ut multiplikationstabellen 1--9."""
 
-for x in range(1, 10):
-    for y in range(1, 10):
-        print(f"{x * y:4d}", end="")
-    print()
+
+def main():
+    for x in range(1, 10):
+        for y in range(1, 10):
+            print(f"{x * y:4d}", end="")
+        print()
+
+
+main()
 @
   \end{solution}
 \end{frame}
@@ -531,9 +611,13 @@ Då använder vi \mintinline{python}{while}, som du mötte i föreläsningen
     \label{ex:while-utan}
     Läs programmet och avgör vad det gör:
     \begin{minted}{python}
-i = 0
-while i < 3:
-    print(i)
+def main():
+    i = 0
+    while i < 3:
+        print(i)
+
+
+main()
     \end{minted}
   \end{exercise}
 \end{frame}
@@ -544,10 +628,14 @@ while i < 3:
     alltid.  Slingan slutar först när något i kroppen ändrar det villkoret
     tittar på:
 <<[[rakna.py]]>>=
-i = 0
-while i < 3:
-    print(i)
-    i += 1
+def main():
+    i = 0
+    while i < 3:
+        print(i)
+        i += 1
+
+
+main()
 @
 
     Och nu tar den slut:
@@ -609,15 +697,23 @@ likadant ut i koden, och betyder helt olika saker.
     Varor som kostar minst 50 kronor ska få 20 kronor i rabatt.  Här är
     två program.  Vad skriver vart och ett av dem ut?
 <<[[pris1.py]]>>=
-pris = 100
-while pris >= 50:
-    pris = pris - 20
-print(pris)
+def main():
+    pris = 100
+    while pris >= 50:
+        pris = pris - 20
+    print(pris)
+
+
+main()
 <<[[pris2.py]]>>=
-pris = 100
-if pris >= 50:
-    pris = pris - 20
-print(pris)
+def main():
+    pris = 100
+    if pris >= 50:
+        pris = pris - 20
+    print(pris)
+
+
+main()
 @
   \end{exercise}
 \end{frame}
@@ -693,10 +789,14 @@ Innan vi lämnar \mintinline{python}{while} är det värt att lösa
   \begin{solution}[Femtio hej, med \texttt{while}]
     Vi räknar själva:
 <<[[hej_while.py]]>>=
-antal = 50
-while antal > 0:
-    print("hej")
-    antal -= 1
+def main():
+    antal = 50
+    while antal > 0:
+        print("hej")
+        antal -= 1
+
+
+main()
 @
   \end{solution}
 \end{frame}
@@ -873,12 +973,16 @@ def fakultet(n):
     return n * fakultet(n - 1)
 
 
-print(f"5! = {fakultet(5)}")
+def main():
+    print(f"5! = {fakultet(5)}")
+
+
+main()
 @
   \end{example}
 \end{frame}
 
-Läs sista raden i funktionen som definitionen läses:
+Läs sista raden i fakultetsfunktionen som definitionen läses:
 \mintinline{python}{fakultet(5)} är \mintinline{python}{5} gånger
 \mintinline{python}{fakultet(4)}, som i sin tur är
 \mintinline{python}{4} gånger \mintinline{python}{fakultet(3)}, och så
@@ -933,8 +1037,8 @@ felhantering}, använd för att skilja ett omöjligt anrop från ett giltigt.
 Nu har vi tre sätt att lösa samma uppgift.  De tre ser ut så här, innan vi
 frågar vilket som är bäst.
 
-\mode<article>{\needspace{24\baselineskip}}
-\begin{frame}[fragile]
+\mode<article>{\needspace{32\baselineskip}}
+\begin{frame}[fragile,shrink=30]
   \begin{columns}[t]
     \begin{column}{0.34\columnwidth}
       \begin{example}[Med \texttt{for}]
@@ -1001,10 +1105,10 @@ Frågan har inget enda svar, och det är poängen: vilken upprepning som
 passar beror på hur man tänker sig problemet.  Vi bygger programmet i tre
 delar, en för varje angreppssätt, och sätter ihop dem till sist.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Programmet i sin helhet]
     \label{ex:siffersumma-helhet}
-    Det består av tre funktioner och en huvuddel:
+    Det består av tre funktioner och ett huvudprogram:
 <<[[siffersumma.py]]>>=
 """Beräknar siffersumman för ett tal, på tre sätt."""
 
@@ -1018,7 +1122,10 @@ delar, en för varje angreppssätt, och sätter ihop dem till sist.
 <<siffersumma med for>>
 
 
-<<fråga och skriv ut siffersumman>>
+<<huvudprogrammet>>
+
+
+main()
 @
   \end{example}
 \end{frame}
@@ -1089,16 +1196,18 @@ def siffersumma_for(heltal):
   \end{solution}
 \end{frame}
 
-Kvar är huvuddelen: fråga efter talet och skriva ut svaret.  De tre
+Kvar är huvudprogrammet: fråga efter talet och skriva ut svaret.  De tre
 funktionerna ger samma svar, så vilken vi anropar spelar ingen roll för
 resultatet.
 
 \begin{frame}[fragile]
-  \begin{solution}[Huvuddelen]
+  \begin{solution}[Huvudprogrammet]
     Vi frågar och skriver ut:
-<<fråga och skriv ut siffersumman>>=
-talet = int(input("Ett positivt heltal: "))
-print(f"Siffersumman för {talet} är {siffersumma_for(talet)}.")
+<<huvudprogrammet>>=
+def main():
+    """Frågar efter ett tal och skriver ut dess siffersumma."""
+    talet = int(input("Ett positivt heltal: "))
+    print(f"Siffersumman för {talet} är {siffersumma_for(talet)}.")
 @
   \end{solution}
 \end{frame}
@@ -1202,8 +1311,12 @@ def fråga_tal(fråga):
         fråga_tal(fråga)
 
 
-tal = fråga_tal("Ett heltal: ")
-print(f"Du matade in {tal}.")
+def main():
+    tal = fråga_tal("Ett heltal: ")
+    print(f"Du matade in {tal}.")
+
+
+main()
 @
   \end{solution}
 \end{frame}
@@ -1255,8 +1368,12 @@ def fråga_tal(fråga):
             print("Det var inget heltal, försök igen.")
 
 
-tal = fråga_tal("Ett heltal: ")
-print(f"Du matade in {tal}.")
+def main():
+    tal = fråga_tal("Ett heltal: ")
+    print(f"Du matade in {tal}.")
+
+
+main()
 @
   \end{solution}
 \end{frame}
@@ -1281,10 +1398,12 @@ tills svaret går att använda --- och det är därför den går att återanvän
 den vet ingenting om vad talet ska användas till.  Att en funktion bör ha
 ett enda ansvar är en namngiven princip, \emph{SRP},
 \foreignlanguage{english}{single responsibility
-principle}\autocite[ch.~8]{Martin2003Agile}.  Det vetenskapliga
-underlaget för SRP --- varifrån principen kommer, att den är etablerad
-och att \enquote{ett ansvar} förblir en fråga att ställa och inte ett
-facit --- finns i föreläsningen \emph{Funktioner}, bilaga B.
+principle}\autocite[ch.~8]{Martin2003Agile}.\footnote{%
+  Det vetenskapliga underlaget för SRP --- varifrån principen kommer,
+  att den är etablerad och att \enquote{ett ansvar} förblir en fråga att
+  ställa och inte ett facit --- finns i föreläsningen \emph{Funktioner},
+  bilaga B.%
+}
 
 \ltnote{%
   Relevanta lärandemål: \cref{IterLOInput,IterLOChoose,IterLORecursion}.

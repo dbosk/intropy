@@ -23,21 +23,26 @@ SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/age1.py
 EXAMPLES+=	examples/age2.py
+EXAMPLES+=	examples/age2a.py
+EXAMPLES+=	examples/age2b.py
 EXAMPLES+=	examples/prompt1.py
 EXAMPLES+=	examples/prompt2.py
 EXAMPLES+=	examples/prompt3.py
 EXAMPLES+=	examples/prompt4.py
-EXAMPLES+=	examples/plus1.py
-EXAMPLES+=	examples/plus2.py
+EXAMPLES+=	examples/plus.py
 EXAMPLES+=	examples/heltalsdivision.py
 EXAMPLES+=	examples/strangoperationer.py
 EXAMPLES+=	examples/strangmetoder.py
 EXAMPLES+=	examples/age3.py
+EXAMPLES+=	examples/fel-varde.py
+EXAMPLES+=	examples/fel-noll.py
+EXAMPLES+=	examples/fel-namn.py
 EXAMPLES+=	examples/age-try.py
 EXAMPLES+=	examples/age-isdigit.py
 EXAMPLES+=	examples/average.py
 EXAMPLES+=	examples/age-catchall.py
-EXAMPLES+=	examples/age-raise.py
+EXAMPLES+=	examples/age-raise1.py
+EXAMPLES+=	examples/age-raise2.py
 
 contents.tex: contents.nw
 

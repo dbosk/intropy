@@ -82,9 +82,17 @@ utan att använda klasser.  Men innan du ser vår lösning: skriv en egen.
   mer meningsfull.  När de senare ser vår lösning med uppslagslistor
   \emph{och} den med klasser kan de jämföra alla tre (sin egen, vår med
   uppslagslista, vår med klass), vilket berikar kontrastmönstret.
+
+  Uppgiften är en enklare variant av telefonboken som avslutar
+  föreläsningen \emph{Behållare: Uppslagslistor}.  För den som tagit
+  del av den är uppgiften därför till stor del återkallning, och det är
+  avsiktligt: det nya ska inte vara uppslagslistan utan jämförelsen med
+  klassen, så studenterna ska kunna skriva sin egen lösning snabbt.
 }
 
-Vi kan använda en uppslagslista för att lagra namn och telefonnummer.
+Vi kan använda en uppslagslista för att lagra namn och telefonnummer,
+som i telefonboken i föreläsningen \emph{Behållare: Uppslagslistor} ---
+här står numren direkt i programmet i stället för att matas in.
 Programmet består av tre delar: lagra numren, skriva ut alla namn och
 sedan fråga efter namn tills användaren tröttnar.
 
@@ -112,6 +120,21 @@ if __name__ == "__main__":
 @
   \end{example}
 \end{frame}
+
+\ltnote{%
+  Alla program i det här kapitlet är skrivna med funktioner: på
+  filens toppnivå står bara importer, konstanter, klass- och
+  funktionsdefinitioner och anropet som startar programmet, och all
+  logik ligger i funktioner med namn som säger vad de gör.  Regeln
+  gäller varje program, också de kortaste demonstrationerna, och den
+  sägs här en gång för hela kapitlet i stället för vid varje
+  exempel.  Skälet är att materialet ska öva det det har lärt ut: ett
+  material som självt frångår en praktik det lärt ut lär samtidigt ut
+  att praktiken var frivillig.
+  % TODO(claim-audit): att ett material som frångår sin egen praktik
+  % därmed lär ut att praktiken är frivillig är ett påstående om
+  % lärande, och det är inte belagt här.
+}
 
 De två namngivna stegen är de som handlar om själva datan: hur vi lagrar
 numren och hur vi slår upp ett.  Med en uppslagslista är båda en rad
@@ -231,9 +254,12 @@ fält ifyllda.
 \end{frame}
 
 Svaret är att vi får ett \mintinline{python}{KeyError}.  Det måste vi
-hantera när vi läser informationen, på det sätt som föreläsningen
-\emph{Inmatning och felhantering} beskriver.  Låt oss se hur koden för
-att läsa informationen blir.
+hantera när vi läser informationen, med något av sätten från
+föreläsningen \emph{Behållare: Uppslagslistor}: pröva med
+\mintinline{python}{in} först, fånga felet med
+\mintinline{python}{try} och \mintinline{python}{except}, eller låta
+\mintinline{python}{get} ge ett reservvärde.  Här fångar vi felet.  Låt
+oss se hur koden för att läsa informationen blir.
 
 \begin{frame}[fragile]
   \begin{example}[Slå upp i nästlade uppslagslistor]
@@ -265,7 +291,9 @@ Som du ser blev koden ganska omständlig.  Vi måste använda
 \mintinline{python}{try} och \mintinline{python}{except} för varje fält
 vi vill läsa, eftersom vi inte vet om fältet finns.  Jämför med den enda
 raden i \cref{ex:phonebook-data}.  Det här blir snabbt svårläst och
-repetitivt.
+repetitivt.  Med \mintinline{python}{get} blir varje fält en rad, men
+reservvärdet måste ändå skrivas en gång för varje fält, på varje ställe
+i programmet där fältet läses.
 
 \begin{frame}
   \begin{exercise}
@@ -438,10 +466,11 @@ inte kan nås direkt från utsidan av klassen.\footnote{\label{fn:mangling}%
   \url{https://docs.python.org/3/tutorial/classes.html\#private-variables}
   (hämtad 2026-09-03).}
 Detta kallas inkapsling (\foreignlanguage{english}{encapsulation}) och
-är en viktig princip i objektorienterad programmering; det
-vetenskapliga underlaget för inkapsling --- både varifrån principen
-kommer och hur etablerad den är, med de förbehåll som hör till ---
-finns i \cref{app:inkapsling}.
+är en viktig princip i objektorienterad
+programmering.\footnote{%
+  Det vetenskapliga underlaget för inkapsling --- både varifrån
+  principen kommer och hur etablerad den är, med de förbehåll som hör
+  till --- finns i \cref{app:inkapsling}.}
 
 Låt oss nu jämföra hur vi skapar och använder kontakter med de två olika
 metoderna.  Telefonboken med klasser lägger vi i
@@ -661,12 +690,19 @@ print(person.get_last_name())
 <<[[two.py]]>>=
 from person import Person
 
-person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
-person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
 
-person.change_name("Margareta Engström")
-print(person)
-print(person2)
+def main():
+    """Test program"""
+    person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
+    person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+
+    person.change_name("Margareta Engström")
+    print(person)
+    print(person2)
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{exercise}
 \end{frame}
@@ -796,10 +832,11 @@ Klassen samlar allt som rör en person --- datan och det man kan göra
 med den --- och ingenting annat.  Att en klass ska ha ett enda ansvar
 kallas \emph{SRP} (\foreignlanguage{english}{single responsibility
 principle}), en princip formulerad av Robert C.
-Martin\autocite{Martin2003Agile}; det vetenskapliga underlaget för SRP
---- både att principen är Martins och att den är etablerad, med
-förbehållet att vad som är ett ansvar är en bedömning --- finns i
-föreläsningen \emph{Funktioner}, bilaga~B.
+Martin\autocite{Martin2003Agile}.\footnote{%
+  Det vetenskapliga underlaget för SRP --- både att principen är
+  Martins och att den är etablerad, med förbehållet att vad som är ett
+  ansvar är en bedömning --- finns i föreläsningen \emph{Funktioner},
+  bilaga~B.}
 
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLORepresentation}.
@@ -1145,9 +1182,15 @@ class PrivateExample:
         return self.__value
 
 
-example = PrivateExample(10)
-print(example.get_value())
-print(example.__value)
+def main():
+    """Example program"""
+    example = PrivateExample(10)
+    print(example.get_value())
+    print(example.__value)
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{exercise}
 \end{frame}
@@ -1181,10 +1224,12 @@ om det, till
   huvudprogrammet --- \mintinline{python}{example.value} i
   \cref{ex:public-run} mot \mintinline{python}{example.__value} här.
   Det är den raden, och bara den, som kontrasten vilar på; resten av
-  \texttt{private.py} är nedbantad (inget \mintinline{python}{main},
-  ingen skrivmetod) för att den raden ska stå oskymd.  Programmen är
-  alltså inte identiska så när som på ett tecken, och texten påstår inte
-  längre att de är det.
+  \texttt{private.py} är nedbantad (ingen skrivmetod) för att den raden
+  ska stå oskymd.  Programmen är alltså inte identiska så när som på ett
+  tecken, och texten påstår inte längre att de är det.  Båda har
+  däremot samma form --- klassen, ett \mintinline{python}{main} och
+  anropet under \mintinline{python}{if __name__} --- så att det bara är
+  attributnamnet som skiljer de två raderna kontrasten vilar på.
 
   \textbf{Varför inte ett rent ombyte av en enda rad}: namnomskrivningen
   gäller bara inuti klasskroppen.  Skrev vi om \texttt{public.py} rakt av
@@ -1427,11 +1472,18 @@ resten.\footnote{\label{fn:total-ordering}%
 <<[[compare.py]]>>=
 from person import Person
 
-person1 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
-person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
 
-print(person1 == person2)
-print(person1 == person1)
+def main():
+    """Test program"""
+    person1 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+    person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+
+    print(person1 == person2)
+    print(person1 == person1)
+
+
+if __name__ == "__main__":
+    main()
 @
   \end{exercise}
 \end{frame}
@@ -1508,6 +1560,12 @@ som testprogrammet gör i \cref{ex:person-sort}: sorteringen behöver bara
 \mintinline{python}{<}.
 
 
+% Noten till \cref{ovn:eq} fyller marginalen på sidan där avsnittet
+% Arv börjar, och marginalnoter tas i tur och ordning: fotnoten till DRY
+% (HuntThomas1999) hamnade därför på nästa sida, bort från sin markör.
+% Sidbrytningen töms marginalkön innan avsnittet börjar.
+\mode<article>{\clearpage}
+
 \section{Arv}
 \label{sec:arv}
 
@@ -1566,9 +1624,10 @@ Så istället för att kopiera all kod från \mintinline{python}{Person} kan
 vi ärva från den och bara lägga till det nya vi behöver.  Att inte
 upprepa sig är principen \emph{DRY}, \foreignlanguage{english}{don't
 repeat yourself}\autocite{HuntThomas1999}, som föreläsningen
-\emph{Algoritmiskt tänkande} införde; det vetenskapliga underlaget --- både
-var principen kommer ifrån och om den håller, med sina förbehåll --- finns
-i den föreläsningens bilaga~E.
+\emph{Algoritmiskt tänkande} införde.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga~E.}
 
 % Marginalen på den här sidan är fylld till 603 av 604 punkter av de
 % två noterna ovan, och marginalnoter tas i tur och ordning: stod
@@ -1835,8 +1894,14 @@ Till exempel är \mintinline{python}{PersonNick} verkligen en
 \mintinline{python}{Person} med extra funktionalitet.  Om relationen
 istället är \enquote{\foreignlanguage{english}{has-a}} (till exempel att
 en \mintinline{python}{Person} \enquote{har en}
-\mintinline{python}{Address}), då är det bättre att använda
-\emph{komposition} (ett objekt som attribut) istället för arv.
+\mintinline{python}{Address}), är tumregeln att föredra
+\emph{komposition} (ett objekt som attribut) framför arv.  Rådet kommer
+från boken \emph{Design Patterns}\autocite[20]{Gamma1994DesignPatterns}
+och är etablerat i objektorienterad design, men det är en tumregel och
+inte ett förbud: experimenten om arv och underhåll pekar åt olika
+håll\autocite{Daly1996,Harrison2000}.\footnote{Det vetenskapliga
+  underlaget för rådet --- både varifrån det kommer och hur väl det
+  håller, med sina förbehåll --- finns i \cref{app:komposition}.}
 
 \ltnote{%
   Relevanta lärandemål: \cref{ClassLOComposition}.
