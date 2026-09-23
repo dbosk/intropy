@@ -48,11 +48,11 @@ Funktioner och variabler*. Week 39: *Inmatning och felhantering*, *Villkor
 och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
 Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
 *Behållare: Uppslagslistor*, *Klasser och objekt*, its Övning (moved
-from week 42 on 2026-09-23: *Klasser och objekt* and its Övning build on
-dictionaries). Week 42: *Behållare: Mängder, stackar och köer*,
+from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
+dictionaries). Week 44: *Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
 tillämpningar av klasser*, its Övning.
-Week 44: *Arbeta med filer*, its Övning. Week 46: *Grafiska
+Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
 användargränssnitt*, its Övning. A tutorial deck is named in a pointer by
 its title: "i \emph{Övning: Funktioner och variabler}, bilaga~B".
 
