@@ -41,9 +41,11 @@ i dokumentet låter dig kontrollera dina egna svar.
    om vägen, steg för steg, och som kastar egna särfall.
 3. **Fördjupning: Uppgift 7: Vägvisarens språk.** Låta användaren välja
    språk i början av körningen och skicka valet vidare genom programmet.
-4. **Fördjupning: Uppgift 8: Korridoren.** Skriva ett program som minns
+4. **Fördjupning: Uppgift 8: Vägvisarens frågor och felmeddelanden.**
+   Låta också frågorna och felmeddelandena följa användarens språkval.
+5. **Fördjupning: Uppgift 9: Korridoren.** Skriva ett program som minns
    tillstånd mellan varven i en slinga.
-5. **Fördjupning: Uppgift 9: Korridorens slinga.** Skriva om slingan i
+6. **Fördjupning: Uppgift 10: Korridorens slinga.** Skriva om slingan i
    korridorprogrammet så att det är dess villkor som avgör när den tar
    slut.
 
