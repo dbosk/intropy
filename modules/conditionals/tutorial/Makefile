@@ -44,6 +44,7 @@ EXAMPLES+=	examples/fraga.py
 EXAMPLES+=	examples/fragesport.py
 EXAMPLES+=	examples/vagvisare.py
 EXAMPLES+=	examples/vagvisare2.py
+EXAMPLES+=	examples/vagvisare3.py
 EXAMPLES+=	examples/instruktioner.py
 EXAMPLES+=	examples/korridoren.py
 EXAMPLES+=	examples/korridoren2.py
