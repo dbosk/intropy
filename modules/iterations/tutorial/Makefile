@@ -30,6 +30,7 @@ EXAMPLES+=	examples/fib2.py
 EXAMPLES+=	examples/fragor_for.py
 EXAMPLES+=	examples/fragor_while.py
 EXAMPLES+=	examples/fragor_numrerade.py
+EXAMPLES+=	examples/numrering.py
 EXAMPLES+=	examples/forsok.py
 EXAMPLES+=	examples/meny_while.py
 EXAMPLES+=	examples/meny_rekursivt.py
@@ -41,9 +42,11 @@ EXAMPLES+=	examples/blanda.py
 # The deepening exercises:
 EXAMPLES+=	examples/fib_anrop.py
 EXAMPLES+=	examples/fib_lista.py
+EXAMPLES+=	examples/streck.py
 EXAMPLES+=	examples/en_tabell.py
 EXAMPLES+=	examples/alla_tabeller.py
 EXAMPLES+=	examples/primtal.py
+EXAMPLES+=	examples/ko.py
 EXAMPLES+=	examples/cowsay.py
 
 contents.tex: contents.nw
