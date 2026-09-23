@@ -573,7 +573,6 @@ def welcome(name, origin):
 <<[[welcome.py]]>>=
 <<funktionen [[welcome]]>>
 
-
 print(welcome("Malvina", "Valhallavägen"))
 print(welcome("Valhallavägen", "Malvina"))
 @
@@ -627,13 +626,11 @@ heta likadant?
 <<[[scope-same-names.py]]>>=
 <<funktionen [[welcome]]>>
 
-
 name = "Malvina"
 origin = "Valhallavägen"
 print(welcome(name, origin))
 <<[[scope-other-names.py]]>>=
 <<funktionen [[welcome]]>>
-
 
 traveller = "Malvina"
 home_town = "Valhallavägen"
@@ -786,7 +783,6 @@ def celsius(degrees_fahrenheit):
 <<[[degrees.py]]>>=
 <<temperaturfunktionerna>>
 
-
 print(f"20 grader C = {fahrenheit(20)} grader F")
 print(f"65 grader F = {celsius(65)} grader C")
 @
@@ -909,52 +905,79 @@ Nu tillbaka till programmet som upprepade sig.  Vi har verktyget; frågan
 
 I föreläsningen \emph{Algoritmiskt tänkande} letade vi efter
 \emph{verben}: att knäcka, att vispa, att diska.  Samma knep fungerar
-här.  Programmet hälsar, och det räknar ut en ålder.  Det blir två
-funktioner.
+här, men vi letar inte upp alla verb på en gång.  Vi skriver programmet
+uppifrån och ner och tar verben i den ordning vi stöter på dem.
+
+Överst i filen står, som förut, en
+\foreignlanguage{english}{docstring} som säger vad programmet gör.
+Sedan kommer konstanterna, sedan funktionerna och sist huvudprogrammet.
+Ordningen är ingen smaksak: ett anrop ovanför definitionen gav
+\mintinline{python}{NameError}, så funktionerna måste stå före
+huvudprogrammet som anropar dem.  Konstanterna, funktionerna och
+huvudprogrammet skriver vi först som pseudokod, namn som säger vad som
+ska stå där, och sedan preciserar vi pseudokoden med pythonkod, en del i
+taget, när vi kommer till den.
 
 \begin{frame}[fragile]
-  \begin{example}[Programmet i överblick]
-    Först en överblick, sedan varje del för sig:
+  \begin{example}[Åldersprogrammets upplägg]
+    Först filens upplägg, med pseudokod för det som ännu inte är
+    skrivet:
 <<[[age-funcs.py]]>>=
-<<vad programmet gör>>
+"""Åldersberäkning, uppdelad i funktioner."""
 
-<<vilket år det är>>
+<<åldersprogrammets konstanter>>
 
+<<åldersprogrammets hjälpfunktioner>>
 
-<<funktionen som räknar>>
-
-
-<<funktionen som hälsar>>
-
-
-<<huvudprogrammet>>
+<<åldersprogrammets huvudprogram>>
 @
   \end{example}
 \end{frame}
 
-Åldersberäkningen är den enklaste delen: den tar ett födelseår och lämnar
-tillbaka en ålder.  Lägg märke till att den inte skriver ut något ---
-den räknar, och överlåter åt någon annan att bestämma vad svaret ska
-användas till.
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Programmet byggs från filens upplägg och
+  huvudprogrammet ned mot funktionerna, och varje funktion läggs till
+  först där resonemanget behöver den (författaren, 2026-09-23:
+  \enquote{it too early outlines what functions we need, without having
+  started discussing the details of the problem yet}).  Verben hittas
+  därför ett i taget: \mintinline{python}{greet} i huvudprogrammet,
+  \mintinline{python}{age} i \mintinline{python}{greet}.  Upplägget
+  förutsätter inget nytt: att definitionerna står före huvudprogrammet
+  visade [[greet3.py]], och att \mintinline{python}{greet} får stå före
+  \mintinline{python}{age} följer av samma sak, att kroppen körs först
+  vid anropet; prosan säger det när ordningen har uppstått.
+}
+
+Vi börjar med huvudprogrammet, för det är det som gör det programmet
+ska göra: hälsa på två personer.  Att hälsa är programmets verb, och det
+är samma hälsning båda gångerna, bara med ett annat namn och ett annat
+födelseår.  Det blir en funktion, \mintinline{python}{greet}, som tar
+namnet och födelseåret.  Funktionen finns inte än, men vi kan ge den ett
+namn och anropa den ändå.  Huvudprogrammet blir då två rader --- en per
+person.
 
 \begin{frame}[fragile]
-  \begin{example}[Räkna ut åldern]
-    En funktion som bara räknar:
-<<funktionen som räknar>>=
-def age(birthyear):
-    """Returnerar åldern i år för den som föddes år birthyear."""
-    return THIS_YEAR - birthyear
+  \begin{example}[Huvudprogrammet]
+    Det som var femton rader blir två anrop:
+<<åldersprogrammets huvudprogram>>=
+greet("Malvina", 1927)
+greet("Urban", 1950)
 @
   \end{example}
 \end{frame}
 
-Hälsningen är den andra delen.  Den skriver ut, och den använder
-åldersfunktionen för att få tag i talet.
+Hälsningen skriver ut samma två rader som det gamla programmet: först
+hälsningen och sedan åldern.  Åldern måste räknas ut ur födelseåret, och
+där är nästa verb: att räkna ut.  Att räkna och att hälsa är olika
+sorters arbete, så beräkningen får en egen funktion,
+\mintinline{python}{age}, som hälsningen anropar för att få tag i talet.
+Hälsningen hamnar bland hjälpfunktionerna, de funktioner huvudprogrammet
+tar hjälp av.
 
 \begin{frame}[fragile]
   \begin{example}[Hälsa på en person]
     En funktion som bara skriver ut:
-<<funktionen som hälsar>>=
+<<åldersprogrammets hjälpfunktioner>>=
 def greet(name, birthyear):
     """Hälsar på name och skriver ut hur gammal personen är."""
     print(f"Hej, {name}!")
@@ -963,36 +986,40 @@ def greet(name, birthyear):
   \end{example}
 \end{frame}
 
-Huvudprogrammet blir då två rader --- en per person.
+Åldersberäkningen är den enklaste delen: den tar ett födelseår och lämnar
+tillbaka en ålder.  Lägg märke till att den inte skriver ut något ---
+den räknar, och överlåter åt någon annan att bestämma vad svaret ska
+användas till.  Den hör också till hjälpfunktionerna.  Ett namn som får
+flera delar får \(\equiv\) första gången och +\(\equiv\) varje gång
+därefter, och i programmet står delarna efter varandra, i den ordning de
+kommer.  För att räkna behöver funktionen veta vilket år det är, och
+årtalet står som konstant, precis som i det gamla programmet.
 
 \begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet]
-    Det som var femton rader blir två anrop:
-<<huvudprogrammet>>=
-greet("Malvina", 1927)
-greet("Urban", 1950)
-@
-  \end{example}
-\end{frame}
-
-Och de två återstående delarna är desamma som förut: en docstring och en
-konstant.
-
-\begin{frame}[fragile]
-  \begin{example}[Vad programmet gör]
-    Överst i filen står en beskrivning:
-<<vad programmet gör>>=
-"""Åldersberäkning, uppdelad i funktioner."""
+  \begin{example}[Räkna ut åldern]
+    En funktion som bara räknar:
+<<åldersprogrammets hjälpfunktioner>>=
+def age(birthyear):
+    """Returnerar åldern i år för den som föddes år birthyear."""
+    return THIS_YEAR - birthyear
 @
   \end{example}
 
   \begin{example}[Vilket år det är]
-    Och årtalet står som konstant:
-<<vilket år det är>>=
+    Och årtalet står bland konstanterna:
+<<åldersprogrammets konstanter>>=
 THIS_YEAR = 2026
 @
   \end{example}
 \end{frame}
+
+Nu står \mintinline{python}{greet} före \mintinline{python}{age} i
+filen, fast \mintinline{python}{greet} anropar
+\mintinline{python}{age}.  Det går bra, och det följer av det vi såg
+med anropet ovanför definitionen: det som avgör är om namnet finns när
+anropet nås, och kroppen körs först vid ett anrop.  När
+huvudprogrammet anropar \mintinline{python}{greet} har båda raderna med
+\mintinline{python}{def} redan körts, och då finns båda namnen.
 
 \begin{frame}[fragile,shrink=15]
   \begin{example}[Hela programmet, hopsatt]
