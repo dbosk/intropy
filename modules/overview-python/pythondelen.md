@@ -129,6 +129,10 @@ Vecka för vecka är målen följande.
 
 **Vecka 41, Klasser och objekt:**
 
+- använda uppslagslistor för att lagra och slå upp data, hantera att en
+  nyckel saknas och gå igenom en uppslagslista med `for`,
+- välja mellan lista och uppslagslista utifrån vilka operationer
+  programmet behöver, och motivera valet,
 - förklara skillnaden mellan en klass och ett objekt,
 - skapa klasser med attribut och metoder och förstå vad parametern `self`
   är,
@@ -143,8 +147,8 @@ Vecka för vecka är målen följande.
 - välja lämplig behållare (lista, tuppel, mängd, uppslagslista, stack
   eller kö) för ett givet problem och motivera valet utifrån vilka
   operationer som behövs,
-- använda uppslagslistor och mängder för att lagra och slå upp data, och
-  iterera över dem,
+- använda mängder för att samla unika värden, pröva om ett värde finns
+  bland dem och iterera över dem,
 - implementera operatoröverlagring med dundermetoder som `__add__`,
   `__eq__` och `__lt__` samt typkonvertering med `__str__`, `__float__`
   och `__int__`,

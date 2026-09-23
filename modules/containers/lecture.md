@@ -9,13 +9,12 @@ modules:
     position: 2
 ---
 Föreläsningen ges live; tid och plats står i veckoöversikten överst i
-modulen. Den har fem delar: *Behållare: Uppslagslistor*, *Behållare:
-Mängder, stackar och köer*, *Behållare: Ett gissningsspel*,
-*Operatoröverlagring* och *Praktiska tillämpningar av klasser*. Bilderna
-visas under föreläsningen. Anteckningarna till varje del finns som ett
-interaktivt dokument (FeedbackFruits) här i modulen: *Behållare:
-Uppslagslistor (föreläsningsanteckningar)*, *Behållare: Mängder, stackar
-och köer (föreläsningsanteckningar)*, *Behållare: Ett gissningsspel
+modulen. Den har fyra delar: *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*, *Operatoröverlagring* och *Praktiska
+tillämpningar av klasser*. Bilderna visas under föreläsningen.
+Anteckningarna till varje del finns som ett interaktivt dokument
+(FeedbackFruits) här i modulen: *Behållare: Mängder, stackar och köer
+(föreläsningsanteckningar)*, *Behållare: Ett gissningsspel
 (föreläsningsanteckningar)*, *Operatoröverlagring
 (föreläsningsanteckningar)* och *Praktiska tillämpningar av klasser
 (föreläsningsanteckningar)*; läs dem efter föreläsningen, eller i
@@ -33,19 +32,6 @@ Föreläsningen spelas in. Inspelningen läggs upp här när den är klar.
 <!-- TODO: ersätt med länk till inspelningen (kaltura/Canvas Studio). -->
 
 ## Översikt
-
-### Behållare: Uppslagslistor
-
-En lista håller reda på värden efter deras plats: det första, det andra,
-det tredje. Men det vi oftast vill slå upp något efter är inte en plats
-utan ett namn, till exempel telefonnumret som hör till Ronja. Den här
-delen inför uppslagslistan (dictionary), behållaren som parar ihop en
-nyckel med ett värde. Vi slår upp, lägger till och ändrar, hanterar
-nycklar som saknas, går igenom både nycklar och par, och jämför
-uppslagslistan med listan för att kunna välja rätt behållare utifrån
-vilka operationer programmet behöver. Delen avslutas med en telefonbok:
-ett program som byggs upp av användaren, skrivs ut i bokstavsordning på
-snygga rader och går att söka i.
 
 ### Behållare: Mängder, stackar och köer
 
@@ -101,21 +87,6 @@ designprinciper exemplen praktiserar.
 ## Lärandemål
 
 Efter föreläsningen ska du kunna
-
-**Behållare: Uppslagslistor:**
-
-- skapa en uppslagslista, slå upp ett värde med sin nyckel, samt lägga
-  till och ändra par, och förklara varför en nyckel inte är ett index,
-- hantera att en nyckel saknas, med `in`, med `try`/`except KeyError`
-  eller med `get`, och välja mellan sätten,
-- gå igenom en uppslagslista: dess nycklar, dess värden och dess par med
-  `items`, samt i sorterad ordning,
-- välja mellan lista och uppslagslista utifrån vilka operationer
-  programmet behöver, och motivera valet,
-- bygga ett program som samlar in data i en uppslagslista, skriver ut
-  den läsbart och låter användaren söka i den,
-- hitta och läsa dokumentationen för uppslagslistor och därifrån
-  använda en metod som inte gåtts igenom på föreläsningen.
 
 **Behållare: Mängder, stackar och köer:**
 
@@ -176,18 +147,17 @@ Efter föreläsningen ska du kunna
 ## Förkunskaper
 
 Föreläsningen bygger på tidigare veckors föreläsningar *Funktioner*,
-*Inmatning och felhantering*, *Upprepningar*, *Behållare: Listor* och
-*Behållare: Tupler* samt på *Klasser och objekt*: du ska
-kunna skriva egna funktioner, fånga särfall med `try`/`except`, använda
-`for`- och `while`-slingor, arbeta med listor och tupler, och skriva en
-klass med attribut, metoder, parametern `self` och dundermetoderna
-`__init__` och `__str__`. Inom föreläsningen bygger *Behållare: Mängder,
-stackar och köer* och *Praktiska tillämpningar av klasser* vidare på
-dess första del, *Behållare: Uppslagslistor*; *Operatoröverlagring*
-bygger dessutom på bråkräkning från matematiken (gemensam nämnare,
-förkortning och största gemensamma delare); och *Praktiska tillämpningar
-av klasser* bygger också på sin föregående del, *Operatoröverlagring*,
-och på *Behållare: Listor*, inklusive listbyggare (list comprehensions).
+*Inmatning och felhantering*, *Upprepningar*, *Behållare: Listor*,
+*Behållare: Tupler*, *Behållare: Uppslagslistor* och *Klasser och
+objekt*: du ska kunna skriva egna funktioner, fånga särfall med
+`try`/`except`, använda `for`- och `while`-slingor, arbeta med listor,
+tupler och uppslagslistor, och skriva en klass med attribut, metoder,
+parametern `self` och dundermetoderna `__init__` och `__str__`.
+*Operatoröverlagring* bygger dessutom på bråkräkning från matematiken
+(gemensam nämnare, förkortning och största gemensamma delare), och
+*Praktiska tillämpningar av klasser* bygger på sin föregående del,
+*Operatoröverlagring*, och på listbyggare (list comprehensions) från
+*Behållare: Listor*.
 
 ## Efter föreläsningen
 
