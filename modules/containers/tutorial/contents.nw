@@ -119,28 +119,22 @@ bete sig när det är klart.
 
 \subsection{Lösningsförslag}
 
-Problemet delar sig i tre delar som inte har med varandra att göra: att
-avgöra om en adress ser rätt ut, att plocka ut domänen ur en adress, och
-att läsa in adresserna och samla domänerna.  Varje del blir en egen
-funktion, så att kontrollen går att pröva utan att någon behöver mata in
-något.
+Vi skriver programmet uppifrån och ner.  Först lägger vi upp filen:
+överst en \foreignlanguage{english}{docstring} som säger vad programmet
+är till för, sedan hjälpfunktionerna, huvudprogrammet och till sist
+anropet som sätter igång det.  Upplägget står i pseudokod, och sedan
+preciserar vi pseudokoden med pythonkod, en del i taget, när vi kommer
+till den.
 
 \begin{frame}[fragile]
-  \frametitle{Programmets delar}
-  Överblicken först, med delarna namngivna:
+  \frametitle{Programmets upplägg}
+  E-postprogrammets upplägg:
 <<[[epost.py]]>>=
 """Läser in e-postadresser och samlar deras domäner"""
 
+<<e-postprogrammets hjälpfunktioner>>
 
-<<funktion som avgör om en adress ser ut som en e-postadress>>
-
-
-<<funktion som plockar ut domänen ur en adress>>
-
-
-<<huvudprogram som läser in adresser och samlar domänerna>>
-
-
+<<e-postprogrammets huvudprogram>>
 if __name__ == "__main__":
     main()
 @
@@ -163,7 +157,65 @@ if __name__ == "__main__":
   på högsta nivån skulle då köras vid importen.
 }
 
-Vad har då alla e-postadresser gemensamt?  De har ett
+Vi börjar med huvudprogrammet, eftersom det är det uppgiften beskriver.
+Adresserna kommer en per rad tills en blankrad, och de godtagna
+adressernas domäner ska samlas så att varje domän räknas en gång ---
+alltså i en mängd.  Om varje adress ställer programmet två frågor: ser
+den ut som en e-postadress, och vilken domän har den?  De är var sin
+sak, och de blir var sin hjälpfunktion, \mintinline{python}{is_email}
+och \mintinline{python}{domain_of}.  Vi anropar dem redan här och
+skriver dem sedan.  Att de är egna funktioner gör också att kontrollen
+går att pröva utan att någon behöver mata in något.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Huvudprogrammet}
+  Mängden växer med en domän per godtagen adress:
+<<e-postprogrammets huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    domains = set()
+
+    address = input("Ange en e-postadress: ")
+    while address:
+        if is_email(address):
+            print(f"{address} ser ut som en e-postadress.")
+            domains.add(domain_of(address))
+        else:
+            print(f"{address} ser inte ut som en e-postadress.")
+
+        address = input("Ange en e-postadress: ")
+
+    print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
+@
+\end{frame}
+
+Mängden gör två saker på en gång: den lägger till en domän som inte fanns
+och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
+fall det är.
+
+Och så uppgiftens andra fråga, om ordningen: den finns inte.  En mängd
+lägger sina element där de hör hemma utifrån värdet, inte efter varandra,
+och därför går det varken att fråga efter det första elementet eller att
+räkna med att två körningar skriver ut dem i samma
+ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
+välja den själva, och här väljer vi bokstavsordning med
+\mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
+dubbletter: två lika värden hör hemma på samma plats, så det andra
+försvinner in i det första.
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje lösningsförslag som byggs upp av
+  namngivna delar börjar i filens upplägg, med namn som hör till just
+  det programmet, och skisserar sedan huvudprogrammet.  En
+  hjälpfunktion, en klass eller en metod läggs till först där
+  resonemanget behöver den (författaren, 2026-09-23: \enquote{it too
+  early outlines what functions we need, without having started
+  discussing the details of the problem yet}), så filens ordning blir
+  upptäcktens.
+}
+
+Kvar är de två hjälpfunktionerna.  Vad har då alla e-postadresser
+gemensamt?  De har ett
 \mintinline{python}|"@"| --- exakt ett --- med något före och något
 efter, och den del som står efter innehåller minst en punkt som varken
 är domänens första eller sista tecken.  Mellanslag får inte förekomma
@@ -172,7 +224,7 @@ alls.  Det räcker för vår kontroll.
 \begin{frame}[fragile]
   \frametitle{Kontrollen}
   Villkoren, i den ordning de är billigast att pröva:
-<<funktion som avgör om en adress ser ut som en e-postadress>>=
+<<e-postprogrammets hjälpfunktioner>>=
 def is_email(address):
     """Returnerar True om address ser ut som en e-postadress."""
     if address.count("@") != 1 or " " in address:
@@ -206,10 +258,15 @@ val i riktiga program.
 % kontrollen här (citerade lokaldelar, domäner utan punkt).  Primärkällan
 % är RFC 5322, som inte är läst i fulltext härifrån.
 
+Den andra hjälpfunktionen plockar ut domänen, och den läggs till efter
+den första.  Ett namn som får flera delar får \(\equiv\) första gången
+och +\(\equiv\) varje gång därefter, och i programmet står delarna efter
+varandra, i den ordning de kommer.
+
 \begin{frame}[fragile]
   \frametitle{Domänen}
   Domänen är det som står efter snabel-a, i gemener:
-<<funktion som plockar ut domänen ur en adress>>=
+<<e-postprogrammets hjälpfunktioner>>=
 def domain_of(address):
     """Returnerar domänen i address, med gemener."""
     return address.split("@")[1].casefold()
@@ -221,46 +278,6 @@ Funktionen gör om domänen till gemener, eftersom
 domän och inte ska räknas som två.  Det är samma
 \mintinline{python}{casefold} som gjorde sökningen i föreläsningen
 \emph{Behållare: Listor} likgiltig för stora bokstäver.
-
-Nu till inläsningen.  Adresserna kommer en per rad, och de godtagna
-adressernas domäner ska samlas så att varje domän räknas en gång ---
-alltså i en mängd.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Inläsningen}
-  Mängden växer med en domän per godtagen adress:
-<<huvudprogram som läser in adresser och samlar domänerna>>=
-def main():
-    """Huvudprogrammet"""
-    domains = set()
-
-    address = input("Ange en e-postadress: ")
-    while address:
-        if is_email(address):
-            print(f"{address} ser ut som en e-postadress.")
-            domains.add(domain_of(address))
-        else:
-            print(f"{address} ser inte ut som en e-postadress.")
-
-        address = input("Ange en e-postadress: ")
-
-    print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
-@
-\end{frame}
-
-Mängden gör två saker på en gång: den lägger till en domän som inte fanns
-och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
-fall det är.
-
-Och så uppgiftens andra fråga, om ordningen: den finns inte.  En mängd
-lägger sina element där de hör hemma utifrån värdet, inte efter varandra,
-och därför går det varken att fråga efter det första elementet eller att
-räkna med att två körningar skriver ut dem i samma
-ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
-välja den själva, och här väljer vi bokstavsordning med
-\mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
-dubbletter: två lika värden hör hemma på samma plats, så det andra
-försvinner in i det första.
 
 \ltnote{%
   \textbf{Helheten efter delarna.}  Varje program i övningen som byggs
@@ -416,16 +433,73 @@ programmet bete sig när det är klart.
 
 Att räkna är att hålla ett tal per bokstav, och det är precis vad en
 uppslagslista gör: bokstaven blir nyckeln och antalet värdet.
-Räkningen blir en egen funktion som tar en text och lämnar tillbaka
-uppslagslistan, så att den går att använda på vilken text som helst.
+
+Programmet läggs upp som e-postprogrammet: en
+\foreignlanguage{english}{docstring}, hjälpfunktionerna,
+huvudprogrammet och anropet.
+
+\begin{frame}[fragile]
+  \frametitle{Programmets upplägg}
+  Bokstavsräknarens upplägg:
+<<[[letters.py]]>>=
+"""Räknar hur många gånger varje bokstav förekommer i en text"""
+
+<<bokstavsräknarens hjälpfunktioner>>
+
+<<bokstavsräknarens huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Huvudprogrammet läser, anropar och skriver ut; det räknar ingenting
+själv.  Det läser en text, låter en funktion räkna bokstäverna och
+skriver ut en tabell, och det frågar en funktion till vilken bokstav som
+är vanligast.  Inläsningen, räkningen och tabellen skriver vi först som
+pseudokod, och senare preciserar vi pseudokoden med pythonkod.
+
+\begin{frame}[fragile]
+  \frametitle{Huvudprogrammet}
+  Tabellen först, och sedan den vanligaste:
+<<bokstavsräknarens huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
+
+    top_letter, top_count = most_common_letter(counts)
+    print(f"Vanligast är {top_letter}, {top_count} gånger.")
+@
+\end{frame}
+
+Räkningen blir en egen funktion, \mintinline{python}{count_letters}, som
+tar en text och lämnar tillbaka uppslagslistan, så att den går att
+använda på vilken text som helst.  Tabellen är uppslagslistans nycklar i
+ordning, var och en med sitt antal.
+
+\begin{frame}[fragile]
+  \frametitle{Utskriften}
+  Texten in, uppslagslistan tillbaka, och nycklarna i ordning:
+<<läs in en text, räkna bokstäverna och skriv ut tabellen>>=
+counts = count_letters(input("Ange en text: "))
+
+for letter, count in sorted(counts.items()):
+    print(f"{letter}: {count}")
+@
+\end{frame}
+
+Slingan går igenom \mintinline{python}{counts.items()}, som lämnar ut
+ett \emph{par} i taget --- nyckeln och värdet --- och vi packar upp paret
+i två namn i slingans huvud, precis som med
+\mintinline{python}{enumerate} i föreläsningen \emph{Behållare: Tupler}.
+Att paren först går genom \mintinline{python}{sorted} ger dem i
+bokstavsordning, eftersom en tupel jämförs på sin första del.
+
+Nu till räkningen, den första hjälpfunktionen.
 
 \begin{frame}[fragile]
   \frametitle{Räkningen}
   Ett tal per bokstav, byggt upp ett tecken i taget:
-<<[[letters.py]]>>=
-"""Räknar hur många gånger varje bokstav förekommer i en text"""
-
-
+<<bokstavsräknarens hjälpfunktioner>>=
 def count_letters(text):
     """Returnerar en uppslagslista från bokstav till antal."""
     counts = {}
@@ -449,14 +523,12 @@ alltså både fallet \enquote{ny bokstav} och fallet \enquote{sedd förut},
 och en tilldelning till en nyckel som inte finns lägger till posten.
 
 Att ta fram den vanligaste bokstaven är en uträkning till, och den får
-också en egen funktion.
+också en egen funktion bland hjälpfunktionerna.
 
 \begin{frame}[fragile]
   \frametitle{Den vanligaste}
   Bokstaven med störst antal, och antalet:
-<<[[letters.py]]>>=
-
-
+<<bokstavsräknarens hjälpfunktioner>>=
 def most_common_letter(counts):
     """Returnerar den vanligaste bokstaven och dess antal."""
     top_letter = max(counts, key=counts.get)
@@ -469,40 +541,6 @@ jämför bokstäverna efter sina antal i stället för efter sig själva ---
 samma \mintinline{python}{key} som sorterade efter längd i föreläsningen
 \emph{Behållare: Listor}.  Funktionen lämnar tillbaka två värden, som en
 tupel.
-
-\mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile,shrink]
-  \frametitle{Utskriften}
-  Nycklarna i ordning, och sedan den vanligaste:
-<<[[letters.py]]>>=
-
-
-def main():
-    """Huvudprogrammet"""
-    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
-
-    top_letter, top_count = most_common_letter(counts)
-    print(f"Vanligast är {top_letter}, {top_count} gånger.")
-
-
-if __name__ == "__main__":
-    main()
-<<läs in en text, räkna bokstäverna och skriv ut tabellen>>=
-counts = count_letters(input("Ange en text: "))
-
-for letter, count in sorted(counts.items()):
-    print(f"{letter}: {count}")
-@
-\end{frame}
-
-Slingan går igenom \mintinline{python}{counts.items()}, som lämnar ut
-ett \emph{par} i taget --- nyckeln och värdet --- och vi packar upp paret
-i två namn i slingans huvud, precis som med
-\mintinline{python}{enumerate} i föreläsningen \emph{Behållare: Tupler}.
-Att paren först går genom \mintinline{python}{sorted} ger dem i
-bokstavsordning, eftersom en tupel jämförs på sin första del.
-Huvudprogrammet läser, anropar och skriver ut; det räknar ingenting
-själv.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -539,18 +577,51 @@ vet.
 Uppgiften i föreläsningen \emph{Behållare: Mängder, stackar och köer}
 bad dig slå upp \mintinline{python}{Counter} i dokumentationen för
 modulen \mintinline{python}{collections}.  Det är den som gör samma
-räkning åt oss.
+räkning åt oss.  Programmet med den får bokstavsräknarens upplägg, med
+importen av modulen överst.
 
-\mode<article>{\needspace{8\baselineskip}}
 \begin{frame}[fragile]
-  \frametitle{Samma räkning med \texttt{Counter}}
-  Räkningen blir ett anrop i stället för en slinga:
+  \frametitle{Samma upplägg med \texttt{Counter}}
+  Upplägget, med en import:
 <<[[counter.py]]>>=
 """Samma räkning, med collections.Counter"""
 
 import collections
 
+<<[[Counter]]-räknarens hjälpfunktioner>>
 
+<<[[Counter]]-räknarens huvudprogram>>
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Utskriften, och två frågor till}
+  Samma stycke som förut läser texten och skriver ut tabellen; den
+  vanligaste tas fram på ett nytt sätt, och två rader är tillagda:
+<<[[Counter]]-räknarens huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
+
+    top_letter, top_count = counts.most_common(1)[0]
+    print(f"Vanligast är {top_letter}, {top_count} gånger.")
+
+    print(f"Antal q: {counts['q']}")
+    print(f"De två vanligaste: {counts.most_common(2)}")
+@
+\end{frame}
+
+Stycket som läser texten och skriver ut tabellen anropar
+\mintinline{python}{count_letters}, och den är programmets enda
+hjälpfunktion.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  \frametitle{Samma räkning med \texttt{Counter}}
+  Räkningen blir ett anrop i stället för en slinga:
+<<[[Counter]]-räknarens hjälpfunktioner>>=
 def count_letters(text):
     """Returnerar en uppslagslista från bokstav till antal."""
     letters = [c for c in text.casefold() if c.isalpha()]
@@ -561,29 +632,6 @@ def count_letters(text):
 Funktionen behåller sitt namn och sitt löfte --- en text in, en
 uppslagslista från bokstav till antal ut --- så att det enda som skiljer
 den från förut är räkningen inuti den.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Utskriften, och två frågor till}
-  Samma stycke som förut läser texten och skriver ut tabellen; den
-  vanligaste tas fram på ett nytt sätt, och två rader är tillagda:
-<<[[counter.py]]>>=
-
-
-def main():
-    """Huvudprogrammet"""
-    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
-
-    top_letter, top_count = counts.most_common(1)[0]
-    print(f"Vanligast är {top_letter}, {top_count} gånger.")
-
-    print(f"Antal q: {counts['q']}")
-    print(f"De två vanligaste: {counts.most_common(2)}")
-
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -737,32 +785,32 @@ in dem, och sedan blir både jämförelsen, hashningen och utskriften
 enkla.  Varför just den vägen och inte den andra kommer vi tillbaka till
 när båda går att se i kod.
 
+Filen läggs upp som de förra programmen, med en del till: klasserna, som
+står före huvudprogrammet.  Här finns bara en klass, och huvudprogrammet
+är ett testprogram som provar det nya.  Klassen har ett namn och en
+\foreignlanguage{english}{docstring}, och sedan sina metoder, som vi
+lägger till en i taget.
+
 \begin{frame}[fragile,shrink]
-  \frametitle{Filens delar}
-  Klassen, med de nya delarna sist:
+  \frametitle{Filens upplägg}
+  Bråkfilens upplägg:
 <<[[fraction.py]]>>=
 """En klass för bråk, med jämförelse och division"""
 
 import math
 
+<<bråkfilens klasser>>
 
+<<testprogram som provar jämförelserna och divisionen>>
+if __name__ == "__main__":
+    main()
+@
+  Klassen, med metoderna som vi lägger till en i taget:
+<<bråkfilens klasser>>=
 class Fraction:
     """Klass för bråk"""
 
-    <<konstruktor som skapar ett förkortat bråk>>
-
-    <<metod som förkortar och flyttar tecknet till täljaren>>
-
-    <<egenskaper som läser av bråkets delar>>
-
-    <<metoder för utskrift och multiplikation>>
-
-    <<metoder som jämför två bråk>>
-
-    <<metoder för division åt båda hållen>>
-
-
-<<testprogram som provar jämförelserna och divisionen>>
+    <<bråkets metoder>>
 @
 \end{frame}
 
@@ -774,7 +822,7 @@ nya syns.
 \begin{frame}[fragile,shrink]
   \frametitle{Konstruktorn, som förut}
   Tre slags argument, och till sist förkortningen:
-<<konstruktor som skapar ett förkortat bråk>>=
+<<bråkets metoder>>=
 def __init__(self, numerator, denominator=1):
     if isinstance(numerator, Fraction):
         self.__numerator = numerator.numerator
@@ -801,7 +849,7 @@ alltid positiv, och varje rationellt tal har en enda representation.
 \begin{frame}[fragile]
   \frametitle{Förkortning med tecknet i täljaren}
   Största gemensamma delaren först, tecknet sist:
-<<metod som förkortar och flyttar tecknet till täljaren>>=
+<<bråkets metoder>>=
 def __simplify(self):
     """Förkortar bråket och flyttar tecknet till täljaren."""
     gcd = math.gcd(self.__numerator, self.__denominator)
@@ -818,7 +866,7 @@ def __simplify(self):
 \begin{frame}[fragile]
   \frametitle{Egenskaperna, som förut}
   Täljaren och nämnaren läses som attribut:
-<<egenskaper som läser av bråkets delar>>=
+<<bråkets metoder>>=
 @property
 def numerator(self):
     """numerator getter"""
@@ -834,7 +882,7 @@ def denominator(self):
 \begin{frame}[fragile,shrink]
   \frametitle{Utskrift och multiplikation, som förut}
   De tas med eftersom divisionen använder multiplikationen:
-<<metoder för utskrift och multiplikation>>=
+<<bråkets metoder>>=
 def __str__(self):
     return f"{self.numerator}/{self.denominator}"
 
@@ -863,8 +911,7 @@ skäl att finnas.
 \begin{frame}[fragile]
   \frametitle{Bråkets delar}
   En egenskap som lämnar ut båda talen på en gång:
-<<egenskaper som läser av bråkets delar>>=
-
+<<bråkets metoder>>=
 @property
 def parts(self):
     """Täljaren och nämnaren, som en tupel."""
@@ -914,8 +961,8 @@ Så här blir de två jämförelserna skrivna på det sättet.
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}[fragile,shrink]
   \frametitle{Likhet och olikhet}
-  Två dundermetoder, och en tredje vi kommer till strax:
-<<metoder som jämför två bråk>>=
+  Två dundermetoder, likheten och olikheten:
+<<bråkets metoder>>=
 def __eq__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
@@ -923,8 +970,6 @@ def __eq__(self, other):
         return NotImplemented
 
     return self.parts == other.parts
-
-<<metod som hashar bråkets delar>>
 
 def __lt__(self, other):
     if isinstance(other, int):
@@ -1050,10 +1095,11 @@ lika bråk har samma par, alltså samma hashvärde.  Att en tupel går att
 hasha, men inte en lista, är samma krav som gjorde att en nyckel måste
 vara oföränderlig\autocite{PythonDataStructures}.
 
+\mode<article>{\needspace{6\baselineskip}}
 \begin{frame}[fragile]
   \frametitle{Hashning}
   Paret hashas, och två lika bråk ger samma värde:
-<<metod som hashar bråkets delar>>=
+<<bråkets metoder>>=
 def __hash__(self):
     return hash(self.parts)
 @
@@ -1105,7 +1151,7 @@ göra om den vänstra operanden till ett bråk och dividera åt rätt håll.
 \begin{frame}[fragile]
   \frametitle{Division}
   Multiplikation med det inverterade bråket:
-<<metoder för division åt båda hållen>>=
+<<bråkets metoder>>=
 def __truediv__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
@@ -1163,10 +1209,6 @@ def main():
         print(1 < half)
     except TypeError as error:
         print(f"1 < half: {error}")
-
-
-if __name__ == "__main__":
-    main()
 @
 \end{frame}
 
@@ -1347,142 +1389,43 @@ ett val att motivera.  Så här ska programmet bete sig när det är klart.
 
 \subsection{Lösningsförslag}
 
-Tre klasser, var och en med ett ansvar: personen vet vad hen heter,
-kontot vet vad det innehåller och vaktar sitt saldo, och banken vet vilka
-konton som finns.  Klasserna ligger i en modul, och ett eget program
+Tre klasser, var och en med ett ansvar: banken vet vilka konton som
+finns, kontot vet vad det innehåller och vaktar sitt saldo, och personen
+vet vad hen heter.  Klasserna ligger i en modul, och ett eget program
 använder dem --- så att modulen går att importera från flera program.
+Modulen har bara klasser: inga hjälpfunktioner och inget huvudprogram,
+eftersom det är programmet som använder den som gör något.
 
 \begin{frame}[fragile]
-  \frametitle{Modulens delar}
-  Tre klasser, i den ordning de bygger på varandra:
+  \frametitle{Modulens upplägg}
+  Bankmodulens upplägg:
 <<[[bank.py]]>>=
 """Klasser för en bank med konton"""
 
-
-<<klass för en person med ett namn>>
-
-
-<<klass för ett konto med nummer, ägare och saldo>>
-
-
-<<klass för en bank med kontona i en uppslagslista>>
+<<bankmodulens klasser>>
 @
 \end{frame}
 
-Personen är den minsta av dem.  Namnet är privat och läses som en
-egenskap, och \mintinline{python}{__str__} gör att en person kan skrivas
-ut utan att den som skriver ut behöver veta hur personobjektet är byggt.
-
-\begin{frame}[fragile]
-  \frametitle{Personen}
-  Ett namn, en egenskap och en utskrift:
-<<klass för en person med ett namn>>=
-class Person:
-    """En person som kan äga ett konto"""
-
-    def __init__(self, name):
-        self.__name = name
-
-    @property
-    def name(self):
-        """name getter"""
-        return self.__name
-
-    def __str__(self):
-        return self.__name
-@
-\end{frame}
-
-Kontot har tre saker: ett nummer, en ägare och ett saldo.  Ägaren är ett
-\mintinline{python}{Person}-objekt --- kontot \emph{har} en person ---
-och det är komposition, som i föreläsningen \emph{Praktiska tillämpningar
-av klasser}.  Alla tre attributen är privata, och det är själva poängen
-med kontot: ett saldo som går att skriva till utifrån är inget saldo, för
-då kan någon ändra det utan att pengarna kommer någonstans ifrån.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Kontots attribut}
-  Nummer, ägare och saldo, alla läsbara men inte skrivbara:
-<<klass för ett konto med nummer, ägare och saldo>>=
-class Account:
-    """Ett bankkonto med nummer, ägare och saldo"""
-
-    def __init__(self, number, owner, balance=0):
-        self.__number = number
-        self.__owner = owner
-        self.__balance = balance
-
-    @property
-    def number(self):
-        """number getter"""
-        return self.__number
-
-    @property
-    def owner(self):
-        """owner getter"""
-        return self.__owner
-
-    @property
-    def balance(self):
-        """balance getter"""
-        return self.__balance
-
-    <<kontots metoder för insättning, uttag och utskrift>>
-@
-\end{frame}
-
-Saldot ändras bara genom två metoder, och båda kontrollerar först.
-Insättningen vägrar ett belopp som inte är positivt, uttaget vägrar
-dessutom ett belopp som är större än saldot.  Att de kastar ett särfall
-i stället för att lämna tillbaka \mintinline{python}{False} är ett val:
-ett sanningsvärde går att glömma att titta på, medan ett särfall måste
-tas om hand.  Föreläsningen \emph{Praktiska tillämpningar av klasser}
-gör det omvända valet och nämner det här som ett alternativ; båda
-fungerar, och skillnaden är vad som händer när den som anropar
-struntar i svaret.
-
-\mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile,shrink]
-  \frametitle{Insättning och uttag}
-  Kontrollerna först, ändringen sedan:
-<<kontots metoder för insättning, uttag och utskrift>>=
-def deposit(self, amount):
-    """Sätter in amount kronor på kontot."""
-    if amount <= 0:
-        raise ValueError("beloppet måste vara positivt")
-
-    self.__balance += amount
-
-def withdraw(self, amount):
-    """Tar ut amount kronor, om de finns på kontot."""
-    if amount <= 0:
-        raise ValueError("beloppet måste vara positivt")
-    if amount > self.__balance:
-        raise ValueError(f"{self.__number} har inte {amount} kr")
-
-    self.__balance -= amount
-
-def __str__(self):
-    return f"{self.number}: {self.owner}, {self.balance} kr"
-@
-\end{frame}
-
-Så till banken, och till uppgiftens fråga.  Banken ska hitta ett konto
-utifrån dess nummer, och det är en uppslagning på ett namn --- alltså en
-uppslagslista, med kontonumret som nyckel och kontot som värde.
+Vi börjar uppifrån, med banken, som är det uppgiften handlar om.  Banken
+ska hitta ett konto utifrån dess nummer, och det är en uppslagning på ett
+namn --- alltså en uppslagslista, med kontonumret som nyckel och kontot
+som värde.  Klassen har ett namn och en
+\foreignlanguage{english}{docstring}, och sedan sina metoder, som vi
+lägger till en i taget; den första är konstruktorn, som skapar
+uppslagslistan.
 
 \begin{frame}[fragile]
   \frametitle{Banken}
   Kontona i en uppslagslista, och ett steg vi lämnar tomt tills vidare:
-<<klass för en bank med kontona i en uppslagslista>>=
+<<bankmodulens klasser>>=
 class Bank:
     """En bank med sina konton"""
 
-    def __init__(self):
-        self.__accounts = {}
-        <<skapa bankens minne av överföringar>>
-
-    <<bankens metoder för konton och överföringar>>
+    <<bankens metoder>>
+<<bankens metoder>>=
+def __init__(self):
+    self.__accounts = {}
+    <<skapa bankens minne av överföringar>>
 @
 \end{frame}
 
@@ -1494,7 +1437,7 @@ metoder uppgiften ber om.
 \begin{frame}[fragile,shrink]
   \frametitle{Att öppna och att hitta ett konto}
   Nyckeln får inte finnas förut, och måste finnas efteråt:
-<<bankens metoder för konton och överföringar>>=
+<<bankens metoder>>=
 def open_account(self, number, owner, balance=0):
     """Öppnar ett konto och lämnar tillbaka det."""
     if number in self.__accounts:
@@ -1522,12 +1465,14 @@ anropar banken ska inte behöva veta att kontona ligger i en
 uppslagslista --- den får ett \mintinline{python}{ValueError} som talar
 om vad som var fel i stället.
 
+Kontot som \mintinline{python}{open_account} skapar är ett objekt av
+klassen \mintinline{python}{Account}, som vi skriver när banken är klar.
+
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}[fragile]
   \frametitle{Överföringen}
   Ett uttag och en insättning, och en anteckning:
-<<bankens metoder för konton och överföringar>>=
-
+<<bankens metoder>>=
 def transfer(self, source, target, amount):
     """För över amount kronor från kontot source till target."""
     self.account(source).withdraw(amount)
@@ -1537,17 +1482,15 @@ def transfer(self, source, target, amount):
 \end{frame}
 
 Överföringen skriver inte i saldona själv: den ber kontona om ett uttag
-och en insättning, och då gäller kontrollerna automatiskt.  Räcker inte
-pengarna kastar uttaget sitt särfall innan insättningen har hunnit
-göras, så pengar kan inte uppstå ur ingenting.
+och en insättning.  Kontrollen att pengarna finns hör alltså till kontot,
+och den skriver vi när vi kommer dit.
 
 Till sist en utskrift av hela banken, i nummerordning.
 
 \begin{frame}[fragile]
   \frametitle{Bankens utskrift}
   Nycklarna sorteras, och varje konto skriver ut sig självt:
-<<bankens metoder för konton och överföringar>>=
-
+<<bankens metoder>>=
 def __str__(self):
     numbers = sorted(self.__accounts)
     rows = [str(self.account(number)) for number in numbers]
@@ -1560,6 +1503,118 @@ nycklarna i ordning, och listbyggaren gör en rad per konto.  Utan
 sorteringen hade ordningen varit den kontona öppnades i, vilket inte är
 den ordning någon vill läsa en kontolista i.
 
+Så till kontot, som banken har anropat hela tiden.  Det har tre saker:
+ett nummer, en ägare och ett saldo.  Ägaren är ett
+\mintinline{python}{Person}-objekt --- kontot \emph{har} en person ---
+och det är komposition, som i föreläsningen \emph{Praktiska tillämpningar
+av klasser}.  Alla tre attributen är privata, och det är själva poängen
+med kontot: ett saldo som går att skriva till utifrån är inget saldo, för
+då kan någon ändra det utan att pengarna kommer någonstans ifrån.
+
+\begin{frame}[fragile]
+  \frametitle{Kontot}
+  Konstruktorn tar emot de tre attributen:
+<<bankmodulens klasser>>=
+class Account:
+    """Ett bankkonto med nummer, ägare och saldo"""
+
+    <<kontots metoder>>
+<<kontots metoder>>=
+def __init__(self, number, owner, balance=0):
+    self.__number = number
+    self.__owner = owner
+    self.__balance = balance
+@
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Kontots attribut}
+  Nummer, ägare och saldo, alla läsbara men inte skrivbara:
+<<kontots metoder>>=
+@property
+def number(self):
+    """number getter"""
+    return self.__number
+
+@property
+def owner(self):
+    """owner getter"""
+    return self.__owner
+
+@property
+def balance(self):
+    """balance getter"""
+    return self.__balance
+@
+\end{frame}
+
+Saldot ändras bara genom två metoder, och båda kontrollerar först.
+Insättningen vägrar ett belopp som inte är positivt, uttaget vägrar
+dessutom ett belopp som är större än saldot.  Att de kastar ett särfall
+i stället för att lämna tillbaka \mintinline{python}{False} är ett val:
+ett sanningsvärde går att glömma att titta på, medan ett särfall måste
+tas om hand.  Föreläsningen \emph{Praktiska tillämpningar av klasser}
+gör det omvända valet och nämner det här som ett alternativ; båda
+fungerar, och skillnaden är vad som händer när den som anropar
+struntar i svaret.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile,shrink]
+  \frametitle{Insättning och uttag}
+  Kontrollerna först, ändringen sedan:
+<<kontots metoder>>=
+def deposit(self, amount):
+    """Sätter in amount kronor på kontot."""
+    if amount <= 0:
+        raise ValueError("beloppet måste vara positivt")
+
+    self.__balance += amount
+
+def withdraw(self, amount):
+    """Tar ut amount kronor, om de finns på kontot."""
+    if amount <= 0:
+        raise ValueError("beloppet måste vara positivt")
+    if amount > self.__balance:
+        raise ValueError(f"{self.__number} har inte {amount} kr")
+
+    self.__balance -= amount
+
+def __str__(self):
+    return f"{self.number}: {self.owner}, {self.balance} kr"
+@
+\end{frame}
+
+Nu gäller kontrollerna också för bankens överföring, utan att den
+behöver kontrollera något själv.  Räcker inte pengarna kastar uttaget
+sitt särfall innan insättningen har hunnit göras, så pengar kan inte
+uppstå ur ingenting.
+
+Kvar är ägaren, den minsta av klasserna.  Namnet är privat och läses som
+en egenskap, och \mintinline{python}{__str__} gör att en person kan
+skrivas ut utan att den som skriver ut --- här kontots
+\mintinline{python}{__str__} --- behöver veta hur personobjektet är
+byggt.
+
+\begin{frame}[fragile]
+  \frametitle{Personen}
+  Ett namn, en egenskap och en utskrift:
+<<bankmodulens klasser>>=
+class Person:
+    """En person som kan äga ett konto"""
+
+    def __init__(self, name):
+        self.__name = name
+
+    @property
+    def name(self):
+        """name getter"""
+        return self.__name
+
+    def __str__(self):
+        return self.__name
+@
+\end{frame}
+
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}[fragile]
   \frametitle{Ett program som använder modulen}
@@ -1569,21 +1624,21 @@ den ordning någon vill läsa en kontolista i.
 
 from bank import Bank, Person
 
-
 def main():
     """Huvudprogrammet"""
     <<öppna tre konton och för över pengar mellan två>>
 
     <<försök med ett för stort uttag och ett okänt konto>>
 
-
 if __name__ == "__main__":
     main()
 @
 \end{frame}
 
-Banken skrivs ut både före och efter överföringen, eftersom en
-överföring inte syns i något annat än skillnaden mellan två utskrifter.
+Huvudprogrammet står i pseudokod, i två delar, och delarna preciserar
+vi med pythonkod en i taget.  Banken skrivs ut både före och efter
+överföringen, eftersom en överföring inte syns i något annat än
+skillnaden mellan två utskrifter.
 
 \begin{frame}[fragile,shrink]
   \frametitle{Kontona och överföringen}
@@ -1761,8 +1816,7 @@ tupel.  Att ångra är sedan att packa upp tupeln och göra om
 \begin{frame}[fragile]
   \frametitle{Att ångra}
   Den senaste tas ur stacken och görs baklänges:
-<<bankens metoder för konton och överföringar>>=
-
+<<bankens metoder>>=
 def undo(self):
     """Ångrar den senaste överföringen."""
     if not self.__transfers:
@@ -1790,6 +1844,9 @@ Därmed är modulen [[bank.py]] färdig.
   \inputminted{python}{examples/bank.py}
 \end{frame}
 
+Programmet som provar ångrandet är upplagt som det förra, med
+huvudprogrammet i pseudokod.
+
 \begin{frame}[fragile]
   \frametitle{Ett program som ångrar}
   Två överföringar, två ångranden, och ett försök för många:
@@ -1798,13 +1855,11 @@ Därmed är modulen [[bank.py]] färdig.
 
 from bank import Bank, Person
 
-
 def main():
     """Huvudprogrammet"""
     <<gör två överföringar och ångra dem en i taget>>
 
     <<försök ångra en gång för mycket>>
-
 
 if __name__ == "__main__":
     main()
@@ -1977,51 +2032,120 @@ dem sätter vi samman mer på en gång än i de fem första.
 
 \subsection{Lösningsförslag}
 
-Bubblan kan inte skrivas ut förrän radbrytningen är gjord, för bredden
-beror på den längsta raden.  Programmet blir därför tre delar:
-radbrytningen, bubblan och kon.  Radbrytningen är den enda som är svår,
-och den läggs först.
+Kon ska gå att använda från andra program, så programmet är en modul,
+och modulens eget huvudprogram provar den.  Filen läggs upp som de
+förra programmen, med importen överst och en del för konstanterna.
 
-\begin{frame}[fragile,shrink]
-  \frametitle{Modulens delar}
-  Radbrytningen, bubblan, kon och ett prov:
+\begin{frame}[fragile]
+  \frametitle{Modulens upplägg}
+  Den pratande kons upplägg:
 <<[[cowsay.py]]>>=
 """En modul som skriver ut en text i en pratbubbla från en ko"""
 
 import collections
 
-WIDTH = 30
+<<den pratande kons konstanter>>
 
+<<den pratande kons hjälpfunktioner>>
 
-<<funktion som bryter texten till rader>>
-
-
-<<funktion som skriver ut texten i en bubbla>>
-
-
-<<funktioner som skriver ut kon, med och utan bubbla>>
-
-
-<<huvudprogram som provar kon på två texter>>
-
-
+<<den pratande kons huvudprogram>>
 if __name__ == "__main__":
     main()
 @
 \end{frame}
 
-Radbrytningen tar ett ord i taget och fyller raden tills nästa ord inte
-får plats.  Orden ska komma i den ordning de står i texten --- först in,
-först ut --- vilket är en kö.  Och ett ord som är bredare än en hel rad
-måste klyvas: den första biten får plats, och resten ska tillbaka
-\emph{först} i kön så att nästa varv tar den.  Den operationen ---
-lägga tillbaka i den ände man hämtade ifrån --- är vad en
-\mintinline{python}{deque} finns för\autocite{PythonCollections}.
+Vi börjar med provet, alltså huvudprogrammet.  Det ska visa uppgiftens
+två fall: en mening som behöver brytas, och ett ord som är längre än en
+hel rad.  Båda gångerna anropar det en funktion,
+\mintinline{python}{cowsay}, som vi skriver sedan.
 
+\begin{frame}[fragile]
+  \frametitle{Provet}
+  En mening och ett ord som är längre än en hel rad:
+<<den pratande kons huvudprogram>>=
+def main():
+    """Provar kon på en mening och på ett mycket långt ord."""
+    cowsay("Smaka på den här utmaningen! Fast så svår är den inte.")
+    cowsay("Kandidatexamensarbetesredovisning i medieteknik")
+@
+\end{frame}
+
+Att kon säger något är två saker efter varandra: en bubbla med texten,
+och kon under den.  Var och en blir en funktion,
+\mintinline{python}{bubble} och \mintinline{python}{cow}, och
+\mintinline{python}{cowsay} anropar dem i den ordningen.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  \frametitle{Kon som säger något}
+  Först bubblan, sedan kon:
+<<den pratande kons hjälpfunktioner>>=
+def cowsay(text):
+    """Skriver ut text i en pratbubbla från en ko."""
+    bubble(text)
+    cow()
+@
+\end{frame}
+
+Bubblan kan inte skrivas ut förrän texten är bruten till rader, för
+bredden beror på den längsta raden.  Radbrytningen blir därför en egen
+funktion, \mintinline{python}{split_lines}, som bubblan anropar först.
+Med raderna på plats är bubblan enkel: bredden är den längsta radens
+längd, och varje rad fylls ut till den bredden så att den högra kanten
+blir rak.  Kanten över och under bubblan är samma sträng, så den räknas
+ut en gång och skrivs ut två.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  \frametitle{Bubblan}
+  Bredden och kanten räknas ut först, sedan skrivs raderna ut:
+<<den pratande kons hjälpfunktioner>>=
+def bubble(text):
+    """Skriver ut text i en pratbubbla."""
+    lines = split_lines(text)
+    width = len(max(lines, key=len))
+    border = " " + "-" * (width + 2)
+
+    print(border)
+    for line in lines:
+        print(f"| {line:{width}s} |")
+    print(border)
+@
+\end{frame}
+
+\mintinline{python}|max(lines, key=len)| är den längsta raden och
+\mintinline{python}{len} av den är bredden --- samma
+\mintinline{python}{key} som gav den vanligaste bokstaven i
+\cref{sec:bokstaver}, nu använd på längd.  Det är också samma uträkning
+som kolumnbredden i telefonboken i föreläsningen \emph{Behållare:
+Uppslagslistor}: en utskrift som ska bli jämn kräver att hela innehållet
+gås igenom en gång innan den första raden skrivs.
+
+Radbrytningen är den enda del som är svår.  Den tar ett ord i taget och
+fyller raden tills nästa ord inte får plats.  Orden ska komma i den
+ordning de står i texten --- först in, först ut --- vilket är en kö.  Och
+ett ord som är bredare än en hel rad måste klyvas: den första biten får
+plats, och resten ska tillbaka \emph{först} i kön så att nästa varv tar
+den.  Den operationen --- lägga tillbaka i den ände man hämtade ifrån ---
+är vad en \mintinline{python}{deque} finns
+för\autocite{PythonCollections}.
+
+Radens största bredd, trettio tecken, står som en konstant, så att den
+bara står på ett ställe och radbrytningen kan ta den som standardvärde.
+
+\begin{frame}[fragile]
+  \frametitle{Radbredden}
+  Trettio tecken, som uppgiften säger:
+<<den pratande kons konstanter>>=
+WIDTH = 30
+@
+\end{frame}
+
+\mode<article>{\needspace{28\baselineskip}}
 \begin{frame}[fragile,shrink]
   \frametitle{Radbrytningen}
   Ett ord i taget ur kön, och för långa ord tillbaka i den:
-<<funktion som bryter texten till rader>>=
+<<den pratande kons hjälpfunktioner>>=
 def split_lines(text, width=WIDTH):
     """Delar upp text i rader som är högst width tecken breda."""
     words = collections.deque(text.split())
@@ -2081,40 +2205,10 @@ raden som byggs upp är en sträng, inte en behållare av ord, eftersom det
   för att valet inte följer av vad datan är.
 }
 
-Med raderna på plats är bubblan enkel: bredden är den längsta radens
-längd, och varje rad fylls ut till den bredden så att den högra kanten
-blir rak.  Kanten över och under bubblan är samma sträng, så den räknas
-ut en gång och skrivs ut två.
-
-\mode<article>{\needspace{8\baselineskip}}
-\begin{frame}[fragile]
-  \frametitle{Bubblan}
-  Bredden och kanten räknas ut först, sedan skrivs raderna ut:
-<<funktion som skriver ut texten i en bubbla>>=
-def bubble(text):
-    """Skriver ut text i en pratbubbla."""
-    lines = split_lines(text)
-    width = len(max(lines, key=len))
-    border = " " + "-" * (width + 2)
-
-    print(border)
-    for line in lines:
-        print(f"| {line:{width}s} |")
-    print(border)
-@
-\end{frame}
-
-\mintinline{python}|max(lines, key=len)| är den längsta raden och
-\mintinline{python}{len} av den är bredden --- samma
-\mintinline{python}{key} som gav den vanligaste bokstaven i
-\cref{sec:bokstaver}, nu använd på längd.  Det är också samma uträkning
-som kolumnbredden i telefonboken i föreläsningen \emph{Behållare:
-Uppslagslistor}: en utskrift som ska bli jämn kräver att hela innehållet
-gås igenom en gång innan den första raden skrivs.
-
-Kon är ritad med snedstreck, och i en sträng betyder ett snedstreck
-något: \mintinline{python}|"\n"| är en radbrytning, inte ett snedstreck
-och ett n.  Vi prövar först att skriva kon i en vanlig sträng.
+Kvar är kon.  Den är ritad med snedstreck, och i en sträng betyder ett
+snedstreck något: \mintinline{python}|"\n"| är en radbrytning, inte ett
+snedstreck och ett n.  Vi prövar först att skriva kon i en vanlig
+sträng.
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Kon i en vanlig sträng]
@@ -2163,7 +2257,7 @@ snedstreck.
 \begin{frame}[fragile]
   \frametitle{Kon}
   Kon är en enda sträng, och det som står i den ska stå ordagrant:
-<<funktioner som skriver ut kon, med och utan bubbla>>=
+<<den pratande kons hjälpfunktioner>>=
 def cow():
     """Skriver ut en ko."""
     print(r"""        \   ^__^
@@ -2171,29 +2265,12 @@ def cow():
             (__)\       )\/\
                 ||----w |
                 ||     ||""")
-
-
-def cowsay(text):
-    """Skriver ut text i en pratbubbla från en ko."""
-    bubble(text)
-    cow()
 @
 \end{frame}
 
 Det enda som skiljer strängen från den förra är
 \mintinline{python}{r}:et, och nu kommer kon ut som den är ritad, utan
 varning.
-
-\begin{frame}[fragile]
-  \frametitle{Provet}
-  En mening och ett ord som är längre än en hel rad:
-<<huvudprogram som provar kon på två texter>>=
-def main():
-    """Provar kon på en mening och på ett mycket långt ord."""
-    cowsay("Smaka på den här utmaningen! Fast så svår är den inte.")
-    cowsay("Kandidatexamensarbetesredovisning i medieteknik")
-@
-\end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
