@@ -39,8 +39,13 @@ i dokumentet låter dig kontrollera dina egna svar.
    grunden, med villkor, slinga och robust inmatning.
 2. **Fördjupning: Uppgift 6: Vägvisaren.** Skriva ett program som talar
    om vägen, steg för steg, och som kastar egna särfall.
-3. **Fördjupning: Uppgift 7: Korridoren.** Skriva ett program som minns
+3. **Fördjupning: Uppgift 7: Vägvisarens språk.** Låta användaren välja
+   språk i början av körningen och skicka valet vidare genom programmet.
+4. **Fördjupning: Uppgift 8: Korridoren.** Skriva ett program som minns
    tillstånd mellan varven i en slinga.
+5. **Fördjupning: Uppgift 9: Korridorens slinga.** Skriva om slingan i
+   korridorprogrammet så att det är dess villkor som avgör när den tar
+   slut.
 
 ## Förberedelser
 
