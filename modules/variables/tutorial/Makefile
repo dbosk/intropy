@@ -96,7 +96,7 @@ notes.pdf slides.pdf: ${SRC} ${EXAMPLES} ${FIGS}
 clean:
 	${RM} notes.pdf slides.pdf
 	${RM} contents.tex
-	${RM} ${EXAMPLES}
+	${RM} $(filter-out ${COMMITTED},${EXAMPLES})
 
 
 # PROJECT: adjust the relative path to the shared makefiles submodule.

@@ -86,7 +86,7 @@ notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
 clean:
 	${RM} notes.pdf slides.pdf
 	${RM} contents.tex
-	${RM} ${EXAMPLES}
+	${RM} $(filter-out ${COMMITTED},${EXAMPLES})
 
 
 INCLUDE_MAKEFILES=../../../makefiles
