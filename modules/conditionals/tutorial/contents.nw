@@ -456,21 +456,60 @@ var falska, och läser man grenen utan det får man fel.
 Att ledet är överflödigt beror på \mintinline{python}{elif}.  Byts båda
 \mintinline{python}{elif} mot \mintinline{python}{if} prövas alla tre
 villkoren, vart och ett för sig, och en senare gren kan skriva över det
-en tidigare valde.  Programmet nedan har kedjan i båda formerna, med
-samma villkor, och svarar 25 till båda.
+en tidigare valde.  Det prövar vi med ett litet program som har kedjan i
+båda formerna, med samma villkor, och svarar 25 till båda.
+
+Vi lägger upp programmet som bomben: överst en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan hjälpfunktionerna, huvudprogrammet och till sist anropet som
+sätter igång det.  Men vi skriver det inte i ett svep, utan uppifrån och
+ner: först upplägget, i pseudokod, och sedan preciserar vi pseudokoden
+med pythonkod, en del i taget, när vi kommer till den.
+
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje lösningsförslag som byggs upp av
+  namngivna delar börjar i filens upplägg, med namn som hör till just
+  det programmet, och skisserar sedan huvudprogrammet.  En
+  hjälpfunktion läggs till först där resonemanget behöver den
+  (författaren, 2026-09-23: \enquote{it too early outlines what
+  functions we need, without having started discussing the details of
+  the problem yet}), så filens ordning blir upptäcktens.  En funktion
+  som ett senare program återanvänder står under ett eget namn, som
+  hjälpfunktionerna tar med.
+}
 
 \begin{frame}[fragile]
-  Kedjan, som i bomben, och samma villkor fristående:
+  Trådprogrammets upplägg:
 <<[[tradar.py]]>>=
-<<funktion som väljer tråd med en kedja av villkor>>
+"""Jämför en kedja av villkor med samma villkor fristående."""
 
+<<trådprogrammets hjälpfunktioner>>
 
-<<funktion som väljer tråd med tre fristående villkor>>
-
-
-<<huvudprogram som väljer tråd på båda sätten för åldern 25>>
+<<trådprogrammets huvudprogram>>
+main()
 @
-<<funktion som väljer tråd med en kedja av villkor>>=
+\end{frame}
+
+Vi börjar med vad programmet ska göra: fråga två funktioner, en för
+varje form, om samma ålder.  Funktionerna finns inte än, men vi kan ge
+dem namn och anropa dem ändå.
+
+\begin{frame}[fragile]
+  Huvudprogrammet frågar båda funktionerna om samma ålder:
+<<trådprogrammets huvudprogram>>=
+def main():
+    """Väljer tråd på båda sätten för samma ålder."""
+    print(trad1(25))
+    print(trad2(25))
+@
+\end{frame}
+
+Den första funktionen är kedjan ur bombens femte fråga, men den lämnar
+tillbaka tråden i stället för att skriva ut den.
+
+\begin{frame}[fragile]
+  Kedjan, som i bomben:
+<<trådprogrammets hjälpfunktioner>>=
 def trad1(alder):
     """Väljer tråd med en kedja av villkor."""
     trad = "blå"
@@ -484,8 +523,14 @@ def trad1(alder):
 @
 \end{frame}
 
+Den andra funktionen har samma villkor, fristående, och den hör också
+till hjälpfunktionerna.  Ett namn som får flera delar får \(\equiv\)
+första gången och +\(\equiv\) varje gång därefter, och i programmet står
+delarna efter varandra, i den ordning de kommer.
+
 \begin{frame}[fragile]
-<<funktion som väljer tråd med tre fristående villkor>>=
+  Samma villkor fristående:
+<<trådprogrammets hjälpfunktioner>>=
 def trad2(alder):
     """Väljer tråd med tre fristående villkor."""
     trad = "blå"
@@ -499,35 +544,10 @@ def trad2(alder):
 @
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{example}[Samma villkor, två former]
-    \label{ex:elif-if}
-    Huvudprogrammet frågar båda funktionerna om samma ålder:
-<<huvudprogram som väljer tråd på båda sätten för åldern 25>>=
-def main():
-    """Väljer tråd på båda sätten för samma ålder."""
-    print(trad1(25))
-    print(trad2(25))
-
-
-main()
-@
-    \runpython[showcommand]{examples/tradar.py}
-  \end{example}
-\end{frame}
-
-Med kedjan blir tråden röd: det första villkoret är sant, och resten
-prövas aldrig.  Med tre fristående \mintinline{python}{if} är det
-första villkoret också sant, men sedan prövas det andra, och för 25 är
-\mintinline{python}{alder > 20 and alder < 40} sant --- tråden blir
-grön, och bomben klarar sig.  Nu är ledet
-\mintinline{python}{alder > 20} inte längre överflödigt: utan det
-skulle också 10 ge grönt.  Vad ett villkor betyder beror alltså på om
-det står i en kedja eller för sig självt.
-
 % REVIEW(C1): den andra läsningen av \enquote{always} tar med också
-% [[instruktioner.py]], vars enda namngivna del är hjälpfunktionerna
-% från vägvisaren; hela filen vore då en upprepning av dem.
+% [[instruktioner.py]], vars enda namngivna del är vägarna och
+% instruktionerna från vägvisaren; hela filen vore då en upprepning av
+% dem.
 \ltnote{%
   \textbf{Helheten efter delarna.}  Varje program i övningen som byggs
   upp av namngivna delar visas i sin helhet när alla delar är
@@ -544,6 +564,23 @@ det står i en kedja eller för sig självt.
   Sätter vi in varje del där dess namn står får vi hela programmet:
   \inputminted{python}{examples/tradar.py}
 \end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma villkor, två former]
+    \label{ex:elif-if}
+    Programmet skriver ut vilken tråd var och en av funktionerna väljer:
+    \runpython[showcommand]{examples/tradar.py}
+  \end{example}
+\end{frame}
+
+Med kedjan blir tråden röd: det första villkoret är sant, och resten
+prövas aldrig.  Med tre fristående \mintinline{python}{if} är det
+första villkoret också sant, men sedan prövas det andra, och för 25 är
+\mintinline{python}{alder > 20 and alder < 40} sant --- tråden blir
+grön, och bomben klarar sig.  Nu är ledet
+\mintinline{python}{alder > 20} inte längre överflödigt: utan det
+skulle också 10 ge grönt.  Vad ett villkor betyder beror alltså på om
+det står i en kedja eller för sig självt.
 
 \begin{frame}[fragile]
   \only<presentation>{%
@@ -778,60 +815,68 @@ kunden att gissa.
 
 Programmet ser inte ut som förut: funktioner har ersatt ett rakt
 skript, och det är den uppdelningen som gör att frågan kan ställas om
-på ett enda ställe.
+på ett enda ställe.  Vi bygger det uppifrån och ner, som trådprogrammet
+i \cref{sec:bomben-sista}.  Upplägget är detsamma, med konstanterna som
+en del till, och överst står den \foreignlanguage{english}{docstring}
+som saknades i det gamla.
 
 \begin{frame}[fragile]
-  Programmet i sin nya form:
+  Biljettprogrammets upplägg:
 <<[[biobiljetter2.py]]>>=
 """Frågar efter en beställning av biobiljetter och skriver ett kvitto."""
 
-<<konstanter för biljettpriserna>>
+<<biljettprogrammets konstanter>>
 
+<<biljettprogrammets hjälpfunktioner>>
 
-<<funktion som frågar tills svaret är ett heltal>>
-
-
-<<funktion som frågar efter minst en biljett>>
-
-
-<<funktion som frågar efter vuxenbiljetter som ryms>>
-
-
-<<funktion som räknar ut priset>>
-
-
-<<huvudprogram som tar beställningen och skriver kvittot>>
+<<biljettprogrammets huvudprogram>>
+main()
 @
 \end{frame}
 
-Priserna hör ihop och ändras sällan, så de står överst och med versaler,
-som konventionen för konstanter i PEP~8
-säger\autocite{pep8}.  Beskrivande namn, korta rader och indentering
-har stöd som hjälp för läsaren; guiden som helhet har det inte, och
-versalerna för konstanter har inte prövats för sig.%
-% REVIEW(C13/C7): den andra läsningen är att pekaren står kvar i
-% brödtexten som en följdsats efter semikolon.
-\footnote{%
-  Det vetenskapliga underlaget --- både för vad som är belagt och för
-  vad som inte är det --- finns i föreläsningen \emph{Variabler och
-  utskrifter}, bilaga B.%
-}
+Huvudprogrammet gör det det gamla programmet gjorde, i samma ordning:
+det frågar efter antalet biljetter och antalet vuxenbiljetter, räknar
+ut antalet barnbiljetter och skriver ut vad det kostar.  Det som är mer
+än en rad skriver vi först som pseudokod som säger vad det gör, och
+senare preciserar vi pseudokoden med pythonkod.
 
 \begin{frame}[fragile]
-  Två konstanter i stället för två variabler:
-<<konstanter för biljettpriserna>>=
-BARNPRIS = 10
-VUXENPRIS = 20
+  Huvudprogrammet i stora drag:
+<<biljettprogrammets huvudprogram>>=
+def main():
+    """Frågar efter beställningen och skriver ut kvittot."""
+    <<fråga efter antalet biljetter och antalet vuxenbiljetter>>
+    antal_barn = antal_biljetter - antal_vuxna
+
+    <<skriv ut kvittot med antalen och priset>>
 @
 \end{frame}
 
-Den fråga som måste ställas om är den om ett heltal, och den behövs
-två gånger.  Alltså blir den en funktion, med frågan som parameter.
-Funktionen låter \mintinline{python}{int} själv avgöra om svaret går
-att omvandla och tar hand om felet när det inte gick.
+Båda frågorna ska ställas om tills svaret går att använda, och var och
+en har sitt eget krav på svaret.  Därför får var och en en egen
+funktion, och den andra får veta hur många biljetter det blev.
+
+\begin{frame}[fragile]
+  De två frågorna:
+<<fråga efter antalet biljetter och antalet vuxenbiljetter>>=
+antal_biljetter = fraga_biljetter()
+antal_vuxna = fraga_vuxenbiljetter(antal_biljetter)
+@
+\end{frame}
+
+Något har de två frågorna gemensamt: svaret måste vara ett heltal, och
+ett svar som inte är det ska ge en ny fråga och inte en krasch.  Den
+delen behövs alltså två gånger, och den blir därför en funktion för
+sig, med frågan som parameter.  Funktionen låter
+\mintinline{python}{int} själv avgöra om svaret går att omvandla och
+tar hand om felet när det inte gick.  Den är den första
+hjälpfunktionen, och den står under ett eget namn, eftersom vi tar med
+den till \cref{sec:fraga}.
 
 \begin{frame}[fragile]
   Funktionen som frågar om:
+<<biljettprogrammets hjälpfunktioner>>=
+<<funktion som frågar tills svaret är ett heltal>>
 <<funktion som frågar tills svaret är ett heltal>>=
 def fraga_heltal(fraga):
     """Frågar tills svaret går att omvandla, och ger talet."""
@@ -845,6 +890,31 @@ def fraga_heltal(fraga):
     return tal
 @
 \end{frame}
+
+Slingan är en \mintinline{python}{while True}: villkoret är alltid sant,
+så slingan tar inte slut av sig själv, utan först när
+\mintinline{python}{break} körs.  Det sker bara när
+\mintinline{python}{int} har lyckats omvandla svaret.  Misslyckas
+omvandlingen kastar \mintinline{python}{int} ett
+\mintinline{python}{ValueError}, körningen hoppar förbi
+\mintinline{python}{break} till \texttt{except}, som skriver ut
+uppmaningen, och slingan går ett varv till med en ny fråga.  Efter
+slingan har \mintinline{python}{tal} därför alltid ett heltal, och det
+är det funktionen lämnar tillbaka.
+
+Att frågan står på ett enda ställe är hela poängen: ska den formuleras
+om räcker det att ändra på ett ställe, och det är precis vad principen
+\foreignlanguage{english}{DRY}
+(\foreignlanguage{english}{Don't Repeat
+Yourself})%
+% REVIEW(C13/C8): den andra läsningen är att pekaren står kvar i
+% brödtexten som en egen mening efter påståendet.
+\footnote{%
+  Det vetenskapliga underlaget för \foreignlanguage{english}{DRY} ---
+  både var principen kommer ifrån och om den håller, med sina
+  förbehåll --- finns i föreläsningen \emph{Algoritmiskt tänkande},
+  bilaga E.%
+} handlar om\autocite{HuntThomas1999}.
 
 \ltnote{%
   \textbf{Om ordningen mellan den här uppgiften och
@@ -864,29 +934,16 @@ def fraga_heltal(fraga):
   här uppgiften.
 }
 
-Att frågan står på ett enda ställe är hela poängen: ska den formuleras
-om räcker det att ändra på ett ställe, och det är precis vad principen
-\foreignlanguage{english}{DRY}
-(\foreignlanguage{english}{Don't Repeat
-Yourself})%
-% REVIEW(C13/C8): den andra läsningen är att pekaren står kvar i
-% brödtexten som en egen mening efter påståendet.
-\footnote{%
-  Det vetenskapliga underlaget för \foreignlanguage{english}{DRY} ---
-  både var principen kommer ifrån och om den håller, med sina
-  förbehåll --- finns i föreläsningen \emph{Algoritmiskt tänkande},
-  bilaga E.%
-} handlar om\autocite{HuntThomas1999}.
-
 Båda antalen har dessutom krav som är våra egna och inte
 \mintinline{python}{int}:s.  Antalet biljetter måste vara minst ett, och
 antalet vuxenbiljetter får inte vara negativt och inte större än antalet
 biljetter.  Därför är de kontroller med \mintinline{python}{if} och inte
-något \texttt{except}.
+något \texttt{except}.  De två frågorna läggs till bland
+hjälpfunktionerna, var och en med sitt krav.
 
 \begin{frame}[fragile]
   Funktionen som frågar efter antalet biljetter:
-<<funktion som frågar efter minst en biljett>>=
+<<biljettprogrammets hjälpfunktioner>>=
 def fraga_biljetter():
     """Frågar tills antalet biljetter är minst ett."""
     while True:
@@ -904,7 +961,7 @@ def fraga_biljetter():
 % chunken innehåller i stället för att upprepa stycket ovanför.
 \begin{frame}[fragile]
   Funktionen som frågar efter vuxenbiljetterna:
-<<funktion som frågar efter vuxenbiljetter som ryms>>=
+<<biljettprogrammets hjälpfunktioner>>=
 def fraga_vuxenbiljetter(antal_biljetter):
     """Frågar tills antalet vuxenbiljetter ryms i beställningen."""
     while True:
@@ -920,6 +977,17 @@ def fraga_vuxenbiljetter(antal_biljetter):
 Lägg märke till villkoret i \mintinline{python}{fraga_vuxenbiljetter}:
 två fullständiga jämförelser bundna med \mintinline{python}{and}, samma
 form som i bombens andra fråga i \cref{sec:bomben}.
+
+Kvar i huvudprogrammet är kvittot.  Det säger vad kunden köpte och vad
+det kostar, i kronor.
+
+\begin{frame}[fragile]
+  Kvittot:
+<<skriv ut kvittot med antalen och priset>>=
+print(f"Barnbiljetter: {antal_barn}. Vuxenbiljetter: {antal_vuxna}.")
+print(f"Du ska betala {pris(antal_barn, antal_vuxna)} kr.")
+@
+\end{frame}
 
 % REVIEW(C10/C11): den andra läsningen av understrykningen under
 % \enquote{namnger} är att ordet står kvar och att \enquote{vi pratade
@@ -938,35 +1006,36 @@ föreläsningen \emph{Funktioner}.%
   \emph{Funktioner}, bilaga B.%
 }
 
+Räkningen behöver priserna.  De hör ihop och ändras sällan, så de står
+överst och med versaler, som konventionen för konstanter i PEP~8
+säger\autocite{pep8}.%
+\footnote{%
+  Beskrivande namn, korta rader och indentering har stöd som hjälp för
+  läsaren; guiden som helhet har det inte, och versalerna för
+  konstanter har inte prövats för sig.  Det vetenskapliga underlaget
+  --- både för vad som är belagt och för vad som inte är det --- finns i
+  föreläsningen \emph{Variabler och utskrifter}, bilaga B.%
+}
+
+\begin{frame}[fragile]
+  Två konstanter i stället för två variabler:
+<<biljettprogrammets konstanter>>=
+BARNPRIS = 10
+VUXENPRIS = 20
+@
+\end{frame}
+
 \begin{frame}[fragile]
   Räkningen för sig:
-<<funktion som räknar ut priset>>=
+<<biljettprogrammets hjälpfunktioner>>=
 def pris(antal_barn, antal_vuxna):
     """Ger priset i kronor för antal_barn och antal_vuxna."""
     return antal_barn * BARNPRIS + antal_vuxna * VUXENPRIS
 @
 \end{frame}
 
-Huvudprogrammet blir därmed en kort funktion som läser som en
-beskrivning av vad som ska hända, och ett kvitto som säger vad kunden
-köpte.
-
-\begin{frame}[fragile]
-  Huvudprogrammet och kvittot:
-<<huvudprogram som tar beställningen och skriver kvittot>>=
-def main():
-    """Frågar efter beställningen och skriver ut kvittot."""
-    antal_biljetter = fraga_biljetter()
-    antal_vuxna = fraga_vuxenbiljetter(antal_biljetter)
-    antal_barn = antal_biljetter - antal_vuxna
-
-    print(f"Barnbiljetter: {antal_barn}. Vuxenbiljetter: {antal_vuxna}.")
-    print(f"Du ska betala {pris(antal_barn, antal_vuxna)} kr.")
-
-
-main()
-@
-\end{frame}
+Huvudprogrammet läser nu som en beskrivning av vad som ska hända, och
+kvittot säger vad kunden köpte.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1129,8 +1198,12 @@ Programmets tre frågor har samma form, och det är den formen som
 är svaret på uppgiften: en slinga som inte tar slut av sig själv, ett
 försök inuti den, och ett sätt att komma ut när försöket lyckades.
 
+Vi lägger upp programmet som biljettprogrammet i
+\cref{sec:biobiljetter}, men utan konstanter, eftersom det inte behöver
+några.
+
 \begin{frame}[fragile]
-  Programmet i sin helhet:
+  Frågeprogrammets upplägg:
 <<[[fraga.py]]>>=
 """Tre frågor som ställs om tills svaret går att använda.
 
@@ -1138,30 +1211,53 @@ De tre frågorna har samma form: en slinga, ett försök att omvandla
 eller granska svaret, och ett meddelande när svaret inte dög.
 """
 
+<<frågeprogrammets hjälpfunktioner>>
 
-<<funktion som frågar tills svaret är ett heltal>>
-
-
-<<funktion som frågar tills svaret är ett heltal i ett intervall>>
-
-
-<<funktion som frågar tills svaret är ett flyttal>>
-
-
-<<funktion som räknar ut BMI>>
-
-
-<<huvudprogram som frågar efter tre svar och skriver ut BMI>>
+<<frågeprogrammets huvudprogram>>
+main()
 @
 \end{frame}
 
-Den första funktionen är oförändrad.  Den andra har ett krav som
-\mintinline{python}{int} inte kan avgöra, så den återanvänder den
-första och lägger till sin egen kontroll efteråt.
+Huvudprogrammet är det uppgiften beskriver: tre frågor och en
+uträkning.
 
 \begin{frame}[fragile]
-  Samma form, ett annat krav:
-<<funktion som frågar tills svaret är ett heltal i ett intervall>>=
+  Huvudprogrammet i stora drag:
+<<frågeprogrammets huvudprogram>>=
+def main():
+    """Frågar efter ålder, längd och vikt, och skriver ut BMI."""
+    <<fråga efter ålder, längd och vikt tills svaren duger>>
+
+    <<skriv ut åldern och BMI>>
+@
+\end{frame}
+
+Varje fråga har sitt krav.  Åldern ska vara ett heltal mellan två
+gränser, längden och vikten ska vara flyttal.  Vi skriver frågorna som
+anrop av de två funktioner uppgiften ber om, och skriver funktionerna
+sedan.
+
+\begin{frame}[fragile]
+  De tre frågorna:
+<<fråga efter ålder, längd och vikt tills svaren duger>>=
+alder = fraga_heltal_mellan("Hur gammal är du? [Ange ett tal] ", 0, 120)
+langd = fraga_flyttal("Hur lång är du i meter? [Ange ett tal] ")
+vikt = fraga_flyttal("Hur mycket väger du i kilo? [Ange ett tal] ")
+@
+\end{frame}
+
+Frågan om åldern har ett krav som \mintinline{python}{int} inte kan
+avgöra, men den första halvan av kravet, att svaret är ett heltal, har
+vi redan en funktion för.  Därför tar vi med
+\mintinline{python}{fraga_heltal} oförändrad bland hjälpfunktionerna,
+och låter den nya funktionen återanvända den och lägga till sin egen
+kontroll efteråt.
+
+\begin{frame}[fragile]
+  Den gamla frågan, och samma form med ett annat krav:
+<<frågeprogrammets hjälpfunktioner>>=
+<<funktion som frågar tills svaret är ett heltal>>
+
 def fraga_heltal_mellan(fraga, minsta, storsta):
     """Frågar tills svaret är ett heltal mellan minsta och storsta."""
     while True:
@@ -1180,12 +1276,12 @@ skriva av dess \mintinline{python}{try}-block är samma
 felmeddelande står på ett enda ställe, och en ändring där gäller för
 båda funktionerna.
 
-Den tredje funktionen skiljer sig från den första i omvandlingen ---
-och i det som följer av den.
+Frågan om ett flyttal skiljer sig från \mintinline{python}{fraga_heltal}
+i omvandlingen --- och i det som följer av den.
 
 \begin{frame}[fragile]
   Samma form, en annan omvandling:
-<<funktion som frågar tills svaret är ett flyttal>>=
+<<frågeprogrammets hjälpfunktioner>>=
 def fraga_flyttal(fraga):
     """Frågar tills svaret går att omvandla, och ger flyttalet."""
     while True:
@@ -1199,33 +1295,12 @@ def fraga_flyttal(fraga):
 @
 \end{frame}
 
-Uträkningen av BMI är en formel och ingenting annat, så den får en
-egen funktion med ett namn som säger vad den räknar ut, och med
-enheterna i parametrarnas namn.  Huvudprogrammet läser då bara in,
-anropar och skriver ut.
+Kvar i huvudprogrammet är utskriften.
 
 \begin{frame}[fragile]
-  Formeln för sig:
-<<funktion som räknar ut BMI>>=
-def bmi(vikt_kg, langd_m):
-    """Ger BMI för en vikt i kilo och en längd i meter."""
-    return vikt_kg / langd_m**2
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  Ett huvudprogram som prövar frågorna:
-<<huvudprogram som frågar efter tre svar och skriver ut BMI>>=
-def main():
-    """Frågar efter ålder, längd och vikt, och skriver ut BMI."""
-    alder = fraga_heltal_mellan("Hur gammal är du? [Ange ett tal] ", 0, 120)
-    langd = fraga_flyttal("Hur lång är du i meter? [Ange ett tal] ")
-    vikt = fraga_flyttal("Hur mycket väger du i kilo? [Ange ett tal] ")
-
-    print(f"Du är {alder} år och har BMI {bmi(vikt, langd):.1f}.")
-
-
-main()
+  Utskriften:
+<<skriv ut åldern och BMI>>=
+print(f"Du är {alder} år och har BMI {bmi(vikt, langd):.1f}.")
 @
 \end{frame}
 
@@ -1233,6 +1308,20 @@ I utskriften avrundar \mintinline{python}{:.1f} efter värdet i
 f-strängen talet till en decimal, som i föreläsningen \emph{Inmatning
 och felhantering}; utan det skulle BMI skrivas ut med alla decimaler
 ett flyttal har.
+
+Uträkningen av BMI är en formel och ingenting annat, så den får en
+egen funktion med ett namn som säger vad den räknar ut, och med
+enheterna i parametrarnas namn.  Huvudprogrammet läser då bara in,
+anropar och skriver ut.
+
+\begin{frame}[fragile]
+  Formeln för sig:
+<<frågeprogrammets hjälpfunktioner>>=
+def bmi(vikt_kg, langd_m):
+    """Ger BMI för en vikt i kilo och en längd i meter."""
+    return vikt_kg / langd_m**2
+@
+\end{frame}
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1327,13 +1416,11 @@ Så här ska det se ut när du är klar.
 
 \subsection{Lösningsförslag}
 
-Två frågor återkommer i uppgiften: att ställa en fråga tills svaret är
-rätt, och att räkna försöken.  De hör ihop, för det är antalet försök
-som avgör poängen, och därför blir de en funktion som ger tillbaka
-antalet försök.
+Vi lägger upp programmet som de förra: en docstring, konstanterna,
+hjälpfunktionerna, huvudprogrammet och anropet som sätter igång det.
 
 \begin{frame}[fragile]
-  Programmets delar:
+  Frågesportens upplägg:
 <<[[fragesport.py]]>>=
 """En frågesport med tre frågor.
 
@@ -1341,19 +1428,48 @@ Varje fråga ställs om tills svaret är rätt, och antalet försök räknas.
 Poängen är antalet frågor som klarades på första försöket.
 """
 
-ANTAL_FRAGOR = 3
+<<frågesportens konstanter>>
 
+<<frågesportens hjälpfunktioner>>
 
-<<funktion som frågar tills svaret är ordet i facit>>
+<<frågesportens huvudprogram>>
+main()
+@
+\end{frame}
 
+Huvudprogrammet ställer frågorna, håller räkningen på dem som klarades
+på första försöket, och säger till sist hur det gick.
 
-<<funktion som frågar tills svaret är talet i facit>>
+\begin{frame}[fragile]
+  Huvudprogrammet i stora drag:
+<<frågesportens huvudprogram>>=
+def main():
+    """Ställer frågorna, räknar poängen och ger omdömet."""
+    poang = 0
 
+    <<ställ frågorna och räkna dem som klarades på första försöket>>
 
-<<funktion som ger ett omdöme efter poängen>>
+    <<skriv ut poängen och omdömet>>
+@
+\end{frame}
 
+Två saker återkommer för varje fråga: att ställa den tills svaret är
+rätt, och att räkna försöken.  De hör ihop, för det är antalet försök
+som avgör poängen, och därför blir de en funktion som ger tillbaka
+antalet försök.  Svaren är av två sorter, ord och tal, så vi tänker oss
+en sådan funktion för varje sort, anropar dem, och skriver dem sedan.
 
-<<huvudprogram som ställer frågorna och ger omdömet>>
+\begin{frame}[fragile]
+  Tre frågor och en poängräkning:
+<<ställ frågorna och räkna dem som klarades på första försöket>>=
+if fraga_ord("Vad heter Ronjas pappa? ", "Mattis") == 1:
+    poang = poang + 1
+
+if fraga_ord("Vad heter Madickens lillasyster? ", "Lisabet") == 1:
+    poang = poang + 1
+
+if fraga_tal("Hur många ben har en spindel? ", 8) == 1:
+    poang = poang + 1
 @
 \end{frame}
 
@@ -1378,7 +1494,7 @@ samma svar.
 
 \begin{frame}[fragile]
   En fråga med ett ord som facit:
-<<funktion som frågar tills svaret är ordet i facit>>=
+<<frågesportens hjälpfunktioner>>=
 def fraga_ord(fraga, facit):
     """Ställer fraga tills svaret är facit, och ger antalet försök."""
     forsok = 1
@@ -1407,7 +1523,7 @@ utanför \mintinline{python}{try}.  Slingan blir en
 
 \begin{frame}[fragile]
   En fråga med ett tal som facit:
-<<funktion som frågar tills svaret är talet i facit>>=
+<<frågesportens hjälpfunktioner>>=
 def fraga_tal(fraga, facit):
     """Ställer fraga tills svaret är talet facit, och ger försöken."""
     forsok = 0
@@ -1432,13 +1548,39 @@ omvandlingen hoppar körningen till
 \mintinline{python}{break}, så slingan snurrar ett varv till --- och
 försöket räknas, precis som ett felaktigt svar gör.
 
-Omdömet är en kedja av villkor, och den enda som inte behöver veta
-något om inmatning.  Den är därför lättast att skriva sist, och
+Kvar i huvudprogrammet är att säga hur det gick: hur många frågor som
+klarades på första försöket, av hur många, och ett omdöme.  Antalet
+frågor behövs på två ställen, så vi skriver det inte som en siffra i
+båda, utan som en konstant.
+
+\begin{frame}[fragile]
+  Poängen och omdömet:
+<<frågesportens konstanter>>=
+ANTAL_FRAGOR = 3
+<<skriv ut poängen och omdömet>>=
+print(f"Du klarade {poang} av {ANTAL_FRAGOR} på första försöket.")
+print(omdome(poang, ANTAL_FRAGOR))
+@
+\end{frame}
+
+Här finns en svaghet värd att se: konstanten
+\mintinline{python}{ANTAL_FRAGOR} måste stämma med antalet
+\mintinline{python}{if}-satser i huvudprogrammet, och ingenting i det
+tvingar dem att göra det.  Lägger du till en fråga måste du komma ihåg
+att räkna upp konstanten.  Det går att bli kvitt genom att lägga
+frågorna och deras facit i en behållare och gå igenom den; hur det görs
+tas upp i föreläsningen \emph{Behållare: Listor}.  Utan en behållare är
+konstanten det bästa vi kan göra --- och att skriva
+ut talet på ett enda ställe är i alla fall bättre än att skriva
+\mintinline{text}|3| i två utskrifter.
+
+Omdömet är en kedja av villkor, och den enda delen som inte behöver
+veta något om inmatning.  Den är därför lättast att skriva sist, och
 lättast att prova för sig.
 
 \begin{frame}[fragile]
   Ett omdöme per poängintervall:
-<<funktion som ger ett omdöme efter poängen>>=
+<<frågesportens hjälpfunktioner>>=
 def omdome(poang, antal):
     """Ger ett omdöme för poang rätta svar av antal frågor."""
     if poang == antal:
@@ -1457,41 +1599,6 @@ Villkoren står snävast först, som de måste när de överlappar: vore
 första omdömena.  Det är samma fälla som kedjan i
 \cref{sec:bomben-sista}, sedd från andra sidan --- där gällde det att
 \emph{läsa} en kedja, här att skriva en.
-
-\begin{frame}[fragile]
-  Tre frågor och en poängräkning:
-<<huvudprogram som ställer frågorna och ger omdömet>>=
-def main():
-    """Ställer frågorna, räknar poängen och ger omdömet."""
-    poang = 0
-
-    if fraga_ord("Vad heter Ronjas pappa? ", "Mattis") == 1:
-        poang = poang + 1
-
-    if fraga_ord("Vad heter Madickens lillasyster? ", "Lisabet") == 1:
-        poang = poang + 1
-
-    if fraga_tal("Hur många ben har en spindel? ", 8) == 1:
-        poang = poang + 1
-
-    print(f"Du klarade {poang} av {ANTAL_FRAGOR} på första försöket.")
-    print(omdome(poang, ANTAL_FRAGOR))
-
-
-main()
-@
-\end{frame}
-
-Här finns en svaghet värd att se: konstanten
-\mintinline{python}{ANTAL_FRAGOR} måste stämma med antalet
-\mintinline{python}{if}-satser i huvudprogrammet, och ingenting i det
-tvingar dem att göra det.  Lägger du till en fråga måste du komma ihåg
-att räkna upp konstanten.  Det går att bli kvitt genom att lägga
-frågorna och deras facit i en behållare och gå igenom den; hur det görs
-tas upp i föreläsningen \emph{Behållare: Listor}.  Utan en behållare är
-konstanten det bästa vi kan göra --- och att skriva
-ut talet på ett enda ställe är i alla fall bättre än att skriva
-\mintinline{text}|3| i två utskrifter.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1613,178 +1720,47 @@ Så här ska det se ut när du är klar.
 
 \subsection{Lösningsförslag}
 
-Uppdelningen faller ut av kravet att samma instruktion ska kunna
-användas i flera vägar: en funktion per instruktion, en funktion per
-väg, en funktion som väljer väg efter målet, och en fråga som frågar om
-tills svaret är en plats vi känner.
+Vi börjar uppifrån, i filens upplägg, som i de förra programmen.
 
 \begin{frame}[fragile]
-  Vägvisarens delar:
+  Vägvisarens upplägg:
 <<[[vagvisare.py]]>>=
 """Visar vägen från tunnelbanan till två platser på KTH:s campus."""
 
-<<konstant för målen som frågan räknar upp>>
+<<vägvisarens konstanter>>
 
+<<vägvisarens hjälpfunktioner>>
 
-<<hjälpfunktioner>>
-
-
-<<funktion som väljer vägen efter målet eller säger ifrån>>
-
-
-<<funktion som frågar efter målet tills vägvisaren känner det>>
-
-
-<<huvudprogram som frågar efter målet och visar vägen>>
+<<vägvisarens huvudprogram>>
+main()
 @
 \end{frame}
 
-Instruktionerna och vägarna är hjälpfunktioner: två för instruktionerna,
-en för att gå och en för att svänga, och två för vägarna, en för varje
-mål.  De står samlade under ett enda namn,
-[[<<hjälpfunktioner>>]], och var och en läggs till under det namnet när
-vi kommer till den.  Ett namn som förfinas flera gånger får
-\(\equiv\) första gången och +\(\equiv\) varje gång därefter, och i
-programmet står förfiningarna efter varandra, i den ordning de kommer.
-
-% REVIEW(C2): den andra läsningen är att alla funktioner i vägvisaren,
-% också valet av väg och frågan, läggs till samma samlingsnamn.  Här
-% gäller det bara de två chunkar strecket står vid (instruktionerna och
-% vägarna); valet av väg står kvar under eget namn, eftersom
-% \cref{sec:vagvisaren-texter} byter ut just den funktionen.
-
-Konstanten \mintinline{python}{MALEN} är den text frågan visar, och den
-står för sig därför att den måste stämma med de mål
-\mintinline{python}{vagen_till} känner: läggs ett mål till ska frågan
-ändras på samma gång, och då ska den bara stå på ett ställe.
-
-Språket är en parameter med standardvärdet svenska.  Då behöver de
-anrop som vill ha svenska inte säga något om språk alls, och det är
-just vad ett standardvärde är till för.
+Huvudprogrammet gör en enda sak: det frågar vart användaren ska och
+visar vägen dit, och det är allt användaren ser.  Frågan ska ställas om
+tills svaret är en plats vägvisaren känner, och det är mer än en rad.
+Vi ger den därför ett namn, \mintinline{python}{fraga_efter_vagen},
+anropar den, och skriver den sedan.
 
 \begin{frame}[fragile]
-  Målen som frågan räknar upp, och instruktionen att gå:
-<<konstant för målen som frågan räknar upp>>=
-MALEN = "D37 eller Biblioteket"
-<<hjälpfunktioner>>=
-def ga(meter, sprak="sv"):
-    """Ger instruktionen att gå meter meter rakt fram."""
-    if sprak == "sv":
-        return f"Gå {meter} m rakt fram."
-
-    return f"Walk {meter} m straight ahead."
+  Huvudprogrammet:
+<<vägvisarens huvudprogram>>=
+def main():
+    """Frågar vart användaren ska och visar vägen dit."""
+    fraga_efter_vagen()
 @
 \end{frame}
 
-\ltnote{%
-  Kravet är formulerat som ett krav på beteendet --- programmet ska
-  säga ifrån begripligt --- och inte som \enquote{använd
-  \mintinline{python}{raise}}.  Förlagan hade just den bristen
-  uppgiften ber om: dess \mintinline{python}{sväng} lämnade tillbaka
-  en översatt sträng för vilken riktning som helst, så ett felskrivet
-  riktningsnamn gav en instruktion som såg riktig ut.  Att låta
-  funktionen kasta ett särfall i stället är det som gör felet synligt,
-  och det är samma mönster som föreläsningen \emph{Inmatning och
-  felhantering} visar med \mintinline{python}{age}.
-}
-
-Att svänga är knepigare, för riktningen är ett ord som ska översättas.
-Och här finns ett fall funktionen inte kan svara vettigt på: en
-riktning som varken är höger eller vänster.  Då säger den ifrån.
+Frågan är samma fråga-om-igen som förut: en slinga, ett försök, och ett
+\mintinline{python}{break} när försöket lyckades.  Försöket är att visa
+vägen till det användaren svarade.  Känner vägvisaren inte målet går
+det inte, och då ska den som visar vägen säga ifrån med ett särfall,
+som frågan fångar.  Den som visar vägen blir en funktion till,
+\mintinline{python}{vagen_till}, som vi skriver när frågan är klar.
 
 \begin{frame}[fragile]
-  Instruktionen att svänga:
-<<hjälpfunktioner>>=
-def svang(riktning, sprak="sv"):
-    """Ger instruktionen att svänga åt riktning, som anges på svenska.
-
-    Kastar ValueError för en riktning som varken är höger eller
-    vänster.
-    """
-    if riktning == "höger":
-        if sprak == "sv":
-            return "Sväng höger."
-        return "Turn right."
-    elif riktning == "vänster":
-        if sprak == "sv":
-            return "Sväng vänster."
-        return "Turn left."
-
-    raise ValueError(f"{riktning} är varken höger eller vänster")
-@
-\end{frame}
-
-Varför inte bara lämna tillbaka \mintinline{text}|"Sväng uppåt."| och
-låta det vara?  Därför att funktionen då svarar fel i stället för att
-säga att den inte kan svara, och felet dyker upp långt senare, som en
-instruktion som ser riktig ut.  Ett särfall däremot stannar körningen
-där felet är och lämnar åt den som anropade att bestämma vad som ska
-hända.
-
-Vägarna följer promenaden från tunnelbanan, ett steg i taget, och varje
-väg är en egen funktion som skriver ut sina instruktioner, en per rad.
-En väg går då att läsa uppifrån och ner, som en vägbeskrivning, och
-den går att rätta utan att någon annan väg berörs.
-
-\begin{frame}[fragile]
-  Vägen till D37:
-<<hjälpfunktioner>>=
-def vagen_till_d37(sprak="sv"):
-    """Skriver ut vägen från tunnelbanan till D37."""
-    print(ga(100, sprak))
-    print(svang("höger", sprak))
-    print(ga(100, sprak))
-    print(svang("vänster", sprak))
-    print(ga(70, sprak))
-    print(svang("höger", sprak))
-    print(ga(90, sprak))
-    print(svang("höger", sprak))
-    print(ga(20, sprak))
-@
-\end{frame}
-
-\begin{frame}[fragile]
-  Vägen till biblioteket:
-<<hjälpfunktioner>>=
-def vagen_till_biblioteket(sprak="sv"):
-    """Skriver ut vägen från tunnelbanan till biblioteket."""
-    print(ga(100, sprak))
-    print(svang("höger", sprak))
-    print(ga(50, sprak))
-    print(svang("vänster", sprak))
-    print(ga(200, sprak))
-    print(svang("vänster", sprak))
-    print(ga(40, sprak))
-@
-\end{frame}
-
-Vilken väg som ska skrivas ut avgörs av en kedja av villkor: ett per
-plats, och ett särfall för en plats vi inte känner.
-
-\begin{frame}[fragile]
-  Vägen efter målet:
-<<funktion som väljer vägen efter målet eller säger ifrån>>=
-def vagen_till(mal, sprak="sv"):
-    """Skriver ut vägen till mal, en instruktion per rad.
-
-    Kastar ValueError för ett mål vägvisaren inte känner.
-    """
-    if mal == "D37":
-        vagen_till_d37(sprak)
-    elif mal == "Biblioteket":
-        vagen_till_biblioteket(sprak)
-    else:
-        raise ValueError(f"jag känner inte vägen till {mal}")
-@
-\end{frame}
-
-Både \mintinline{python}{svang} och \mintinline{python}{vagen_till}
-säger ifrån med ett \mintinline{python}{ValueError}, och meddelandet
-säger vad som var fel.  Det är frågan efter målet som tar hand om dem.
-
-\begin{frame}[fragile]
-  Frågan som frågar om:
-<<funktion som frågar efter målet tills vägvisaren känner det>>=
+  Frågan som frågar om, den första hjälpfunktionen:
+<<vägvisarens hjälpfunktioner>>=
 def fraga_efter_vagen():
     """Frågar efter ett mål vägvisaren känner och visar vägen dit."""
     while True:
@@ -1815,20 +1791,160 @@ särfall innan något har skrivits ut, körningen hoppar till
 \texttt{except} och når aldrig \mintinline{python}{break}, och frågan
 kommer tillbaka --- samma form som i \mintinline{python}{fraga_tal}.
 
+Frågan räknar upp målen med konstanten \mintinline{python}{MALEN}.  Den
+är den text frågan visar, och den står för sig därför att den måste
+stämma med de mål \mintinline{python}{vagen_till} känner: läggs ett mål
+till ska frågan ändras på samma gång, och då ska den bara stå på ett
+ställe.
+
 \begin{frame}[fragile]
-  Huvudprogrammet:
-<<huvudprogram som frågar efter målet och visar vägen>>=
-def main():
-    """Frågar vart användaren ska och visar vägen dit."""
-    fraga_efter_vagen()
-
-
-main()
+  Målen som frågan räknar upp:
+<<vägvisarens konstanter>>=
+MALEN = "D37 eller Biblioteket"
 @
 \end{frame}
 
-Huvudprogrammet frågar bara efter målet och visar vägen dit, och det är
-allt användaren ser.
+Vilken väg som ska skrivas ut avgörs av en kedja av villkor i
+\mintinline{python}{vagen_till}: ett per plats, och ett särfall för en
+plats vi inte känner.  Varje väg blir en egen funktion, så att kedjan
+bara väljer.
+
+Uppgiften kräver också att vägen kan ges på engelska, och att det som
+redan använder instruktionerna på svenska fungerar som förut.  Därför
+får \mintinline{python}{vagen_till}, och allt den anropar, språket som
+en parameter med standardvärdet svenska.  Då behöver de anrop som vill
+ha svenska inte säga något om språk alls, och det är just vad ett
+standardvärde är till för.
+
+Valet av väg får ett eget namn bland hjälpfunktionerna.  Vägarna och de
+instruktioner de består av samlar vi under ett eget namn,
+[[<<vägvisarens vägar och instruktioner>>]], som vi fyller på när vi
+kommer till dem.  Båda tar vi med oförändrade när vi bygger ut
+vägvisaren i \cref{sec:vagvisaren-sprak}.
+
+\begin{frame}[fragile]
+  Vägen efter målet:
+<<vägvisarens hjälpfunktioner>>=
+<<funktion som väljer vägen efter målet eller säger ifrån>>
+<<vägvisarens vägar och instruktioner>>
+<<funktion som väljer vägen efter målet eller säger ifrån>>=
+def vagen_till(mal, sprak="sv"):
+    """Skriver ut vägen till mal, en instruktion per rad.
+
+    Kastar ValueError för ett mål vägvisaren inte känner.
+    """
+    if mal == "D37":
+        vagen_till_d37(sprak)
+    elif mal == "Biblioteket":
+        vagen_till_biblioteket(sprak)
+    else:
+        raise ValueError(f"jag känner inte vägen till {mal}")
+@
+\end{frame}
+
+Vägarna följer promenaden från tunnelbanan, ett steg i taget, och varje
+väg är en egen funktion som skriver ut sina instruktioner, en per rad.
+En väg går då att läsa uppifrån och ner, som en vägbeskrivning, och
+den går att rätta utan att någon annan väg berörs.  Instruktionerna,
+att gå och att svänga, anropar vi redan här och skriver dem sedan.
+
+\begin{frame}[fragile]
+  Vägen till D37:
+<<vägvisarens vägar och instruktioner>>=
+def vagen_till_d37(sprak="sv"):
+    """Skriver ut vägen från tunnelbanan till D37."""
+    print(ga(100, sprak))
+    print(svang("höger", sprak))
+    print(ga(100, sprak))
+    print(svang("vänster", sprak))
+    print(ga(70, sprak))
+    print(svang("höger", sprak))
+    print(ga(90, sprak))
+    print(svang("höger", sprak))
+    print(ga(20, sprak))
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  Vägen till biblioteket:
+<<vägvisarens vägar och instruktioner>>=
+def vagen_till_biblioteket(sprak="sv"):
+    """Skriver ut vägen från tunnelbanan till biblioteket."""
+    print(ga(100, sprak))
+    print(svang("höger", sprak))
+    print(ga(50, sprak))
+    print(svang("vänster", sprak))
+    print(ga(200, sprak))
+    print(svang("vänster", sprak))
+    print(ga(40, sprak))
+@
+\end{frame}
+
+Varje instruktion är enligt uppgiften en egen funktion som lämnar
+tillbaka en textrad, som vägen sedan skriver ut.  Att gå är den
+enklaste: en rad på det språk anropet ber om.
+
+\begin{frame}[fragile]
+  Instruktionen att gå:
+<<vägvisarens vägar och instruktioner>>=
+def ga(meter, sprak="sv"):
+    """Ger instruktionen att gå meter meter rakt fram."""
+    if sprak == "sv":
+        return f"Gå {meter} m rakt fram."
+
+    return f"Walk {meter} m straight ahead."
+@
+\end{frame}
+
+\ltnote{%
+  Kravet är formulerat som ett krav på beteendet --- programmet ska
+  säga ifrån begripligt --- och inte som \enquote{använd
+  \mintinline{python}{raise}}.  Förlagan hade just den bristen
+  uppgiften ber om: dess \mintinline{python}{sväng} lämnade tillbaka
+  en översatt sträng för vilken riktning som helst, så ett felskrivet
+  riktningsnamn gav en instruktion som såg riktig ut.  Att låta
+  funktionen kasta ett särfall i stället är det som gör felet synligt,
+  och det är samma mönster som föreläsningen \emph{Inmatning och
+  felhantering} visar med \mintinline{python}{age}.
+}
+
+Att svänga är knepigare, för riktningen är ett ord som ska översättas.
+Och här finns ett fall funktionen inte kan svara vettigt på: en
+riktning som varken är höger eller vänster.  Då säger den ifrån.
+
+\begin{frame}[fragile]
+  Instruktionen att svänga:
+<<vägvisarens vägar och instruktioner>>=
+def svang(riktning, sprak="sv"):
+    """Ger instruktionen att svänga åt riktning, som anges på svenska.
+
+    Kastar ValueError för en riktning som varken är höger eller
+    vänster.
+    """
+    if riktning == "höger":
+        if sprak == "sv":
+            return "Sväng höger."
+        return "Turn right."
+    elif riktning == "vänster":
+        if sprak == "sv":
+            return "Sväng vänster."
+        return "Turn left."
+
+    raise ValueError(f"{riktning} är varken höger eller vänster")
+@
+\end{frame}
+
+Varför inte bara lämna tillbaka \mintinline{text}|"Sväng uppåt."| och
+låta det vara?  Därför att funktionen då svarar fel i stället för att
+säga att den inte kan svara, och felet dyker upp långt senare, som en
+instruktion som ser riktig ut.  Ett särfall däremot stannar körningen
+där felet är och lämnar åt den som anropade att bestämma vad som ska
+hända.
+
+Både \mintinline{python}{svang} och \mintinline{python}{vagen_till}
+säger alltså ifrån med ett \mintinline{python}{ValueError}, och
+meddelandet säger vad som var fel.  Det är frågan efter målet, som vi
+skrev först, som tar hand om dem.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1855,16 +1971,13 @@ sedan på engelska, och till sist med en riktning som inte finns.
 <<[[instruktioner.py]]>>=
 """Prövar instruktionen att svänga."""
 
-
-<<hjälpfunktioner>>
-
+<<vägvisarens vägar och instruktioner>>
 
 def main():
     """Anropar svang på svenska, på engelska och med en okänd riktning."""
     print(svang("vänster"))
     print(svang("vänster", "en"))
     print(svang("uppåt"))
-
 
 main()
 @
@@ -1955,40 +2068,51 @@ och någon som skickar svaret vidare: huvudprogrammet frågar, och frågan
 efter målet får språket och ger det till
 \mintinline{python}{vagen_till}.
 
+Upplägget är vägvisarens.  Konstanten, valet av väg, vägarna och
+instruktionerna återanvänds som de är, och det nya samlar vi under
+egna namn.
+
 \begin{frame}[fragile]
-  Vägvisaren med ett val av språk:
+  Den tvåspråkiga vägvisarens upplägg:
 <<[[vagvisare2.py]]>>=
 """Vägvisaren, med ett språk som användaren väljer."""
 
-<<konstant för målen som frågan räknar upp>>
+<<vägvisarens konstanter>>
 
-
-<<hjälpfunktioner>>
-
-
+<<den tvåspråkiga vägvisarens hjälpfunktioner>>
 <<funktion som väljer vägen efter målet eller säger ifrån>>
+<<vägvisarens vägar och instruktioner>>
 
-
-<<funktion som frågar tills svaret är ett språk vägvisaren talar>>
-
-
-<<funktion som frågar efter målet och visar vägen på språket>>
-
-
-<<huvudprogram som frågar efter språket och skickar det vidare>>
+<<den tvåspråkiga vägvisarens huvudprogram>>
+main()
 @
 \end{frame}
 
-Instruktionerna, vägarna och valet av väg återanvänds som de är.
+Huvudprogrammet ställer de två frågorna i tur och ordning och låter
+svaret på den första följa med in i den andra.
+
+\begin{frame}[fragile]
+  Huvudprogrammet:
+<<den tvåspråkiga vägvisarens huvudprogram>>=
+def main():
+    """Frågar efter språket och sedan vart användaren ska."""
+    sprak = fraga_efter_sprak()
+    fraga_efter_vagen(sprak)
+@
+\end{frame}
 
 Frågan om språket är samma fråga-om-igen som
 \mintinline{python}{fraga_biljetter} i \cref{sec:biobiljetter}: en
 slinga, ett krav som prövas med ett \mintinline{python}{if}, och ett
 meddelande som säger vilka svar som duger.  Frågan och meddelandet står
-på båda språken, eftersom användaren ännu inte har valt.
+på båda språken, eftersom användaren ännu inte har valt.  Funktionen
+står under ett eget namn, eftersom vi tar med den till
+\cref{sec:vagvisaren-texter}.
 
 \begin{frame}[fragile]
   Frågan om språket:
+<<den tvåspråkiga vägvisarens hjälpfunktioner>>=
+<<funktion som frågar tills svaret är ett språk vägvisaren talar>>
 <<funktion som frågar tills svaret är ett språk vägvisaren talar>>=
 def fraga_efter_sprak():
     """Frågar tills svaret är sv eller en, och ger svaret."""
@@ -2010,7 +2134,7 @@ ge svenska.
 
 \begin{frame}[fragile]
   Frågan efter målet, med språket:
-<<funktion som frågar efter målet och visar vägen på språket>>=
+<<den tvåspråkiga vägvisarens hjälpfunktioner>>=
 def fraga_efter_vagen(sprak):
     """Frågar efter målet och visar vägen dit på sprak."""
     while True:
@@ -2020,22 +2144,6 @@ def fraga_efter_vagen(sprak):
             break
         except ValueError as fel:
             print(f"Det gick inte: {fel}.")
-@
-\end{frame}
-
-Huvudprogrammet ställer de två frågorna i tur och ordning och låter
-svaret på den första följa med in i den andra.
-
-\begin{frame}[fragile]
-  Huvudprogrammet:
-<<huvudprogram som frågar efter språket och skickar det vidare>>=
-def main():
-    """Frågar efter språket och sedan vart användaren ska."""
-    sprak = fraga_efter_sprak()
-    fraga_efter_vagen(sprak)
-
-
-main()
 @
 \end{frame}
 
@@ -2135,79 +2243,35 @@ Gymmet}, är meddelandet i det särfall som
 \mintinline{python}{vagen_till} som vet vad som gick fel, och den får
 redan språket, så det är där meddelandet översätts.
 
+Instruktionerna, vägarna, frågan om språket och huvudprogrammet
+återanvänds som de är.  Valet av väg och frågan efter målet skrivs om,
+och de hamnar under egna namn, liksom en konstant till.
+
 \begin{frame}[fragile]
-  Vägvisaren med alla texter på användarens språk:
+  Den översatta vägvisarens upplägg:
 <<[[vagvisare3.py]]>>=
 """Vägvisaren, med alla texter på det språk användaren väljer."""
 
-<<konstant för målen som frågan räknar upp>>
-<<konstant för målen på engelska>>
-
-
-<<hjälpfunktioner>>
-
-
-<<funktion som väljer vägen efter målet eller säger ifrån på språket>>
-
+<<vägvisarens konstanter>>
+<<den översatta vägvisarens konstanter>>
 
 <<funktion som frågar tills svaret är ett språk vägvisaren talar>>
+<<den översatta vägvisarens hjälpfunktioner>>
+<<vägvisarens vägar och instruktioner>>
 
-
-<<funktion som frågar efter målet och visar vägen, allt på språket>>
-
-
-<<huvudprogram som frågar efter språket och skickar det vidare>>
+<<den tvåspråkiga vägvisarens huvudprogram>>
+main()
 @
 \end{frame}
 
-Instruktionerna, vägarna, frågan om språket och huvudprogrammet
-återanvänds som de är.  Valet av väg och frågan efter målet skrivs om.
-
-Frågan räknar upp målen, och på engelska behöver uppräkningen ett
-\enquote{or} i stället för ett \enquote{eller}.  Platsernas namn är
-desamma på båda språken, eftersom det är dem användaren skriver.  Den
-engelska konstanten står direkt under den svenska, så att den som
-lägger till ett mål ser båda.
-
-\begin{frame}[fragile]
-  Målen på engelska:
-<<konstant för målen på engelska>>=
-MALEN_EN = "D37 or Biblioteket"
-@
-\end{frame}
-
-Valet av väg får en gren till.  Det sista villkoret prövar språket och
-inte målet, och det nås bara när målet varken var D37 eller
-biblioteket: som i \cref{sec:bomben-sista} bär en gren med sig att
-alla villkor ovanför den var falska.
-
-\begin{frame}[fragile]
-  Vägen efter målet, med beskedet på språket:
-<<funktion som väljer vägen efter målet eller säger ifrån på språket>>=
-def vagen_till(mal, sprak="sv"):
-    """Skriver ut vägen till mal på sprak, en instruktion per rad.
-
-    Kastar ValueError, med meddelandet på sprak, för ett mål
-    vägvisaren inte känner.
-    """
-    if mal == "D37":
-        vagen_till_d37(sprak)
-    elif mal == "Biblioteket":
-        vagen_till_biblioteket(sprak)
-    elif sprak == "sv":
-        raise ValueError(f"jag känner inte vägen till {mal}")
-    else:
-        raise ValueError(f"I do not know the way to {mal}")
-@
-\end{frame}
-
-Frågan efter målet väljer sina två texter en gång, före slingan, efter
+Vi börjar där huvudprogrammet börjar använda språket, i frågan efter
+målet.  Den väljer sina två texter en gång, före slingan, efter
 språket.  Då står varje text på ett enda ställe, och slingan är
 densamma som förut.
 
 \begin{frame}[fragile]
   Frågan efter målet, med texterna på språket:
-<<funktion som frågar efter målet och visar vägen, allt på språket>>=
+<<den översatta vägvisarens hjälpfunktioner>>=
 def fraga_efter_vagen(sprak):
     """Frågar efter målet och visar vägen dit, allt på sprak."""
     if sprak == "sv":
@@ -2224,6 +2288,44 @@ def fraga_efter_vagen(sprak):
             break
         except ValueError as fel:
             print(f"{inledning}: {fel}.")
+@
+\end{frame}
+
+Frågan räknar upp målen, och på engelska behöver uppräkningen ett
+\enquote{or} i stället för ett \enquote{eller}.  Platsernas namn är
+desamma på båda språken, eftersom det är dem användaren skriver.  Den
+engelska konstanten står direkt under den svenska, så att den som
+lägger till ett mål ser båda.
+
+\begin{frame}[fragile]
+  Målen på engelska:
+<<den översatta vägvisarens konstanter>>=
+MALEN_EN = "D37 or Biblioteket"
+@
+\end{frame}
+
+Valet av väg får en gren till.  Det sista villkoret prövar språket och
+inte målet, och det nås bara när målet varken var D37 eller
+biblioteket: som i \cref{sec:bomben-sista} bär en gren med sig att
+alla villkor ovanför den var falska.
+
+\begin{frame}[fragile]
+  Vägen efter målet, med beskedet på språket:
+<<den översatta vägvisarens hjälpfunktioner>>=
+def vagen_till(mal, sprak="sv"):
+    """Skriver ut vägen till mal på sprak, en instruktion per rad.
+
+    Kastar ValueError, med meddelandet på sprak, för ett mål
+    vägvisaren inte känner.
+    """
+    if mal == "D37":
+        vagen_till_d37(sprak)
+    elif mal == "Biblioteket":
+        vagen_till_biblioteket(sprak)
+    elif sprak == "sv":
+        raise ValueError(f"jag känner inte vägen till {mal}")
+    else:
+        raise ValueError(f"I do not know the way to {mal}")
 @
 \end{frame}
 
@@ -2349,10 +2451,10 @@ Så här ska det se ut när du är klar.
 
 Två saker ska programmet hålla reda på, och bara två: var användaren
 står, och hur lång korridoren är.  Det första är en variabel som
-ändras, det andra en konstant.
+ändras, det andra en konstant.  Vi lägger upp programmet som de förra.
 
 \begin{frame}[fragile]
-  Programmets delar:
+  Korridorens upplägg:
 <<[[korridoren.py]]>>=
 """En promenad i en korridor.
 
@@ -2360,28 +2462,84 @@ Du säger vilken riktning du vill gå, och programmet håller reda på hur
 långt in i korridoren du står och säger till när väggen är i vägen.
 """
 
-<<konstant för korridorens längd>>
+<<korridorens konstanter>>
 
+<<korridorens hjälpfunktioner>>
 
-<<funktion som tar ett steg om det går>>
-
-
-<<huvudprogram som låter användaren gå tills hon skriver slut>>
+<<korridorens huvudprogram>>
+main()
 @
 \end{frame}
+
+Huvudprogrammet är slingan.  Platsen börjar vid noll, och varje varv
+ska skilja på när användaren vill sluta, när riktningen inte gick att
+tolka och när steget skulle leda ut ur korridoren.
+
+\begin{frame}[fragile]
+  Slingan som minns var du står, i stora drag:
+<<korridorens huvudprogram>>=
+def main():
+    """Låter användaren promenera tills hon skriver slut."""
+    plats = 0
+
+    while True:
+        <<fråga vart användaren går>>
+
+        <<sluta om svaret är slut>>
+
+        <<ta ett steg åt det hållet om det går, annars stå kvar>>
+
+    print(f"Du slutade {plats} m in. Tack för promenaden!")
+@
+\end{frame}
+
+Frågan visar var användaren står, så att platsen syns före varje
+fråga, och ett \mintinline{text}|slut| avslutar slingan innan något
+steg tas.
+
+\begin{frame}[fragile]
+  Frågan, och vägen ut ur slingan:
+<<fråga vart användaren går>>=
+svar = input(f"Du står {plats} m in. Vart går du? ").strip()
+<<sluta om svaret är slut>>=
+if svar == "slut":
+    break
+@
+\end{frame}
+
+Resten av svaren är riktningar.  Själva steget lägger vi i en
+funktion, \mintinline{python}{nytt_steg}, som ger den nya platsen eller
+säger ifrån med ett \mintinline{python}{ValueError} när steget inte går
+att ta.  Slingan tar hand om särfallet och låter användaren stå kvar.
+
+\begin{frame}[fragile]
+  Steget, eller beskedet om varför det inte gick:
+<<ta ett steg åt det hållet om det går, annars stå kvar>>=
+try:
+    plats = nytt_steg(plats, svar)
+except ValueError as fel:
+    print(f"Det går inte: {fel}. Du står kvar.")
+@
+\end{frame}
+
+Att tilldelningen \mintinline{python}{plats = nytt_steg(plats, svar)}
+står inuti \mintinline{python}{try}-blocket är det som gör att
+\mintinline{python}{plats} blir oförändrad när något går fel:
+funktionen hinner aldrig lämna tillbaka något, så tilldelningen blir
+aldrig av.
 
 Steget är en egen funktion, och den äger allt som avgör om ett steg
 går att ta: den räknar ut vilken plats riktningen leder till och
 vägrar om platsen ligger utanför korridoren.  Två helt olika saker kan
 alltså gå fel i den, och den säger ifrån om båda med ett
 \mintinline{python}{ValueError} vars meddelande säger vad som gick
-fel.
+fel.  Korridorens längd blir programmets konstant.
 
 \begin{frame}[fragile]
   Korridorens längd, och ett steg i en riktning:
-<<konstant för korridorens längd>>=
+<<korridorens konstanter>>=
 LANGD = 5
-<<funktion som tar ett steg om det går>>=
+<<korridorens hjälpfunktioner>>=
 def nytt_steg(plats, riktning):
     """Ger platsen efter ett steg i riktning från plats.
 
@@ -2406,45 +2564,10 @@ Villkoret som vaktar korridoren är skrivet utifrån och in, med
 \mintinline{python}{or} mellan två fullständiga jämförelser --- samma
 form som bombens tredje fråga i \cref{sec:bomben}.
 
-Huvudprogrammet är slingan.  Den ska skilja på när användaren vill
-sluta, när riktningen inte gick att tolka och när steget skulle leda ut
-ur korridoren.
-
-\begin{frame}[fragile]
-  Slingan som minns var du står:
-<<huvudprogram som låter användaren gå tills hon skriver slut>>=
-def main():
-    """Låter användaren promenera tills hon skriver slut."""
-    plats = 0
-
-    while True:
-        svar = input(f"Du står {plats} m in. Vart går du? ").strip()
-
-        if svar == "slut":
-            break
-
-        try:
-            plats = nytt_steg(plats, svar)
-        except ValueError as fel:
-            print(f"Det går inte: {fel}. Du står kvar.")
-
-    print(f"Du slutade {plats} m in. Tack för promenaden!")
-
-
-main()
-@
-\end{frame}
-
 En enda \texttt{except}-gren räcker, eftersom båda felen är av samma
 sort och meddelandet säger vilket det var.  Någon gren för alla andra
 sorters fel finns inte, av samma skäl som i \cref{sec:biobiljetter}:
 det enda den kunde fånga är våra egna misstag, och dem vill vi se.
-
-Att tilldelningen \mintinline{python}{plats = nytt_steg(plats, svar)}
-står inuti \mintinline{python}{try}-blocket är det som gör att
-\mintinline{python}{plats} blir oförändrad när något går fel:
-funktionen hinner aldrig lämna tillbaka något, så tilldelningen blir
-aldrig av.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -2486,13 +2609,14 @@ misstag användas som om det gick.  Det är den enklaste lösning som
 duger, vilket är vad principen \foreignlanguage{english}{KISS}
 (\foreignlanguage{english}{Keep It Simple, Stupid}) handlar om --- och
 enklast är här inte färst rader utan färst saker att hålla reda på
-samtidigt.  Enkelhet är ett etablerat designvärde; uttrycket tillskrivs
-ofta Kelly Johnson, men det går inte att belägga.%
+samtidigt.%
 % REVIEW(C13): inte heller den här pekaren var utmärkt i
 % granskningsrundan; den andra läsningen är att den står kvar i
 % brödtexten.
 \footnote{%
-  Det vetenskapliga underlaget för båda --- principens ställning och
+  Enkelhet är ett etablerat designvärde; uttrycket tillskrivs ofta
+  Kelly Johnson, men det går inte att belägga.  Det vetenskapliga
+  underlaget för båda --- principens ställning och
   uttryckets ursprung --- finns i föreläsningen \emph{Funktioner},
   bilaga C.%
 }
@@ -2552,36 +2676,28 @@ Villkoret ska vara att svaret inte är \mintinline{text}|slut|, alltså
 \mintinline{python}{svar} ha ett värde redan när slingan prövar
 villkoret första gången, och ett nytt värde innan den prövar det
 nästa gång.  Frågan behövs alltså på två ställen: en gång före
-slingan och en gång sist i varje varv.  Eftersom den behövs två gånger
-ger vi den ett namn, en liten funktion som ställer frågan och ger det
-klippta svaret; då står själva frågan på ett enda ställe.
+slingan och en gång sist i varje varv.
+
+Upplägget är korridorens, med dess konstant och dess steg oförändrade.
+Det nya samlar vi under egna namn.
 
 \begin{frame}[fragile]
   Korridoren med villkoret i slingan:
 <<[[korridoren2.py]]>>=
 """Korridoren, med ett villkor i slingan i stället för break."""
 
-<<konstant för korridorens längd>>
+<<korridorens konstanter>>
 
-
-<<funktion som tar ett steg om det går>>
-
-
-<<funktion som frågar vart användaren går>>
-
+<<korridorens hjälpfunktioner>>
+<<hjälpfunktioner för slingan med villkor>>
 
 <<huvudprogram med frågan före slingan och sist i varje varv>>
+main()
 @
 \end{frame}
 
-\begin{frame}[fragile]
-  Frågan, på ett enda ställe:
-<<funktion som frågar vart användaren går>>=
-def fraga_riktning(plats):
-    """Frågar vart användaren går från plats, och ger svaret."""
-    return input(f"Du står {plats} m in. Vart går du? ").strip()
-@
-\end{frame}
+Det som ändras är huvudprogrammet.  Steget i slingan är detsamma som
+förut, så det står kvar under sitt namn; det som flyttar är frågan.
 
 \begin{frame}[fragile]
   Slingan med ett villkor:
@@ -2592,16 +2708,23 @@ def main():
 
     svar = fraga_riktning(plats)
     while svar != "slut":
-        try:
-            plats = nytt_steg(plats, svar)
-        except ValueError as fel:
-            print(f"Det går inte: {fel}. Du står kvar.")
+        <<ta ett steg åt det hållet om det går, annars stå kvar>>
         svar = fraga_riktning(plats)
 
     print(f"Du slutade {plats} m in. Tack för promenaden!")
+@
+\end{frame}
 
+Eftersom frågan behövs två gånger ger vi den ett namn, en liten
+funktion som ställer frågan och ger det klippta svaret; då står själva
+frågan på ett enda ställe.
 
-main()
+\begin{frame}[fragile]
+  Frågan, på ett enda ställe:
+<<hjälpfunktioner för slingan med villkor>>=
+def fraga_riktning(plats):
+    """Frågar vart användaren går från plats, och ger svaret."""
+    return input(f"Du står {plats} m in. Vart går du? ").strip()
 @
 \end{frame}
 
@@ -2643,21 +2766,20 @@ ger \mintinline{python}{svar} uttryckets värde, precis som
 \mintinline{python}{svar = uttryck}, men det är självt ett uttryck med
 samma värde och kan därför stå i ett villkor.
 
+Upplägget är detsamma som förut, och bara huvudprogrammet byts.
+
 \begin{frame}[fragile]
   Korridoren med frågan i villkoret:
 <<[[korridoren3.py]]>>=
 """Korridoren, med frågan i slingans villkor."""
 
-<<konstant för korridorens längd>>
+<<korridorens konstanter>>
 
-
-<<funktion som tar ett steg om det går>>
-
-
-<<funktion som frågar vart användaren går>>
-
+<<korridorens hjälpfunktioner>>
+<<hjälpfunktioner för slingan med villkor>>
 
 <<huvudprogram med frågan i slingans villkor>>
+main()
 @
 \end{frame}
 
@@ -2669,15 +2791,9 @@ def main():
     plats = 0
 
     while (svar := fraga_riktning(plats)) != "slut":
-        try:
-            plats = nytt_steg(plats, svar)
-        except ValueError as fel:
-            print(f"Det går inte: {fel}. Du står kvar.")
+        <<ta ett steg åt det hållet om det går, annars stå kvar>>
 
     print(f"Du slutade {plats} m in. Tack för promenaden!")
-
-
-main()
 @
 \end{frame}
 
