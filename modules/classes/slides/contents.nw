@@ -93,17 +93,49 @@ utan att använda klasser.  Men innan du ser vår lösning: skriv en egen.
 Vi kan använda en uppslagslista för att lagra namn och telefonnummer,
 som i telefonboken i föreläsningen \emph{Behållare: Uppslagslistor} ---
 här står numren direkt i programmet i stället för att matas in.
-Programmet består av tre delar: lagra numren, skriva ut alla namn och
-sedan fråga efter namn tills användaren tröttnar.
+
+Vi börjar uppifrån, i filens upplägg: överst en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan huvudprogrammet och till sist anropet som startar det.
+Programmet är så litet att det inte behöver några konstanter eller
+hjälpfunktioner.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med en uppslagslista]
     \label{ex:phonebook}
-    Programmet i sin helhet, med två steg kvar att förfina:
+    Filens upplägg:
 <<[[phonebook.py]]>>=
 """En enkel telefonbok"""
 
+<<huvudprogrammet i [[phonebook.py]]>>
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
 
+\ltnote{%
+  \textbf{Uppifrån och ner.}  Varje program som byggs upp av namngivna
+  delar börjar i filens upplägg, med namn som hör till just det
+  programmet, och en metod eller funktion läggs till först där
+  resonemanget behöver den (författaren, 2026-09-23: \enquote{it too
+  early outlines what functions we need, without having started
+  discussing the details of the problem yet}).  I upplägget står
+  klasserna efter konstanterna och före hjälpfunktionerna.
+}
+
+Huvudprogrammet gör tre saker: det lagrar numren, skriver ut alla namn
+och frågar sedan efter namn tills användaren tröttnar.  Utskriften och
+frågan är bara några rader, men två steg handlar om själva datan: hur
+vi lagrar numren och hur vi slår upp ett.  De skriver vi först som
+pseudokod, som säger vad steget gör, och senare preciserar vi
+pseudokoden med pythonkod.
+
+\begin{frame}[fragile]
+  \begin{example}[Telefonbokens huvudprogram]
+    \label{ex:phonebook-main}
+    Huvudprogrammet, med två steg i pseudokod:
+<<huvudprogrammet i [[phonebook.py]]>>=
 def main():
     """Huvudprogram"""
     <<lagra telefonnumren i en uppslagslista>>
@@ -113,10 +145,6 @@ def main():
     while name != "":
         <<slå upp och skriv ut numret>>
         name = input("Who's phone number? ")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -136,9 +164,8 @@ if __name__ == "__main__":
   % lärande, och det är inte belagt här.
 }
 
-De två namngivna stegen är de som handlar om själva datan: hur vi lagrar
-numren och hur vi slår upp ett.  Med en uppslagslista är båda en rad
-eller två.
+Med en uppslagslista blir båda stegen en rad eller två när vi
+preciserar dem.
 
 \begin{frame}[fragile]
   \begin{example}[Lagra och slå upp med en uppslagslista]
@@ -153,6 +180,11 @@ phonebook["madicken"] = "0731234567"
 print(f"{name} has phone number {phonebook[name]}.")
 @
   \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/phonebook.py}
 \end{frame}
 
 Detta är en ganska enkel lösning.  Men vad händer om vi vill lagra mer
@@ -192,17 +224,31 @@ adress?
 Ett första försök skulle kunna vara att använda en nästlad uppslagslista,
 där varje person får en egen uppslagslista med olika fält.
 \texttt{phonebook.py} hade vi tidigare; vårt förbättrade program lägger
-vi i \texttt{contacts.py}.  Programmets delar är desamma som förut ---
-det som skiljer är hur kontakterna lagras och slås upp.
+vi i \texttt{contacts.py}.  Filens upplägg är detsamma som förut.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med nästlade uppslagslistor]
-    \label{ex:contacts}
-    Samma delar som i \texttt{phonebook.py}, men andra förfiningar:
+    \label{ex:contacts-upplagg}
+    Samma upplägg som i \texttt{phonebook.py}:
 <<[[contacts.py]]>>=
 """En enkel telefonbok"""
 
+<<huvudprogrammet i [[contacts.py]]>>
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
 
+Huvudprogrammets delar är också desamma som förut, men nu står även
+utskriften av namnen som pseudokod, eftersom den får en rad till.  Det
+som skiljer är hur kontakterna lagras och slås upp.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet med nästlade uppslagslistor]
+    \label{ex:contacts}
+    Samma delar som i \texttt{phonebook.py}, men andra förfiningar:
+<<huvudprogrammet i [[contacts.py]]>>=
 def main():
     """Huvudprogram"""
     <<lagra kontakterna i en nästlad uppslagslista>>
@@ -211,10 +257,6 @@ def main():
     while name != "":
         <<slå upp och skriv ut kontaktuppgifterna>>
         name = input("Who's contacts? ")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -287,6 +329,11 @@ print(f"{name} has phone number {phone} and lives at {address}.")
   \end{example}
 \end{frame}
 
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/contacts.py}
+\end{frame}
+
 Som du ser blev koden ganska omständlig.  Vi måste använda
 \mintinline{python}{try} och \mintinline{python}{except} för varje fält
 vi vill läsa, eftersom vi inte vet om fältet finns.  Jämför med den enda
@@ -347,55 +394,68 @@ mer elegant och strukturerat sätt.
   att hålla \emph{vad} konstant kan studenterna fokusera på att urskilja
   \emph{hur} (implementeringsmetoden).
 
-  Klassen presenteras som i den litterära programmeringens anda: först
-  helheten med namngivna delar, sedan varje del där den behövs i
-  resonemanget.  Delarna som resonemanget inte behöver (metoderna för de
-  övriga attributen) visas ändå, så att det tanglade programmet är
-  fullständigt.
+  Klassen byggs uppifrån och ner, som programmen före den: först filens
+  upplägg och klassens skal, sedan läggs varje metod till där den behövs
+  i resonemanget.  Metoderna som resonemanget inte behöver (läsmetoderna
+  för de övriga attributen) läggs ändå till, så att det tanglade
+  programmet är fullständigt.
 }
 
 Nu ska vi se samma funktionalitet implementerad med hjälp av klasser.
 Istället för att använda nästlade uppslagslistor skapar vi en
 \mintinline{python}{Person}-klass som innehåller all information om en
-person --- och bara det.  Vi börjar med helheten: klassen består av en
-konstruktor, metoder för namnet, metoder för de övriga attributen och
-några dundermetoder, och sist i filen ligger ett testprogram.
+person --- och bara det.  Klassen lägger vi i en egen fil,
+\texttt{person.py}, så att telefonboken kan importera den.
+
+Vi börjar uppifrån, i filens upplägg.  En klassdefinition hör till
+upplägget: klasserna står efter konstanterna, som de kan använda, och
+före hjälpfunktionerna och huvudprogrammet, som använder dem.  Den här
+filen behöver varken konstanter eller hjälpfunktioner.  Sist står ett
+testprogram, som bara körs när filen körs som program och inte när den
+importeras.
 
 \begin{frame}[fragile]
   \begin{example}[En klass för personer]
     \label{ex:person}
-    Filen \texttt{person.py} i sin helhet, med delarna namngivna:
+    Filen \texttt{person.py} uppifrån:
 <<[[person.py]]>>=
 """Class for a person"""
 
+<<klasserna i [[person.py]]>>
 
-class Person:
-    """Class for a person"""
-
-    <<konstruktorn för [[Person]]>>
-
-    <<metoder för namnet>>
-
-    <<fler metoder för namnet>>
-
-    <<metoder för de övriga attributen>>
-
-    <<dundermetoder för jämförelse och felsökning>>
-
-
-<<testprogram för [[Person]]>>
+<<testprogrammet i [[person.py]]>>
+if __name__ == "__main__":
+    main()
 @
   \end{example}
 \end{frame}
 
-Konstruktorn är metoden \mintinline{python}{__init__}, som körs när ett
-objekt skapas.  Den tar emot uppgifterna om personen och sparar dem.
+Filen har en enda klass, \mintinline{python}{Person}.  Klassens metoder
+samlar vi under ett eget namn och lägger till en i taget, när vi
+behöver dem.
+
+\begin{frame}[fragile]
+  \begin{example}[Klassen \texttt{Person}]
+    \label{ex:person-class}
+    Klassens skal, med metoderna samlade under ett namn:
+<<klasserna i [[person.py]]>>=
+class Person:
+    """Class for a person"""
+
+    <<metoderna i [[Person]]>>
+@
+  \end{example}
+\end{frame}
+
+Den första metoden vi behöver är konstruktorn.  Konstruktorn är metoden
+\mintinline{python}{__init__}, som körs när ett objekt skapas.  Den tar
+emot uppgifterna om personen och sparar dem.
 
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
     \label{ex:person-konstruktor}
     Konstruktorn initierar alla attribut:
-<<konstruktorn för [[Person]]>>=
+<<metoderna i [[Person]]>>=
 def __init__(self, first_name, last_name, birthday, address, phone):
     """first_name: string with first name.
     last_name: string with last name.
@@ -414,13 +474,18 @@ def __init__(self, first_name, last_name, birthday, address, phone):
 Här har vi definierat en \mintinline{python}{Person}-klass med en
 \mintinline{python}{__init__}-metod som initierar alla attribut.  Varje
 attribut lagras som en privat variabel (notera de dubbla understrecken).
-Så här skapar testprogrammet en person:
+
+Med konstruktorn kan testprogrammet skapa en person.  Det ska sedan
+göra tre saker med den: skriva ut den, byta namn på den, och jämföra
+den med en annan person.  De tre skriver vi först som pseudokod, och
+senare preciserar vi pseudokoden med pythonkod, när klassen har de
+metoder som behövs.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:person-main}
     Testprogrammet skapar en person och använder den sedan på olika sätt:
-<<testprogram för [[Person]]>>=
+<<testprogrammet i [[person.py]]>>=
 def main():
     """Test program"""
     person = Person(
@@ -429,10 +494,6 @@ def main():
     <<skriv ut personen>>
     <<byt namn på personen>>
     <<jämför och sortera personer>>
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -474,19 +535,34 @@ programmering.\footnote{%
 
 Låt oss nu jämföra hur vi skapar och använder kontakter med de två olika
 metoderna.  Telefonboken med klasser lägger vi i
-\texttt{contacts\_class.py}; den har samma delar som \texttt{contacts.py}
-i \cref{ex:contacts}.
+\texttt{contacts\_class.py}.  Upplägget är detsamma som i
+\texttt{contacts.py}, med en import överst: klassen finns i
+\texttt{person.py}.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med personobjekt]
-    \label{ex:contacts-class}
+    \label{ex:contacts-class-upplagg}
     Programmet importerar klassen från \texttt{person.py}:
 <<[[contacts_class.py]]>>=
 """En enkel telefonbok"""
 
 import person
 
+<<huvudprogrammet i [[contacts_class.py]]>>
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
 
+Huvudprogrammet har samma delar som \texttt{contacts.py} i
+\cref{ex:contacts}; det som skiljer är förfiningarna.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet med personobjekt]
+    \label{ex:contacts-class}
+    Samma delar som förut:
+<<huvudprogrammet i [[contacts_class.py]]>>=
 def main():
     """Huvudprogram"""
     <<lagra kontakterna som personobjekt>>
@@ -495,10 +571,6 @@ def main():
     while name != "":
         <<fråga efter namn och skriv ut personens uppgifter>>
         name = input("Who's contacts? ")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -562,14 +634,17 @@ metoder för att hämta information.
 }
 
 Vi behöver definiera metoder (exempelvis \mintinline{python}{get_name})
-som låter oss läsa ut attributen.
+som låter oss läsa ut attributen.  De lägger vi till bland klassens
+metoder, efter konstruktorn.  Ett namn som får flera delar får
+\(\equiv\) första gången och +\(\equiv\) varje gång därefter, och i
+programmet står delarna efter varandra, i den ordning de kommer.
 
 \begin{frame}[fragile]
   \begin{example}[Metoder för namnet]
     \label{ex:person-namn}
     En metod som sätter ihop namnet, och en dundermetod som gör att
     objektet kan skrivas ut:
-<<metoder för namnet>>=
+<<metoderna i [[Person]]>>=
 def get_name(self):
     """Returns the full name as a concatenation"""
     return self.__first_name + " " + self.__last_name
@@ -610,7 +685,7 @@ lika enkla: de returnerar attributets värde.
   \begin{example}[Metoder för de övriga attributen]
     \label{ex:person-getters}
     En läsmetod per attribut:
-<<metoder för de övriga attributen>>=
+<<metoderna i [[Person]]>>=
 def get_birthday(self):
     """Return birthday"""
     return self.__birthday
@@ -643,14 +718,15 @@ logik.  Det förhindrar många möjliga programfel.
 
 Metoden som byter namn är ett exempel: den tar emot ett helt namn och
 delar själv upp det i för- och efternamn, så att de två attributen
-alltid hänger ihop.  Den hör hemma bland namnmetoderna, tillsammans med
-läsmetoderna för för- och efternamn.
+alltid hänger ihop.  För att testprogrammet ska kunna visa hur namnet
+delades upp lägger vi samtidigt till läsmetoder för för- och
+efternamnet.
 
 \begin{frame}[fragile]
   \begin{example}[En metod som ändrar attribut]
     \label{ex:person-change-name}
     Sista ordet blir efternamn, resten förnamn:
-<<fler metoder för namnet>>=
+<<metoderna i [[Person]]>>=
 def get_first_name(self):
     """Returns the first name"""
     return self.__first_name
@@ -809,6 +885,11 @@ Vilken skillnad!  Med klasser behöver vi inte hantera
 Metoderna \mintinline{python}{get_phone()} och
 \mintinline{python}{get_address()} garanterar att vi alltid får ett
 värde (även om det kan vara strängen \mintinline{python}{"okänt"}).
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/contacts_class.py}
+\end{frame}
 
 \begin{frame}
   \begin{exercise}
@@ -1127,7 +1208,6 @@ class PublicExample:
     def set_value(self, new_value):  # Public method
         self.value = new_value
 
-
 <<testprogram för [[PublicExample]]>>
 @
   \end{example}
@@ -1366,9 +1446,13 @@ Som du ser finns det många dundermetoder!  De låter oss definiera hur
 objekt ska bete sig med operatorer som \mintinline{python}{+},
 \mintinline{python}{<}, \mintinline{python}{==}, och så vidare.
 
-Låt oss titta på några konkreta exempel från vår
-\mintinline{python}{Person}-klass: den sista gruppen metoder i
-\cref{ex:person}.
+Låt oss titta på några konkreta exempel i vår
+\mintinline{python}{Person}-klass.  Testprogrammets sista steg i
+pseudokod är att jämföra personen med en annan person och sortera dem
+(\cref{ex:person-main}).  Då måste Python veta vad
+\mintinline{python}{<} betyder för två personer, och hur en lista med
+personer skrivs ut.  Det ger vi klassen med två dundermetoder till, som
+vi lägger till sist bland metoderna.
 
 % The chunk is thirteen lines; without this the page break lands inside
 % the __lt__ docstring.
@@ -1377,7 +1461,7 @@ Låt oss titta på några konkreta exempel från vår
   \begin{example}[Dundermetoder för jämförelse och felsökning]
     \label{ex:person-dunder}
     Två dundermetoder till:
-<<dundermetoder för jämförelse och felsökning>>=
+<<metoderna i [[Person]]>>=
 def __lt__(self, other):
     """Returns True if self is younger than other,
     False otherwise"""
@@ -1427,6 +1511,12 @@ Här ser vi flera intressanta dundermetoder:
     värden på alla attribut}.  Det är den Python använder när en lista
     med personer skrivs ut.
 \end{description}
+
+\begin{frame}<article>[fragile]
+  Nu är varje del av \texttt{person.py} preciserad.  Sätter vi in varje
+  del där dess namn står får vi hela filen:
+  \inputminted{python}{examples/person.py}
+\end{frame}
 
 \begin{frame}
   \begin{exercise}
@@ -1642,27 +1732,38 @@ repeat yourself}\autocite{HuntThomas1999}, som föreläsningen
   uppskatta elegansen i lösningen.
 }
 
+Den nya klassen lägger vi i en egen fil, \texttt{person\_nick.py}, med
+samma upplägg som \texttt{person.py}: klasserna och sist ett
+testprogram.  Men klassen bygger på \mintinline{python}{Person}, så
+överst importerar filen den.
+
 \begin{frame}[fragile]
   \begin{example}[En underklass med smeknamn]
     \label{ex:person-nick}
-    Klassen bygger på \mintinline{python}{Person}:
+    Filen \texttt{person\_nick.py} uppifrån:
 <<[[person_nick.py]]>>=
 """Class for a person"""
 
 from person import Person
 
+<<klasserna i [[person_nick.py]]>>
 
+<<testprogrammet i [[person_nick.py]]>>
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Klassen \texttt{PersonNick}]
+    \label{ex:person-nick-class}
+    Klassens skal, med metoderna samlade under ett namn:
+<<klasserna i [[person_nick.py]]>>=
 class PersonNick(Person):
     """Class for a person"""
 
-    <<konstruktorn för [[PersonNick]]>>
-
-    <<metoder för smeknamnet>>
-
-    <<överlagrade namnmetoder>>
-
-
-<<testprogram för [[PersonNick]]>>
+    <<metoderna i [[PersonNick]]>>
 @
   \end{example}
 \end{frame}
@@ -1676,12 +1777,17 @@ och att \mintinline{python}{Person} är \emph{föräldraklass}
 (\foreignlanguage{english}{superclass}) till
 \mintinline{python}{PersonNick}.
 
+Det enda en \mintinline{python}{PersonNick} har som en
+\mintinline{python}{Person} saknar är smeknamnet.  Det är alltså där vi
+börjar: konstruktorn måste ta emot det, och klassen behöver metoder för
+att läsa och ändra det.
+
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn och smeknamnet]
     \label{ex:person-nick-init}
     Konstruktorn tar samma argument som förut, plus ett smeknamn med
     tomt standardvärde:
-<<konstruktorn för [[PersonNick]]>>=
+<<metoderna i [[PersonNick]]>>=
 def __init__(
     self, first_name, last_name, birthday, address, phone, nickname=""
 ):
@@ -1689,7 +1795,7 @@ def __init__(
     self.__nick = nickname
 @
     Smeknamnet får en läs- och en skrivmetod:
-<<metoder för smeknamnet>>=
+<<metoderna i [[PersonNick]]>>=
 def set_nick(self, nick):
     """Sets nickname"""
     self.__nick = nick
@@ -1774,7 +1880,7 @@ om vi vill ändra deras beteende, vilket vi gjorde med
     \label{ex:person-nick-override}
     \mintinline{python}{get_name} byts ut; det gamla namnet nås via
     \mintinline{python}{super()}:
-<<överlagrade namnmetoder>>=
+<<metoderna i [[PersonNick]]>>=
 def get_name(self):
     """Returns nickname as name, overloads Person"""
     if not self.get_nick():
@@ -1812,7 +1918,7 @@ till vår egen.  Låt oss se hur klassen används.
     \label{ex:person-nick-main}
     Objektet har metoder från både \mintinline{python}{PersonNick} och
     \mintinline{python}{Person}:
-<<testprogram för [[PersonNick]]>>=
+<<testprogrammet i [[person_nick.py]]>>=
 def main():
     """Test program"""
     person = PersonNick(
@@ -1822,10 +1928,6 @@ def main():
     person.change_name("Margareta Engström")
     person.set_nick("Madicken")
     print(f"{person.get_name()} är född {person.get_birthday()}.")
-
-
-if __name__ == "__main__":
-    main()
 @
   \end{example}
 \end{frame}
@@ -1836,6 +1938,11 @@ både \mintinline{python}{PersonNick} och \mintinline{python}{Person}:
 \mintinline{python}{change_name} och \mintinline{python}{get_birthday}
 är ärvda, \mintinline{python}{set_nick} är ny och
 \mintinline{python}{get_name} är överlagrad.
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela filen:
+  \inputminted{python}{examples/person_nick.py}
+\end{frame}
 
 Låt oss sammanfatta konceptet arv.
 
@@ -1931,36 +2038,12 @@ håll\autocite{Daly1996,Harrison2000}.\footnote{Det vetenskapliga
 % \mode<article> block without frames.
 \mode<article>{%
 
-\section{All kod i sin helhet}
+\section{Övriga program i sin helhet}
 \label{sec:all-kod}
 
-Här är all kod från exemplen i kapitlet samlad på ett ställe, i den form
-den tanglas ur källan --- det är de här filerna som körs.
-
-\begin{example}[\texttt{phonebook.py}]
-  Hela programmet:
-  \inputminted{python}{examples/phonebook.py}
-\end{example}
-
-\begin{example}[\texttt{contacts.py}]
-  Hela programmet:
-  \inputminted{python}{examples/contacts.py}
-\end{example}
-
-\begin{example}[\texttt{contacts\_class.py}]
-  Hela programmet:
-  \inputminted{python}{examples/contacts_class.py}
-\end{example}
-
-\begin{example}[\texttt{person.py}]
-  Hela klassen med testprogram:
-  \inputminted{python}{examples/person.py}
-\end{example}
-
-\begin{example}[\texttt{person\_nick.py}]
-  Hela klassen med testprogram:
-  \inputminted{python}{examples/person_nick.py}
-\end{example}
+De program som byggdes upp del för del står i sin helhet där de blev
+färdiga.  Här är de övriga samlade på ett ställe, i den form de tanglas
+ur källan --- det är de här filerna som körs.
 
 \begin{example}[\texttt{public.py}]
   Hela programmet:
