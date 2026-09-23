@@ -26,12 +26,12 @@ Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
 bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
 *Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
-felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Moduler
-och paket*; *Behållare: Listor*, *Behållare: Tupler*,
-*Behållare: Uppslagslistor*, *Behållare: Mängder, stackar och köer*,
-*Behållare: Ett gissningsspel*; *Klasser och objekt*;
-*Operatoröverlagring*; *Praktiska tillämpningar av klasser*; *Arbeta med
-filer*; *Grafiska användargränssnitt*. The tutorial decks
+felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Behållare:
+Listor*, *Behållare: Tupler*; *Moduler och paket*; *Behållare:
+Uppslagslistor*; *Klasser och objekt*; *Behållare: Mängder, stackar och
+köer*, *Behållare: Ett gissningsspel*; *Operatoröverlagring*; *Praktiska
+tillämpningar av klasser*; *Arbeta med filer*; *Grafiska
+användargränssnitt*. The tutorial decks
 (`modules/<module>/tutorial/`, one per week, one chapter, one exercise per
 section followed by a literate solution) are titled *Övning: Funktioner och
 variabler*; *Övning: Inmatning, felhantering och styrstrukturer*; *Övning:
@@ -47,9 +47,11 @@ World!*. Week 38: *Variabler och utskrifter*, *Funktioner*, *Övning:
 Funktioner och variabler*. Week 39: *Inmatning och felhantering*, *Villkor
 och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
 Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
-*Klasser och objekt*, its Övning. Week 42: *Behållare: Uppslagslistor*,
-*Behållare: Mängder, stackar och köer*, *Behållare: Ett gissningsspel*,
-*Operatoröverlagring*, *Praktiska tillämpningar av klasser*, its Övning.
+*Behållare: Uppslagslistor*, *Klasser och objekt*, its Övning (moved
+from week 42 on 2026-09-23: *Klasser och objekt* and its Övning build on
+dictionaries). Week 42: *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
+tillämpningar av klasser*, its Övning.
 Week 44: *Arbeta med filer*, its Övning. Week 46: *Grafiska
 användargränssnitt*, its Övning. A tutorial deck is named in a pointer by
 its title: "i \emph{Övning: Funktioner och variabler}, bilaga~B".
