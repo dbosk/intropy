@@ -425,7 +425,7 @@ importeras.
 
 <<klasserna i [[person.py]]>>
 
-<<testprogrammet i [[person.py]]>>
+<<testerna i [[person.py]]>>
 @
   \end{example}
 \end{frame}
@@ -475,31 +475,51 @@ Här har vi definierat en \mintinline{python}{Person}-klass med en
 \mintinline{python}{__init__}-metod som initierar alla attribut.  Varje
 attribut lagras som en privat variabel (notera de dubbla understrecken).
 
-Med konstruktorn kan testprogrammet skapa en person.  Det ska sedan
-göra tre saker med den: skriva ut den, byta namn på den, och jämföra
-den med en annan person.  De tre skriver vi först som pseudokod, och
-senare preciserar vi pseudokoden med pythonkod, när klassen har de
-metoder som behövs.
+Med konstruktorn kan vi för första gången prova klassen: skapa en
+person.  Därför börjar vi skriva testprogrammet redan nu.  Det heter
+[[tests]] och inte [[main]], eftersom filen innehåller en klass som
+andra program importerar, och det enda den gör när den körs som program
+är att prova klassen.  Testerna skriver vi inte sist, när klassen är
+klar.  Varje gång klassen får en ny del lägger vi till ett testfall som
+provar just den delen, och bredvid testfallet står vad det skriver ut.
+På så sätt är varje del provad när vi bygger vidare på den.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:person-main}
-    Testprogrammet skapar en person och använder den sedan på olika sätt:
-<<testprogrammet i [[person.py]]>>=
-def main():
+    Testprogrammet, med testerna samlade under ett namn:
+<<testerna i [[person.py]]>>=
+def tests():
     """Test program"""
-    person = Person(
-        "Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "okänt"
-    )
-    <<skriv ut personen>>
-    <<byt namn på personen>>
-    <<jämför och sortera personer>>
+    <<tester för [[Person]]>>
 
 if __name__ == "__main__":
-    main()
+    tests()
+@
+    Det första testfallet skapar en person:
+<<tester för [[Person]]>>=
+<<skapa en person>>
+<<skapa en person>>=
+person = Person(
+    "Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "okänt"
+)
 @
   \end{example}
 \end{frame}
+
+Att skapa en person skriver inte ut något, så det första testfallet
+har ingen utskrift att visa.  Senare ska testerna skriva ut personen,
+byta namn på den och jämföra den med en annan person, men de metoder
+som behövs för det har klassen inte än.
+
+\ltnote{%
+  Testprogrammet heter \mintinline{python}{tests} och växer med
+  klassen, ett testfall efter varje del och med testfallets utskrift
+  bredvid (författaren, 2026-09-24: \enquote{I would sketch the tests as
+  I design parts of the class}).  Det är samma uppifrån och ner som i
+  resten av kapitlet: ett testfall skrivs där resonemanget har byggt
+  delen det provar.
+}
 
 \ltnote{%
   Namnen i testprogrammet bär en dold kulturell koppling, som inte sägs i
@@ -661,23 +681,6 @@ def __str__(self):
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{example}[Skriva ut personen]
-    \label{ex:person-print}
-    Testprogrammet använder båda metoderna:
-<<skriv ut personen>>=
-print(
-    f"{person.get_name()} har telefonnummer {person.get_phone()} "
-    f"och bor på adressen {person.get_address()}"
-)
-print(
-    f"{person} har telefonnummer {person.get_phone()} "
-    f"och bor på adressen {person.get_address()}"
-)
-@
-  \end{example}
-\end{frame}
-
 Detta är ett exempel på inkapsling.  Vi har attribut,
 \mintinline{python}{__first_name} och \mintinline{python}{__last_name},
 som vi kan läsa ut med en metod \mintinline{python}{get_name()}.  Men
@@ -703,6 +706,36 @@ def get_phone(self):
     """Returns phone number"""
     return self.__phone
 @
+  \end{example}
+\end{frame}
+
+Nu har klassen allt som behövs för att skriva ut personen, och
+testprogrammet får sitt andra testfall.
+
+% Each test case's output below is a run of a small program tangled from
+% testkorningar.nw: it imports the class, runs the earlier cases with
+% their output thrown away, and then this case, so the output is exactly
+% what tests() prints for these lines.
+
+\begin{frame}[fragile]
+  \begin{example}[Skriva ut personen]
+    \label{ex:person-print}
+    Testfallet använder båda metoderna för namnet:
+<<tester för [[Person]]>>=
+<<skriv ut personen>>
+<<skriv ut personen>>=
+print(
+    f"{person.get_name()} har telefonnummer {person.get_phone()} "
+    f"och bor på adressen {person.get_address()}"
+)
+print(
+    f"{person} har telefonnummer {person.get_phone()} "
+    f"och bor på adressen {person.get_address()}"
+)
+@
+    Testfallet skriver ut
+    \runpython[chdir, breaklines, deps={examples/person.py}]%
+      {examples/person_test_utskrift.py}
   \end{example}
 \end{frame}
 
@@ -751,16 +784,23 @@ def change_name(self, name):
   \end{example}
 \end{frame}
 
+% Keeps the test case's two chunks and its output on one notes page.
+\mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Byta namn på personen]
     \label{ex:person-rename}
-    Testprogrammet byter namn och skriver ut igen:
+    Testfallet byter namn och skriver ut igen:
+<<tester för [[Person]]>>=
+<<byt namn på personen>>
 <<byt namn på personen>>=
 person.change_name("Margareta Engström")
 print(f"{person} bor på adressen {person.get_address()}")
 print(person.get_first_name())
 print(person.get_last_name())
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/person.py}]%
+      {examples/person_test_namnbyte.py}
   \end{example}
 \end{frame}
 
@@ -1452,9 +1492,8 @@ objekt ska bete sig med operatorer som \mintinline{python}{+},
 \mintinline{python}{<}, \mintinline{python}{==}, och så vidare.
 
 Låt oss titta på några konkreta exempel i vår
-\mintinline{python}{Person}-klass.  Testprogrammets sista steg i
-pseudokod är att jämföra personen med en annan person och sortera dem
-(\cref{ex:person-main}).  Då måste Python veta vad
+\mintinline{python}{Person}-klass.  Det sista testfallet ska jämföra
+personen med en annan person och sortera dem.  Då måste Python veta vad
 \mintinline{python}{<} betyder för två personer, och hur en lista med
 personer skrivs ut.  Det ger vi klassen med två dundermetoder till, som
 vi lägger till sist bland metoderna.
@@ -1486,7 +1525,9 @@ def __repr__(self):
 \begin{frame}[fragile]
   \begin{example}[Jämföra och sortera personer]
     \label{ex:person-sort}
-    Testprogrammet skapar en person till, jämför och sorterar:
+    Testfallet skapar en person till, jämför och sorterar:
+<<tester för [[Person]]>>=
+<<jämför och sortera personer>>
 <<jämför och sortera personer>>=
 person2 = Person(
     "Ada", "Bedasdotter", "1990-01-01", "Kiruna", "070-1234567"
@@ -1501,6 +1542,15 @@ print(lista)
 lista.sort()
 print(lista)
 @
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utskriften från jämförelsen och sorteringen]
+    \label{ex:person-sort-run}
+    Testfallet skriver ut
+    \runpython[chdir, breaklines, deps={examples/person.py}]%
+      {examples/person_test_sortering.py}
   \end{example}
 \end{frame}
 
@@ -1753,7 +1803,7 @@ from person import Person
 
 <<klasserna i [[person_nick.py]]>>
 
-<<testprogrammet i [[person_nick.py]]>>
+<<testerna i [[person_nick.py]]>>
 @
   \end{example}
 \end{frame}
@@ -1858,6 +1908,33 @@ föräldern inte känner till.
   förälderns funktionalitet.
 }
 
+Nu är konstruktorn färdig, och testprogrammet kan börja: det heter
+[[tests]], som i \texttt{person.py}, och växer på samma sätt med
+klassen.
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet]
+    \label{ex:person-nick-tests}
+    Testprogrammet, med testerna samlade under ett namn:
+<<testerna i [[person_nick.py]]>>=
+def tests():
+    """Test program"""
+    <<tester för [[PersonNick]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+    Det första testfallet skapar en person, ännu utan smeknamn:
+<<tester för [[PersonNick]]>>=
+<<skapa en [[PersonNick]]>>
+<<skapa en [[PersonNick]]>>=
+person = PersonNick(
+    "Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "okänt"
+)
+@
+  \end{example}
+\end{frame}
+
 \begin{frame}
   \begin{exercise}
     \label{ovn:arvda-metoder}
@@ -1914,27 +1991,25 @@ metoden \mintinline{python}{get_full_name()}.
 
 Det är användbart när vi vill \emph{utöka} beteendet snarare än att helt
 ersätta det.  Vi kan köra föräldraklassens logik först, och sedan lägga
-till vår egen.  Låt oss se hur klassen används.
+till vår egen.  Låt oss se hur klassen används: testprogrammet får sitt
+andra testfall.
 
 \begin{frame}[fragile]
-  \begin{example}[Testprogrammet]
+  \begin{example}[Ärvda, nya och överlagrade metoder]
     \label{ex:person-nick-main}
     Objektet har metoder från både \mintinline{python}{PersonNick} och
     \mintinline{python}{Person}:
-<<testprogrammet i [[person_nick.py]]>>=
-def main():
-    """Test program"""
-    person = PersonNick(
-        "Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "okänt"
-    )
-    print(person)
-    person.change_name("Margareta Engström")
-    person.set_nick("Madicken")
-    print(f"{person.get_name()} är född {person.get_birthday()}.")
-
-if __name__ == "__main__":
-    main()
+<<tester för [[PersonNick]]>>=
+<<använd ärvda, nya och överlagrade metoder>>
+<<använd ärvda, nya och överlagrade metoder>>=
+print(person)
+person.change_name("Margareta Engström")
+person.set_nick("Madicken")
+print(f"{person.get_name()} är född {person.get_birthday()}.")
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/person.py,examples/person_nick.py}]%
+      {examples/person_nick_test_metoder.py}
   \end{example}
 \end{frame}
 
@@ -1943,7 +2018,11 @@ Objektet \mintinline{python}{person} har tillgång till alla metoder från
 både \mintinline{python}{PersonNick} och \mintinline{python}{Person}:
 \mintinline{python}{change_name} och \mintinline{python}{get_birthday}
 är ärvda, \mintinline{python}{set_nick} är ny och
-\mintinline{python}{get_name} är överlagrad.
+\mintinline{python}{get_name} är överlagrad.  Den första raden är bara
+förnamnet, fastän \mintinline{python}{PersonNick} inte har någon egen
+\mintinline{python}{__str__}: den ärvda \mintinline{python}{__str__}
+anropar \mintinline{python}{self.get_name()}, och för en
+\mintinline{python}{PersonNick} är det den överlagrade versionen.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela filen:
