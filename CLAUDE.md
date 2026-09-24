@@ -37,8 +37,11 @@ The author arranged *Inmatning, felhantering och styrstrukturer* by hand
    `modules/CLAUDE.md`; a deck with two videos keeps its part names
    (`Behållare: Listor, del 1 (videoföreläsning)`)
 5. Page `Övning: <vecka>`
-6. `Övning: <vecka> (övningsanteckningar)`, FeedbackFruits, author-made.
-   Until then the text header `Övningsanteckningar kommer`
+6. `<vecka> (övningsanteckningar)`, FeedbackFruits, author-made (week 39:
+   `Inmatning, felhantering och styrstrukturer (övningsanteckningar)`, no
+   `Övning:` prefix). Until then the text header `Övningsanteckningar
+   kommer`; removing the header leaves a gap in the positions (week 39:
+   the document is at 8, 7 is empty), which is harmless
 7. `Laboration (N) …`
 8. anything else the module holds (week 42: *Läsförståelse: Dokumentation
    för olika behållare*)
