@@ -77,7 +77,7 @@ Vi skriver inte filen i ett svep, utan uppifrån och ner: först filens
 upplägg, i pseudokod, och sedan preciserar vi pseudokoden med
 pythonkod, en del i taget, när vi kommer till den.  Överst står en
 \foreignlanguage{english}{docstring} som säger vad programmet är till
-för, sedan klasserna och till sist huvudprogrammet.
+för, sedan klasserna och till sist testprogrammet.
 
 \mode<article>{\needspace{12\baselineskip}}
 \begin{frame}[fragile]
@@ -89,7 +89,7 @@ för, sedan klasserna och till sist huvudprogrammet.
 
 <<klasserna i inköpslistan>>
 
-<<huvudprogrammet i inköpslistan>>
+<<testerna i inköpslistan>>
 @
   \end{example}
 \end{frame}
@@ -144,6 +144,43 @@ def __init__(self, name):
   oförändrad.
 }
 
+Testprogrammet heter \mintinline{python}{tests} och inte
+\mintinline{python}{main}: det är klassen filen är till för, och
+programmet i den finns bara för att prova klassen.  Vi skriver det inte
+sist.  Det börjar tomt, och varje gång vi har skrivit en del av klassen
+lägger vi till ett testfall för den, direkt efter delen.  Bredvid
+testfallet står vad just de raderna skriver ut när
+\mintinline{python}{tests} körs.  Direkt efter definitionen står anropet
+som sätter i gång programmet, så att definitionen och anropet läses
+tillsammans.
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet]
+    \label{ex:shopping-main}
+    Testfallen läggs till ett i taget:
+<<testerna i inköpslistan>>=
+def tests():
+    """Exempel på användning"""
+    <<tester för [[ShoppingList]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+  \end{example}
+\end{frame}
+
+\ltnote{%
+  Testprogrammet heter \mintinline{python}{tests} och växer med klassen
+  (författaren, 2026-09-24: \enquote{I'd call it tests() instead of
+  main(), then I would sketch the tests as I design parts of the
+  class}); det gäller kapitlets tre filer.  Utskriften bredvid ett
+  testfall kommer från en liten testkörning i \texttt{testkorningar.nw},
+  som aldrig vävs: den importerar klasserna, kör de tidigare testfallen
+  tyst och sedan testfallet självt, så att testfallens rader står en
+  enda gång.  Ett testfall vars utskrift är svaret på en senare
+  förutsägelseövning får ingen körning bredvid sig.
+}
+
 Nu fyller vi på klassens metoder, först med de två som lägger till och
 visar varor.  Ett namn som får flera delar får \(\equiv\) första gången
 och +\(\equiv\) varje gång därefter, och i programmet står delarna
@@ -183,6 +220,29 @@ Genom att använda uppslagslistor kan vi lagra mer information om varje
 vara än bara namnet.  I detta fall lagrar vi även om varan är avbockad
 eller inte.
 
+Nu kan vi prova de två metoderna.
+
+\begin{frame}[fragile]
+  \begin{example}[Prova de första metoderna]
+    \label{ex:shopping-use}
+    Testfallet skapar en lista för mat med tre varor och visar den:
+<<skapa en inköpslista och visa varorna>>=
+# Skapa en inköpslista för mat
+mat_lista = ShoppingList("Mat")
+mat_lista.add_item("Mjölk")
+mat_lista.add_item("Bröd")
+mat_lista.add_item("Ägg")
+
+mat_lista.list_items()
+<<tester för [[ShoppingList]]>>=
+<<skapa en inköpslista och visa varorna>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/shopping.py}]%
+      {examples/shopping_test_visa.py}
+  \end{example}
+\end{frame}
+
 \begin{frame}[fragile]
   \begin{example}[Fler metoder för \texttt{ShoppingList}]
     \label{ex:shopping-check}
@@ -194,6 +254,20 @@ def check_item(self, index):
 
 def remove_checked(self):
     self.items = [item for item in self.items if not item["checked"]]
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova att bocka av och ta bort]
+    \label{ex:shopping-check-test}
+    Testfallet bockar av mjölken och tar bort den; det skriver inte ut
+    något:
+<<bocka av en vara och ta bort den>>=
+mat_lista.check_item(0)  # Bocka av mjölk
+mat_lista.remove_checked()
+<<tester för [[ShoppingList]]>>=
+<<bocka av en vara och ta bort den>>
 @
   \end{example}
 \end{frame}
@@ -223,47 +297,6 @@ avbockade.
   \mintinline{python}{item["name"]}.
 }
 
-Testprogrammet är inköpslistans huvudprogram.  Det skapar en lista och
-använder metoderna, och sedan hanterar det flera listor.  Båda delarna
-skriver vi först som pseudokod.  Direkt efter definitionen står anropet
-som sätter i gång programmet, så att definitionen och anropet läses
-tillsammans.
-
-\begin{frame}[fragile]
-  \begin{example}[Användning av \texttt{ShoppingList}]
-    \label{ex:shopping-main}
-    Skapa en lista och hantera varor:
-<<huvudprogrammet i inköpslistan>>=
-def main():
-    """Exempel på användning"""
-    <<skapa en inköpslista och hantera varor>>
-
-    <<hantera flera listor>>
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Skapa en lista och hantera varor]
-    \label{ex:shopping-use}
-    Tre varor läggs till, en bockas av och tas bort:
-<<skapa en inköpslista och hantera varor>>=
-# Skapa en inköpslista för mat
-mat_lista = ShoppingList("Mat")
-mat_lista.add_item("Mjölk")
-mat_lista.add_item("Bröd")
-mat_lista.add_item("Ägg")
-
-mat_lista.list_items()
-mat_lista.check_item(0)  # Bocka av mjölk
-mat_lista.remove_checked()
-@
-  \end{example}
-\end{frame}
-
 \subsection{Flera listor}
 \label{sec:flera-listor}
 
@@ -277,9 +310,11 @@ mat_lista.remove_checked()
 
 Vi kan använda en lista av \mintinline{python}{ShoppingList}-objekt.
 Detta illustrerar ett viktigt koncept: vi kan ha behållare (listor) som
-innehåller objekt av våra egna klasser.
+innehåller objekt av våra egna klasser.  Testprogrammets sista testfall
+gör just det.  Vad det skriver ut visar vi inte här: det är en del av
+svaret på nästa övning.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Hantera flera listor]
     \label{ex:shopping-lists}
     En lista av \mintinline{python}{ShoppingList}-objekt:
@@ -298,6 +333,9 @@ listor[1].add_item("Tandkräm")
 for lista in listor:
     print(f"\n{lista.name}:")
     lista.list_items()
+<<tester för [[ShoppingList]]>>=
+
+<<hantera flera listor>>
 @
   \end{example}
 \end{frame}
@@ -333,7 +371,10 @@ for lista in listor:
   itereras med \mintinline{python}{for}.  Utmatningen var inte med i
   den tidigare versionen; den körs nu av det tanglade programmet genom
   didactic-paketets \mintinline{latex}{\runpython[transcript]}, efter en
-  förutsägelsefråga (\foreignlanguage{english}{try-first}).  Lägg märke
+  förutsägelsefråga (\foreignlanguage{english}{try-first}).  De tre
+  första raderna har körningen bredvid det första testfallet redan
+  visat; frågan gäller alltså i första hand testfallet med flera listor,
+  som fick vänta med sin körning för att inte svara på den.  Lägg märke
   till att \mintinline{python}{mat_lista} skrivs ut \emph{före}
   avbockningen och aldrig efter --- ett tillfälle att fråga vad
   \mintinline{python}{remove_checked()} gjorde.
@@ -398,6 +439,8 @@ Titta igen på hur varorna skapas och visas i
 nycklarna som håller ihop den.  Vad det innebär för den som använder
 varan är värt att pröva.
 
+% The \needspace keeps items1.py on one page in the notes.
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:stavfel}
@@ -461,7 +504,24 @@ situationen.  De två klasserna och ett testprogram ligger i filen
 
 <<klasserna i inköpslistan med varuobjekt>>
 
-<<huvudprogrammet i inköpslistan med varuobjekt>>
+<<testerna i inköpslistan med varuobjekt>>
+@
+  \end{example}
+\end{frame}
+
+Testprogrammet växer med klasserna, som förut.
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet med varuobjekt]
+    \label{ex:items-main}
+    Testfallen läggs till ett i taget, som förut:
+<<testerna i inköpslistan med varuobjekt>>=
+def tests():
+    """Exempel på användning"""
+    <<tester för [[ShoppingList]] med varuobjekt>>
+
+if __name__ == "__main__":
+    tests()
 @
   \end{example}
 \end{frame}
@@ -561,6 +621,30 @@ def list_items(self):
   \end{example}
 \end{frame}
 
+% The \needspace keeps the test case with its lead-in in the notes.
+\mode<article>{\needspace{12\baselineskip}}
+\begin{frame}[fragile,shrink]
+  \begin{example}[Prova att lägga till och visa varuobjekt]
+    \label{ex:items-use}
+    Samma lista som förut, med en rubrik:
+<<skapa en inköpslista med varuobjekt och visa den>>=
+# Skapa en inköpslista för mat
+mat_lista = ShoppingList("Mat")
+mat_lista.add_item("Mjölk")
+mat_lista.add_item("Bröd")
+mat_lista.add_item("Ägg")
+
+print("Inköpslista:")
+mat_lista.list_items()
+<<tester för [[ShoppingList]] med varuobjekt>>=
+<<skapa en inköpslista med varuobjekt och visa den>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/shopping_with_items.py}]%
+      {examples/shopping_with_items_test_visa.py}
+  \end{example}
+\end{frame}
+
 \begin{frame}[fragile]
   \begin{example}[Bocka av och ta bort varuobjekt]
     \label{ex:shopping-items-check}
@@ -578,6 +662,34 @@ def remove_checked(self):
   \end{example}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{example}[Prova att bocka av och ta bort varuobjekt]
+    \label{ex:items-check-use}
+    Listan skrivs ut efter varje steg:
+<<bocka av och ta bort ett varuobjekt>>=
+print("\nBockar av mjölk...")
+mat_lista.check_item(0)
+mat_lista.list_items()
+
+print("\nTar bort avbockade varor...")
+mat_lista.remove_checked()
+mat_lista.list_items()
+<<tester för [[ShoppingList]] med varuobjekt>>=
+
+<<bocka av och ta bort ett varuobjekt>>
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Avbockning och borttagning av varuobjekt]
+    \label{ex:items-check-run}
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/shopping_with_items.py}]%
+      {examples/shopping_with_items_test_bocka.py}
+  \end{example}
+\end{frame}
+
 Lägg märke till förändringarna:
 \begin{description}
   \item[\texttt{add\_item()}] skapar nu \mintinline{python}{Item}-objekt
@@ -592,46 +704,7 @@ Lägg märke till förändringarna:
     \mintinline{python}{item["checked"]}.
 \end{description}
 
-\begin{frame}[fragile]
-  \begin{example}[Testprogrammet med varuobjekt]
-    \label{ex:items-main}
-    Samma användning som förut, med utskrift efter varje steg:
-<<huvudprogrammet i inköpslistan med varuobjekt>>=
-def main():
-    """Exempel på användning"""
-    <<prova inköpslistan med varuobjekt>>
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Prova inköpslistan med varuobjekt]
-    \label{ex:items-use}
-    Listan skrivs ut efter varje steg:
-<<prova inköpslistan med varuobjekt>>=
-# Skapa en inköpslista för mat
-mat_lista = ShoppingList("Mat")
-mat_lista.add_item("Mjölk")
-mat_lista.add_item("Bröd")
-mat_lista.add_item("Ägg")
-
-print("Inköpslista:")
-mat_lista.list_items()
-
-print("\nBockar av mjölk...")
-mat_lista.check_item(0)
-mat_lista.list_items()
-
-print("\nTar bort avbockade varor...")
-mat_lista.remove_checked()
-mat_lista.list_items()
-@
-  \end{example}
-\end{frame}
-
+\mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
   \inputminted{python}{examples/shopping_with_items.py}
@@ -815,9 +888,9 @@ prioritet, kategori, antal, pris och så vidare, skulle
   varandra.  Programmet byggs uppifrån och ner: först filens upplägg,
   sedan läggs varje klass till där resonemanget når den; kontot byggs
   metod för metod i två steg (insättning, uttag) som i den tidigare
-  versionen, och testprogrammet skrivs när alla fem klasserna finns, så
-  att dess pseudokod inte nämner medborgaren innan arvet har
-  diskuterats.
+  versionen, och testprogrammet växer med klasserna: varje klass får
+  sitt testfall direkt efter sig, så att medborgaren inte nämns innan
+  arvet har diskuterats.
 }
 
 Nu ska vi bygga ett mer komplext system där flera klasser samverkar.
@@ -835,7 +908,25 @@ inköpslistan och lägger till varje klass när vi kommer till den.
 
 <<klasserna i banksystemet>>
 
-<<huvudprogrammet i banksystemet>>
+<<testerna i banksystemet>>
+@
+  \end{example}
+\end{frame}
+
+Också här växer testprogrammet med klasserna: varje klass får sitt
+testfall direkt efter sig.
+
+\begin{frame}[fragile]
+  \begin{example}[Banksystemets testprogram]
+    \label{ex:bank-main}
+    Testfallen läggs till ett i taget:
+<<testerna i banksystemet>>=
+def tests():
+    """Exempel på användning"""
+    <<tester för banksystemet>>
+
+if __name__ == "__main__":
+    tests()
 @
   \end{example}
 \end{frame}
@@ -869,6 +960,25 @@ class Person:
     def __str__(self):
         return f"{self.name} ({self.age} år)"
 @
+  \end{example}
+\end{frame}
+
+% The \needspace keeps the test case with its output in the notes.
+\mode<article>{\needspace{11\baselineskip}}
+\begin{frame}[fragile]
+  \begin{example}[Prova personen]
+    \label{ex:bank-person-test}
+    Testfallet skapar en person och skriver ut den:
+<<prova personen>>=
+# Enkel person
+person = Person("Ronja Rövardotter", 30)
+print(person)
+<<tester för banksystemet>>=
+<<prova personen>>
+@
+    Det skriver ut
+    \runpython[chdir, deps={examples/bank.py}]%
+      {examples/bank_test_person.py}
   \end{example}
 \end{frame}
 
@@ -961,6 +1071,22 @@ class PersonWithAddress:
 
     def __str__(self):
         return f"{self.name} ({self.age} år)\n{self.address}"
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova personen med adress]
+    \label{ex:bank-person-address-test}
+    Testfallet skapar en adress och en person som bor där; det skriver
+    inte ut något:
+<<prova personen med adress>>=
+# Person med adress
+address = Address("Storgatan 1", "Stockholm", "12345")
+person_with_addr = PersonWithAddress("Pippi Långstrump", 35, address)
+<<tester för banksystemet>>=
+
+<<prova personen med adress>>
 @
   \end{example}
 \end{frame}
@@ -1058,6 +1184,29 @@ som i föreläsningen \emph{Inmatning och felhantering}; vi återkommer
 till valet i \cref{ovn:uttag-for-mycket}.
 
 \begin{frame}[fragile]
+  \begin{example}[Prova kontot]
+    \label{ex:bank-use}
+    Pippi får ett konto med 1000~kr och sätter in 500:
+<<prova kontot och en insättning>>=
+# Skapa ett konto
+account = BankAccount(person_with_addr, 1000)
+
+# Utför transaktioner
+account.deposit(500)
+print(f"Efter insättning: {account.balance} kr")
+<<tester för banksystemet>>=
+
+<<prova kontot och en insättning>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/bank.py}]%
+      {examples/bank_test_konto.py}
+  \end{example}
+\end{frame}
+
+% The \needspace keeps the withdrawal's chunk on one page in the notes.
+\mode<article>{\needspace{15\baselineskip}}
+\begin{frame}[fragile]
   \begin{example}[Ta ut pengar från kontot]
     \label{ex:bank-withdraw}
     Uttag med kontroll, och en utskrift av kontot:
@@ -1071,6 +1220,25 @@ def withdraw(self, amount):
 def __str__(self):
     return f"Konto: {self.owner.name}\nSaldo: {self.balance} kr"
 @
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova ett uttag]
+    \label{ex:bank-transactions}
+    Ett uttag, med kontroll av om det gick:
+<<prova ett uttag>>=
+if account.withdraw(200):
+    print(f"Efter uttag: {account.balance} kr")
+else:
+    print("Uttaget misslyckades!")
+<<tester för banksystemet>>=
+
+<<prova ett uttag>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/bank.py}]%
+      {examples/bank_test_uttag.py}
   \end{example}
 \end{frame}
 
@@ -1167,66 +1335,12 @@ repeat yourself}\autocite{HuntThomas1999}, varnar för.\footnote{%
 \subsection{Banksystemets testprogram}
 \label{sec:bank-test}
 
-Nu har vi alla fem klasserna, och testprogrammet kan pröva dem.  Det
-gör två saker: först skapar det en person, en person med adress och ett
-konto och gör några transaktioner, och sedan skapar det en medborgare
-med ett eget konto.  Båda delarna skriver vi först som pseudokod.
+Nu har vi alla fem klasserna.  Testprogrammets sista testfall skapar
+en medborgare med ett eget konto.  Vad det skriver ut visar vi inte här:
+det är en del av svaret på övningen efter hela programmet.
 
-\begin{frame}[fragile]
-  \begin{example}[Använda banksystemet]
-    \label{ex:bank-main}
-    Skapa person, konto och transaktioner:
-<<huvudprogrammet i banksystemet>>=
-def main():
-    """Exempel på användning"""
-    <<skapa person, adress och konto>>
-
-    <<skapa en medborgare med konto>>
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Person, adress och konto]
-    \label{ex:bank-use}
-    En person, en person med adress, ett konto och två transaktioner:
-<<skapa person, adress och konto>>=
-# Enkel person
-person = Person("Ronja Rövardotter", 30)
-print(person)
-
-# Person med adress
-address = Address("Storgatan 1", "Stockholm", "12345")
-person_with_addr = PersonWithAddress("Pippi Långstrump", 35, address)
-
-# Skapa ett konto
-account = BankAccount(person_with_addr, 1000)
-
-<<utför transaktioner>>
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Transaktioner]
-    \label{ex:bank-transactions}
-    En insättning och ett uttag, med kontroll av uttaget:
-<<utför transaktioner>>=
-# Utför transaktioner
-account.deposit(500)
-print(f"Efter insättning: {account.balance} kr")
-
-if account.withdraw(200):
-    print(f"Efter uttag: {account.balance} kr")
-else:
-    print("Uttaget misslyckades!")
-@
-  \end{example}
-\end{frame}
-
+% The \needspace keeps the test case on one page in the notes.
+\mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Användning av \texttt{Citizen}]
     \label{ex:bank-citizen-main}
@@ -1238,6 +1352,9 @@ citizen = Citizen("Madicken Engström", 45, address2, "450101-1234")
 
 account2 = BankAccount(citizen, 5000)
 print(account2)
+<<tester för banksystemet>>=
+
+<<skapa en medborgare med konto>>
 @
   \end{example}
 \end{frame}
@@ -1257,6 +1374,7 @@ Eftersom \mintinline{python}{Citizen} är en
 ägaren är en medborgare; det räcker att ägaren har det en person har.
 Detta kallas \emph{polymorfism}.
 
+\mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
   \inputminted{python}{examples/bank.py}
@@ -1291,7 +1409,10 @@ Detta kallas \emph{polymorfism}.
   \emph{vilket} objekt som skrivs ut från vilket som äger vilket.
   Utmatningen körs av det tanglade programmet
   (\mintinline{latex}{\runpython[transcript]}); i den tidigare
-  versionen visades ingen utmatning.
+  versionen visades ingen utmatning.  De tre första raderna har
+  körningarna bredvid testfallen redan visat; medborgarens testfall fick
+  ingen körning bredvid sig, så att frågan fortfarande gäller just
+  fusionsraden.
 }
 
 \section{Sammanfattning}
