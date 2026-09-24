@@ -57,7 +57,7 @@ sedan det som behöver importeras, klassen och till sist testprogrammet.
 
 <<bråkbibliotekets klasser>>
 
-<<bråkbibliotekets testprogram>>
+<<bråkbibliotekets tester>>
 @
   \end{example}
 \end{frame}
@@ -97,28 +97,49 @@ class Fraction:
   \end{example}
 \end{frame}
 
-Testprogrammet börjar nästan tomt.  Varje gång vi har skrivit en del av
-klassen lägger vi till ett prov av den, så att testprogrammet provar
-delarna i den ordning vi skrev dem och vi kan se resultatet av alltihop
-sist.  Direkt efter testprogrammets definition står anropet, så att
-definitionen och anropet läses tillsammans.  Villkoret framför anropet
-gör att testprogrammet bara körs när filen körs som program, och inte när
-den importeras.
+Testprogrammet heter \mintinline{python}{tests} och inte
+\mintinline{python}{main}.  Filen är ett bibliotek: det är klassen som
+andra program ska importera och använda, och programmet i filen finns
+bara för att prova klassen.  Det börjar nästan tomt, och vi skriver det
+inte sist.  Varje gång vi har skrivit en del av klassen lägger vi till
+ett testfall för den, direkt efter delen, så att testprogrammet provar
+delarna i den ordning vi skrev dem.  Bredvid testfallet står vad just de
+raderna skriver ut när \mintinline{python}{tests} körs, med klassen som
+den ser ut i det läget.  Direkt efter testprogrammets definition står
+anropet, så att definitionen och anropet läses tillsammans.  Villkoret
+framför anropet gör att testprogrammet bara körs när filen körs som
+program, och inte när den importeras.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:fraction-main}
-    Proven läggs till ett i taget:
-<<bråkbibliotekets testprogram>>=
-def main():
+    Testfallen läggs till ett i taget:
+<<bråkbibliotekets tester>>=
+def tests():
     """Test program"""
-    <<prov av bråkklassen>>
+    <<tester för [[Fraction]]>>
 
 if __name__ == "__main__":
-    main()
+    tests()
 @
   \end{example}
 \end{frame}
+
+\ltnote{%
+  Testprogrammet heter \mintinline{python}{tests} och växer med klassen
+  (författaren, 2026-09-24: \enquote{I'd call it tests() instead of
+  main(), then I would sketch the tests as I design parts of the
+  class}).  Utskriften bredvid ett testfall kommer från en liten
+  testkörning i \texttt{testkorningar.nw}, som aldrig vävs: den
+  importerar klassen, kör de tidigare testfallen tyst och sedan
+  testfallet självt, så att testfallens rader står en enda gång.  Före
+  \cref{sec:forkortning} är konstruktorns steg att förkorta pseudokod,
+  och testkörningarna där stänger av förkortningen, så att utskriften
+  är klassens som den står i texten (\mintinline{text}|2/8| och
+  \mintinline{text}|2/2|, inte \mintinline{text}|1/4| och
+  \mintinline{text}|1/1|).  Förkortningens eget testfall får ingen
+  körning bredvid sig: dess utskrift är svaret på \cref{ovn:utmatning}.
+}
 
 \subsection{Konstruktorn}
 \label{sec:konstruktorn}
@@ -200,13 +221,14 @@ def __init__(self, numerator, denominator=1):
 \begin{frame}[fragile]
   \begin{example}[Några sätt att skapa bråk]
     \label{ex:fraction-create}
-    Testprogrammet skapar bråk på alla fyra sätten:
-<<prov av bråkklassen>>=
+    Testfallet skapar bråk på alla fyra sätten:
+<<prova att skapa bråk>>=
 frac = Fraction(1, 2)
 int_as_frac = Fraction(2)
 frac_from_frac = Fraction(Fraction(1, 2))
 half_frac = Fraction(Fraction(1, 2), 2)
-print(frac, int_as_frac, frac_from_frac, half_frac)
+<<tester för [[Fraction]]>>=
+<<prova att skapa bråk>>
 @
   \end{example}
 \end{frame}
@@ -450,11 +472,18 @@ det till andra typer?
 
 Vi behöver implementera dundermetoder för att konvertera vårt bråk till
 olika representationer.  De läggs till bland bråkklassens metoder, efter
-egenskaperna, och proven av dem läggs till i testprogrammet.  Ett namn
+egenskaperna, och testfallet för dem bland testerna.  Ett namn
 som får flera delar får \(\equiv\) första gången och +\(\equiv\) varje
 gång därefter, och i programmet står delarna efter varandra, i den
 ordning de kommer.
 
+Utskriften bredvid ett testfall kommer från klassen som den står i
+texten.  Konstruktorns steg att förkorta bråket är fortfarande
+pseudokod, så fram till \cref{sec:forkortning} förkortar klassen inga
+bråk, och utskrifterna visar bråken oförkortade.
+
+% The \needspace keeps the two methods' chunk on one page in the notes.
+\mode<article>{\needspace{10\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Typkonvertering]
     \label{ex:fraction-conversion}
@@ -466,11 +495,24 @@ def __str__(self):
 def __float__(self):
     return self.numerator / self.denominator
 @
-    Vi provar att typkonvertera:
-<<prov av bråkklassen>>=
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova typkonverteringen]
+    \label{ex:fraction-conversion-test}
+    Nu kan vi skriva ut de fyra bråken från konstruktorns testfall, och
+    typkonvertera:
+<<prova typkonverteringen>>=
+print(frac, int_as_frac, frac_from_frac, half_frac)
 print(frac)
 print(float(frac))
+<<tester för [[Fraction]]>>=
+<<prova typkonverteringen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_konvertering.py}
   \end{example}
 \end{frame}
 
@@ -505,10 +547,15 @@ För att implementera det behöver vi dundermetoden
 def __int__(self):
     return self.numerator // self.denominator
 @
-    Testprogrammet provar även den:
-<<prov av bråkklassen>>=
+    Testfallet provar exemplet ovan:
+<<prova konverteringen till heltal>>=
 print(int(Fraction(7, 2)))
+<<tester för [[Fraction]]>>=
+<<prova konverteringen till heltal>>
 @
+    Det skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_heltal.py}
   \end{example}
 \end{frame}
 
@@ -601,11 +648,16 @@ def __add__(self, other):
   \begin{example}[Prova addition]
     \label{ex:fraction-add-test}
     Vi adderar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prov av bråkklassen>>=
+<<prova additionen>>=
 frac_a = Fraction(1, 2)
 frac_b = Fraction(1, 3)
 print(frac_a + frac_b)
+<<tester för [[Fraction]]>>=
+<<prova additionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_addition.py}
   \end{example}
 \end{frame}
 
@@ -663,6 +715,9 @@ hantera operationen.\footnote{\label{fn:radd}%
   operand does not support the corresponding operation}.  Samma avsnitt
   i språkreferensen som \cref{fn:add}.}
 
+% The \needspace keeps the method, the test case and its output together
+% in the notes.
+\mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Omvänd addition]
     \label{ex:fraction-radd}
@@ -672,10 +727,15 @@ def __radd__(self, other):
     return self + other
 @
     Vi provar \(1 + \frac{1}{2}\) igen, med heltalet på båda sidor:
-<<prov av bråkklassen>>=
+<<prova den omvända additionen>>=
 print(frac_a + 1)
 print(1 + frac_a)
+<<tester för [[Fraction]]>>=
+<<prova den omvända additionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_radd.py}
   \end{example}
 \end{frame}
 
@@ -730,9 +790,14 @@ def __neg__(self):
     return Fraction(-self.numerator, self.denominator)
 @
     Vi negerar \(\frac{1}{2}\):
-<<prov av bråkklassen>>=
+<<prova negationen>>=
 print(-frac_a)
+<<tester för [[Fraction]]>>=
+<<prova negationen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_negation.py}
   \end{example}
 \end{frame}
 
@@ -775,9 +840,15 @@ def __sub__(self, other):
     return self + (-other)
 @
     Vi subtraherar \(\frac{1}{4}\) från \(\frac{1}{2}\):
-<<prov av bråkklassen>>=
+<<prova subtraktionen>>=
 print(frac_a - Fraction(1, 4))
+<<tester för [[Fraction]]>>=
+<<prova subtraktionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_subtraktion.py}
+    Klassen förkortar inte än, så \(\frac{2}{8}\) står kvar.
   \end{example}
 \end{frame}
 
@@ -840,9 +911,14 @@ def __rsub__(self, other):
     return Fraction(other) - self
 @
     Vi provar \(1 - \frac{1}{2}\):
-<<prov av bråkklassen>>=
+<<prova den omvända subtraktionen>>=
 print(1 - frac_a)
+<<tester för [[Fraction]]>>=
+<<prova den omvända subtraktionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_rsub.py}
   \end{example}
 \end{frame}
 
@@ -879,10 +955,21 @@ def __mul__(self, other):
         )
     raise TypeError(f"can't multiply type {type(other)}")
 @
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova multiplikation]
+    \label{ex:fraction-mul-test}
     Vi multiplicerar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prov av bråkklassen>>=
+<<prova multiplikationen>>=
 print(frac_a * frac_b)
+<<tester för [[Fraction]]>>=
+<<prova multiplikationen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_multiplikation.py}
   \end{example}
 \end{frame}
 
@@ -905,6 +992,9 @@ Precis som med addition och subtraktion behöver vi
 \mintinline{python}{__rmul__()} för att hantera när vårt
 \mintinline{python}{Fraction} är till höger om multiplikationstecknet.
 
+% The \needspace keeps the method, the test case and its output together
+% in the notes.
+\mode<article>{\needspace{22\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Omvänd multiplikation]
     \label{ex:fraction-rmul}
@@ -915,10 +1005,15 @@ def __rmul__(self, other):
     return self * other
 @
     Vi multiplicerar \(\frac{1}{2}\) och \(2\), åt båda hållen:
-<<prov av bråkklassen>>=
+<<prova den omvända multiplikationen>>=
 print(frac_a * 2)
 print(2 * frac_a)
+<<tester för [[Fraction]]>>=
+<<prova den omvända multiplikationen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_rmul.py}
   \end{example}
 \end{frame}
 
@@ -1046,6 +1141,9 @@ till en (privat) metod \mintinline{python}{__simplify()}, som gör själva
 förkortningen, bland bråkklassens metoder.  Och till sist preciserar vi
 pseudokoden i konstruktorn med pythonkod: den anropar metoden.
 
+% The \needspace keeps the import, the method and the call on one page in
+% the notes.
+\mode<article>{\needspace{17\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Förkortning]
     \label{ex:fraction-simplify}
@@ -1102,14 +1200,17 @@ största gemensamma delaren vet vi att divisionen alltid går jämnt upp
 \subsection{Testning}
 \label{sec:testning}
 
-Testprogrammets sista del provar förkortningen, både direkt i
-konstruktorn och efter operationer.
+Testprogrammets sista testfall provar förkortningen, både direkt i
+konstruktorn och efter operationer.  Vad det skriver ut visar vi inte
+här: det är en del av svaret på nästa övning.
 
+% The \needspace keeps the test case on one page in the notes.
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Prova förkortningen]
     \label{ex:fraction-test-simplify}
     Bråk som ska förkortas vid skapandet och efter räkning:
-<<prov av bråkklassen>>=
+<<prova förkortningen>>=
 frac1 = Fraction(6, 12)
 print(f"Fraction(6, 12) = {frac1}")
 frac2 = Fraction(2, 6)
@@ -1120,6 +1221,8 @@ frac4 = Fraction(1, 2) * Fraction(2, 3)
 print(f"1/2 * 2/3 = {frac4}")
 frac5 = Fraction(2, 3) - Fraction(1, 6)
 print(f"2/3 - 1/6 = {frac5}")
+<<tester för [[Fraction]]>>=
+<<prova förkortningen>>
 @
   \end{example}
 \end{frame}
@@ -1137,6 +1240,7 @@ Därmed är all pseudokod preciserad med pythonkod.
 
 }
 
+\mode<article>{\needspace{4\baselineskip}}
 \begin{frame}
   \begin{exercise}
     \label{ovn:utmatning}
@@ -1145,6 +1249,8 @@ Därmed är all pseudokod preciserad med pythonkod.
   \end{exercise}
 \end{frame}
 
+% The \needspace keeps the run on one page in the notes.
+\mode<article>{\needspace{26\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
     \label{ex:fraction-run}
@@ -1157,9 +1263,13 @@ Perfekt!  Alla bråk förkortas automatiskt till sin enklaste form.
 \mintinline{python}{Fraction(6, 12)} blir \mintinline{python}{1/2}, och
 resultatet av \mintinline{python}{Fraction(1, 2) + Fraction(1, 4)} blir
 \mintinline{python}{3/4} istället för \mintinline{python}{6/8}.  Lägg
-också märke till de tidigare proven: \mintinline{python}{Fraction(2)}
-skrivs \mintinline{python}{2/1}, och \mintinline{python}{frac_a * 2}
-blir \mintinline{python}{1/1}.
+också märke till de tidigare testfallen, som nu körs med förkortningen:
+\mintinline{python}{frac_a - Fraction(1, 4)} blir
+\mintinline{python}{1/4} och \mintinline{python}{frac_a * 2} blir
+\mintinline{python}{1/1}, där körningarna bredvid testfallen gav
+\mintinline{python}{2/8} och \mintinline{python}{2/2}.  Och
+\mintinline{python}{Fraction(2)} skrivs fortfarande
+\mintinline{python}{2/1}: förkortningen ändrar inget där.
 
 \ltnote{%
   Utmatningen produceras av det tanglade \texttt{examples/fraction.py}
@@ -1167,9 +1277,13 @@ blir \mintinline{python}{1/1}.
   så den kan inte glida isär från koden; i den tidigare versionen stod
   utmatningen som fast text.  Förutsägelseövningen före är
   \foreignlanguage{english}{try-first}: studenterna räknar själva
-  igenom proven innan de ser svaret, och de tidigare provens rader ---
-  som inte visats förut --- är den kontroll som avslöjar om
-  förkortningen och typkonverteringen förståtts.
+  igenom testfallen innan de ser svaret.  De tidigare testfallens
+  utskrift har visats bredvid dem, men med klassen utan förkortning;
+  övningen frågar nu efter förkortningens testfall, som inte visats,
+  och efter vilka av de tidigare raderna som ändras när konstruktorn
+  förkortar (\mintinline{text}|2/8| blir \mintinline{text}|1/4|,
+  \mintinline{text}|2/2| blir \mintinline{text}|1/1|).  Det är den
+  kontroll som avslöjar om förkortningen förståtts.
 }
 
 \section{Sammanfattning}

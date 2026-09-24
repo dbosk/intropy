@@ -24,9 +24,24 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/fraction.py
+# Each of fraction.py's test cases is shown beside its output: a small
+# program that imports the class and runs just that test case (the earlier
+# ones silently).  The programs are tangled from testkorningar.nw, which is
+# never woven, together with contents.nw, where the test cases are.
+TESTRUNS+=	examples/fraction_test_konvertering.py
+TESTRUNS+=	examples/fraction_test_heltal.py
+TESTRUNS+=	examples/fraction_test_addition.py
+TESTRUNS+=	examples/fraction_test_radd.py
+TESTRUNS+=	examples/fraction_test_negation.py
+TESTRUNS+=	examples/fraction_test_subtraktion.py
+TESTRUNS+=	examples/fraction_test_rsub.py
+TESTRUNS+=	examples/fraction_test_multiplikation.py
+TESTRUNS+=	examples/fraction_test_rmul.py
+EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/negative.py
 
 contents.tex: contents.nw
+${TESTRUNS}: testkorningar.nw
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
