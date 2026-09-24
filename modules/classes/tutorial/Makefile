@@ -39,6 +39,18 @@ EXAMPLES+=	examples/review_better.py
 EXAMPLES+=	examples/plain.py
 EXAMPLES+=	examples/borrowed.py
 
+# The class files' test programs grow one test case at a time, and the
+# deck shows each case's output beside it.  Each of these programs runs
+# one case (after the earlier ones, silenced); they reference the test
+# chunks in contents.nw from testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/frac_test_jamforelse.py
+TESTRUNS+=	examples/frac_test_utskrift.py
+TESTRUNS+=	examples/frac_test_raknesatt.py
+TESTRUNS+=	examples/frac_test_flyttal.py
+TESTRUNS+=	examples/frac_test_forkortning.py
+TESTRUNS+=	examples/borrowed_test_utskrift.py
+EXAMPLES+=	${TESTRUNS}
+
 contents.tex: contents.nw
 
 # The generic %.py: %.nw pattern does not match across the examples/
@@ -46,6 +58,8 @@ contents.tex: contents.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+${TESTRUNS}: testkorningar.nw
 
 .PHONY: examples
 examples: ${EXAMPLES}

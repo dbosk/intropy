@@ -133,9 +133,12 @@ samlar vi under ett namn i klassen och lägger till en i taget.
   den filen; klassen är en del av upplägget, och en metod läggs till
   först där resonemanget behöver den (författaren, 2026-09-23:
   \enquote{it too early outlines what functions we need, without having
-  started discussing the details of the problem yet}).  Ett testprogram
-  kommer sist, eftersom det är klassen uppgiften handlar om; i
-  \texttt{shelf.py} är programmet uppgiften, och där kommer
+  started discussing the details of the problem yet}).  En klassfils
+  testprogram står sist i filen men skrivs inte sist: det heter
+  \mintinline{python}{tests} och får ett testfall efter varje del av
+  klassen, med testfallets utskrift bredvid (författaren, 2026-09-24:
+  \enquote{I would sketch the tests as I design parts of the class});
+  i \texttt{shelf.py} är programmet uppgiften, och där kommer
   huvudprogrammet först och ger klassen dess nya metoder.
 }
 
@@ -1162,10 +1165,19 @@ klassen, och sist testprogrammet.  Klassen heter \mintinline{python}{Fraction}.
 Dess metoder samlar vi under ett namn, som boken, och lägger till dem i
 den ordning uppgiften räknar upp det klassen ska kunna.
 
-\begin{frame}[fragile]
+Testprogrammet heter [[tests]] och inte [[main]], eftersom filen
+innehåller en klass som andra program kan importera, och det enda den
+gör när den körs som program är att prova klassen.  Testerna skriver vi
+inte sist, när klassen är klar.  Varje gång klassen får en ny del lägger
+vi till ett testfall som provar just den delen, och bredvid testfallet
+står vad det skriver ut.  På så sätt är varje del provad när nästa
+bygger på den.  Testerna samlar vi därför också under ett namn, som
+metoderna.
+
+\begin{frame}[fragile,shrink]
   \begin{example}[Filen \texttt{frac.py}]
     \label{ex:frac}%
-    Filens upplägg, och klassen i stora drag:
+    Filens upplägg, klassen i stora drag och testprogrammet:
 <<[[frac.py]]>>=
 """Rational numbers, as fractions"""
 
@@ -1173,12 +1185,19 @@ den ordning uppgiften räknar upp det klassen ska kunna.
 
 <<[[frac.py]]:s klasser>>
 
-<<[[frac.py]]:s testprogram>>
+<<[[frac.py]]:s tester>>
 <<[[frac.py]]:s klasser>>=
 class Fraction:
     """A fraction with a numerator and a denominator"""
 
     <<[[Fraction]]s metoder>>
+<<[[frac.py]]:s tester>>=
+def tests():
+    """Test program"""
+    <<tester för [[Fraction]]>>
+
+if __name__ == "__main__":
+    tests()
 @
   \end{example}
 \end{frame}
@@ -1190,7 +1209,7 @@ plats vägrar den nämnaren noll, av samma skäl som
 Den flyttar också ett minustecken från nämnaren till täljaren, vilket
 jämförelserna strax kräver.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Konstruktorn]
     \label{ex:frac-init}
     Två parametrar, två villkor och två attribut:
@@ -1207,11 +1226,20 @@ def __init__(self, numerator, denominator=1):
     self.__numerator = numerator
     self.__denominator = denominator
 @
+    Det första testfallet skapar två bråk, som de följande räknar med:
+<<tester för [[Fraction]]>>=
+<<skapa två bråk>>
+<<skapa två bråk>>=
+one_third = Fraction(1, 3)
+two_sixths = Fraction(2, 6)
+@
   \end{example}
 \end{frame}
 
 Att nämnaren har ett förvalt värde gör att \mintinline{python}{Fraction(3)}
-är talet tre: ett heltal är ett bråk med nämnaren ett.
+är talet tre: ett heltal är ett bråk med nämnaren ett.  Att skapa
+bråken skriver inte ut något, så det första testfallet har ingen
+utskrift att visa.
 
 Jämförelserna är det ställe där bråk skiljer sig från böcker.  Två bråk
 kan vara samma tal utan att ha samma täljare och nämnare, så det går
@@ -1248,7 +1276,7 @@ nämnare.  Det gör den med läsmetoder, som bokens: de finns för att ett
 bråk ska kunna fråga ett annat om täljare och nämnare utan att komma åt
 attributen, och det är jämförelserna som först behöver det.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Läsmetoderna]
     \label{ex:frac-getters}
     En läsmetod per attribut:
@@ -1261,8 +1289,26 @@ def get_denominator(self):
     """Returns the denominator"""
     return self.__denominator
 @
+% Each test case's output below is a run of a small program tangled from
+% testkorningar.nw: it imports the class, runs the earlier cases with
+% their output thrown away, and then this case, so the output is exactly
+% what tests() prints for these lines.
+    Med läsmetoderna fungerar jämförelserna, och de får ett testfall:
+<<tester för [[Fraction]]>>=
+<<prova jämförelserna>>
+<<prova jämförelserna>>=
+print(f"lika: {one_third == two_sixths}")
+print(f"mindre: {one_third < Fraction(1, 2)}")
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/frac.py}]%
+      {examples/frac_test_jamforelse.py}
   \end{example}
 \end{frame}
+
+Testfallet jämför samma tal skrivet med olika täljare, och ett mindre
+tal.  Utskriften av ett bråk har klassen inte än, men svaret på en
+jämförelse är ett sanningsvärde, och det kan skrivas ut ändå.
 
 Utskriften är en rad, precis som bokens, och den skriver bråket som det
 är --- oförkortat.
@@ -1277,6 +1323,16 @@ def __str__(self):
     """Returns a string representation suitable for printing"""
     return f"{self.__numerator}/{self.__denominator}"
 @
+    Ett testfall för utskriften, med bråken och ett heltal:
+<<tester för [[Fraction]]>>=
+<<prova utskriften>>
+<<prova utskriften>>=
+print(f"{one_third} och {two_sixths}")
+print(f"heltalet tre: {Fraction(3)}")
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/frac.py}]%
+      {examples/frac_test_utskrift.py}
   \end{example}
 \end{frame}
 
@@ -1336,6 +1392,27 @@ def __truediv__(self, other):
   \end{example}
 \end{frame}
 
+De fyra räknesätten är en del av klassen, med en och samma form, och
+de får ett testfall tillsammans.
+
+\begin{frame}[fragile]
+  \begin{example}[Att prova räknesätten]
+    \label{ex:frac-test-arith}
+    En rad för vart och ett av räknesätten:
+<<tester för [[Fraction]]>>=
+<<prova räknesätten>>
+<<prova räknesätten>>=
+print(f"summa: {one_third + two_sixths}")
+print(f"differens: {one_third - Fraction(1, 4)}")
+print(f"produkt: {one_third * two_sixths}")
+print(f"kvot: {one_third / two_sixths}")
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/frac.py}]%
+      {examples/frac_test_raknesatt.py}
+  \end{example}
+\end{frame}
+
 Omvandlingen till flyttal är en division, och dundermetoden bakom
 \mintinline{python}{float} heter \mintinline{python}{__float__}.
 
@@ -1348,6 +1425,15 @@ def __float__(self):
     """Returns the fraction as a floating point number"""
     return self.__numerator / self.__denominator
 @
+    Ett testfall som omvandlar en tredjedel:
+<<tester för [[Fraction]]>>=
+<<prova omvandlingen till flyttal>>
+<<prova omvandlingen till flyttal>>=
+print(f"som flyttal: {float(one_third)}")
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/frac.py}]%
+      {examples/frac_test_flyttal.py}
   \end{example}
 \end{frame}
 
@@ -1406,7 +1492,9 @@ För 2 och 6 svarar de lika.  För 0 och 6 svarar den egna 1, där svaret
 Vi importerar alltså \mintinline{python}{gcd}, och importen hamnar
 överst i filen, där upplägget har en plats för det filen importerar.
 
-\begin{frame}[fragile]
+% Keeps the method chunk whole on one notes page.
+\mode<article>{\needspace{10\baselineskip}}
+\begin{frame}[fragile,shrink]
   \begin{example}[Förkortning]
     \label{ex:frac-reduce}
     Ett nytt, förkortat bråk, och importen det kräver:
@@ -1421,6 +1509,16 @@ def reduced(self):
 <<[[frac.py]]:s importer>>=
 from math import gcd
 @
+    Det sista testfallet förkortar ett bråk och en summa:
+<<tester för [[Fraction]]>>=
+<<prova förkortningen>>
+<<prova förkortningen>>=
+print(f"förkortat: {two_sixths.reduced()}")
+print(f"summan förkortad: {(one_third + two_sixths).reduced()}")
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/frac.py}]%
+      {examples/frac_test_forkortning.py}
   \end{example}
 \end{frame}
 
@@ -1429,36 +1527,8 @@ Pythons inbyggda operationer, utan en metod vi själva har hittat på, och
 då får den ett vanligt namn.  Den ändrar inte bråket den anropas på utan
 lämnar tillbaka ett nytt, som räknesätten.
 
-Klassen kan nu allt uppgiften räknar upp, och kvar är testprogrammet.
-Det provar de sex punkterna i uppgiftens ordning, en rad per punkt, och
-en rad till för heltalet.
-
-\begin{frame}[fragile]
-  \begin{example}[Testprogrammet]
-    \label{ex:frac-main}
-    En rad per punkt i uppgiften, och en för heltalet:
-<<[[frac.py]]:s testprogram>>=
-def main():
-    """Test program"""
-    one_third = Fraction(1, 3)
-    two_sixths = Fraction(2, 6)
-    print(f"{one_third} och {two_sixths}")
-    print(f"heltalet tre: {Fraction(3)}")
-    print(f"lika: {one_third == two_sixths}")
-    print(f"mindre: {one_third < Fraction(1, 2)}")
-    print(f"summa: {one_third + two_sixths}")
-    print(f"differens: {one_third - Fraction(1, 4)}")
-    print(f"produkt: {one_third * two_sixths}")
-    print(f"kvot: {one_third / two_sixths}")
-    print(f"som flyttal: {float(one_third)}")
-    print(f"förkortat: {two_sixths.reduced()}")
-    print(f"summan förkortad: {(one_third + two_sixths).reduced()}")
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
-\end{frame}
+Med förkortningens testfall provar testprogrammet alla sex punkterna,
+i uppgiftens ordning.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1819,7 +1889,7 @@ from book import Book
 
 <<[[borrowed.py]]:s klasser>>
 
-<<[[borrowed.py]]:s testprogram>>
+<<[[borrowed.py]]:s tester>>
 <<[[borrowed.py]]:s klasser>>=
 class BorrowedBook(Book):
     """A book with someone to return it to"""
@@ -1848,6 +1918,36 @@ def __init__(self, title, author, pages, lender):
   \end{example}
 \end{frame}
 
+Med konstruktorn kan testprogrammet börja.  Det heter [[tests]], som i
+\texttt{frac.py}, och växer på samma sätt med klassen.  Det första
+testfallet skapar en lånad bok och läser i den, med metoden
+\mintinline{python}{read} som klassen har ärvt.
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet]
+    \label{ex:borrowed-main}
+    Testprogrammet, med testerna samlade under ett namn:
+<<[[borrowed.py]]:s tester>>=
+def tests():
+    """Test program"""
+    <<tester för [[BorrowedBook]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+    Det första testfallet skapar boken och läser 60 sidor:
+<<tester för [[BorrowedBook]]>>=
+<<skapa en lånad bok och läs i den>>
+<<skapa en lånad bok och läs i den>>=
+mio = BorrowedBook("Mio min Mio", "Astrid Lindgren", 176, "Birk")
+mio.read(60)
+@
+  \end{example}
+\end{frame}
+
+Att skapa boken och läsa i den skriver inte ut något, så det första
+testfallet har ingen utskrift att visa.
+
 Utlånaren får en läsmetod, som alla andra attribut.  Utskriften skriver
 vi däremot inte om från början: föräldern kan redan sätta samman titel,
 författare och bokmärke, så vi ber om den raden och lägger till vår egen
@@ -1869,24 +1969,23 @@ def __str__(self):
   \end{example}
 \end{frame}
 
-Kvar är testprogrammet.  Det läser i en lånad bok och skriver ut den, och
-frågar den sedan om både författaren och utlånaren.
+Det andra testfallet skriver ut den lånade boken, och frågar den sedan
+om både författaren och utlånaren.
 
 \begin{frame}[fragile]
-  \begin{example}[Testprogrammet]
-    \label{ex:borrowed-main}
+  \begin{example}[Att prova utskriften och läsmetoderna]
+    \label{ex:borrowed-test-str}
     Objektet har metoder från båda klasserna:
-<<[[borrowed.py]]:s testprogram>>=
-def main():
-    """Test program"""
-    mio = BorrowedBook("Mio min Mio", "Astrid Lindgren", 176, "Birk")
-    mio.read(60)
-    print(mio)
-    print(f"{mio.get_author()} skrev den, {mio.get_lender()} äger den.")
-
-if __name__ == "__main__":
-    main()
+<<tester för [[BorrowedBook]]>>=
+<<prova utskriften och läsmetoderna>>
+<<prova utskriften och läsmetoderna>>=
+print(mio)
+print(f"{mio.get_author()} skrev den, {mio.get_lender()} äger den.")
 @
+    Testfallet skriver ut
+    \runpython[chdir, breaklines,
+      deps={examples/book.py,examples/borrowed.py}]%
+      {examples/borrowed_test_utskrift.py}
   \end{example}
 \end{frame}
 
