@@ -858,51 +858,74 @@ att använda förgreningar i sängprogrammet.
   kontrast och generalisering.
 }
 
-% Keep the heading, its paragraph and the whole-program listing
-% together in the notes (the listing broke across pages 10-11, and the
-% heading was left at the foot of page 10).
-\mode<article>{\needspace{22\baselineskip}}
+% Keep the heading, its paragraph and the file's layout together in
+% the notes (the heading was once left at the foot of a page).
+\mode<article>{\needspace{14\baselineskip}}
 % REVIEW(C2): the ink may also mean the whole heading
 % "Sängväljarprogrammet" ("Vårt" is not struck; only "program" is).
 \section{Vårt sängväljarprogram}
 \label{sec:vart-program}
 
-Nu kan vi bygga sängprogrammet.  Vi tar det uppifrån och ner: först
-helheten, sedan bitarna.
+Nu kan vi bygga sängprogrammet.  Vi skriver det inte i ett svep, utan
+uppifrån och ner: först filens upplägg, i pseudokod, och sedan
+preciserar vi pseudokoden med pythonkod, en del i taget, när vi kommer
+till den.
 
 \begin{frame}[fragile]
-  Programmet består av fyra delar: en funktion som väljer säng, en som
-  väljer madrass, en som frågar efter ett tal, och huvudprogrammet.
-  Längst ner står anropet som sätter i gång det:
+  Överst en \foreignlanguage{english}{docstring} som säger vad
+  programmet är till för, sedan hjälpfunktionerna och sist
+  huvudprogrammet:
 <<[[bed.py]]>>=
-<<funktionen som väljer säng>>
+"""Rekommenderar en säng och en madrass efter längd och vikt."""
 
+<<sängväljarens hjälpfunktioner>>
 
-<<funktionen som väljer madrass>>
+<<sängväljarens huvudprogram>>
+@
+\end{frame}
 
+Huvudprogrammet gör det som körningen i \cref{ex:malet} visade: det
+frågar efter längden och vikten och rekommenderar sedan en säng och en
+madrass.  Vi skriver varje steg som pseudokod som säger vad steget gör.
+Direkt efter definitionen står anropet som sätter i gång programmet, så
+att vi läser funktionen och anropet av den tillsammans.
 
-<<fråga efter ett heltal>>
+\begin{frame}[fragile]
+  Huvudprogrammet i stora drag, och anropet av det:
+<<sängväljarens huvudprogram>>=
+def main():
+    """Frågar efter längd och vikt och ger rekommendationerna."""
+    <<fråga efter längden och vikten>>
 
+    <<rekommendera en säng efter längden>>
 
-<<huvudprogrammet>>
-
+    <<rekommendera en madrass efter vikten>>
 
 main()
 @
 \end{frame}
 
-De två rekommendationerna är var sin kedja av villkor.  Varje funktion
-svarar på precis en fråga och lämnar tillbaka ett svar; det är samma
-uppdelning i ansvar som vi i föreläsningen \emph{Funktioner} kallade
-principen om ett enda ansvar\autocite[kap.~8]{Martin2003Agile}
-(\foreignlanguage{english}{single responsibility}).%
-\footnote{%
-  Det vetenskapliga underlaget för principen om ett enda ansvar ---
-  både om den är Robert C. Martins och om den är etablerad, med sina
-  förbehåll --- finns i föreläsningen \emph{Funktioner}, bilaga B.}
+Vi börjar med rekommendationerna, för det är där förgreningarna behövs,
+och tar frågorna sist.  Sängen beror bara på längden.  Vilken säng det
+blir avgör en funktion, \mintinline{python}{bed}, som tar emot
+längden och lämnar tillbaka sängen; huvudprogrammet skriver ut svaret.
 
 \begin{frame}[fragile]
-  Sängen beror bara på längden:
+  Rekommendationen av säng:
+<<rekommendera en säng efter längden>>=
+print(f"Du behöver en {bed(length)}.")
+@
+\end{frame}
+
+Funktionen \mintinline{python}{bed} är den första hjälpfunktionen.  Den
+står under ett eget namn, som hjälpfunktionerna tar med, eftersom vi
+tar med den också till de andra versionerna av programmet i
+\cref{sec:fraga-om-igen}.
+
+\begin{frame}[fragile]
+  Sängen efter längden:
+<<sängväljarens hjälpfunktioner>>=
+<<funktionen som väljer säng>>
 <<funktionen som väljer säng>>=
 def bed(length):
     """Ger sängen som passar den som är length centimeter lång."""
@@ -922,9 +945,34 @@ fått samma fel som med födelseåren.  Lägg också märke till att grenarna
 inte skriver ut något: de \emph{returnerar} ett värde, och den som
 anropar funktionen bestämmer vad som ska hända med det.
 
+Madrassen väljs på samma sätt, efter vikten, av en funktion
+\mintinline{python}{hardness}.  Men sedan kommer ett sista val, en
+förgrening av samma slag som med temperaturen: madrassen
+\enquote{special} finns inte i lager, så den får ett eget svar.
+Huvudprogrammet behöver madrassen både i villkoret och i utskriften,
+och sparar den därför i en variabel.
+
 \begin{frame}[fragile]
-  Madrassen beror på samma sätt bara på vikten, och funktionen får
-  samma form:
+  Rekommendationen av madrass, med ett sista val:
+<<rekommendera en madrass efter vikten>>=
+mattress = hardness(weight)
+
+if mattress == "special":
+    print("Vi har ingen madrass som passar dig i lager.")
+else:
+    print(f"Du trivs nog bäst på en {mattress} madrass.")
+@
+\end{frame}
+
+Funktionen \mintinline{python}{hardness} blir den andra
+hjälpfunktionen.  Ett namn som får flera delar får \(\equiv\) första
+gången och +\(\equiv\) varje gång därefter, och i programmet står
+delarna efter varandra, i den ordning de kommer.
+
+\begin{frame}[fragile]
+  Madrassen efter vikten, med samma form som sängen:
+<<sängväljarens hjälpfunktioner>>=
+<<funktionen som väljer madrass>>
 <<funktionen som väljer madrass>>=
 def hardness(weight):
     """Ger madrassen som passar den som väger weight kilo."""
@@ -939,43 +987,54 @@ def hardness(weight):
 @
 \end{frame}
 
-Huvudprogrammet frågar, räknar ut rekommendationerna och skriver ut dem.
-Det sista beskedet är en förgrening av samma slag som med temperaturen:
-madrassen \enquote{special} finns inte i lager, så den får ett eget
-svar.
+De två rekommendationerna är var sin kedja av villkor.  Varje funktion
+svarar på precis en fråga och lämnar tillbaka ett svar; det är samma
+uppdelning i ansvar som vi i föreläsningen \emph{Funktioner} kallade
+principen om ett enda ansvar\autocite[kap.~8]{Martin2003Agile}
+(\foreignlanguage{english}{single responsibility}).%
+\footnote{%
+  Det vetenskapliga underlaget för principen om ett enda ansvar ---
+  både om den är Robert C. Martins och om den är etablerad, med sina
+  förbehåll --- finns i föreläsningen \emph{Funktioner}, bilaga B.}
 
-% Keep the listing whole in the notes (it broke across pages 11-12).
-\mode<article>{\needspace{17\baselineskip}}
+Kvar är frågorna.  Båda ska ställas om tills svaret går att använda,
+som i körningen i \cref{ex:malet}, och det är samma arbete två gånger,
+bara med olika frågor.  Det blir därför en funktion,
+\mintinline{python}{ask_number}, med frågan som parameter.
+
 \begin{frame}[fragile]
-  Två frågor, två rekommendationer och ett sista val:
-<<huvudprogrammet>>=
-def main():
-    """Frågar efter längd och vikt och ger rekommendationerna."""
-    length = ask_number("Hur lång är du (cm)? ")
-    weight = ask_number("Hur mycket väger du (kg)? ")
-
-    print(f"Du behöver en {bed(length)}.")
-
-    mattress = hardness(weight)
-
-    if mattress == "special":
-        print("Vi har ingen madrass som passar dig i lager.")
-    else:
-        print(f"Du trivs nog bäst på en {mattress} madrass.")
+  Två frågor, samma funktion:
+<<fråga efter längden och vikten>>=
+length = ask_number("Hur lång är du (cm)? ")
+weight = ask_number("Hur mycket väger du (kg)? ")
 @
 \end{frame}
 
-En bit fattas: funktionen \mintinline{python}{ask_number}, den som
-frågade om igen när svaret inte var ett tal.  För den behöver vi den
+En bit fattas: funktionen \mintinline{python}{ask_number} själv, den
+som frågade om igen när svaret inte var ett tal.  För den behöver vi den
 andra styrstrukturen.
 
 \ltnote{%
   Relevanta lärandemål: \cref{CondLOBranch}.
 
-  Programmet byggs med stegvis förfining, som i föreläsningen
-  \emph{Algoritmiskt tänkande}: helheten först, sedan varje namngivet
-  steg för sig.  Att \mintinline{python}{ask_number} lämnas odefinierad
-  här är avsiktligt --- det gör att slingan i \cref{sec:slingor} har ett
+  Programmet byggs uppifrån och ner, med stegvis förfining som i
+  föreläsningen \emph{Algoritmiskt tänkande}: först filens upplägg,
+  sedan huvudprogrammet i pseudokod med startanropet direkt efter sig
+  (författaren, 2026-09-24: \enquote{Keep the def and call close
+  together}), och varje hjälpfunktion läggs till först där
+  resonemanget behöver den (författaren, 2026-09-23:
+  \enquote{it too early outlines what functions we need, without having
+  started discussing the details of the problem yet}).
+  Rekommendationerna preciseras före frågorna, fast frågorna står först
+  i huvudprogrammet: det är rekommendationerna som använder
+  förgreningen, och frågornas funktion behöver slingan.  Säng- och
+  madrassfunktionerna står under egna namn, som hjälpfunktionerna tar
+  med, därför att de två andra versionerna av programmet i
+  \cref{sec:fraga-om-igen} tar med dem och huvudprogrammet men har var
+  sin egen \mintinline{python}{ask_number}.
+
+  Att \mintinline{python}{ask_number} lämnas odefinierad här är
+  avsiktligt --- det gör att slingan i \cref{sec:slingor} har ett
   \emph{syfte} när den införs i stället för att vara en konstruktion
   utan användning, och det är samma motiv som i det gamla materialet, där
   sängprogrammet också delades i två pass.
@@ -989,6 +1048,9 @@ andra styrstrukturen.
   \parencite[tabell~A.1, s.~360]{Sorva2012Dissertation}.
 }
 
+% Keep the heading, its paragraph and the first listing together in
+% the notes (the listing broke across pages 12-13).
+\mode<article>{\needspace{20\baselineskip}}
 \section{Slingor: att göra om}
 \label{sec:slingor}
 
@@ -1085,6 +1147,9 @@ just den slingan som ett skäl till att ett program hänger sig.%
   sett \parencite[13]{Marton2015}.
 }
 
+% Keep the heading with the whole listing in the notes (it broke across
+% pages 13-14).
+\mode<article>{\needspace{30\baselineskip}}
 \subsection{Rabatten}
 
 \begin{frame}[fragile,shrink]
@@ -1241,11 +1306,10 @@ använda.  Så här ser funktionen ut:
   \begin{example}[Tre chanser, och sedan?]
     Varje chans är en egen kopia av samma två rader:
 <<[[fraga-utan-slinga.py]]>>=
+"""Rekommenderar en säng och en madrass, med tre chanser att svara."""
+
 <<funktionen som väljer säng>>
-
-
 <<funktionen som väljer madrass>>
-
 
 def ask_number(question):
     """Frågar efter ett tal och ger tre chanser."""
@@ -1259,11 +1323,7 @@ def ask_number(question):
 
     return int(answer)
 
-
-<<huvudprogrammet>>
-
-
-main()
+<<sängväljarens huvudprogram>>
 @
   \end{example}
 \end{frame}
@@ -1290,12 +1350,13 @@ program ska stå på ett enda ställe.%
 \end{frame}
 
 Slingan skriver samma sak en gång, och ger obegränsat många chanser.
+Funktionen blir den sista av sängväljarens hjälpfunktioner.
 
 \begin{frame}[fragile]
   \begin{example}[Med slinga]
     \label{ex:med-slinga}
     Kontrollen och omfrågningen står på ett enda ställe:
-<<fråga efter ett heltal>>=
+<<sängväljarens hjälpfunktioner>>=
 def ask_number(question):
     """Frågar tills svaret bara innehåller siffror, och ger talet."""
     answer = input(question)
@@ -1338,8 +1399,17 @@ det första.
   ur uppgiften i stället för att påpekas: det är den första frågan.
 }
 
-Med \mintinline{python}{ask_number} på plats är sängprogrammet komplett,
-och det är just den versionen vi körde i \cref{ex:malet}.  Den som
+Med \mintinline{python}{ask_number} på plats är sängprogrammet komplett.
+
+% Start the whole program on a fresh page in the notes rather than
+% split it after its first lines.
+\mode<article>{\needspace{48\baselineskip}}
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/bed.py}
+\end{frame}
+
+Det är just den versionen vi körde i \cref{ex:malet}.  Den som
 svarar \enquote{hundraåttio} får samma fråga igen, utan att få veta vad
 som var fel med svaret.
 
@@ -1387,6 +1457,8 @@ hand om felet när omvandlingen misslyckas.  Det nya är att vi nu kan
 göra det \emph{om och om igen}, med en slinga runt
 \mintinline{python}{try}-blocket.  Men först en slinga av ett nytt slag.
 
+% Keep the listing whole in the notes (it broke across pages 17-18).
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{exercise}
     \label{ex:varv}
@@ -1435,6 +1507,8 @@ aldrig --- och fortsätter med raden efter slingan.
   visar att \mintinline{python}{break} avbryter mitt i ett varv.
 }
 
+% Keep the paragraph and the run's heading with the run in the notes.
+\mode<article>{\needspace{12\baselineskip}}
 Nu kan vi skriva om \mintinline{python}{ask_number}.  Så här beter sig
 sängprogrammet med den nya versionen:
 
@@ -1453,17 +1527,16 @@ godtas.  Så här ser programmet ut:
 
 % Keep the listing whole in the notes (it broke across pages 16-17).
 \mode<article>{\needspace{24\baselineskip}}
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile,shrink=15]
   \begin{example}[Att fråga igen]
     \label{ex:fraga-igen}
     Samma program, men \mintinline{python}{ask_number} låter
     \mintinline{python}{int} avgöra:
 <<[[bed2.py]]>>=
+"""Rekommenderar säng och madrass och säger till om svaret inte är ett tal."""
+
 <<funktionen som väljer säng>>
-
-
 <<funktionen som väljer madrass>>
-
 
 def ask_number(question):
     """Frågar tills svaret går att omvandla, och ger talet."""
@@ -1476,11 +1549,7 @@ def ask_number(question):
 
     return number
 
-
-<<huvudprogrammet>>
-
-
-main()
+<<sängväljarens huvudprogram>>
 @
   \end{example}
 \end{frame}
