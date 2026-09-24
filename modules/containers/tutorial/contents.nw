@@ -790,8 +790,8 @@ enkla.  Varför just den vägen och inte den andra kommer vi tillbaka till
 när båda går att se i kod.
 
 Filen läggs upp som de förra programmen, med en del till: klasserna, som
-står före huvudprogrammet.  Här finns bara en klass, och huvudprogrammet
-är ett testprogram som provar det nya.  Klassen har ett namn och en
+står före programmet.  Här finns bara en klass, och programmet är ett
+testprogram som provar det nya.  Klassen har ett namn och en
 \foreignlanguage{english}{docstring}, och sedan sina metoder, som vi
 lägger till en i taget.
 
@@ -805,7 +805,7 @@ import math
 
 <<bråkfilens klasser>>
 
-<<testprogram som provar jämförelserna och divisionen>>
+<<bråkfilens tester>>
 @
   Klassen, med metoderna som vi lägger till en i taget:
 <<bråkfilens klasser>>=
@@ -816,11 +816,44 @@ class Fraction:
 @
 \end{frame}
 
+Filens program heter \mintinline{python}{tests} och inte
+\mintinline{python}{main}: filen är till för klassen, som andra program
+ska kunna importera, och programmet i den finns bara för att prova
+klassen.  Vi skriver det inte sist.  Det börjar tomt, och varje gång vi
+har skrivit en ny del av klassen lägger vi till ett testfall för den,
+direkt efter delen.  Bredvid testfallet står vad just de raderna skriver
+ut när \mintinline{python}{tests} körs.
+
+\begin{frame}[fragile]
+  \frametitle{Testprogrammet}
+  Testfallen läggs till ett i taget:
+<<bråkfilens tester>>=
+def tests():
+    """Provar jämförelserna och divisionen"""
+    <<tester för [[Fraction]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+\end{frame}
+
+\ltnote{%
+  Testprogrammet heter \mintinline{python}{tests} och växer med klassen
+  (författaren, 2026-09-24: \enquote{I'd call it tests() instead of
+  main(), then I would sketch the tests as I design parts of the
+  class}).  Utskriften bredvid ett testfall kommer från en liten
+  testkörning i \texttt{testkorningar.nw}, som aldrig vävs: den
+  importerar klassen, kör de tidigare testfallen tyst och sedan
+  testfallet självt.  Testfallens rader står alltså bara en gång.
+}
+
 Konstruktorn och egenskaperna står som i föreläsningen, och tas med här
 bara för att filen ska gå att köra.  I din egen fil finns också addition,
 subtraktion och typkonverteringarna kvar; de är utelämnade här så att det
 nya syns.
 
+% The \needspace keeps the constructor's chunk on one page in the notes.
+\mode<article>{\needspace{15\baselineskip}}
 \begin{frame}[fragile,shrink]
   \frametitle{Konstruktorn, som förut}
   Tre slags argument, och till sist förkortningen:
@@ -881,6 +914,8 @@ def denominator(self):
 @
 \end{frame}
 
+% The \needspace keeps the chunk on one page in the notes.
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile,shrink]
   \frametitle{Utskrift och multiplikation, som förut}
   De tas med eftersom divisionen använder multiplikationen:
@@ -960,7 +995,8 @@ bråk och en sträng blir likheten då \mintinline{python}{False}.
 % är citerad för __hash__, dess citat täcker inte det här.
 Så här blir de två jämförelserna skrivna på det sättet.
 
-\mode<article>{\needspace{8\baselineskip}}
+% The \needspace keeps the two methods' chunk on one page in the notes.
+\mode<article>{\needspace{20\baselineskip}}
 \begin{frame}[fragile,shrink]
   \frametitle{Likhet och olikhet}
   Två dundermetoder, likheten och olikheten:
@@ -1014,8 +1050,34 @@ det är skälet att det står här.
   materialet där \mintinline{python}{NotImplemented} förekommer.
 }
 
-Innan vi provar finns en följd av \mintinline{python}{__eq__} som är lätt
-att missa, och som hör ihop med behållarna.  Ett par klasser
+Nu kan jämförelserna provas.  Testfallet ställer uppgiftens två frågor
+och jämför dessutom med en sträng.
+
+\mode<article>{\needspace{16\baselineskip}}
+\begin{frame}[fragile,shrink]
+  \frametitle{Prova jämförelserna}
+  Uppgiftens två frågor, och likheten med en sträng:
+<<prova jämförelserna>>=
+third = Fraction(1, 3)
+two_sixths = Fraction(2, 6)
+print(f"1/3 == 2/6: {third == two_sixths}")
+print(f"1/3 < 1/2: {third < Fraction(1, 2)}")
+print(f"1/3 > 2/6: {third > two_sixths}")
+
+negative_denominator = Fraction(1, -2)
+negative_numerator = Fraction(-1, 2)
+print(f"1/-2 == -1/2: {negative_denominator == negative_numerator}")
+print(f"1/3 == '1/3': {third == '1/3'}")
+<<tester för [[Fraction]]>>=
+<<prova jämförelserna>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
+    {examples/fraction_test_jamforelse.py}
+\end{frame}
+
+Det finns en följd av \mintinline{python}{__eq__} som är lätt att missa,
+och som hör ihop med behållarna.  Ett par klasser
 räcker för att se den.
 
 % Programmet ska läsas, så anteckningarna visar det helt, i en chunk.
@@ -1097,7 +1159,9 @@ lika bråk har samma par, alltså samma hashvärde.  Att en tupel går att
 hasha, men inte en lista, är samma krav som gjorde att en nyckel måste
 vara oföränderlig\autocite{PythonDataStructures}.
 
-\mode<article>{\needspace{6\baselineskip}}
+% The \needspace keeps the method, the test case and its output together
+% in the notes.
+\mode<article>{\needspace{15\baselineskip}}
 \begin{frame}[fragile]
   \frametitle{Hashning}
   Paret hashas, och två lika bråk ger samma värde:
@@ -1105,6 +1169,17 @@ vara oföränderlig\autocite{PythonDataStructures}.
 def __hash__(self):
     return hash(self.parts)
 @
+  Testfallet slår upp \(\frac{2}{6}\) bland bråken som nycklar:
+<<prova hashningen>>=
+parts = {Fraction(1, 2): "en halv", Fraction(1, 3): "en tredjedel"}
+print(f"parts[Fraction(2, 6)]: {parts[Fraction(2, 6)]}")
+<<tester för [[Fraction]]>>=
+
+<<prova hashningen>>
+@
+  Det skriver ut
+  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
+    {examples/fraction_test_hashning.py}
 \end{frame}
 
 \ltnote{%
@@ -1180,41 +1255,48 @@ def __rtruediv__(self, other):
   på föreläsningens lista över det som saknas.
 }
 
-Testprogrammet provar de nya metoderna i tur och ordning.
+Testfallet för divisionen provar alla tre slagen: ett bråk delat med ett
+bråk, med ett heltal och ett heltal delat med ett bråk.
 
-\begin{frame}[fragile,shrink]
-  \frametitle{Testprogrammet}
-  Jämförelserna, uppslagningen och divisionerna:
-<<testprogram som provar jämförelserna och divisionen>>=
-def main():
-    """Provar jämförelserna och divisionen"""
-    third = Fraction(1, 3)
-    two_sixths = Fraction(2, 6)
-    print(f"1/3 == 2/6: {third == two_sixths}")
-    print(f"1/3 < 1/2: {third < Fraction(1, 2)}")
-    print(f"1/3 > 2/6: {third > two_sixths}")
+% The \needspace keeps the test case with its output in the notes.
+\mode<article>{\needspace{22\baselineskip}}
+\begin{frame}[fragile]
+  \frametitle{Prova divisionen}
+  Divisionen åt båda hållen:
+<<prova divisionen>>=
+half = Fraction(1, 2)
+print(f"1/2 / 2/3 = {half / Fraction(2, 3)}")
+print(f"1/2 / 2 = {half / 2}")
+print(f"1 / (1/2) = {1 / half}")
+<<tester för [[Fraction]]>>=
 
-    negative_denominator = Fraction(1, -2)
-    negative_numerator = Fraction(-1, 2)
-    print(f"1/-2 == -1/2: {negative_denominator == negative_numerator}")
-    print(f"1/3 == '1/3': {third == '1/3'}")
-
-    parts = {Fraction(1, 2): "en halv", Fraction(1, 3): "en tredjedel"}
-    print(f"parts[Fraction(2, 6)]: {parts[Fraction(2, 6)]}")
-
-    half = Fraction(1, 2)
-    print(f"1/2 / 2/3 = {half / Fraction(2, 3)}")
-    print(f"1/2 / 2 = {half / 2}")
-    print(f"1 / (1/2) = {1 / half}")
-
-    try:
-        print(1 < half)
-    except TypeError as error:
-        print(f"1 < half: {error}")
-
-if __name__ == "__main__":
-    main()
+<<prova divisionen>>
 @
+  Testfallet skriver ut
+  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
+    {examples/fraction_test_division.py}
+\end{frame}
+
+Det sista testfallet går tillbaka till olikheten, nu med heltalet till
+vänster.  Vad det visar tar vi upp efter hela körningen.
+
+% The \needspace keeps the test case with its output in the notes.
+\mode<article>{\needspace{13\baselineskip}}
+\begin{frame}[fragile]
+  \frametitle{Prova olikheten med heltalet till vänster}
+  Ett heltal mot ett bråk:
+<<prova olikheten med heltalet till vänster>>=
+try:
+    print(1 < half)
+except TypeError as error:
+    print(f"1 < half: {error}")
+<<tester för [[Fraction]]>>=
+
+<<prova olikheten med heltalet till vänster>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
+    {examples/fraction_test_heltal.py}
 \end{frame}
 
 \mode<article>{\needspace{8\baselineskip}}
@@ -1223,6 +1305,7 @@ if __name__ == "__main__":
   \inputminted{python}{examples/fraction.py}
 \end{frame}
 
+\mode<article>{\needspace{6\baselineskip}}
 \begin{frame}[fragile,shrink]
   \begin{example}[Utmatning]
     Kör vi programmet får vi:
