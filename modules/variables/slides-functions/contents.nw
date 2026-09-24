@@ -684,6 +684,135 @@ en tilldelning inuti en funktion inte ändrar någonting utanför den.
   en kontrast kräver \parencite[45--47]{Marton2015}.
 }
 
+\subsection{Huvudprogrammet i en egen funktion}
+\label{sec:huvudprogram}
+
+Innan vi lämnar namnen: här är två program till att förutsäga.
+
+\begin{frame}[fragile,shrink=30]
+  \begin{exercise}[Vad skriver programmen ut?]
+    Två program med samma funktion.  Vad skriver vart och ett av dem ut?
+<<funktionen [[welcome]] i båda programmen>>=
+def welcome(name):
+    """Returnerar en välkomsttext till name som rest från origin."""
+    return f"Välkommen {name}, du som rest ända från {origin}!"
+<<[[welcome1.py]]>>=
+<<funktionen [[welcome]] i båda programmen>>
+
+
+name = "Malvina"
+origin = "Valhallavägen"
+print(welcome(name))
+<<[[welcome2.py]]>>=
+<<funktionen [[welcome]] i båda programmen>>
+
+
+def main():
+    """Välkomnar Malvina, som rest från Valhallavägen."""
+    name = "Malvina"
+    origin = "Valhallavägen"
+    print(welcome(name))
+
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[\texttt{welcome1.py}]
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/welcome1.py}
+  \end{example}
+
+  \begin{example}[\texttt{welcome2.py}]
+    Körningen avbryts:
+    \runpython[showcommand, chdir]{examples/welcome2.py}
+  \end{example}
+\end{frame}
+
+Det första programmet ser ut att fungera: utskriften är precis den vi
+ville ha.  Ändå är funktionen fel.  Den har en enda parameter,
+[[name]], men använder två namn --- också [[origin]], som den varken
+har som parameter eller skapar själv.  Hittar Python inte ett namn bland
+funktionens egna, letar den på filens översta nivå, utanför alla
+funktioner, och där har huvudprogrammet råkat skapa en variabel som
+heter just [[origin]].  Funktionen använder alltså huvudprogrammets
+variabel utan att någon har bestämt det.  Ett namn som skapas på filens
+översta nivå kallas \emph{globalt}, för det syns i hela filen; ett namn
+som skapas inuti en funktion kallas \emph{lokalt}, för det finns bara
+där.
+
+I det andra programmet står huvudprogrammets tre rader i en funktion,
+[[main]], och det är det enda som skiljer.  Då är [[name]] och
+[[origin]] lokala i [[main]], precis som parametrarna är lokala i
+[[welcome]], och [[welcome]] kommer inte åt dem.  Att det är [[main]]
+som anropar [[welcome]] spelar ingen roll: en funktion letar aldrig
+bland namnen i den funktion som anropade den.  Python hittar inget
+[[origin]], varken i [[welcome]] eller på filens översta nivå, och
+avbryter med [[NameError]] på raden i [[welcome]] där namnet står.
+
+Felet är detsamma i båda programmen: funktionen saknar parametern
+[[origin]].  Skillnaden är \emph{när} vi får veta det.  I det första
+programmet fungerar funktionen bara så länge huvudprogrammet råkar ha en
+variabel som heter [[origin]], med rätt värde.  Byter någon namn på den,
+som i [[scope-other-names.py]], eller flyttar funktionen till ett annat
+program, går det sönder då --- när någon ändrar något helt annat.  I det
+andra programmet syns felet första gången funktionen anropas, och
+felutskriften pekar ut raden där det sitter.  Ger vi funktionen
+parametern [[origin]], som i [[welcome.py]], fungerar båda programmen.
+
+\begin{frame}[fragile]
+  \begin{remark}[Huvudprogrammet i \texttt{main}]
+    Huvudprogrammet står i en egen funktion,
+    \mintinline{python}{main}, som anropas direkt efter sin definition,
+    sist i filen.  Då är huvudprogrammets variabler lokala i
+    \mintinline{python}{main}, och en funktion som saknar en parameter
+    avbryts med \mintinline{python}{NameError} i stället för att
+    använda dem.
+  \end{remark}
+\end{frame}
+
+Så skriver vi varje program från och med nu.  På filens översta nivå
+står då bara definitionerna, konstanterna och anropet [[main()]].
+Konstanterna får stå kvar där: dem ska funktionerna kunna läsa, som
+[[K]] och [[M]] i [[linear.py]], och de ändras aldrig.  Det är
+huvudprogrammets variabler som flyttar in i [[main]].
+
+\ltnote{%
+  Relevanta lärandemål: \cref{FuncLOMain,FuncLOScope}.
+
+  \textbf{Kontrast.}  Vad som varierar: om huvudprogrammets satser står
+  på filens översta nivå eller i \mintinline{python}{main}.  Vad som
+  hålls invariant: funktionen, med sin glömda parameter, och
+  huvudprogrammets tre satser.  Kontrasten ska urskilja att en funktion
+  kan läsa ett globalt namn, och att huvudprogrammets namn blir lokala
+  när det står i en funktion.  Det första programmet ger rätt utskrift,
+  så att felet inte syns förrän kontrasten visar det.  Filerna heter
+  [[welcome1.py]] och [[welcome2.py]], och funktionens stycke heter
+  efter att den står i båda: varken namnen eller ledtexten säger vad
+  som skiljer eller att något är fel.
+
+  Paret prövar också den regel Fleury fann hos nybörjare, den som
+  återges vid räckviddskontrasten: den som tror att ett namn som saknas
+  letas upp i den anropande proceduren förutsäger att det andra
+  programmet fungerar, eftersom det är \mintinline{python}{main} som
+  anropar \mintinline{python}{welcome} \parencite[s.~285]{Fleury1991}.
+  Prosan säger därför uttryckligen att den anropande funktionens namn
+  inte spelar någon roll.
+
+  Motivet är författarens (2026-09-24): med huvudprogrammet i
+  \mintinline{python}{main} kan en funktion inte av misstag använda
+  huvudprogrammets variabler, \enquote{no painful bugs waiting to
+  happen}.  Därför införs \mintinline{python}{main} direkt efter
+  räckvidden, och varje program efter den här kontrasten skrivs med
+  den.  Texten påstår bara det körningarna visar, språkets beteende;
+  hur ofta nybörjare glömmer en parameter påstås inte.  Startanropet är
+  ett bart \mintinline{python}{main()}: villkoret om
+  \mintinline{python}{__name__} hör till föreläsningen \emph{Moduler
+  och paket}.
+}
+
 \subsection{Standardvärden}
 
 Ibland har en parameter ett värde som nästan alltid är rätt.  Då kan
@@ -885,9 +1014,10 @@ den som läser dess kropp.
 Nu tillbaka till programmet som upprepade sig.  Vi har verktyget; frågan
 är vilka funktioner vi ska dela upp det i.
 
-\begin{frame}
+\begin{frame}[fragile]
   \begin{exercise}[Vilka funktioner?]
-    Vilka funktioner skulle du dela upp åldersprogrammet i, och vad
+    Huvudprogrammet hamnar i \mintinline{python}{main}.  Vilka
+    funktioner till skulle du dela upp åldersprogrammet i, och vad
     skulle var och en ta emot och lämna tillbaka?
   \end{exercise}
 \end{frame}
@@ -910,10 +1040,11 @@ uppifrån och ner och tar verben i den ordning vi stöter på dem.
 
 Överst i filen står, som förut, en
 \foreignlanguage{english}{docstring} som säger vad programmet gör.
-Sedan kommer konstanterna, sedan funktionerna och sist huvudprogrammet.
+Sedan kommer konstanterna, sedan hjälpfunktionerna och sist
+huvudprogrammet, i [[main]] och med anropet [[main()]] direkt efter.
 Ordningen är ingen smaksak: ett anrop ovanför definitionen gav
-\mintinline{python}{NameError}, så funktionerna måste stå före
-huvudprogrammet som anropar dem.  Konstanterna, funktionerna och
+\mintinline{python}{NameError}, så anropet som sätter igång programmet
+måste stå efter alla definitioner.  Konstanterna, hjälpfunktionerna och
 huvudprogrammet skriver vi först som pseudokod, namn som säger vad som
 ska stå där, och sedan preciserar vi pseudokoden med pythonkod, en del i
 taget, när vi kommer till den.
@@ -942,8 +1073,10 @@ taget, när vi kommer till den.
   started discussing the details of the problem yet}).  Verben hittas
   därför ett i taget: \mintinline{python}{greet} i huvudprogrammet,
   \mintinline{python}{age} i \mintinline{python}{greet}.  Upplägget
-  förutsätter inget nytt: att definitionerna står före huvudprogrammet
-  visade [[greet3.py]], och att \mintinline{python}{greet} får stå före
+  förutsätter inget nytt: att anropet [[main()]] står efter
+  definitionerna visade [[greet3.py]], att huvudprogrammet står i
+  \mintinline{python}{main} infördes i \cref{sec:huvudprogram}, och
+  att \mintinline{python}{greet} får stå före
   \mintinline{python}{age} följer av samma sak, att kroppen körs först
   vid anropet; prosan säger det när ordningen har uppstått.
 }
@@ -953,15 +1086,22 @@ ska göra: hälsa på två personer.  Att hälsa är programmets verb, och det
 är samma hälsning båda gångerna, bara med ett annat namn och ett annat
 födelseår.  Det blir en funktion, \mintinline{python}{greet}, som tar
 namnet och födelseåret.  Funktionen finns inte än, men vi kan ge den ett
-namn och anropa den ändå.  Huvudprogrammet blir då två rader --- en per
-person.
+namn och anropa den ändå.  Huvudprogrammet blir då två anrop --- ett
+per person --- i [[main]], och direkt efter definitionen står anropet
+som sätter igång det.
 
 \begin{frame}[fragile]
   \begin{example}[Huvudprogrammet]
-    Det som var femton rader blir två anrop:
+    Det som var femton rader blir två anrop, och ett anrop av
+    \mintinline{python}{main}:
 <<åldersprogrammets huvudprogram>>=
-greet("Malvina", 1927)
-greet("Urban", 1950)
+def main():
+    """Hälsar på Malvina och Urban."""
+    greet("Malvina", 1927)
+    greet("Urban", 1950)
+
+
+main()
 @
   \end{example}
 \end{frame}
@@ -993,7 +1133,8 @@ användas till.  Den hör också till hjälpfunktionerna.  Ett namn som får
 flera delar får \(\equiv\) första gången och +\(\equiv\) varje gång
 därefter, och i programmet står delarna efter varandra, i den ordning de
 kommer.  För att räkna behöver funktionen veta vilket år det är, och
-årtalet står som konstant, precis som i det gamla programmet.
+årtalet står som konstant, precis som i det gamla programmet: ett
+globalt namn som funktionen får läsa, eftersom det aldrig ändras.
 
 \begin{frame}[fragile]
   \begin{example}[Räkna ut åldern]
@@ -1017,11 +1158,12 @@ Nu står \mintinline{python}{greet} före \mintinline{python}{age} i
 filen, fast \mintinline{python}{greet} anropar
 \mintinline{python}{age}.  Det går bra, och det följer av det vi såg
 med anropet ovanför definitionen: det som avgör är om namnet finns när
-anropet nås, och kroppen körs först vid ett anrop.  När
-huvudprogrammet anropar \mintinline{python}{greet} har båda raderna med
-\mintinline{python}{def} redan körts, och då finns båda namnen.
+anropet nås, och kroppen körs först vid ett anrop.  Programmet anropar
+ingenting förrän på sista raden, [[main()]], och när den nås har alla
+tre raderna med \mintinline{python}{def} redan körts.  Då finns alla
+namnen.
 
-\begin{frame}[fragile,shrink=15]
+\begin{frame}[fragile,shrink=25]
   \begin{example}[Hela programmet, hopsatt]
     Sätter vi in varje förfining där dess namn står får vi:
     \inputminted{python}{examples/age-funcs.py}
@@ -1047,7 +1189,8 @@ huvudprogrammet anropar \mintinline{python}{greet} har båda raderna med
   prövade, nu i sin generaliserade form.
 
   \textbf{Fusion}: den hopsatta versionen kräver att studenten läser
-  definition, anrop, parameter, returvärde och räckvidd samtidigt
+  definition, anrop, parameter, returvärde och räckvidd samtidigt,
+  med huvudprogrammet i \mintinline{python}{main}
   \parencite{Marton2015}.
 }
 
@@ -1067,7 +1210,8 @@ representation i systemet\autocite{HuntThomas1999}.%
 Hälsningen stod två gånger; nu står den en gång, i
 \mintinline{python}{greet}.
 
-Den andra förklarar varför det blev \emph{två} funktioner och inte en.
+Den andra förklarar varför beräkningen och hälsningen blev \emph{två}
+funktioner och inte en.
 \emph{SRP}, principen om ett enda ansvar
 (\foreignlanguage{english}{Single Responsibility Principle}), säger att
 en modul aldrig ska ha mer än ett skäl att
@@ -1135,8 +1279,10 @@ sammanhang utan minsta koppling till flyg.%
 
   Principerna namnges \emph{efter} att materialet har tillämpat dem, och
   var och en fästs vid en synlig egenskap hos uppdelningen: DRY vid att
-  hälsningen bara står en gång, SRP vid att det blev två funktioner och
-  inte en, KISS vid att det inte blev fler.  Ordningen konkret före
+  hälsningen bara står en gång, SRP vid att beräkningen och hälsningen
+  blev två funktioner och inte en, KISS vid att det inte blev fler
+  hjälpfunktioner.  \mintinline{python}{main} räknas inte: den är
+  huvudprogrammet, inte en del av uppdelningen.  Ordningen konkret före
   abstrakt är densamma som i \emph{Variabler och utskrifter}
   \parencite[45--47]{Marton2015}.
 

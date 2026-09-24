@@ -30,6 +30,7 @@ EXAMPLES+=	examples/degrees.py
 EXAMPLES+=	examples/degrees-help.py examples/degrees-comments.py
 EXAMPLES+=	examples/welcome.py
 EXAMPLES+=	examples/scope-same-names.py examples/scope-other-names.py
+EXAMPLES+=	examples/welcome1.py examples/welcome2.py
 EXAMPLES+=	examples/hello.py examples/hello-default.py
 EXAMPLES+=	examples/linear.py
 
