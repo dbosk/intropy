@@ -1,0 +1,218 @@
+% The course book's preamble.  Its first part is the union of the preambles
+% of the decks the book binds (modules/*/slides*/preamble.tex); the joint
+% modules/preamble.tex that the decks will symlink replaces that part (see
+% the plan).  Until then this is a copy: *Algoritmiskt tänkande*'s preamble
+% plus what the others add (graphicx and the IDE acronym from *Hello,
+% World!*, the bibliography URL breaks from *Funktioner*).  The one real
+% conflict, cleveref's name for a list item (steg in *Algoritmiskt
+% tänkande*, rad in *Hello, World!*), is set per chapter instead: see the
+% optional argument of \deck below.
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[british,english,swedish]{babel}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+
+\usepackage[
+  natbib,
+  style=verbose,
+  citestyle=verbose,
+  singletitle=false,
+  maxbibnames=99,
+]{biblatex}
+% Merged from the decks' ltnotes.bib by the Makefile.
+\addbibresource{ltnotes.bib}
+% biblatex breaks a URL only at punctuation, and long blog URLs then overran
+% the text block (*Funktioner*).  Allow breaks after digits and at case
+% changes as well.
+\setcounter{biburlnumpenalty}{7000}
+\setcounter{biburlucpenalty}{7000}
+\setcounter{biburllcpenalty}{7000}
+
+\usepackage[all]{foreign}
+\renewcommand{\foreignfullfont}{}
+\renewcommand{\foreignabbrfont}{}
+
+\usepackage{import}
+% *Hello, World!* shows screenshots; memoir does not load graphicx itself.
+\usepackage{graphicx}
+
+\usepackage[strict]{csquotes}
+\usepackage[single]{acro}
+% Swedish first, the English term once in parentheses at first use
+% (*Hello, World!*).
+\DeclareAcronym{IDE}{
+  short = IDE,
+  long  = {utvecklingsmiljö
+           (\foreignlanguage{english}{integrated development environment})},
+}
+
+\usepackage{subcaption}
+
+\usepackage[noend]{algpseudocode}
+\usepackage{xparse}
+
+\let\email\texttt
+
+% minted v3+ auto-detects the output directory; [outputdir=...] is an error.
+% minted prefixes \inputminted's file with the import package's current
+% path, so the decks' \inputminted{...}{examples/...} work under \subimport.
+\usepackage{minted}
+\setminted{autogobble,fontsize=\footnotesize}
+
+% PythonTeX runs from ltxobj; workingdir=.. is book/.  Each chapter moves
+% the Python session into its deck's directory (\deck below), so the
+% decks' relative paths (examples/..., mentipy.json) resolve as they do
+% standalone.
+\usepackage[makestderr]{pythontex}
+\setpythontexoutputdir{.}
+\setpythontexworkingdir{..}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{thmtools,thm-restate}
+\usepackage[unq]{unique}
+
+\usepackage[binary-units,parse-numbers=false]{siunitx}
+
+\usepackage[colorlinks]{hyperref}
+% cleveref reads its language from its own options, not babel's.
+\usepackage[swedish]{cleveref}
+% memoir and babel call an appendix "bilaga"; cleveref's Swedish names do
+% not.  Registered after cleveref's own hook so ours wins.
+\AtBeginDocument{%
+  \crefname{appendix}{bilaga}{bilagor}%
+  \Crefname{appendix}{Bilaga}{Bilagor}%
+  \crefname{footnote}{fotnot}{fotnoterna}%
+  \Crefname{footnote}{Fotnot}{Fotnoterna}%
+}
+
+\usepackage[marginparmargin=outer]{didactic}
+% Margin notes and floats share LaTeX's pool of eighteen boxes; the verbose
+% citations and \ltnote's empty it without this.
+\extrafloats{200}
+% A side caption takes part in no collision avoidance; anchoring it at the
+% bottom moves it below the \ltnote's.
+\ifdefined\setsidecappos\setsidecappos{b}\fi
+\ProvideSemanticEnv{lo}{Learning Objective}
+  [style=definition,numbered=yes]
+  {LO}{LO}
+  {Learning objective}{Learning objectives}
+\ProvideTranslation{british}{Learning Objective}{Learning Objective}
+\ProvideTranslation{british}{LO}{LO}
+\ProvideTranslation{british}{Learning objective}{Learning objective}
+\ProvideTranslation{british}{Learning objectives}{Learning objectives}
+\ProvideTranslation{swedish}{Learning Objective}{Lärandemål}
+\ProvideTranslation{swedish}{LO}{lm}
+\ProvideTranslation{swedish}{Learning objective}{Lärandemål}
+\ProvideTranslation{swedish}{Learning objectives}{Lärandemål}
+
+% Greek letters in the generated hit-list tables of the search appendices.
+\DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}
+\DeclareUnicodeCharacter{03BB}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+
+
+% ------------------------------------------------------------------------
+% What the decks' notes.tex adds to the preamble.
+% ------------------------------------------------------------------------
+\usepackage[noamsthm,notheorems]{beamerarticle}
+% The chunks of the woven contents.tex; keep the cross-references, hide
+% noweb's ASCII-only identifier index (dbosk/noweb#13).
+\usepackage[minted]{noweb}
+\noweboptions{breakcode}
+\def\nwidentdefs#1{}
+\def\nwidentuses#1{}
+
+
+% ------------------------------------------------------------------------
+% Binding the decks.
+% ------------------------------------------------------------------------
+% A table of contents per chapter.
+\usepackage{etoc}
+
+% PythonTeX runs all of a session's code as one program, in document order,
+% so a directory change stays in force until the next one.  Each chapter
+% changes into its deck's directory: \runpython's examples/..., the stdin
+% and deps files, and Mentipy's store and QR directory then resolve as in
+% the standalone build, and didactic's output files are written beside the
+% deck's (where minted, through the import path, reads them).  PythonTeX
+% resolves the paths didactic reports to it (created files, dependencies)
+% from the book's directory, so they are made absolute here.
+\begin{pycode}
+BOOK_DIR = os.getcwd()
+
+
+def book_enter_deck(path):
+    os.chdir(os.path.join(BOOK_DIR, path))
+
+
+def book_leave_deck():
+    os.chdir(BOOK_DIR)
+
+
+_book_didactic_track = didactic_track
+
+
+def didactic_track(kind, /, *paths):
+    _book_didactic_track(kind, *(os.path.abspath(p) for p in paths))
+\end{pycode}
+
+% The decks' appendices (sokprotokoll.tex) are chapters standalone.  In the
+% book they follow their chapter, one level down: \chapter becomes
+% \section, and so on, and each keeps its letter (A, B, ...), so that a
+% pointer such as "föreläsningen Funktioner, bilaga B" holds in the book
+% too.  Everything is local to the environment.
+\makeatletter
+\newenvironment{deckappendices}{%
+  \begin{subappendices}%
+  \renewcommand{\setthesection}{\Alph{section}}%
+  \crefalias{section}{appendix}%
+  \let\book@section\section
+  \let\book@subsection\subsection
+  \let\book@subsubsection\subsubsection
+  \let\chapter\book@section
+  \let\section\book@subsection
+  \let\subsection\book@subsubsection
+  \let\subsubsection\paragraph
+  % Print the chapter's precis under the section heading, without memoir's
+  % pull-up (meant for a chapter heading) and without a ToC entry.
+  \let\chapterprecis\chapterprecishere
+  \prechapterprecisshift=0pt
+}{%
+  \end{subappendices}%
+}
+\makeatother
+
+% \deck[<setup>]{<module>/<deck>}{<title>}: one deck as one chapter.  The
+% whole chapter is a biblatex refsection (so the verbose citations start
+% afresh and the chapter ends with its own bibliography) and a TeX group
+% (so a deck's \newcommand's and <setup> stay in its chapter).  <setup> is
+% for the deck-local settings that differ between decks, e.g. cleveref's
+% name for a list item.
+\NewDocumentCommand{\deck}{O{}mm}{%
+  \begin{refsection}%
+  \chapter{#3}%
+  \localtableofcontents*
+  #1%
+  \ifcsname c@lo\endcsname\setcounter{lo}{0}\fi
+  \pyc{book_enter_deck('../modules/#2')}%
+  \begin{abstract}
+    \subimport{../modules/#2/}{abstract.tex}%
+  \end{abstract}
+  \subimport{../modules/#2/}{contents.tex}%
+  \begin{deckappendices}%
+    \subimport{../modules/#2/}{sokprotokoll.tex}%
+  \end{deckappendices}%
+  \printbibliography[heading=subbibintoc]%
+  \pyc{book_leave_deck()}%
+  \end{refsection}%
+}
+% The learning objectives restart in every chapter, as standalone, so their
+% hyperlink targets must name the chapter.
+\AtBeginDocument{\def\theHlo{\theHchapter.\arabic{lo}}}
