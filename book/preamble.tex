@@ -189,6 +189,17 @@ def didactic_track(kind, /, *paths):
 }
 \makeatother
 
+% Without the decks' in-chapter page breaks (see \deck), the margin notes
+% of the densest pages no longer fit beside their markers, and a note
+% called in the last lines of a page is carried to the next one.  The book
+% sets the margin notes (footnotes, citations and \ltnote's alike:
+% didactic's \foottextfont) one size smaller than the decks, and lets the
+% margin column run into the bottom margin (marginfix's
+% \marginheightadjustment), which is empty: the page number is in the
+% running head.
+\renewcommand{\foottextfont}{\scriptsize\mpjustification}
+\marginheightadjustment=48pt
+
 % \deck[<setup>]{<module>/<deck>}{<title>}: one deck as one chapter.  The
 % whole chapter is a biblatex refsection (so the verbose citations start
 % afresh and the chapter ends with its own bibliography) and a TeX group
@@ -203,11 +214,24 @@ def didactic_track(kind, /, *paths):
   \pyc{book_enter_deck('../modules/#2')}%
   % The overview, learning objectives and prerequisites first, then the
   % chapter's table of contents at full depth (the book's own lists only
-  % parts and chapters).  Starred: no line for it in the book's ToC.
+  % parts and chapters), each on its own page(s), and then the chapter's
+  % text on a fresh page (author, 2026-09-25).  Starred: no line for it in
+  % the book's ToC.
   \begin{abstract}
     \subimport{../modules/#2/}{abstract.tex}%
   \end{abstract}
+  \clearpage
   \localtableofcontents*
+  \clearpage
+  % The decks force page breaks inside the chapter (\clearpage in
+  % contents.nw and sokprotokoll.tex), each placed to drain the margin-note
+  % queue at a page position of the standalone notes.  In the book the
+  % pages fall elsewhere, so the breaks only leave short pages.  Within the
+  % chapter a \clearpage is a paragraph end; the next chapter's \chapter,
+  % outside this group, has the real one.  The margin notes the breaks
+  % made room for fit instead in smaller type and a longer margin column
+  % (see \foottextfont and \marginheightadjustment above).
+  \let\clearpage\par
   \subimport{../modules/#2/}{contents.tex}%
   \begin{deckappendices}%
     \subimport{../modules/#2/}{sokprotokoll.tex}%
