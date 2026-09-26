@@ -43,6 +43,15 @@ EXAMPLES+=	examples/epost.py
 EXAMPLES+=	examples/letters.py
 EXAMPLES+=	examples/counter.py
 EXAMPLES+=	examples/fraction.py
+# Each of fraction.py's test cases is shown beside its output: a small
+# program that imports the class and runs just that test case (the earlier
+# ones silently).  The programs are tangled from testkorningar.nw, which is
+# never woven, together with contents.nw, where the test cases are.
+TESTRUNS+=	examples/fraction_test_jamforelse.py
+TESTRUNS+=	examples/fraction_test_hashning.py
+TESTRUNS+=	examples/fraction_test_division.py
+TESTRUNS+=	examples/fraction_test_heltal.py
+EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/nyckel.py
 EXAMPLES+=	examples/bank.py
 EXAMPLES+=	examples/banken.py
@@ -56,6 +65,7 @@ EXAMPLES+=	examples/humor.py
 EXAMPLES+=	examples/epost.in
 
 contents.tex: contents.nw
+${TESTRUNS}: testkorningar.nw
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.

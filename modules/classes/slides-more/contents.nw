@@ -3,16 +3,16 @@
 \section{En klass för bråk}
 \label{sec:brak}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: alla sju, \cref{FracLOOperators,FracLOReflected,%
   FracLOProperty,FracLOConversion,FracLOCommutative,FracLODesign,%
   FracLOIsinstance}.
 
   \textbf{Pedagogisk strategi}: vi bygger \emph{ett} komplett exempel,
   klassen \mintinline{python}{Fraction}, som demonstrerar alla dessa
-  begrepp.  Helheten visas innan den bryts ner i delar: den litterära
-  formen ger först programmets överblick med namngivna delar, sedan
-  förfinas varje del där den behövs.  När vi bygger klassen stegvis
+  begrepp.  Filens och klassens upplägg visas först, och klassen växer
+  sedan en metod i taget, där resonemanget behöver den.  När vi bygger
+  klassen stegvis
   använder vi \emph{separation} för att isolera varje begrepp, och sedan
   måste studenterna uppnå \emph{fusion} genom att integrera alla begrepp
   i sina egna klasser \parencite{Marton2015}.
@@ -22,8 +22,7 @@
   göra (från matematiken), så de kan lägga sin uppmärksamhet på
   \emph{hur} det implementeras i kod, samtidigt som nya begrepp
   introduceras.
-}
-
+}%
 I föreläsningen \emph{Klasser och objekt} lärde vi oss grunderna i
 objektorienterad programmering med klasser och objekt.  Nu ska vi
 fördjupa oss i mer avancerade tekniker genom att bygga en egen klass för
@@ -39,76 +38,104 @@ Detta är ett utmärkt exempel eftersom:
   \item vi lär oss om egenskaper (\foreignlanguage{english}{properties}).
 \end{itemize}
 
-Vi börjar med helheten.  Filen \texttt{fraction.py} innehåller det som
-behöver importeras, klassen och ett testprogram.
+\leavevmode\ltnote{%
+  \textbf{Uppifrån och ner.}  Filens och klassens upplägg,
+  \cref{ex:fraction-file,ex:fraction}, kommer först, med namn som hör
+  till just bråkbiblioteket, och varje metod läggs
+  till klassens metoder först där resonemanget når den (författaren,
+  2026-09-23: \enquote{it too early outlines what functions we need,
+  without having started discussing the details of the problem yet}).
+  Den tidigare versionen räknade upp klassens sju delar innan
+  konstruktorn hade diskuterats, och avslöjade därmed den omvända
+  additionen innan frågan om \mintinline{python}{1 + frac_a} ställts.
+  Filens ordning blir upptäcktens: \mintinline{python}{__simplify} står
+  nu sist i klassen.
+}%
+Vi bygger filen \texttt{fraction.py} uppifrån och ner: först filens
+upplägg, med ett namn för varje del, och sedan delarna, var och en när
+vi kommer till den.  Namnen är pseudokod, och senare preciserar vi
+pseudokoden med pythonkod.  Överst i filen står en
+\foreignlanguage{english}{docstring} som säger vad filen är till för,
+sedan det som behöver importeras, klassen och till sist testprogrammet.
 
 \begin{frame}[fragile]
-  \begin{example}[Filen i sin helhet]
+  \begin{example}[Bråkbibliotekets upplägg]
     \label{ex:fraction-file}
-    Tre delar, i den ordning de kommer i filen:
+    Delarna i den ordning de kommer i filen:
 <<[[fraction.py]]>>=
 """Fractions library"""
 
-<<importera det som behövs>>
+<<bråkbibliotekets importer>>
 
+<<bråkbibliotekets klasser>>
 
-<<klassen [[Fraction]]>>
-
-
-<<testprogram för [[Fraction]]>>
+<<bråkbibliotekets tester>>
 @
   \end{example}
 \end{frame}
 
-Klassen består av en konstruktor, förkortning, egenskaper för täljare
-och nämnare, typkonvertering och de aritmetiska operationerna.  Var och
-en av delarna förfinar vi i tur och ordning.
+Filen har en enda klass, bråkklassen.  Också den lägger vi upp först:
+dess \foreignlanguage{english}{docstring}, konstruktorn, som skapar
+bråket, och sedan klassens metoder, som vi lägger till en i taget när vi
+kommer till dem.
 
+% The \needspace keeps the class's layout on one page in the notes.
+\mode<article>{\needspace{9\baselineskip}}
 \begin{frame}[fragile]
-  \begin{example}[Bråkklassen i sin helhet]
+  \begin{example}[Bråkklassens upplägg]
     \label{ex:fraction}
-    Delarna namngivna, i den ordning de kommer i klassen:
-<<klassen [[Fraction]]>>=
+    Konstruktorn först, och sedan metoderna:
+<<bråkbibliotekets klasser>>=
 class Fraction:
     """Class for fractions"""
 
     <<konstruktorn för [[Fraction]]>>
 
-    <<förkortning>>
-
-    <<egenskaper för täljare och nämnare>>
-
-    <<typkonvertering>>
-
-    <<addition>>
-
-    <<negation och subtraktion>>
-
-    <<multiplikation>>
+    <<bråkklassens metoder>>
 @
   \end{example}
 \end{frame}
 
-Testprogrammet provar varje del i tur och ordning, så att vi kan se
-resultatet av alltihop sist.  Också det förfinar vi del för del.
+\leavevmode\ltnote{%
+  Testprogrammet i \cref{ex:fraction-main} heter
+  \mintinline{python}{tests} och växer med klassen (författaren,
+  2026-09-24: \enquote{I'd call it tests() instead of
+  main(), then I would sketch the tests as I design parts of the
+  class}).  Utskriften bredvid ett testfall kommer från en liten
+  testkörning i \texttt{testkorningar.nw}, som aldrig vävs: den
+  importerar klassen, kör de tidigare testfallen tyst och sedan
+  testfallet självt, så att testfallens rader står en enda gång.  Före
+  \cref{sec:forkortning} är konstruktorns steg att förkorta pseudokod,
+  och testkörningarna där stänger av förkortningen, så att utskriften
+  är klassens som den står i texten (\mintinline{text}|2/8| och
+  \mintinline{text}|2/2|, inte \mintinline{text}|1/4| och
+  \mintinline{text}|1/1|).  Förkortningens eget testfall får ingen
+  körning bredvid sig: dess utskrift är svaret på \cref{ovn:utmatning}.
+}%
+Testprogrammet heter \mintinline{python}{tests} och inte
+\mintinline{python}{main}.  Filen är ett bibliotek: det är klassen som
+andra program ska importera och använda, och programmet i filen finns
+bara för att prova klassen.  Det börjar nästan tomt, och vi skriver det
+inte sist.  Varje gång vi har skrivit en del av klassen lägger vi till
+ett testfall för den, direkt efter delen, så att testprogrammet provar
+delarna i den ordning vi skrev dem.  Bredvid testfallet står vad just de
+raderna skriver ut när \mintinline{python}{tests} körs, med klassen som
+den ser ut i det läget.  Direkt efter testprogrammets definition står
+anropet, så att definitionen och anropet läses tillsammans.  Villkoret
+framför anropet gör att testprogrammet bara körs när filen körs som
+program, och inte när den importeras.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:fraction-main}
-    Ett prov per del av klassen:
-<<testprogram för [[Fraction]]>>=
-def main():
+    Testfallen läggs till ett i taget:
+<<bråkbibliotekets tester>>=
+def tests():
     """Test program"""
-    <<prova att skapa bråk>>
-    <<prova typkonvertering>>
-    <<prova addition>>
-    <<prova subtraktion>>
-    <<prova multiplikation>>
-    <<prova förkortning>>
-
+    <<tester för [[Fraction]]>>
 
 if __name__ == "__main__":
-    main()
+    tests()
 @
   \end{example}
 \end{frame}
@@ -116,7 +143,12 @@ if __name__ == "__main__":
 \subsection{Konstruktorn}
 \label{sec:konstruktorn}
 
-\ltnote{%
+% Utan indrag efter rubriken finns ingen radbrytning inom toleransen i
+% stycket (de två \mintinline-rutorna går inte att avstava), så raden
+% med (__init__-metoden) blev 6,5 pt för bred; \emergencystretch gäller
+% bara det här stycket.
+\begingroup\emergencystretch=1em
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{FracLODesign,FracLOIsinstance}.
 
   \textbf{Variationsmönster}: Separation följt av generalisering.
@@ -124,26 +156,26 @@ if __name__ == "__main__":
   Vi visar \emph{flera} sätt att skapa bråk och generaliserar sedan till
   \emph{en} flexibel konstruktor som hanterar alla fall.  Det
   demonstrerar god design av ett gränssnitt.
-}
-
+}%
 Vi börjar med att definiera hur vår \mintinline{python}{Fraction}-klass
 ska skapas.  Konstruktorn (\mintinline{python}{__init__}-metoden) är den
-metod som anropas när vi skapar ett nytt objekt.
+metod som anropas när vi skapar ett nytt objekt.\par
+\endgroup
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:argument}
+    \leavevmode\ltnote{%
+      \foreignlanguage{english}{Try-first}: studenterna överväger designen
+      i \cref{ovn:argument} innan de ser vår lösning.  Det aktiverar
+      deras matematiska kunskap om bråk och får dem att tänka på
+      gränssnittets design --- vad skulle vara \emph{bekvämt} för den som
+      använder klassen?
+    }%
     Vilka argument behöver vi för att skapa ett bråk?  Vad är användbara
     argument att skapa ett nytt bråk ifrån?
   \end{exercise}
 \end{frame}
-
-\ltnote{%
-  \foreignlanguage{english}{Try-first}: studenterna överväger designen
-  innan de ser vår lösning.  Det aktiverar deras matematiska kunskap om
-  bråk och får dem att tänka på gränssnittets design --- vad skulle vara
-  \emph{bekvämt} för den som använder klassen?
-}
 
 Ett bråk består av två delar: täljare och nämnare.  Men vad händer om vi
 vill skapa ett heltal som bråk?  Eller skapa ett bråk från ett annat
@@ -166,12 +198,39 @@ olika sätt att skapa bråk:
   \end{exercise}
 \end{frame}
 
+% The \needspace keeps the constructor, lead-in and chunk, on one page in
+% the notes.
+\mode<article>{\needspace{16\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
     \label{ex:fraction-init}
-    Konstruktorn tittar på vilken typ argumentet har.  Ett steg lämnar
-    vi tomt tills vidare: att förkorta bråket, som vi återkommer
-    till\only<article>{ i \cref{sec:forkortning}}.
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ex:fraction-init}:
+      \cref{FracLOIsinstance}.
+
+      \textbf{Variationsmönster}: Generalisering.
+
+      \textbf{Vad som varierar}: indatatyp och antal argument.
+
+      \textbf{Vad som hålls invariant}: resultatet (ett korrekt initierat
+      \mintinline{python}{Fraction}-objekt).
+
+      \textbf{Kritisk aspekt}: \emph{samma} gränssnitt
+      (\mintinline{python}{Fraction(...)}) kan hantera \emph{olika}
+      indatamönster.  Användningen av \mintinline{python}{isinstance()}
+      demonstrerar typkontroll under körning.  Studenterna ser flera
+      konkreta exempel (heltal, bråk, heltal och heltal, bråk och heltal)
+      som alla fungerar med samma konstruktor; mönstret blir synligt genom
+      de varierande instanserna \parencite{MartonPang2006}.
+
+      Pseudokoden \enquote{förkorta bråket} är den litterära formens sätt
+      att skjuta upp ett designbeslut: konstruktorn står färdig här, medan
+      pseudokoden preciseras med pythonkod i \cref{sec:forkortning}, när
+      frågan \emph{när} bråket ska förkortas har ställts.
+    }%
+    Konstruktorn tittar på vilken typ argumentet har.  Ett steg, att
+    förkorta bråket, står kvar som pseudokod; den preciserar vi med
+    pythonkod senare\only<article>{, i \cref{sec:forkortning}}.
 <<konstruktorn för [[Fraction]]>>=
 def __init__(self, numerator, denominator=1):
     if isinstance(numerator, Fraction):
@@ -190,13 +249,14 @@ def __init__(self, numerator, denominator=1):
 \begin{frame}[fragile]
   \begin{example}[Några sätt att skapa bråk]
     \label{ex:fraction-create}
-    Testprogrammet skapar bråk på alla fyra sätten:
+    Testfallet skapar bråk på alla fyra sätten:
 <<prova att skapa bråk>>=
 frac = Fraction(1, 2)
 int_as_frac = Fraction(2)
 frac_from_frac = Fraction(Fraction(1, 2))
 half_frac = Fraction(Fraction(1, 2), 2)
-print(frac, int_as_frac, frac_from_frac, half_frac)
+<<tester för [[Fraction]]>>=
+<<prova att skapa bråk>>
 @
   \end{example}
 \end{frame}
@@ -208,35 +268,11 @@ den något annat än ett heltal eller ett bråk kastar den ett särfall,
 \mintinline{python}{TypeError}, på det sätt föreläsningen
 \emph{Inmatning och felhantering} beskriver.
 
-\ltnote{%
-  Relevanta lärandemål: \cref{FracLOIsinstance}.
-
-  \textbf{Variationsmönster}: Generalisering.
-
-  \textbf{Vad som varierar}: indatatyp och antal argument.
-
-  \textbf{Vad som hålls invariant}: resultatet (ett korrekt initierat
-  \mintinline{python}{Fraction}-objekt).
-
-  \textbf{Kritisk aspekt}: \emph{samma} gränssnitt
-  (\mintinline{python}{Fraction(...)}) kan hantera \emph{olika}
-  indatamönster.  Användningen av \mintinline{python}{isinstance()}
-  demonstrerar typkontroll under körning.  Studenterna ser flera
-  konkreta exempel (heltal, bråk, heltal och heltal, bråk och heltal)
-  som alla fungerar med samma konstruktor; mönstret blir synligt genom
-  de varierande instanserna \parencite{MartonPang2006}.
-
-  Det tomma steget \enquote{förkorta bråket} är den litterära formens
-  sätt att skjuta upp ett designbeslut: konstruktorn står färdig här,
-  medan förkortningen förfinas i \cref{sec:forkortning} när frågan
-  \emph{när} bråket ska förkortas har ställts.
-}
-
 
 \subsection{Attribut som egenskaper}
 \label{sec:egenskaper}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{FracLOProperty}.
 
   \textbf{Variationsmönster}: Kontrast.
@@ -257,8 +293,7 @@ den något annat än ett heltal eller ett bråk kastar den ett särfall,
   från föreläsningen \emph{Klasser och objekt}) med egenskaper kan
   studenterna se hur Python låter inkapslingen se ut som attribut men
   bete sig som metoder.
-}
-
+}%
 I föreläsningen \emph{Klasser och objekt} såg vi hur vi använde
 läsmetoder (\enquote{\foreignlanguage{english}{getters}}) som
 \mintinline{python}{get_name()} för att läsa attribut.  Nu ska vi lära
@@ -267,29 +302,29 @@ oss ett mer elegant sätt: egenskaper (\foreignlanguage{english}{properties}).
 \begin{frame}
   \begin{exercise}
     \label{ovn:property-syntax}
+    \leavevmode\ltnote{%
+      \foreignlanguage{english}{Try-first}: studenterna överväger i
+      \cref{ovn:property-syntax} vilken syntax som känns mer naturlig.
+      De flesta kommer att föredra egenskapssyntaxen, vilket motiverar
+      att lära sig \mintinline{python}{@property}.  Det skapar inre
+      motivation --- de \emph{vill} ha den renare syntaxen.
+    }%
     Vad är skillnaden mellan att skriva
     \mintinline{python}{frac.get_numerator()} och
     \mintinline{python}{frac.numerator}?  Vilket känns mer naturligt?
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  \foreignlanguage{english}{Try-first}: studenterna överväger vilken
-  syntax som känns mer naturlig.  De flesta kommer att föredra
-  egenskapssyntaxen, vilket motiverar att lära sig
-  \mintinline{python}{@property}.  Det skapar inre motivation --- de
-  \emph{vill} ha den renare syntaxen.
-}
-
 Egenskaper låter oss använda attributliknande syntax medan vi fortfarande
-behåller kontrollen över hur data läses och skrivs.
+behåller kontrollen över hur data läses och skrivs.  Två egenskaper, för
+täljaren och nämnaren, blir de första av bråkklassens metoder.
 
 \begin{frame}[fragile]
   \begin{example}[Egenskaper]
     \label{ex:fraction-property}
     Dekoratorn \mintinline{python}{@property} gör en metod läsbar som
     ett attribut:
-<<egenskaper för täljare och nämnare>>=
+<<bråkklassens metoder>>=
 @property
 def numerator(self):
     """numerator getter"""
@@ -332,6 +367,16 @@ interna implementationen utan att ändra hur användare av klassen
 interagerar med den.  Vi kan också lägga till validering eller
 beräkningar när värden läses eller skrivs.
 
+\leavevmode\ltnote{%
+  Jämförelsen är avsnittets \textbf{kontrast} en gång till, nu i
+  kodform: vad som
+  varierar är syntaxen, vad som hålls invariant är klassen och vad den
+  gör.  Två fel i den tidigare versionen av bilden är rättade:
+  skrivmetoden dekorerades med \mintinline{python}{@property.setter} (det
+  ska vara \mintinline{python}{@attribute.setter}, egenskapens eget
+  namn) och objektet skapades utan argument fast konstruktorn kräver
+  ett.
+}%
 Låt oss jämföra två sätt att arbeta med attribut.
 
 \begin{frame}[fragile]
@@ -382,22 +427,11 @@ Med \mintinline{python}{@property} och
 \mintinline{python}{get_}- och \mintinline{python}{set_}-metoder får vi
 samma sak på det traditionella sättet, med explicita anrop.
 
-\ltnote{%
-  Jämförelsen är avsnittets \textbf{kontrast} en gång till, nu i
-  kodform: vad som
-  varierar är syntaxen, vad som hålls invariant är klassen och vad den
-  gör.  Två fel i den tidigare versionen av bilden är rättade:
-  skrivmetoden dekorerades med \mintinline{python}{@property.setter} (det
-  ska vara \mintinline{python}{@attribute.setter}, egenskapens eget
-  namn) och objektet skapades utan argument fast konstruktorn kräver
-  ett.
-}
-
 
 \subsection{Typkonvertering}
 \label{sec:typkonvertering}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{FracLOConversion}.
 
   \textbf{Variationsmönster}: Generalisering.
@@ -415,8 +449,7 @@ samma sak på det traditionella sättet, med explicita anrop.
   \mintinline{python}{__float__}, \mintinline{python}{__int__}) kan
   studenterna generalisera mönstret: när jag vill att mina objekt ska
   konverteras till typ X implementerar jag \mintinline{python}{__X__}.
-}
-
+}%
 Nu har vi ett bråk som kan skapas och vars täljare och nämnare kan
 läsas.  Men hur ska det visas för användaren?  Och hur konverterar vi
 det till andra typer?
@@ -424,40 +457,62 @@ det till andra typer?
 \begin{frame}
   \begin{exercise}
     \label{ovn:print-frac}
+    \leavevmode\ltnote{%
+      \foreignlanguage{english}{Try-first}: studenterna förutsäger i
+      \cref{ovn:print-frac} beteendet innan de ser implementationen.
+      Det får dem att tänka på användarupplevelsen och vad som
+      \emph{borde} hända, vilket är avgörande för gränssnittets design
+      (\cref{FracLODesign}).
+    }%
     Vad tror du händer om vi försöker skriva ut ett
     \mintinline{python}{Fraction}-objekt med \mintinline{python}{print()}?
     Hur ska det se ut?
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  \foreignlanguage{english}{Try-first}: studenterna förutsäger beteendet
-  innan de ser implementationen.  Det får dem att tänka på
-  användarupplevelsen och vad som \emph{borde} hända, vilket är
-  avgörande för gränssnittets design (\cref{FracLODesign}).
-}
-
 Vi behöver implementera dundermetoder för att konvertera vårt bråk till
-olika representationer.
+olika representationer.  De läggs till bland bråkklassens metoder, efter
+egenskaperna, och testfallet för dem bland testerna.  Ett namn
+som får flera delar får \(\equiv\) första gången och +\(\equiv\) varje
+gång därefter, och i programmet står delarna efter varandra, i den
+ordning de kommer.
 
+Utskriften bredvid ett testfall kommer från klassen som den står i
+texten.  Konstruktorns steg att förkorta bråket är fortfarande
+pseudokod, så fram till \cref{sec:forkortning} förkortar klassen inga
+bråk, och utskrifterna visar bråken oförkortade.
+
+% The \needspace keeps the two methods' chunk on one page in the notes.
+\mode<article>{\needspace{10\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Typkonvertering]
     \label{ex:fraction-conversion}
     En dundermetod per måltyp:
-<<typkonvertering>>=
+<<bråkklassens metoder>>=
 def __str__(self):
     return f"{self.numerator}/{self.denominator}"
 
 def __float__(self):
     return self.numerator / self.denominator
-
-<<konvertering till heltal>>
 @
-    Vi provar att typkonvertera:
-<<prova typkonvertering>>=
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova typkonverteringen]
+    \label{ex:fraction-conversion-test}
+    Nu kan vi skriva ut de fyra bråken från konstruktorns testfall, och
+    typkonvertera:
+<<prova typkonverteringen>>=
+print(frac, int_as_frac, frac_from_frac, half_frac)
 print(frac)
 print(float(frac))
+<<tester för [[Fraction]]>>=
+<<prova typkonverteringen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_konvertering.py}
   \end{example}
 \end{frame}
 
@@ -473,6 +528,15 @@ Här ser vi två viktiga dundermetoder:
 \begin{frame}
   \begin{exercise}
     \label{ovn:int}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:int}: \cref{FracLOConversion}.
+
+      \mintinline{python}{__int__} fanns bara i prosan i den tidigare
+      versionen; eftersom lärandemålet nämner den är den nu implementerad
+      och provad.  Frågan ställs före koden, och svaret (heltalsdivision)
+      sägs i texten innan den ena raden visas, så att studenterna hinner
+      välja mellan \mintinline{python}{//} och avrundning själva.
+    }%
     Hur skulle du hantera att konvertera bråket till ett heltal,
     exempelvis \mintinline{python}{int(Fraction(7, 2))}?
   \end{exercise}
@@ -488,32 +552,27 @@ För att implementera det behöver vi dundermetoden
   \begin{example}[Konvertering till heltal]
     \label{ex:fraction-int}
     Heltalsdivision ger heltalsdelen:
-<<konvertering till heltal>>=
+<<bråkklassens metoder>>=
 def __int__(self):
     return self.numerator // self.denominator
 @
-    Testprogrammet provar även den:
-<<prova typkonvertering>>=
+    Testfallet provar exemplet ovan:
+<<prova konverteringen till heltal>>=
 print(int(Fraction(7, 2)))
+<<tester för [[Fraction]]>>=
+<<prova konverteringen till heltal>>
 @
+    Det skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_heltal.py}
   \end{example}
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{FracLOConversion}.
-
-  \mintinline{python}{__int__} fanns bara i prosan i den tidigare
-  versionen; eftersom lärandemålet nämner den är den nu implementerad
-  och provad.  Frågan ställs före koden, och svaret (heltalsdivision)
-  sägs i texten innan den ena raden visas, så att studenterna hinner
-  välja mellan \mintinline{python}{//} och avrundning själva.
-}
 
 
 \section{Addition och subtraktion}
 \label{sec:addition-subtraktion}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål:
   \cref{FracLOOperators,FracLOReflected,FracLOCommutative}.
 
@@ -529,8 +588,7 @@ print(int(Fraction(7, 2)))
   \textbf{Varför denna ordning}: att börja med addition (enklare,
   kommutativ) före subtraktion (mer komplex, icke-kommutativ) går från
   enkelt till komplext samtidigt som mönstret hålls gemensamt.
-}
-
+}%
 Nu kommer vi till det riktigt intressanta: att implementera aritmetiska
 operationer!  Vi vill kunna skriva \mintinline{python}{frac_a + frac_b}
 precis som vi gör med heltal och flyttal.
@@ -569,7 +627,7 @@ Python anropar \mintinline{python}{frac_a.__add__(frac_b)} när vi kör
   \begin{example}[Addition]
     \label{ex:fraction-add}
     Ett heltal görs först om till ett bråk; sedan gäller formeln:
-<<addition>>=
+<<bråkklassens metoder>>=
 def __add__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
@@ -580,8 +638,6 @@ def __add__(self, other):
             self.denominator * other.denominator,
         )
     raise TypeError(f"can't add with type {type(other)}")
-
-<<omvänd addition>>
 @
   \end{example}
 \end{frame}
@@ -590,11 +646,16 @@ def __add__(self, other):
   \begin{example}[Prova addition]
     \label{ex:fraction-add-test}
     Vi adderar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prova addition>>=
+<<prova additionen>>=
 frac_a = Fraction(1, 2)
 frac_b = Fraction(1, 3)
 print(frac_a + frac_b)
+<<tester för [[Fraction]]>>=
+<<prova additionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_addition.py}
   \end{example}
 \end{frame}
 
@@ -604,6 +665,27 @@ termen är ett heltal?
 \begin{frame}[fragile]
   \begin{example}[Addera \(\frac{1}{2}\) och \(1\)]
     \label{ex:fraction-add-int}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ex:fraction-add-int}:
+      \cref{FracLOReflected}.
+
+      \textbf{Variationsmönster}: Kontrast.
+
+      \textbf{Vad som varierar}: operandordningen
+      (\mintinline{python}{frac + int} respektive
+      \mintinline{python}{int + frac}).
+
+      \textbf{Vad som hålls invariant}: operationen (addition) och värdena.
+
+      \textbf{Kritisk aspekt}: Python anropar \mintinline{python}{__add__}
+      på den \emph{vänstra} operanden.  När det misslyckas försöker Python
+      \mintinline{python}{__radd__} på den \emph{högra} operanden.  Det är
+      nyckelinsikten för lärandemålet, och kontrasten avslöjar hur Python
+      löser upp en operator.  \foreignlanguage{english}{Try-first}:
+      studenterna felsöker problemet innan de får lösningen.  Exemplet med
+      \enquote{funkar ej} är avsiktligt \emph{inte} en del av testprogrammet:
+      det skulle avbryta körningen.
+    }%
     Vi provar med heltalet på båda sidor:
     \begin{minted}{python}
       frac_a = Fraction(1, 2)
@@ -616,27 +698,6 @@ termen är ett heltal?
     Varför fungerar inte \mintinline{python}{1 + frac_a}?
   \end{exercise}
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{FracLOReflected}.
-
-  \textbf{Variationsmönster}: Kontrast.
-
-  \textbf{Vad som varierar}: operandordningen
-  (\mintinline{python}{frac + int} respektive
-  \mintinline{python}{int + frac}).
-
-  \textbf{Vad som hålls invariant}: operationen (addition) och värdena.
-
-  \textbf{Kritisk aspekt}: Python anropar \mintinline{python}{__add__}
-  på den \emph{vänstra} operanden.  När det misslyckas försöker Python
-  \mintinline{python}{__radd__} på den \emph{högra} operanden.  Det är
-  nyckelinsikten för lärandemålet, och kontrasten avslöjar hur Python
-  löser upp en operator.  \foreignlanguage{english}{Try-first}:
-  studenterna felsöker problemet innan de får lösningen.  Exemplet med
-  \enquote{funkar ej} är avsiktligt \emph{inte} en del av testprogrammet:
-  det skulle avbryta körningen.
-}
 
 Tänk på vilken ordning Python utvärderar \mintinline{python}{1 + frac_a}.
 Vilket objekt är till vänster om \mintinline{python}{+}?  Vilken metod
@@ -652,19 +713,27 @@ hantera operationen.\footnote{\label{fn:radd}%
   operand does not support the corresponding operation}.  Samma avsnitt
   i språkreferensen som \cref{fn:add}.}
 
+% The \needspace keeps the method, the test case and its output together
+% in the notes.
+\mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Omvänd addition]
     \label{ex:fraction-radd}
     Den anropas med \mintinline{python}{self} som högra operand:
-<<omvänd addition>>=
+<<bråkklassens metoder>>=
 def __radd__(self, other):
     return self + other
 @
     Vi provar \(1 + \frac{1}{2}\) igen, med heltalet på båda sidor:
-<<prova addition>>=
+<<prova den omvända additionen>>=
 print(frac_a + 1)
 print(1 + frac_a)
+<<tester för [[Fraction]]>>=
+<<prova den omvända additionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_radd.py}
   \end{example}
 \end{frame}
 
@@ -714,16 +783,19 @@ negation.
   \begin{example}[Negation]
     \label{ex:fraction-neg}
     Vi negerar täljaren:
-<<negation och subtraktion>>=
+<<bråkklassens metoder>>=
 def __neg__(self):
     return Fraction(-self.numerator, self.denominator)
-
-<<subtraktion>>
 @
     Vi negerar \(\frac{1}{2}\):
-<<prova subtraktion>>=
+<<prova negationen>>=
 print(-frac_a)
+<<tester för [[Fraction]]>>=
+<<prova negationen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_negation.py}
   \end{example}
 \end{frame}
 
@@ -761,16 +833,20 @@ subtraktion!  Tänk på att \(a - b = a + (-b)\).
   \begin{example}[Subtraktion]
     \label{ex:fraction-sub}
     Subtraktion är addition med det negerade bråket:
-<<subtraktion>>=
+<<bråkklassens metoder>>=
 def __sub__(self, other):
     return self + (-other)
-
-<<omvänd subtraktion>>
 @
     Vi subtraherar \(\frac{1}{4}\) från \(\frac{1}{2}\):
-<<prova subtraktion>>=
+<<prova subtraktionen>>=
 print(frac_a - Fraction(1, 4))
+<<tester för [[Fraction]]>>=
+<<prova subtraktionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_subtraktion.py}
+    Klassen förkortar inte än, så \(\frac{2}{8}\) står kvar.
   \end{example}
 \end{frame}
 
@@ -790,33 +866,33 @@ subtract}), men här måste vi vara försiktiga!
 \begin{frame}
   \begin{exercise}
     \label{ovn:rsub-reuse}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:rsub-reuse}:
+      \cref{FracLOCommutative}.
+
+      \textbf{Variationsmönster}: Kontrast.
+
+      \textbf{Vad som varierar}: operationen (addition respektive
+      subtraktion).
+
+      \textbf{Vad som hålls invariant}: behovet av omvända operatorer.
+
+      \textbf{Kritisk aspekt att urskilja}: kommutativitet avgör om
+      \mintinline{python}{__radd__} helt enkelt kan anropa
+      \mintinline{python}{__add__}.  För addition (kommutativ) gäller
+      \(a + b = b + a\), så \mintinline{python}{__radd__} kan återanvända
+      \mintinline{python}{__add__}.  För subtraktion (icke-kommutativ)
+      gäller \(a - b \neq b - a\), så \mintinline{python}{__rsub__} behöver
+      annan logik.  Genom att visa addition \emph{först} (där tricket
+      fungerar) och sedan subtraktion (där det inte gör det) erfar
+      studenterna mönstret och dess begränsning; det abstrakta begreppet
+      kommutativitet blir \emph{konkret}.  Frågan ställs innan svaret ges,
+      vilket tvingar studenterna att resonera om matematiken.
+    }%
     Kan vi implementera \mintinline{python}{__rsub__} på samma sätt som
     \mintinline{python}{__radd__}?  Varför eller varför inte?
   \end{exercise}
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{FracLOCommutative}.
-
-  \textbf{Variationsmönster}: Kontrast.
-
-  \textbf{Vad som varierar}: operationen (addition respektive
-  subtraktion).
-
-  \textbf{Vad som hålls invariant}: behovet av omvända operatorer.
-
-  \textbf{Kritisk aspekt att urskilja}: kommutativitet avgör om
-  \mintinline{python}{__radd__} helt enkelt kan anropa
-  \mintinline{python}{__add__}.  För addition (kommutativ) gäller
-  \(a + b = b + a\), så \mintinline{python}{__radd__} kan återanvända
-  \mintinline{python}{__add__}.  För subtraktion (icke-kommutativ)
-  gäller \(a - b \neq b - a\), så \mintinline{python}{__rsub__} behöver
-  annan logik.  Genom att visa addition \emph{först} (där tricket
-  fungerar) och sedan subtraktion (där det inte gör det) erfar
-  studenterna mönstret och dess begränsning; det abstrakta begreppet
-  kommutativitet blir \emph{konkret}.  Frågan ställs innan svaret ges,
-  vilket tvingar studenterna att resonera om matematiken.
-}
 
 Nej!  Subtraktion är \emph{inte} kommutativ:
 \(1 - \frac{1}{2} \neq \frac{1}{2} - 1\).  Vi måste negera
@@ -828,14 +904,19 @@ Nej!  Subtraktion är \emph{inte} kommutativ:
     \label{ex:fraction-rsub}
     Heltalet görs om till ett bråk, och sedan dras vårt eget bråk från
     det:
-<<omvänd subtraktion>>=
+<<bråkklassens metoder>>=
 def __rsub__(self, other):
     return Fraction(other) - self
 @
     Vi provar \(1 - \frac{1}{2}\):
-<<prova subtraktion>>=
+<<prova den omvända subtraktionen>>=
 print(1 - frac_a)
+<<tester för [[Fraction]]>>=
+<<prova den omvända subtraktionen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_rsub.py}
   \end{example}
 \end{frame}
 
@@ -861,7 +942,7 @@ multiplicerar täljare med täljare och nämnare med nämnare.
   \begin{example}[Multiplikation]
     \label{ex:fraction-mul}
     Samma mönster som för addition, med en enklare formel:
-<<multiplikation>>=
+<<bråkklassens metoder>>=
 def __mul__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
@@ -871,13 +952,22 @@ def __mul__(self, other):
             self.denominator * other.denominator,
         )
     raise TypeError(f"can't multiply type {type(other)}")
+@
+  \end{example}
+\end{frame}
 
-<<omvänd multiplikation>>
-@
+\begin{frame}[fragile]
+  \begin{example}[Prova multiplikation]
+    \label{ex:fraction-mul-test}
     Vi multiplicerar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prova multiplikation>>=
+<<prova multiplikationen>>=
 print(frac_a * frac_b)
+<<tester för [[Fraction]]>>=
+<<prova multiplikationen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_multiplikation.py}
   \end{example}
 \end{frame}
 
@@ -900,20 +990,28 @@ Precis som med addition och subtraktion behöver vi
 \mintinline{python}{__rmul__()} för att hantera när vårt
 \mintinline{python}{Fraction} är till höger om multiplikationstecknet.
 
+% The \needspace keeps the method, the test case and its output together
+% in the notes.
+\mode<article>{\needspace{22\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Omvänd multiplikation]
     \label{ex:fraction-rmul}
     Multiplikation är kommutativ, så vi återanvänder
     \mintinline{python}{__mul__}:
-<<omvänd multiplikation>>=
+<<bråkklassens metoder>>=
 def __rmul__(self, other):
     return self * other
 @
     Vi multiplicerar \(\frac{1}{2}\) och \(2\), åt båda hållen:
-<<prova multiplikation>>=
+<<prova den omvända multiplikationen>>=
 print(frac_a * 2)
 print(2 * frac_a)
+<<tester för [[Fraction]]>>=
+<<prova den omvända multiplikationen>>
 @
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_rmul.py}
   \end{example}
 \end{frame}
 
@@ -921,7 +1019,7 @@ print(2 * frac_a)
 \section{Förkortning}
 \label{sec:forkortning}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{FracLODesign}.
 
   Avsnittet demonstrerar en viktig aspekt av att designa matematiska
@@ -946,10 +1044,9 @@ print(2 * frac_a)
   bråk \emph{alltid} är förkortade.  Det är ett designval --- vi hade
   kunnat välja att förkorta endast för visning.  Varje val har
   avvägningar, och studenterna måste lära sig att utvärdera dem.  I den
-  litterära formen är det just det tomma steget i konstruktorn
-  (\cref{ex:fraction-init}) som nu förfinas.
-}
-
+  litterära formen är det just pseudokoden i konstruktorn
+  (\cref{ex:fraction-init}) som nu preciseras med pythonkod.
+}%
 Nu har vi en fungerande bråkklass, men det finns ett problem: bråken
 förkortas inte automatiskt.  Efter några operationer kan vi få
 \(\frac{6}{12}\) istället för \(\frac{1}{2}\).
@@ -1035,19 +1132,23 @@ konstruktorn.
 
 Låt oss titta på hur vi implementerar förkortning.  Vi behöver importera
 modulen \mintinline{python}{math} för att få tillgång till funktionen
-\mintinline{python}{gcd()}; det är vad steget överst i filen
-(\cref{ex:fraction-file}) är till för.  Sedan skapar vi en (privat) metod
-\mintinline{python}{__simplify()} som gör själva förkortningen, och
-anropar den sist i konstruktorn.
+\mintinline{python}{gcd()}, och importen hör hemma bland bråkbibliotekets
+importer, överst i filen (\cref{ex:fraction-file}).  Sedan lägger vi
+till en (privat) metod \mintinline{python}{__simplify()}, som gör själva
+förkortningen, bland bråkklassens metoder.  Och till sist preciserar vi
+pseudokoden i konstruktorn med pythonkod: den anropar metoden.
 
+% The \needspace keeps the import, the method and the call on one page in
+% the notes.
+\mode<article>{\needspace{17\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Förkortning]
     \label{ex:fraction-simplify}
     Importen, metoden och anropet i konstruktorn:
-<<importera det som behövs>>=
+<<bråkbibliotekets importer>>=
 import math
 @
-<<förkortning>>=
+<<bråkklassens metoder>>=
 def __simplify(self):
     """Simplify the fraction by dividing by GCD"""
     gcd = math.gcd(self.__numerator, self.__denominator)
@@ -1096,14 +1197,17 @@ största gemensamma delaren vet vi att divisionen alltid går jämnt upp
 \subsection{Testning}
 \label{sec:testning}
 
-Testprogrammets sista del provar förkortningen, både direkt i
-konstruktorn och efter operationer.
+Testprogrammets sista testfall provar förkortningen, både direkt i
+konstruktorn och efter operationer.  Vad det skriver ut visar vi inte
+här: det är en del av svaret på nästa övning.
 
+% The \needspace keeps the test case on one page in the notes.
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Prova förkortningen]
     \label{ex:fraction-test-simplify}
     Bråk som ska förkortas vid skapandet och efter räkning:
-<<prova förkortning>>=
+<<prova förkortningen>>=
 frac1 = Fraction(6, 12)
 print(f"Fraction(6, 12) = {frac1}")
 frac2 = Fraction(2, 6)
@@ -1114,21 +1218,54 @@ frac4 = Fraction(1, 2) * Fraction(2, 3)
 print(f"1/2 * 2/3 = {frac4}")
 frac5 = Fraction(2, 3) - Fraction(1, 6)
 print(f"2/3 - 1/6 = {frac5}")
+<<tester för [[Fraction]]>>=
+<<prova förkortningen>>
 @
   \end{example}
 \end{frame}
 
+Därmed är all pseudokod preciserad med pythonkod.
+
+% The assembled file belongs to the notes only: a minted listing cannot
+% break across slides, and the chunks above are the slides' view of it.
+\mode<article>{%
+\begin{example}[\texttt{fraction.py}]
+  \label{ex:fraction-all}
+  Sätter vi in varje del där dess namn står får vi hela filen:
+  \inputminted{python}{examples/fraction.py}
+\end{example}
+
+}
+
+\mode<article>{\needspace{4\baselineskip}}
 \begin{frame}
   \begin{exercise}
     \label{ovn:utmatning}
     Vad skriver testprogrammet ut, rad för rad?  Gå igenom
-    proven\only<article>{ i \cref{ex:fraction-main}} i ordning.
+    proven\only<article>{ i \cref{ex:fraction-all}} i ordning.
   \end{exercise}
 \end{frame}
 
+% The \needspace keeps the run on one page in the notes.
+\mode<article>{\needspace{26\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
     \label{ex:fraction-run}
+    \leavevmode\ltnote{%
+      Utmatningen i \cref{ex:fraction-run} produceras av det tanglade
+      \texttt{examples/fraction.py} genom didactic-paketets
+      \mintinline{latex}{\runpython[transcript]}, så den kan inte glida
+      isär från koden; i den tidigare versionen stod utmatningen som fast
+      text.  Förutsägelseövningen före, \cref{ovn:utmatning}, är
+      \foreignlanguage{english}{try-first}: studenterna räknar själva
+      igenom testfallen innan de ser svaret.  De tidigare testfallens
+      utskrift har visats bredvid dem, men med klassen utan förkortning;
+      övningen frågar nu efter förkortningens testfall, som inte visats,
+      och efter vilka av de tidigare raderna som ändras när konstruktorn
+      förkortar (\mintinline{text}|2/8| blir \mintinline{text}|1/4|,
+      \mintinline{text}|2/2| blir \mintinline{text}|1/1|).  Det är den
+      kontroll som avslöjar om förkortningen förståtts.
+    }%
     Kör vi \texttt{python3 fraction.py} i terminalen får vi:
     \runpython[transcript]{examples/fraction.py}
   \end{example}
@@ -1138,25 +1275,18 @@ Perfekt!  Alla bråk förkortas automatiskt till sin enklaste form.
 \mintinline{python}{Fraction(6, 12)} blir \mintinline{python}{1/2}, och
 resultatet av \mintinline{python}{Fraction(1, 2) + Fraction(1, 4)} blir
 \mintinline{python}{3/4} istället för \mintinline{python}{6/8}.  Lägg
-också märke till de tidigare proven: \mintinline{python}{Fraction(2)}
-skrivs \mintinline{python}{2/1}, och \mintinline{python}{frac_a * 2}
-blir \mintinline{python}{1/1}.
-
-\ltnote{%
-  Utmatningen produceras av det tanglade \texttt{examples/fraction.py}
-  genom didactic-paketets \mintinline{latex}{\runpython[transcript]},
-  så den kan inte glida isär från koden; i den tidigare versionen stod
-  utmatningen som fast text.  Förutsägelseövningen före är
-  \foreignlanguage{english}{try-first}: studenterna räknar själva
-  igenom proven innan de ser svaret, och de tidigare provens rader ---
-  som inte visats förut --- är den kontroll som avslöjar om
-  förkortningen och typkonverteringen förståtts.
-}
+också märke till de tidigare testfallen, som nu körs med förkortningen:
+\mintinline{python}{frac_a - Fraction(1, 4)} blir
+\mintinline{python}{1/4} och \mintinline{python}{frac_a * 2} blir
+\mintinline{python}{1/1}, där körningarna bredvid testfallen gav
+\mintinline{python}{2/8} och \mintinline{python}{2/2}.  Och
+\mintinline{python}{Fraction(2)} skrivs fortfarande
+\mintinline{python}{2/1}: förkortningen ändrar inget där.
 
 \section{Sammanfattning}
 \label{sec:sammanfattning}
 
-\ltnote{%
+\leavevmode\ltnote{%
   \textbf{Variationsmönster}: Fusion.
 
   Genom hela kapitlet användes \emph{separation} för att introducera
@@ -1166,7 +1296,8 @@ blir \mintinline{python}{1/1}.
   (\mintinline{python}{__str__}, \mintinline{python}{__float__},
   \mintinline{python}{__int__}), aritmetiska operatorer
   (\mintinline{python}{__add__}, \mintinline{python}{__radd__} och så
-  vidare) och förkortning (ett designbeslut).  Nu ser studenterna den
+  vidare) och förkortning (ett designbeslut).  I hela filen
+  (\cref{ex:fraction-all}) och dess körning ser studenterna den
   kompletta klassen där \emph{alla} aspekter fungerar \emph{tillsammans}.
   Det är \emph{fusion} --- att erfara flera kritiska aspekter samtidigt
   som en integrerad helhet \parencite{Marton2015}: studenterna måste
@@ -1189,8 +1320,7 @@ blir \mintinline{python}{1/1}.
   \textbf{Nästa steg}: nu när studenterna sett det kompletta mönstret med
   bråk bör de kunna tillämpa liknande mönster på egna klasser
   (\emph{generalisering} till nya kontexter).
-}
-
+}%
 Vi har nu en komplett bråkklass med:
 \begin{itemize}
   \item flexibel konstruktion av bråk;
@@ -1201,19 +1331,6 @@ Vi har nu en komplett bråkklass med:
   \item typkonvertering till sträng, flyttal och heltal;
   \item automatisk förkortning.
 \end{itemize}
-
-% The assembled file belongs to the notes only: a minted listing cannot
-% break across slides, and the chunks above are the slides' view of it.
-\mode<article>{%
-Hela koden för klassen, som den tanglas ur källan, ser ut så här.
-
-\begin{example}[\texttt{fraction.py}]
-  \label{ex:fraction-all}
-  Hela filen:
-  \inputminted{python}{examples/fraction.py}
-\end{example}
-
-}
 
 \begin{frame}
   \begin{exercise}
@@ -1248,6 +1365,17 @@ redan finns och som är värt att se efter: ingenting hindrar att nämnaren
 \begin{frame}[fragile]
   \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:negativ-namnare}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:negativ-namnare}:
+      \cref{FracLODesign}.
+
+      \textbf{Kontrast.}  Vad som varierar: var minustecknet står (i
+      täljaren eller i nämnaren).  Vad som hålls invariant: det matematiska
+      värdet.  Kontrasten ska urskilja att samma värde kan ha flera
+      representationer, och att bara en av dem är kanonisk.  Påståendena om
+      vad de olika formerna skrivs ut som stod förr enbart i brödtexten;
+      nu körs de, så att texten inte kan glida ifrån klassen.
+    }%
     Programmet skapar bråk med negativ nämnare och räknar med dem.
 <<[[negative.py]]>>=
 from fraction import Fraction
@@ -1285,17 +1413,6 @@ print(Fraction(-1, 2) + Fraction(1, 3))
     \end{block}%
   }
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{FracLODesign}.
-
-  \textbf{Kontrast.}  Vad som varierar: var minustecknet står (i
-  täljaren eller i nämnaren).  Vad som hålls invariant: det matematiska
-  värdet.  Kontrasten ska urskilja att samma värde kan ha flera
-  representationer, och att bara en av dem är kanonisk.  Påståendena om
-  vad de olika formerna skrivs ut som stod förr enbart i brödtexten;
-  nu körs de, så att texten inte kan glida ifrån klassen.
-}
 
 Det är problematiskt att tillåta negativ nämnare, eftersom klassen då
 saknar en entydig, kanonisk representation av ett rationellt tal.
@@ -1336,6 +1453,13 @@ precis som Pythons egen \mintinline{python}{fractions.Fraction}
 \begin{frame}[fragile]
   \begin{example}[Tecknet till täljaren]
     \label{ex:fraction-sign}
+    \leavevmode\ltnote{%
+      Kapitlet slutade förr på en obesvarad övningsuppgift i bilderna:
+      utmatningen visades, men slutsatsen --- de tre följderna och
+      åtgärden --- stod bara i anteckningarna.  Sammanfattningsbilden och
+      den här bilden, \cref{ex:fraction-sign}, gör att föreläsningen kan
+      avslutas där resonemanget avslutas.
+    }%
     Det här är det enda kodstycket i kapitlet som inte hör till
     \texttt{fraction.py}.  Det visar vad man skulle lägga sist i
     \mintinline{python}{__simplify()} för att flytta minustecknet till
@@ -1347,11 +1471,3 @@ precis som Pythons egen \mintinline{python}{fractions.Fraction}
     \end{minted}
   \end{example}
 \end{frame}
-
-\ltnote{%
-  Kapitlet slutade förr på en obesvarad övningsuppgift i bilderna:
-  utmatningen visades, men slutsatsen --- de tre följderna och
-  åtgärden --- stod bara i anteckningarna.  Sammanfattningsbilden och
-  den här bilden gör att föreläsningen kan avslutas där resonemanget
-  avslutas.
-}
