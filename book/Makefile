@@ -12,9 +12,9 @@ DECK_DIRS=	$(addprefix ../modules/,${DECKS})
 LATEXFLAGS+=	-shell-escape
 # didactic decides from the previous pass whether a repeated citation gets
 # a margin note of its own, and a decision can move the pages after it, so
-# the book needs about nine pdflatex passes from a clean .aux; latexmk
+# the book needs up to about fourteen pdflatex passes from a clean .aux; latexmk
 # stops at five by default.  tex.mk's own command, with a higher limit.
-PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=10'
+PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=20'
 TEX_PYTHONTEX=	yes
 # Mentipy decks (Algoritmiskt tänkande, Hello, World!) import mentipy in
 # their PythonTeX code, and the system python3 cannot (pipx isolates it), so
