@@ -30,6 +30,8 @@ redigera det i din textredigerare.
   operationer som passar för vilken typ,
 - dela upp ett problem i delproblem och skriva en funktion för varje del,
   med parametrar och returvärden, så att kod inte upprepas,
+- lägga huvudprogrammet i en egen funktion, `main`, och förklara varför:
+  då kan en funktion inte av misstag använda huvudprogrammets variabler,
 - skriva kod som följer PEP 8 och förklarar sig själv med kommentarer och
   docstrings enligt PEP 257.
 
