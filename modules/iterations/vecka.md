@@ -65,8 +65,8 @@ veckorna.
 - **Tis 29/9**
   - 10:00–12:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
 - **Ons 30/9**
-  - 10:00–12:00 Övning (grupp G–L) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
-  - 15:00–17:00 Övning (grupp A–F) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning (grupp G–L) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
+  - 15:00–17:00 Övning (grupp A–F) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Tor 1/10**
   - 15:00–17:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), E36 — Hjälpsession
 - **Fre 2/10**
