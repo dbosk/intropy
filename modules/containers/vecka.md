@@ -64,9 +64,9 @@ och kontrollera inmatning från användaren.
 - **Mån 26/10**
   - 10:00–12:00 Föreläsning (helklass) — D3, Zoom — Grundläggande lärarledd undervisning, hybrid
 - **Tis 27/10**
-  - 10:00–12:00 Övning (grupp A–F) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning (grupp A–F) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Ons 28/10**
-  - 15:00–17:00 Övning (grupp G–L) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 15:00–17:00 Övning (grupp G–L) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Tor 29/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
   - 10:00–12:00 Labb (grupp G–L) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
