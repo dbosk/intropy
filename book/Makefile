@@ -24,6 +24,16 @@ ${MENTIPY_VENV}/bin/python3:
 # Order-only: the venv must exist, but its timestamp must not rebuild.
 bok.pdf bok-larare.pdf: | ${MENTIPY_VENV}/bin/python3
 
+# minted looks up its cache files with \IfFileExists, which under
+# \subimport also searches the deck's directory.  When the decks are
+# already built, it finds its style definition in a deck's ltxobj/_minted,
+# never writes one here, and so never creates the book's cache directory;
+# latexminted then fails to write the highlighted \inputminted files, and
+# the book shows <MINTED> placeholders.  Create the directory first.
+bok.pdf bok-larare.pdf: | ltxobj/_minted
+ltxobj/_minted:
+	mkdir -p $@
+
 # Each deck weaves its contents.tex and tangles its examples/ with its own
 # Makefile, so the book reads exactly what the deck's notes read.
 DECK_TEX=	$(addsuffix /contents.tex,${DECK_DIRS})
