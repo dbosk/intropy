@@ -1,11 +1,12 @@
 .PHONY: all
 all: bok-larare.pdf bok.pdf
 
-# The decks the book binds, in book order (book-body.tex has their \deck
-# lines).  Paths from modules/.
-DECKS+=		computational-thinking/slides
-DECKS+=		helloworld/slides
-DECKS+=		variables/slides-functions
+# The decks the book binds, read from the \deck lines of book-body.tex, so
+# there is one list: a \deck{<module>/<deck>}{...} line, or, when \deck has
+# an optional argument over several lines, its closing ]{<module>/<deck>}.
+# Paths from modules/.
+DECKS:=		$(shell sed -n 's/^\(\\deck\|\]\){\([^}]*\)}.*/\2/p' \
+		  book-body.tex)
 
 DECK_DIRS=	$(addprefix ../modules/,${DECKS})
 
@@ -57,10 +58,12 @@ DECK_SRC:=	$(filter-out %/slides.tex %/notes.tex,${DECK_SRC})
 # One bibliography for the book: tex.mk's ARCHIVE.bib merges each deck's
 # ltnotes.bib into this one with bibtool (sorted, duplicate keys dropped).
 # It appends to what is there, so start from an empty file, or an entry
-# changed in a deck would lose to its old copy.  A key must mean the same
-# in every deck; phase 2 adds check_bib.py for that.
+# changed in a deck would lose to its old copy.  bibtool keeps one entry
+# per key without looking at the others, so a key must mean the same in
+# every deck: check_bib.py fails the merge when it does not.
 DECK_BIBS=	$(addsuffix /ltnotes.bib,${DECK_DIRS})
-ltnotes.bib: ${DECK_BIBS}
+ltnotes.bib: ${DECK_BIBS} book-body.tex
+	python3 check_bib.py book-body.tex
 	${RM} $@
 	${MAKE} merge-bib
 .PHONY: merge-bib
