@@ -208,10 +208,14 @@ def didactic_track(kind, /, *paths):
 % afresh and the chapter ends with its own bibliography) and a TeX group
 % (so a deck's \newcommand's and <setup> stay in its chapter).  <setup> is
 % for the deck-local settings that differ between decks, e.g. cleveref's
-% name for a list item.
+% name for a list item.  The deck's appendices are not part of the
+% chapter: \deck queues them for \scienceappendices, the book's last part.
+\makeatletter
+\let\book@appendixchapters\@empty
 \NewDocumentCommand{\deck}{O{}mm}{%
   \begin{refsection}%
   \chapter{#3}%
+  \label{book:#2}%
   #1%
   \ifcsname c@lo\endcsname\setcounter{lo}{0}\fi
   \pyc{book_enter_deck('../modules/#2')}%
@@ -238,6 +242,29 @@ def didactic_track(kind, /, *paths):
   % (see \foottextfont and \marginheightadjustment above).
   \let\clearpage\par
   \subimport{../modules/#2/}{contents.tex}%
+  \printbibliography[heading=subbibintoc]%
+  \pyc{book_leave_deck()}%
+  \end{refsection}%
+  \g@addto@macro\book@appendixchapters{\book@appendixchapter{#1}{#2}{#3}}%
+}
+
+% The appendices of every deck, at the end of the book (author,
+% 2026-09-27): one chapter per deck, in the order of the decks' chapters,
+% named after the deck.  Inside it the deck's appendices keep their
+% letters A, B, ... (deckappendices), and since labels are global, the
+% chapter text's \cref to them, and pointers such as "föreläsningen
+% Funktioner, bilaga B", stay true.  Each appendix chapter is a refsection
+% of its own, with the bibliography of the appendices' citations.
+\newcommand{\book@appendixchapter}[3]{%
+  \begin{refsection}%
+  \chapter{#3}%
+  #1%
+  \pyc{book_enter_deck('../modules/#2')}%
+  Det här kapitlet samlar bilagorna till \cref{book:#2},
+  \emph{#3}: hur ett påstående kontrolleras mot forskningslitteraturen,
+  och de sökningar som kapitlets påståenden vilar på.
+  \localtableofcontents*
+  \let\clearpage\par
   \begin{deckappendices}%
     \subimport{../modules/#2/}{sokprotokoll.tex}%
   \end{deckappendices}%
@@ -245,6 +272,8 @@ def didactic_track(kind, /, *paths):
   \pyc{book_leave_deck()}%
   \end{refsection}%
 }
+\newcommand{\scienceappendices}{\book@appendixchapters}
+\makeatother
 % The learning objectives restart in every chapter, as standalone, so their
 % hyperlink targets must name the chapter.
 \AtBeginDocument{\def\theHlo{\theHchapter.\arabic{lo}}}
