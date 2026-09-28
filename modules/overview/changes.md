@@ -36,6 +36,14 @@ problem tillsammans. Vi hinner ett urval av problemen på passet; alla
 problem finns med lösningar i textform på övningens sida, så att du kan
 fortsätta på egen hand.
 
+**Övningarna för hela klassen från vecka 40** (ändrat 28/9). Vecka 37–39
+var övningarna delade mellan grupp A–F och grupp G–L. Från vecka 40 är
+de för hela klassen. Övningarna är frivilliga. Båda tillfällena ges i D37 och på
+Zoom; på det andra fortsätter vi med veckans innehåll, och när Emelie
+är bokad finns samtidigt en repetition med hen i ett eget grupprum på
+Zoom, så långt tillbaka i kursen som behövs. Labbpassen och
+redovisningarna är fortfarande delade mellan grupperna.
+
 **Labben är till för labben.** Labbpassen är hjälpsessioner: ni arbetar
 med veckans laboration och får hjälp av lärare och assistenter när ni
 fastnar. Ingen schemalagd egen studietid utöver det.
