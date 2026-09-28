@@ -71,3 +71,14 @@ Canvas, flip `published:` in its file before the next push.
 Course design since 2026-09-01: no Torus, no flipped classroom; a week runs
 live lecture (recording and notes as the alternative), then övning, then
 laboration. Slides are shown at the lecture and not linked.
+
+Övningar (all optional): in 2026 weeks 37–39 they were in half-class groups
+A–F / G–L; from week 40 (author, 2026-09-28) they are for the whole class,
+the first occasion in D37 + Zoom, the second a continuation on the week's
+topic in D37 + Zoom with, when the TA Emelie (emewas, "hen") is booked in
+nytid, a parallel repetition in a Zoom breakout room. TimeEdit still lists
+the groups, so the Övning rows of the week-40–46 schedule blocks are
+hand-edited (Emelie named only where booked; update as bookings change;
+`make update-schedule` reverts them until TimeEdit matches). Labs and
+redovisning keep their groups. Next year the first weeks are half-class
+again.
