@@ -30,10 +30,18 @@ EXAMPLES+=	examples/degrees.py
 EXAMPLES+=	examples/degrees-help.py examples/degrees-comments.py
 EXAMPLES+=	examples/welcome.py
 EXAMPLES+=	examples/scope-same-names.py examples/scope-other-names.py
+EXAMPLES+=	examples/welcome1.py examples/welcome2.py
 EXAMPLES+=	examples/hello.py examples/hello-default.py
 EXAMPLES+=	examples/linear.py
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
