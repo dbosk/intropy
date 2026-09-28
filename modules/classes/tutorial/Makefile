@@ -32,8 +32,6 @@ EXAMPLES+=	examples/trace.py
 EXAMPLES+=	examples/shelf.py
 EXAMPLES+=	examples/copies.py
 EXAMPLES+=	examples/same.py
-EXAMPLES+=	examples/frac.py
-EXAMPLES+=	examples/own_gcd.py
 EXAMPLES+=	examples/review.py
 EXAMPLES+=	examples/review_better.py
 EXAMPLES+=	examples/plain.py
@@ -43,11 +41,6 @@ EXAMPLES+=	examples/borrowed.py
 # deck shows each case's output beside it.  Each of these programs runs
 # one case (after the earlier ones, silenced); they reference the test
 # chunks in contents.nw from testkorningar.nw, which is never woven.
-TESTRUNS+=	examples/frac_test_jamforelse.py
-TESTRUNS+=	examples/frac_test_utskrift.py
-TESTRUNS+=	examples/frac_test_raknesatt.py
-TESTRUNS+=	examples/frac_test_flyttal.py
-TESTRUNS+=	examples/frac_test_forkortning.py
 TESTRUNS+=	examples/borrowed_test_utskrift.py
 EXAMPLES+=	${TESTRUNS}
 

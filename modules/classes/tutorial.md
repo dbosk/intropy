@@ -29,9 +29,7 @@ vi tillsammans, i den här ordningen:
    kortaste kommer först.
 4. **Uppgift 5: Två exemplar.** Avgöra när två exemplar ska räknas som
    samma bok.
-5. **Uppgift 6: En bråkig klass.** Skriva en klass för bråk som går att
-   jämföra, skriva ut, räkna med, omvandla till flyttal och förkorta.
-6. **Uppgifterna 7 och 8: Metoderna som redan fanns.** Ta reda på
+5. **Uppgifterna 6 och 7: Metoderna som redan fanns.** Ta reda på
    varifrån `print` och `==` fick sina svar innan klassen hade
    dundermetoder, och skriva en underklass för en lånad bok som
    överlagrar en metod med hjälp av `super()`.
@@ -44,13 +42,13 @@ i dokumentet låter dig kontrollera dina egna svar.
 1. **Uppgift 3: Två böcker.** Förutsäga vad ett program med två böcker
    skriver ut, [trace.py][trace]. För att köra det behöver du din egen
    `book.py` i samma mapp.
-2. **Uppgift 9: Klass eller uppslagslista.** Välja mellan att
+2. **Uppgift 8: Klass eller uppslagslista.** Välja mellan att
    representera samma data som en klass eller som en uppslagslista,
    beroende på vad programmet behöver.
-3. **Uppgift 10: Någon annans klass.** Granska och skriva om en illa
+3. **Uppgift 9: Någon annans klass.** Granska och skriva om en illa
    skriven klass, [review.py][review]: inkapsling, namn, kodupprepning
    och dundermetoder.
-4. **Fördjupning: Uppgift 11: Författaren.** Välja mellan arv och
+4. **Fördjupning: Uppgift 10: Författaren.** Välja mellan arv och
    komposition (is-a mot has-a) för en ny klass `Author`.
 
 [trace]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/examples/trace.py
