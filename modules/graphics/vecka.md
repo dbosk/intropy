@@ -46,12 +46,17 @@ bibliotek du inte använt förut.
    Grafiskt gränssnitt*, som beskriver dess innehåll och länkar till
    anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
    inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** se sidan *Övning: Grafiskt gränssnitt*
-   här i modulen. Vi går igenom veckans innehåll genom att lösa problem
-   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
-   uppgifterna och lösningarna till alla finns i det interaktiva dokumentet
-   (FeedbackFruits) så att du kan fortsätta på egen hand. Välj spår: grafiska
-   gränssnitt, eller repetition av tidigare veckor inför datorprovet.
+2. **Gå gärna på övningarna:** se sidan *Övning: Grafiskt gränssnitt* här i
+   modulen. Övningarna är frivilliga och ges för hela klassen, i D37 och på
+   Zoom. På det första tillfället går vi igenom veckans innehåll genom att
+   lösa problem tillsammans. På det andra fortsätter vi med veckans
+   innehåll. När Emelie är bokad finns samtidigt en repetition med hen i ett
+   eget grupprum på Zoom; den går så långt tillbaka i kursen som behövs,
+   anpassad efter dem som kommer. Schemat nedan visar när. Vi hinner bara
+   ett urval av problemen; uppgifterna och lösningarna till alla finns i det
+   interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på egen
+   hand. Välj spår: grafiska gränssnitt, eller repetition av tidigare veckor
+   inför datorprovet.
 3. **Arbeta med** *Laboration (frivillig) grafiska gränssnitt* om du vill,
    gärna i par. På labbpassen finns lärare och assistenter för att hjälpa er,
    oavsett om ni arbetar med den frivilliga laborationen, laboration 6 eller
@@ -62,17 +67,17 @@ bibliotek du inte använt förut.
 <!-- schema:start -->
 - **Tis 10/11**
   - 10:00–12:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
-  - 15:00–17:00 Övning (grupp A–F) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
+  - 15:00–17:00 Övning (helklass) — D37, Zoom
 - **Ons 11/11**
-  - 10:00–12:00 Övning (grupp G–L) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom)
 - **Tor 12/11**
   - 15:00–17:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
 - **Fre 13/11**
   - 15:00–17:00 Labb (grupp G–L) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
 <!-- schema:end -->
 
-Du går bara på övnings- och labbpassen för din grupp (A–F eller G–L);
-föreläsningen är gemensam för hela klassen. Tiderna anges som i TimeEdit,
+Du går bara på labbpassen för din grupp (A–F eller G–L); föreläsningen
+och övningarna är gemensamma för hela klassen. Tiderna anges som i TimeEdit,
 utan akademisk kvart: föreläsningar och övningar börjar kvart över.
 
 ## Deadlines och hjälp

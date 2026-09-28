@@ -43,11 +43,16 @@ veckorna.
    Upprepningar, listor och moduler*, som beskriver dess innehåll och
    länkar till anteckningarna. Kan du inte komma, eller föredrar du att
    läsa, finns inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** se sidan *Övning: Upprepningar, listor
-   och moduler* här i modulen. Vi går igenom veckans innehåll genom att lösa
-   problem tillsammans i mindre grupper. Vi hinner bara ett urval av
-   problemen; uppgifterna och lösningarna till alla finns i det interaktiva
-   dokumentet (FeedbackFruits) så att du kan fortsätta på egen hand.
+2. **Gå gärna på övningarna:** se sidan *Övning: Upprepningar, listor och
+   moduler* här i modulen. Övningarna är frivilliga och ges för hela
+   klassen, i D37 och på Zoom. På det första tillfället går vi igenom
+   veckans innehåll genom att lösa problem tillsammans. På det andra
+   fortsätter vi med veckans innehåll. När Emelie är bokad finns samtidigt
+   en repetition med hen i ett eget grupprum på Zoom; den går så långt
+   tillbaka i kursen som behövs, anpassad efter dem som kommer. Schemat
+   nedan visar när. Vi hinner bara ett urval av problemen; uppgifterna och
+   lösningarna till alla finns i det interaktiva dokumentet
+   (FeedbackFruits) så att du kan fortsätta på egen hand.
 3. **Arbeta med** *Laboration (3) upprepningar, listor och moduler* i par. Ni
    flyttar felhanteringen från laboration 2 till en egen modul med funktioner
    som frågar om igen tills inmatningen är korrekt. På labbpassen finns
@@ -65,16 +70,16 @@ veckorna.
 - **Tis 29/9**
   - 10:00–12:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
 - **Ons 30/9**
-  - 10:00–12:00 Övning (grupp G–L) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
-  - 15:00–17:00 Övning (grupp A–F) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning (helklass) — D37, Zoom
+  - 15:00–17:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med Emelie (Zoom, grupprum)
 - **Tor 1/10**
   - 15:00–17:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), E36 — Hjälpsession
 - **Fre 2/10**
   - 13:00–15:00 Labb (grupp G–L) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
 <!-- schema:end -->
 
-Du går bara på övnings- och labbpassen för din grupp (A–F eller G–L);
-föreläsningen är gemensam för hela klassen. Tiderna anges som i TimeEdit,
+Du går bara på labbpassen för din grupp (A–F eller G–L); föreläsningen
+och övningarna är gemensamma för hela klassen. Tiderna anges som i TimeEdit,
 utan akademisk kvart: föreläsningar och övningar börjar kvart över.
 
 ## Deadlines och hjälp
