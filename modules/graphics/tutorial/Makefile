@@ -34,6 +34,7 @@ EXAMPLES+=	examples/clock_loop.py
 EXAMPLES+=	examples/clock.py
 EXAMPLES+=	examples/countdown.py
 EXAMPLES+=	examples/timer.py
+EXAMPLES+=	examples/timer2.py
 EXAMPLES+=	examples/draw_colors.py
 EXAMPLES+=	examples/draw_rect.py
 

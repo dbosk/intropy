@@ -36,10 +36,12 @@ vi tillsammans, i den här ordningen:
 Resten av uppgifterna finns kvar att göra på egen tid; lösningsförslagen
 i dokumentet låter dig kontrollera dina egna svar.
 
-1. **Uppgift 5: Färgknapparna.** Utöka ritprogrammet från föreläsningen,
+1. **Uppgift 5: Timern igen.** Pröva timern från uppgift 4 med en
+   inställning till: förutsäg vad den visar, kör den och jämför.
+2. **Uppgift 6: Färgknapparna.** Utöka ritprogrammet från föreläsningen,
    [draw.py][draw], med valbar penselfärg, utan att koden upprepar sig
    för varje ny färg.
-2. **Uppgift 6: Rektanglarna.** Utöka ritprogrammet så att det kan rita
+3. **Uppgift 7: Rektanglarna.** Utöka ritprogrammet så att det kan rita
    både linjer och rektanglar med samma musknapp.
 
 [draw]: https://github.com/dbosk/intropy/blob/master/modules/graphics/slides/examples/draw.py

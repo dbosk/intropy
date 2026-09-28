@@ -1119,6 +1119,217 @@ under nedräkningen är tiden förlorad.  Med inmatning i fälten och
 utmatning i etiketten behöver fälten dessutom bara läsas av på ett
 ställe, i \mintinline{python}{start}.
 
+\section{Timern igen}
+\label{sec:timer-again}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{OvningGraphicsLOWidgets} och
+  \cref{OvningGraphicsLOStructure}.
+
+  \textbf{Variationsmönster}: Kontrast.
+
+  \textbf{Vad som varierar}: programmet, i en enda metod.
+  \texttt{timer.py} och \texttt{timer2.py} skiljer sig bara i
+  \mintinline{python}{start}, som i det senare ser efter att ingen del
+  av tiden är negativ.
+
+  \textbf{Vad som hålls invariant}: inställningen 0, 0 och \(-5\), som
+  båda programmen får, och allt annat i timern --- fälten, knappen,
+  \mintinline{python}{tick} och nedräkningen --- som \texttt{timer2.py}
+  ärver i stället för att skriva om.
+
+  \textbf{Varför \cref{ovn:timer-again} kommer direkt efter timern}:
+  studentens egen timer är färdig, och \cref{ovn:countdown} har redan
+  krävt att timern aldrig ska visa en negativ tid; här prövas kravet mot
+  programmet.  Uppgiften säger varken vad timern gör eller att något
+  skulle vara fel, så att förutsägelsen visar om studenten själv ser att
+  ingenting i programmet hindrar ett minustecken; en uppgift som pekade
+  ut det hade inte lämnat något att urskilja \parencite[13]{Marton2015}.
+  Att kontrollen hamnar där inmatningen läses, och inte i
+  \mintinline{python}{count_down}, är \cref{OvningGraphicsLOStructure}
+  en gång till: logiken räknar med en giltig tid, och gränssnittet ser
+  till att den får en.
+}%
+Innan vi lämnar timern prövar vi den med en inställning till.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Timern igen]\label{ovn:timer-again}
+    Ställ in 0 timmar, 0 minuter och -5 sekunder i timern från uppgiften
+    \emph{Timern}.  Skriv ner vad du tror att timern visar när du startar
+    den, och starta den sedan.  Gör timern det du tycker att en timer ska
+    göra?  Om inte, ändra programmet så att den gör det.
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+Först vad timern faktiskt gör.  \Cref{fig:timer-negative} visar den en
+bråkdel av en sekund efter att den startats.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figs/timer-negative.png}
+    \caption{\texttt{timer.py} strax efter att den startats med 0, 0 och
+      \(-5\) i fälten.  En sekund senare visar etiketten
+      \texttt{00:00:00}, och timern stannar.  Bilden är förstorad tre
+      gånger och visar programmets egen yta, utan skrivbordsmiljöns
+      fönsterram.}
+    \label{fig:timer-negative}
+  \end{figure}
+\end{frame}
+
+Etiketten visar \texttt{00:00:-5}.  Ingenting i programmet hindrar det:
+\mintinline{python}{int} godtar ett minustecken, så
+\mintinline{python}{int("-5")} blir talet \(-5\) och inte ett
+\mintinline{python}{ValueError}, och \mintinline{python}{start} tar emot
+tiden \mintinline{python}{(0, 0, -5)} som vilken annan tid som helst.
+Den första \mintinline{python}{tick} visar tiden som den är.  Tiden är
+inte noll, så \mintinline{python}{count_down} får räkna ner den, men
+ingen av dess regler gäller --- varken sekunderna, minuterna eller
+timmarna är fler än noll --- och då ger den noll.  En sekund senare visar
+timern \texttt{00:00:00} och stannar.  Uppgiften \emph{Nedräkningen}
+krävde att timern aldrig ska visa en negativ tid, och i en sekund gör den
+det.
+
+\begin{frame}[fragile]
+  \begin{solution}[Vad timern gör med en negativ tid]
+    \mintinline{python}{int("-5")} är talet \(-5\), så
+    \mintinline{python}{start} tar emot tiden, och den första
+    \mintinline{python}{tick} visar den: \texttt{00:00:-5}.  Sekunden
+    därpå har \mintinline{python}{count_down} gjort den till noll, och
+    timern stannar.
+  \end{solution}
+\end{frame}
+
+Tiden måste alltså kontrolleras, och frågan är var.
+\mintinline{python}{count_down} kunde göra en negativ tid till noll, men
+då vore det redan för sent: \mintinline{python}{tick} visar tiden
+\emph{innan} den räknar ner, så \texttt{00:00:-5} hade ändå stått i
+etiketten i en sekund.  Tiden kommer in i programmet i
+\mintinline{python}{start}, där fälten läses av och där den som skrivit
+något annat än ett tal redan får veta det i etiketten.  Där hör
+kontrollen hemma, och svaret kan ges på samma sätt.  Nedräkningen får
+stå kvar som den är: den räknar med en giltig tid, och gränssnittet ser
+till att den får en.
+
+I din egen timer lägger du in kontrollen direkt i
+\mintinline{python}{start}.  Här skriver vi den i en ny fil,
+\texttt{timer2.py}, så att de två programmen kan prövas med samma
+inställning.  Den nya filen importerar timern och gör en klass som ärver
+från den, och den nya klassen byter bara ut \mintinline{python}{start}
+--- på samma sätt som en klass som skriver en egen
+\mintinline{python}{__str__} byter ut den metod den annars hade ärvt.
+Allt annat, fälten, knappen och \mintinline{python}{tick}, ärvs
+oförändrat.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{timer2.py}]
+    Upplägget: timern importeras, och en ny klass ärver från den:
+<<[[timer2.py]]>>=
+"""A timer with tkinter that does not start from a negative time"""
+
+from timer import Timer
+
+<<den andra timerns klasser>>
+
+<<den andra timerns huvudprogram>>
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är timerns, med den nya klassen i stället.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Som timerns:
+<<den andra timerns huvudprogram>>=
+def main():
+    """Run the timer"""
+    timer = CheckedTimer()
+    timer.mainloop()
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Den nya \mintinline{python}{start} är den gamla med en del till, efter
+avläsningen av fälten och före starten: är någon del av tiden negativ
+skriver den det i etiketten och startar inte.  Avläsningen är samma del
+som i \texttt{timer.py}.
+
+\mode<article>{\needspace{20\baselineskip}}
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    En klass som ärver timern och byter ut \mintinline{python}{start}:
+<<den andra timerns klasser>>=
+class CheckedTimer(Timer):
+    """The timer, which does not start from a negative time"""
+
+    def start(self, event=None):
+        """Read the three fields and start counting down, if not negative"""
+        if self.running:
+            return
+
+        try:
+            <<läs av den inställda tiden>>
+        except ValueError:
+            self.display.set("bara siffror")
+            return
+
+        <<vägra en negativ tid>>
+
+        self.running = True
+        self.tick()
+@
+  \end{solution}
+\end{frame}
+
+Kvar är den nya delen.  \mintinline{python}{min} ger den minsta av
+tidens tre delar, och är den mindre än noll är någon av dem negativ.
+
+\begin{frame}[fragile]
+  \begin{solution}[Kontrollen]
+    Säg ifrån i etiketten, och starta inte:
+<<vägra en negativ tid>>=
+if min(self.time_left) < 0:
+    self.display.set("ingen negativ tid")
+    return
+@
+  \end{solution}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/timer2.py}
+\end{frame}
+
+\Cref{fig:timer2-negative} visar \texttt{timer2.py} med samma
+inställning som i \cref{fig:timer-negative}.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{figs/timer2-negative.png}
+    \caption{\texttt{timer2.py} strax efter ett tryck på knappen med 0, 0
+      och \(-5\) i fälten, samma inställning som i
+      \cref{fig:timer-negative}.  Etiketten visar meddelandet i stället
+      för en tid, och ingen nedräkning startar.  Bilden är förstorad tre
+      gånger och visar programmets egen yta, utan skrivbordsmiljöns
+      fönsterram.}
+    \label{fig:timer2-negative}
+  \end{figure}
+\end{frame}
+
+Samma inställning, och bara \mintinline{python}{start} skiljer de två
+programmen åt.  Den ena timern visar en negativ tid i en sekund, den
+andra säger ifrån innan någon \mintinline{python}{tick} har körts.
+Ingenting i nedräkningen behövde ändras.
+
 \section{Färgknapparna}
 \label{sec:colors}
 
