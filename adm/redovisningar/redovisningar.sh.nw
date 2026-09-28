@@ -131,6 +131,12 @@ I am booked on the sessions too, but I do not take presentations, so I am
 excluded both from the count and from the list of TAs in the description.
 nytid identifies TAs by their KTH username, which on my machine is also
 [[$USER]]; [[TEACHER]] can be set in the environment to override it.
+
+A TA can appear twice in the list when they have booked the same session twice
+in the sign-up sheet, as happened on 6 October 2026.
+They still take only one student at a time, so we keep only the first
+occurrence of each name ([[awk '!seen[$0]++']] keeps the order, unlike
+[[sort -u]]).
 <<constants>>=
 TEACHER="${TEACHER:-$USER}"
 <<functions>>=
@@ -142,7 +148,8 @@ booked_tas() {
     if [ "$ta" != "$TEACHER" ]; then
       echo "$ta"
     fi
-  done
+  done \
+  | awk '!seen[$0]++'
 }
 @
 
