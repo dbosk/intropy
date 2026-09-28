@@ -47,21 +47,22 @@ och kontrollera inmatning från användaren.
    läsa, finns inspelningen och föreläsningsanteckningarna där i stället.
 2. **Gå gärna på övningarna:** se sidan *Övning: Fler behållare och mer om
    klasser* här i modulen. Övningarna är frivilliga och ges för hela
-   klassen, i D37 och på Zoom. På det första tillfället går vi igenom
-   veckans innehåll genom att lösa problem tillsammans. På det andra
-   fortsätter vi med veckans innehåll. När Emelie är bokad finns samtidigt
-   en repetition med hen i ett eget grupprum på Zoom; den går så långt
-   tillbaka i kursen som behövs, anpassad efter dem som kommer. Schemat
-   nedan visar när. Vi hinner bara ett urval av problemen; uppgifterna och
-   lösningarna till alla finns i det interaktiva dokumentet (FeedbackFruits)
-   så att du kan fortsätta på egen hand. Att hitta och läsa dokumentationen
-   för Pythons behållare är en stor del av veckans mål, så ha den uppe under
-   övningen.
+   klassen, i D37 och på [Zoom][zoom-room]. På det första tillfället går vi
+   igenom veckans innehåll genom att lösa problem tillsammans. På det andra
+   fortsätter vi med veckans innehåll. Samtidigt leder en assistent, oftast
+   Emelie, en repetition i ett eget grupprum på Zoom; den går så långt
+   tillbaka i kursen som behövs, anpassad efter dem som kommer. Vi hinner
+   bara ett urval av problemen; uppgifterna och lösningarna till alla finns
+   i det interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på
+   egen hand. Att hitta och läsa dokumentationen för Pythons behållare är en
+   stor del av veckans mål, så ha den uppe under övningen.
 3. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.
 4. **Vill du fördjupa dig?** Gör *Fördjupande övning fler behållare och mer
    om klasser*.
+
+[zoom-room]: https://kth-se.zoom.us/j/66622274394
 
 ## Schema
 
@@ -71,7 +72,7 @@ och kontrollera inmatning från användaren.
 - **Tis 27/10**
   - 10:00–12:00 Övning (helklass) — D37, Zoom
 - **Ons 28/10**
-  - 15:00–17:00 Övning: fortsättning på veckans innehåll (D37, Zoom)
+  - 15:00–17:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
 - **Tor 29/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
   - 10:00–12:00 Labb (grupp G–L) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession

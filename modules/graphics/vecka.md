@@ -48,19 +48,20 @@ bibliotek du inte använt förut.
    inspelningen och föreläsningsanteckningarna där i stället.
 2. **Gå gärna på övningarna:** se sidan *Övning: Grafiskt gränssnitt* här i
    modulen. Övningarna är frivilliga och ges för hela klassen, i D37 och på
-   Zoom. På det första tillfället går vi igenom veckans innehåll genom att
-   lösa problem tillsammans. På det andra fortsätter vi med veckans
-   innehåll. När Emelie är bokad finns samtidigt en repetition med hen i ett
-   eget grupprum på Zoom; den går så långt tillbaka i kursen som behövs,
-   anpassad efter dem som kommer. Schemat nedan visar när. Vi hinner bara
-   ett urval av problemen; uppgifterna och lösningarna till alla finns i det
-   interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på egen
-   hand. Välj spår: grafiska gränssnitt, eller repetition av tidigare veckor
-   inför datorprovet.
+   [Zoom][zoom-room]. På det första tillfället går vi igenom veckans
+   innehåll genom att lösa problem tillsammans. På det andra fortsätter vi
+   med grafiska gränssnitt, medan en assistent, oftast Emelie, leder
+   repetitionsspåret i ett eget grupprum på Zoom, anpassat efter dem som
+   kommer. Vi hinner bara ett urval av problemen; uppgifterna och
+   lösningarna till alla finns i det interaktiva dokumentet (FeedbackFruits)
+   så att du kan fortsätta på egen hand. Välj spår: grafiska gränssnitt,
+   eller repetition av tidigare veckor inför datorprovet.
 3. **Arbeta med** *Laboration (frivillig) grafiska gränssnitt* om du vill,
    gärna i par. På labbpassen finns lärare och assistenter för att hjälpa er,
    oavsett om ni arbetar med den frivilliga laborationen, laboration 6 eller
    repetition.
+
+[zoom-room]: https://kth-se.zoom.us/j/66622274394
 
 ## Schema
 
@@ -69,7 +70,7 @@ bibliotek du inte använt förut.
   - 10:00–12:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
   - 15:00–17:00 Övning (helklass) — D37, Zoom
 - **Ons 11/11**
-  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom)
+  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
 - **Tor 12/11**
   - 15:00–17:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
 - **Fre 13/11**

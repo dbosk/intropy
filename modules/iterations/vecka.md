@@ -45,14 +45,14 @@ veckorna.
    läsa, finns inspelningen och föreläsningsanteckningarna där i stället.
 2. **Gå gärna på övningarna:** se sidan *Övning: Upprepningar, listor och
    moduler* här i modulen. Övningarna är frivilliga och ges för hela
-   klassen, i D37 och på Zoom. På det första tillfället går vi igenom
-   veckans innehåll genom att lösa problem tillsammans. På det andra
-   fortsätter vi med veckans innehåll. När Emelie är bokad finns samtidigt
-   en repetition med hen i ett eget grupprum på Zoom; den går så långt
-   tillbaka i kursen som behövs, anpassad efter dem som kommer. Schemat
-   nedan visar när. Vi hinner bara ett urval av problemen; uppgifterna och
-   lösningarna till alla finns i det interaktiva dokumentet
-   (FeedbackFruits) så att du kan fortsätta på egen hand.
+   klassen, i D37 och på [Zoom][zoom-room]. På det första tillfället går vi
+   igenom veckans innehåll genom att lösa problem tillsammans. På det andra
+   fortsätter vi med veckans innehåll. Samtidigt leder en assistent, oftast
+   Emelie, en repetition i ett eget grupprum på Zoom; den går så långt
+   tillbaka i kursen som behövs, anpassad efter dem som kommer. Vi hinner
+   bara ett urval av problemen; uppgifterna och lösningarna till alla finns
+   i det interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på
+   egen hand.
 3. **Arbeta med** *Laboration (3) upprepningar, listor och moduler* i par. Ni
    flyttar felhanteringen från laboration 2 till en egen modul med funktioner
    som frågar om igen tills inmatningen är korrekt. På labbpassen finns
@@ -63,6 +63,8 @@ veckorna.
    tid i kalendern i Canvas.
 5. **Vill du fördjupa dig?** Gör *Fördjupande övning upprepningar, listor och
    moduler*.
+
+[zoom-room]: https://kth-se.zoom.us/j/66622274394
 
 ## Schema
 

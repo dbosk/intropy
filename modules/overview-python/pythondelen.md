@@ -55,12 +55,12 @@ Varje undervisningsvecka har samma rytm, i den här ordningen:
    assistenter för att hjälpa er när ni fastnar.
 
 Labbpassen och redovisningarna är delade mellan grupp A–F och grupp G–L;
-du går bara på passen för din grupp. Föreläsningarna är för hela klassen,
-och från vecka 40 är övningarna det också. Båda övningstillfällena ges i
-D37 och på Zoom; på det andra fortsätter vi med veckans innehåll. När Emelie är bokad finns samtidigt en repetition med hen i
-ett eget grupprum på Zoom, så långt tillbaka i kursen som behövs; schemat
-i veckoöversikten visar när. Vecka 37–39 var även övningarna delade
-mellan grupperna.
+du går bara på passen för din grupp. Föreläsningarna är för hela
+klassen, och från vecka 40 är övningarna det också. Båda
+övningstillfällena ges i D37 och på Zoom; på det andra fortsätter vi med
+veckans innehåll. Samtidigt leder en assistent, oftast Emelie, en
+repetition i ett eget grupprum på Zoom, så långt tillbaka i kursen som
+behövs. Vecka 37–39 var även övningarna delade mellan grupperna.
 
 ## Lärandemål
 

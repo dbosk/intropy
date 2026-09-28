@@ -52,12 +52,12 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
    inspelningen och föreläsningsanteckningarna där i stället.
 2. **Gå gärna på övningarna:** se sidan *Övning: Klasser och objekt* här i
    modulen. Övningarna är frivilliga och ges för hela klassen, i D37 och på
-   Zoom. På det första tillfället går vi igenom veckans innehåll genom att
-   lösa problem tillsammans. På det andra fortsätter vi med veckans
-   innehåll. När Emelie är bokad finns samtidigt en repetition med hen i ett
-   eget grupprum på Zoom; den går så långt tillbaka i kursen som behövs,
-   anpassad efter dem som kommer. Schemat nedan visar när. Vi hinner bara
-   ett urval av problemen; uppgifterna och lösningarna till alla finns i det
+   [Zoom][zoom-room]. På det första tillfället går vi igenom veckans
+   innehåll genom att lösa problem tillsammans. På det andra fortsätter vi
+   med veckans innehåll. Samtidigt leder en assistent, oftast Emelie, en
+   repetition i ett eget grupprum på Zoom; den går så långt tillbaka i
+   kursen som behövs, anpassad efter dem som kommer. Vi hinner bara ett
+   urval av problemen; uppgifterna och lösningarna till alla finns i det
    interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på egen
    hand.
 3. **Arbeta med** *Laboration (4) klasser och objekt (kamratgranskning)* i
@@ -66,6 +66,8 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
 4. **Redovisa laboration 3** på måndagens eller tisdagens redovisningspass
    för din grupp. Boka en tid i kalendern i Canvas.
 5. **Vill du fördjupa dig?** Gör *Fördjupande övning klasser och objekt*.
+
+[zoom-room]: https://kth-se.zoom.us/j/66622274394
 
 ## Schema
 
@@ -77,7 +79,7 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
   - 10:00–12:00 Övning (helklass) — D37, Zoom
   - 15:00–19:00 Redovisning (grupp G–L) — boka tid i kalendern i Canvas.
 - **Ons 7/10**
-  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom)
+  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
 - **Tor 8/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
   - 15:00–17:00 Labb (grupp G–L) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession

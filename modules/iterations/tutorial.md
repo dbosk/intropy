@@ -8,16 +8,17 @@ modules:
   - module: '^Upprepningar, listor och moduler$'
     position: 9
 ---
-Övningen är frivillig och ges för hela klassen, i D37 och på Zoom; tider
-och plats står i veckoöversikten överst i modulen. På det första
-tillfället löser vi uppgifter tillsammans, och på det andra fortsätter
-vi med veckans innehåll. När Emelie är bokad finns samtidigt en
-repetition med hen i ett eget grupprum på Zoom, så långt tillbaka i
-kursen som behövs; schemat i veckoöversikten visar när. Uppgifterna och
-deras lösningsförslag finns i det interaktiva dokumentet
-(FeedbackFruits) här i modulen, *Övning: Upprepningar, listor och
-moduler (övningsanteckningar)*: pröva varje uppgift innan du läser
-lösningen.
+Övningen är frivillig och ges för hela klassen, i D37 och på
+[Zoom][zoom-room]; tider och plats står i veckoöversikten överst i
+modulen. På det första tillfället löser vi uppgifter tillsammans, och på
+det andra fortsätter vi med veckans innehåll. Samtidigt leder en
+assistent, oftast Emelie, en repetition i ett eget grupprum på Zoom, så
+långt tillbaka i kursen som behövs. Uppgifterna och deras
+lösningsförslag finns i det interaktiva dokumentet (FeedbackFruits) här
+i modulen, *Övning: Upprepningar, listor och moduler
+(övningsanteckningar)*: pröva varje uppgift innan du läser lösningen.
+
+[zoom-room]: https://kth-se.zoom.us/j/66622274394
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 
