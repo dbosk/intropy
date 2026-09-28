@@ -39,6 +39,7 @@ TESTRUNS+=	examples/fraction_test_multiplikation.py
 TESTRUNS+=	examples/fraction_test_rmul.py
 EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/negative.py
+EXAMPLES+=	examples/object_dunder.py
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
 # and every deck's source is called contents.nw, so in the course book
