@@ -95,7 +95,13 @@ objectives carry the week page's Lo-codes in a comment
 - Practise what has been taught (author, 2026-09-18: "once we've said
   it's better to use functions, we'd better be non-hypocritical and use
   the function version everywhere"): from *Funktioner* (week 38) on,
-  every program in every deck and tutorial is the function version. From
+  every program in every deck and tutorial is the function version.
+  *Funktioner* introduces `main()` right after scope, motivated by a
+  function with a forgotten parameter that silently reads the main
+  program's global of the same name and fails with `NameError` once the
+  main program is in `main` (author, 2026-09-24: "no painful bugs
+  waiting to happen"); every program from that section on, in that deck
+  and every later one, is written with `main`. From
   *Moduler och paket* (week 40) on, a program that needs a function an
   earlier deck already wrote imports that file instead of re-implementing
   it; the wiring is in `didactic-decks/references/build-and-gotchas.md`
