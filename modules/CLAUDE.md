@@ -138,12 +138,14 @@ objectives carry the week page's Lo-codes in a comment
   may have to type the suffixed name, just as with `python3` (author,
   2026-09-22, beside `pydoc input`: "they might have to type pydoc3 just as
   they have to write python3").
-- *Övning: Klasser och objekt* covers both operator overloading and
-  inheritance, in that order: overloading first (comparison and
-  arithmetic dunder methods; the old exercise *En bråkig klass* is back),
-  then inheritance as the generalisation, since overloading `__eq__` or
-  `__str__` already overrides a method inherited from `object` (author,
-  2026-09-18: "probably the same phenomenon").
+- *Övning: Klasser och objekt* covers the comparison dunders (`__str__`,
+  `__lt__`, `__eq__`) and then inheritance as the generalisation, since
+  overloading `__eq__` or `__str__` already overrides a method inherited
+  from `object` (author, 2026-09-18: "probably the same phenomenon").
+  Arithmetic operator overloading and *En bråkig klass* belong to week
+  44, *Operatoröverlagring* and its Övning (author, 2026-09-28: the
+  fraction class was built three times, and arithmetic was practised
+  before it was taught).
 
 ## Backed claims (the ledger)
 
