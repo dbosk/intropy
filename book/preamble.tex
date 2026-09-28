@@ -260,19 +260,42 @@ def didactic_track(kind, /, *paths):
   \chapter{#3}%
   #1%
   \pyc{book_enter_deck('../modules/#2')}%
-  Det här kapitlet samlar bilagorna till \cref{book:#2},
-  \emph{#3}: hur ett påstående kontrolleras mot forskningslitteraturen,
-  och de sökningar som kapitlets påståenden vilar på.
+  % A deck with only the method appendix (A) has no searches of its own
+  % to point to; the count comes from the previous pass (the .aux).
+  \ifnum\book@appendixcount{#2}>1
+    Det här kapitlet samlar bilagorna till \cref{book:#2},
+    \emph{#3}: hur ett påstående kontrolleras mot
+    forskningslitteraturen, och de sökningar som kapitlets påståenden
+    vilar på.
+  \else
+    Det här kapitlet innehåller bilagan till \cref{book:#2},
+    \emph{#3}: hur ett påstående kontrolleras mot
+    forskningslitteraturen.
+  \fi
   \localtableofcontents*
   \let\clearpage\par
   \begin{deckappendices}%
     \subimport{../modules/#2/}{sokprotokoll.tex}%
+    \book@recordappendixcount{#2}%
   \end{deckappendices}%
   \printbibliography[heading=subbibintoc]%
   \pyc{book_leave_deck()}%
   \end{refsection}%
 }
 \newcommand{\scienceappendices}{\book@appendixchapters}
+% How many appendices a deck has, as the section counter stands after its
+% sokprotokoll.tex inside deckappendices (where each appendix is a
+% section).  Written to the .aux and read on the next pass; until then
+% (a first pass) a deck counts as having more than the method appendix.
+\newcommand{\book@setappendixcount}[2]{%
+  \expandafter\xdef\csname book@appcount@#1\endcsname{#2}}
+\newcommand{\book@appendixcount}[1]{%
+  \ifcsname book@appcount@#1\endcsname
+    \csname book@appcount@#1\endcsname
+  \else 2\fi}
+\newcommand{\book@recordappendixcount}[1]{%
+  \immediate\write\@auxout{%
+    \string\book@setappendixcount{#1}{\the\value{section}}}}
 \makeatother
 % The learning objectives restart in every chapter, as standalone, so their
 % hyperlink targets must name the chapter.
