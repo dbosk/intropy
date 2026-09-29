@@ -35,7 +35,6 @@ EXAMPLES+=	examples/numrering.py
 EXAMPLES+=	examples/forsok.py
 EXAMPLES+=	examples/meny_while.py
 EXAMPLES+=	examples/meny_rekursivt.py
-EXAMPLES+=	examples/lagg_till.py
 EXAMPLES+=	examples/blanda.py
 # typed_input.py is written in the lecture Moduler och paket; build it
 # there, copy it here.  The quiz and the deepening exercises import
@@ -78,7 +77,6 @@ examples: ${EXAMPLES}
 # as the tangle rule does, and compares it with the committed copy, so a
 # copy left stale by a change to contents.nw is caught.
 COMMITTED+=	examples/fib.py
-COMMITTED+=	examples/lagg_till.py
 
 .PHONY: check-committed
 check-committed:
