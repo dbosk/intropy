@@ -759,32 +759,33 @@ med [[try]] och [[except]], och lägger frågan i en [[while]]-slinga som
 snurrar tills läsningen lyckas.  Det enda nya är vilken sorts fel vi fångar.
 
 \leavevmode\ltnote{%
-  \textbf{Uppifrån och ner}, som i föreläsningen \emph{Algoritmiskt
-  tänkande}: en hjälpfunktion läggs till först där resonemanget behöver
-  den, så filens ordning blir upptäcktens.  I [[open_close.py]] fanns
-  funktionerna före programmet, eftersom de var kontrastens två sidor,
-  och upplägget tar med dem direkt.
+  Läsningen importeras i stället för att skrivas en gång till: sedan
+  föreläsningen \emph{Moduler och paket} återanvänder ett program en
+  funktion som en tidigare fil redan har genom att importera den, och
+  talläsarens huvudprogram står under
+  \mintinline{python}|if __name__ == "__main__":|, så importen kör det
+  inte.
 }%
-Programmet, den omfrågande talläsaren, lägger vi upp som talläsaren:
-\foreignlanguage{english}{docstring}, hjälpfunktioner och huvudprogram,
-med anropet direkt efter huvudprogrammet.  Den här gången har vi inga
-funktioner färdiga i förväg, så hjälpfunktionerna skriver vi när
-resonemanget kommer fram till dem.
+Programmet, den omfrågande talläsaren, lägger vi upp som talläsaren,
+men läsningen av talet behöver vi inte skriva en gång till: funktionen
+[[read_number]] finns redan i talläsaren, och den importerar vi.
+Modulen [[open_close]] är filen från \cref{ex:open-close-korning}.
+Eftersom dess huvudprogram bara körs när filen körs som program, inte
+när den importeras, får vi funktionen utan att talläsaren frågar efter
+något.
 
 \begin{frame}[fragile]
   Den omfrågande talläsarens upplägg, i [[ask_for_file.py]]:
 <<[[ask_for_file.py]]>>=
 """Asking for a file name until the file exists"""
 
-<<den omfrågande talläsarens hjälpfunktioner>>
+from open_close import read_number
 
 <<den omfrågande talläsarens huvudprogram>>
 @
 \end{frame}
 
-Frågan ställs i huvudprogrammet, så där börjar vi.  Läsningen av talet
-ger vi namnet [[read_number]] och anropar den redan här; den skriver vi
-när frågan är klar.
+Kvar är huvudprogrammet, som ställer frågan och anropar [[read_number]].
 
 \begin{frame}[fragile,shrink=5]
   \begin{example}[Att fråga tills filen finns]
@@ -804,18 +805,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Att läsa talet]
-    Läsningen, den enda hjälpfunktionen, är som förut, med [[with]]:
-<<den omfrågande talläsarens hjälpfunktioner>>=
-def read_number(filename):
-    """Reads the number in the file"""
-    with open(filename, "r") as file:
-        return int(file.read())
 @
   \end{example}
 \end{frame}
@@ -1449,9 +1438,7 @@ FILENAME = "xy.txt"
 \end{frame}
 
 Först skrivningen, som ger filen dess format.  Värdena \(y\) räknar
-funktionen \(f\) ut, och båda blir hjälpfunktioner.  Funktionen \(f\)
-använder vi igen i nästa program, så den står under ett eget namn, som
-hjälpfunktionerna tar med.
+funktionen \(f\) ut, och båda blir hjälpfunktioner.
 
 \begin{frame}[fragile]
   \begin{example}[Skriva talpar i eget format]
@@ -1645,6 +1632,7 @@ finns rör det bara [[read_pairs]].
 
 \begin{frame}[fragile]
   \begin{example}[Körning]
+    \label{ex:xy-korning}
     Det vi skrev kom tillbaka:
     \runpython[transcript]{examples/xy.py}
   \end{example}
@@ -1743,9 +1731,9 @@ programgränsen.\footnote{%
   \textbf{Vad som varierar}: Hur formatet hanteras --- egen tolkning med
   [[split]] i [[xy.py]], modulen [[csv]] i [[xy_csv.py]].
 
-  \textbf{Vad som hålls invariant}: Funktionen [[f]], huvudprogrammet och
-  jämförelsen, som är \emph{samma} kodstycken i båda programmen (de
-  namngivna stegen återanvänds i källan), samt att [[int()]] behövs i
+  \textbf{Vad som hålls invariant}: Funktionen [[f]], som [[xy_csv.py]]
+  importerar från [[xy.py]], huvudprogrammet och jämförelsen, som är
+  \emph{samma} kodstycke i båda programmen, samt att [[int()]] behövs i
   båda.  Att omvandlingen står kvar även med [[csv]] är avsiktligt: den
   dokumenterade missuppfattningen är att det lästa redan är tal
   \parencite{GuoMarkelZhang2020}, och modulen ändrar inte det.
@@ -1758,10 +1746,11 @@ programgränsen.\footnote{%
   här.
 }%
 Låt oss skriva samma talpar med CSV-formatet, i programmet
-[[xy_csv.py]].  Det är talparsprogrammet med modulen [[csv]]:
-huvudprogrammet och funktionen \(f\) är desamma, och upplägget tar med
-dem som de är.  Det nya --- filnamnet och de två funktioner som skriver
-och läser filen --- samlar vi under egna namn.
+[[xy_csv.py]].  Det är talparsprogrammet med modulen [[csv]].
+Funktionen \(f\) importerar vi från talparsprogrammet: modulen [[xy]]
+är filen från \cref{ex:xy-korning}.  Huvudprogrammet är detsamma, och
+upplägget tar med det som det är.  Det nya --- filnamnet och de två
+funktioner som skriver och läser filen --- samlar vi under egna namn.
 
 \mode<article>{\needspace{16\baselineskip}}
 
@@ -1772,9 +1761,10 @@ och läser filen --- samlar vi under egna namn.
 
 import csv
 
+from xy import f
+
 <<CSV-talparsprogrammets konstanter>>
 
-<<funktion [[f]] vars värden vi sparar>>
 <<CSV-talparsprogrammets hjälpfunktioner>>
 
 <<talparsprogrammets huvudprogram>>
