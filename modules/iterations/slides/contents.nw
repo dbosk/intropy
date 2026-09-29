@@ -130,13 +130,64 @@ Yourself}\autocite{HuntThomas1999}.\footnote{%
   föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
 }
 
-Slingan är inte det enda sättet.  Det finns tre former av upprepning i
-den här kursen, och den här föreläsningen handlar om att kunna alla tre
-och välja mellan dem.
+Slingan är inte det enda sättet.  Samma uppgift går att lösa på två
+sätt till, och de är alternativa lösningar på \cref{ex:hej-femtio}, inte
+steg i samma lösning.  Det första använder \mintinline{python}{while},
+som du känner från föreläsningen \emph{Villkor och styrstrukturer}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Femtio hej, med \texttt{while}]
+    Vi räknar själva:
+<<[[hej_while.py]]>>=
+def main():
+    antal = 50
+    while antal > 0:
+        print("hej")
+        antal -= 1
+
+
+main()
+@
+  \end{solution}
+\end{frame}
+
+Fyra rader i stället för två, och vi får själva sköta räknaren: sätta den
+före, pröva den i villkoret och minska den i kroppen.  Det
+\mintinline{python}{for} gjorde åt oss får vi här göra för hand --- vilket
+är precis varför \mintinline{python}{for} är förstahandsvalet när antalet
+varv är känt.
+
+Det andra använder ingen slinga alls.  Funktionen skriver ut hälsningen
+en gång och lämnar resten, en hälsning färre, åt ett nytt anrop av sig
+själv; när ingenting är kvar att skriva ut slutar den.
+
+\begin{frame}[fragile]
+  \begin{solution}[Femtio hej, med rekursion]
+    Funktionen anropar sig själv med ett mindre antal:
+<<[[hej_rekursion.py]]>>=
+def skriv_ut(meddelande, antal_gånger):
+    """Skriver ut meddelande så många gånger."""
+    if antal_gånger <= 0:
+        return
+
+    print(meddelande)
+    skriv_ut(meddelande, antal_gånger - 1)
+
+
+def main():
+    skriv_ut("hej", 50)
+
+
+main()
+@
+  \end{solution}
+\end{frame}
+
+Hur det går till, och varför det tar slut, ser vi i \cref{sec:rekursion}.
 
 \begin{frame}[fragile]
   \only<presentation>{%
-    \begin{remark}[Tre sätt att upprepa]
+    \begin{summary}[Tre sätt att upprepa]
       \begin{itemize}
         \item \mintinline{python}{for} --- en gång för varje element i en
           samling.
@@ -144,19 +195,18 @@ och välja mellan dem.
         \item Rekursion --- funktionen anropar sig själv på ett mindre
           problem.
       \end{itemize}
-    \end{remark}%
+    \end{summary}%
   }%
   \only<article>{%
-    \begin{remark}[Tre sätt att upprepa]
-      Vi kommer att se tre former.  En \mintinline{python}{for}-slinga gör
-      något en gång för varje element i en samling.  En
+    \begin{summary}[Tre sätt att upprepa]
+      Vi har sett tre former av upprepning, och alla tre löste
+      \cref{ex:hej-femtio}.  En \mintinline{python}{for}-slinga gör något en
+      gång för varje element i en samling.  En
       \mintinline{python}{while}-slinga upprepar så länge ett villkor
-      gäller.  Och en \emph{rekursiv} funktion anropar sig själv på ett
-      mindre problem tills problemet är så litet att svaret är känt.
-      Alla tre kan lösa \cref{ex:hej-femtio}; vilken som passar bäst beror
-      på problemet, och det är den frågan vi återkommer till i
-      \cref{sec:valja}.
-    \end{remark}%
+      gäller.  En \emph{rekursiv} funktion anropar sig själv på ett mindre
+      problem tills problemet är så litet att svaret är känt.  Vilken som
+      passar bäst beror på problemet.
+    \end{summary}%
   }
 \end{frame}
 
@@ -632,81 +682,36 @@ antimönster\autocite[79]{Bosse2021Antipatterns}.  Frågan är alltså om
 handlingen ska utföras \emph{en gång} om villkoret gäller, eller \emph{om
 och om igen} så länge det gäller.
 
-Innan vi lämnar \mintinline{python}{while} är det värt att lösa
-\cref{ex:hej-femtio} en gång till, nu med den andra slingan.
-
-\begin{frame}[fragile]
-  \begin{solution}[Femtio hej, med \texttt{while}]
-    Vi räknar själva:
-<<[[hej_while.py]]>>=
-def main():
-    antal = 50
-    while antal > 0:
-        print("hej")
-        antal -= 1
-
-
-main()
-@
-  \end{solution}
-\end{frame}
-
-Fyra rader i stället för två, och vi får själva sköta räknaren: sätta den
-före, pröva den i villkoret och minska den i kroppen.  Det
-\mintinline{python}{for} gjorde åt oss får vi här göra för hand --- vilket
-är precis varför \mintinline{python}{for} är förstahandsvalet när antalet
-varv är känt.
-
-\mode<article>{\clearpage}
 \section[Rekursion]{Rekursion: funktionen som anropar sig själv}
 \label{sec:rekursion}
 
-Det finns ett tredje sätt att upprepa, och det använder ingen slinga alls.
-Från föreläsningen \emph{Funktioner} vet du att en funktion får anropa andra
-funktioner.  Frågan är vad som händer om den anropar sig själv.
+I \cref{sec:upprepa} löste \texttt{hej\_rekursion.py} \cref{ex:hej-femtio}
+utan någon slinga: funktionen \mintinline{python}{skriv_ut} anropar sig
+själv.  Från föreläsningen \emph{Funktioner} vet du att en funktion får
+anropa andra funktioner, och den får alltså också anropa sig själv.  Men
+något måste få anropen att ta slut.
 
-\begin{frame}
-  \begin{exercise}[Kan en funktion anropa sig själv?]
+\begin{frame}[fragile]
+  \begin{exercise}[Varför tar det slut?]
     \label{ex:rekursion-fraga}
-    En funktion får anropa vilken funktion som helst.  Får den anropa sig
-    själv?  Och om den får --- hur skulle du använda det för att skriva ut
-    \enquote{hej} femtio gånger?
+    Så här såg programmet ut:
+    \inputminted{python}{examples/hej_rekursion.py}
+    Vad händer med \mintinline{python}{antal_gånger} för varje nytt
+    anrop, och vad är det i funktionen som gör att anropen till slut tar
+    slut?
   \end{exercise}
 \end{frame}
 
-Svaret är ja, den får det, och det är precis så man gör.  Tanken är att
-lösa ett litet mindre problem varje gång: att skriva ut \enquote{hej}
-femtio gånger är att skriva ut det en gång, och sedan skriva ut det
-fyrtionio gånger.
-
-\begin{frame}[fragile]
-  \begin{solution}[Femtio hej, med rekursion]
-    Funktionen anropar sig själv med ett mindre antal:
-<<[[hej_rekursion.py]]>>=
-def skriv_ut(meddelande, antal_gånger):
-    """Skriver ut meddelande så många gånger."""
-    if antal_gånger <= 0:
-        return
-
-    print(meddelande)
-    skriv_ut(meddelande, antal_gånger - 1)
-
-
-def main():
-    skriv_ut("hej", 50)
-
-
-main()
-@
+\begin{frame}
+  \begin{solution}[Det mindre problemet och basfallet]
+    Två saker gör att det fungerar.  Det rekursiva anropet sker på ett
+    \emph{mindre} problem --- \mintinline{python}{antal_gånger - 1} i
+    stället för \mintinline{python}{antal_gånger} --- så varje anrop har ett
+    hej mindre kvar att skriva ut.  Och det finns ett \emph{basfall}: när
+    \mintinline{python}{antal_gånger} har nått noll returnerar funktionen
+    utan att anropa sig själv igen, och kedjan tar slut.
   \end{solution}
 \end{frame}
-
-Två saker gör att det fungerar.  Det rekursiva anropet sker på ett
-\emph{mindre} problem --- \mintinline{python}{antal_gånger - 1} i stället
-för \mintinline{python}{antal_gånger} --- så vi närmar oss något.  Och det
-finns ett \emph{basfall}: när \mintinline{python}{antal_gånger} har nått
-noll returnerar funktionen utan att anropa sig själv igen, och kedjan tar
-slut.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad händer?]
@@ -737,9 +742,11 @@ slut.
       där en körning är beskuren, och kommandoraden som visas är därför den
       studenten själv skulle skriva, inte den beskärande.
 
-      \Cref{ex:hej-femtio} löses här för tredje gången, med samma uppgift och
-      samma utmatning som i \cref{sec:upprepa,sec:while}.  Den invariansen är
-      vad som gör jämförelsen i \cref{sec:valja} möjlig: där varieras
+      Funktionen är densamma som i den rekursiva lösningen på
+      \cref{ex:hej-femtio}, som visades redan i \cref{sec:upprepa} bredvid
+      \mintinline{python}{for} och \mintinline{python}{while}: samma uppgift
+      och samma utmatning i alla tre formerna.  Den invariansen är vad som
+      gör jämförelsen i \cref{sec:valja} möjlig: där varieras
       konstruktionen medan uppgiften hålls fast.  Rekursionen presenteras som
       ett tredje \emph{sätt att upprepa}, inte som ett svårare ämne; någon
       utsaga om att rekursion skulle vara särskilt svår görs medvetet inte,
@@ -815,7 +822,7 @@ i minnet, och till slut är platsen slut.
   \textbf{Vad som varierar}: om anropet lämnar ett värde ifrån sig eller
   bara har en sidoeffekt.
 
-  \mintinline{python}{skriv_ut} i lösningen till \cref{ex:rekursion-fraga}
+  \mintinline{python}{skriv_ut} i \cref{ex:rekursion-fraga}
   och \mintinline{python}{fakultet} i \cref{ex:fakultet} är
   medvetet lika i formen och olika i just det draget, så att studenten kan
   urskilja returvärdet som en aspekt av det rekursiva anropet snarare än
@@ -900,15 +907,16 @@ felhantering}, använd för att skilja ett omöjligt anrop från ett giltigt.
 
   De tre programmen i
   \cref{ex:tre-satt,ex:tre-satt-while,ex:tre-satt-rekursion} är samma
-  filer som tanglades i
-  \cref{sec:upprepa,sec:while,sec:rekursion}; de visas här igen i sin
+  filer som tanglades som lösningar på \cref{ex:hej-femtio} i
+  \cref{sec:upprepa}; de visas här igen i sin
   helhet i stället för att skrivas av, så att jämförelsen inte kan glida
   isär från koden.  De står som tre miljöer bredvid varandra på en och
   samma bild eftersom kontrasten ska upplevas simultant och inte
   återskapas ur minnet \parencite[45--47]{Marton2015}.
 }%
-Nu har vi tre sätt att lösa samma uppgift.  De tre ser ut så här, innan vi
-frågar vilket som är bäst.
+Nu vet vi hur var och en av de tre lösningarna på \cref{ex:hej-femtio}
+fungerar.  Här är de igen, sida vid sida, innan vi frågar vilken som är
+bäst.
 
 \mode<article>{\needspace{32\baselineskip}}
 \begin{frame}[fragile,shrink=30]
