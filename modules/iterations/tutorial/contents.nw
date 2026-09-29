@@ -7,30 +7,31 @@
 % not meant to work -- fib.py in the first exercise -- is tangled and run
 % like the others, so the error message shown is the one Python produced.
 %
-% The quiz in the first five sections is one program that grows: the
-% chunks named "konstant med frågorna och deras svar", "funktion som
-% frågar tills svaret är ett heltal" and "funktion som ställer en fråga
-% och säger om svaret blev rätt" are shared by every stage, so two stages
-% that are compared differ only in the code that is being compared.  The
-% second of them is the function fråga_tal written in the lecture
-% Upprepningar, reproduced verbatim; after the module exercise
-% (sec:modulen) the deepening exercises import input_int from the lecture
-% Moduler och paket's typed_input.py instead (copied by the Makefile).
-% Chunk names read as pseudocode of
-% the program (the author's rule, 2026-09-23).
+% The quiz in the first four sections is one program that grows, and it
+% practises what the lecture Moduler och paket taught (the author's
+% decision, 2026-09-30: "we can now import"): the question list FRÅGOR
+% and the function ställ_fråga are written once, in fragor_for.py, and
+% every later quiz program imports them from there; the integer input is
+% input_int from that lecture's typed_input.py (copied by the Makefile),
+% imported from the first program on and listed once with didactic's
+% didactic_source.  Two stages that are compared therefore differ only in
+% the code that is being compared, and the rest is an import line.  Chunk
+% names read as pseudocode of the program (the author's rule,
+% 2026-09-23).
 %
 % Every solution that is built from named parts unfolds top-down (the
 % author's rule, 2026-09-23): first the file's layout, with buckets named
 % for that program ("frågelistans hjälpfunktioner", "menyns
 % hjälpfunktioner", ...), then the main program, then each helper
-% appended to its bucket where the reasoning reaches it.  The shared
-% chunks above are pulled into a program's bucket by name.  Programs
+% appended to its bucket where the reasoning reaches it.  Programs
 % compared with one that is already built (fragor_while.py,
-% fragor_numrerade.py, meny_rekursivt.py) name its buckets and carry
-% their own main program in the layout itself.  (Chunk names are spelled
-% without their angle brackets in this comment: an unescaped opening
-% bracket pair in a documentation chunk is an error to noweb, even
-% inside a LaTeX comment.)
+% fragor_numrerade.py, meny_rekursivt.py) import what they share with it
+% and carry their own main program in the layout itself.  The one chunk
+% two programs still share by name is the menu's "gör det användaren
+% valde": it is part of a function body, which cannot be imported.
+% (Chunk names are spelled without their angle brackets in this comment:
+% an unescaped opening bracket pair in a documentation chunk is an error
+% to noweb, even inside a LaTeX comment.)
 
 I den här övningen använder vi innehållet i föreläsningarna
 \emph{Upprepningar}, \emph{Behållare: Listor}, \emph{Behållare: Tupler}
@@ -47,7 +48,7 @@ och \emph{Moduler och paket} i stället för att visa det.
   vilket formuleringen \enquote{måttlig} speglar.
 
   Ordningen mellan uppgifterna är designad och inte historisk.
-  \Cref{sec:listan,sec:forsoken,sec:menyn,sec:modulen,sec:blandat}
+  \Cref{sec:listan,sec:forsoken,sec:menyn,sec:blandat}
   varierar en kritisk aspekt var mot en i övrigt oförändrad
   bakgrund: samma frågesport, samma frågor, samma utmatning, och bara
   det som ska urskiljas skiljer sig.  Att kontrasten måste kunna upplevas
@@ -67,7 +68,7 @@ lösningsförslag som lästs i förväg finns det inget att jämföra med.
 
 Förslagen är just förslag: ett av flera möjliga.  Där en annan lösning är
 lika rimlig står det vilken den är och varför just den här valdes.
-I uppgift 2--6 bygger vi en och samma frågesport, en bit i taget, så
+I uppgift 2--5 bygger vi en och samma frågesport, en bit i taget, så
 de hänger ihop.  De fyra sista är fördjupning: \cref{sec:cowsay} står för sig
 själv och går att ta när som helst, medan \cref{sec:anrop} förutsätter
 \cref{sec:fem-fel} och \cref{sec:primtal} i sin tur förutsätter
@@ -290,7 +291,7 @@ skriva ett nytt, så rekursionen får stå kvar; slingversionen står i
 \section[Listan]{Frågorna i en lista}
 \label{sec:listan}
 
-I de fem följande uppgifterna bygger vi en frågesport, en bit i taget.
+I de fyra följande uppgifterna bygger vi en frågesport, en bit i taget.
 Vi börjar med frågorna själva.  En fråga hör ihop med sitt svar, och antalet
 frågor ska kunna växa medan programmet kör.
 
@@ -311,14 +312,15 @@ frågor ska kunna växa medan programmet kör.
     \leavevmode\ltnote{%
       Relevanta lärandemål:
       \cref{OvningIterationsLOFor,OvningIterationsLOList},
-      \cref{OvningIterationsLOTuple,OvningIterationsLOChoose}.
+      \cref{OvningIterationsLOTuple,OvningIterationsLOChoose},
+      \cref{OvningIterationsLOModule,OvningIterationsLOMain}.
 
       \Cref{ex:listan} är den första delen av \enquote{Frågesport} i den
       tidigare
       övningen, som i ett stycke bad om frågelista, begränsade försök,
       inmatningskontroll, meny och en funktion för att lägga till frågor.
-      Den är delad i fyra uppgifter här
-      (\cref{sec:listan,sec:forsoken,sec:menyn,sec:modulen}), en kritisk
+      Den är delad i tre uppgifter här
+      (\cref{sec:listan,sec:forsoken,sec:menyn}), en kritisk
       aspekt i var och en, eftersom
       en uppgift som varierar fem aspekter samtidigt inte gör någon av dem
       urskiljbar.
@@ -370,7 +372,9 @@ frågor ska kunna växa medan programmet kör.
     Gå igenom listan på två sätt, ett med \mintinline{python}{for} och ett
     med \mintinline{python}{while}, och avgör vilket av dem du själv
     skulle vilja läsa om ett halvår.  Gå sedan igenom den en tredje gång,
-    så att varje fråga skrivs ut med sitt nummer.
+    så att varje fråga skrivs ut med sitt nummer.  Det som de senare
+    programmen har gemensamt med det första hämtar de därifrån med
+    \mintinline{python}{import}, i stället för att skriva det igen.
   \end{exercise}
 \end{frame}
 
@@ -382,26 +386,30 @@ frågor ska kunna växa medan programmet kör.
   det programmet, och skisserar sedan huvudprogrammet.  En
   hjälpfunktion läggs till först där resonemanget behöver den, inte i en
   förteckning innan problemets detaljer har diskuterats, så filens
-  ordning blir upptäcktens: anroparen står före den anropade.  En
-  funktion som flera program använder står under ett eget namn, som
-  programmets hjälpfunktioner tar med.  Ett program
-  som jämförs med ett redan byggt tar med det programmets delar och har
-  sitt eget huvudprogram direkt i upplägget, så att upplägget självt
-  visar vad som är gemensamt och vad som skiljer.
+  ordning blir upptäcktens: anroparen står före den anropade.  Det ett
+  senare program delar med ett tidigare hämtar det med
+  \mintinline{python}{import} ur det tidigare programmets fil, i stället
+  för att skriva det en gång till: materialet gör som föreläsningen
+  \emph{Moduler och paket} lär ut.  Ett program som jämförs med ett
+  redan byggt har därför bara importraden och sitt eget huvudprogram i
+  upplägget, så att upplägget självt visar vad som är gemensamt och vad
+  som skiljer.
 }%
 Vi skriver programmet uppifrån och ner.  Överst i filen står en
 \foreignlanguage{english}{docstring} som säger vad programmet är till
-för, sedan konstanterna, hjälpfunktionerna och till sist
-huvudprogrammet.  Men vi skriver inte delarna i ett svep: först
-upplägget, i pseudokod, och sedan preciserar vi pseudokoden med
-pythonkod, en del i taget, när vi kommer till den.  Vi börjar med
-genomgången med \mintinline{python}{for}.
+för, sedan det programmet hämtar ur andra moduler, konstanterna,
+hjälpfunktionerna och till sist huvudprogrammet.  Men vi skriver inte
+delarna i ett svep: först upplägget, i pseudokod, och sedan preciserar
+vi pseudokoden med pythonkod, en del i taget, när vi kommer till den.
+Vi börjar med genomgången med \mintinline{python}{for}.
 
 \begin{frame}[fragile]
   \begin{solution}[Upplägget]
     Frågelistans upplägg:
 <<[[fragor_for.py]]>>=
 """Ställer frågorna i en lista, en gång för varje fråga."""
+
+from typed_input import input_int
 
 <<frågelistans konstanter>>
 
@@ -440,15 +448,11 @@ if __name__ == "__main__":
 Slingan går igenom \mintinline{python}{FRÅGOR}.  Frågorna med sina svar
 hör ihop parvis, och ett par är en tupel.  Listan är alltså en lista av
 tupler, och den står som en namngiven konstant högst upp i filen.
-Konstanten står under ett eget namn, eftersom flera av övningens program
-tar med den.
 
 \begin{frame}[fragile]
   \begin{solution}[Frågorna]
     Varje element är ett par av en fråga och dess svar:
 <<frågelistans konstanter>>=
-<<konstant med frågorna och deras svar>>
-<<konstant med frågorna och deras svar>>=
 FRÅGOR = [
     ("Vad är 7 * 8?", 56),
     ("Hur många element har en tom lista?", 0),
@@ -458,19 +462,15 @@ FRÅGOR = [
   \end{solution}
 \end{frame}
 
-Nu funktionen som huvudprogrammet anropar.  Den frågar och jämför, och
-den står också under ett eget namn, eftersom fler program än det här
-ställer frågor.
+Nu funktionen som huvudprogrammet anropar.
 
 \begin{frame}[fragile]
   \begin{solution}[En fråga]
     Funktionen frågar och jämför:
 <<frågelistans hjälpfunktioner>>=
-<<funktion som ställer en fråga och säger om svaret blev rätt>>
-<<funktion som ställer en fråga och säger om svaret blev rätt>>=
 def ställ_fråga(fråga, svar):
     """Ställer fråga och säger om användarens svar blev rätt."""
-    if fråga_tal(fråga + " ") == svar:
+    if input_int(fråga + " ") == svar:
         print("Rätt!")
     else:
         print(f"Fel, svaret är {svar}.")
@@ -482,34 +482,30 @@ Mellanslaget läggs till här och inte i frågorna, så att frågorna i listan
 är rena frågor och inte texter med ett mellanslag på slutet.
 
 Svaren är heltal, så användarens svar måste bli ett heltal innan det går
-att jämföra.  Den funktionen, \mintinline{python}{fråga_tal}, skrevs i
-föreläsningen \emph{Upprepningar} och används här som redan känd kod,
-ordagrant som den stod där.  Den läggs till bland hjälpfunktionerna.  Ett
-namn som får flera delar får \(\equiv\) första gången och +\(\equiv\)
-varje gång därefter, och i programmet står delarna efter varandra, i den
-ordning de kommer.
+att jämföra.  Det gör \mintinline{python}{input_int}, som upplägget
+hämtar ur modulen \mintinline{python}{typed_input}: modulen är filen från
+exemplet \emph{Hela modulen (\texttt{typed\_input.py})} i föreläsningen
+\emph{Moduler och paket}.  Så att du inte behöver slå upp den där står
+funktionen också här.
 
+% The function is listed from the copied typed_input.py itself, with
+% didactic's PythonTeX helpers, so the listing cannot drift from the file
+% the programs import.  didactic_import executes the file, which is safe
+% because typed_input.py calls its main only under the __name__ guard.
 \begin{frame}[fragile]
-  \begin{solution}[Inmatningen]
+  \begin{example}[\texttt{input\_int} ur \texttt{typed\_input.py}]
     Funktionen frågar tills omvandlingen lyckas:
-<<frågelistans hjälpfunktioner>>=
-<<funktion som frågar tills svaret är ett heltal>>
-<<funktion som frågar tills svaret är ett heltal>>=
-def fråga_tal(fråga):
-    """Frågar tills svaret är ett heltal, och ger talet."""
-    while True:
-        try:
-            return int(input(fråga))
-        except ValueError:
-            print("Det var inget heltal, försök igen.")
-@
-  \end{solution}
+\begin{pycode}
+didactic_import("typed_input", "examples/typed_input.py")
+didactic_source(sys.modules["typed_input"].input_int)
+\end{pycode}
+  \end{example}
 \end{frame}
 
 % REVIEW(B1): de program vars upplägg redan innehåller all deras egen
 % kod (fragor_while.py, fragor_numrerade.py, numrering.py,
-% meny_rekursivt.py, fragesport.py, blanda.py, fib_anrop.py, streck.py,
-% ko.py) visas inte hela en gång till: ingenting förfinas efter
+% meny_rekursivt.py, blanda.py, fib_anrop.py, streck.py, ko.py) visas
+% inte hela en gång till: ingenting förfinas efter
 % upplägget, samma undantag som instruktioner.py i Övning: Inmatning,
 % felhantering och styrstrukturer.  Den andra läsningen av regeln visar
 % också dem.
@@ -522,14 +518,22 @@ def fråga_tal(fråga):
     bara i anteckningarna: på bilderna har delarna redan stått var för
     sig, och ett helt program ryms inte på en bild utan att krympas.
   }%
-  Sätter vi in varje del där dess namn står får vi hela programmet:
-  \inputminted{python}{examples/fragor_for.py}
+  \begin{example}[Frågelistan (\texttt{fragor\_for.py})]
+    \label{ex:fragor-for}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/fragor_for.py}
+  \end{example}
 \end{frame}
 
 Den andra genomgången räknar själv.  Allt utom huvudprogrammet är
-detsamma, så programmet tar med frågelistans konstanter och
-hjälpfunktioner som de är och har sitt eget huvudprogram direkt i
-upplägget.
+detsamma, så programmet hämtar frågelistan och
+\mintinline{python}{ställ_fråga} ur modulen
+\mintinline{python}{fragor_for} i stället för att skriva dem en gång
+till: modulen är filen från \cref{ex:fragor-for}.  Att
+\texttt{fragor\_for.py} anropar sitt \mintinline{python}{main} bara under
+villkoret \mintinline{python}|if __name__ == "__main__":| gör att
+importen inte ställer några frågor, som i föreläsningen \emph{Moduler och
+paket}.  Bara huvudprogrammet är nytt, och det står direkt i upplägget.
 
 \begin{frame}[fragile,shrink]
   \begin{solution}[Med \texttt{while}]
@@ -537,9 +541,7 @@ upplägget.
 <<[[fragor_while.py]]>>=
 """Ställer frågorna i en lista, med hjälp av en räknare."""
 
-<<frågelistans konstanter>>
-
-<<frågelistans hjälpfunktioner>>
+from fragor_for import FRÅGOR, ställ_fråga
 
 def main():
     """Går igenom frågorna med en while-slinga och en räknare."""
@@ -615,8 +617,9 @@ nedräkningen utan raden som minskar räknaren aldrig blir klar.
 }%
 Men ibland behöver man numret, till exempel för att skriva ut vilken fråga
 i ordningen det är.  Då är svaret inte en räknare.  Också det här
-programmet tar med frågelistans konstanter och hjälpfunktioner, och bara
-huvudprogrammet är nytt.
+programmet hämtar frågelistan och \mintinline{python}{ställ_fråga} ur
+\mintinline{python}{fragor_for}, filen från \cref{ex:fragor-for}, och
+bara huvudprogrammet är nytt.
 
 \begin{frame}[fragile]
   \begin{solution}[Numret och elementet]
@@ -624,9 +627,7 @@ huvudprogrammet är nytt.
 <<[[fragor_numrerade.py]]>>=
 """Ställer frågorna i en lista och numrerar dem."""
 
-<<frågelistans konstanter>>
-
-<<frågelistans hjälpfunktioner>>
+from fragor_for import FRÅGOR, ställ_fråga
 
 def main():
     """Går igenom frågorna och numrerar dem."""
@@ -652,7 +653,8 @@ if __name__ == "__main__":
 Varje varv ger nu två värden: numret och paret, och paret packas upp på
 raden efter.  Argumentet \mintinline{python}|start=1| är nytt: ingen
 föreläsning har visat det.  Vad det gör syns om vi numrerar samma lista
-utan och med det.
+utan och med det, i ett program som också det hämtar frågelistan ur
+\mintinline{python}{fragor_for} (\cref{ex:fragor-for}).
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Utan och med \texttt{start=1}]
@@ -660,7 +662,7 @@ utan och med det.
 <<[[numrering.py]]>>=
 """Numrerar frågorna utan och med start=1."""
 
-<<konstant med frågorna och deras svar>>
+from fragor_for import FRÅGOR
 
 def main():
     """Skriver ut frågorna numrerade, utan och med start=1."""
@@ -725,10 +727,13 @@ på tills svaret är rätt.
       frågesporten, och inte en fråga var: med en fråga per funktion skulle
       fyra saker variera samtidigt.
 
-      Att \mintinline{python}{fråga_tal} nu är något studenten ombeds skriva
-      om, och inte bara ärva, är det som gör
-      \cref{OvningIterationsLOInput} till ett mål uppgiften faktiskt övar:
-      verbet där är \emph{skriva}.
+      Att studenten ombeds skriva en egen variant av
+      \mintinline{python}{input_int}, eller motivera varför den som finns
+      redan gör som hen bestämt, är det som gör
+      \cref{OvningIterationsLOInput} till ett mål uppgiften övar: verbet där
+      är \emph{skriva}.  Den som bestämmer att ett skrivfel inte ska kosta
+      ett försök kan dock lösa uppgiften utan att skriva om funktionen,
+      som förslaget gör.
 
       Att ett skrivfel \emph{inte} kostar ett försök i förslaget är en följd
       av var slingan som frågar om igen ligger.  Det sägs ut i prosan
@@ -747,10 +752,11 @@ på tills svaret är rätt.
     \label{ex:forsoken}
     Bygg ut frågesporten så att den går igenom frågorna två gånger: först
     en omgång där varje fråga ger två försök, sedan en omgång där varje
-    fråga får hållas på med tills svaret är rätt.  Skriv om
-    \mintinline{python}{fråga_tal} så att ett svar som inte är ett tal
-    --- \enquote{tre} i stället för \enquote{3} --- inte kostar ett
-    försök.  Ska det vara så?  Bestäm själv, och motivera.
+    fråga får hållas på med tills svaret är rätt.  Ska ett svar som inte
+    är ett tal --- \enquote{tre} i stället för \enquote{3} --- kosta ett
+    försök?  Bestäm själv, och motivera.  Skriv sedan en egen variant av
+    \mintinline{python}{input_int} som gör som du bestämt, eller förklara
+    varför den som finns redan gör det.
   \end{exercise}
 \end{frame}
 
@@ -759,13 +765,18 @@ på tills svaret är rätt.
 De två omgångarna ser olika ut men är samma sak sedd från två håll: hur
 många gånger ska frågan ställas?  Programmet har samma upplägg som
 frågelistan, men sina egna hjälpfunktioner, så dess delar får egna
-namn.
+namn.  Frågelistan hämtar det ur \mintinline{python}{fragor_for}, filen
+från \cref{ex:fragor-for}, och \mintinline{python}{input_int} ur
+\mintinline{python}{typed_input}, som frågelistan gör.
 
 \begin{frame}[fragile]
   \begin{solution}[Upplägget]
     Försöksprogrammets upplägg:
 <<[[forsok.py]]>>=
 """Frågesport i två omgångar: med och utan gräns."""
+
+from fragor_for import FRÅGOR
+from typed_input import input_int
 
 <<försöksprogrammets konstanter>>
 
@@ -817,16 +828,14 @@ print(f"Du hade {rätt} rätt av {len(FRÅGOR)}.")
   \end{solution}
 \end{frame}
 
-Omgången behöver två konstanter: antalet försök och, som förut,
-frågelistan.
+Omgången behöver antalet försök, och det står som en namngiven konstant;
+frågelistan hämtar programmet ur \mintinline{python}{fragor_for}.
 
 \begin{frame}[fragile]
-  \begin{solution}[Konstanterna]
-    Antalet försök och frågorna:
+  \begin{solution}[Konstanten]
+    Antalet försök:
 <<försöksprogrammets konstanter>>=
 ANTAL_FÖRSÖK = 2
-
-<<konstant med frågorna och deras svar>>
 @
   \end{solution}
 \end{frame}
@@ -834,8 +843,7 @@ ANTAL_FÖRSÖK = 2
 Nu \mintinline{python}{ge_försök}.  Antalet försök är bestämt i förväg,
 och då är \mintinline{python}{for} förstahandsvalet --- den sköter
 räknaren själv.  Svaret läser funktionen med
-\mintinline{python}{fråga_tal}, som följer med oförändrad bland
-hjälpfunktionerna.
+\mintinline{python}{input_int}.
 
 \begin{frame}[fragile]
   \begin{solution}[Ett bestämt antal försök]
@@ -844,7 +852,7 @@ hjälpfunktionerna.
 def ge_försök(fråga, svar, antal):
     """Ger antal försök; sant om svaret blev rätt."""
     for försök in range(antal):
-        if fråga_tal(fråga + " ") == svar:
+        if input_int(fråga + " ") == svar:
             return True
 
         if försök < antal - 1:
@@ -852,8 +860,6 @@ def ge_försök(fråga, svar, antal):
 
     print(f"Slut på försök, svaret är {svar}.")
     return False
-
-<<funktion som frågar tills svaret är ett heltal>>
 @
   \end{solution}
 \end{frame}
@@ -882,7 +888,10 @@ print(f"Du hade {rätt} rätt av {len(FRÅGOR)}.")
 
 I den andra omgången är antalet försök inte bestämt: vi vet bara när det
 ska sluta, nämligen när svaret är rätt.  Det är precis vad
-\mintinline{python}{while} säger.
+\mintinline{python}{while} säger.  Funktionen läggs till bland
+hjälpfunktionerna: ett namn som får flera delar får \(\equiv\) första
+gången och +\(\equiv\) varje gång därefter, och i programmet står
+delarna efter varandra, i den ordning de kommer.
 
 \begin{frame}[fragile]
   \begin{solution}[Tills det blir rätt]
@@ -890,7 +899,7 @@ ska sluta, nämligen när svaret är rätt.  Det är precis vad
 <<försöksprogrammets hjälpfunktioner>>=
 def fråga_tills_rätt(fråga, svar):
     """Frågar tills svaret blir rätt; sant när det blev det."""
-    while fråga_tal(fråga + " ") != svar:
+    while input_int(fråga + " ") != svar:
         print("Fel, försök igen.")
 
     return True
@@ -925,16 +934,16 @@ utmatningen: den första omgången kan sluta med fel svar och gjorde det,
 den andra kan inte och slutade därför fullt.
 
 Svaret \enquote{tre} kostade inget försök: det gick inte att använda som
-svar över huvud taget, så \mintinline{python}{fråga_tal} frågade om igen
+svar över huvud taget, så \mintinline{python}{input_int} frågade om igen
 och \mintinline{python}{ge_försök} fick aldrig veta om det.  Det är svaret
-på uppgiftens sista fråga, och det ligger i var slingan som frågar om igen
-står: i \mintinline{python}{fråga_tal}, innanför försöket.  Den andra
-lösningen är att skriva om \mintinline{python}{fråga_tal} så att den
-lämnar tillbaka så snart den fått något alls, och låta
-\mintinline{python}{ge_försök} fånga felet i sin egen kropp; då kostar ett
-skrivfel ett försök.  Förslaget här gör det inte, eftersom
-\mintinline{python}{fråga_tal} då inte längre kan lova att det den lämnar
-ifrån sig går att jämföra med ett svar.
+på uppgiftens fråga, och det ligger i var slingan som frågar om igen
+står: i \mintinline{python}{input_int}, innanför försöket.  Förslaget
+behöver därför ingen egen variant av \mintinline{python}{input_int}.  Den
+andra lösningen är en variant som lämnar tillbaka så snart den fått
+något alls, och att låta \mintinline{python}{ge_försök} fånga felet i sin
+egen kropp; då kostar ett skrivfel ett försök.  Förslaget gör inte så,
+eftersom varianten då inte längre kan lova att det den lämnar ifrån sig
+går att jämföra med ett svar.
 
 \section[Menyn]{Menyn}
 \label{sec:menyn}
@@ -959,8 +968,9 @@ får hen starta programmet om, och det är inte roligare än det låter.
 
       \textbf{Variationsmönster}: Kontrast.
       \textbf{Vad som varierar}: formen --- slinga eller rekursivt anrop.
-      \textbf{Vad som hålls invariant}: allt annat.  De två programmen delar
-      varenda chunk utom den som upprepar, menyvalen är desamma och de två
+      \textbf{Vad som hålls invariant}: allt annat.  Det rekursiva
+      programmet hämtar slingprogrammets funktioner, kroppen som utför ett
+      val är samma chunk i båda, menyvalen är desamma och de två
       körningarna är tecken för tecken lika.
 
       Etiketten är \emph{Kontrast} och inte Generalisering, av samma skäl som
@@ -1004,7 +1014,10 @@ får hen starta programmet om, och det är inte roligare än det låter.
 
 Menyn ska komma tillbaka efter varje val, och vi börjar med en slinga.
 Upplägget är frågelistans, men menyn behöver hjälpfunktioner som
-frågelistan inte har, så delarna får egna namn.
+frågelistan inte har, så delarna får egna namn.  Frågelistan och
+\mintinline{python}{ställ_fråga} hämtar programmet ur
+\mintinline{python}{fragor_for}, filen från \cref{ex:fragor-for}, och
+\mintinline{python}{input_int} ur \mintinline{python}{typed_input}.
 
 % The needspace keeps the layout chunk on one page.
 \mode<article>{\needspace{14\baselineskip}}
@@ -1014,7 +1027,8 @@ frågelistan inte har, så delarna får egna namn.
 <<[[meny_while.py]]>>=
 """Frågesport med en meny, upprepad med en while-slinga."""
 
-<<menyns konstanter>>
+from fragor_for import FRÅGOR, ställ_fråga
+from typed_input import input_int
 
 <<menyns hjälpfunktioner>>
 
@@ -1049,22 +1063,12 @@ if __name__ == "__main__":
 \end{frame}
 
 Programmet arbetar med en \emph{kopia} av frågelistan.
-\mintinline{python}{FRÅGOR} är konstanten högst upp i filen, och den ska
-se likadan ut varje gång programmet startar; en ny fråga hör till den här
-körningen och inte till konstanten.
-
-\begin{frame}[fragile]
-  \begin{solution}[Frågorna]
-    Konstanten är densamma som förut:
-<<menyns konstanter>>=
-<<konstant med frågorna och deras svar>>
-@
-  \end{solution}
-\end{frame}
+\mintinline{python}{FRÅGOR} är konstanten i \texttt{fragor\_for.py}, och
+den ska se likadan ut för varje program som hämtar den; en ny fråga hör
+till den här körningen och inte till konstanten.
 
 Menyn ska skriva ut alternativen och läsa användarens val.
-Valet är ett tal, så \mintinline{python}{fråga_tal} duger, och den
-följer med oförändrad.
+Valet är ett tal, så \mintinline{python}{input_int} duger.
 
 \begin{frame}[fragile]
   \begin{solution}[Menyn]
@@ -1077,9 +1081,7 @@ def visa_meny():
     print("2. Lägg till en fråga")
     print("0. Sluta")
 
-    return fråga_tal("Ditt val: ")
-
-<<funktion som frågar tills svaret är ett heltal>>
+    return input_int("Ditt val: ")
 @
   \end{solution}
 \end{frame}
@@ -1103,20 +1105,18 @@ else:
   \end{solution}
 \end{frame}
 
-Frågorna ställs med \mintinline{python}{ställ_fråga}, som också följer
-med oförändrad.  Att lägga till en fråga är att lägga ett nytt par sist i
-listan.
+Frågorna ställs med \mintinline{python}{ställ_fråga} ur
+\mintinline{python}{fragor_for}.  Att lägga till en fråga är att lägga
+ett nytt par sist i listan.
 
 \begin{frame}[fragile]
   \begin{solution}[En ny fråga]
     Funktionen ändrar listan den får in:
 <<menyns hjälpfunktioner>>=
-<<funktion som ställer en fråga och säger om svaret blev rätt>>
-
 def lägg_till_fråga(frågor):
     """Frågar efter en ny fråga och lägger den sist i frågor."""
     fråga = input("Vilken fråga vill du lägga till? ")
-    svar = fråga_tal("Vad är svaret? ")
+    svar = input_int("Vad är svaret? ")
     frågor.append((fråga, svar))
 @
   \end{solution}
@@ -1235,14 +1235,20 @@ behöver lämna tillbaka något.
 % The needspace keeps the lead-in with the program.
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela programmet:
-  \inputminted{python}{examples/meny_while.py}
+  \begin{example}[Menyn med en slinga (\texttt{meny\_while.py})]
+    \label{ex:meny-while}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/meny_while.py}
+  \end{example}
 \end{frame}
 
 Den andra versionen låter i stället en funktion anropa sig själv när
-valet är avklarat.  Allt utom upprepningen är detsamma, så programmet tar
-med menyns konstanter och hjälpfunktioner och det användaren valde som de
-är, och det som är nytt står direkt i upplägget.
+valet är avklarat.  Allt utom upprepningen är detsamma, så programmet
+hämtar menyns funktioner ur \mintinline{python}{meny_while}, filen från
+\cref{ex:meny-while}, och frågelistan och
+\mintinline{python}{ställ_fråga} ur \mintinline{python}{fragor_for}, som
+förut.  Det användaren valde tar det med som det är, och det som är nytt
+står direkt i upplägget.
 
 \begin{frame}[fragile,shrink]
   \begin{solution}[Med ett rekursivt anrop]
@@ -1250,9 +1256,8 @@ med menyns konstanter och hjälpfunktioner och det användaren valde som de
 <<[[meny_rekursivt.py]]>>=
 """Frågesport med en meny, upprepad med ett rekursivt anrop."""
 
-<<menyns konstanter>>
-
-<<menyns hjälpfunktioner>>
+from fragor_for import FRÅGOR, ställ_fråga
+from meny_while import lägg_till_fråga, visa_meny
 
 def kör_menyn(frågor):
     """Visar menyn en gång, och anropar sig själv om igen."""
@@ -1306,180 +1311,6 @@ medan nästa körs, så en användare som sitter tillräckligt länge får samma
 \mintinline{text}|RecursionError| som den rekursion utan basfall som
 visades där.  Vi behåller slingan.
 
-\section[Modulen]{Frågesporten i en modul}
-\label{sec:modulen}
-
-Nu står samma funktioner i flera av våra filer.
-\mintinline{python}{fråga_tal} finns i var och en av dem, och
-frågelistan likaså.  Det fungerar, ända till dagen då meddelandet
-\enquote{Det var inget heltal, försök igen.} ska ändras.
-
-% REVIEW(C15): skrivuppgift.  De två körningarna visar det uppgiften ber
-% om --- att provkörningen sker när modulen körs direkt men inte när ett
-% annat program hämtar den --- utan att säga hur det åstadkoms.
-\begin{frame}[fragile,shrink]
-  \begin{example}[Målet]
-    \leavevmode\ltnote{%
-      Relevanta lärandemål:
-      \cref{OvningIterationsLOModule,OvningIterationsLOMain}.
-
-      \Cref{ex:modulen} är övningens uppgift om moduler, och den behövs:
-      veckans laboration ber studenterna flytta sin felhantering till en
-      egen modul.
-
-      \textbf{Variationsmönster}: Kontrast.
-      \textbf{Vad som varierar}: var koden står, och om provkörningen sker.
-      \textbf{Vad som hålls invariant}: vad programmet gör och vad det
-      skriver ut.
-
-      Uppgiften löser inte laborationens uppgift: den handlar om frågesportens
-      frågor, inte om laborationens inmatningsfunktioner, och övar därmed
-      samma färdighet på ett annat innehåll.  Kontrasten är densamma som i
-      föreläsningen \emph{Moduler och paket}, nu använd i stället för visad;
-      därför upprepas inte förklaringen av
-      \mintinline{python}{__name__} här, utan bara det villkoret gör.
-
-      DRY och SRP namnges i prosan men prövas inte om.  DRY är belagt i
-      föreläsningen \emph{Algoritmiskt tänkande}, bilaga~E
-      \parencite{HuntThomas1999}, och SRP i föreläsningen \emph{Funktioner},
-      bilaga~B \parencite[ch.~8]{Martin2003Agile}; posterna är kopierade
-      därifrån med sina proveniensanteckningar.
-    }%
-    Så här ska det se ut när du är klar: modulen körd direkt ställer sin
-    enda provfråga, och programmet som hämtar den ställer alla tre.  Vi
-    svarar 56, respektive 56, 1 och 4:
-    \runpython[tty, chdir, stdin={56}]{examples/fragor.py}
-    \runpython[tty, chdir, stdin={56}, stdin={1},
-      stdin={4}]{examples/fragesport.py}
-  \end{example}
-\end{frame}
-
-\begin{frame}
-  \begin{exercise}[Frågesporten i en modul]
-    \label{ex:modulen}
-    Flytta det som flera av programmen behöver till en egen fil, och låt
-    programmen hämta det därifrån.  Filen ska också gå att köra för sig,
-    för att prova det den innehåller --- men provkörningen ska inte ske
-    när ett annat program hämtar den.
-  \end{exercise}
-\end{frame}
-
-\mode<article>{\subsection{Lösningsförslag}}
-
-Det som flera program behöver är frågelistan, funktionen som ställer en
-fråga och funktionen som läser in ett heltal --- det vill säga
-frågelistans konstanter och hjälpfunktioner från \cref{sec:listan}.  De
-får en egen fil, \texttt{fragor.py}, och modulen heter då
-\mintinline{python}{fragor} --- filnamnet utan \texttt{.py}.
-
-\begin{frame}[fragile]
-  \begin{solution}[Modulen]
-    Filen innehåller det som flera program behöver, och inget annat:
-<<[[fragor.py]]>>=
-"""Frågorna, och det som behövs för att ställa dem."""
-
-<<frågelistans konstanter>>
-
-<<frågelistans hjälpfunktioner>>
-
-<<provkörning som bara sker när modulen körs direkt>>
-@
-  \end{solution}
-\end{frame}
-
-Att samma kunskap --- hur man frågar efter ett heltal --- nu står på ett
-enda ställe är principen \emph{DRY},
-\foreignlanguage{english}{Don't Repeat
-Yourself}\autocite{HuntThomas1999}.\footnote{Det vetenskapliga
-  underlaget för DRY, både varifrån principen kommer och om den håller
-  med de förbehåll som hör till, finns i föreläsningen \emph{Algoritmiskt
-  tänkande}, bilaga~E.}  Och att modulen kan \emph{en} sak --- frågorna
-och hur de ställs --- och ingenting om menyer eller försök, är principen
-\emph{SRP}, \foreignlanguage{english}{single responsibility
-principle}\autocite[ch.~8]{Martin2003Agile}.\footnote{Underlaget för
-  SRP, att principen härrör från Martin och är etablerad medan
-  \enquote{ett enda ansvar} förblir en bedömningsfråga, finns i
-  föreläsningen \emph{Funktioner}, bilaga~B.}
-
-Provkörningen är det som gör att filen går att prova utan att man skriver
-ett program till, och villkoret sist är det som gör att den inte sker vid
-\mintinline{python}{import}.
-
-\begin{frame}[fragile]
-  \begin{solution}[Provkörningen]
-    Den ligger i en funktion, och anropas bara på ett villkor:
-<<provkörning som bara sker när modulen körs direkt>>=
-def main():
-    """Provkör modulen genom att ställa den första frågan."""
-    fråga, svar = FRÅGOR[0]
-    ställ_fråga(fråga, svar)
-
-
-if __name__ == "__main__":
-    main()
-@
-  \end{solution}
-\end{frame}
-
-\begin{frame}<article>[fragile]
-  \begin{example}[Hela modulen (\texttt{fragor.py})]
-    \label{ex:fragor}
-    Sätter vi in varje del där dess namn står får vi hela modulen:
-    \inputminted{python}{examples/fragor.py}
-  \end{example}
-\end{frame}
-
-Frågesporten blir därmed kort: den hämtar modulen
-\mintinline{python}{fragor}, filen från \cref{ex:fragor}, och ställer
-frågorna.
-
-\begin{frame}[fragile]
-  \begin{solution}[Programmet]
-    Allt som är kvar är själva genomgången:
-<<[[fragesport.py]]>>=
-"""Frågesport som hämtar frågorna ur modulen fragor."""
-
-import fragor
-
-
-def main():
-    """Ställer alla frågor ur modulen."""
-    for fråga, svar in fragor.FRÅGOR:
-        fragor.ställ_fråga(fråga, svar)
-
-
-if __name__ == "__main__":
-    main()
-@
-  \end{solution}
-\end{frame}
-
-Kör vi modulen som program ställer den sin enda provfråga.  Kör vi
-frågesporten ställer den alla tre --- och provfrågan syns inte till.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Modulen körd direkt]
-    \label{ex:modulen-direkt}
-    Vi svarar 56:
-    \runpython[transcript, stdin={56}]{examples/fragor.py}
-  \end{example}
-  \begin{example}[Programmet som hämtar modulen]
-    \label{ex:modulen-import}
-    Vi svarar 56, 1 och 4 --- samma svar som frågesporten fick förut:
-    \runpython[transcript, stdin={56}, stdin={1},
-      stdin={4}]{examples/fragesport.py}
-  \end{example}
-\end{frame}
-
-Samma fil, två sätt att starta den, två beteenden --- och det är
-villkoret sist i filen som avgör vilket.
-
-En annan form av importen vore lika rimlig.  Skriver vi
-\mintinline{python}{from fragor import} följt av de namn vi vill ha, får
-programmet dem direkt, utan \mintinline{python}{fragor} framför anropen.
-Här står den längre formen kvar, så att varje anrop säger var funktionen
-kommer ifrån; vilken av formerna du väljer är ett val och inte ett krav.
-
 \section[Blandat]{Frågorna i blandad ordning}
 \label{sec:blandat}
 
@@ -1517,10 +1348,12 @@ kan, men ingen av de funktioner du behöver har visats i något exempel.
       tar upp.
 
       \textbf{Variationsmönster}: Generalisering.
-      \textbf{Vad som hålls invariant}: hur en modul används --- importraden,
-      modulens namn, punkt, funktion.
-      \textbf{Vad som varierar}: varifrån modulen kommer, från vår egen fil i
-      \cref{sec:modulen} till standardbiblioteket här.
+      \textbf{Vad som hålls invariant}: att det programmet behöver hämtas
+      ur en modul med \mintinline{python}{import}.
+      \textbf{Vad som varierar}: varifrån modulen kommer, från övningens
+      egen \texttt{fragor\_for.py} och föreläsningens
+      \texttt{typed\_input.py} (\cref{sec:listan}) till standardbiblioteket
+      här.
 
       Den sista frågan i uppgiften är en kontroll av aliaseringen från
       \cref{sec:menyn}: \mintinline{python}{shuffle} ändrar listan på plats,
@@ -1543,8 +1376,9 @@ kan, men ingen av de funktioner du behöver har visats i något exempel.
     Låt frågesporten ställa frågorna i blandad ordning.  Ta reda på vad du
     behöver genom att läsa dokumentationen för modulen
     \mintinline{python}{random}: både hur man blandar en lista och hur man
-    får samma blandning en gång till.  Vad händer med
-    \mintinline{python}{fragor.FRÅGOR} om du blandar den direkt?
+    får samma blandning en gång till.  Vad händer med frågelistan
+    \mintinline{python}{FRÅGOR} ur \texttt{fragor\_for.py} om du blandar
+    den direkt?
   \end{exercise}
 \end{frame}
 
@@ -1564,28 +1398,28 @@ densamma varje gång det här materialet byggs.
 
 \begin{frame}[fragile,shrink]
   \begin{solution}[Blandade frågor]
-    Modulen \mintinline{python}{fragor} är filen från
-    \only<article>{\cref{ex:fragor}}\only<presentation>{lösningen
-    ovan}.  Vi blandar en kopia, inte modulens egen lista:
+    Modulen \mintinline{python}{fragor_for} är filen från
+    \only<article>{\cref{ex:fragor-for}}\only<presentation>{lösningen
+    till frågelistan}.  Vi blandar en kopia, inte modulens egen lista:
 <<[[blanda.py]]>>=
-"""Ställer frågorna ur modulen fragor i blandad ordning."""
+"""Ställer frågorna ur modulen fragor_for i blandad ordning."""
 
 import random
 
-import fragor
+from fragor_for import FRÅGOR, ställ_fråga
 
 FRÖ = 2026
 
 
 def main():
     """Blandar en kopia av frågorna och ställer dem."""
-    frågor = fragor.FRÅGOR.copy()
+    frågor = FRÅGOR.copy()
 
     random.seed(FRÖ)
     random.shuffle(frågor)
 
     for fråga, svar in frågor:
-        fragor.ställ_fråga(fråga, svar)
+        ställ_fråga(fråga, svar)
 
 
 if __name__ == "__main__":
@@ -1604,9 +1438,10 @@ if __name__ == "__main__":
 \end{frame}
 
 Svaret på uppgiftens sista fråga är alltså att
-\mintinline{python}{fragor.FRÅGOR} skulle ha blivit blandad om vi hade
-gett den till \mintinline{python}{shuffle} direkt --- och den ligger i
-modulen, så nästa program som hämtade modulen hade fått den i den
+\mintinline{python}{FRÅGOR} skulle ha blivit blandad om vi hade gett den
+till \mintinline{python}{shuffle} direkt --- och det är modulens egen
+lista, inte en kopia, så allt i programmet som använder
+\mintinline{python}{FRÅGOR} efter blandningen hade fått frågorna i den
 ordningen.  Det är samma sak som i \cref{sec:menyn}, nu med en funktion
 ur standardbiblioteket i stället för vår egen.
 
@@ -1912,11 +1747,10 @@ from typed_input import input_int
 
 Huvudprogrammet frågar efter ett tal och skriver ut talets rad i
 tabellen.  Frågan ställer \mintinline{python}{input_int}, som vi hämtar
-ur modulen \mintinline{python}{typed_input}: modulen är filen från
-exemplet \emph{Hela modulen (\texttt{typed\_input.py})} i föreläsningen
-\emph{Moduler och paket}, och funktionen frågar, precis som
-\mintinline{python}{fråga_tal}, tills svaret är ett heltal.  Raden är mer
-än en rad kod, så den får en egen funktion,
+ur modulen \mintinline{python}{typed_input}, som frågesporten i
+\cref{sec:listan}: modulen är filen från exemplet \emph{Hela modulen
+(\texttt{typed\_input.py})} i föreläsningen \emph{Moduler och paket}.
+Raden är mer än en rad kod, så den får en egen funktion,
 \mintinline{python}{skriv_rad}, som vi skriver sedan.
 
 \begin{frame}[fragile]
@@ -1990,10 +1824,9 @@ tal.  Radfunktionen och frågan är desamma, så det nya programmet hämtar
 dem i stället för att skriva dem igen: \mintinline{python}{skriv_rad} ur
 modulen \mintinline{python}{en_tabell}, som är filen från
 \cref{ex:en-tabell}, och \mintinline{python}{input_int} ur
-\mintinline{python}{typed_input}, som förut.  Att
-\mintinline{python}{en_tabell} har villkoret kring sitt anrop av
-\mintinline{python}{main} gör att ingen tabell skrivs ut när modulen
-hämtas.
+\mintinline{python}{typed_input}, som förut.  Villkoret kring
+\texttt{en\_tabell.py}s anrop av \mintinline{python}{main} gör, som för
+\texttt{fragor\_for.py}, att ingen tabell skrivs ut när modulen hämtas.
 
 % The needspace keeps the layout chunk on one page.
 \mode<article>{\needspace{10\baselineskip}}

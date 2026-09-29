@@ -26,7 +26,8 @@ SRC+=		ltnotes.bib
 # The exercise that asks the reader to find the faults in a program:
 EXAMPLES+=	examples/fib.py
 EXAMPLES+=	examples/fib2.py
-# The quiz, grown one aspect at a time:
+# The quiz, grown one aspect at a time; the later programs import
+# fragor_for.py, and all of them input_int from typed_input.py:
 EXAMPLES+=	examples/fragor_for.py
 EXAMPLES+=	examples/fragor_while.py
 EXAMPLES+=	examples/fragor_numrerade.py
@@ -35,12 +36,10 @@ EXAMPLES+=	examples/forsok.py
 EXAMPLES+=	examples/meny_while.py
 EXAMPLES+=	examples/meny_rekursivt.py
 EXAMPLES+=	examples/lagg_till.py
-# The module, and the two programs that import it:
-EXAMPLES+=	examples/fragor.py
-EXAMPLES+=	examples/fragesport.py
 EXAMPLES+=	examples/blanda.py
 # typed_input.py is written in the lecture Moduler och paket; build it
-# there, copy it here.  The deepening exercises import input_int from it.
+# there, copy it here.  The quiz and the deepening exercises import
+# input_int from it.
 examples/typed_input.py: ../../packages/slides/contents.nw
 	$(MAKE) -C $(<D) examples/typed_input.py
 	cp $(<D)/examples/typed_input.py $@
