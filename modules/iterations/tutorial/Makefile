@@ -39,6 +39,12 @@ EXAMPLES+=	examples/lagg_till.py
 EXAMPLES+=	examples/fragor.py
 EXAMPLES+=	examples/fragesport.py
 EXAMPLES+=	examples/blanda.py
+# typed_input.py is written in the lecture Moduler och paket; build it
+# there, copy it here.  The deepening exercises import input_int from it.
+examples/typed_input.py: ../../packages/slides/contents.nw
+	$(MAKE) -C $(<D) examples/typed_input.py
+	cp $(<D)/examples/typed_input.py $@
+EXAMPLES+=	examples/typed_input.py
 # The deepening exercises:
 EXAMPLES+=	examples/fib_anrop.py
 EXAMPLES+=	examples/fib_lista.py
