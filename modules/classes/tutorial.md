@@ -25,11 +25,14 @@ vi tillsammans, i den här ordningen:
    en dundermetod som ger en läsbar utskrift.
 2. **Uppgift 2: Sista sidan.** Lägga till en metod som flyttar ett
    bokmärke och skyddar det mot att gå längre än bokens sista sida.
-3. **Uppgift 4: Kortast först.** Sortera en hylla böcker så att den
+3. **Uppgift 3: Två böcker.** Förutsäga vad ett program med två böcker
+   skriver ut, [trace.py][trace]. För att köra det behöver du din egen
+   `book.py` i samma mapp.
+4. **Uppgift 4: Kortast först.** Sortera en hylla böcker så att den
    kortaste kommer först.
-4. **Uppgift 5: Två exemplar.** Avgöra när två exemplar ska räknas som
+5. **Uppgift 5: Två exemplar.** Avgöra när två exemplar ska räknas som
    samma bok.
-5. **Uppgifterna 6 och 7: Metoderna som redan fanns.** Ta reda på
+6. **Uppgifterna 6 och 7: Metoderna som redan fanns.** Ta reda på
    varifrån `print` och `==` fick sina svar innan klassen hade
    dundermetoder, och skriva en underklass för en lånad bok som
    överlagrar en metod med hjälp av `super()`.
@@ -39,16 +42,13 @@ vi tillsammans, i den här ordningen:
 Resten av uppgifterna finns kvar att göra på egen tid; lösningsförslagen
 i dokumentet låter dig kontrollera dina egna svar.
 
-1. **Uppgift 3: Två böcker.** Förutsäga vad ett program med två böcker
-   skriver ut, [trace.py][trace]. För att köra det behöver du din egen
-   `book.py` i samma mapp.
-2. **Uppgift 8: Klass eller uppslagslista.** Välja mellan att
+1. **Uppgift 8: Klass eller uppslagslista.** Välja mellan att
    representera samma data som en klass eller som en uppslagslista,
    beroende på vad programmet behöver.
-3. **Uppgift 9: Någon annans klass.** Granska och skriva om en illa
+2. **Uppgift 9: Någon annans klass.** Granska och skriva om en illa
    skriven klass, [review.py][review]: inkapsling, namn, kodupprepning
    och dundermetoder.
-4. **Fördjupning: Uppgift 10: Författaren.** Välja mellan arv och
+3. **Fördjupning: Uppgift 10: Författaren.** Välja mellan arv och
    komposition (is-a mot has-a) för en ny klass `Author`.
 
 [trace]: https://github.com/dbosk/intropy/blob/master/modules/classes/tutorial/examples/trace.py
