@@ -37,6 +37,7 @@ EXAMPLES+=	examples/streck1.py
 EXAMPLES+=	examples/streck2.py
 EXAMPLES+=	examples/multtable.py
 EXAMPLES+=	examples/rakna.py
+EXAMPLES+=	examples/rakna_valross.py
 EXAMPLES+=	examples/fakultet.py
 EXAMPLES+=	examples/siffersumma.py
 EXAMPLES+=	examples/fraga_rekursivt.py
