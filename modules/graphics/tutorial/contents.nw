@@ -882,7 +882,8 @@ uppdelningen som gör att logiken kunde prövas i terminalen medan
 gränssnittet prövas i fönstret.
 
 Upplägget är klockans, med en import till: de två funktioner vi skrev i
-\cref{sec:countdown}.
+\cref{sec:countdown}.  Modulen \mintinline{python}{countdown} är filen
+\texttt{countdown.py} från lösningsförslaget till \cref{ovn:countdown}.
 
 \begin{frame}[fragile]
   \begin{solution}[\texttt{timer.py}]
@@ -1217,9 +1218,11 @@ I din egen timer lägger du in kontrollen direkt i
 \mintinline{python}{start}.  Här skriver vi den i en ny fil,
 \texttt{timer2.py}, så att de två programmen kan prövas med samma
 inställning.  Den nya filen importerar timern och gör en klass som ärver
-från den, och den nya klassen byter bara ut \mintinline{python}{start}
---- på samma sätt som en klass som skriver en egen
-\mintinline{python}{__str__} byter ut den metod den annars hade ärvt.
+från den; modulen \mintinline{python}{timer} är filen \texttt{timer.py}
+från \cref{sec:timer}.  Den nya klassen byter bara ut
+\mintinline{python}{start}, på samma sätt som en klass som skriver en
+egen \mintinline{python}{__str__} byter ut den metod den annars hade
+ärvt.
 Allt annat, fälten, knappen och \mintinline{python}{tick}, ärvs
 oförändrat.
 
@@ -1354,8 +1357,9 @@ Ingenting i nedräkningen behövde ändras.
   en generalisering och inte en ny kontrast.
 
   \textbf{Vad som hålls invariant}: uppgiften att rita, och ritytan och
-  bindningarna, som är föreläsningens ord för ord, så att det som
-  varierar är färgvalet och ingenting annat.
+  bindningarna, som ärvs oförändrade från föreläsningens
+  \texttt{draw.py}, så att det som varierar är färgvalet och ingenting
+  annat.
 
   \textbf{Varför \cref{ovn:colors} kräver minst fyra färger}:
   föreläsningens \texttt{draw\_colors.py} har redan knappar för att
@@ -1410,9 +1414,23 @@ som delar samma variabel utgör ett val mellan varandra, och var och en
 skriver sitt eget värde i variabeln när den trycks.  Då behövs ingen
 metod per färg --- ingen metod alls.
 
-Upplägget är klockans och timerns, med en del till: ritprogrammet får
-en konstant, och konstanterna får ett eget namn i upplägget, före
-klasserna.
+Ritytan, minnet av den förra punkten och de två bindningarna har
+föreläsningens ritprogram redan, och dem skriver vi inte om.  Vi
+importerar i stället dess klass och gör en klass som ärver från den, som
+\texttt{timer2.py} gjorde med timern i \cref{sec:timer-again}.  Modulen
+\mintinline{python}{draw} är filen \texttt{draw.py} från föreläsningen
+\emph{Grafiska användargränssnitt}, samma fil som på övningens sida i
+Canvas, och så här ser den ut:
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \inputminted{python}{examples/draw.py}
+\end{frame}
+
+Den nya klassen lägger till färgknapparna och byter ut metoden som
+ritar.  Upplägget är klockans och timerns, med en del till:
+ritprogrammet får en konstant, och konstanterna får ett eget namn i
+upplägget, före klasserna.
 
 \mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
@@ -1422,6 +1440,8 @@ klasserna.
 """A drawing program where you choose the colour"""
 
 import tkinter as tk
+
+from draw import DrawGUI
 
 <<ritprogrammets konstanter>>
 
@@ -1441,7 +1461,7 @@ lämnar över takten till händelseslingan.
 <<ritprogrammets huvudprogram>>=
 def main():
     """Run the drawing program"""
-    window = DrawGUI()
+    window = ColorGUI()
     window.mainloop()
 
 
@@ -1451,56 +1471,34 @@ if __name__ == "__main__":
   \end{solution}
 \end{frame}
 
-Fönstret är klassen \mintinline{python}{DrawGUI}, som i föreläsningen,
-och dess metoder lägger vi till när vi kommer till dem.
+Fönstret är klassen \mintinline{python}{ColorGUI}, som ärver från
+föreläsningens \mintinline{python}{DrawGUI}, och dess metoder lägger vi
+till när vi kommer till dem.
 
 \begin{frame}[fragile]
   \begin{solution}[Klassen]
     Klassen, med metoderna kvar att skriva:
 <<ritprogrammets klasser>>=
-class DrawGUI(tk.Tk):
-    """A window you draw lines in with the mouse"""
+class ColorGUI(DrawGUI):
+    """The lecture's drawing program, with a choice of colour"""
 
     <<ritprogrammets metoder>>
 @
   \end{solution}
 \end{frame}
 
-Konstruktorn gör två saker: ritytan, som är föreläsningens oförändrade,
-och färgknapparna, som är det nya.
+Konstruktorn låter föreläsningens konstruktor skapa ritytan, minnet av
+den förra punkten och bindningarna, och lägger sedan till det nya:
+färgknapparna, under ritytan.
 
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
-    Ritytan, och sedan färgknapparna under den:
+    Föreläsningens konstruktor, och sedan färgknapparna:
 <<ritprogrammets metoder>>=
 def __init__(self):
     super().__init__()
 
-    <<skapa ritytan>>
-
     <<skapa färgknapparna>>
-@
-  \end{solution}
-\end{frame}
-
-Ritytan är en vit \mintinline{python}{Canvas}, två attribut för den
-förra punkten och två bindningar: en för musrörelse med knappen nere,
-en för när knappen släpps.  Bindningarna lämnar över två metoder,
-\mintinline{python}{paint} och \mintinline{python}{reset_old_coord},
-som vi skriver när konstruktorn är klar.
-
-\mode<article>{\needspace{10\baselineskip}}
-\begin{frame}[fragile]
-  \begin{solution}[Ritytan]
-    Ritytan, minnet av den förra punkten och de två bindningarna:
-<<skapa ritytan>>=
-self.canvas = tk.Canvas(width=800, height=600, bg="white")
-self.canvas.pack()
-
-self.x_old = self.y_old = None
-
-self.canvas.bind("<B1-Motion>", self.paint)
-self.canvas.bind("<ButtonRelease-1>", self.reset_old_coord)
 @
   \end{solution}
 \end{frame}
@@ -1561,7 +1559,10 @@ for column in range(len(COLORS)):
   \end{solution}
 \end{frame}
 
-Metoden som ritar är \texttt{draw.py}:s ur föreläsningen, med två
+Metoden som ritar byter vi ut.  Bindningen i föreläsningens konstruktor
+lämnar över \mintinline{python}{self.paint}, och eftersom
+\mintinline{python}{self} är ett \mintinline{python}{ColorGUI} är det
+den nya metoden som anropas.  Den är \texttt{draw.py}:s, med två
 skillnader: färgen läses ur variabeln i stället för att stå skriven i
 koden, och uppdateringen av den förra punkten står på en egen rad.  I
 \texttt{draw.py} görs den i samma rad som den nya punkten, med en
@@ -1603,23 +1604,8 @@ self.canvas.create_line(
   \end{solution}
 \end{frame}
 
-När knappen släpps glöms punkten, så att nästa drag börjar om i stället
-för att dra en linje från det förra dragets slut.  Metoden får ett eget
-namn bland ritprogrammets metoder, eftersom vi tar med den oförändrad
-när vi bygger ut ritprogrammet i \cref{sec:rect}.
-
-\begin{frame}[fragile]
-  \begin{solution}[Metoden \texttt{reset\_old\_coord}]
-    Glöm den förra punkten:
-<<ritprogrammets metoder>>=
-<<metod som glömmer den förra punkten>>
-<<metod som glömmer den förra punkten>>=
-def reset_old_coord(self, _):
-    """Forget the previous point, so the next stroke starts fresh"""
-    self.x_old = self.y_old = None
-@
-  \end{solution}
-\end{frame}
+Den ärvda \mintinline{python}{reset_old_coord}, som glömmer den förra
+punkten när musknappen släpps, används som den är.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
@@ -1667,8 +1653,7 @@ ingenting.  En \mintinline{python}{Radiobutton} behöver inget
 
   \textbf{Vad som hålls invariant}: ritytan, färgmekanismen och metoden
   \mintinline{python}{reset_old_coord} från \cref{sec:colors}, som
-  återanvänds som de är --- i den litterata källan är det samma delar,
-  inte kopior av dem.
+  \texttt{draw\_rect.py} ärver i stället för att skriva om.
 }%
 I den sista uppgiften utökar vi samma ritprogram.  En linje ritas genom
 att man drar; en rektangel är inte ett drag utan två hörn, och programmet
@@ -1696,8 +1681,8 @@ måste alltså kunna två olika saker med samma musknapp.
 Programmet får ett läge till att minnas, och ett minne av det första
 hörnet.  Läget är ett val mellan två, precis som färgen är ett val
 mellan fem, så det blir en \mintinline{python}{StringVar} till med
-radioknappar.  Ritytan, färgknapparna och metoden som glömmer punkten är
-samma delar som i \cref{sec:colors}.
+radioknappar.  Ritytan, färgknapparna och metoden som glömmer punkten
+ärvs från ritprogrammet i \cref{sec:colors}.
 
 % Andra halvan av avsnittets anteckning, förankrad här och inte vid
 % avsnittets början: där trycks den upp i sidocaptionen till figuren i
@@ -1723,9 +1708,12 @@ samma delar som i \cref{sec:colors}.
   \texttt{pydoc3 tkinter.Canvas} räknar upp fler metoder än de två som
   används, och den sista frågan ber om en av dem.
 }%
-Upplägget är ritprogrammets, och konstanterna och huvudprogrammet tar
-vi med oförändrade.  Klassen är det som ändras, så den får ett eget
-namn, och dess metoder likaså.
+Programmet importerar klassen från \cref{sec:colors} och ärver från den,
+som den klassen ärver från föreläsningens: modulen
+\mintinline{python}{draw_colors} är filen \texttt{draw\_colors.py} från
+lösningsförslaget till \cref{ovn:colors}.  Den nya klassen lägger till
+formknapparna och metoden som ritar rektanglar, och den byter ut metoden
+som ritar linjer.
 
 \begin{frame}[fragile]
   \begin{solution}[\texttt{draw\_rect.py}]
@@ -1735,44 +1723,58 @@ namn, och dess metoder likaså.
 
 import tkinter as tk
 
-<<ritprogrammets konstanter>>
+from draw_colors import ColorGUI
 
 <<rektangelprogrammets klasser>>
 
-<<ritprogrammets huvudprogram>>
+<<rektangelprogrammets huvudprogram>>
 @
   \end{solution}
 \end{frame}
 
-Klassen heter som förut, och dess metoder lägger vi till när vi kommer
-till dem.
+Huvudprogrammet är ritprogrammets, med den nya klassen i stället.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Som ritprogrammets:
+<<rektangelprogrammets huvudprogram>>=
+def main():
+    """Run the drawing program"""
+    window = ShapeGUI()
+    window.mainloop()
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Klassen ärver ritprogrammets, och dess metoder lägger vi till när vi
+kommer till dem.
 
 \begin{frame}[fragile]
   \begin{solution}[Klassen]
     Klassen, med metoderna kvar att skriva:
 <<rektangelprogrammets klasser>>=
-class DrawGUI(tk.Tk):
-    """A window you draw lines and rectangles in with the mouse"""
+class ShapeGUI(ColorGUI):
+    """The drawing program, with lines and rectangles"""
 
     <<rektangelprogrammets metoder>>
 @
   \end{solution}
 \end{frame}
 
-Konstruktorn är den förra med en del till: formknapparna, under
-färgknapparna.
+Konstruktorn låter den ärvda konstruktorn skapa ritytan och
+färgknapparna och lägger till formknapparna under dem.
 
 \mode<article>{\needspace{10\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Konstruktorn]
-    Tre delar i stället för två:
+    Den ärvda konstruktorn, och sedan formknapparna:
 <<rektangelprogrammets metoder>>=
 def __init__(self):
     super().__init__()
-
-    <<skapa ritytan>>
-
-    <<skapa färgknapparna>>
 
     <<skapa formknapparna>>
 @
@@ -1842,14 +1844,14 @@ ingenting annars.  Det är den enda skillnaden mot metoden i
 \mode<article>{\needspace{9\baselineskip}}
 \begin{frame}[fragile]
   \begin{solution}[Metoden \texttt{paint} med lägeskontroll]
-    Samma metod som förut, med en fråga först:
+    Den ärvda metoden, med en fråga först:
 <<rektangelprogrammets metoder>>=
 def paint(self, event):
     """Draw a line, unless the rectangle mode is chosen"""
     if self.shape.get() != "line":
         return
 
-    <<spara den första punkten eller rita en linje från den förra>>
+    super().paint(event)
 @
   \end{solution}
 \end{frame}
@@ -1891,18 +1893,6 @@ self.x_press = self.y_press = None
 self.canvas.create_rectangle(
     x_start, y_start, event.x, event.y, fill=self.color.get()
 )
-@
-  \end{solution}
-\end{frame}
-
-Kvar är metoden som glömmer den förra punkten när musknappen släpps.
-Den är ritprogrammets, och vi tar med den oförändrad under sitt namn.
-
-\begin{frame}[fragile]
-  \begin{solution}[Metoden \texttt{reset\_old\_coord}]
-    Samma metod som förut:
-<<rektangelprogrammets metoder>>=
-<<metod som glömmer den förra punkten>>
 @
   \end{solution}
 \end{frame}

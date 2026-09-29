@@ -225,7 +225,10 @@ unparsable program (its tangle rule in that deck's Makefile skips black;
 build with `--exempt 'examples/villkor.py'`), and so is
 `containers/slides-tuples/examples/fullname-alt.py`, whose optional
 parentheses black would strip (tangled raw; build with
-`--exempt 'examples/fullname-alt.py'`); the
+`--exempt 'examples/fullname-alt.py'`), and so is
+`graphics/tutorial/examples/draw.py`, a copy of the lecture's
+hand-written `draw.py` that `draw_colors.py` imports (build with
+`--exempt 'examples/draw.py'`); the
 tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
 ## Where the general rules went (2026-09-07)

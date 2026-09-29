@@ -35,6 +35,14 @@ EXAMPLES+=	examples/clock.py
 EXAMPLES+=	examples/countdown.py
 EXAMPLES+=	examples/timer.py
 EXAMPLES+=	examples/timer2.py
+# draw.py is the lecture's hand-written program (Grafiska
+# användargränssnitt, ../slides/examples), not tangled: draw_colors.py
+# imports its class, so copy it here.  Never commit the copy.  It keeps
+# the lecture's layout, so build_deck.sh needs --exempt 'examples/draw.py'.
+examples/draw.py: ../slides/examples/draw.py
+	@mkdir -p ${@D}
+	cp $< $@
+EXAMPLES+=	examples/draw.py
 EXAMPLES+=	examples/draw_colors.py
 EXAMPLES+=	examples/draw_rect.py
 
