@@ -1,7 +1,7 @@
 ---
 title: 'Övning: Upprepningar, listor och moduler'
 regex: '^Övning: Upprepningar, listor och moduler$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:
