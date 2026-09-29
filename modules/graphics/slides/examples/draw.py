@@ -3,7 +3,7 @@
 import tkinter as tk
 
 class DrawGUI(tk.Tk):
-    """GUI which takes name input and prints 'Hello, {name}!'"""
+    """A window with a canvas to draw lines on with the mouse"""
     def __init__(self):
         # Initialize tk.Tk itself
         super().__init__()
