@@ -24,10 +24,15 @@ i modulen, *Övning: Upprepningar, listor och moduler
 
 ## Vad vi går igenom på övningen
 
-Vi börjar med att bygga ut programmet `lunch.py` från föreläsningen, och
-det gör vi tillsammans: först diskuterar vi hur utbyggnaden ska utformas,
-sedan implementerar ni delar av den, och till sist jämför vi och
-diskuterar de olika lösningarna.
+Vi börjar med att bygga ut programmet [lunch.py][lunch] från
+föreläsningen, och det gör vi tillsammans: först diskuterar vi hur
+utbyggnaden ska utformas, sedan implementerar ni delar av den, och till
+sist jämför vi och diskuterar de olika lösningarna. Programmet importerar
+modulen [bio.py][bio] från samma föreläsning, så hämta båda filerna och
+lägg dem i samma katalog.
+
+[lunch]: https://github.com/dbosk/intropy/blob/bc0b5604f4551e0c1da6ad85f493b093a81f520a/modules/iterations/tutorial/lunch/lunch.py
+[bio]: https://github.com/dbosk/intropy/blob/bc0b5604f4551e0c1da6ad85f493b093a81f520a/modules/iterations/tutorial/lunch/bio.py
 
 Därefter tar vi ett urval av övningens uppgifter, i den här ordningen:
 
