@@ -24,9 +24,12 @@
 
 En dator är inte särskilt smart, men den är outtröttlig.  Det den är bäst
 på är att göra samma sak om och om igen utan att tröttna, klaga eller
-tappa räkningen.  Hittills har våra program gjort varje sak en gång; från
-och med nu ska vi låta dem göra saker många gånger.  Vi börjar med den
-enklaste tänkbara uppgiften.
+tappa räkningen.  I föreläsningen \emph{Villkor och styrstrukturer} lät
+vi redan ett program göra om något: en \mintinline{python}{while}-slinga
+som räknade ner, och en som frågade om igen tills svaret gick att
+använda.  Nu ska vi se upprepningen som ett verktyg i sig: vilka former
+den kan ha, och när vilken av dem passar.  Vi börjar med den enklaste
+tänkbara uppgiften.
 
 \begin{frame}
   \begin{exercise}[Skriv ett program]
@@ -195,7 +198,7 @@ till det.  Låt oss börja med att ta reda på vad som egentligen upprepas.
       urskiljer ombindningen; programmen står i samma övning, så att
       studenten och inte materialet gör jämförelsen
       \parencite[45--47]{Marton2015}.  Filerna är numrerade, här och i
-      \cref{sec:indrag,sec:upprepa-eller-valja}: namn som säger vilket
+      \cref{sec:indrag}: namn som säger vilket
       program som skriver ut en text och vilket värdet hade avslöjat vad
       som ska urskiljas.
     }%
@@ -565,58 +568,37 @@ inre slingan, men innanför den yttre.
 \section[while]{\texttt{while}: så länge villkoret gäller}
 \label{sec:while}
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{IterLOWhile,IterLOChoose}.
+
+  Föreläsningen \emph{Villkor och styrstrukturer} har redan övningarna
+  om \mintinline{python}{while}: nedräkningen och kontrasten där raden
+  som ändrar villkorets variabel saknas, och rabatten där
+  \mintinline{python}{if} och \mintinline{python}{while} ställs mot
+  varandra.  De är aspekt 31 och 32 i kursens diagnostiska för- och
+  eftertest om upprepningar.  Avsnittet gör inte om dem utan pekar
+  tillbaka och lägger till det som är nytt här: regeln om slingans tre
+  delar, som samlar det studenten redan sett.  Felen hålls kvar i
+  prosan med sina källor, eftersom
+  \cref{app:missuppfattningar-upprepningar} prövar dem: styrvariabeln
+  som aldrig ändras \parencite[111]{Bosse2021Antipatterns}, räknaren som
+  aldrig sätts \parencite[4]{GuoMarkelZhang2020} och upprepningen där en
+  förgrening räcker \parencite[79]{Bosse2021Antipatterns}.
+}%
 En \mintinline{python}{for}-slinga behöver veta vad den ska gå igenom
 innan den börjar.  Ibland vet vi inte det: vi vet bara när vi ska sluta.
 Då använder vi \mintinline{python}{while}, som du mötte i föreläsningen
-\emph{Villkor och styrstrukturer}.  Här ska vi läsa en sådan slinga noga.
+\emph{Villkor och styrstrukturer}.  Där räknade en slinga ner till noll,
+och där såg vi vad som händer när raden som minskar räknaren saknas:
+villkoret som var sant första gången förblir sant, och slingan tar
+aldrig slut.  Det felet är katalogiserat i nybörjares egen
+kod\autocite[111]{Bosse2021Antipatterns}.  Här samlar vi det vi såg till
+en regel.
 
 \begin{frame}[fragile]
-  \begin{exercise}[Vad gör programmet?]
-    \label{ex:while-utan}
-    \leavevmode\ltnote{%
-      Relevanta lärandemål: \cref{IterLOWhile}.
-
-      \textbf{Variationsmönster}: Kontrast.
-      \textbf{Vad som varierar}: om kroppen ändrar variabeln som villkoret
-      prövar.
-      \textbf{Vad som hålls invariant}: initieringen, villkoret och
-      utskriften.
-
-      Aspekten är att en \mintinline{python}{while}-slinga bara slutar om
-      kroppen kan göra villkoret falskt.  Felet finns katalogiserat som
-      antimönstret \emph{control variable is not changed} i riktig CS1-kod
-      \parencite[111]{Bosse2021Antipatterns}, och att nybörjare skriver
-      \mintinline{python}{while i <= 100} utan att först ge
-      \mintinline{python}{i} ett värde är dokumenterat
-      \parencite[4]{GuoMarkelZhang2020}; se
-      \cref{app:missuppfattningar-upprepningar}.  Det
-      är också aspekt 31 i kursens diagnostiska för- och eftertest om
-      upprepningar, så
-      \cref{ex:while-utan} fungerar som ett förtest: den som svarar
-      \enquote{0, 1, 2} har inte urskiljt aspekten ännu.
-
-      Den trasiga versionen körs inte i materialet --- den skulle aldrig ta
-      slut --- utan visas som kod med svaret i texten.  Därför är det den enda
-      varianten i avsnittet som inte finns som ett tanglat program.
-    }%
-    Läs programmet och avgör vad det gör:
-    \begin{minted}{python}
-def main():
-    i = 0
-    while i < 3:
-        print(i)
-
-
-main()
-    \end{minted}
-  \end{exercise}
-\end{frame}
-
-\begin{frame}[fragile,shrink]
-  \begin{solution}[Den saknade raden]
-    Programmet skriver ut \mintinline{python}{0}, om och om igen, för
-    alltid.  Slingan slutar först när något i kroppen ändrar det villkoret
-    tittar på:
+  \begin{example}[En slinga i tre delar]
+    \label{ex:rakna}
+    Slingan räknar upp från noll:
 <<[[rakna.py]]>>=
 def main():
     i = 0
@@ -627,125 +609,29 @@ def main():
 
 main()
 @
-
-    Och nu tar den slut:
+    Den skriver ut:
     \runpython[showcommand, chdir]{examples/rakna.py}
-  \end{solution}
+  \end{example}
 \end{frame}
 
-Många läser det första programmet som \enquote{skriv ut 0, 1 och 2}, och
-det är en rimlig läsning av vad någon \emph{ville} skriva.  Villkoret
-\mintinline{python}{i < 3} prövas på nytt före varje varv, och ingenting i
-kroppen ändrar \mintinline{python}{i}, så villkoret som var sant första
-gången är sant varje gång.
+En \mintinline{python}{while}-slinga har tre delar, och det lönar sig att
+kontrollera alla tre: något sätts \emph{före} slingan, något prövas
+\emph{i villkoret}, och något ändras \emph{i kroppen} så att villkoret
+till slut blir falskt.  Saknas den tredje delen slutar slingan aldrig.
+Saknas den första finns det inget att pröva första gången --- att skriva
+\mintinline{python}{while i < 3} utan att först ha gett
+\mintinline{python}{i} ett värde är ett dokumenterat
+nybörjarfel\autocite[4]{GuoMarkelZhang2020}.
 
-Det här är en av anledningarna till att ett program \enquote{hänger
-sig}, och felet är katalogiserat i nybörjares egen
-kod\autocite[111]{Bosse2021Antipatterns}.  Skriv därför alltid
-\mintinline{python}{while}-slingan i tre delar och kontrollera alla tre:
-något sätts \emph{före} slingan, något prövas \emph{i villkoret}, och
-något ändras \emph{i kroppen} så att villkoret till slut blir falskt.
-Saknas den tredje delen slutar slingan aldrig.
-
-\subsection{Upprepa eller välja?}
-\label{sec:upprepa-eller-valja}
-
-Innan man väljer \emph{vilken} slinga är det värt att fråga om det
-behövs en slinga alls.  Att göra något \emph{en gång om} ett villkor
-gäller och att göra det \emph{så länge} villkoret gäller ser nästan
-likadant ut i koden, och betyder helt olika saker.
-
-\begin{frame}[fragile,shrink]
-  \begin{exercise}[Rabatten]
-    \label{ex:rabatt-upprepningar}
-    \leavevmode\ltnote{%
-      Relevanta lärandemål: \cref{IterLOWhile,IterLOChoose}.
-
-      \textbf{Variationsmönster}: Kontrast.
-      \textbf{Vad som varierar}: konstruktionen (\mintinline{python}{while}
-      eller \mintinline{python}{if}).
-      \textbf{Vad som hålls invariant}: uppgiften, villkoret, kroppen och
-      utskriften.
-
-      Aspekten i \cref{ex:rabatt-upprepningar} ligger \emph{före} slingans
-      mekanik: utförs handlingen en gång
-      eller upprepas den?  Antimönstret \emph{use of a repetition structure
-      where a selection should be} är katalogiserat i CS1-kod, med följden att
-      resultatet blir fel \parencite[79]{Bosse2021Antipatterns}; se
-      \cref{app:missuppfattningar-upprepningar}.  Talen är valda så att båda
-      programmen
-      terminerar --- annars hade kontrasten handlat om oändliga slingor, som
-      \cref{sec:while} redan avhandlat, i stället för om vad konstruktionen
-      \emph{betyder}.  Det är aspekt 32 i kursens diagnostiska för- och
-      eftertest om upprepningar.
-
-      De två programmen står i en och samma övning, så att det är studenten
-      och inte materialet som gör jämförelsen
-      \parencite[45--47]{Marton2015}.
-    }%
-    Varor som kostar minst 50 kronor ska få 20 kronor i rabatt.  Här är
-    två program.  Vad skriver vart och ett av dem ut?
-<<[[pris1.py]]>>=
-def main():
-    pris = 100
-    while pris >= 50:
-        pris = pris - 20
-    print(pris)
-
-
-main()
-<<[[pris2.py]]>>=
-def main():
-    pris = 100
-    if pris >= 50:
-        pris = pris - 20
-    print(pris)
-
-
-main()
-@
-  \end{exercise}
-\end{frame}
-
-\begin{frame}[fragile,shrink]
-  \begin{solution}[\texttt{pris1.py}]
-    Priset landar på:
-    \runpython[showcommand, chdir]{examples/pris1.py}
-  \end{solution}
-  \begin{solution}[\texttt{pris2.py}]
-    Och med det andra programmet:
-    \runpython[showcommand, chdir]{examples/pris2.py}
-  \end{solution}
-\end{frame}
-
-Båda programmen tar slut --- kroppen ändrar ju \mintinline{python}{pris},
-så villkoret blir till sist falskt --- men bara det ena gör det som
-efterfrågades.  \mintinline{python}{while} drar av tjugo kronor gång på
-gång så länge priset ligger kvar över femtio, och landar på
-\mintinline{python}{40}.  \mintinline{python}{if} drar av dem en gång, och
-ger det \mintinline{python}{80} vi ville ha.  Felet är alltså inte att
-slingan hänger sig, utan att svaret blir fel.
-
-\begin{frame}[fragile]
-  \only<presentation>{%
-    \begin{summary}[Slinga eller förgrening?]
-      \begin{itemize}
-        \item En gång, om villkoret gäller: \mintinline{python}{if}.
-        \item Om och om igen, så länge villkoret gäller:
-          \mintinline{python}{while}.
-      \end{itemize}
-    \end{summary}%
-  }%
-  \only<article>{%
-    \begin{summary}[Slinga eller förgrening?]
-      Frågan att ställa sig är hur många gånger handlingen ska utföras.
-      Ska den utföras \emph{en gång} om villkoret gäller är det en
-      förgrening, \mintinline{python}{if}.  Ska den utföras \emph{om och om
-      igen} så länge villkoret gäller är det en upprepning,
-      \mintinline{python}{while}.
-    \end{summary}%
-  }
-\end{frame}
+Innan man väljer \emph{vilken} slinga är det värt att fråga om det behövs
+en slinga alls.  I \emph{Villkor och styrstrukturer} fick samma rabatt två
+funktioner, en med \mintinline{python}{if} och en med
+\mintinline{python}{while}: båda tog slut, men bara den ena räknade rätt,
+eftersom den andra drog av rabatten om och om igen.  Att ta till en
+upprepning där en förgrening räcker är ett katalogiserat
+antimönster\autocite[79]{Bosse2021Antipatterns}.  Frågan är alltså om
+handlingen ska utföras \emph{en gång} om villkoret gäller, eller \emph{om
+och om igen} så länge det gäller.
 
 Innan vi lämnar \mintinline{python}{while} är det värt att lösa
 \cref{ex:hej-femtio} en gång till, nu med den andra slingan.
@@ -835,8 +721,9 @@ slut.
       problemet.
 
       Kontrasten ska urskilja \emph{basfallet} som en egen aspekt, och den
-      ställs bredvid \mintinline{python}{while}-kontrasten i \cref{sec:while}
-      med avsikt: samma kritiska aspekt --- att upprepningen måste kunna ta
+      ställs bredvid \mintinline{python}{while}-slingan som aldrig tar
+      slut, från \emph{Villkor och styrstrukturer}, som \cref{sec:while}
+      pekar tillbaka till, med avsikt: samma kritiska aspekt --- att upprepningen måste kunna ta
       slut --- i två skepnader.  Det ger en generalisering över
       konstruktionerna utan att någon ny aspekt införs.
 
@@ -1268,17 +1155,20 @@ följer alltså av angreppssättet, inte tvärtom.
 \section[Fråga igen]{Inmatning som frågar om igen}
 \label{sec:inmatning-upprepningar}
 
-Det sista vi ska göra är att sätta ihop upprepningen med inmatningen
-och felhanteringen från tidigare.  Problemet är gammalt:
-användaren skriver något som inte går att använda, och programmet ska då
-fråga igen i stället för att krascha.
+I föreläsningen \emph{Villkor och styrstrukturer} skrev vi
+\mintinline{python}{ask_number}, som frågar om tills svaret går att
+omvandla till ett tal: en \mintinline{python}{while True}-slinga runt
+\mintinline{python}{try}, som lämnas med \mintinline{python}{break} när
+omvandlingen har lyckats.  Nu när vi också har rekursion finns ett annat
+sätt att tänka sig samma funktion.
 
 \begin{frame}
-  \begin{exercise}[Fråga tills det blir rätt]
+  \begin{exercise}[Fråga igen, med rekursion]
     \label{ex:fraga-igen-upprepningar}
     Skriv en funktion som frågar användaren efter ett heltal och
     returnerar det --- men som frågar om igen, i stället för att krascha,
-    om användaren skriver något annat.
+    om användaren skriver något annat.  Låt funktionen anropa sig själv i
+    stället för att använda en slinga.
   \end{exercise}
 \end{frame}
 
@@ -1291,9 +1181,11 @@ fråga igen i stället för att krascha.
   \textbf{Vad som hålls invariant}: uppgiften, felhanteringen och
   funktionens gränssnitt.
 
-  Det rekursiva försöket är inget halmstrå: att låta funktionen anropa sig
-  själv i stället för att lägga anropet i en slinga är ett mönster vi ser i
-  studenternas egna lösningar i den här kursen.  Det visas därför först,
+  Slingversionen finns redan i \emph{Villkor och styrstrukturer}, så
+  \cref{ex:fraga-igen-upprepningar} ber om den rekursiva, och den är inget
+  halmstrå: att låta funktionen anropa sig själv i stället för att lägga
+  anropet i en slinga är ett mönster vi ser i studenternas egna lösningar
+  i den här kursen.  Den visas därför först,
   och körs, så att felet upptäcks i utmatningen (\enquote{None}) i stället
   för att påstås i texten --- \foreignlanguage{english}{try-first} med
   frågan i \cref{ex:fraga-rekursivt-fraga} ställd innan körningen.
@@ -1308,9 +1200,9 @@ fråga igen i stället för att krascha.
   \emph{Funktioner}, bilaga B, vilket också står i
   \cref{app:verifiera-upprepningar}.
 }%
-En lösning som ofta dyker upp bygger på att funktionen anropar sig själv
-när det gick fel.  Det är inte orimligt tänkt: \enquote{fråga igen}
-låter ju som \enquote{gör om det jag just gjorde}.
+Att funktionen anropar sig själv när det gick fel är inte orimligt tänkt:
+\enquote{fråga igen} låter ju som \enquote{gör om det jag just gjorde}.
+Så här brukar det första försöket se ut.
 
 \begin{frame}[fragile,shrink]
   \begin{solution}[Ett första försök]
@@ -1366,7 +1258,10 @@ Det går att laga --- skriv \mintinline{python}|return fråga_tal(fråga)| --- m
 det är värt att fråga sig om rekursion är rätt verktyg här.  Problemet
 innehåller inget mindre exemplar av sig självt; det finns inget som blir
 mindre för varje varv.  Det vi vill säga är \enquote{håll på tills det
-lyckas}, och det är precis vad \mintinline{python}{while} säger.
+lyckas}, och det är precis vad \mintinline{python}{while} säger.  Med en
+slinga blir det \mintinline{python}{ask_number} från \emph{Villkor och
+styrstrukturer}, här kallad \mintinline{python}{fråga_tal} --- med en
+skillnad.
 
 \mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile,shrink]
@@ -1402,10 +1297,12 @@ main()
   \end{example}
 \end{frame}
 
-\mintinline{python}{while True} ser ut som en oändlig slinga, och är det
-också --- villkoret blir aldrig falskt.  Det som avslutar den är i stället
-\mintinline{python}{return}, som lämnar hela funktionen så snart
-\mintinline{python}{int} lyckats.  Går det fel körs
+Skillnaden är hur slingan lämnas.  I \mintinline{python}{ask_number} bröt
+\mintinline{python}{break} slingan, och talet lämnades tillbaka efter den.
+Här står \mintinline{python}{return} direkt i
+\mintinline{python}{try}-blocket: den lämnar hela funktionen, och därmed
+slingan, så snart \mintinline{python}{int} lyckats, och ingen variabel
+behöver hålla talet till efter slingan.  Går det fel körs
 \mintinline{python}{except}-grenen, slingan börjar om, och frågan ställs
 igen.
 
@@ -1449,15 +1346,17 @@ principle}\autocite[ch.~8]{Martin2003Agile}.\footnote{%
   ett värde: ett exempel som ska visa hur man gör bör inte innehålla fel
   som inte är poängen.
 }%
-Till sist ett program som använder modulens alla delar samtidigt: en
+I \emph{Villkor och styrstrukturer} fick användaren gissa tills
+gissningen träffade, med en \mintinline{python}{while}-slinga utan gräns
+och en inmatning som kraschade på ett svar som inte var ett tal.  Nu kan
+vi göra spelet färdigt: programmet väljer ett hemligt tal, användaren får
+ett bestämt antal gissningar på sig, och frågan efter en gissning tål fel
+svar.  Det använder modulens alla delar samtidigt: en
 \mintinline{python}{for}-slinga som räknar försöken, en
 \mintinline{python}{while}-slinga som frågar tills svaret går att använda,
 en förgrening som avgör om gissningen var rätt, och funktioner som håller
-isär delarna.
-
-Programmet väljer ett hemligt tal, och användaren får ett bestämt antal
-gissningar på sig att hitta det.  Vi skriver programmet som
-siffersumman, uppifrån och ner, och börjar i filens upplägg.
+isär delarna.  Vi skriver programmet som siffersumman, uppifrån och ner,
+och börjar i filens upplägg.
 
 \begin{frame}[fragile]
   Gissningsspelets upplägg:
