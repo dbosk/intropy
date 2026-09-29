@@ -24,8 +24,12 @@ i modulen, *Övning: Upprepningar, listor och moduler
 
 ## Vad vi går igenom på övningen
 
-Vi hinner bara ett urval av övningens uppgifter under passet. De här tar
-vi tillsammans, i den här ordningen:
+Vi börjar med att bygga ut programmet `lunch.py` från föreläsningen, och
+det gör vi tillsammans: först diskuterar vi hur utbyggnaden ska utformas,
+sedan implementerar ni delar av den, och till sist jämför vi och
+diskuterar de olika lösningarna.
+
+Därefter tar vi ett urval av övningens uppgifter, i den här ordningen:
 
 1. **Uppgift 1: Finn fem fel.** Läsa, köra och rätta ett färdigt
    (rekursivt) program som inte gör vad det ska, [fib.py][fib].
