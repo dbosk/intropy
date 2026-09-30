@@ -207,6 +207,19 @@ Backed so far (question → answer):
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
+- *Grafiska användargränssnitt* B: event-driven programs and callbacks →
+  partly: novices' uncertainty about who calls a handler and when, and
+  taking attaching a handler for running it, are documented (JavaScript,
+  adult novices); "event-driven programming is hard" per se is not (the
+  mapping review finds no consensus and blames the tools; events-first
+  CS1 reports success); the `mainloop` and `command=f()` forms are
+  unstudied. C: keeping UI and logic apart → established (MVC,
+  Reenskaug 1979, Krasner and Pope 1988; separation of concerns is
+  Dijkstra's broader idea), but that it makes a program easier to test
+  and debug is backed only indirectly (GUI testing is costly and
+  fragile); no controlled study measures it. The tutorial's open
+  questions on the `mainloop`/callback misconceptions and on debugging
+  without the GUI can point here.
 - No backed-claim chapters yet: *Operatoröverlagring*, the five
   *Behållare* decks (method chapter only) — run the claim audit there.
 

@@ -1,0 +1,1345 @@
+\chapter{Att kontrollera ett påstående}
+\label{app:verifiera-grafik}
+
+Det här materialet gör, som allt undervisningsmaterial, en rad
+påståenden.  De flesta går att pröva vid datorn, och det är poängen med
+att programmen i texten är de program som körs: att parenteserna efter
+\mintinline{python}{greet} anropar funktionen i stället för att lämna
+över den ser du i körningen i \cref{ex:events2}, och att hälsningen går
+att köra utan fönster ser du i \cref{ex:check-greeting}.  Några
+påståenden handlar om vad \mintinline{python}{tkinter} och Tk
+\emph{gör} --- att \mintinline{python}{mainloop} kör tills fönstret
+stängs, att en bindning anropar sin funktion med en händelse, att en
+linje får sin färg med \texttt{fill} --- och för dem är bibliotekens egen
+dokumentation den rätta källan; adresserna står i fotnoterna där
+påståendena görs, med datum.
+
+Men några påståenden kan ingen körning avgöra:
+\begin{enumerate}
+  \item att nybörjare förväxlar att koppla en funktion till en händelse
+    med att köra den, och är osäkra på vem som anropar den och när
+    (\cref{sec:modell})\ifbool{ltnote}{, och att
+    \mintinline{python}{mainloop} kan läsas som \enquote{visa fönstret}
+    (lärarnoten i \cref{sec:forsta-fonster})}{};
+  \item att det är en etablerad princip att hålla gränssnitt och
+    programlogik isär, och att det gör logiken lättare att pröva
+    (\cref{sec:utan-fonster});
+  % The premise is used only in the teacher's notes.
+  \ifbool{ltnote}{%
+  \item att det som varierar mot en invariant bakgrund är det som kan
+    urskiljas, den variationsteoretiska premiss som lärarnoterna i
+    marginalen bygger på;
+  }{}%
+  \item att man bör ärva när den nya klassen är en variant av den gamla
+    och föredra komposition när den har en, och att regeln kommer från
+    \emph{Design Patterns} (\cref{sec:klassen}).
+\end{enumerate}
+Hur vet man om sådant stämmer?  Samma fråga möter dig varje gång du läser
+en lärobok, en webbsida eller ett svar från en språkmodell --- och varje
+gång du själv ska skriva en rapport.  Arbetsgången är densamma i alla
+kursens föreläsningar och övningar och beskrivs i föreläsningen
+\emph{Algoritmiskt tänkande}, bilaga~A: hur ett påstående görs till en
+fråga som kan besvaras, hur källan väljs efter frågan och söks fram
+ämnesdrivet och tvåsidigt, med en motsökning efter invändningar, hur
+fulltexten läses och spåret skrivs ner, och hur slutsatsen dras med sina
+förbehåll.  Påståendet om nybörjare prövas i
+\cref{app:grafik-handelser}, principen om gränssnitt och logik i
+\cref{app:grafik-separation}, och tumregeln om arv är redan prövad i
+föreläsningen \emph{Klasser och objekt}.  \Cref{tab:grafik-pastaenden}
+sammanfattar frågorna och svaren.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Föreläsningens påståenden som frågor, och var svaren finns.
+    De två första besvaras i den här föreläsningens bilagor, det tredje i
+    en bilaga till en tidigare föreläsning.\ifbool{ltnote}{  Det fjärde
+    är en premiss som hela kursen delar.}{}}
+  \label{tab:grafik-pastaenden}
+  \begin{tabular}{@{}p{0.48\linewidth}p{0.42\linewidth}@{}}
+    \toprule
+    Fråga & Svar \\
+    \midrule
+    Har nybörjare svårt med händelsestyrda program och
+    \foreignlanguage{english}{callback}-funktioner, och vilka
+    missuppfattningar är belagda?
+      & Delvis: osäkerheten om vem som anropar en funktion och när, och
+        förväxlingen mellan att koppla och att köra den, är belagda (i
+        JavaScript); att ämnet i sig är svårt är inte belagt:
+        \cref{app:grafik-handelser} \\
+    Är det en etablerad princip att hålla gränssnitt och programlogik
+    isär, och gör det programmet lättare att pröva?
+      & Ja på den första; på den andra med förbehåll, eftersom nyttan
+        bara är belagd indirekt: \cref{app:grafik-separation} \\
+    Bör man föredra komposition framför arv, och kommer regeln från
+    \emph{Design Patterns}?
+      & Ja på båda, som en tumregel med förbehåll: belagt i
+        \emph{Klasser och objekt}, bilaga~D \\
+    % A premise only the teacher's notes use.
+    \ifbool{ltnote}{%
+    Är det som varierar mot en invariant bakgrund det som kan urskiljas?
+      & Premiss från variationsteorin, med källor i lärarnoternas
+        källfil; samma i alla kursens föreläsningar \\
+    }{}%
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+
+% The results sections below quote many sources, and every quote carries
+% its citation as a margin note; at the notes' normal size the notes of
+% the densest pages were pushed onto the next page.  From here on they
+% are set one size smaller, as the course book sets them everywhere.
+\renewcommand{\foottextfont}{\scriptsize\mpjustification}
+
+
+% The results sections below quote many sources, and every quote carries
+% its citation as a margin note; at the notes' normal size the notes of
+% the densest pages were pushed onto the next page.  From here on they
+% are set one size smaller, as the course book sets them everywhere.
+\renewcommand{\foottextfont}{\scriptsize\mpjustification}
+
+\chapter{Har nybörjare svårt med händelsestyrda program och
+  callback-funktioner?}
+\label{app:grafik-handelser}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:handelsestyrda} jämför materialet ett program som frågar
+med \mintinline{python}{input()} och ett fönster där användaren
+bestämmer ordningen, i \cref{sec:modell} bygger det en egen
+händelseslinga (\foreignlanguage{english}{event loop}) i terminalen och
+visar att \mintinline{python}{greet} och \mintinline{python}{greet()}
+är två olika saker, och i \cref{sec:forsta-fonster} skriver det ut en
+rad efter \mintinline{python}{mainloop()} för att visa när den körs.
+Efter körningen i \cref{sec:modell} påstår materialet att förväxlingen
+är känd från studier av nybörjare: att en del tror att en funktion körs
+redan när den kopplas till en händelse, och att flera är osäkra på vem
+som anropar den och när\autocite{Lehtinen2021Struggle,%
+Lukkarinen2021Listener}.  Att lämna över en funktion, en
+återanropsfunktion (\foreignlanguage{english}{callback}), i stället för
+att anropa den är samma skillnad i tkinter som mellan
+\mintinline{python}{command=greet} och
+\mintinline{python}{command=greet()}.  Frågan som ska besvaras är:
+\emph{har nybörjare svårt med händelsestyrda program och
+återanropsfunktioner, och vilka missuppfattningar är belagda?}  Frågan
+har tre delar: om händelsestyrd programmering
+(\foreignlanguage{english}{event-driven programming}) alls är belagd
+som svår för nybörjare, om missuppfattningar om hur ett händelsestyrt
+program styrs är belagda --- att programmet inte längre går uppifrån och
+ned utan väntar på händelser, att dess funktioner anropas av
+händelseslingan och att till exempel koden efter
+\mintinline{python}{mainloop()} inte körs förrän fönstret stängs ---
+och om förväxlingen mellan att lämna över och att anropa en funktion
+är det.  Den första delen prövas eftersom påståendet ofta görs i
+allmän form, även om materialet självt inte gör det.
+\Cref{sec:handelser-metod-grafik} beskriver hur
+påståendet prövats, \cref{sec:handelser-resultat-grafik} vad som fanns,
+\cref{sec:handelser-diskussion-grafik} vad som begränsar svaret,
+\cref{sec:handelser-slutsats-grafik} ger det och
+\cref{sec:handelser-fortsatt-grafik} säger vad som återstår att göra;
+\cref{tab:sok-grafik-handelser} sist i kapitlet listar de träffar som
+rör påståendet.
+
+\section{Metod}
+\label{sec:handelser-metod-grafik}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 30 september 2026 med
+verktyget \texttt{scholar}, mot de databaser som svarade: OpenAlex, IEEE
+Xplore, Web of Science och Scopus.  DBLP svarade hela dagen med en sida
+som skulle skilja människor från program i stället för med träffar, och
+Semantic Scholar avvisade sin nyckel; båda saknas.  Stödfrågorna
+(S1--S10 i \cref{tab:sok-queries-grafik-handelser}) söker svårigheter
+och missuppfattningar hos nybörjare i händelsestyrd programmering och
+programmering av grafiska gränssnitt, i hur ett händelsestyrt program
+styrs, i samtidighet i blockspråk som Scratch och Alice, i funktioner
+som värden, återanropsfunktioner och högre ordningens funktioner, i
+funktionsanrop och i asynkron programmering.  Motfrågorna (M1--M10 i
+\cref{tab:sok-queries-M-grafik-handelser})
+använder samma begrepp men söker studier där händelsestyrd
+programmering eller funktioner som värden visat sig lätta, naturliga
+eller inte svårare, kurser som börjar med händelser, och studier där
+svårigheterna förklaras av verktygen eller undervisningens ordning.
+Tre motfrågor lägger till fältets egna namn för närliggande begrepp:
+\enquote{natural programming} och \enquote{end-user programming} för hur
+personer utan programmeringsvana själva uttrycker händelser (M6, M10),
+och \enquote{events-first} för kurser som börjar med händelser (M1, M5).
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.  The query table is
+% transcribed from the session's per-provider hit counts (matrix.tsv in
+% the research directory, one row per query and provider).
+\begin{table}[htbp]
+  \centering
+  \caption{Stödfrågor och antal träffar per databas, händelsestyrd
+    programmering och återanropsfunktioner, 30 september 2026, verktyget
+    \texttt{scholar}.  S = stödfråga; motfrågorna står i
+    \cref{tab:sok-queries-M-grafik-handelser}.  Databaser: OpenAlex
+    (OA; inte \foreignlanguage{english}{open access}), IEEE Xplore
+    (IEEE), Web of Science (WoS), Scopus och DBLP.  Högst 40 träffar
+    hämtades per databas och fråga, så 40 betyder \enquote{minst 40}.
+    Frågan visas i den booleska form som skickades till OpenAlex och IEEE
+    Xplore; Web of Science fick samma sträng som
+    \texttt{TS=(\dots)} och Scopus som \texttt{TITLE-ABS-KEY(\dots)}.
+    DBLP svarade inte (--): tjänsten gav en kontrollsida i stället för
+    träffar hela dagen.  Semantic Scholar avvisade sin nyckel och saknas
+    helt.  Frågorna står i den ordning de ställdes.}
+  \label{tab:sok-queries-grafik-handelser}
+  \scriptsize
+  \begin{tabular}{@{}lp{0.46\linewidth}rrrrr@{}}
+    \toprule
+    & Nyckelord & OA & IEEE & WoS & Scopus & DBLP \\
+    \midrule
+    S1 & (\enquote{event-driven} \textsc{or} \enquote{event driven}
+       \textsc{or} \enquote{event-based} \textsc{or} \enquote{graphical
+       user interface} \textsc{or} GUI) \textsc{and} (novice \textsc{or}
+       novices \textsc{or} beginners \textsc{or} CS1 \textsc{or}
+       \enquote{introductory programming}) \textsc{and} (difficulties
+       \textsc{or} difficult \textsc{or} misconceptions \textsc{or}
+       \enquote{mental models})
+       & 40 & 39 & 40 & 40 & -- \\
+    S2 & (\enquote{event-driven} \textsc{or} \enquote{event driven}
+       \textsc{or} \enquote{event loop} \textsc{or} \enquote{event
+       handler} \textsc{or} \enquote{event handlers} \textsc{or}
+       \enquote{event handling} \textsc{or} callback \textsc{or}
+       callbacks) \textsc{and} (\enquote{control flow} \textsc{or}
+       \enquote{flow of control} \textsc{or} \enquote{sequential
+       execution} \textsc{or} \enquote{inversion of control})
+       \textsc{and} (students \textsc{or} novices \textsc{or} beginners
+       \textsc{or} learners)
+       & 40 & 4 & 4 & 6 & -- \\
+    S3 & (callback \textsc{or} callbacks \textsc{or} \enquote{higher-order
+       function} \textsc{or} \enquote{higher-order functions} \textsc{or}
+       \enquote{first-class functions} \textsc{or} \enquote{functions as
+       values} \textsc{or} \enquote{function reference} \textsc{or}
+       lambda) \textsc{and} (novice \textsc{or} novices \textsc{or}
+       students \textsc{or} beginners) \textsc{and} (misconception
+       \textsc{or} misconceptions \textsc{or} difficulties \textsc{or}
+       errors \textsc{or} mistakes)
+       & 40 & 22 & 40 & 40 & -- \\
+    S4 & (Scratch \textsc{or} Alice \textsc{or} \enquote{block-based}
+       \textsc{or} \enquote{App Inventor}) \textsc{and}
+       (\enquote{event-driven} \textsc{or} events \textsc{or}
+       \enquote{event handling} \textsc{or} concurrency \textsc{or}
+       parallelism \textsc{or} synchronization) \textsc{and}
+       (misconception \textsc{or} misconceptions \textsc{or} difficulties
+       \textsc{or} \enquote{bad habits} \textsc{or} errors)
+       & 39 & 40 & 40 & 39 & -- \\
+    S5 & (\enquote{function call} \textsc{or} \enquote{function calls}
+       \textsc{or} \enquote{function calling} \textsc{or}
+       \enquote{procedure call}) \textsc{and} (novice \textsc{or} novices
+       \textsc{or} beginners \textsc{or} CS1) \textsc{and} (misconception
+       \textsc{or} misconceptions \textsc{or} \enquote{mental model}
+       \textsc{or} \enquote{mental models})
+       & 40 & 2 & 0 & 1 & -- \\
+    S6 & (\enquote{event-driven programming} \textsc{or}
+       \enquote{event-driven programs} \textsc{or} \enquote{GUI
+       programming} \textsc{or} \enquote{event handling} \textsc{or}
+       \enquote{event handlers}) \textsc{and} (teaching \textsc{or}
+       learning \textsc{or} students \textsc{or} novices \textsc{or} CS1
+       \textsc{or} \enquote{introductory programming})
+       & 40 & 40 & 40 & 40 & -- \\
+    S7 & (\enquote{event-driven} \textsc{or} events \textsc{or}
+       concurrency \textsc{or} concurrent \textsc{or} parallelism
+       \textsc{or} callbacks) \textsc{and} (novices \textsc{or} novice
+       \textsc{or} \enquote{high school} \textsc{or} children \textsc{or}
+       CS1) \textsc{and} (misconceptions \textsc{or} \enquote{mental
+       models} \textsc{or} \enquote{mental model} \textsc{or}
+       \enquote{notional machine})
+       & 40 & 27 & 40 & 40 & -- \\
+    S8 & (\enquote{higher-order functions} \textsc{or}
+       \enquote{higher-order function} \textsc{or} \enquote{first-class
+       functions} \textsc{or} \enquote{functions as values} \textsc{or}
+       \enquote{functions as arguments} \textsc{or} callbacks \textsc{or}
+       \enquote{lambda expressions}) \textsc{and} (learning \textsc{or}
+       teaching \textsc{or} students \textsc{or} novices) \textsc{and}
+       (understanding \textsc{or} difficulties \textsc{or} difficulty
+       \textsc{or} comprehension)
+       & 40 & 31 & 40 & 40 & -- \\
+    S9 & (\enquote{missing parentheses} \textsc{or} \enquote{without
+       parentheses} \textsc{or} \enquote{function object} \textsc{or}
+       \enquote{function objects} \textsc{or} \enquote{function
+       reference} \textsc{or} \enquote{method reference} \textsc{or}
+       \enquote{passing a function} \textsc{or} \enquote{passing
+       functions}) \textsc{and} (novice \textsc{or} novices \textsc{or}
+       students \textsc{or} beginners \textsc{or} CS1) \textsc{and}
+       (errors \textsc{or} mistakes \textsc{or} misconception \textsc{or}
+       misconceptions \textsc{or} difficulties)
+       & 40 & 16 & 1 & 6 & -- \\
+    S10 & (asynchronous \textsc{or} async \textsc{or} callbacks
+       \textsc{or} callback \textsc{or} promises \textsc{or}
+       \enquote{event loop}) \textsc{and} (JavaScript \textsc{or} Python
+       \textsc{or} programming) \textsc{and} (novices \textsc{or} novice
+       \textsc{or} students \textsc{or} learners) \textsc{and}
+       (misconceptions \textsc{or} difficulties \textsc{or}
+       \enquote{mental model} \textsc{or} \enquote{mental models})
+       & 40 & 40 & 40 & 39 & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Motfrågor och antal träffar per databas, händelsestyrd
+    programmering och återanropsfunktioner, 30 september 2026, verktyget
+    \texttt{scholar}.  M = motfråga; förkortningar, tak och
+    frågeformer som i \cref{tab:sok-queries-grafik-handelser}.  DBLP
+    svarade inte (--) och Semantic Scholar saknas.}
+  \label{tab:sok-queries-M-grafik-handelser}
+  \scriptsize
+  \begin{tabular}{@{}lp{0.46\linewidth}rrrrr@{}}
+    \toprule
+    & Nyckelord & OA & IEEE & WoS & Scopus & DBLP \\
+    \midrule
+    M1 &(\enquote{event-driven} \textsc{or} \enquote{event driven}
+       \textsc{or} \enquote{event-based} \textsc{or} \enquote{event loop}
+       \textsc{or} \enquote{event handler} \textsc{or} \enquote{event
+       handling} \textsc{or} \enquote{graphical user interface}
+       \textsc{or} GUI \textsc{or} \enquote{events-first} \textsc{or}
+       \enquote{events first}) \textsc{and} (novice \textsc{or} novices
+       \textsc{or} beginners \textsc{or} CS1 \textsc{or}
+       \enquote{introductory programming}) \textsc{and} (easier
+       \textsc{or} easy \textsc{or} natural \textsc{or} intuitive
+       \textsc{or} \enquote{no difference} \textsc{or} \enquote{no
+       significant} \textsc{or} motivating \textsc{or} engaging)
+       & 40 & 40 & 40 & 40 & -- \\
+    M2 & (callback \textsc{or} callbacks \textsc{or} \enquote{higher-order
+       function} \textsc{or} \enquote{higher-order functions} \textsc{or}
+       \enquote{first-class functions} \textsc{or} \enquote{functions as
+       values} \textsc{or} \enquote{function reference} \textsc{or}
+       lambda \textsc{or} \enquote{function call} \textsc{or}
+       \enquote{function calls}) \textsc{and} (novice \textsc{or} novices
+       \textsc{or} students \textsc{or} beginners) \textsc{and} (easier
+       \textsc{or} easy \textsc{or} natural \textsc{or} intuitive
+       \textsc{or} \enquote{no difference} \textsc{or} \enquote{no
+       significant} \textsc{or} \enquote{not difficult})
+       & 40 & 40 & 40 & 40 & -- \\
+    M3 & (Scratch \textsc{or} Alice \textsc{or} \enquote{block-based}
+       \textsc{or} \enquote{App Inventor}) \textsc{and}
+       (\enquote{event-driven} \textsc{or} events \textsc{or}
+       \enquote{event handling} \textsc{or} concurrency \textsc{or}
+       parallelism) \textsc{and} (novice \textsc{or} novices \textsc{or}
+       children \textsc{or} students) \textsc{and} (easier \textsc{or}
+       easy \textsc{or} natural \textsc{or} intuitive \textsc{or}
+       successful \textsc{or} \enquote{no difference})
+       & 40 & 21 & 19 & 32 & -- \\
+    M4 & (\enquote{event-driven} \textsc{or} \enquote{event driven}
+       \textsc{or} \enquote{event handling} \textsc{or} GUI \textsc{or}
+       \enquote{graphical user interface} \textsc{or} callbacks
+       \textsc{or} \enquote{higher-order functions}) \textsc{and} (novice
+       \textsc{or} novices \textsc{or} students \textsc{or} CS1)
+       \textsc{and} (misconceptions \textsc{or} difficulties) \textsc{and}
+       (replication \textsc{or} contradictory \textsc{or} \enquote{not
+       supported} \textsc{or} limitations \textsc{or} \enquote{teaching
+       order} \textsc{or} \enquote{order of topics} \textsc{or}
+       \enquote{events-first} \textsc{or} \enquote{objects-first})
+       & 40 & 2 & 3 & 5 & -- \\
+    M5 & (\enquote{event-driven programming} \textsc{or}
+       \enquote{event-driven programs} \textsc{or} \enquote{GUI
+       programming} \textsc{or} \enquote{event handling} \textsc{or}
+       \enquote{event handlers} \textsc{or} \enquote{events-first})
+       \textsc{and} (teaching \textsc{or} learning \textsc{or} students
+       \textsc{or} novices \textsc{or} CS1 \textsc{or}
+       \enquote{introductory programming}) \textsc{and} (easier
+       \textsc{or} easy \textsc{or} natural \textsc{or} \enquote{simple
+       enough} \textsc{or} successful \textsc{or} \enquote{no difference}
+       \textsc{or} \enquote{no significant} \textsc{or} motivating)
+       & 40 & 23 & 24 & 40 & -- \\
+    M6 & (\enquote{non-programmers} \textsc{or} \enquote{natural
+       programming} \textsc{or} children \textsc{or} novices \textsc{or}
+       \enquote{high school} \textsc{or} CS1) \textsc{and}
+       (\enquote{event-based} \textsc{or} \enquote{event-driven}
+       \textsc{or} \enquote{rule-based} \textsc{or} events \textsc{or}
+       concurrency \textsc{or} concurrent \textsc{or} callbacks)
+       \textsc{and} (natural \textsc{or} intuitive \textsc{or}
+       commonsense \textsc{or} \enquote{prior knowledge} \textsc{or}
+       spontaneous \textsc{or} \enquote{no misconceptions})
+       & 40 & 40 & 40 & 40 & -- \\
+    M7 & (\enquote{higher-order functions} \textsc{or}
+       \enquote{higher-order function} \textsc{or} \enquote{first-class
+       functions} \textsc{or} \enquote{functions as values} \textsc{or}
+       \enquote{functions as arguments} \textsc{or} callbacks \textsc{or}
+       \enquote{lambda expressions}) \textsc{and} (learning \textsc{or}
+       teaching \textsc{or} students \textsc{or} novices) \textsc{and}
+       (easier \textsc{or} easy \textsc{or} natural \textsc{or} intuitive
+       \textsc{or} \enquote{no difference} \textsc{or} \enquote{no
+       significant} \textsc{or} successful)
+       & 40 & 26 & 33 & 40 & -- \\
+    M8 & (\enquote{missing parentheses} \textsc{or} \enquote{without
+       parentheses} \textsc{or} \enquote{function object} \textsc{or}
+       \enquote{function objects} \textsc{or} \enquote{function
+       reference} \textsc{or} \enquote{method reference} \textsc{or}
+       \enquote{passing a function} \textsc{or} \enquote{passing
+       functions}) \textsc{and} (novice \textsc{or} novices \textsc{or}
+       students \textsc{or} beginners \textsc{or} CS1) \textsc{and}
+       (easier \textsc{or} easy \textsc{or} natural \textsc{or} intuitive
+       \textsc{or} \enquote{no difference} \textsc{or} \enquote{no
+       significant} \textsc{or} successful)
+       & 40 & 13 & 2 & 8 & -- \\
+    M9 & (asynchronous \textsc{or} async \textsc{or} callbacks \textsc{or}
+       callback \textsc{or} promises \textsc{or} \enquote{event loop})
+       \textsc{and} (JavaScript \textsc{or} Python \textsc{or}
+       programming) \textsc{and} (novices \textsc{or} novice \textsc{or}
+       students \textsc{or} learners) \textsc{and} (easier \textsc{or}
+       easy \textsc{or} natural \textsc{or} intuitive \textsc{or}
+       \enquote{no difference} \textsc{or} \enquote{no significant}
+       \textsc{or} successful)
+       & 40 & 40 & 40 & 40 & -- \\
+    M10 & (\enquote{natural programming} \textsc{or}
+       \enquote{non-programmers} \textsc{or} nonprogrammers \textsc{or}
+       \enquote{end-user programmers} \textsc{or} \enquote{end-user
+       programming}) \textsc{and} (\enquote{event-based} \textsc{or}
+       \enquote{event-driven} \textsc{or} \enquote{rule-based} \textsc{or}
+       events \textsc{or} \enquote{event handling} \textsc{or} callbacks)
+       & 40 & 34 & 40 & 40 & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 2\,521 poster.  Flera databaser lämnar
+samma arbete, och två poster räknas som ett arbete när titlarna är
+desamma bortsett från versaler och skiljetecken; efter den
+sammanslagningen återstår 1\,812 arbeten, och det är arbeten som räknas
+här och i \cref{tab:sok-grafik-handelser}.  Alla klassades: först med
+en språkmodell mot en beskrivning av frågan och fyra kategorier ---
+stöder påståendet, kvalificerar eller motsäger det, angränsande
+delämne, annat ämne --- och sedan för hand: varje post som modellen
+satt i någon av de två första kategorierna, och varje post med
+konfidens under 0,7, lästes i sammanfattning.  Av de 80 poster som
+lästes så behöll 24 modellens beslut; 54 flyttades från stödjande
+eller kvalificerande till angränsande eller annat ämne, oftast
+beskrivningar av ett verktyg eller en kurs utan något resultat om
+hur man lär sig, och två flyttades åt andra hållet.  Därefter återstod
+1\,218 felträffar och 546 angränsande arbeten.  De flesta felträffarna
+kom från de breda frågorna S1 och M1, där \enquote{GUI} och
+\enquote{graphical user interface} ger all vetenskaplig programvara
+med ett grafiskt gränssnitt; det är skälet till att frågorna S6 och M5
+ställdes kring själva termen \enquote{event-driven programming}.
+
+\Cref{tab:sok-grafik-handelser} rättades för hand vid genomläsningen,
+och rättelserna redovisas därför att en rättelse man inte kan
+kontrollera inte är någon rättelse.  Två titlar hade citattecken som
+kom ut som obearbetade styrsekvenser, och en titel hade \enquote{C++}
+utskrivet som \enquote{C plus plus}.  Två arbeten stod på två rader
+var, eftersom databaserna gav dem något olika titlar, och står nu på
+var sin rad: Bruce, Danyluk och Murtaghs artikel, och Christensen och
+Caspersens, vars undertitel bara en av databaserna hade med.
+
+Ett arbete hämtades utanför sökningen.  Lukkarinens
+doktorsavhandling \parencite{Lukkarinen2022Thesis} är ingen
+tidskriftsartikel och indexeras inte av databaserna; den hittades när
+en av studierna i \cref{sec:handelser-resultat-grafik} söktes upp i
+Aalto-universitetets arkiv.  Fulltexterna till Lukkarinen
+med fleras två artiklar \parencite{Lukkarinen2021Mapping,
+Lukkarinen2021Listener} och till Lu och Krishnamurthis artikel
+\parencite{LuKrishnamurthi2024} hämtades från författarnas egna kopior,
+eftersom förlagets bibliotek avvisar automatisk hämtning.  Sju av de
+21 källor som kapitlet citerar lästes i fulltext; de övriga 14 lästes
+bara i sammanfattning, och \cref{sec:handelser-diskussion-grafik}
+återkommer till det.  Hur varje källa hittades och verifierades är
+antecknat på det sätt som bilagan om arbetsgången beskriver.
+
+\section{Resultat}
+\label{sec:handelser-resultat-grafik}
+
+\paragraph{Är händelsestyrd programmering svår för nybörjare?}  Den
+enda systematiska genomgången av forskningen om att lära ut och lära
+sig händelsestyrd programmering, \textcite{Lukkarinen2021Mapping}, gick
+igenom 858 träffar och tog med 105 arbeten fram till hösten 2018.
+Den konstaterar att undervisningen har
+\textcquote{Lukkarinen2021Mapping}{revealed many challenges related to
+teaching and learning edp}, och att flera författare beskriver
+\textcquote{Lukkarinen2021Mapping}{the concept as a whole as
+challenging or hard to understand}.  En av de äldre studier som
+genomgången återger ligger nära det materialet tar upp om
+\mintinline{python}{mainloop()}: lärare som undervisat i Pascal hade
+svårt att hitta \textcquote{Lukkarinen2021Mapping}{the main program and
+the place where the program would finally end, as well as the control
+flows of programs developed using Delphi}.  Två studier som sökningen
+gav bekräftar bilden med egna data.  \Textcite{Shackleton1998} följde
+nybörjare som lärde sig Visual Basic och fann att
+\textcquote[193]{Shackleton1998}{many have great difficulty in the
+early stages understanding the concepts of event-driven systems}; de
+klarade att rita upp fönstret men hade svårt att föreställa sig hur
+programmet sedan körs.  \Textcite{WiedenbeckEngebretson2004} lät lärare
+tänka högt medan de läste ett händelsestyrt program och fann svårigheter
+\textcquote{WiedenbeckEngebretson2004}{comprehending the event-driven
+application, given the distributed nature of the code}.  Att
+svårigheten tas för given syns också i verktygen: \textcite{Mackin2013}
+föreslår ett grafikbibliotek utan händelser, med motiveringen att
+\textcquote{Mackin2013}{the idea of threads and event handling can be
+difficult to grasp}, men mäter inte den svårigheten.
+
+\paragraph{Missuppfattningar om hur programmet styrs.}  Fram till 2018
+fanns ingen studie av sådana missuppfattningar:
+\textcquote{Lukkarinen2021Mapping}{We did not find any work related to
+students' misconceptions of edp concepts, neither any systematic
+qualitative studies of their conceptions}.  Den första som finns är
+\textcite{Lukkarinen2021Listener}, som lät vuxna studenter i en
+nätkurs i webbprogrammering med JavaScript --- de flesta nybörjare ---
+förklara begreppen och en kort kodsnutt med en knapp.  Studenterna
+beskrev lyssnaren som något som aktivt väntar på händelser och anropar
+hanteraren, och några gav själva registreringen egenskaper den inte har:
+\textcquote[8]{Lukkarinen2021Listener}{Two of them argued that calling
+addEventListener() waits for or detects clicks. [\dots] A fourth one
+more specifically described blocking behaviour in claiming that the
+function continues until the button is clicked}.  Författarnas slutsats
+är att studenterna var osäkra på
+\textcquote[9]{Lukkarinen2021Listener}{exactly who is calling the
+listeners, when, how the program execution proceeds after the code of a
+listener has been executed}.  Det är samma fråga som
+\mintinline{python}{mainloop()} väcker, fast omvänd: studenterna trodde
+att ett anrop som inte väntar väntade, medan den som skriver kod efter
+\mintinline{python}{mainloop()} tror att ett anrop som väntar inte gör
+det.  Lukkarinens avhandling, som sammanfattar gruppens studier, lägger
+till att en knapp för en del studenter själv utförde det som händer när
+man trycker på den,
+\textcquote[45]{Lukkarinen2022Thesis}{instead of just triggering the
+execution of some program code}, och konstaterar att den vanligaste
+katalogen över missuppfattningar i nybörjarprogrammering inte tar upp
+händelsestyrd programmering alls
+\parencite[19]{Lukkarinen2022Thesis}.  I blockspråk, där flera skript
+körs samtidigt som svar på händelser, fann
+\textcite{MeerbaumSalant2013} att högstadieelever lärde sig viktiga
+begrepp men hade problem med bland annat samtidighet
+(\foreignlanguage{english}{concurrency}), och \textcite{Kolikant2001}
+fann att gymnasieelever före en kurs i samtidighet bland annat
+\textcquote{Kolikant2001}{attribute parallelism where it does not
+exist}.  Den särskilda missuppfattning som materialet beskriver ---
+att \mintinline{python}{mainloop()} bara visar fönstret och att koden
+efter den körs direkt --- fanns inte beskriven i någon studie.
+
+\paragraph{Att lämna över en funktion eller att anropa den.}
+\Textcite{Lehtinen2021Struggle} ställde frågor om studenternas egen
+kod i samma nätkurs som ovan.  Sju svar (21~procent) på frågorna om
+händelsehanteringen tydde på förvirring om
+\textcquote{Lehtinen2021Struggle}{what it means to attach (to add, to
+register) an event handler, when they are actually executed, and who
+actually calls them}; ett svar förklarade att registreringen
+\enquote{executes the playNote event handler}, vilket författarna läser
+som \textcquote{Lehtinen2021Struggle}{the incorrect idea of
+addEventListener() method calling the given event handler}.  Det är
+begreppsligt samma förväxling som mellan
+\mintinline{python}{command=f} och \mintinline{python}{command=f()}:
+att koppla en funktion till en händelse tas för att köra den.
+Förväxlingen finns också utanför händelser.  \Textcite{LuKrishnamurthi2024}
+kallar den missuppfattningen att
+\textcquote[106:17]{LuKrishnamurthi2024}{Functions are not considered
+first-class values. They can't be bound to other variables, passed as
+arguments, or referred to by data structures}, och elva procent av
+svaren på ett program som lämnar över en funktion som argument visade
+den --- hos studenter i årskurs tre och fyra i en valbar kurs om
+programspråk, alltså inte nybörjare.  Hos nybörjare i Python finns
+den spegelvända förväxlingen, ett funktionsnamn utan anropsparenteser:
+\textcite[69]{Bosse2021} katalogiserar \enquote{Missing parentheses in
+\mbox{\enquote{input}}} bland misstagen hos 166 studenter i en första
+programmeringskurs.  I ett kontrollerat försök skrev studenter
+långsammare korrekta program med anonyma funktioner i C\texttt{++} än
+utan \parencite{Uesbeck2016}.  Ingen studie av just
+\mintinline{python}{command=f()} i Python eller tkinter kom fram.
+
+\paragraph{Motsökningen.}  Motsökningen gav två slags resultat, och
+båda kvalificerar påståendet.  Det första är kurser där händelsestyrd
+programmering från början har gått bra.  \Textcite{BruceDanyluk2001}
+byggde en introduktionskurs i Java kring händelser från första veckan
+och skriver att deras erfarenhet \textcquote{BruceDanyluk2001}{runs
+counter to the prevailing sense that these techniques would add
+complexity to the content of CS 1}; samma grupp menar senare att
+händelserna till och med gör kursens övriga innehåll lättare
+\parencite{BruceDanyluk2004}.  \Textcite{ChristensenCaspersen2002}
+introducerade omvänd styrning (\foreignlanguage{english}{inversion of
+control}) i en första kurs genom ett litet ramverk, så att studenterna
+inte överväldigades av detaljerna i Javas stora
+gränssnittsbibliotek.  \Textcite{Werner2012} fann att många av 231
+spel som högstadieelever byggt i Alice använde händelsehanterare och
+samtidighet på ett fungerande sätt, och \textcite{Wang2016} att elva
+barn i årskurs ett och två fick en första förståelse av
+händelsehantering med programmeringsblock att ta i.  Från andra
+hållet byggde \textcite{Pane2002}, utifrån studier av hur personer utan
+programmeringsvana beskriver lösningar, ett händelsebaserat programspråk
+för barn med operationer som \textcquote{Pane2002}{match the way
+non-programmers express problem solutions}.  I det enda
+kontrollerade försöket som kom fram förstod nybörjare ett litet
+händelsestyrt program ungefär lika bra som ett likvärdigt
+objektorienterat, och frågorna om programflödet besvarades väl i båda
+\parencite{KhazaeiJackson2002}.  Det andra resultatet står i
+genomgången själv: \textcquote{Lukkarinen2021Mapping}{despite a number
+of personal reflections on the challenge of learning edp, there was no
+consensus that learning the topic per se is difficult. More often the
+challenges were related to the actual tools available.}  För funktioner
+som värden gäller detsamma: \textcite{KrishnamurthiFisler2021} fann att
+studenter först hade flera svårigheter med högre ordningens funktioner
+men senare klarade dem \textcquote{KrishnamurthiFisler2021}{quite
+well}, och \textcite{Rivera2022} att studenter tidigt i sin utbildning
+kände igen enskilda sådana funktioner och kunde sätta ihop dem till
+fungerande program.  Ingen studie som hävdar att nybörjare saknar
+svårigheter med händelsestyrda program kom fram.
+
+\section{Diskussion och begränsningar}
+\label{sec:handelser-diskussion-grafik}
+
+Fyra saker begränsar svaret.  Den första är att ingen källa gäller
+Python eller tkinter: de direkta beläggen för missuppfattningar kommer
+från JavaScript \parencite{Lukkarinen2021Listener,Lehtinen2021Struggle},
+de äldre från Visual Basic och Delphi, blockspråken från Scratch och
+Alice, och förväxlingen mellan funktion och anrop från ett språk inbyggt
+i Racket \parencite{LuKrishnamurthi2024}.  Begreppen --- vem som anropar
+hanteraren, vilket anrop som väntar, skillnaden mellan en funktion och
+dess anrop --- är desamma i Python, så överföringen är rimlig, men den är
+inte prövad.  Den andra är populationerna: de två JavaScript-studierna
+gäller vuxna i en öppen nätkurs, med 24 och 26 analyserade svar, och
+författarna varnar själva för att frekvenserna
+\textcquote[9]{Lukkarinen2021Listener}{should be considered describing
+this data set only}; siffran elva procent gäller studenter i årskurs tre
+och fyra, inte nybörjare.  Hur vanliga missuppfattningarna är hos våra
+studenter säger alltså ingen källa.  Den tredje är verifieringen: sju
+källor lästes i fulltext, men de 14 övriga, bland dem hela motsidan
+utom genomgången, kunde bara läsas i sammanfattning, eftersom ACM:s och
+IEEE:s bibliotek avvisar automatisk hämtning och källorna inte fanns i
+författarens bibliotek på läsplattan; det står i källfilen.  Shackletons
+studie är dessutom en masteruppsats och Mackins en konferenstext utan
+mätning.  Den fjärde är täckningen: DBLP och Semantic
+Scholar saknas, träffantalen i
+\cref{tab:sok-queries-grafik-handelser,tab:sok-queries-M-grafik-handelser}
+är tak på 40, OpenAlex relevansordning begravde de få relevanta
+arbetena bland felträffar, och klassningen är modellstödd: de 13
+stödjande och 15 kvalificerande posterna i
+\cref{tab:sok-grafik-handelser} som inte citeras är bara lästa i
+sammanfattning eller, där en sådan saknades, bedömda på titeln, så
+antalen är övre gränser.
+
+\section{Slutsats}
+\label{sec:handelser-slutsats-grafik}
+
+Delvis.  Att nybörjare missförstår hur ett händelsestyrt program styrs
+är belagt: de är osäkra på vem som anropar en händelsehanterare, när det
+sker och vilket anrop som väntar
+\parencite{Lukkarinen2021Listener,Lukkarinen2022Thesis}, och en del tar
+det att koppla en hanterare till en händelse för att köra den
+\parencite{Lehtinen2021Struggle} --- samma förväxling som mellan
+\mintinline{python}{command=f} och \mintinline{python}{command=f()}.
+Att funktioner inte behandlas som värden är belagt även hos erfarna
+studenter \parencite{LuKrishnamurthi2024}.  Men påståendet att
+händelsestyrd programmering \emph{är svår} för nybörjare är starkare än
+underlaget: den enda systematiska genomgången fann ingen enighet om det
+och lade det mesta av svårigheten på verktygen
+\parencite{Lukkarinen2021Mapping}, och kurser som börjat med händelser
+rapporterar att det gick bra
+\parencite{BruceDanyluk2001,ChristensenCaspersen2002}.  De två
+särskilda formerna i materialet --- \mintinline{python}{mainloop()} som
+\enquote{visa fönstret} och \mintinline{python}{command=f()} --- är inte
+studerade, utan är tillämpningar på tkinter av de belagda
+missförstånden.  Påståendet i \cref{sec:modell} --- att en del tror att
+en funktion körs redan när den kopplas till en händelse, och att flera
+är osäkra på vem som anropar den och när --- håller därför i den
+styrka det har, med förbehållet att studierna gäller JavaScript och
+vuxna nybörjare i en nätkurs och inte säger hur vanliga missförstånden
+är hos våra studenter.  Att området i sig är svårt kan materialet
+däremot inte säga, och med stöd av motsidan kan det lägga till att
+händelser går att lära ut från början om verktyget är enkelt.
+
+\section{Fortsatt arbete}
+\label{sec:handelser-fortsatt-grafik}
+
+Sökningen lämnade tre saker ogjorda.  Två databaser saknas: DBLP
+svarade inte på någon fråga och Semantic Scholar avvisade sin nyckel,
+så samma 20 frågor bör ställas där när tjänsterna svarar; DBLP indexerar
+just de konferenser om programmeringsundervisning där de flesta
+arbetena ovan finns.  Hela motsidan är vidare läst bara i
+sammanfattning.  Tyngst väger Bruce, Danyluk och Murtaghs rapport
+\autocite{BruceDanyluk2001} och Khazaei och Jacksons försök
+\autocite{KhazaeiJackson2002}: en läsning i fulltext skulle visa hur
+stort försöket var, vilket språk det gällde och om kursen med händelser
+från början mätte något alls.  Detsamma gäller de två studierna av
+högre ordningens funktioner \autocite{KrishnamurthiFisler2021,
+Rivera2022}, vars språk och population sammanfattningarna inte anger.
+Den tredje luckan är de studier som genomgången själv refererar men
+som sökningen inte gav, främst Halland och Malans studie av lärare som
+gick från Pascal till Delphi; den citeras här i andra hand.
+
+För ett säkrare svar saknas tre slags studier.  Ingen av källorna gäller
+Python eller tkinter, och ingen mäter hur vanliga missförstånden är
+hos studenter i en första programmeringskurs.  Ett diagnostiskt prov i
+kursens egen population --- vad händer med raden efter
+\mintinline{python}{mainloop()}, vad skickas med
+\mintinline{python}{command=f()}, vem anropar funktionen --- skulle ge
+den frekvensen.  Ingen studie jämför heller hur man bäst undanröjer
+missförstånden; ett försök som jämför materialets upplägg, att först
+bygga en egen händelseslinga i terminalen, med att gå direkt till
+tkinter skulle visa om modellen bär.  Faller det ut till modellens
+fördel bör den stå kvar som materialets första steg; faller det ut åt
+andra hållet kan materialet gå direkt till fönstren och i stället
+lägga tiden på förväxlingen mellan \mintinline{python}{f} och
+\mintinline{python}{f()}, som är den mest direkt belagda.
+
+\section{Träffar som rör påståendet}
+\label{sec:handelser-traffar-grafik}
+
+\Cref{tab:sok-grafik-handelser} listar de poster som rör påståendet
+--- citerade, stödjande och kvalificerande --- med skälet till varje
+beslut; de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-grafik-handelser,tab:sok-queries-M-grafik-handelser}.
+% Author's note (verification and reproduction):
+%   scholar session : grafik-handelser
+%   exports         : litteratursokning/grafik-handelser.csv,
+%                     litteratursokning/grafik-handelser-full.tex
+%                     (hand-corrected as the method section says; the
+%                     generated original is grafik-handelser-full.generated.tex
+%                     in the research directory)
+%   searched        : 2026-09-30; providers openalex ieee wos scopus
+%                     (dblp: every request answered with a bot-check
+%                     page, "non-JSON response (HTTP 200)", also on the
+%                     uni-trier mirror, retried at the end -- absent;
+%                     s2: key rejected HTTP 403 -- absent); limit 40 per
+%                     provider and query; wos as TS=(...), scopus as
+%                     TITLE-ABS-KEY(...); exact strings in the session
+%                     and in tab:sok-queries-grafik-handelser
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples --no-enrich -n 150 (13 batches),
+%                     model openai-codex/gpt-5.6-sol; human review of
+%                     every supports/qualifies row and every row with
+%                     confidence < 0.7 (80 rows: 24 confirmed, 54 kept ->
+%                     discarded, 2 discarded -> kept) via scholar sessions
+%                     decide (decide.sh, export.sh in the research dir)
+%   theme tags      : edp-difficulty, control-flow, attach-vs-call, hof,
+%                     events-first
+%   hit-list table  : scholar sessions export grafik-handelser -f table
+%                     --bearing-only --lang sv
+%                     --label sok-grafik-handelser
+%                     --track "händelsestyrda program och
+%                     återanropsfunktioner"
+%                     --theme edp-difficulty="händelsestyrd programmering
+%                     som svårighet" --theme control-flow="hur programmet
+%                     styrs" --theme attach-vs-call="lämna över eller
+%                     anropa en funktion" --theme hof="funktioner som
+%                     värden" --theme events-first="händelser från början"
+%                     -o litteratursokning/grafik-handelser-full
+%   provenance      : grafik-handelser.bib, keys Lukkarinen2021Mapping
+%                     Lukkarinen2021Listener Lehtinen2021Struggle
+%                     Lukkarinen2022Thesis Shackleton1998
+%                     WiedenbeckEngebretson2004 Mackin2013
+%                     MeerbaumSalant2013 Kolikant2001 BruceDanyluk2001
+%                     BruceDanyluk2004 KhazaeiJackson2002 Werner2012
+%                     ChristensenCaspersen2002 Wang2016 Pane2002
+%                     LuKrishnamurthi2024 KrishnamurthiFisler2021
+%                     Rivera2022 Uesbeck2016 Bosse2021
+%   known items     : Lukkarinen2022Thesis (not indexed; aaltodoc)
+%   full text       : Lukkarinen2021Mapping, Lukkarinen2021Listener
+%                     (aaltodoc manuscripts), Lehtinen2021Struggle and
+%                     Bosse2021 (arXiv), Lukkarinen2022Thesis (aaltodoc),
+%                     Shackleton1998 (VU repository), LuKrishnamurthi2024
+%                     (author copy, cs.brown.edu)
+%   abstract-level  : the other 14 -- ACM and IEEE refuse automated
+%                     download, not on the user's reMarkable; for the user
+\input{litteratursokning/grafik-handelser-full.tex}
+
+\chapter{Är det en etablerad princip att hålla gränssnitt och
+  programlogik isär, och gör det programmet lättare att pröva?}
+\label{app:grafik-separation}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+% Author's note: the claim is made in sec:utan-fonster (subsection
+% "Hälsningen utan fönster", contents.nw), wording fixed 2026-09-30:
+% "Att hålla gränssnitt och logik isär är en etablerad designprincip,
+% formulerad som Model--View--Controller\autocite{Reenskaug1979MVC,
+% KrasnerPope1988} och ett fall av det Dijkstra kallade separation av
+% ansvarsområden (separation of concerns)\autocite{Dijkstra1982Role}. Att
+% logiken då går att pröva utan fönster är ett av de skäl som ges för
+% principen, eftersom det är dyrt och osäkert att pröva ett program genom
+% dess gränssnitt\autocite{Coppola2019Fragility,Hellmann2014AGT}."
+% followed by the appendix-pointer footnote, which carries the
+% qualification that "lättare att pröva och felsöka" is backed only
+% indirectly.
+I \cref{sec:utan-fonster} håller materialet funktionen
+\mintinline{python}{greeting}, som bygger hälsningen, utanför klassen
+som bygger fönstret, och kör den sedan utan fönster.  Påståendet som
+följer är tvådelat.  Det första ledet säger att det är en
+\emph{etablerad designprincip} att hålla ett programs gränssnitt och dess
+logik isär, formulerad som Model--View--Controller, som Reenskaug
+skrev ner vid Xerox PARC\autocite{Reenskaug1979MVC} och Krasner och
+Pope publicerade för Smalltalk-80\autocite{KrasnerPope1988}, och ett fall
+av det Dijkstra kallade separation av ansvarsområden
+(\foreignlanguage{english}{separation of concerns})\autocite{%
+Dijkstra1982Role}.  Det andra ledet säger vad principen är bra för: att
+logiken då går att pröva utan fönster är ett av de skäl som ges för
+principen, eftersom det är dyrt och osäkert att pröva ett program genom
+dess gränssnitt.  Den starkare formen av nyttan, att isärhållandet gör
+programmet lättare att testa och felsöka, påstår materialet inte i
+texten; det är den formen kapitlet prövar, och det är den som fotnoten
+vid påståendet sammanfattar med sina förbehåll.  Det första ledet rymmer
+i sin tur två frågor, en om ursprung, som besvaras genom att läsa
+källorna själva, och en om etablering, som kräver belägg för att
+principen faktiskt tagits upp och lärs ut och en motsökning efter
+kritik.  Det andra ledet är ett påstående om nytta, och det prövas
+tvåsidigt: finns det belägg för att isärhållandet gör prövning och
+felsökning lättare, och finns det belägg för motsatsen eller för att
+nyttan är mindre än den sägs vara?  Frågan som ska besvaras är:
+\emph{är det en etablerad princip att hålla gränssnitt och programlogik
+isär, och gör det programmet lättare att pröva?}
+\Cref{sec:sep-metod-grafik} beskriver hur påståendet prövats,
+\cref{sec:sep-resultat-grafik} vad som fanns,
+\cref{sec:sep-diskussion-grafik} vad som begränsar svaret,
+\cref{sec:sep-slutsats-grafik} ger det och
+\cref{sec:sep-fortsatt-grafik} säger vad som återstår att göra;
+\cref{tab:sok-grafik-separation} sist i kapitlet listar de träffar som
+rör påståendet.
+
+Principen är släkt med två som redan är prövade i tidigare
+föreläsningar: principen om ett enda ansvar, i föreläsningen
+\emph{Funktioner}, bilaga~B, som fann den etablerad men fann att vad som
+räknas som \emph{ett} ansvar är en bedömning, och inkapsling, i
+föreläsningen \emph{Klasser och objekt}, bilaga~C, som fann den
+etablerad sedan Parnas men löst definierad.  Det här kapitlet gör inte
+om de sökningarna; det gäller den särskilda uppdelningen mellan
+gränssnitt och logik och den särskilda nyttan att logiken kan prövas
+för sig.
+
+\section{Metod}
+\label{sec:sep-metod-grafik}
+
+Ursprunget söktes som kända dokument, eftersom inget av dem finns i
+databaserna: Reenskaugs anteckning från december 1979 är ett
+maskinskrivet internt dokument, som lästes i den kopia han själv lagt
+ut; Krasner och Popes artikel kom ut 1988 i en tidskrift utan
+\textsc{doi}-nummer och lästes i en kopia av tidskriftssidorna; och
+Dijkstras essä från 1974 lästes i den utskrift som hans arkiv vid
+University of Texas tillhandahåller, medan den tryckta versionens
+uppgifter kontrollerades mot förlagets register.  Läroboken
+\emph{Design Patterns}\autocite{Gamma1994DesignPatterns} lästes i
+författarens eget exemplar, och där, bland författarens egna böcker,
+fanns också Holubs kritik av mönstret\autocite{Holub2004}, som ingen
+av sökningarna gav.  Några av de källor som bär
+praktikerperspektivet, Fowlers två texter om gränssnittsarkitektur,
+Feathers artikel om den \enquote{ödmjuka dialogrutan} och Meszaros
+mönster \foreignlanguage{english}{Humble Object}, är webbtexter som
+ingen av databaserna indexerar; de lästes där de publicerats och
+behandlas som det de är, erfarenhet och inte mätningar.
+
+Etableringen och nyttan söktes ämnesdrivet och tvåsidigt den 30
+september 2026 med verktyget \texttt{scholar}, mot de databaser som
+svarade: OpenAlex, IEEE Xplore, Web of Science och Scopus.  DBLP
+svarade den dagen på varje fråga antingen med en sida som kontrollerar
+att besökaren inte är en robot eller med en nerkopplad förbindelse, och
+Semantic Scholar avvisade sin nyckel; båda saknas.  Stödfrågorna
+S1--S9 söker Model--View--Controller och dess efterföljare
+(Model--View--Presenter, Model--View--ViewModel, \foreignlanguage{english}{%
+Presentation Model}, \foreignlanguage{english}{Humble Object}),
+separation av ansvarsområden mellan gränssnitt och affärslogik,
+dialogoberoende (\foreignlanguage{english}{dialogue independence}), som
+är människa--dator-forskningens namn på samma idé, prövbarhet och
+felsökning, kostnaden för att pröva genom gränssnittet, undervisning,
+och jämförelser av mönstren i appar för Android och iOS.  Motfrågorna
+M1--M8 använder samma begrepp tillsammans med ord för kritik,
+nackdelar, overhead, missförstånd, kodlukter och brott mot mönstret,
+uteblivna skillnader, fel som sitter i gränssnittet själv och test av
+logiken som inte räcker.  \Cref{tab:sok-queries-grafik-separation} visar
+frågorna och antalet träffar per databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.  The query table is
+% transcribed from matrix.tsv / queries.json in the research directory
+% (scholar session grafik-separation), which holds the exact string sent
+% to each provider.
+\begin{table}[htbp]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, isärhållandet av
+    gränssnitt och logik, 30 september 2026, verktyget
+    \texttt{scholar}.  S = stödfråga, M = motfråga.  Databaser: OpenAlex
+    (OA; inte \foreignlanguage{english}{open access}), IEEE Xplore
+    (IEEE), Web of Science (WoS), Scopus.  Högst 40 träffar hämtades per
+    databas och fråga, så 40 betyder \enquote{minst 40}.  Frågan visas
+    i förkortad form; den skickades som boolesk fritext till OpenAlex och
+    IEEE, som \texttt{TS=(\dots)} till Web of Science och som
+    \texttt{TITLE-ABS-KEY(\dots)} till Scopus, med samma nyckelord
+    överallt.  MVC, MVP och MVVM står för mönstren Model--View--Controller,
+    Model--View--Presenter och Model--View--ViewModel, UIMS för
+    \foreignlanguage{english}{user interface management system}.  DBLP
+    svarade inte och Semantic Scholar avvisade sin nyckel; de saknas.}
+  \label{tab:sok-queries-grafik-separation}
+  \footnotesize
+  \begin{tabular}{@{}lp{0.62\linewidth}rrrr@{}}
+    \toprule
+    & Nyckelord & OA & IEEE & WoS & Scopus \\
+    \midrule
+    S1 & \enquote{model-view-controller} \textsc{and} (\enquote{user
+         interface} \textsc{or} GUI) \textsc{and} (separation
+         \textsc{or} decoupling)
+       & 40 & 18 & 21 & 26 \\
+    S2 & \enquote{separation of concerns} \textsc{and} (\enquote{user
+         interface} \textsc{or} GUI \textsc{or} presentation)
+         \textsc{and} (\enquote{business logic} \textsc{or}
+         \enquote{application logic} \textsc{or} \enquote{domain logic}
+         \textsc{or} model)
+       & 39 & 29 & 40 & 40 \\
+    S3 & (MVP \textsc{or} MVVM \textsc{or} \enquote{presentation model}
+         \textsc{or} \enquote{humble object}) \textsc{and} (\enquote{user
+         interface} \textsc{or} GUI) \textsc{and} (architecture
+         \textsc{or} pattern)
+       & 40 & 26 & 28 & 40 \\
+    S4 & (\enquote{user interface} \textsc{or} GUI \textsc{or}
+         \enquote{presentation layer}) \textsc{and} (\enquote{business
+         logic} \textsc{or} \enquote{application logic} \textsc{or}
+         \enquote{domain logic}) \textsc{and} (separation \textsc{or}
+         decoupling) \textsc{and} (testability \textsc{or} testing
+         \textsc{or} \enquote{unit test} \textsc{or} debugging)
+       & 40 & 23 & 9 & 6 \\
+    S5 & \enquote{GUI testing} \textsc{and} (difficult \textsc{or}
+         challenges \textsc{or} cost \textsc{or} expensive \textsc{or}
+         fragile \textsc{or} flaky \textsc{or} maintenance)
+       & 40 & 40 & 40 & 40 \\
+    S6 & (MVC \textsc{or} MVP \textsc{or} MVVM \textsc{or}
+         \enquote{separation of concerns}) \textsc{and} (\enquote{user
+         interface} \textsc{or} GUI \textsc{or} presentation)
+         \textsc{and} (maintainability \textsc{or} testability
+         \textsc{or} \enquote{empirical study} \textsc{or} experiment
+         \textsc{or} evaluation)
+       & 40 & 40 & 40 & 40 \\
+    S7 & (MVC \textsc{or} \enquote{separation of concerns})
+         \textsc{and} (\enquote{user interface} \textsc{or} GUI)
+         \textsc{and} (teaching \textsc{or} education \textsc{or}
+         students \textsc{or} novices \textsc{or} CS1)
+       & 40 & 29 & 23 & 40 \\
+    S8 & (UIMS \textsc{or} \enquote{Seeheim model} \textsc{or}
+         \enquote{presentation-abstraction-control} \textsc{or}
+         \enquote{dialogue independence}) \textsc{and} (separation
+         \textsc{or} separability \textsc{or} independence \textsc{or}
+         decoupling)
+       & 40 & 27 & 25 & 40 \\
+    S9 & (MVC \textsc{or} MVP \textsc{or} MVVM \textsc{or} \enquote{clean
+         architecture}) \textsc{and} (Android \textsc{or} mobile
+         \textsc{or} apps) \textsc{and} (testability \textsc{or} testing
+         \textsc{or} \enquote{unit test} \textsc{or} maintainability)
+         \textsc{and} (empirical \textsc{or} study \textsc{or}
+         developers \textsc{or} practitioners)
+       & 40 & 40 & 34 & 40 \\
+    \midrule
+    M1 & (MVC \textsc{or} MVP \textsc{or} MVVM \textsc{or}
+         \enquote{separation of concerns}) \textsc{and} (\enquote{user
+         interface} \textsc{or} GUI) \textsc{and} (criticism \textsc{or}
+         drawbacks \textsc{or} limitations \textsc{or} misunderstood
+         \textsc{or} \enquote{anti-pattern} \textsc{or} overhead
+         \textsc{or} \enquote{over-engineering} \textsc{or} complexity)
+       & 40 & 23 & 27 & 40 \\
+    M2 & (MVC \textsc{or} MVP \textsc{or} MVVM \textsc{or}
+         \enquote{separation of concerns}) \textsc{and} (testability
+         \textsc{or} testing \textsc{or} maintainability \textsc{or}
+         debugging) \textsc{and} (\enquote{no significant} \textsc{or}
+         \enquote{no difference} \textsc{or} \enquote{does not}
+         \textsc{or} worse \textsc{or} violations \textsc{or} smells)
+       & 40 & 40 & 40 & 40 \\
+    M3 & som S4 men med (cost \textsc{or} overhead \textsc{or}
+         complexity \textsc{or} drawbacks \textsc{or} limitations
+         \textsc{or} \enquote{not sufficient} \textsc{or} tangled
+         \textsc{or} mixing \textsc{or} violations) i stället för
+         prövbarhetsorden
+       & 40 & 31 & 11 & 13 \\
+    M4 & (\enquote{GUI faults} \textsc{or} \enquote{GUI bugs} \textsc{or}
+         \enquote{GUI defects} \textsc{or} \enquote{user interface
+         faults}) \textsc{and} (empirical \textsc{or} study \textsc{or}
+         taxonomy \textsc{or} classification)
+       & 38 & 7 & 5 & 16 \\
+    M5 & \enquote{GUI testing} \textsc{and} (\enquote{business logic}
+         \textsc{or} \enquote{application logic} \textsc{or} \enquote{unit
+         testing}) \textsc{and} (insufficient \textsc{or} complement
+         \textsc{or} \enquote{end-to-end} \textsc{or} \enquote{system
+         testing} \textsc{or} missed \textsc{or} limitations)
+       & 38 & 12 & 5 & 11 \\
+    M6 & \enquote{separation of concerns} \textsc{and} (criticism
+         \textsc{or} limitations \textsc{or} \enquote{crosscutting
+         concerns} \textsc{or} tangling \textsc{or} scattering)
+         \textsc{and} (maintainability \textsc{or} testability
+         \textsc{or} \enquote{empirical study} \textsc{or} experiment)
+       & 40 & 10 & 22 & 36 \\
+    M7 & som S8 och därtill (criticism \textsc{or} limitations
+         \textsc{or} drawbacks \textsc{or} problems \textsc{or} failure
+         \textsc{or} \enquote{semantic feedback})
+       & 40 & 6 & 5 & 13 \\
+    M8 & som S9 men med (\enquote{no significant} \textsc{or} \enquote{no
+         difference} \textsc{or} worse \textsc{or} overhead \textsc{or}
+         drawbacks \textsc{or} \enquote{trade-offs} \textsc{or}
+         violations \textsc{or} smells) i stället för studieorden
+       & 40 & 4 & 3 & 7 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 1\,946 poster.  Flera databaser lämnar
+samma arbete, och två poster räknas som ett arbete när titlarna är
+desamma bortsett från versaler och skiljetecken; efter den
+sammanslagningen återstår 1\,185 arbeten, och det är arbeten som räknas
+här och i \cref{tab:sok-grafik-separation}.  Alla klassades: först med
+en språkmodell mot en beskrivning av frågan och fyra kategorier ---
+stöder påståendet, kvalificerar eller motsäger det, angränsande
+delämne, annat ämne --- och sedan för hand: varje post som modellen
+helt eller delvis satt i den andra kategorin, och varje post med
+konfidens under 0,7, sammanlagt 88 poster, lästes i sammanfattning, och
+22 av dem flyttades till angränsande delämne, oftast verktyg för
+gränssnittstest och studier av prestanda som inte säger något om
+isärhållandet.  Efter granskningen citeras 28 poster, 205 stöder
+påståendet och 25 kvalificerar eller motsäger det; resten är
+angränsande (631) eller felträffar (296).  Antalet stödjande är en
+övre gräns, eftersom modellen gärna räknar ett program som bara
+använder Model--View--Controller som stöd, och de raderna lästes inte
+alla för hand.  Av de 36 källor kapitlet citerar lästes 14 i fulltext;
+för de övriga står det i källfilen att bara sammanfattningen lästs, och
+\cref{sec:sep-diskussion-grafik} återkommer till det.  Hur varje källa
+hittades och verifierades är antecknat på det sätt föreläsningen
+\emph{Algoritmiskt tänkande}, bilaga~A, beskriver.
+
+\section{Resultat}
+\label{sec:sep-resultat-grafik}
+
+\paragraph{Ursprunget.}  Reenskaugs anteckning delar ett program i
+tre roller.  Modellen representerar kunskap, och vyn är dess bild:
+\textcquote[1]{Reenskaug1979MVC}{A view is a (visual) representation of
+its model. [\dots] It is thus acting as a presentation filter.}
+Kontrollern tar hand om användarens inmatning, och vyn ska hållas fri
+från den: \textcquote[1]{Reenskaug1979MVC}{a view should never know
+about user input, such as mouse operations and keystrokes}.
+\Textcite{KrasnerPope1988} beskrev nio år senare samma uppdelning som
+Smalltalk-80:s sätt att bygga interaktiva program, och motiverade den
+med modularitet: \textcquote[26]{KrasnerPope1988}{Isolating functional
+units from each other as much as possible makes it easier for the
+application designer to understand and modify each particular unit,
+without having to know everything about the other units.}  Den
+tredelning de beskriver innebär att skilja
+\textcquote[26]{KrasnerPope1988}{(1) the parts that represent the model
+of the underlying application domain from (2) the way the model is
+presented to the user and from (3) the way the user interacts with it}.
+Värt att notera är vad ursprungskällorna \emph{inte} säger: de nyttor
+de räknar upp är att förstå, ändra och återanvända delarna, inte att
+pröva dem.  Uttrycket \enquote{separation of concerns} är Dijkstras, men
+hos honom gäller det ett sätt att tänka, att studera en aspekt i taget
+--- korrekthet en dag, effektivitet en annan --- och inte just
+gränssnitt och logik: \textcquote{Dijkstra1982Role}{It is what I
+sometimes have called \enquote{the separation of concerns}, which, even
+if not perfectly possible, is yet the only available technique for
+effective ordering of one's thoughts, that I know of.}  Att dela ett
+program mellan gränssnitt och logik är en senare tillämpning av den
+tanken.
+
+\paragraph{Etableringen.}  Principen fick fäste i tre traditioner.  I
+mönsterlitteraturen inleder \textcite{Gamma1994DesignPatterns} sin bok
+med Model--View--Controller som exempel på vad ett mönster är:
+\textcquote[4]{Gamma1994DesignPatterns}{Before MVC, user interface
+designs tended to lump these objects together. MVC decouples them to
+increase flexibility and reuse.}  Mönstret fick efterföljare:
+\textcite{Potel1996MVP} beskriver Model--View--Presenter som en
+generalisering av det, vars första steg var att
+\textcquote[2]{Potel1996MVP}{formalize the separation between the Model
+and the View-Controller}, och konstaterar att Model--View--Controller
+redan \textcquote[1]{Potel1996MVP}{has been reused and adopted to
+varying degrees in most other GUI class libraries and application
+frameworks}; \textcite{SyromiatnikovWeyns2014} kartlägger hela familjen
+och kallar Model--View--Controller \textcquote{SyromiatnikovWeyns2014}{a
+common design pattern to integrate a user interface with the
+application domain logic}.  I människa--dator-forskningen hette samma
+idé dialogoberoende, och i Hartson och Hix
+översikt\autocite{HartsonHix1989} är den
+\textcquote{HartsonHix1989}{the keystone concept upon which all the
+other concepts depend}, en egenskap som
+\textcquote{HartsonHix1989}{separates design of the interface from
+design of the computational component of an application system so that
+modifications in either tend not to cause changes in the other}; samma
+tid framhölls den som en väg till mer lätthanterlig programvara
+\parencite{YipRobson1991}, och inom programvaruarkitekturen var
+användbarhet länge inte arkitektens sak
+\textcquote{John2005Usability}{beyond separating the user interface
+from the remainder of the application}.  Bland dagens praktiker beskriver
+\textcite{Fowler2006GUIArchitectures} det han kallar
+\foreignlanguage{english}{Separated Presentation} som
+\textcquote{Fowler2006GUIArchitectures}{the idea that was the most
+influential to later frameworks}, och menar att stilen
+\textcquote{Fowler2006SeparatedPresentation}{came into vogue with
+Model-View-Controller architecture and is widely used}; i en studie av
+hur appar för Android byggs var Model--View--Presenter det mönster
+som studiens källor oftast tog upp, och riktlinjerna säger att affärslogiken
+ska hållas helt frikopplad från Android-ramverket
+\parencite{Verdecchia2019Android}.  Mönstret lärs också ut:
+\textcite{Tao2002MVC} beskriver hur Model--View--Controller undervisas
+som arkitekturen för grafiska program, och \textcite{HansenFossum2005}
+att det ofta lärs ut som föreskrift, med tre sorters objekt att bygga
+grafiska program av.  Separation av ansvarsområden i allmänhet
+tillskrivs, \textcquote{Tarr1999NDegrees}{[d]one well}, lägre
+komplexitet, bättre återanvändning och enklare vidareutveckling
+\parencite{Tarr1999NDegrees}.
+
+\paragraph{Nyttan: att pröva logiken utan gränssnittet.}  Att
+prövbarheten är ett uttalat skäl för principen syns tydligast i
+praktikerlitteraturen.  \Textcite{Feathers2002Humble} beskriver hur
+logik i en dialogruta leder till att
+\textcquote[1]{Feathers2002Humble}{you introduce a bug because you
+couldn't get your dialog class into a test harness}, och hur den som
+flyttar logiken till ett eget objekt får kvar
+\textcquote[8]{Feathers2002Humble}{a very thin wedge at the interface
+that consists of simple delegation and value setting} som enda oprövade
+kod.  \Textcite{Meszaros2007Humble} gjorde av det ett allmänt mönster
+för kod som är svår att pröva för att den sitter fast i sin omgivning:
+\textcquote{Meszaros2007Humble}{We extract the logic into a separate
+easy-to-test component that is decoupled from its environment.}
+\Textcite{Fowler2006GUIArchitectures} sammanfattar rörelsen: genom att
+pröva presentatören eller presentationsmodellen
+\textcquote{Fowler2006GUIArchitectures}{you test most of the risk of the
+UI without having to touch the hard-to-test widgets}, och ett
+industriellt team rapporterar att sådana test är
+\textcquote{Alles2006PresenterFirst}{an economical alternative to
+automated GUI system tests}.  Bland Android-praktikernas riktlinjer är
+skälet detsamma: frikopplade komponenter ger
+\textcquote[6]{Verdecchia2019Android}{higher testability of the core
+logic of the app by making components unit-testable (ideally without
+requiring an emulator)}.
+
+Det som har mätts är den andra sidan av saken, att det är dyrt och
+osäkert att pröva genom gränssnittet.  Att pröva grafiska gränssnitt för
+hand beskrivs som \textcquote{Hellmann2014AGT}{expensive and complex},
+och i samma intervjustudie berättar en deltagare att ett misslyckat
+gränssnittstest \textcquote[3]{Hellmann2014AGT}{could not show us what
+is the root of the problem, whether there is some problem in the
+business logic of the application or something wrong with the user
+interface} --- det är felsökningsledet i påståendet, sett från andra
+hållet.  Gränssnittstest är ömtåliga: i Android-projekt med öppen
+källkod var i genomsnitt 70~procent av ändringarna i dem orsakade av
+ändringar i gränssnittet och inte av fel \parencite{Coppola2019Fragility}.
+Och de når inte all logik: röktest genom gränssnittet kan inte täcka
+vissa delar av programkoden \parencite{MemonXie2005}, och i ett
+experiment prövade gränssnittstest programlogiken mindre än test som
+anropar logiken direkt \parencite{AlkhalidLabiche2017}; att bara utforska
+gränssnittet missar ofta mycket av programmets beteende
+\parencite{Gross2012EXSYST}.  Direkta
+jämförelser av mönstrens prövbarhet finns, men de är få och små.
+\Textcite{Lou2016Android} konstaterar att fördelen hos
+Model--View--Presenter och Model--View--ViewModel
+\textcquote{Lou2016Android}{is claimed [\dots] But there is no empirical
+data to support this point of view}, och finner den sedan i en analys av
+en enda app; \textcite{MagicsVerkman2023iOS} skriver likaså att
+\textcquote{MagicsVerkman2023iOS}{there are few empirical data that
+support a specific choice} och jämför tre mönster i en fallstudie med
+en app; \textcite{Wilson2022MVVM} jämför prövbarheten med mätetal på en
+exempelkodbas, och en fjärde studie fann att en app byggd med
+Model--View--Presenter var dubbelt så modulär som en utan mönster, utan
+att mäta prövbarheten\autocite{Prabowo2018MVP}.
+
+\paragraph{Motsökningen.}  Ingen studie som mätt nyttan och funnit den
+utebli kom fram.  Det som kom fram kvalificerar påståendet på fyra
+sätt.  För det första prövar ett test av logiken inte gränssnittet.  I
+två industriella system låg 60~procent av felen som kunderna
+rapporterade i gränssnittet och inte i själva tillämpningen, och de
+tog längre tid att rätta \parencite{RobinsonBrooks2009}; gränssnittskod
+har egna slags fel, som kräver egna test \parencite{Lelli2015GUIDefects},
+och test som genereras direkt från koden kan bli orealistiska eller
+irrelevanta \parencite{Gross2012EXSYST}.
+Isärhållandet flyttar alltså logiken dit den är lätt att pröva, men det
+tar inte bort behovet av att pröva gränssnittet, och det räcker inte
+heller för allt ett gränssnitt ska klara: flera användbarhetskrav
+kräver mer av arkitekturen än isärhållandet ensamt ger
+\parencite{John2005Usability}.  För det andra kostar
+isärhållandet något.  Att hålla de två delarna i takt är ett problem i
+sig \parencite{SotirovskiKruchten1995}, i statiskt typade språk kräver
+mönstret avvägningar som \textcquote{VeitHerrmann2003}{either blur the
+clear structure, destroy the intended independence, or introduce undue
+administrative overhead}, och en genomgång av Model--View--ViewModel
+räknar upp 15 nackdelar vid sidan av fördelarna och konstaterar att
+mönstret ofta används fel i brist på vägledning
+\parencite{Fuksa2025MVVM}.  Den tidiga människa--dator-forskningens
+system byggda på isärhållande blev heller inte den framgång man väntat
+sig: \textcquote{RathnamMannino1991}{Their adoption has been slow and at
+times painful}, och ett rent isärhållande var ett mål som var svårt att
+nå, eftersom gränssnitt där användaren direkt manipulerar objekt
+kräver ständig återkoppling från tillämpningen \parencite{Hill1992ALV}.
+För det tredje hålls isärhållandet inte alltid i praktiken.  I
+Model--View--Controller-program för webben fann
+\textcite{Aniche2018MVCSmells} att logik hamnar i fel lager --- en
+utvecklare förklarade att det egna teamet
+\textcquote[2128]{Aniche2018MVCSmells}{does not unit test CONTROLLERS,
+and thus, complex logic and control flow in them should be avoided} ---
+och att klasser med sådana brister ändrades oftare; men när klassernas
+storlek hölls konstant fanns \textcquote[2139]{Aniche2018MVCSmells}{no
+significant difference} i hur ofta de rättades för fel.  För det fjärde
+är mycket av det som sägs om mönstren omdömen snarare än mätningar.
+Model--View--Controller är enligt
+\textcite{Fowler2006GUIArchitectures}
+\textcquote{Fowler2006GUIArchitectures}{one
+of the most misunderstood architectural patterns around}, och samme
+författare skriver att svårigheten att pröva gränssnitt
+\textcquote{Fowler2006GUIArchitectures}{is over-stated}
+ibland.  \Textcite{Holub2004} går längre och menar att
+Model--View--Controller i sin vanliga form
+\textcquote[15]{Holub2004}{fails miserably as an application-level
+architecture because MVC requires the controller to know way too much
+about how the model-level objects are implemented} --- men hans
+invändning gäller hur kontrollern kopplas till modellen, inte att
+presentation och logik hålls isär, och han vill ha mer inkapsling, inte
+mindre.  Om arkitektur för Android-appar säger
+\textcite{Verdecchia2019Android} att den
+\textcquote[1]{Verdecchia2019Android}{is
+still debated and subject to conflicting opinions usually influenced by
+technological hypes rather than objective evidence}.  Och i allmän form
+har separation av ansvarsområden en känd gräns: de vanliga metoderna
+delar ett program efter en enda dimension, och de ansvarsområden som
+skär tvärs över den blir svåra att hålla isär \parencite{Tarr1999NDegrees}.
+
+\section{Diskussion och begränsningar}
+\label{sec:sep-diskussion-grafik}
+
+Fyra saker begränsar svaret.  Belägget för nyttan är av två slag, och
+inget av dem är ett kontrollerat försök.  Det ena är praktikers
+erfarenhet --- Feathers, Meszaros, Fowler, teamet bakom
+\foreignlanguage{english}{Presenter First} och Android-praktikerna ---
+som är samstämmig men inte mätt.  Det andra är mätningar av att prövning
+genom gränssnittet är dyr, ömtålig och når mindre av logiken, vilket gör
+det rimligt att det lönar sig att kunna pröva logiken för sig, men som
+inte mäter just det.  De få studier som jämför mönstrens prövbarhet
+bygger på en eller två appar och på mätetal som ersätter själva
+prövningen.  Källorna gäller dessutom Java, C\#, Smalltalk, Android och
+iOS, yrkesverksamma utvecklare och stora program; ingen gäller Python,
+\mintinline{python}{tkinter} eller nybörjare, och det program materialet
+visar är litet.  Att logiken går att köra utan fönster är ändå inte ett
+empiriskt påstående: det följer av hur programmet är byggt, och
+\cref{sec:utan-fonster} visar det i en körning.  Verifieringen är
+ojämn: Reenskaug, Krasner och Pope, Dijkstras essä, \emph{Design
+Patterns}, Holub, Potel, Fowler, Feathers, Hellmann med flera, Verdecchia
+med flera, Aniche med flera och Lelli med flera lästes i fulltext ---
+de två böckerna i författarens egna exemplar --- och Meszaros mönster
+i den förhandsversion på webben som föregick boken, medan de övriga
+bara kunde läsas i sammanfattning, eftersom förlagen avvisar
+automatisk hämtning.  Sidnumren i Aniche med fleras artikel är räknade
+fram från den öppna kopian, som saknar sidnummer.  Slutligen är
+täckningen ofullständig: DBLP och Semantic Scholar saknas, träffantalen i
+\cref{tab:sok-queries-grafik-separation} är tak, praktikerlitteraturen
+finns inte i databaserna och hämtades som kända dokument, och
+klassningen är modellstödd, så antalet stödjande poster är en övre gräns.
+
+\section{Slutsats}
+\label{sec:sep-slutsats-grafik}
+
+Ja på den första frågan, och på den andra med förbehåll.  Att hålla
+gränssnitt och programlogik isär är en etablerad designprincip: den
+formulerades i Model--View--Controller
+\parencite{Reenskaug1979MVC,KrasnerPope1988}, bär namn och status i
+mönsterlitteraturen \parencite{Gamma1994DesignPatterns,Potel1996MVP},
+i människa--dator-forskningen \parencite{HartsonHix1989} och bland
+dagens praktiker \parencite{Fowler2006SeparatedPresentation,
+Verdecchia2019Android}, och den lärs ut \parencite{Tao2002MVC,
+HansenFossum2005}.  Uttrycket separation av ansvarsområden är
+Dijkstras \parencite{Dijkstra1982Role}, men hos honom gäller det
+tänkandet i allmänhet; uppdelningen mellan gränssnitt och logik är en
+tillämpning av det.  Att logiken då kan köras och prövas utan
+gränssnittet följer av konstruktionen, och det är det skäl
+praktikerlitteraturen ger för principen
+\parencite{Feathers2002Humble,Meszaros2007Humble,%
+Fowler2006GUIArchitectures}.
+Att det gör programmet lättare att pröva och felsöka stöds indirekt:
+prövning genom gränssnittet är dyr och ömtålig, når mindre av logiken och
+säger inte var felet sitter
+\parencite{Hellmann2014AGT,Coppola2019Fragility,AlkhalidLabiche2017}.
+Förbehållen är att ingen kontrollerad studie har mätt själva vinsten ---
+de jämförelser som finns gäller en app i taget
+\parencite{Lou2016Android,MagicsVerkman2023iOS} --- att ursprungskällorna
+motiverar principen med förståelse, ändring och återanvändning snarare
+än med prövning, och att isärhållandet inte gör det onödigt att pröva
+gränssnittet, där en stor del av felen sitter
+\parencite{RobinsonBrooks2009}.  Materialet kan därför säga att
+principen är etablerad, att logiken går att pröva utan fönster och att
+det är ett av de skäl som ges för principen, eftersom det är dyrt och
+osäkert att pröva genom gränssnittet; det bör inte säga att programmet
+mätbart blir lättare att felsöka.
+
+\section{Fortsatt arbete}
+\label{sec:sep-fortsatt-grafik}
+
+Sökningen lämnade tre saker ogjorda.  Två databaser saknas helt: DBLP
+svarade inte och Semantic Scholar avvisade sin nyckel
+(\cref{sec:sep-metod-grafik}).  Samma 17 frågor bör ställas där när
+tjänsterna svarar igen; DBLP indexerar just den konferenslitteratur om
+programvaruarkitektur och testning som frågorna söker.  Flera källor är
+därtill lästa bara i sammanfattning.  Tyngst väger de fyra som bär
+nyttoledet\autocite{AlkhalidLabiche2017,Coppola2019Fragility,%
+MemonXie2005,Lou2016Android}: en läsning i fulltext skulle visa hur stora
+skillnaderna var och i vilka program de uppmättes.  Wilson med fleras
+jämförelse\autocite{Wilson2022MVVM} säger i sammanfattningen inte vad den
+fann, och Robinson och Brooks siffra om var felen sitter\autocite{%
+RobinsonBrooks2009} gäller två industriella system och bör läsas i sitt
+sammanhang.  Två kritiska arbeten om isärhållandet i den tidiga
+människa--dator-forskningen, av Cockton från 1987\footnote{Gilbert
+Cockton, \enquote{Interaction ergonomics, control and separation: open
+problems in user interface management}, \emph{Information and Software
+Technology} 29(4), 1987, s.~176--191, \textsc{doi}
+10.1016/0950-5849(87)90066-8.} och
+av Reynolds från 1997\footnote{Carson Reynolds, \enquote{A critical
+examination of separable user interface management systems}, \emph{ACM
+SIGCHI Bulletin} 29(3), 1997, s.~41--45, \textsc{doi}
+10.1145/264853.264874.}, kom fram i motsökningen men kunde inte läsas,
+och Meszaros bok bör kontrolleras mot den webbversion som citeras här.
+
+För ett säkrare svar saknas ett slags studie.  Ingen av källorna har
+mätt det påståendet faktiskt säger: att ett program med logiken skild
+från gränssnittet är lättare att pröva och felsöka än samma program utan
+den uppdelningen.  Ett kontrollerat försök där studenter får hitta och
+rätta ett inplanterat fel i två versioner av samma lilla
+\mintinline{python}{tkinter}-program, den ena med logiken i en egen
+funktion och den andra med logiken i fönsterklassen, skulle mäta just
+det, i den population materialet vänder sig till.  Faller ett sådant
+försök ut till uppdelningens fördel kan materialet säga att programmet
+blir lättare att felsöka, inte bara att logiken går att pröva för sig;
+faller det ut åt andra hållet bör materialet motivera uppdelningen med
+återanvändning och läsbarhet, som ursprungskällorna gör, snarare än med
+prövning.
+
+\section{Träffar som rör påståendet}
+\label{sec:sep-traffar-grafik}
+
+\Cref{tab:sok-grafik-separation} listar de poster som rör påståendet
+--- citerade, stödjande och kvalificerande --- med skälet till varje
+beslut; de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-grafik-separation}.
+% Author's note (verification and reproduction):
+%   scholar session : grafik-separation
+%   exports         : litteratursokning/grafik-separation.csv,
+%                     litteratursokning/grafik-separation-full.tex
+%   searched        : 2026-09-30; providers openalex ieee wos scopus
+%                     (dblp: every call reset or answered with an Anubis
+%                     bot-check page, on dblp.org and both mirrors --
+%                     absent; s2: key rejected HTTP 403 -- absent);
+%                     limit 40 per provider and query; openalex M6 first
+%                     hit HTTP 429 and was rerun; exact strings per
+%                     provider in queries.json / matrix.tsv / raw/ of the
+%                     research directory and in the session store
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples --no-enrich (batches of 20), model
+%                     openai-codex/gpt-5.6-sol; human review of all 88
+%                     rows with a qualifies-claim tag or confidence < 0.7
+%                     (abstracts); 22 moved to adjacent-subtopic by
+%                     scholar sessions decide --discard -t adjacent-subtopic
+%   theme tags      : scholar sessions decide --keep -t <category>
+%                     -t <theme>: etablering, provbarhet, gui-test,
+%                     gui-fel, kostnad
+%   hit-list table  : scholar sessions export grafik-separation -f table
+%                     --bearing-only --lang sv
+%                     --label sok-grafik-separation
+%                     --track "isärhållandet av gränssnitt och programlogik"
+%                     --theme etablering="principen etablerad"
+%                     --theme provbarhet="mönstrens prövbarhet"
+%                     --theme gui-test="att pröva genom gränssnittet"
+%                     --theme gui-fel="fel i själva gränssnittet"
+%                     --theme kostnad="kostnader, brister och kritik"
+%                     -o litteratursokning/grafik-separation-full
+%   provenance      : ltnotes.bib (from grafik-separation.bib), 36 keys,
+%                     each with CLAIM / FOUND-VIA / PICKED / QUOTE /
+%                     VERIFIED / COUNTER / DATE; Gamma1994DesignPatterns
+%                     already in ltnotes.bib: merge the block
+%   known items     : Reenskaug1979MVC, KrasnerPope1988, Dijkstra1982Role,
+%                     Gamma1994DesignPatterns (reMarkable), Holub2004
+%                     (reMarkable, found by name search there, not by the
+%                     topic search), Fowler2006GUIArchitectures,
+%                     Fowler2006SeparatedPresentation, Feathers2002Humble,
+%                     Meszaros2007Humble (web draft) -- not in the table
+%   full text       : the nine known items above, Potel1996MVP,
+%                     Hellmann2014AGT, Verdecchia2019Android (author copy),
+%                     Aniche2018MVCSmells (OA; pages inferred 2120+n),
+%                     Lelli2015GUIDefects
+%   abstract-level  : the other 22 keys -- for the user: Alkhalid &
+%                     Labiche 2017, Coppola 2019, Memon & Xie 2005,
+%                     Lou 2016, Wilson 2022, Robinson & Brooks 2009 first
+\input{litteratursokning/grafik-separation-full.tex}
