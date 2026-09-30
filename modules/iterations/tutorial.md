@@ -31,7 +31,7 @@ sist jämför vi och diskuterar de olika lösningarna. Programmet importerar
 modulen [bio.py][bio] från samma föreläsning, så hämta båda filerna och
 lägg dem i samma katalog.
 
-[lunch]: https://github.com/dbosk/intropy/blob/bc0b5604f4551e0c1da6ad85f493b093a81f520a/modules/iterations/tutorial/lunch/lunch.py
+[lunch]: https://gits-15.sys.kth.se/dbosk/prgi26/blob/main/f%C3%B6rel%C3%A4sningar/lunch.py
 [bio]: https://github.com/dbosk/intropy/blob/bc0b5604f4551e0c1da6ad85f493b093a81f520a/modules/iterations/tutorial/lunch/bio.py
 
 Därefter tar vi ett urval av övningens uppgifter, i den här ordningen:
