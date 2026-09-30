@@ -1178,7 +1178,7 @@ bad om översättningen.\footnote{%
 \end{frame}
 
 Provprogrammet importerar modulen [[filer]], filen från
-\cref{sec:losning-filer}, och översättaren [[rövare]], filen från
+\cref{sec:losning-filer}, och översättaren \texttt{rövare}, filen från
 \cref{sec:losning-rovare}.
 
 \mode<article>{\needspace{8\baselineskip}}
@@ -1297,14 +1297,174 @@ print(rövare.från_rövarspråket(hela).split("\n")[0])
 
 Filen ligger kvar efter felet, precis som huvudprogrammet lovar.
 
-Det finns ett försiktigare sätt att skriva över en fil: skriv
-översättningen till en ny fil och byt namn på den när den är färdig.  Då
-överlever originalet också om datorn stängs av midnattstid mitt i
-skrivningen, vilket den här lösningen inte klarar.  Priset är ett steg
-till, en fil till och namnbytet --- och för en övningsuppgift är det
-priset inte värt det, eftersom den kritiska aspekten här är att filen
-måste vara läst och stängd innan den skrivs, inte hur man bygger
-haverisäker lagring.
+Men det finns ett fel som lösningen inte klarar.  Den skyddar filen mot
+en text som inte går att översätta, eftersom felet kommer innan filen
+öppnas för skrivning.  Dör programmet i stället \emph{under}
+skrivningen --- det kraschar, disken blir full, strömmen går --- är det
+för sent: \mintinline{python}{"w"} har redan tömt originalet, och det
+nya innehållet är bara halvskrivet.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{OvningFilesLOWrite},
+  \cref{OvningFilesLOContextMgr}.
+
+  \textbf{Variationsmönster}: Kontrast, inom samma lösningsförslag.
+
+  \textbf{Vad som varierar}: var resultatet skrivs först --- direkt i
+  originalfilen i \texttt{rövare.py}, i en tillfällig fil som byts in när den
+  är färdig i \texttt{rövare2.py} (\cref{ex:rovare2}).
+
+  \textbf{Vad som hålls invariant}: läsningen, översättningarna,
+  huvudprogrammets frågor och [[except]]-grenen för en text som inte går
+  att översätta.  Huvudprogrammen skiljer sig bara i den funktion som
+  skriver, så att det är just skrivningens ordning som urskiljs.
+
+  Alternativet står i samma lösningsförslag och sägs vara ett
+  alternativ: uppgiften har ett lösningsförslag, och det första räcker
+  för det uppgiften kräver.  [[os.replace]] är nytt men litet, och
+  texten säger var det står beskrivet.
+}%
+Ett alternativ skyddar också mot det: skriv översättningen till en
+\emph{tillfällig} fil bredvid originalet, och byt in den först när den
+är färdig.  Går något fel under skrivningen är det den tillfälliga filen
+som blir halvskriven, och originalet står orört.  Bytet gör funktionen
+[[replace]] i modulen [[os]] i standardbiblioteket: den ger en fil ett
+nytt namn och ersätter en fil som redan heter så.  Kommandot
+\mintinline{bash}{pydoc3 os.replace} beskriver den kort (du kan behöva
+skriva \mintinline{bash}{pydoc} i stället, precis som med
+\mintinline{bash}{python3}).  Den fullständiga dokumentationen på
+\url{docs.python.org}\footnote{%
+  \url{https://docs.python.org/3/library/os.html\#os.replace} (hämtad
+  2026-09-30).%
+} säger också det som gör den användbar här: när bytet lyckas är det
+\enquote{\foreignlanguage{english}{an atomic operation}}, åtminstone på
+system som följer POSIX-standarden, som Linux och macOS.  Det sker i ett
+enda steg, så filen har antingen sitt gamla innehåll eller sitt nya,
+aldrig ett mellanting.
+
+Alternativet, \texttt{rövare2.py}, är samma översättare med en annan
+skrivning.  Det importerar översättningarna från \texttt{rövare}, filen från
+\cref{sec:losning-rovare}, och frågorna och läsningen från [[filer]],
+filen från \cref{sec:losning-filer}.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  Den försiktiga översättarens upplägg:
+<<[[rövare2.py]]>>=
+"""Ett program som översätter en fil via en tillfällig fil"""
+
+import os
+
+import filer
+import rövare
+
+<<den försiktiga översättarens hjälpfunktioner>>
+
+<<den försiktiga översättarens huvudprogram>>
+@
+\end{frame}
+
+Huvudprogrammet är det från \texttt{rövare.py} med en enda skillnad: där det
+stod [[filer.skriv_fil]] står nu \texttt{byt\_innehåll}, som vi skriver sedan.
+
+\begin{frame}[fragile,shrink=10]
+  \begin{example}[Samma huvudprogram, en annan skrivning]
+    Översättningen räknas ut först, som förut, och byts sedan in:
+<<den försiktiga översättarens huvudprogram>>=
+def main():
+    """Översätter en fil till eller från rövarspråket, försiktigt"""
+    riktning = filer.läs_alternativ(
+        "Vill du översätta till eller från rövarspråket?",
+        ["till", "från"],
+    )
+    filnamn = filer.läs_infilnamn("Vilken fil ska vi översätta? ")
+    text = filer.läs_fil(filnamn)
+    try:
+        if riktning == "till":
+            byt_innehåll(filnamn, rövare.till_rövarspråket(text))
+        else:
+            byt_innehåll(filnamn, rövare.från_rövarspråket(text))
+    except ValueError as fel:
+        print(f"Filen går inte att översätta: {fel}.")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Via en tillfällig fil]
+    \label{ex:rovare2}
+    Först den tillfälliga filen, sedan bytet:
+<<den försiktiga översättarens hjälpfunktioner>>=
+def byt_innehåll(filnamn, text):
+    """Ersätter innehållet i filnamn med text, via en tillfällig fil"""
+    tillfällig = filnamn + ".tmp"
+    filer.skriv_fil(tillfällig, text)
+    os.replace(tillfällig, filnamn)
+@
+  \end{example}
+\end{frame}
+
+Den tillfälliga filen får originalets namn med [[.tmp]] efter, så att
+den hamnar i samma katalog som originalet: samma dokumentation varnar
+för att bytet kan misslyckas om de två filerna ligger i olika
+filsystem.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/rövare2.py}
+\end{frame}
+
+Provprogrammet skriver en kort fil, översätter den med \texttt{byt\_innehåll}
+och frågar sedan med [[fil_finns]] om den tillfälliga filen finns kvar.
+Det importerar [[filer]] och \texttt{rövare} som förut och den försiktiga
+översättaren \texttt{rövare2}, filen från \cref{ex:rovare2}.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile,shrink=25]
+  \begin{example}[Provet]
+    Samma provtext som förut, genom den tillfälliga filen:
+<<[[rövare2prov.py]]>>=
+"""Provkörning: översätter en kort fil via en tillfällig fil"""
+
+import filer
+import rövare
+import rövare2
+
+PROVFIL = "prov2.txt"
+
+
+def main():
+    """Översätter en kort fil och ser efter att bytet städat upp"""
+    filer.skriv_fil(PROVFIL, "Madicken bor på Junibacken.\n")
+    text = filer.läs_fil(PROVFIL)
+    rövare2.byt_innehåll(PROVFIL, rövare.till_rövarspråket(text))
+    print("Översatt:", filer.läs_fil(PROVFIL), end="")
+    kvar = filer.fil_finns(PROVFIL + ".tmp")
+    print("Finns den tillfälliga filen kvar?", kvar)
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+
+  \begin{example}[Körning]
+    Översättningen står i filen, och den tillfälliga filen är borta:
+    \runpython[transcript]{examples/rövare2prov.py}
+  \end{example}
+\end{frame}
+
+Vilket av de två sätten ska man välja?  Det första räcker för det
+uppgiften kräver, och det är kortare.  Det andra kostar en fil till och
+ett namnbyte, men är det man vill ha när filen är värdefull och inte går
+att skapa på nytt.  Gemensamt för båda är det som uppgiften handlar om:
+filen är läst och stängd, och översättningen färdig, innan något
+skrivs.
 
 \section[Fortunekakor]{Fortunekakor ur en fil}
 \label{sec:fortune}
@@ -1874,7 +2034,8 @@ vad översättningen gör med bokstäverna.
 Vi börjar uppifrån, i filens upplägg.  Programmet importerar allt det
 behöver --- modulen [[filer]] från \cref{sec:losning-filer},
 räkneprogrammet [[wc]] från \cref{sec:losning-wc} och översättaren
-[[rövare]] från \cref{sec:losning-rovare} --- och lägger bara till jämförelsen.
+\texttt{rövare} från \cref{sec:losning-rovare} --- och lägger bara till
+jämförelsen.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}[fragile]

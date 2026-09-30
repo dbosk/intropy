@@ -3,5 +3,5 @@
 # madicken.txt, rövare.txt and bild.jpg are committed inputs and stay.
 .PHONY: clean
 clean:
-	${RM} ordfrekvens.csv analys.csv prov.txt provkakor.txt
+	${RM} ordfrekvens.csv analys.csv prov.txt prov2.txt prov2.txt.tmp provkakor.txt
 	${RM} -R __pycache__
