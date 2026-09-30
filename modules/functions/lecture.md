@@ -1,7 +1,7 @@
 ---
 title: Mer funktioner
 ---
-Föreläsningen ges i följande [zoomrum][zoom-room]: 666 222 743 94. Se [ditt 
+Föreläsningen ges i följande [zoomrum][zoom-room]: 619 5219 7407. Se [ditt 
 schema][schedule-personal] eller [kursens föreläsningsschema][schedule].
 
 [zoom-room]: https://kth-se.zoom.us/j/61952197407
