@@ -62,7 +62,7 @@ och kontrollera inmatning från användaren.
 4. **Vill du fördjupa dig?** Gör *Fördjupande övning fler behållare och mer
    om klasser*.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 

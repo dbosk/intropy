@@ -64,7 +64,7 @@ veckorna.
 5. **Vill du fördjupa dig?** Gör *Fördjupande övning upprepningar, listor och
    moduler*.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 

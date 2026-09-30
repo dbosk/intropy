@@ -67,7 +67,7 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
    för din grupp. Boka en tid i kalendern i Canvas.
 5. **Vill du fördjupa dig?** Gör *Fördjupande övning klasser och objekt*.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 

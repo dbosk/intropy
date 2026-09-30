@@ -18,7 +18,7 @@ lösningsförslag finns i det interaktiva dokumentet (FeedbackFruits) här
 i modulen, *Övning: Fler behållare och mer om klasser
 (övningsanteckningar)*: pröva varje uppgift innan du läser lösningen.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 

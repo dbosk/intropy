@@ -26,7 +26,7 @@ Föreläsningarna ges i [kursens zoomrum][zoom-room] för helklass. Dessa kommer
 att vara interaktiva, men de relevanta delarna spelas in och görs tillgängliga 
 när de är genomförda.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 Övningarna sker i mindre grupper och är generellt mer interaktiva än 
 föreläsningarna. Dessa ges också online, men det finns möjlighet till begränsat 

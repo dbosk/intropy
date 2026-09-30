@@ -59,7 +59,7 @@ programmet måste hantera.
    ni på egen tid.
 4. **Vill du fördjupa dig?** Gör *Fördjupande övning filer och filhantering*.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 

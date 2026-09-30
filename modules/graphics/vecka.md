@@ -61,7 +61,7 @@ bibliotek du inte använt förut.
    oavsett om ni arbetar med den frivilliga laborationen, laboration 6 eller
    repetition.
 
-[zoom-room]: https://kth-se.zoom.us/j/66622274394
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 
