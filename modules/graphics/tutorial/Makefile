@@ -35,13 +35,14 @@ EXAMPLES+=	examples/clock.py
 EXAMPLES+=	examples/countdown.py
 EXAMPLES+=	examples/timer.py
 EXAMPLES+=	examples/timer2.py
-# draw.py is the lecture's hand-written program (Grafiska
-# användargränssnitt, ../slides/examples), not tangled: draw_colors.py
-# imports its class, so copy it here.  Never commit the copy.  It keeps
-# the lecture's layout, so build_deck.sh needs --exempt 'examples/draw.py'.
-examples/draw.py: ../slides/examples/draw.py
+# draw.py is written in the lecture Grafiska användargränssnitt
+# (../slides) and draw_colors.py imports its class: build it there, copy
+# it here.  Never commit the copy (the lecture commits its own, for the
+# Canvas link).
+examples/draw.py: ../slides/contents.nw
 	@mkdir -p ${@D}
-	cp $< $@
+	$(MAKE) -C $(<D) examples/draw.py
+	cp $(<D)/examples/draw.py $@
 EXAMPLES+=	examples/draw.py
 EXAMPLES+=	examples/draw_colors.py
 EXAMPLES+=	examples/draw_rect.py
