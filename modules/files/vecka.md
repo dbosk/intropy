@@ -66,9 +66,9 @@ programmet måste hantera.
 <!-- schema:start -->
 - **Tis 3/11**
   - 10:00–12:00 Föreläsning (helklass) — D3, Zoom — Grundläggande lärarledd undervisning, hybrid
-  - 15:00–17:00 Övning (helklass) — D37, Zoom
+  - 15:00–17:00 Övning (helklass) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Ons 4/11**
-  - 08:00–10:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
+  - 08:00–10:00 Övning (helklass) — D37, Zoom — Fördjupning eller repetition.
 - **Tor 5/11**
   - 08:00–10:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
 - **Fre 6/11**

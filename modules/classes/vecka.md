@@ -76,10 +76,10 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
   - 13:00–17:00 Redovisning (grupp A–F) — boka tid i kalendern i Canvas.
 - **Tis 6/10**
   - 08:00–10:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
-  - 10:00–12:00 Övning (helklass) — D37, Zoom
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
   - 15:00–19:00 Redovisning (grupp G–L) — boka tid i kalendern i Canvas.
 - **Ons 7/10**
-  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Fördjupning eller repetition.
 - **Tor 8/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
   - 15:00–17:00 Labb (grupp G–L) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession

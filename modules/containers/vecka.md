@@ -70,9 +70,9 @@ och kontrollera inmatning från användaren.
 - **Mån 26/10**
   - 10:00–12:00 Föreläsning (helklass) — D3, Zoom — Grundläggande lärarledd undervisning, hybrid
 - **Tis 27/10**
-  - 10:00–12:00 Övning (helklass) — D37, Zoom
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Ons 28/10**
-  - 15:00–17:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
+  - 15:00–17:00 Övning (helklass) — D37, Zoom — Fördjupning eller repetition.
 - **Tor 29/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
   - 10:00–12:00 Labb (grupp G–L) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession

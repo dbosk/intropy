@@ -68,9 +68,9 @@ bibliotek du inte använt förut.
 <!-- schema:start -->
 - **Tis 10/11**
   - 10:00–12:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
-  - 15:00–17:00 Övning (helklass) — D37, Zoom
+  - 15:00–17:00 Övning (helklass) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Ons 11/11**
-  - 10:00–12:00 Övning: fortsättning på veckans innehåll (D37, Zoom) och repetition med en assistent (Zoom, grupprum)
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Fördjupning eller repetition.
 - **Tor 12/11**
   - 15:00–17:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
 - **Fre 13/11**
