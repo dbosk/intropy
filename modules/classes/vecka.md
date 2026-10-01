@@ -50,17 +50,24 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
    Klasser och objekt*, som beskriver dess innehåll och länkar till
    anteckningarna. Kan du inte komma, eller föredrar du att läsa, finns
    inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** se sidan *Övning: Klasser och objekt*
-   här i modulen. Vi går igenom veckans innehåll genom att lösa problem
-   tillsammans i mindre grupper. Vi hinner bara ett urval av problemen;
-   uppgifterna och lösningarna till alla finns i det interaktiva dokumentet
-   (FeedbackFruits) så att du kan fortsätta på egen hand.
+2. **Gå gärna på övningarna:** se sidan *Övning: Klasser och objekt* här i
+   modulen. Övningarna är frivilliga och ges för hela klassen, i D37 och på
+   [Zoom][zoom-room]. På det första tillfället går vi igenom veckans
+   innehåll genom att lösa problem tillsammans. På det andra fortsätter vi
+   med veckans innehåll. Samtidigt leder en assistent, oftast Emelie, en
+   repetition i ett eget grupprum på Zoom; den går så långt tillbaka i
+   kursen som behövs, anpassad efter dem som kommer. Vi hinner bara ett
+   urval av problemen; uppgifterna och lösningarna till alla finns i det
+   interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på egen
+   hand.
 3. **Arbeta med** *Laboration (4) klasser och objekt (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.
 4. **Redovisa laboration 3** på måndagens eller tisdagens redovisningspass
    för din grupp. Boka en tid i kalendern i Canvas.
 5. **Vill du fördjupa dig?** Gör *Fördjupande övning klasser och objekt*.
+
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 
@@ -69,17 +76,17 @@ med arv, överlagra metoder och anropa föräldraklassens metoder med
   - 13:00–17:00 Redovisning (grupp A–F) — boka tid i kalendern i Canvas.
 - **Tis 6/10**
   - 08:00–10:00 Föreläsning (helklass) — D2, Zoom — Grundläggande lärarledd undervisning, hybrid
-  - 10:00–12:00 Övning (grupp A–F) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
   - 15:00–19:00 Redovisning (grupp G–L) — boka tid i kalendern i Canvas.
 - **Ons 7/10**
-  - 10:00–12:00 Övning (grupp G–L) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Fördjupning eller repetition.
 - **Tor 8/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
   - 15:00–17:00 Labb (grupp G–L) — 4V4Gul (Gul), 4V6 Bru (Brun), D41 — Hjälpsession
 <!-- schema:end -->
 
-Du går bara på övnings- och labbpassen för din grupp (A–F eller G–L);
-föreläsningen är gemensam för hela klassen. Tiderna anges som i TimeEdit,
+Du går bara på labbpassen för din grupp (A–F eller G–L); föreläsningen
+och övningarna är gemensamma för hela klassen. Tiderna anges som i TimeEdit,
 utan akademisk kvart: föreläsningar och övningar börjar kvart över.
 
 ## Deadlines och hjälp
