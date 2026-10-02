@@ -37,6 +37,7 @@ EXAMPLES+=	examples/hello_user2.py
 EXAMPLES+=	examples/check_greeting.py
 EXAMPLES+=	examples/hello_user3.py
 EXAMPLES+=	examples/hello_user4.py
+EXAMPLES+=	examples/hello_user5.py
 # draw.py is also handed out on Canvas (the tutorial's page links to it
 # on GitHub) and imported by the tutorial, so it is committed: see
 # .gitignore.

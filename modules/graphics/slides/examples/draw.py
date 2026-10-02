@@ -21,15 +21,13 @@ class DrawGUI(tk.Tk):
 
     def paint(self, event):
         """Draw a line from the previous point to this one"""
-        if self.x_old is None:
-            self.x_old = event.x
-            self.y_old = event.y
-            return
+        if self.x_old is not None:
+            self.draw_line(self.x_old, self.y_old, event.x, event.y)
+        self.x_old = event.x
+        self.y_old = event.y
 
-        x_start, y_start = self.x_old, self.y_old
-        x_dest, y_dest = event.x, event.y
-        self.x_old, self.y_old = x_dest, y_dest
-
+    def draw_line(self, x_start, y_start, x_dest, y_dest):
+        """Draw a line between two points on the canvas"""
         self.canvas.create_line(x_start, y_start, x_dest, y_dest)
 
     def reset_old_coord(self, _):
