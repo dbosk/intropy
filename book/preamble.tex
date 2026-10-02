@@ -61,10 +61,9 @@
 \usepackage{minted}
 \setminted{autogobble,fontsize=\footnotesize}
 
-% PythonTeX runs from ltxobj; workingdir=.. is book/.  Each chapter moves
-% the Python session into its deck's directory (\deck below), so the
-% decks' relative paths (examples/..., mentipy.json) resolve as they do
-% standalone.
+% PythonTeX runs from ltxobj; workingdir=.. is book/.  The decks' relative
+% paths resolve as they do standalone: didactic's through \runbasedir,
+% Mentipy's through a directory change per chapter (both below).
 \usepackage[makestderr]{pythontex}
 \setpythontexoutputdir{.}
 \setpythontexworkingdir{..}
@@ -97,6 +96,22 @@
 % A side caption takes part in no collision avoidance; anchoring it at the
 % bottom moves it below the \ltnote's.
 \ifdefined\setsidecappos\setsidecappos{b}\fi
+% The numbered didactic environments restart in every chapter and carry
+% the chapter number, "Övningsuppgift 9.3" (author, 2026-09-28): numbered
+% through the whole book, the tutorial chapters ran into the hundreds.
+% Each environment has a counter of its own, named after it.  The decks
+% standalone keep their own numbering.  The hyperlink targets must name
+% the chapter too, or two "Övningsuppgift 1" collide.
+\makeatletter
+\@for\book@ctr:={exercise,example,question,activity,definition,idea,%
+    assumption,theorem,lemma,corollary}\do{%
+  \ifcsname c@\book@ctr\endcsname
+    \counterwithin{\book@ctr}{chapter}%
+    \expandafter\xdef\csname theH\book@ctr\endcsname{%
+      \noexpand\theHchapter.\noexpand\arabic{\book@ctr}}%
+  \fi
+}
+\makeatother
 \ProvideSemanticEnv{lo}{Learning Objective}
   [style=definition,numbered=yes]
   {LO}{LO}
@@ -144,17 +159,21 @@
 \setlength{\cftsubsectionnumwidth}{3.9em}
 \setlength{\cftsubsubsectionindent}{\dimexpr\cftsubsectionindent+\cftsubsectionnumwidth\relax}
 
-% PythonTeX runs all of a session's code as one program, in document order,
-% so a directory change stays in force until the next one.  Each chapter
-% changes into its deck's directory: \runpython's examples/..., the stdin
-% and deps files, and Mentipy's store and QR directory then resolve as in
-% the standalone build.  didactic writes its transcript files in book/
-% (DIDACTIC_WORKDIR) whatever the directory, and reads them past the import
-% path.  PythonTeX resolves the paths didactic reports to it (created
-% files, dependencies) from the book's directory, so they are made
-% absolute here; didactic now does so itself, and this override can go
-% once the book uses didactic's \runbasedir instead of the directory
-% change.
+% \runpython's and \runshell's relative paths (examples/..., cwd, the stdin
+% and deps files) resolve against the deck's directory, which didactic
+% takes from \subimport's path (didactic >= 2.6).  didactic writes its
+% transcript files in book/ (DIDACTIC_WORKDIR) and reports the files it
+% tracks to PythonTeX as absolute paths.
+\runbasedir{auto}
+
+% Mentipy (0.12) has no base directory of its own: its store
+% (mentipy.json) and QR directory are relative to the Python session's
+% working directory.  PythonTeX runs all of a session's code as one
+% program, in document order, so a directory change stays in force until
+% the next one, and each chapter changes into its deck's directory (\deck
+% below).  didactic resolves \runbasedir against DIDACTIC_WORKDIR, not the
+% current directory, so the two do not interfere.  This can go once
+% Mentipy has a base directory (\mentipybasedir).
 \begin{pycode}
 BOOK_DIR = os.getcwd()
 
@@ -165,13 +184,6 @@ def book_enter_deck(path):
 
 def book_leave_deck():
     os.chdir(BOOK_DIR)
-
-
-_book_didactic_track = didactic_track
-
-
-def didactic_track(kind, /, *paths):
-    _book_didactic_track(kind, *(os.path.abspath(p) for p in paths))
 \end{pycode}
 
 % The decks' appendices (sokprotokoll.tex) are chapters standalone.  In the
@@ -240,14 +252,13 @@ def didactic_track(kind, /, *paths):
   \clearpage
   \localtableofcontents*
   \clearpage
-  % The decks force page breaks inside the chapter (\clearpage in
-  % contents.nw and sokprotokoll.tex), each placed to drain the margin-note
-  % queue at a page position of the standalone notes.  In the book the
-  % pages fall elsewhere, so the breaks only leave short pages.  Within the
+  % A deck's few remaining page breaks (\clearpage in contents.nw, and in
+  % the search reports its appendices include) are placed at page
+  % positions of the standalone notes.  In the book the pages fall
+  % elsewhere, so the breaks would only leave short pages.  Within the
   % chapter a \clearpage is a paragraph end; the next chapter's \chapter,
-  % outside this group, has the real one.  The margin notes the breaks
-  % made room for fit instead in smaller type and a longer margin column
-  % (see \foottextfont and \marginheightadjustment above).
+  % outside this group, has the real one.  (The decks no longer break pages
+  % to make room for margin notes: didactic splits a crowded note instead.)
   \let\clearpage\par
   \subimport{../modules/#2/}{contents.tex}%
   \printbibliography[heading=subbibintoc]%
