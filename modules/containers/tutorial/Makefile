@@ -51,9 +51,12 @@ EXAMPLES+=	examples/fraction.py
 TESTRUNS+=	examples/fraction_test_jamforelse.py
 TESTRUNS+=	examples/fraction_test_hashning.py
 TESTRUNS+=	examples/fraction_test_division.py
-TESTRUNS+=	examples/fraction_test_heltal.py
 EXAMPLES+=	${TESTRUNS}
-EXAMPLES+=	examples/nyckel.py
+# The integer to the left of a fraction is not a test case but a program
+# of its own, since its run ends in a traceback.
+EXAMPLES+=	examples/heltal_forst.py
+EXAMPLES+=	examples/nyckel1.py
+EXAMPLES+=	examples/nyckel2.py
 EXAMPLES+=	examples/bank.py
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py

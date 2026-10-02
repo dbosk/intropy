@@ -1148,84 +1148,87 @@ print(f"1/3 == '1/3': {third == '1/3'}")
 \end{frame}
 
 Det finns en följd av \mintinline{python}{__eq__} som är lätt att missa,
-och som hör ihop med behållarna.  Ett par klasser
-räcker för att se den.
+och som hör ihop med behållarna.  Två små program räcker för att se den.
 
-% Programmet ska läsas, så anteckningarna visar det helt, i en chunk.
-% Bilderna visar samma tanglade fil i två radintervall på egna bilder,
-% i stället för en krympt bild.
+% Programmen ska läsas, så anteckningarna visar dem hela, i var sin chunk.
+% Bilderna visar samma tanglade filer, en på varje bild.
 \mode<presentation>{%
   \begin{frame}
-    \begin{question}[Vad skriver programmet ut?]
-      Programmet använder ett objekt av vardera klassen som nyckel:
-      \inputminted[firstline=1,lastline=13]{python}{examples/nyckel.py}
+    \begin{question}[Vad skriver programmen ut?]
+      Det första programmet använder ett objekt av en tom klass som
+      nyckel:
+      \inputminted{python}{examples/nyckel1.py}
     \end{question}
   \end{frame}
   \begin{frame}
-    \frametitle{Vad skriver programmet ut? (forts.)}
-    \inputminted[firstline=15,lastline=28]{python}{examples/nyckel.py}
+    \frametitle{Vad skriver programmen ut? (forts.)}
+    Det andra är detsamma, med en metod till i klassen:
+    \inputminted{python}{examples/nyckel2.py}
   \end{frame}%
 }
 
 \begin{frame}<article>[fragile]
-  \begin{question}[Vad skriver programmet ut?]
+  \begin{question}[Vad skriver programmen ut?]
+    \label{q:nyckel}
     \leavevmode\ltnote{%
-      Relevanta lärandemål: \cref{OvningContainersLOKey}.
+      Relevanta lärandemål för \cref{q:nyckel}:
+      \cref{OvningContainersLOKey}.
 
-      \textbf{Variationsmönster}: kontrast.
+      \textbf{Variationsmönster}: kontrast, \texttt{nyckel1.py} mot
+      \texttt{nyckel2.py}.
       \textbf{Vad som varierar}: om klassen definierar
       \mintinline{python}{__eq__}.
-      \textbf{Vad som hålls invariant}: allt annat --- båda klasserna är
-      tomma i övrigt, och båda används på exakt samma sätt.
+      \textbf{Vad som hålls invariant}: allt annat --- klassens namn och
+      docstring, uppslagslistan och utskriften är desamma i båda.
 
-      Det här är övningens enda förutsägelsefråga inne i ett
-      lösningsförslag, och den står där därför att insikten hör till
-      jämförelsen och inte till någon egen uppgift.  Den är en
-      \texttt{question} och inte en \texttt{exercise}, så att den inte
-      numreras med de sju uppgifterna.
+      Frågan är övningens enda förutsägelsefråga inne i ett
+      lösningsförslag, eftersom insikten hör till jämförelsen och inte
+      till någon egen uppgift; den är en \texttt{question} och inte en
+      \texttt{exercise}, så att den inte numreras med de sju
+      uppgifterna.  Filerna heter \texttt{nyckel1.py} och
+      \texttt{nyckel2.py} och inget som namnger skillnaden, och
+      programmen fångar inget fel: det andra slutar med Pythons egen
+      spårutskrift.  Ett namn eller ett fångat
+      \mintinline{python}{TypeError} hade pekat ut det som ska
+      urskiljas innan det inträffat \parencite[s.~91]{Marton2015}.
 
-      Filen heter [[nyckel.py]] och klasserna [[First]] och [[Second]], inte
-      [[Hashbar]] och [[Ohashbar]].  Docstringarna namnger inte
-      \mintinline{python}{__eq__} som klassernas enda skillnad, och koden
-      fångar inte \mintinline{python}{TypeError} vid namn: båda hade
-      namngett det som ska urskiljas innan det inträffat och gjort
-      urskiljningen åt studenten \parencite[s.~91]{Marton2015}.  Att fånga
-      \mintinline{python}{Exception} i stället är i vanliga fall för brett,
-      men här är bredden hela poängen: frågan är vad som händer, inte vilket
-      fel som kommer.
-
-      Att den ena klassen har ett \mintinline{python}{__eq__} som alltid
-      svarar ja är inte en detalj att förklara --- metoden är med bara för
-      att den \emph{finns}, vilket är allt som behövs för att hashningen
-      försvinner.
-
-      Kopplingen till veckans andra hälft är avsiktlig: en egen klass är inte
-      färdig förrän man vet om dess objekt duger som nycklar, och det är den
-      frågan som binder samman operatoröverlagringen med uppslagslistan.
+      Att \mintinline{python}{__eq__} alltid svarar ja är inte en
+      detalj att förklara: metoden är med bara för att den
+      \emph{finns}, vilket är allt som behövs för att hashningen
+      försvinner.  Frågan binder samman operatoröverlagringen med
+      uppslagslistan: en egen klass är inte färdig förrän man vet om
+      dess objekt duger som nycklar.
     }%
-    Programmet använder ett objekt av vardera klassen som nyckel.
-<<[[nyckel.py]]>>=
-"""Två klasser som används som nycklar"""
+    Det första programmet använder ett objekt av en tom klass som
+    nyckel:
+<<[[nyckel1.py]]>>=
+"""Ett objekt av en egen klass som nyckel"""
 
-class First:
-    """En klass"""
-
-class Second:
-    """En klass som jämför sig med sin egen metod"""
-
-    def __eq__(self, other):
-        return isinstance(other, Second)
+class Key:
+    """En klass vars objekt ska bli nycklar"""
 
 def main():
     """Huvudprogrammet"""
-    first = {First(): "ett"}
-    print(f"First: {len(first)} post")
+    keys = {Key(): "ett"}
+    print(f"{len(keys)} post")
 
-    try:
-        second = {Second(): "två"}
-        print(f"Second: {len(second)} post")
-    except Exception as error:
-        print(f"Second: {error}")
+if __name__ == "__main__":
+    main()
+@
+    Det andra är detsamma, med en metod till i klassen:
+<<[[nyckel2.py]]>>=
+"""Ett objekt av en egen klass som nyckel"""
+
+class Key:
+    """En klass vars objekt ska bli nycklar"""
+
+    def __eq__(self, other):
+        return isinstance(other, Key)
+
+def main():
+    """Huvudprogrammet"""
+    keys = {Key(): "ett"}
+    print(f"{len(keys)} post")
 
 if __name__ == "__main__":
     main()
@@ -1235,13 +1238,16 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Utmatning]
-    Kör vi programmet får vi:
-    \runpython[showcommand, chdir]{examples/nyckel.py}
+    Kör vi de två programmen får vi:
+    \runpython[showcommand, chdir]{examples/nyckel1.py}
+    \runpython[showcommand, chdir]{examples/nyckel2.py}
   \end{example}
 \end{frame}
 
-Klassen som inte definierar \mintinline{python}{__eq__} duger som
-nyckel; klassen som definierar den duger inte.  Skälet är att en nyckel
+Objektet i \texttt{nyckel1.py} duger som nyckel.  I \texttt{nyckel2.py},
+där klassen definierar \mintinline{python}{__eq__}, duger det inte:
+programmet avbryts med ett \mintinline{python}{TypeError}, eftersom
+objektet inte går att hasha.  Skälet är att en nyckel
 slås upp i två steg: först räknas nyckeln om till en plats med
 \mintinline{python}{hash}, sedan jämförs den med det som ligger där.  De
 två stegen måste vara överens --- två nycklar som är lika måste ge samma
@@ -1337,26 +1343,6 @@ print(f"1 / (1/2) = {1 / half}")
     {examples/fraction_test_division.py}
 \end{frame}
 
-Det sista testfallet går tillbaka till olikheten, nu med heltalet till
-vänster.  Vad det visar tar vi upp efter hela körningen.
-
-\begin{frame}[fragile]
-  \frametitle{Prova olikheten med heltalet till vänster}
-  Ett heltal mot ett bråk:
-<<prova olikheten med heltalet till vänster>>=
-try:
-    print(1 < half)
-except TypeError as error:
-    print(f"1 < half: {error}")
-<<tester för [[Fraction]]>>=
-
-<<prova olikheten med heltalet till vänster>>
-@
-  Testfallet skriver ut
-  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
-    {examples/fraction_test_heltal.py}
-\end{frame}
-
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet,
   \texttt{fraction.py}:
@@ -1370,7 +1356,7 @@ except TypeError as error:
   \end{example}
 \end{frame}
 
-Fyra rader i utskriften är värda mer än de andra.  Den \emph{tredje} säger
+Tre rader i utskriften är värda mer än de andra.  Den \emph{tredje} säger
 \mintinline{python}{1/3 > 2/6: False}, fast vi aldrig skrev något
 \mintinline{python}{__gt__}.  Det är spegelregeln från föreläsningen
 \emph{Klasser och objekt}: saknar den vänstra operandens klass
@@ -1386,8 +1372,49 @@ Den \emph{sjätte} visar ett bråk som nyckel: uppslagningen med
 \(\frac{2}{6}\) hittar posten som lades in under \(\frac{1}{3}\),
 eftersom konstruktorn förkortade båda till samma par.
 
-Och den \emph{sista} visar var spegelregeln tar slut: \(1 < a\) fungerar
-inte, fast \(a < 1\) gör det.  Skillnaden är vems klass som får frågan.
+Att \mintinline{python}{1 / half} skrivs \mintinline{text}|2/1| och inte
+\mintinline{text}|2| är inget fel: klassen representerar \emph{bråk}, och
+\(\frac{2}{1}\) är bråket.  Vill man att heltalsbråk ska skrivas som
+heltal är det \mintinline{python}{__str__} som ska ändras, inte
+förkortningen --- och då har klassen två sätt att skriva samma värde
+igen, vilket är precis vad den kanoniska formen var till för att undvika.
+
+Spegelregeln har ändå en gräns.  Vad händer när heltalet står till
+vänster om bråket?  Ett litet program prövar olikheten åt båda hållen.
+Modulen \mintinline{python}{fraction} är filen \texttt{fraction.py}, vars
+delar vi har skrivit i \cref{sec:brak-ovning-behallare}.
+
+\begin{frame}[fragile]
+  \begin{example}[Heltalet först]
+    \label{ex:heltal-forst}
+    Samma olikhet, med bråket först och sedan heltalet först:
+<<[[heltal_forst.py]]>>=
+"""Olikheten mellan ett bråk och ett heltal, åt båda hållen"""
+
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    half = Fraction(1, 2)
+    print(f"1/2 < 1: {half < 1}")
+    print(f"1 < 1/2: {1 < half}")
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir, breaklines,
+      deps={examples/fraction.py}]{examples/heltal_forst.py}
+  \end{example}
+\end{frame}
+
+\(a < 1\) fungerar, men \(1 < a\) avbryter programmet.  Skillnaden är
+vems klass som får frågan.
 I \mintinline{python}{third > two_sixths} är båda bråk, så omkastningen
 landar på \mintinline{python}{Fraction.__lt__}, som finns.  I
 \mintinline{python}{1 < half} är den vänstra operanden ett heltal:
@@ -1403,13 +1430,6 @@ fyller i resten åt dig när du gett den
 \mintinline{python}{__eq__} och en av
 ordningsmetoderna\autocite{PythonFunctools} --- samma dekorator som
 föreläsningen \emph{Klasser och objekt} pekar på.
-
-Att \mintinline{python}{1 / half} skrivs \mintinline{text}|2/1| och inte
-\mintinline{text}|2| är inget fel: klassen representerar \emph{bråk}, och
-\(\frac{2}{1}\) är bråket.  Vill man att heltalsbråk ska skrivas som
-heltal är det \mintinline{python}{__str__} som ska ändras, inte
-förkortningen --- och då har klassen två sätt att skriva samma värde
-igen, vilket är precis vad den kanoniska formen var till för att undvika.
 
 \leavevmode\ltnote{%
   Relevanta lärandemål för \cref{ovn:fraction}:
@@ -1801,9 +1821,17 @@ print(bank)
 @
 \end{frame}
 
-De två felen fångas i stället för att få avsluta programmet, så att båda
-hinner visas i samma körning --- och så att utskriften visar vad banken
-svarade och inte en spårutskrift.
+Banken avvisar ett fel med ett särfall, men vad användaren ska få veta
+är programmets sak.  Programmet vet hur det ska svara på ett
+\mintinline{python}{ValueError} från banken --- tala om vad som gick
+fel --- så det fångar just det felet i stället för att avslutas med en
+spårutskrift.  Det är att fånga det man vet hur man ska svara på, som i
+föreläsningen \emph{Inmatning och felhantering}.%
+\footnote{%
+  Det vetenskapliga underlaget finns i föreläsningen \emph{Inmatning
+  och felhantering}, bilaga D: att fånga alla fel är en känd ovana,
+  men de faktiska felen är ovanligare än vanan.%
+}
 
 \begin{frame}[fragile,shrink]
   \frametitle{De två felen}
