@@ -90,19 +90,20 @@ oss\autocite{PythonTutorialFiles}.\footnote{%
 
 \begin{frame}[fragile]
   \begin{example}[Modulen i bruk]
-    Så här ska det se ut när du är klar.  Användaren svarar fel en gång
-    på varje fråga --- först ett namn som inte finns, sedan ett som
-    finns fast det inte fick:
+    Så här ska det se ut när du är klar.  Testprogrammet provar
+    funktionerna en i taget, och användaren svarar fel en gång på varje
+    fråga --- först ett namn som inte finns, sedan ett som finns fast det
+    inte fick, och sist ett alternativ som inte finns:
     \runpython[transcript, showcommand=false,
       stdin={finns-inte.txt}, stdin={madicken.txt},
-      stdin={madicken.txt},
-      stdin={resultat.csv}]{examples/filer.py}
+      stdin={madicken.txt}, stdin={resultat.csv},
+      stdin={meningar}, stdin={ord}]{examples/filer.py}
   \end{example}
 \end{frame}
 
 % REVIEW(C15): körexempel före uppgiften, enligt författarens regel av
-% 2026-09-20.  Körningen står kvar sist i lösningsförslaget också ---
-% ett exempel visar sin egen utskrift --- och den här kopian utelämnar
+% 2026-09-20.  Lösningsförslaget visar samma utskrift i delar, varje
+% testfalls utskrift bredvid testfallet, och den här kopian utelämnar
 % kommandoraden, eftersom lösningens filnamn inte är introducerat än.
 \begin{frame}
   \begin{exercise}[Modulen \texttt{filer.py}]
@@ -120,8 +121,8 @@ oss\autocite{PythonTutorialFiles}.\footnote{%
       \item två funktioner som läser respektive skriver hela innehållet
         i en fil.
     \end{itemize}
-    Lägg till ett huvudprogram som ställer de två filfrågorna och
-    skriver ut vilka filer det blev, så att du kan pröva modulen.
+    Ge modulen ett testprogram som provar funktionerna när filen körs
+    som program.
   \end{exercise}
 \end{frame}
 
@@ -138,56 +139,57 @@ oss\autocite{PythonTutorialFiles}.\footnote{%
 }%
 Vi skriver modulen som vanligt uppifrån och ner: överst en
 \foreignlanguage{english}{docstring} som säger vad modulen är till för,
-sedan funktionerna och till sist huvudprogrammet.
+sedan funktionerna och till sist testprogrammet.
 
 \begin{frame}[fragile]
-  Filmodulens upplägg:
+  \begin{solution}[Upplägget]
+    Filmodulens upplägg:
 <<[[filer.py]]>>=
 """Funktioner som svarar på programmens frågor om filer"""
 
 <<filmodulens funktioner>>
 
-<<filmodulens huvudprogram>>
+<<filmodulens testprogram>>
 @
+  \end{solution}
 \end{frame}
 
 \leavevmode\ltnote{%
-  Programmen följer funktionsregeln från föreläsningen
-  \emph{Funktioner}, också provprogrammen.  Att anropet står bakom
-  \mintinline{python}|if __name__ == "__main__":| är formen från
-  föreläsningen \emph{Moduler och paket}, och den är nödvändig här:
-  varje modul importeras av ett senare program, och ett huvudprogram på
-  högsta nivån skulle då köras vid importen.
+  Bara modulen har sina tester i [[tests]].  De senare lösningarna
+  (\texttt{wc.py}, \texttt{rövare.py}, \texttt{fortune.py}) är program
+  som uppgiften ber om, med ett huvudprogram under villkoret, och får
+  därför sina prov i egna provprogram.
 }%
-Vi börjar med huvudprogrammet, det som ska pröva modulen: det ställer
-de två filfrågorna och redovisar svaren.  Frågorna finns inte än, men vi
-kan ge dem namn och anropa dem ändå.
+En modul har inget huvudprogram, men den ska gå att pröva.  Därför får
+den ett testprogram, [[tests]], som telefonboksmodulen i föreläsningen
+\emph{Behållare: Uppslagslistor}: det provar funktionerna när filen körs
+som program, och när filen importeras är villkoret falskt och den som
+importerar får bara funktionerna.  Vi skriver inte testprogrammet sist,
+utan samlar testfallen under ett namn och lägger till ett testfall så
+snart det finns något nytt att pröva.
 
 \begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet]
-    Huvudprogrammet ställer de två frågorna och redovisar svaren:
-<<filmodulens huvudprogram>>=
-def main():
-    """Frågar efter en fil att läsa och en att skriva till"""
-    infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
-    utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
-    print(f"Läser {infilnamn} och skriver {utfilnamn}.")
-
+  \begin{solution}[Testprogrammet]
+    Testfallen samlas under ett namn:
+<<filmodulens testprogram>>=
+def tests():
+    """Provkör filmodulens funktioner"""
+    <<filmodulens testfall>>
 
 if __name__ == "__main__":
-    main()
+    tests()
 @
-  \end{example}
+  \end{solution}
 \end{frame}
 
-Båda frågorna ska ställas om tills svaret duger, och det enda som
-skiljer dem åt är vilket svar som duger: filen ska finnas, respektive
-inte finnas.  Om filen finns är en fråga för sig, så den får en egen
-funktion, [[fil_finns]], som de två frågorna anropar och som vi skriver
-när de är klara.
+Först de två filfrågorna.  Båda ska ställas om tills svaret duger, och
+det enda som skiljer dem åt är vilket svar som duger: filen ska finnas,
+respektive inte finnas.  Om filen finns är en fråga för sig, så den får
+en egen funktion, [[fil_finns]], som de två frågorna anropar och som vi
+skriver när de är klara.
 
 \begin{frame}[fragile,shrink=15]
-  \begin{example}[De två filfrågorna]
+  \begin{solution}[De två filfrågorna]
     Den ena frågar tills filen finns, den andra tills den inte finns:
 <<filmodulens funktioner>>=
 def läs_infilnamn(prompt):
@@ -202,7 +204,7 @@ def läs_utfilnamn(prompt):
         print(f"Filen {filnamn} finns redan. Försök igen.")
     return filnamn
 @
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Skillnaden är ett [[not]].  Mönstret --- fråga, kontrollera, fråga om
@@ -225,7 +227,7 @@ finns filen; kastas \mintinline{python}{FileNotFoundError} finns den
 inte.
 
 \begin{frame}[fragile]
-  \begin{example}[Finns filen?]
+  \begin{solution}[Finns filen?]
     Funktionen öppnar filen bara för att se om det går:
 <<filmodulens funktioner>>=
 def fil_finns(filnamn):
@@ -237,7 +239,7 @@ def fil_finns(filnamn):
         return False
     return True
 @
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Blocket behöver inte göra någonting --- svaret ligger i om
@@ -248,11 +250,58 @@ använda \mintinline{python}{with} också här är billigt och håller
 löftet från föreläsningen \emph{Arbeta med filer}: den som öppnar en fil
 stänger den.
 
+Nu finns det något att pröva.  Det första testfallet frågar efter en fil
+som finns och en som inte gör det.
+
+% Each test case's output below is a run of a small program tangled from
+% testkorningar.nw: it imports the functions and runs this one case, so
+% the output is exactly what tests() prints for these lines.
+\begin{frame}[fragile]
+  \begin{solution}[Två filer]
+    En fil som finns och en som inte gör det:
+<<filmodulens testfall>>=
+<<pröva om två filer finns>>
+<<pröva om två filer finns>>=
+print("madicken.txt finns:", fil_finns("madicken.txt"))
+print("finns-inte.txt finns:", fil_finns("finns-inte.txt"))
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/filer.py}]%
+      {examples/filer_test_finns.py}
+  \end{solution}
+\end{frame}
+
+Med [[fil_finns]] på plats går de två frågorna att pröva.  Användaren
+svarar fel en gång på varje fråga --- först ett namn som inte finns,
+sedan ett som finns fast det inte fick.
+
+\begin{frame}[fragile]
+  \begin{solution}[De två frågorna]
+    En fil att läsa och en att skriva till:
+<<filmodulens testfall>>=
+<<fråga efter en fil att läsa och en att skriva till>>
+<<fråga efter en fil att läsa och en att skriva till>>=
+infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
+utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
+print(f"Läser {infilnamn} och skriver {utfilnamn}.")
+@
+    Med de svaren ser testfallet ut så här:
+    \runpython[transcript, showcommand=false, chdir,
+      deps={examples/filer.py},
+      stdin={finns-inte.txt}, stdin={madicken.txt},
+      stdin={madicken.txt},
+      stdin={resultat.csv}]{examples/filer_test_fragorna.py}
+  \end{solution}
+\end{frame}
+
+Samma fel, motsatta svar --- och samma slinga.  Det är hela skillnaden
+mellan de två frågorna.
+
 Mönstret i de två frågorna tål en tredje användning: att välja bland
 givna alternativ.
 
 \begin{frame}[fragile]
-  \begin{example}[Att välja bland alternativ]
+  \begin{solution}[Att välja bland alternativ]
     Samma slinga, men nu mot en lista av godkända svar:
 <<filmodulens funktioner>>=
 def läs_alternativ(prompt, alternativ):
@@ -263,22 +312,44 @@ def läs_alternativ(prompt, alternativ):
         print(f"Tyvärr är {valet} inte ett av alternativen.")
     return valet
 @
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Valrossen står här inom parentes, eftersom det är svaret och inte
 prövningen [[valet not in alternativ]] som ska få namnet [[valet]].
 Frågan skrivs ut i två delar: själva frågan på en rad, och uppmaningen
-med alternativen på nästa.  Skälet är rent praktiskt --- listan med
-alternativ gör raden lång --- men det ger också en effekt värd att lägga
-märke till: uppmaningen upprepas varje gång, frågan bara en gång.
+med alternativen på nästa, eftersom listan med alternativ gör raden
+lång.  Testfallet svarar först med något som inte står bland
+alternativen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Ord eller bokstäver]
+    Två alternativ, och ett svar som inte är något av dem:
+<<filmodulens testfall>>=
+<<låt användaren välja ord eller bokstäver>>
+<<låt användaren välja ord eller bokstäver>>=
+vad = läs_alternativ(
+    "Vill du räkna ord eller bokstäver?",
+    ["ord", "bokstäver"],
+)
+print(f"Valet blev {vad}.")
+@
+    Med svaren \mintinline{text}|meningar| och \mintinline{text}|ord|:
+    \runpython[transcript, showcommand=false, chdir,
+      deps={examples/filer.py},
+      stdin={meningar}, stdin={ord}]{examples/filer_test_alternativ.py}
+  \end{solution}
+\end{frame}
+
+Lägg märke till vad delningen av frågan ger: uppmaningen upprepas varje
+gång, frågan bara en gång.
 
 Kvar är de två funktioner som faktiskt rör filens innehåll.  De är korta
 nog att verka onödiga, men det är just därför de hör hit: utan dem
 skulle varje program som läser en hel fil upprepa samma tre rader.
 
 \begin{frame}[fragile]
-  \begin{example}[Att läsa och skriva hela filen]
+  \begin{solution}[Att läsa och skriva hela filen]
     Den ena ger innehållet som en sträng, den andra skriver en sträng:
 <<filmodulens funktioner>>=
 def läs_fil(filnamn):
@@ -286,43 +357,50 @@ def läs_fil(filnamn):
     with open(filnamn, "r") as fil:
         return fil.read()
 
-
 def skriv_fil(filnamn, text):
     """Skriver text till filen filnamn, som töms först"""
     with open(filnamn, "w") as fil:
         fil.write(text)
 @
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Lägg märke till att \texttt{läs\_fil} returnerar \emph{inifrån}
 \mintinline{python}{with}-blocket.  Filen stängs ändå: blocket lämnas
 när funktionen returnerar, och \mintinline{python}{with} stänger filen
-när blocket lämnas --- oavsett hur det lämnas.
+när blocket lämnas --- oavsett hur det lämnas.  Det sista testfallet
+skriver en fil med två rader och läser tillbaka den.
 
-\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}[fragile]
+  \begin{solution}[Fram och tillbaka]
+    Det som skrivs ska komma tillbaka:
+<<filmodulens testfall>>=
+<<skriv en fil och läs tillbaka den>>
+<<skriv en fil och läs tillbaka den>>=
+skriv_fil("filprov.txt", "Ronja\nPippi\n")
+print(läs_fil("filprov.txt"), end="")
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/filer.py}]%
+      {examples/filer_test_fil.py}
+  \end{solution}
+\end{frame}
+
+Argumentet [[end=""]] behövs, eftersom texten redan slutar med en
+radbrytning.
+
 \begin{frame}<article>[fragile]
   \leavevmode\ltnote{%
     \textbf{Helheten efter delarna}, som i \emph{Övning: Funktioner och
     variabler}.  Program som redan står hela i en enda del visas inte en
     gång till.
   }%
-  Sätter vi in varje del där dess namn står får vi hela modulen:
-  \inputminted{python}{examples/filer.py}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Körning]
-    Användaren svarar fel en gång på varje fråga --- först ett namn som
-    inte finns, sedan ett som finns fast det inte fick:
-    \runpython[transcript, stdin={finns-inte.txt},
-      stdin={madicken.txt}, stdin={madicken.txt},
-      stdin={resultat.csv}]{examples/filer.py}
+  \begin{example}[Hela \texttt{filer.py}]
+    \label{ex:filer}
+    Sätter vi in varje del där dess namn står får vi hela modulen:
+    \inputminted{python}{examples/filer.py}
   \end{example}
 \end{frame}
-
-Samma fel, motsatta svar --- och samma slinga.  Det är hela skillnaden
-mellan de två frågorna.
 
 De sex funktionerna fick bli en egen fil, inte en del av det första
 program som behöver dem.  Skälet syns nu när de står samlade: de har
