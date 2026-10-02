@@ -530,9 +530,10 @@ ett flyttal.
 
       \mintinline{python}{__int__} implementeras och provas, och står
       inte bara i prosan, eftersom lärandemålet nämner den.  Frågan
-      ställs före koden, och svaret (heltalsdivision)
-      sägs i texten innan den ena raden visas, så att studenterna hinner
-      välja mellan \mintinline{python}{//} och avrundning själva.
+      ställs före koden, så att studenterna hinner välja mellan
+      \mintinline{python}{//} och avrundning själva; det svar de flesta
+      ger, heltalsdivisionen, blir det första försöket i
+      \cref{ovn:int-negativ}.
     }%
     Hur skulle du hantera att konvertera bråket till ett heltal,
     exempelvis \mintinline{python}{int(Fraction(7, 2))}?
@@ -540,27 +541,76 @@ ett flyttal.
 \end{frame}
 
 Ett rimligt resultat skulle vara att returnera täljaren dividerad med
-nämnaren, avrundat nedåt: heltalsdivisionen \mintinline{python}{//}
-från föreläsningen \emph{Variabler och utskrifter}.  Alltså skulle
-\mintinline{python}{int(Fraction(7, 2))} ge \mintinline{python}{3}.
-För att implementera det behöver vi dundermetoden
-\mintinline{python}{__int__()}, som \mintinline{python}{int()} anropar.
+nämnaren, avrundat till ett heltal: heltalsdivisionen
+\mintinline{python}{//} från föreläsningen \emph{Variabler och
+utskrifter}.  Alltså skulle \mintinline{python}{int(Fraction(7, 2))} ge
+\mintinline{python}{3}.  För att implementera det behöver vi
+dundermetoden \mintinline{python}{__int__()}, som
+\mintinline{python}{int()} anropar.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Ett första försök]
+    \label{ovn:int-negativ}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:int-negativ,ex:fraction-int}:
+      \cref{FracLOConversion}.
+
+      \textbf{Variationsmönster}: Kontrast.  Mellan körningarna i
+      \cref{ovn:int-negativ} och \cref{ex:fraction-int} varierar bara
+      \mintinline{python}{__int__}; testfallet är detsamma.  Inom
+      testfallet varierar tecknet, och det är där de två metoderna
+      skiljer sig: för \(\frac{7}{2}\) ger de samma svar, så ett test
+      med bara positiva bråk hade inte avslöjat något.  Frågan jämför
+      med \mintinline{python}{int(-3.5)}, så att målet är Pythons eget
+      beteende och inte en regel texten hittar på.
+    }%
+    Ett första försök med heltalsdivisionen:
+<<ett första försök till [[__int__]]>>=
+def __int__(self):
+    return self.numerator // self.denominator
+@
+    Testfallet provar ett positivt och ett negativt bråk:
+<<prova konverteringen till heltal>>=
+print(int(Fraction(7, 2)))
+print(int(Fraction(-7, 2)))
+<<tester för [[Fraction]]>>=
+<<prova konverteringen till heltal>>
+@
+    Vad skriver det ut med försöket?  Jämför med
+    \mintinline{python}{int(-3.5)}, som ger \mintinline{python}{-3}.
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[Det första försöket]
+    Med försöket skriver testfallet ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_heltal_forsok.py}
+  \end{solution}
+\end{frame}
+
+Det positiva bråket blir rätt, men \(-\frac{7}{2}\) blir
+\mintinline{python}{-4} och inte \mintinline{python}{-3} som
+\mintinline{python}{int(-3.5)}.  Heltalsdivisionen avrundar
+\emph{nedåt}, och nedåt från \(-3{,}5\) är \(-4\); \mintinline{python}{int()}
+stryker i stället decimalerna och avrundar alltså mot noll.  För
+positiva tal är det samma sak, för negativa inte.  Vi delar därför
+talens belopp, som är positiva, och sätter tillbaka tecknet efteråt:
+bråket är negativt när täljaren och nämnaren har olika tecken, alltså
+när deras produkt är negativ.
 
 \begin{frame}[fragile]
   \begin{example}[Konvertering till heltal]
     \label{ex:fraction-int}
-    Heltalsdivision ger heltalsdelen:
+    Heltalsdelen av beloppen, med bråkets tecken:
 <<bråkklassens metoder>>=
 def __int__(self):
-    return self.numerator // self.denominator
+    quotient = abs(self.numerator) // abs(self.denominator)
+    if self.numerator * self.denominator < 0:
+        return -quotient
+    return quotient
 @
-    Testfallet provar exemplet ovan:
-<<prova konverteringen till heltal>>=
-print(int(Fraction(7, 2)))
-<<tester för [[Fraction]]>>=
-<<prova konverteringen till heltal>>
-@
-    Det skriver ut
+    Med den skriver samma testfall ut
     \runpython[chdir, deps={examples/fraction.py}]%
       {examples/fraction_test_heltal.py}
   \end{example}
@@ -1334,7 +1384,7 @@ Därmed är all pseudokod preciserad med pythonkod.
 
 % The \needspace keeps the run on one page in the notes.
 \mode<article>{\needspace{26\baselineskip}}
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Utmatning]
     \label{ex:fraction-run}
     \leavevmode\ltnote{%

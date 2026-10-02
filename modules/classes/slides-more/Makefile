@@ -29,6 +29,7 @@ EXAMPLES+=	examples/fraction.py
 # ones silently).  The programs are tangled from testkorningar.nw, which is
 # never woven, together with contents.nw, where the test cases are.
 TESTRUNS+=	examples/fraction_test_konvertering.py
+TESTRUNS+=	examples/fraction_test_heltal_forsok.py
 TESTRUNS+=	examples/fraction_test_heltal.py
 TESTRUNS+=	examples/fraction_test_addition.py
 TESTRUNS+=	examples/fraction_test_heltalsaddition.py
