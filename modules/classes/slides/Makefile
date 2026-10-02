@@ -46,6 +46,15 @@ TESTRUNS+=	examples/person_test_sortering.py
 TESTRUNS+=	examples/person_nick_test_metoder.py
 EXAMPLES+=	${TESTRUNS}
 
+# The three phonebook programs are run with the same searches, read from
+# this file (an empty line, which ends their loops, cannot be given with
+# \runpython's stdin option).  .in is not one of noweb.mk's suffixes, and
+# the file must not be piped through black.
+EXAMPLES+=	examples/sokningar.in
+examples/sokningar.in: testkorningar.nw
+	@mkdir -p ${@D}
+	notangle -R'[[sokningar.in]]' $< > $@
+
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
 # and every deck's source is called contents.nw, so in the course book
 # (book/), which binds the decks into one document, all decks would get

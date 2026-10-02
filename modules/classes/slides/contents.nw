@@ -105,8 +105,7 @@ här står numren direkt i programmet i stället för att matas in.
 }%
 Vi börjar uppifrån, i filens upplägg: överst en
 \foreignlanguage{english}{docstring} som säger vad programmet är till
-för, och sedan huvudprogrammet.  Programmet är så litet att det inte
-behöver några konstanter eller hjälpfunktioner.
+för, sedan hjälpfunktionerna och sist huvudprogrammet.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med en uppslagslista]
@@ -115,37 +114,45 @@ behöver några konstanter eller hjälpfunktioner.
 <<[[telefonbok.py]]>>=
 """En enkel telefonbok"""
 
+<<hjälpfunktionerna i [[telefonbok.py]]>>
+
 <<huvudprogrammet i [[telefonbok.py]]>>
 @
   \end{example}
 \end{frame}
 
 \leavevmode\ltnote{%
-  Programmen följer funktionsregeln från föreläsningen
-  \emph{Funktioner}.
+  De tre telefonböckerna, \cref{ex:telefonbok-main,ex:contacts,%
+  ex:contacts-class}, har samma huvudprogram och samma två
+  hjälpfunktioner, med samma namn och roller.  Bara lagringen och
+  kroppen i \mintinline{python}{print_contact} varierar, så att det
+  enda som skiljer programmen är representationen: uppslagslista,
+  nästlad uppslagslista, objekt.  Därför står uppdelningen i funktioner
+  redan i det första och enklaste programmet.
 }%
 Huvudprogrammet gör tre saker: det lagrar numren, skriver ut alla namn
-och frågar sedan efter namn tills användaren tröttnar.  Utskriften och
-frågan är bara några rader, men två steg handlar om själva datan: hur
-vi lagrar numren och hur vi slår upp ett.  De skriver vi först som
-pseudokod, som säger vad steget gör, och senare preciserar vi
-pseudokoden med pythonkod.  Direkt efter huvudprogrammet står anropet
-som startar det, så att definitionen och anropet står tillsammans.
+och frågar sedan efter namn tills användaren svarar med en tom rad.
+Att skriva ut namnen och att slå upp och skriva ut en kontakt är två
+egna uppgifter, så de blir var sin funktion, \mintinline{python}{print_names}
+och \mintinline{python}{print_contact}, som vi skriver strax.  Det är
+också de delar som ändras när vi senare byter sätt att lagra
+kontakterna.  Hur numren lagras skriver vi först som pseudokod, som
+säger vad steget gör, och senare preciserar vi pseudokoden med
+pythonkod.  Sist står villkoret som startar huvudprogrammet när filen
+körs som program, så att vi kan återanvända programmet som modul i
+andra program.
 
 \begin{frame}[fragile]
   \begin{example}[Telefonbokens huvudprogram]
     \label{ex:telefonbok-main}
-    Huvudprogrammet, med två steg i pseudokod:
+    Huvudprogrammet, med lagringen i pseudokod:
 <<huvudprogrammet i [[telefonbok.py]]>>=
 def main():
     """Huvudprogram"""
     <<lagra telefonnumren i en uppslagslista>>
-    for name in phonebook:
-        print(name, end=" ")
-    name = input("Who's phone number? ")
-    while name != "":
-        <<slå upp och skriv ut numret>>
-        name = input("Who's phone number? ")
+    print_names(phonebook)
+    while name := input("Ange namn: "):
+        print_contact(phonebook, name)
 
 if __name__ == "__main__":
     main()
@@ -153,27 +160,71 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Med en uppslagslista blir båda stegen en rad eller två när vi
-preciserar dem.
+Villkoret i \mintinline{python}{while}-satsen läser in namnet med
+tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
+\emph{Övning: Inmatning, felhantering och styrstrukturer} och i
+föreläsningarna \emph{Upprepningar} och \emph{Behållare:
+Uppslagslistor}.  En tom sträng är falsk, så slingan går tills
+användaren svarar med en tom rad.
+
+Med en uppslagslista blir lagringen en rad eller två när vi preciserar
+den.
 
 \begin{frame}[fragile]
-  \begin{example}[Lagra och slå upp med en uppslagslista]
+  \begin{example}[Lagra med en uppslagslista]
     \label{ex:telefonbok-data}
     Namnet är nyckel och numret är värde:
 <<lagra telefonnumren i en uppslagslista>>=
 phonebook = {"ronja": "0701234567", "pippi": "0721234567"}
 phonebook["madicken"] = "0731234567"
 @
-    Att slå upp ett nummer är då bara att indexera med namnet:
-<<slå upp och skriv ut numret>>=
-print(f"{name} has phone number {phonebook[name]}.")
+  \end{example}
+\end{frame}
+
+Funktionen som skriver ut namnen går igenom nycklarna, och funktionen
+som skriver ut en kontakt slår upp numret med namnet.  Namnen är
+lagrade med gemener, så \mintinline{python}{capitalize} ger dem stor
+begynnelsebokstav i utskriften, som i föreläsningen \emph{Behållare:
+Uppslagslistor}.  Som vanligt lägger +\(\equiv\) till en del under
+samma namn.
+
+\begin{frame}[fragile]
+  \begin{example}[Skriva ut namnen och en kontakt]
+    \label{ex:telefonbok-funktioner}
+    Den första funktionen ger vi ett eget namn i pseudokoden, eftersom
+    den kommer tillbaka:
+<<hjälpfunktionerna i [[telefonbok.py]]>>=
+<<funktion som skriver ut alla namn>>
+@
+<<funktion som skriver ut alla namn>>=
+def print_names(phonebook):
+    """Skriver ut alla namn i phonebook på en rad"""
+    for name in phonebook:
+        print(name.capitalize(), end=" ")
+    print()
+@
+    Att skriva ut en kontakt är en rad:
+<<hjälpfunktionerna i [[telefonbok.py]]>>=
+def print_contact(phonebook, name):
+    """Skriver ut telefonnumret för name"""
+    print(f"{name.capitalize()}: telefon {phonebook[name]}")
 @
   \end{example}
 \end{frame}
 
 \begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela programmet:
+  Sätter vi in varje del där dess namn står får vi hela programmet,
+  \texttt{telefonbok.py}:
   \inputminted{python}{examples/telefonbok.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[En körning av \texttt{telefonbok.py}]
+    \label{ex:telefonbok-run}
+    Vi söker efter alla tre och avslutar med en tom rad:
+    \runpython[transcript, stdinfile={examples/sokningar.in}]%
+      {examples/telefonbok.py}
+  \end{example}
 \end{frame}
 
 Så länge varje person bara har ett telefonnummer räcker uppslagslistan
@@ -190,10 +241,15 @@ varje person blir fler som en klass börjar löna sig.
   stället för att göra om det.  \textbf{Vad som varierar} här är att
   fält kan saknas: Pippi har inget telefonnummer och Madicken ingen
   adress.  \textbf{Vad som hålls invariant} är uppslagslistan som
-  metod, namnen, fälten och värdena från den föreläsningen.  Det gör
+  metod, huvudprogrammet, funktionerna och utskriftens form.  Det gör
   begränsningen synlig som blir motivet för klassen: ingenting säger
   vilka fält en person har, och varje läsning måste klara att ett fält
   saknas.
+
+  Namnen och födelsedagen finns med i uppslagslistorna för att de ska
+  bära samma uppgifter som personobjekten i
+  \cref{ex:contacts-class-data}: där varierar sedan bara
+  representationen.
 
   \textbf{Koppling till lärandemål}: detta förbereder
   \cref{ClassLOEncapsulation} genom att visa smärtpunkterna med
@@ -205,39 +261,30 @@ uppgifter om varje person}, fick varje person i telefonboken en
 uppslagslista som värde, med telefonnumret och adressen under var sitt
 namn.  Där hade alla personer båda uppgifterna.  Så är det sällan i en
 riktig telefonbok: vi vet inte allt om alla.  Vårt nya program, som vi
-lägger i \texttt{contacts.py}, utgår från den telefonboken, men nu
-saknar några personer en uppgift.  Filens upplägg är detsamma som
-förut.
+lägger i \texttt{contacts.py}, utgår från den telefonboken.  Varje
+person får också sitt för- och efternamn och sin födelsedag, men nu
+saknar några personer en uppgift.  Upplägget och huvudprogrammet är
+desamma som i \texttt{telefonbok.py}, så när som på hur kontakterna
+lagras.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med nästlade uppslagslistor]
-    \label{ex:contacts-upplagg}
-    Samma upplägg som i \texttt{telefonbok.py}:
+    \label{ex:contacts}
+    Samma upplägg och samma huvudprogram som i \texttt{telefonbok.py}:
 <<[[contacts.py]]>>=
 """En enkel telefonbok"""
 
+<<hjälpfunktionerna i [[contacts.py]]>>
+
 <<huvudprogrammet i [[contacts.py]]>>
 @
-  \end{example}
-\end{frame}
-
-Huvudprogrammets delar är också desamma som förut, men nu står även
-utskriften av namnen som pseudokod, eftersom den får en rad till.  Det
-som skiljer är hur kontakterna lagras och slås upp.
-
-\begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet med nästlade uppslagslistor]
-    \label{ex:contacts}
-    Samma delar som i \texttt{telefonbok.py}, men andra förfiningar:
 <<huvudprogrammet i [[contacts.py]]>>=
 def main():
     """Huvudprogram"""
     <<lagra kontakterna i en nästlad uppslagslista>>
-    <<skriv ut alla namn>>
-    name = input("Who's contacts? ")
-    while name != "":
-        <<slå upp och skriv ut kontaktuppgifterna>>
-        name = input("Who's contacts? ")
+    print_names(phonebook)
+    while name := input("Ange namn: "):
+        print_contact(phonebook, name)
 
 if __name__ == "__main__":
     main()
@@ -252,13 +299,22 @@ if __name__ == "__main__":
 <<lagra kontakterna i en nästlad uppslagslista>>=
 phonebook = {
     "ronja": {
+        "first_name": "Ronja",
+        "last_name": "Rövardotter",
+        "birthday": "1985-01-01",
         "phone": "0701234567",
         "address": "Gatan 1",
     },
     "pippi": {
+        "first_name": "Pippi",
+        "last_name": "Långstrump",
+        "birthday": "1990-01-01",
         "address": "Gatan 2",
     },
     "madicken": {
+        "first_name": "Madicken",
+        "last_name": "Engström",
+        "birthday": "1995-01-01",
         "phone": "0731234567",
     },
 }
@@ -268,9 +324,10 @@ phonebook = {
 
 Varje person är en uppslagslista med nycklarna
 \mintinline{python}{"phone"} och \mintinline{python}{"address"}, som i
-föreläsningen \emph{Behållare: Uppslagslistor}.  Det nya är att inte
-alla personer har alla fält: Pippi saknar telefonnummer och Madicken
-adress.
+föreläsningen \emph{Behållare: Uppslagslistor}, och nu också
+\mintinline{python}{"first_name"}, \mintinline{python}{"last_name"} och
+\mintinline{python}{"birthday"}.  Det nya är att inte alla personer har
+alla fält: Pippi saknar telefonnummer och Madicken adress.
 
 \begin{frame}
   \begin{exercise}
@@ -290,38 +347,52 @@ oss se hur koden för att läsa informationen blir.
 \begin{frame}[fragile]
   \begin{example}[Slå upp i nästlade uppslagslistor]
     \label{ex:contacts-lookup}
-    Namnen skrivs ut som förut, med en ny rad efteråt:
-<<skriv ut alla namn>>=
-for name in phonebook:
-    print(name, end=" ")
-print()
-@
-    Varje fält kan saknas, så varje fält får en egen felhantering:
-<<slå upp och skriv ut kontaktuppgifterna>>=
-try:
-    phone = phonebook[name]["phone"]
-except KeyError:
-    phone = "no phone number"
+    Funktionen som skriver ut namnen är densamma som förut.  Den som
+    skriver ut en kontakt sätter ihop namnet, och varje fält som kan
+    saknas får en egen felhantering:
+<<hjälpfunktionerna i [[contacts.py]]>>=
+<<funktion som skriver ut alla namn>>
 
-try:
-    address = phonebook[name]["address"]
-except KeyError:
-    address = "no address"
+def print_contact(phonebook, name):
+    """Skriver ut namn, telefonnummer och adress för name"""
+    contact = phonebook[name]
+    full_name = contact["first_name"] + " " + contact["last_name"]
 
-print(f"{name} has phone number {phone} and lives at {address}.")
+    try:
+        phone = contact["phone"]
+    except KeyError:
+        phone = "okänt"
+
+    try:
+        address = contact["address"]
+    except KeyError:
+        address = "okänt"
+
+    print(f"{full_name}: telefon {phone}, adress {address}")
 @
   \end{example}
 \end{frame}
 
 \begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela programmet:
+  Sätter vi in varje del där dess namn står får vi hela programmet,
+  \texttt{contacts.py}:
   \inputminted{python}{examples/contacts.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[En körning av \texttt{contacts.py}]
+    \label{ex:contacts-run}
+    Samma sökningar som förut:
+    \runpython[transcript, stdinfile={examples/sokningar.in}]%
+      {examples/contacts.py}
+  \end{example}
 \end{frame}
 
 Som du ser blev koden ganska omständlig.  Vi måste använda
 \mintinline{python}{try} och \mintinline{python}{except} för varje fält
 vi vill läsa, eftersom vi inte vet om fältet finns.  Jämför med den enda
-raden i \cref{ex:telefonbok-data}.  Det här blir snabbt svårläst och
+raden i \mintinline{python}{print_contact} i
+\cref{ex:telefonbok-funktioner}.  Det här blir snabbt svårläst och
 repetitivt.  Med \mintinline{python}{get} blir varje fält en rad, men
 reservvärdet måste ändå skrivas en gång för varje fält, på varje ställe
 i programmet där fältet läses.
@@ -539,41 +610,32 @@ programmering.\footnote{%
 
 Låt oss nu jämföra hur vi skapar och använder kontakter med de två olika
 metoderna.  Telefonboken med klasser lägger vi i
-\texttt{contacts\_class.py}.  Upplägget är detsamma som i
-\texttt{contacts.py}, med en import överst: modulen \texttt{person} är
-filen \texttt{person.py} som byggs upp från \cref{ex:person}, och hela
-filen står i \cref{ex:person-hel}.
+\texttt{contacts\_class.py}.  Upplägget och huvudprogrammet är desamma
+som i \texttt{contacts.py}, så när som på hur kontakterna lagras, och
+överst står en import: modulen \texttt{person} är filen
+\texttt{person.py} som byggs upp från \cref{ex:person}, och hela filen
+står i \cref{ex:person-hel}.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med personobjekt]
-    \label{ex:contacts-class-upplagg}
-    Programmet importerar klassen från \texttt{person.py}:
+    \label{ex:contacts-class}
+    Samma upplägg och samma huvudprogram, och en import av klassen:
 <<[[contacts_class.py]]>>=
 """En enkel telefonbok"""
 
 import person
 
+<<hjälpfunktionerna i [[contacts_class.py]]>>
+
 <<huvudprogrammet i [[contacts_class.py]]>>
 @
-  \end{example}
-\end{frame}
-
-Huvudprogrammet har samma delar som \texttt{contacts.py} i
-\cref{ex:contacts}; det som skiljer är förfiningarna.
-
-\begin{frame}[fragile]
-  \begin{example}[Huvudprogrammet med personobjekt]
-    \label{ex:contacts-class}
-    Samma delar som förut:
 <<huvudprogrammet i [[contacts_class.py]]>>=
 def main():
     """Huvudprogram"""
     <<lagra kontakterna som personobjekt>>
-    <<skriv ut alla namn>>
-    name = input("Who's contacts? ")
-    while name != "":
-        <<fråga efter namn och skriv ut personens uppgifter>>
-        name = input("Who's contacts? ")
+    print_names(phonebook)
+    while name := input("Ange namn: "):
+        print_contact(phonebook, name)
 
 if __name__ == "__main__":
     main()
@@ -585,7 +647,8 @@ if __name__ == "__main__":
 \begin{frame}[fragile]
   \begin{example}[Kontakter som personobjekt]
     \label{ex:contacts-class-data}
-    Varje person är nu ett \mintinline{python}{Person}-objekt:
+    Samma uppgifter som förut, men varje person är ett
+    \mintinline{python}{Person}-objekt:
 <<lagra kontakterna som personobjekt>>=
 phonebook = {
     "ronja": person.Person(
@@ -613,10 +676,12 @@ phonebook = {
 \end{frame}
 
 Noterar du att koden för att skapa personer är tydligare med klasser?
-Vi ser direkt vilka argument som behövs, och i vilken ordning.  Med
-uppslagslistor är det lätt att göra fel eller glömma ett fält.  Dessutom
-ser vi här att datan gäller en person
-(\mintinline{python}{person.Person}).
+Vi ser direkt vilka argument som behövs, och i vilken ordning, och
+fältens namn skrivs en gång, i klassen, i stället för en gång för varje
+person.  Med uppslagslistor är det lätt att stava fel på ett fält eller
+glömma det.  Klassen låter oss inte glömma något: en uppgift som saknas
+måste ändå anges, här som \mintinline{python}{"okänt"}.  Dessutom ser
+vi här att datan gäller en person (\mintinline{python}{person.Person}).
 
 Nu ska vi titta på hur \mintinline{python}{Person}-klassen definierar
 metoder för att hämta information.
@@ -908,24 +973,53 @@ detta:
 \begin{frame}[fragile]
   \begin{example}[Slå upp med personobjekt]
     \label{ex:contacts-class-lookup}
-    Metoderna garanterar att det alltid finns ett värde:
-<<fråga efter namn och skriv ut personens uppgifter>>=
-phone = phonebook[name].get_phone()
-address = phonebook[name].get_address()
-print(f"{name} has phone number {phone} and lives at {address}.")
+    Samma två funktioner; metoderna garanterar att det alltid finns ett
+    värde:
+<<hjälpfunktionerna i [[contacts_class.py]]>>=
+<<funktion som skriver ut alla namn>>
+
+def print_contact(phonebook, name):
+    """Skriver ut namn, telefonnummer och adress för name"""
+    contact = phonebook[name]
+    full_name = contact.get_name()
+    phone = contact.get_phone()
+    address = contact.get_address()
+    print(f"{full_name}: telefon {phone}, adress {address}")
 @
   \end{example}
 \end{frame}
 
-Vilken skillnad!  Med klasser behöver vi inte hantera
-\mintinline{python}{KeyError} eller kontrollera om fält finns.
-Metoderna \mintinline{python}{get_phone()} och
-\mintinline{python}{get_address()} garanterar att vi alltid får ett
-värde (även om det kan vara strängen \mintinline{python}{"okänt"}).
+\leavevmode\ltnote{%
+  Här blir kontrasten \enquote{metoder mot fristående funktioner} från
+  avsnittets inledande not synlig: \mintinline{python}{print_contact} i
+  \cref{ex:contacts-lookup,ex:contacts-class-lookup} har samma namn,
+  parametrar och utskrift, och bara kroppen varierar.
+}%
+Vilken skillnad!  Funktionerna heter och gör samma sak i båda
+programmen; det som skiljer är kroppen i
+\mintinline{python}{print_contact}.  I \texttt{contacts.py} sätter
+funktionen själv ihop namnet och fångar de fält som saknas.  Här frågar
+den objektet: metoderna \mintinline{python}{get_name()},
+\mintinline{python}{get_phone()} och \mintinline{python}{get_address()}
+gör jobbet, och de garanterar att vi alltid får ett värde (även om det
+kan vara strängen \mintinline{python}{"okänt"}).  Vi behöver varken
+hantera \mintinline{python}{KeyError} eller kontrollera om fält finns.
+Det som i \texttt{contacts.py} var kod i en fristående funktion hör nu
+till personen själv, som metoder.
 
 \begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela programmet:
+  Sätter vi in varje del där dess namn står får vi hela programmet,
+  \texttt{contacts\_class.py}:
   \inputminted{python}{examples/contacts_class.py}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[En körning av \texttt{contacts\_class.py}]
+    \label{ex:contacts-class-run}
+    Samma sökningar, och samma utskrift, som med \texttt{contacts.py}:
+    \runpython[transcript, stdinfile={examples/sokningar.in},
+      deps={examples/person.py}]{examples/contacts_class.py}
+  \end{example}
 \end{frame}
 
 \begin{frame}
