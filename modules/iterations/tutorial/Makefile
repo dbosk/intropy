@@ -26,7 +26,8 @@ SRC+=		ltnotes.bib
 # The exercise that asks the reader to find the faults in a program:
 EXAMPLES+=	examples/fib.py
 EXAMPLES+=	examples/fib2.py
-# The quiz, grown one aspect at a time:
+# The quiz, grown one aspect at a time; the later programs import
+# fragor_for.py, and all of them input_int from typed_input.py:
 EXAMPLES+=	examples/fragor_for.py
 EXAMPLES+=	examples/fragor_while.py
 EXAMPLES+=	examples/fragor_numrerade.py
@@ -34,11 +35,14 @@ EXAMPLES+=	examples/numrering.py
 EXAMPLES+=	examples/forsok.py
 EXAMPLES+=	examples/meny_while.py
 EXAMPLES+=	examples/meny_rekursivt.py
-EXAMPLES+=	examples/lagg_till.py
-# The module, and the two programs that import it:
-EXAMPLES+=	examples/fragor.py
-EXAMPLES+=	examples/fragesport.py
 EXAMPLES+=	examples/blanda.py
+# typed_input.py is written in the lecture Moduler och paket; build it
+# there, copy it here.  The quiz and the deepening exercises import
+# input_int from it.
+examples/typed_input.py: ../../packages/slides/contents.nw
+	$(MAKE) -C $(<D) examples/typed_input.py
+	cp $(<D)/examples/typed_input.py $@
+EXAMPLES+=	examples/typed_input.py
 # The deepening exercises:
 EXAMPLES+=	examples/fib_anrop.py
 EXAMPLES+=	examples/fib_lista.py
@@ -49,7 +53,14 @@ EXAMPLES+=	examples/primtal.py
 EXAMPLES+=	examples/ko.py
 EXAMPLES+=	examples/cowsay.py
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.
@@ -66,7 +77,6 @@ examples: ${EXAMPLES}
 # as the tangle rule does, and compares it with the committed copy, so a
 # copy left stale by a change to contents.nw is caught.
 COMMITTED+=	examples/fib.py
-COMMITTED+=	examples/lagg_till.py
 
 .PHONY: check-committed
 check-committed:

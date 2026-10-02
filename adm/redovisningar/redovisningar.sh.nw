@@ -1,0 +1,235 @@
+\documentclass[a4paper,british]{article}
+\usepackage[british]{babel}
+\usepackage{url}
+\usepackage{csquotes}
+\usepackage[colorlinks]{hyperref}
+\usepackage{noweb}
+\noweboptions{shift,longchunks,longxref,breakcode}
+\usepackage{minted}
+\usepackage[capitalize]{cleveref}
+
+\title{Booking slots for lab presentations}
+\author{Daniel Bosk}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+
+\section{Introduction}
+
+The students present their labs (\enquote{redovisning}) online, to the TAs who
+have booked the presentation sessions in nytid.
+In Canvas the students book a time for this in an appointment group: the
+session is cut into 15-minute slots and each slot takes a fixed number of
+students.
+For the session on 5 October, 13:00--15:00, we want
+\begin{minted}{bash}
+canvaslms calendar create -c prgi26 "Redovisning" \
+    --start-time "2026-10-05 13:00" --end-time "2026-10-05 15:00" \
+    --location "https://queue.eecs.kth.se/queue/Prgi" \
+    --event-type appointment_group \
+    --time-slot-duration 15 --max-appointments 4 \
+    --description "marwahas samed mweng yasmines ealaton kfgruner"
+\end{minted}
+Six TAs have booked that session (besides me), so four students per slot.
+
+This script derives such commands from the TA schedule in nytid.
+It only \emph{prints} them: I review, edit and run them myself.
+Creating an appointment group is not idempotent---running the same command
+twice gives the students two groups to book in---so the script must never be
+the one that sends them to Canvas.
+
+We only create the slots one week in advance.
+Before that, TAs still book and unbook sessions, so the number of students per
+slot would be based on a staffing that has not yet stabilized.
+
+\subsection{The script}
+
+The structure follows [[missing.sh]]: constants, functions and a [[main]]
+that runs only when the script is executed, not when it is sourced for
+debugging.
+The first argument is the course, for both nytid and canvaslms; the remaining
+arguments go to [[nytid schedule show]], see \cref{sec:schedule}.
+<<[[redovisningar.sh]]>>=
+#!/bin/bash
+
+<<constants>>
+<<functions>>
+
+# Run the script if not sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi
+@
+
+A typical run is
+\begin{minted}{bash}
+./redovisningar.sh prgi26 > redovisningar-v41.sh
+\end{minted}
+followed by editing the output and running it with [[bash]].
+
+
+\section{The presentation sessions}\label{sec:schedule}
+
+[[nytid schedule show]] shows the events from today until a week from today
+by default.
+That is exactly the window we want, so the script uses nytid's window rather
+than computing its own.
+Extra arguments, such as [[--start 2026-10-12 --end 2026-10-19]], are passed
+on to nytid to override it.
+
+We ask for [[--user ""]] to get all sessions and every TA booked on them, not
+only my own bookings.
+We ask for CSV with the end time and full dates, since canvaslms wants
+[[YYYY-MM-DD HH:MM]] for both ends of the session.
+We also state [[--no-week]], [[--no-location]] and the delimiter explicitly,
+although some of them are defaults: each of them can be changed in the nytid
+configuration, and a changed default would shift the columns that we read
+below.
+<<constants>>=
+TIME_FORMAT="%Y-%m-%d %H:%M"
+<<functions>>=
+sessions() {
+  nytid schedule show "$course" --user "" \
+    --format csv --delimiter $'\t' \
+    --no-week --no-location --no-todo \
+    --end-time --time-format "$TIME_FORMAT" \
+    "$@" \
+  | tr -d '\r' \
+  | awk -F'\t' -v pattern="$SESSION_PATTERN" \
+    'tolower($3) ~ pattern'
+}
+@
+
+Python's [[csv]] module ends every row with CRLF, which [[tr]] removes;
+otherwise the last field, and with it the last TA's username, would end in
+a carriage return.
+
+The rows then have the columns start, end, event and description.
+The course has both lab sessions and presentation sessions; the presentation
+sessions are the ones with \enquote{redovisning} in the event name, for
+example \enquote{Datorlaboration redovisning online}.
+We match on the event column only, since the description could mention a
+presentation without being one.
+<<constants>>=
+SESSION_PATTERN="redovisning"
+@
+
+
+\section{The TAs of a session}
+
+The description of a session looks like
+\begin{minted}{text}
+Needed TAs: 10; Booked TAs: dbosk marwahas samed mweng yasmines ealaton kfgruner
+\end{minted}
+and may continue with [[; Reserve TAs: ...]].
+Reserves are not counted: they only work the session if a booked TA drops out.
+We take the words between [[Booked TAs:]] and the next semicolon.
+
+I am booked on the sessions too, but I do not take presentations, so I am
+excluded both from the count and from the list of TAs in the description.
+nytid identifies TAs by their KTH username, which on my machine is also
+[[$USER]]; [[TEACHER]] can be set in the environment to override it.
+
+A TA can appear twice in the list when they have booked the same session twice
+in the sign-up sheet, as happened on 6 October 2026.
+They still take only one student at a time, so we keep only the first
+occurrence of each name ([[awk '!seen[$0]++']] keeps the order, unlike
+[[sort -u]]).
+<<constants>>=
+TEACHER="${TEACHER:-$USER}"
+<<functions>>=
+booked_tas() {
+  local description="$1"
+  local ta
+  [[ $description =~ Booked\ TAs:\ ([^;]*) ]] || return
+  for ta in ${BASH_REMATCH[1]}; do
+    if [ "$ta" != "$TEACHER" ]; then
+      echo "$ta"
+    fi
+  done \
+  | awk '!seen[$0]++'
+}
+@
+
+
+\section{Students per slot}
+
+Each slot should take fewer students than there are TAs: we save more than
+20~per cent of the TAs' capacity.
+That is, the number of students per slot is the largest integer strictly less
+than \(0.8n\) for \(n\) TAs, which is \(\lfloor (4n - 1)/5 \rfloor\) in integer
+arithmetic.
+Six TAs give four students per slot, ten TAs give seven.
+The plain \(\lfloor 4n/5 \rfloor\) would give four students for five TAs,
+which saves exactly 20~per cent, not more.
+<<functions>>=
+students_per_slot() {
+  local tas="$1"
+  echo $(( (4 * tas - 1) / 5 ))
+}
+@
+
+With no TA other than me, this is zero (or negative).
+That happens, for instance, when only reserves have signed up besides me.
+Canvas has no use for a slot that takes no students, so [[main]] prints a
+comment instead of a command for such a session; being a comment, it does no
+harm when the output is run.
+
+
+\section{The canvaslms command}
+
+The title, the location and the slot length are the same for every session.
+The location is the queue system, where the students queue to the TA once
+their slot starts.
+<<constants>>=
+TITLE="Redovisning"
+LOCATION="https://queue.eecs.kth.se/queue/Prgi"
+SLOT_DURATION=15
+@
+
+We print the command in the same layout as in the introduction, one option
+group per line, so that it is easy to edit before running it.
+The TAs go in the description; that way the students see who is working the
+session.
+<<functions>>=
+print_command() {
+  local start="$1" end="$2" max="$3" tas="$4"
+  printf 'canvaslms calendar create -c %s "%s" \\\n' "$course" "$TITLE"
+  printf '    --start-time "%s" --end-time "%s" \\\n' "$start" "$end"
+  printf '    --location "%s" \\\n' "$LOCATION"
+  printf '    --event-type appointment_group \\\n'
+  printf '    --time-slot-duration %s --max-appointments %s \\\n' \
+    "$SLOT_DURATION" "$max"
+  printf '    --description "%s"\n' "$tas"
+}
+@
+
+
+\section{The main function}
+
+[[main]] reads the course, fetches the sessions and prints one command per
+session, with a blank line between them.
+<<functions>>=
+main() {
+  course="$1"
+  shift
+  local start end event description tas n max
+  sessions "$@" \
+  | while IFS=$'\t' read -r start end event description; do
+      tas=$(booked_tas "$description" | tr '\n' ' ')
+      tas="${tas% }"
+      n=$(wc -w <<< "$tas")
+      max=$(students_per_slot "$n")
+      if [ "$max" -lt 1 ]; then
+        echo "# $start to $end $event: no TA but $TEACHER, skipping"
+      else
+        print_command "$start" "$end" "$max" "$tas"
+      fi
+      echo
+    done
+}
+@
+
+\end{document}

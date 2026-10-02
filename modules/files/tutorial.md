@@ -8,11 +8,17 @@ modules:
   - module: '^Filhantering$'
     position: 4
 ---
-Övningen ges live i din grupp; tid och plats står i veckoöversikten
-överst i modulen. Vi löser uppgifter tillsammans i mindre grupper.
-Uppgifterna och deras lösningsförslag finns i det interaktiva dokumentet
-(FeedbackFruits) här i modulen, *Övning: Filhantering
-(övningsanteckningar)*: pröva varje uppgift innan du läser lösningen.
+Övningen är frivillig och ges för hela klassen, i D37 och på
+[Zoom][zoom-room]; tider och plats står i veckoöversikten överst i
+modulen. På det första tillfället löser vi uppgifter tillsammans, och på
+det andra fortsätter vi med veckans innehåll. Samtidigt leder en
+assistent, oftast Emelie, en repetition i ett eget grupprum på Zoom, så
+långt tillbaka i kursen som behövs. Uppgifterna och deras
+lösningsförslag finns i det interaktiva dokumentet (FeedbackFruits) här
+i modulen, *Övning: Filhantering (övningsanteckningar)*: pröva varje
+uppgift innan du läser lösningen.
+
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 <!-- TODO: FBF-dokumentet skapas av författaren -->
 
