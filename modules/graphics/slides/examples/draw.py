@@ -1,52 +1,46 @@
-"""A drawing program"""
+"""A window to draw lines in with the mouse"""
 
 import tkinter as tk
 
+
 class DrawGUI(tk.Tk):
-    """GUI which takes name input and prints 'Hello, {name}!'"""
+    """A window with a canvas to draw lines on with the mouse"""
+
     def __init__(self):
-        # Initialize tk.Tk itself
+        """Create the canvas and bind the mouse to it"""
         super().__init__()
 
-        # Create a large canvas to draw on
-        self.canvas = tk.Canvas(width=800, height=600, bg="white")
+        self.canvas = tk.Canvas(self, width=800, height=600, bg="white")
         self.canvas.pack()
 
-        # We use lines to paint, those need two coordinates
-        self.x_old = self.y_old = None
+        self.x_old = None
+        self.y_old = None
 
-        # We need to check when
-        # ... mouse moves with button pressed
-        # ... when button released
         self.canvas.bind("<B1-Motion>", self.paint)
         self.canvas.bind("<ButtonRelease-1>", self.reset_old_coord)
 
     def paint(self, event):
-        """ Draw a line between two points """
-        # If we don't have old coordinates, we must wait for new
-        if self.x_old is None:
-            self.x_old = event.x
-            self.y_old = event.y
-            return
+        """Draw a line from the previous point to this one"""
+        if self.x_old is not None:
+            self.draw_line(self.x_old, self.y_old, event.x, event.y)
+        self.x_old = event.x
+        self.y_old = event.y
 
-        # If we have old coordinates, we can draw a line
-        x_start, y_start = self.x_old, self.y_old
-        x_dest, y_dest = self.x_old, self.y_old = event.x, event.y
-        self.canvas.create_line(x_start, y_start,
-                                x_dest, y_dest)
+    def draw_line(self, x_start, y_start, x_dest, y_dest):
+        """Draw a line between two points on the canvas"""
+        self.canvas.create_line(x_start, y_start, x_dest, y_dest)
 
     def reset_old_coord(self, _):
-        """Reset x_old and y_old to None"""
-        self.x_old = self.y_old = None
-
+        """Forget the previous point, when the mouse button is released"""
+        self.x_old = None
+        self.y_old = None
 
 
 def main():
-    """Test program"""
+    """Create the drawing window, then run the event loop"""
     window = DrawGUI()
-
-    # Run the window --- loop forever
     window.mainloop()
+
 
 if __name__ == "__main__":
     main()
