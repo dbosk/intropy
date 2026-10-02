@@ -67,28 +67,15 @@ till den.
 @
 \end{frame}
 
-\leavevmode\ltnote{%
-  Relevanta lärandemål: \cref{GuessLOCombine}.
-
-  Programmen följer funktionsregeln från föreläsningen
-  \emph{Funktioner}, också [[slump.py]] i \cref{sec:slump}, som är
-  fyra satser långt.
-}%
-Upplägget har den vanliga formen: importerna, konstanterna,
-hjälpfunktionerna och till sist huvudprogrammet.  Som vanligt är
-namnen inom vinkelparenteser pseudokod, och +\(\equiv\) lägger till en
-del under samma namn.
-
 \subsection{Att spela omgångarna}
 \label{sec:omgangar}
 
 Vi börjar i huvudprogrammet, för det är där resultaten samlas.  Det
 spelar omgångarna, en i taget, och efter varje omgång sparar det hur
 många försök den tog, i en lista som växer med en post per omgång.  När
-alla omgångar är spelade sammanfattar det listan.  Anropet som startar
-spelet står direkt efter definitionen.  Pseudokoden före anropet
-preciserar vi sist,
-i \cref{sec:slump}.
+alla omgångar är spelade sammanfattar det listan.  Pseudokoden före
+anropet av \mintinline{python}{main} preciserar vi sist, i
+\cref{sec:slump}.
 
 % shrink: with the start call after main the chunk is two lines taller
 % than the frame holds.
@@ -169,9 +156,10 @@ MAX_ATTEMPTS = 3
 \end{frame}
 
 En omgång börjar med att datorn tänker på ett tal, ett slumptal i
-intervallet.  Slumptalet drar vi med funktionen
-\mintinline{python}{randint} ur modulen \mintinline{python}{random},
-och därför importerar programmet den modulen.  Sedan
+intervallet.  Slumptalet drar vi med
+\mintinline{python}{random.randint}, som tärningsprogrammet i
+föreläsningen \emph{Moduler och paket}, och därför importerar
+programmet modulen \mintinline{python}{random}.  Sedan
 gissar användaren tills talet är hittat eller försöken är slut.  Det är
 en upprepning i sig, mer än en rad, så den blir en egen funktion,
 \mintinline{python}{ask_question}, som får talet och antalet försök och
@@ -287,9 +275,8 @@ förr --- går genomsnittet att räkna ut.
   }%
   Sammanfattningen använder hela listan:
 <<sammanfatta resultaten>>=
-average = sum(results) / len(results)
 print(f"Försöken per omgång: {results}")
-print(f"Du behövde i genomsnitt {average:.2f} försök.")
+print(f"Du behövde i genomsnitt {average(results):.2f} försök.")
 print(f"Bästa omgången tog {min(results)} försök.")
 @
   \pause
@@ -301,6 +288,20 @@ print(f"Bästa omgången tog {min(results)} försök.")
   \end{remark}
 \end{frame}
 
+Genomsnittet är en uträkning, och den får en egen funktion,
+\mintinline{python}{average}, så att huvudprogrammet bara anropar och
+skriver ut.  Funktionen hamnar bland hjälpfunktionerna; som vanligt
+lägger +\(\equiv\) till en del under samma namn.
+
+\begin{frame}[fragile]
+  Genomsnittet, summan delad med antalet:
+<<gissningsspelets hjälpfunktioner>>=
+def average(numbers):
+    """Returnerar medelvärdet av talen i numbers."""
+    return sum(numbers) / len(numbers)
+@
+\end{frame}
+
 \subsection{Att läsa in en gissning}
 \label{sec:inlasning}
 
@@ -309,8 +310,9 @@ omgången anropar i varje varv.  Användaren skriver vad som helst:
 bokstäver, tomma rader, tal utanför intervallet.  Programmet ska inte
 krascha av det, utan fråga om igen.
 
-\begin{frame}[fragile]
-  \begin{exercise}
+\mode<article>{\needspace{20\baselineskip}}
+\begin{frame}[fragile,shrink]
+  \begin{exercise}[gissning.py]
     \label{ovn:inlasning}
     \leavevmode\ltnote{%
       Relevanta lärandemål för \cref{ovn:inlasning}:
@@ -322,38 +324,109 @@ krascha av det, utan fråga om igen.
       innebörd}.  Den skillnaden är kritisk och lätt att missa --- ett
       program som bara har [[try]]/[[except]] tar hand om det första fallet
       och släpper igenom det andra.  Frågan pekar inte ut skillnaden, den
-      ber bara om exempel på båda sorterna.
+      ber bara om exempel på båda sorterna.  Programmet ställer spelets
+      fråga och ger spelets besked, så att det enda som skiljer det från
+      en omgång är att kontrollen saknas.
     }%
-    Vad kan användaren skriva som gör att
-    \mintinline{python}{int(input("Gissa: "))} kraschar?  Och vad kan
-    hen skriva som \emph{inte} kraschar men ändå är fel?
+    Ett program som läser in en gissning utan att kontrollera den:
+<<[[gissning.py]]>>=
+"""En gissning, utan någon kontroll av svaret."""
+
+ANSWER = 7
+
+def main():
+    """Huvudprogrammet"""
+    guess = int(input("Vilket tal tänker jag på? (0, 10): "))
+
+    if guess < ANSWER:
+        print("För lågt.")
+    elif guess > ANSWER:
+        print("För högt.")
+    else:
+        print("Snyggt gissat!")
+
+if __name__ == "__main__":
+    main()
+@
+    Vad kan användaren skriva som får programmet att krascha?  Och vad
+    kan hen skriva som \emph{inte} kraschar men ändå är fel?
   \end{exercise}
 \end{frame}
 
-Två olika saker kan gå fel, och de kräver olika slags kontroll.
-\enquote{Sju} går inte att göra om till ett tal alls, och ger ett
-undantag som vi måste fånga.  \(42\) går utmärkt att göra om till ett
-tal --- men ligger utanför intervallet, och det märks bara om vi
-frågar efter det.
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Två svar som går fel]
+    Vi svarar \mintinline{text}|sju|:
+    \runpython[transcript, stdin={sju}]{examples/gissning.py}
+    Och vi svarar \mintinline{text}|42|:
+    \runpython[transcript, stdin={42}]{examples/gissning.py}
+  \end{solution}
+\end{frame}
 
+Två olika saker kan gå fel, och de kräver olika slags kontroll.
+Svaret \texttt{sju} går inte att göra om till ett tal alls, och ger ett
+undantag, \mintinline{python}{ValueError}, som i föreläsningen
+\emph{Inmatning och felhantering}.  Svaret \texttt{42} går utmärkt att göra om
+till ett tal, och programmet svarar som om gissningen vore rimlig ---
+men den ligger utanför intervallet, och det märks bara om vi frågar
+efter det.
+
+Det första fallet har vi redan en funktion för:
+\mintinline{python}{input_int} frågar tills svaret är ett heltal.  Vi
+hämtar den ur modulen \mintinline{python}{typed_input} i stället för att
+skriva den en gång till: modulen är filen från exemplet \emph{Hela
+modulen (\texttt{typed\_input.py})} i föreläsningen \emph{Moduler och
+paket}.  Så att du inte behöver slå upp den där står funktionen också
+här.
+
+% The function is listed from the copied typed_input.py itself, with
+% didactic's PythonTeX helpers, so the listing cannot drift from the file
+% the program imports.  didactic_import executes the file, which is safe
+% because typed_input.py calls its main only under the __name__ guard.
 \begin{frame}[fragile]
-  Funktionen frågar om igen tills båda kontrollerna går igenom:
+  \begin{example}[\texttt{input\_int} ur \texttt{typed\_input.py}]
+    Funktionen frågar tills omvandlingen lyckas:
+\begin{pycode}
+didactic_import("typed_input", "examples/typed_input.py")
+didactic_source(sys.modules["typed_input"].input_int)
+\end{pycode}
+  \end{example}
+\end{frame}
+
+Det andra fallet är nytt.  Om ett tal ligger i intervallet är en fråga
+för sig, så kontrollen blir en egen funktion,
+\mintinline{python}{in_interval}, och inläsningen behöver bara fråga om
+igen.  Varje funktion får ett ansvar, kontrollen respektive frågan till
+användaren: det är \emph{SRP}, principen om ett enda ansvar, från
+föreläsningen \emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
+\footnote{%
+  Det vetenskapliga underlaget för SRP --- både varifrån principen
+  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
+  ansvar} är en bedömningsfråga --- finns i föreläsningen
+  \emph{Funktioner}, bilaga B.%
+}
+
+\begin{frame}[fragile,shrink]
+  Först inläsningen, som frågar om igen tills gissningen ligger i
+  intervallet:
 <<gissningsspelets hjälpfunktioner>>=
 def input_guess(interval):
     """Läser in en gissning som ligger i interval."""
     prompt = f"Vilket tal tänker jag på? {interval}: "
 
-    while True:
-        try:
-            guess = int(input(prompt))
-        except ValueError:
-            print("Det där var inget heltal.")
-            continue
-
-        if interval[0] <= guess <= interval[1]:
-            return guess
-
+    while not in_interval(guess := input_int(prompt), interval):
         print(f"Gissningen måste ligga i intervallet {interval}.")
+
+    return guess
+<<gissningsspelets importer>>=
+from typed_input import input_int
+@
+  \pause
+
+  Sedan kontrollen:
+<<gissningsspelets hjälpfunktioner>>=
+def in_interval(number, interval):
+    """Returnerar True om number ligger i interval."""
+    return interval[0] <= number <= interval[1]
 @
 \end{frame}
 
@@ -361,30 +434,27 @@ def input_guess(interval):
   Relevanta lärandemål för [[input_guess]]:
   \cref{GuessLOValidate,GuessLOCombine}.
 
-  Att funktionen tar intervallet som parameter i stället för att
-  använda konstanten är ett tillfälle att peka ut att en funktion med
-  ett tydligt ansvar och utan dolda beroenden går att återanvända och
-  att pröva --- principerna \foreignlanguage{english}{SRP} och
-  \foreignlanguage{english}{KISS}.  Det vetenskapliga underlaget för
-  \foreignlanguage{english}{SRP} --- att principen härrör från Martin
-  och är etablerad, medan vad som räknas som \emph{ett} ansvar förblir
-  en bedömningsfråga --- finns i föreläsningen \emph{Funktioner},
-  bilaga~B; underlaget för \foreignlanguage{english}{KISS} --- att
-  enkelhet är ett etablerat designvärde, medan den vanliga
-  upphovsuppgiften inte går att bekräfta --- finns i bilaga~C i samma
-  föreläsning.
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: uppdelningen i en funktion som
+  frågar om och en som kontrollerar, och valrossen inne i anropet.
+  \textbf{Vad som varierar}: vad som kontrolleras, ett telefonnummer i
+  föreläsningen \emph{Behållare: Uppslagslistor} och ett intervall här.
 
-  Prosan efteråt säger \emph{varför} valet är gjort, inte bara att det
-  är gjort.  Det är skillnaden mellan att visa kod och att lära ut
-  design, och det är den delen studenterna annars hoppar över.
+  [[input_int]] importeras i stället för att skrivas om, eftersom en
+  andra version av samma slinga skulle lära att modulerna från
+  föreläsningen \emph{Moduler och paket} var valfria.
 }%
-Funktionen tar intervallet som parameter i stället för att läsa
-konstanten direkt, och så anropar omgången den.  Det gör den
-återanvändbar --- den fungerar för vilket intervall som helst --- och
-det gör den möjlig att pröva för sig, utan resten av spelet.
-Slingan som frågar om är densamma som i funktionen
-\mintinline{python}{input_int} i föreläsningen \emph{Moduler och
-paket}; här kontrollerar den dessutom intervallet.
+Villkoret läser in gissningen med valrossen \mintinline{python}{:=}
+inne i anropet, som när telefonnumret lästes in i föreläsningen
+\emph{Behållare: Uppslagslistor}: gissningen sparas i
+\mintinline{python}{guess}, och det är det värdet
+\mintinline{python}{in_interval} prövar.  Så står frågan på ett ställe
+i stället för två, före slingan och sist i den.  Inläsningen tar
+intervallet som parameter i stället för att läsa konstanten direkt, och
+så anropar omgången den.  Det gör den återanvändbar --- den fungerar för
+vilket intervall som helst.  Och kontrollen går att pröva utan att
+någon behöver mata in något:
+\mintinline{python}|in_interval(42, (0, 10))| svarar direkt.
 
 \subsection{Att kunna köra om samma spel}
 \label{sec:slump}
@@ -449,7 +519,6 @@ En slumpgenerator är inte slumpmässig på riktigt.
 <<[[slump.py]]>>=
 import random
 
-
 def main():
     """Huvudprogrammet"""
     random.seed(42)
@@ -458,7 +527,6 @@ def main():
     random.seed(42)
     print(random.randint(1, 100), random.randint(1, 100))
 
-
 if __name__ == "__main__":
     main()
 @
@@ -466,10 +534,10 @@ if __name__ == "__main__":
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[Utmatning]
+  \begin{solution}[\texttt{slump.py}]
     Programmet skriver ut
     \runpython[showcommand, chdir]{examples/slump.py}
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Generatorn räknar fram sin följd ur ett \emph{startvärde}, och
@@ -498,16 +566,22 @@ import sys
   \begin{remark}
     Utan argument spelas ett nytt spel varje gång.  Med
     \mintinline{bash}|python3 guess.py 42| spelas exakt samma spel som
-    förra gången argumentet var 42.
+    förra gången argumentet var \texttt{42}.
   \end{remark}
 \end{frame}
 
 \begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela programmet:
-  \inputminted{python}{examples/guess.py}
+  \begin{example}[Gissningsspelet (\texttt{guess.py})]
+    \label{ex:guess}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/guess.py}
+  \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
+Så här ser en körning ut när vi startar programmet med startvärdet
+\texttt{42} och skriver gissningarna för hand:
+
+\begin{frame}[fragile,shrink]
   \leavevmode\ltnote{%
     Relevanta lärandemål för \cref{ex:korning}:
     \cref{GuessLOReproduce,GuessLOCombine}.
@@ -525,8 +599,27 @@ import sys
     är samtidigt en illustration av vad startvärdet är till för --- det
     påstås inte, det används.
   }%
-  Vi matar programmet med gissningarna från en fil för att kunna visa
-  en körning:
+  \begin{example}[En körning]
+    \label{ex:korning}
+    Tre omgångar, en av dem utan att talet hittas:
+    \runpython[transcript, args={42},
+      stdinfile={examples/guess.in}]{examples/guess.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GuessLOReproduce}.
+
+  Ordningen --- för hand (\cref{ex:korning}), filen och omdirigeringen
+  (\cref{ex:korning-fil}) --- låter studenten känna igen körningen innan formen
+  ändras; att frågorna flyter ihop i den andra körningen är då den enda
+  skillnaden att se.
+}%
+Som i föreläsningen \emph{Behållare: Uppslagslistor} kan vi också skriva
+gissningarna i en fil, en per rad, och låta programmet läsa dem därifrån.
+
+\begin{frame}[fragile]
+  Filen \texttt{guess.in}, med gissningarna för de tre omgångarna:
 <<[[guess.in]]>>=
 5
 8
@@ -536,20 +629,27 @@ sju
 5
 1
 5
-6
-7
+2
+1
 @
 \end{frame}
 
+Med \texttt{<} framför filnamnet läser \mintinline{python}{input} sina
+svar från filen i stället för från tangentbordet.
+
 \begin{frame}[fragile,shrink]
-  \begin{example}[En körning]
-    \label{ex:korning}
-    Så här ser det ut med startvärdet 42 och gissningarna i filen
-    \texttt{guess.in}:
-    \runpython[transcript, args={42},
-      stdinfile={examples/guess.in}]{examples/guess.py}
+  \begin{example}[En körning med gissningarna från filen]
+    \label{ex:korning-fil}
+    Samma körning, med svaren ur \texttt{guess.in}:
+    \runshell[showcommand, cwd=examples,
+      deps={examples/guess.py,examples/guess.in,examples/typed_input.py}]%
+      {python3 guess.py 42 < guess.in}
   \end{example}
 \end{frame}
+
+Frågorna och beskeden hamnar på samma rad, eftersom svaren kommer från
+filen och aldrig skrivs ut i terminalen, och därmed inte heller
+radbytet efter dem.
 
 \mode<article>{\needspace{12\baselineskip}}
 \begin{frame}

@@ -22,6 +22,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/guess.py
+EXAMPLES+=	examples/gissning.py
 EXAMPLES+=	examples/slump.py
 # The transcript is produced by feeding the program this file, with a
 # fixed seed, so the run in the notes is exactly reproducible.
@@ -47,6 +48,15 @@ examples/%.py: contents.nw
 examples/guess.in: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[guess.in]]' $< > $@
+
+# guess.py imports input_int from typed_input.py, which is written in the
+# lecture Moduler och paket; build it there and copy it here.  The copy is
+# generated, like everything in examples/, and is never re-tangled here.
+examples/typed_input.py: ../../packages/slides/contents.nw
+	$(MAKE) -C $(<D) examples/typed_input.py
+	@mkdir -p ${@D}
+	cp $(<D)/examples/typed_input.py $@
+EXAMPLES+=	examples/typed_input.py
 
 .PHONY: examples
 examples: ${EXAMPLES}
