@@ -40,6 +40,13 @@ EXAMPLES+=	examples/sorterad.py
 EXAMPLES+=	examples/search.py
 EXAMPLES+=	examples/phonebook.py
 EXAMPLES+=	examples/phone-big.py
+# phonebook.py's test program grows one test case at a time, and the
+# deck shows each case's output beside it.  Each of these programs runs
+# one case; they reference the test chunks in contents.nw from
+# testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/phonebook_test_kolumner.py
+TESTRUNS+=	examples/phonebook_test_lang_rad.py
+EXAMPLES+=	${TESTRUNS}
 # The transcript of search.py is produced by feeding it this file, so the
 # run in the notes is exactly the run the reader can reproduce.
 EXAMPLES+=	examples/search.in
@@ -58,6 +65,8 @@ contents.tex: contents.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+${TESTRUNS}: testkorningar.nw
 
 # .in is not one of noweb.mk's suffixes, and the file must not be piped
 # through black.

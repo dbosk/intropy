@@ -1215,10 +1215,12 @@ Bredden på en kolumn måste vara det längsta namnets bredd, plus lite
 luft.  Alltså måste vi gå igenom alla namn en gång innan vi skriver ut
 det första.
 
-Modulen får samma upplägg som programmen, men utan huvudprogram: den är
-till för att importeras, och den som importerar den vill bara ha
-funktionerna.  Funktionen skriver vi först i pseudokod, i två steg: det
-den måste veta innan den skriver något, och själva utskriften.
+Modulen får samma upplägg som programmen, men i stället för ett
+huvudprogram har den ett testprogram, som provar funktionen när filen
+körs som program.  Det är modulens provkörning, som i föreläsningen
+\emph{Moduler och paket}.  Funktionen skriver vi först i pseudokod, i
+två steg: det den måste veta innan den skriver något, och själva
+utskriften.
 
 \begin{frame}[fragile]
   Modulens upplägg:
@@ -1226,6 +1228,8 @@ den måste veta innan den skriver något, och själva utskriften.
 """En modul med funktioner för telefonböcker"""
 
 <<telefonboksmodulens funktioner>>
+
+<<telefonboksmodulens testprogram>>
 @
   \pause
 
@@ -1236,6 +1240,25 @@ def print_sorted(names, max_row_width=60):
     <<räkna ut kolumnbredden och hur många kolumner som får plats>>
 
     <<skriv ut namnen i bokstavsordning, en rad i taget>>
+@
+\end{frame}
+
+Testprogrammet heter \mintinline{python}{tests} och inte
+\mintinline{python}{main}, eftersom det enda filen gör när den körs som
+program är att prova funktionen.  Vi skriver det inte sist, när
+funktionen är klar, utan samlar testfallen under ett namn och lägger
+till dem när det finns något att prova.  Importeras modulen är
+villkoret falskt, och den som importerar den får bara funktionerna.
+
+\begin{frame}[fragile]
+  Testprogrammet, med testfallen samlade under ett namn:
+<<telefonboksmodulens testprogram>>=
+def tests():
+    """Provkör print_sorted."""
+    <<tester för [[print_sorted]]>>
+
+if __name__ == "__main__":
+    tests()
 @
 \end{frame}
 
@@ -1275,6 +1298,47 @@ print()
 @
 \end{frame}
 
+Nu är funktionen klar och kan provas.  Det första testfallet ger den fem
+namn och en rad som rymmer tre kolumner.
+
+% Each test case's output below is a run of a small program tangled from
+% testkorningar.nw: it imports print_sorted and runs this case, so the
+% output is exactly what tests() prints for these lines.
+
+\begin{frame}[fragile]
+  \begin{example}[Fem namn i kolumner]
+    \label{ex:phonebook-kolumner}
+    Testfallet sorterar namnen och bryter raden efter tre:
+<<tester för [[print_sorted]]>>=
+<<skriv ut fem namn i kolumner>>
+<<skriv ut fem namn i kolumner>>=
+names = ["ronja", "pippi", "madicken", "birk", "annika"]
+print_sorted(names, max_row_width=30)
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/phonebook.py}]%
+      {examples/phonebook_test_kolumner.py}
+  \end{example}
+\end{frame}
+
+Det andra testfallet provar att ett namn som är längre än hela raden
+ändå skrivs ut: då får varje rad en kolumn.
+
+\begin{frame}[fragile]
+  \begin{example}[Längre namn än raden]
+    \label{ex:phonebook-lang-rad}
+    Raden rymmer inte ens ett namn:
+<<tester för [[print_sorted]]>>=
+<<skriv ut namn som är längre än raden>>
+<<skriv ut namn som är längre än raden>>=
+print_sorted(["lisabet", "birk"], max_row_width=5)
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/phonebook.py}]%
+      {examples/phonebook_test_lang_rad.py}
+  \end{example}
+\end{frame}
+
 \begin{frame}<article>[fragile]
   \begin{example}[Hela \texttt{phonebook.py}]
     \label{ex:phonebook-hel}
@@ -1290,7 +1354,8 @@ print()
   \textbf{Vad som hålls invariant}: funktionen [[print_sorted]] och vad
   den gör.
   \textbf{Vad som varierar}: vilken behållare den får --- en lista av
-  namn i \cref{ovn:phonebook}, en uppslagslista i \cref{ex:phone-big}.
+  namn i testfallen, \cref{ex:phonebook-kolumner,ex:phonebook-lang-rad},
+  en uppslagslista i \cref{ex:phone-big}.
 
   Att samma funktion fungerar på båda är inte en bekvämlighet utan
   precis det som ska urskiljas: [[sorted]], [[max]] och [[enumerate]]
