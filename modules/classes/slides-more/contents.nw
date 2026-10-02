@@ -283,7 +283,8 @@ den något annat än ett heltal eller ett bråk kastar den ett särfall,
 I föreläsningen \emph{Klasser och objekt} såg vi hur vi använde
 läsmetoder (\enquote{\foreignlanguage{english}{getters}}) som
 \mintinline{python}{get_name()} för att läsa attribut.  Nu ska vi lära
-oss ett mer elegant sätt: egenskaper (\foreignlanguage{english}{properties}).
+oss det sätt som Pythons stilguide rekommenderar\autocite{pep8}:
+egenskaper (\foreignlanguage{english}{properties}).
 
 \begin{frame}
   \begin{exercise}
@@ -293,7 +294,7 @@ oss ett mer elegant sätt: egenskaper (\foreignlanguage{english}{properties}).
       \cref{ovn:property-syntax} vilken syntax som känns mer naturlig.
       De flesta kommer att föredra egenskapssyntaxen, vilket motiverar
       att lära sig \mintinline{python}{@property}.  Det skapar inre
-      motivation --- de \emph{vill} ha den renare syntaxen.
+      motivation --- de \emph{vill} ha den kortare syntaxen.
     }%
     Vad är skillnaden mellan att skriva
     \mintinline{python}{frac.get_numerator()} och
@@ -337,7 +338,14 @@ attribut.\footnote{\label{fn:property}%
   Pythons biblioteksreferens,
   \url{https://docs.python.org/3/library/functions.html\#property}
   (hämtad 2026-09-03).}
-Det ger en renare syntax.
+Det ger samma skrivsätt som ett vanligt attribut, och klassen kan senare
+byta ett lagrat värde mot ett beräknat utan att koden som använder den
+behöver ändras.\footnote{Att ett värde ska nås på samma sätt oavsett om
+  det lagras eller beräknas är Meyers princip om enhetlig åtkomst;
+  \cref{app:egenskaper} redovisar varifrån den kommer, att nyttan den
+  lovar är att koden blir lättare att ändra, inte vackrare, att ingen
+  studie har mätt om den gör koden lättare att läsa, och förbehållet att
+  attributsyntaxen lovar en billig åtkomst.}
 
 \begin{frame}
   \begin{exercise}
@@ -640,7 +648,13 @@ def __int__(self):
 }%
 Nu kommer vi till det riktigt intressanta: att implementera aritmetiska
 operationer!  Vi vill kunna skriva \mintinline{python}{frac_a + frac_b}
-precis som vi gör med heltal och flyttal.
+precis som vi gör med heltal och flyttal: för typer som beter sig som
+tal är språkkonstruktörer och stilguider ense om att operatorn gör koden
+lättare att läsa, så länge den betyder det den betyder i
+matematiken.\footnote{\Cref{app:overlagring} redovisar att ingen studie
+  har mätt detta: stödet är språkkonstruktörers och stilguiders argument,
+  och samma källor varnar för operatorer vars betydelse inte är
+  uppenbar, som \mintinline{python}{+} för att stoppa in i en lista.}
 
 \begin{frame}
   \begin{exercise}
@@ -913,8 +927,15 @@ Negation är enkelt: vi negerar bara täljaren,
   \end{exercise}
 \end{frame}
 
-Matematiskt är de ekvivalenta, men konventionen är att ha minustecknet i
-täljaren, så att varje värde skrivs på ett enda sätt.  Vad som händer
+Matematiskt är de ekvivalenta, men de bibliotek och språk som räknar
+exakt med bråk --- bland dem Pythons egen \mintinline{python}{fractions}
+--- håller nämnaren positiv, alltså minustecknet i täljaren, så att
+varje värde skrivs på ett enda sätt.\footnote{\Cref{app:kanonisk}
+  redovisar att en kanonisk form gör likhet och hashning enklare ---
+  skälet till att datoralgebran och alla bibliotek för exakta bråk
+  använder den ---, att positiv nämnare är bibliotekens och
+  språkstandardernas konvention, och att påståendet om felsökning bara
+  stöds av körningen här.}  Vad som händer
 med vår klass när någon ändå skapar ett bråk med negativ nämnare
 återkommer vi till i \cref{ovn:negativ-namnare}.
 
@@ -1172,7 +1193,7 @@ print(2 * frac_a)
   \textbf{Kritisk aspekt}: samma \emph{värde}, olika
   \emph{representation}.  Distinktionen är avgörande för klassdesign.
   Vi vill ha \emph{en} kanonisk representation per värde, vilket gör
-  jämförelse, hashning och felsökning enklare.
+  jämförelse och hashning enklare (och utskriften entydig).
 
   \textbf{Designbeslut}: vi förkortar i konstruktorn, vilket betyder att
   bråk \emph{alltid} är förkortade.  Det är ett designval --- vi hade
@@ -1572,8 +1593,12 @@ Konsekvenserna blir:
     utskriften skiljer sig: den första skrivs \mintinline{text}|1/-2|
     och den andra \mintinline{text}|-1/2|, alltså olika utskrift för
     samma värde --- och den tredje, som är \(\frac{1}{2}\), skrivs
-    \mintinline{text}|-1/-2|.  Det kan leda till förvirring vid felsökning och
-    jämförelser.
+    \mintinline{text}|-1/-2|.  Det gör jämförelser svårare: två bråk med
+    samma värde kan inte längre jämföras komponent för komponent, och
+    samma tal skrivs på olika sätt, vilket kan förvirra vid
+    felsökning.\footnote{\Cref{app:kanonisk} redovisar att en kanonisk
+      form gör likhet och hashning enklare, och att påståendet om
+      felsökning bara stöds av körningen här.}
   \item Förkortningen via största gemensamma delaren flyttar inte
     tecknet till täljaren.  \mintinline{python}{Fraction(6, -12)}
     skrivs \mintinline{text}|1/-2| i stället för
