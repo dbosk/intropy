@@ -439,22 +439,26 @@ samma sak på det traditionella sättet, med explicita anrop.
   konverteras till typ X implementerar jag \mintinline{python}{__X__}.
 }%
 Nu har vi ett bråk som kan skapas och vars täljare och nämnare kan
-läsas.  Men hur ska det visas för användaren?  Och hur konverterar vi
-det till andra typer?
+läsas.  Skriver vi ut det med \mintinline{python}{print()} får vi än så
+länge bara klassens namn och objektets adress, precis som för boken
+utan dundermetoder i \emph{Övning: Klasser och objekt}.
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:print-frac}
     \leavevmode\ltnote{%
-      \foreignlanguage{english}{Try-first}: studenterna förutsäger i
-      \cref{ovn:print-frac} beteendet innan de ser implementationen.
-      Det får dem att tänka på användarupplevelsen och vad som
-      \emph{borde} hända, vilket är avgörande för gränssnittets design
-      (\cref{FracLODesign}).
+      \foreignlanguage{english}{Try-first}: studenterna överväger i
+      \cref{ovn:print-frac} vad som \emph{borde} hända innan de ser
+      implementationen, vilket är avgörande för gränssnittets design
+      (\cref{FracLODesign}).  Vad som händer utan
+      \mintinline{python}{__str__} har \emph{Övning: Klasser och
+      objekt} redan visat, så det frågas inte igen.  Den andra frågan
+      öppnar för \mintinline{python}{float} och
+      \mintinline{python}{int} utan att nämna dem.
     }%
-    Vad tror du händer om vi försöker skriva ut ett
-    \mintinline{python}{Fraction}-objekt med \mintinline{python}{print()}?
-    Hur ska det se ut?
+    Hur vill du att ett bråk ska se ut när det skrivs ut med
+    \mintinline{python}{print()}?  Till vilka andra typer vore det
+    rimligt att kunna konvertera ett bråk?
   \end{exercise}
 \end{frame}
 
@@ -502,14 +506,12 @@ print(float(frac))
   \end{example}
 \end{frame}
 
-Här ser vi två viktiga dundermetoder:
-\begin{description}
-  \item[\texttt{\_\_str\_\_()}] returnerar en strängrepresentation för
-    utskrift (används av \mintinline{python}{print()} och
-    \mintinline{python}{str()}).
-  \item[\texttt{\_\_float\_\_()}] konverterar bråket till ett flyttal
-    (används av \mintinline{python}{float()}).
-\end{description}
+Dundermetoden \mintinline{python}{__str__()} känner vi igen från
+föreläsningen \emph{Klasser och objekt}: \mintinline{python}{print()}
+och \mintinline{python}{str()} anropar den för att få bråket som en
+sträng.  \mintinline{python}{__float__()} följer samma mönster:
+\mintinline{python}{float()} anropar den för att konvertera bråket till
+ett flyttal.
 
 \begin{frame}
   \begin{exercise}
@@ -529,7 +531,8 @@ Här ser vi två viktiga dundermetoder:
 \end{frame}
 
 Ett rimligt resultat skulle vara att returnera täljaren dividerad med
-nämnaren, avrundat nedåt (heltalsdivision).  Alltså skulle
+nämnaren, avrundat nedåt: heltalsdivisionen \mintinline{python}{//}
+från föreläsningen \emph{Variabler och utskrifter}.  Alltså skulle
 \mintinline{python}{int(Fraction(7, 2))} ge \mintinline{python}{3}.
 För att implementera det behöver vi dundermetoden
 \mintinline{python}{__int__()}, som \mintinline{python}{int()} anropar.
@@ -627,10 +630,11 @@ Python anropar \mintinline{python}{frac_a.__add__(frac_b)} när vi kör
 }%
 Dundermetoden \mintinline{python}{__add__} skiljer sig från
 \mintinline{python}{__str__} och \mintinline{python}{__eq__}, som vi
-skrev i föreläsningen \emph{Klasser och objekt}.  Varje klass ärver
-från \mintinline{python}{object}, och \mintinline{python}{object} har
-redan de två metoderna.  När vi skrev dem överlagrade vi alltså en
-ärvd metod, precis som \mintinline{python}{PersonNick} överlagrade
+skrev i föreläsningen \emph{Klasser och objekt}.  I \emph{Övning:
+Klasser och objekt}, avsnittet \emph{Metoderna som redan fanns}, såg
+vi att varje klass ärver från \mintinline{python}{object}, som redan
+har de två metoderna: när vi skrev dem överlagrade vi en ärvd metod,
+precis som \mintinline{python}{PersonNick} överlagrade
 \mintinline{python}{get_name}.  Har \mintinline{python}{object} också
 en \mintinline{python}{__add__}?  Det kan vi fråga Python med den
 inbyggda funktionen \mintinline{python}{hasattr}, som svarar på om ett
@@ -1251,11 +1255,12 @@ Metoden är enkel:
   \end{exercise}
 \end{frame}
 
-Täljare och nämnare ska alltid vara heltal.  Om vi använder vanlig
-division får vi flyttal, vilket inte är lämpligt för en
-bråkrepresentation (rationella tal).  Eftersom vi alltid delar med
-största gemensamma delaren vet vi att divisionen alltid går jämnt upp
---- det blir aldrig några decimaler.
+Täljare och nämnare ska alltid vara heltal.  Vanlig division ger
+alltid ett flyttal, även när den går jämnt upp, som vi såg i
+föreläsningen \emph{Variabler och utskrifter}, och ett flyttal är inte
+lämpligt i en bråkrepresentation (rationella tal).  Eftersom vi alltid
+delar med största gemensamma delaren vet vi att divisionen alltid går
+jämnt upp --- det blir aldrig några decimaler.
 
 \subsection{Testning}
 \label{sec:testning}
@@ -1410,8 +1415,8 @@ dundermetoder:
   \item att skapa bråk med ett bråk i nämnaren;
   \item att hantera noll i nämnaren med ett särfall;
   \item att typkonvertera sträng till bråk, med konstruktorn --- då kan
-    vi skapa bråk med \mintinline{python}{Fraction("3/4")} och läsa in
-    dem med \mintinline{python}{input_type};
+    vi skapa bråk med \mintinline{python}{Fraction("3/4")}, och därmed
+    också av det användaren skriver in med \mintinline{python}{input};
   \item jämförelseoperatorer (\mintinline{python}{<},
     \mintinline{python}{>}, \mintinline{python}{==}), med
     \mintinline{python}{__lt__()}, \mintinline{python}{__eq__()} och så
