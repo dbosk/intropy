@@ -107,7 +107,7 @@ Efter föreläsningen ska du kunna
 **Behållare: Ett gissningsspel:**
 
 - använda en lista för att samla resultat under körningen, och
-  sammanfatta den efteråt med `sum` och `len`,
+  sammanfatta den efteråt med `min` och `statistics.mean`,
 - skriva en återanvändbar funktion som läser in och kontrollerar
   användarens inmatning och frågar om igen tills den duger,
 - utveckla ett program som kombinerar behållare, upprepningar,
