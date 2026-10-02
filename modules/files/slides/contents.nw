@@ -324,6 +324,8 @@ terminalen och därför inte behöver få veta något mål, är just den:
 alltid handlar om en fil vi redan har öppnat.
 
 \leavevmode\ltnote{%
+  \Cref{ex:for-hand} ställs mot \cref{ex:med-with}.
+
   \textbf{Variationsmönster}: Kontrast
 
   \textbf{Vad som varierar}: Resurshanteringsmetod (manuell
@@ -346,16 +348,18 @@ alltid handlar om en fil vi redan har öppnat.
       som syntax}.
   \end{itemize}
 
-  \textbf{Pedagogisk sekvens}: Båda sätten visas först, och de ser
-  likvärdiga ut; \cref{ovn:close} gör sedan problemet synligt (ett
-  särfall mellan [[open()]] och [[close()]]) och låter körningarna visa
-  att bara [[with]] stänger filen.  Anmärkningen \emph{Garanterad
-  resurshantering} säger därefter ut vad som skiljer de två sätten åt.
+  \textbf{Pedagogisk sekvens}: Visa explicit metod först för att göra
+  problemet synligt (glömma [[close()]], särfall), sedan [[with]] som
+  lösning.  Anmärkningen \emph{Garanterad resurshantering} är
+  kontrastpunkten: den säger ut vad som skiljer de två sätten åt.
   Blocktiteln säger bara vad som är garanterat --- kontrastvokabulären
-  hör hemma här och inte i det studenterna läser.  Den manuella
-  versionen visas \emph{utan} [[try]]/[[finally]]: hade den skyddet
-  inbyggt skulle \cref{ovn:close} redan vara besvarad, och kontrasten
-  mot [[with]] skulle bara gälla längden.
+  hör hemma här och inte i det studenterna läser.  Kontrasten gör värdet
+  av kontexthanterare urskiljbart \parencite[45--47]{Marton2015}.  Den
+  manuella versionen visas \emph{utan} [[try]]/[[finally]]: hade den
+  skyddet inbyggt skulle \cref{ovn:sarfall}, övningen om vad som händer
+  vid ett särfall, redan vara besvarad, och kontrasten mot [[with]] skulle
+  bara gälla
+  längden.
 }%
 Det finns två sätt att hantera öppning och stängning: manuellt med
 [[open()]] och [[close()]], eller automatiskt med [[with]]-satsen.  Låt
@@ -381,15 +385,32 @@ def read_number_by_hand(filename):
   \end{example}
 \end{frame}
 
-Med [[with]] behöver vi inget [[close()]]: filen öppnas på satsens
-första rad och stängs när blocket under den lämnas.
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:sarfall}
+    Vad händer om ett särfall (\foreignlanguage{english}{exception})
+    uppstår mellan [[open()]] och [[close()]] --- säg att filen inte
+    innehåller ett tal, så att [[int()]] misslyckas?
 
-\mode<article>{\needspace{9\baselineskip}}
+    Hur kan vi garantera att filen alltid stängs korrekt, även om något
+    går fel under bearbetningen?
+  \end{exercise}
+\end{frame}
+
+Går [[int()]] fel avbryts funktionen på den raden, precis som vi såg i
+föreläsningen \emph{Inmatning och felhantering}: raderna efter ---
+däribland
+[[file.close()]] --- körs aldrig.  Vi skulle kunna skydda oss med [[try]]
+och [[finally]], men det är precis den bokföringen Python kan göra åt
+oss.  Pythons dokumentation rekommenderar
+\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs då
+korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
+an exception is raised at some point}}\autocite{PythonTutorialFiles}.
 
 \begin{frame}[fragile]
   \begin{example}[Med \texttt{with}]
     \label{ex:med-with}
-    Samma uppgift med en [[with]]-sats:
+    Samma uppgift, men [[with]] stänger filen åt oss när blocket lämnas:
 <<funktion som läser talet och låter [[with]] stänga filen>>=
 def read_number(filename):
     """Reads the number in the file, letting with close it"""
@@ -400,11 +421,32 @@ def read_number(filename):
   \end{example}
 \end{frame}
 
-Båda funktionerna läser talet när filen innehåller ett.  För att se om
-de skiljer sig åt när något går fel behöver vi en fil som \emph{inte}
-innehåller ett tal, och ett sätt att fråga om filen blev stängd: ett
-filobjekt vet självt om det är stängt, och [[file.closed]] är
-\mintinline{python}{True} när det är det.
+\leavevmode\ltnote{%
+  \Cref{ovn:close} och dess lösningsförslag ställer [[close1.py]] mot
+  [[close2.py]].  Relevanta lärandemål: \cref{FilesLOContextMgr}.
+
+  \textbf{Variationsmönster}: Kontrast
+
+  \textbf{Vad som varierar}: hur filen öppnas och stängs --- för hand
+  med [[open()]] och [[close()]], eller med [[with]].
+
+  \textbf{Vad som hålls invariant}: filen, det misslyckade [[int()]] och
+  frågan programmet ställer till sist ([[file.closed]]).
+
+  Att filen lämnas öppen sägs inte bara utan körs, i \cref{ovn:close},
+  så att studenten ser \mintinline{python}{False} och
+  \mintinline{python}{True} bredvid varandra.  De två programmen står i
+  \emph{en} övning för att det ska vara studenten och inte materialet
+  som gör jämförelsen \parencite[45--47]{Marton2015}.  Av samma skäl
+  heter de [[close1.py]] och [[close2.py]]: namn som beskriver
+  skillnaden hade avslöjat vad som ska urskiljas.  Ordet
+  \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
+  [[tal.txt]], skrivet så att [[int()]] inte klarar det.
+}%
+Så långt är det ett påstående vi läser.  Vi kan i stället låta
+programmen svara: ett filobjekt vet självt om det är stängt, och
+[[file.closed]] är \mintinline{python}{True} när det är det.  Vi behöver
+också en fil som \emph{inte} innehåller ett tal.
 
 \begin{frame}[fragile]
   \begin{example}[En fil med ett ord]
@@ -421,29 +463,11 @@ fyrtiotvå
   \begin{exercise}[Vad skriver programmen ut?]
     \label{ovn:close}
     \leavevmode\ltnote{%
-      \Cref{ovn:close} och dess lösningsförslag ställer [[close1.py]] mot
-      [[close2.py]].  Relevanta lärandemål: \cref{FilesLOContextMgr}.
-
-      \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}:
-      hur filen öppnas och stängs, för hand eller med [[with]].
-      \textbf{Vad som hålls invariant}: filen, det misslyckade [[int()]],
-      utskrifterna och frågan till sist ([[file.closed]]).  [[try]] och
-      [[except]] finns i båda bara för att programmet ska hinna ställa den
-      frågan.
-
-      Skillnaden visas av körningarna, med \mintinline{python}{False}
-      och \mintinline{python}{True} bredvid varandra, och programmen står
-      i \emph{en} övning så att det är studenten och inte materialet som
-      gör jämförelsen \parencite[45--47]{Marton2015}.  Namnen
-      [[close1.py]] och [[close2.py]] avslöjar inte skillnaden.  Ordet
-      \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
-      [[tal.txt]], skrivet så att [[int()]] inte klarar det.  Programmen
-      följer funktionsregeln från föreläsningen \emph{Funktioner}, också
-      de minsta.
+      Programmen följer funktionsregeln från föreläsningen
+      \emph{Funktioner}, också de minsta.
     }%
-    Vad händer om ett särfall uppstår mellan [[open()]] och [[close()]]?
-    Båda programmen läser [[text.txt]] och frågar till sist om filen är
-    stängd.  Vad skriver vart och ett av dem ut?
+    Här är två program.  Båda läser [[text.txt]] och frågar till sist om
+    filen är stängd.  Vad skriver vart och ett av dem ut?
 <<[[close1.py]]>>=
 """Reading a number from a file, closing the file by hand"""
 
@@ -486,19 +510,12 @@ if __name__ == "__main__":
   \end{solution}
 \end{frame}
 
-Det första programmet svarar \mintinline{python}{False}: när [[int()]]
-misslyckades avbröts blocket under [[try]] på den raden, precis som vi såg i
-föreläsningen \emph{Inmatning och felhantering}, och raden
-[[file.close()]] kördes aldrig, så filen lämnades öppen.  Det andra
-svarar \mintinline{python}{True}: [[with]] stängde filen när blocket
-lämnades, också när det lämnades av ett särfall.  Det är hela skillnaden
-mellan de två sätten, och den syns inte förrän något går fel.  Pythons
-dokumentation rekommenderar därför
-\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs
-korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
-an exception is raised at some point}}\autocite{PythonTutorialFiles}.
-Vi hade kunnat skydda den manuella versionen med [[try]] och
-[[finally]], men det är precis den bokföringen [[with]] gör åt oss.
+Det första programmet svarar \mintinline{python}{False}: raden
+[[file.close()]] hoppades över när [[int()]] misslyckades, så filen
+lämnades öppen.  Det andra svarar \mintinline{python}{True}: [[with]]
+stängde filen när blocket lämnades, också när det lämnades av ett
+särfall.  Det är hela skillnaden mellan de två sätten, och den syns
+inte förrän något går fel.
 
 \begin{frame}
   \only<presentation>{%
