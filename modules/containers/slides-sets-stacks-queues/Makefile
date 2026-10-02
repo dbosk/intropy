@@ -21,6 +21,7 @@ SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
+EXAMPLES+=	examples/dubbletter.py
 EXAMPLES+=	examples/mangder.py
 EXAMPLES+=	examples/mangdoperationer.py
 EXAMPLES+=	examples/saker1.py
