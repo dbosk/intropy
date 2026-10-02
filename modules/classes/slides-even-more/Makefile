@@ -21,6 +21,9 @@ PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
+# The appendices \input the generated hit-list tables; a regenerated
+# table must trigger a rebuild even when no .tex source changed.
+SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/shopping.py

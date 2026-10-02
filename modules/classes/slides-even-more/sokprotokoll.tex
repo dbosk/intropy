@@ -7,6 +7,16 @@ nyckelnamn upptäcks först när raden körs ser du själv.  Men några av
 påståendena handlar om vad forskningen och fältet säger, och dem kan
 ingen körning avgöra:
 \begin{enumerate}
+  \item att klasser kan ge bättre struktur och göra programmet lättare
+    att ändra än uppslagslistor och funktioner (\cref{sec:varor});
+  \item att en uppslagslista med fast struktur som används på många
+    ställen bör övervägas som en klass, en tumregel
+    (\cref{sec:varor});
+  \item att en klass med ett tydligt ansvar kan återanvändas, helst som
+    den är (\cref{sec:designprinciper});
+  \item att abstraktion, att dölja hur en klass fungerar invändigt, är
+    en etablerad designprincip som gör program lättare att förstå
+    (\cref{sec:designprinciper});
   \item att man bör föredra komposition framför arv --- att rådet är
     etablerat i objektorienterad design och kommer från Gamma, Helm,
     Johnson och Vlissides (\cref{sec:designprinciper,sec:komposition-arv});
@@ -23,10 +33,12 @@ ingen körning avgöra:
 Hur vet man om sådant stämmer?  Samma fråga möter dig varje gång du läser
 en lärobok, en webbsida eller ett svar från en språkmodell --- och varje
 gång du själv ska skriva en rapport.
-\Cref{tab:paastaenden-tillampningar} visar frågorna och svaren.
-Påståendena är redan prövade i tidigare föreläsningar, och tabellen
-anger var; det första prövas i föreläsningen \emph{Klasser
-och objekt}, bilaga~D, där rådet först ges.
+\Cref{tab:paastaenden-tillampningar} visar frågorna och svaren.  De
+fyra första påståendena prövas här, i
+\cref{app:underhall,app:tumregel,app:ateranvandning,app:abstraktion}.
+De övriga är redan prövade i tidigare föreläsningar, och tabellen anger
+var; rådet om komposition prövas i föreläsningen \emph{Klasser och
+objekt}, bilaga~D, där det först ges.
 
 \begin{table}[htbp]
   \centering
@@ -36,6 +48,18 @@ och objekt}, bilaga~D, där rådet först ges.
     \toprule
     Fråga & Svar \\
     \midrule
+    Ger klasser bättre struktur och underhållbarhet än funktioner och
+      uppslagslistor? & Delvis: tidiga försök ja, senare ingen allmän
+      fördel; beror på design och läsare (\cref{app:underhall}) \\
+    Finns det stöd för tumregeln om när en uppslagslista ska bli en
+      klass? & En grund i Fowlers kodlukt \emph{data clumps}, men
+      inget test; gränsen är en bedömning (\cref{app:tumregel}) \\
+    Leder klasser till återanvändning? & Ja, med förbehåll: kan ge
+      produktivitet, mest när klassen används som den är; kommer inte av
+      sig själv (\cref{app:ateranvandning}) \\
+    Är abstraktion en etablerad designprincip, och gör den program
+      lättare att förstå? & Ja, etablerad; vinsten har stöd men tunt
+      (\cref{app:abstraktion}) \\
     Bör man föredra komposition framför arv, och kommer rådet
       från Gamma med flera? & Redan belagt i \emph{Klasser och objekt},
       bilaga~D \\
@@ -65,3 +89,1148 @@ arv och underhållbarhet är oeniga, och arv används flitigt och
 förnuftigt i verklig kod.  Förbehållen avgör hur påståendet används
 här: tumregeln i \cref{sec:komposition-arv} säger \enquote{föredra},
 inte \enquote{undvik}.
+
+% The backing chapters cite a source in nearly every sentence, more than
+% the margin beside the text holds.  Let the citation notes use the
+% margin beside the query tables (placed at the foot of the page, below
+% the text whose notes run on beside them) and the empty bottom margin
+% (the page number is in the running head), and set them one size
+% smaller, as the course book does throughout.  The group keeps the
+% font and the margin height local; the beside-floats mode is global and
+% is reset at the end of the file, since the book reads on.
+\begingroup
+\ifdefined\marginnotebesidefloats\marginnotebesidefloats{use}\fi
+\marginheightadjustment=48pt
+\renewcommand{\foottextfont}{\scriptsize\mpjustification}
+\chapter{Ger klasser bättre underhållbarhet än funktioner och uppslagslistor?}
+\label{app:underhall}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:varor} säger materialet, efter tumregeln om när en
+uppslagslista bör bli en klass, att klasser kan ge bättre struktur och
+göra programmet lättare att ändra.  Påståendet görs ofta starkare: att
+klasser ger bättre struktur, säkerhet och underhållbarhet, särskilt när
+programmet växer.  Säkerheten i den meningen prövar materialet själv
+vid datorn: bilden före tumregeln visar vad utvecklingsmiljön kan varna
+för och vad som ändå upptäcks först vid körning.  Struktur och
+underhållbarhet är
+däremot påståenden om vad som händer när människor läser och ändrar
+program, och dem kan ingen enskild körning avgöra.  Påståendet är
+jämförande --- klasser mot funktioner som arbetar på enkla
+datastrukturer, det vill säga objektorienterad mot procedurell kod ---
+och det är så forskningen har prövat det.  Frågan som ska besvaras är:
+\emph{ger objektorienterade program bättre struktur och underhållbarhet
+än procedurella, och för vem?}  \Cref{sec:und-metod} beskriver
+sökningen, \cref{sec:und-resultat} vad den fann,
+\cref{sec:und-diskussion} vad som begränsar svaret,
+\cref{sec:und-slutsats} ger det och \cref{sec:und-fortsatt} säger vad
+som återstår att göra; \cref{tab:sok-underhall} sist i kapitlet listar
+de träffar som rör påståendet.
+
+\section{Metod}
+\label{sec:und-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med verktyget
+\texttt{scholar}, mot OpenAlex, Web of Science, Scopus och IEEE Xplore.
+DBLP svarade med en kontroll mot automatiserade anrop och sedan med
+\enquote{för många förfrågningar}, och Semantic Scholar avvisade sin
+nyckel; de saknas.  Stödfrågorna S1--S5 kombinerar objektorientering med
+dess motsats i litteraturen (\emph{procedural}, \emph{structured design},
+\emph{structured programming}, \emph{functional decomposition}) och med
+var sitt utfall: underhållbarhet, fel, förståelse, experiment, och
+programmets storlek --- det sista för tanken att fördelen växer med
+programmet.  Fältet kallar också motsatsen \emph{non-object-oriented}
+och \emph{conventional}; S6 och S7 söker med de namnen, och M6 är
+motfrågan till dem.  Motfrågorna använder samma begrepp tillsammans med
+ord för uteblivna eller omvända effekter (M1), söker kritik av
+objektorienteringens löften i allmänhet (M2), fältstudier utan
+förbättring (M3), stora jämförelser av programspråk och kodkvalitet
+(M4) och påståendet att objektorientering ligger närmare hur människor
+tänker (M5).  \Cref{tab:sok-queries-underhall} visar frågorna och
+antalet träffar per databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.  Hit counts per provider are
+% from the per-provider JSON outputs of each query (the session stores the
+% union).
+\begin{table}[!b]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, klasser och
+    underhållbarhet, 2 oktober 2026, verktyget \texttt{scholar}.
+    S = stödfråga, M = motfråga.  Databaser: OpenAlex (OA; inte
+    \foreignlanguage{english}{open access}), Web of Science (WoS),
+    Scopus, IEEE Xplore (IEEE).  Högst 40 träffar hämtades per databas
+    och fråga, så 40 betyder \enquote{minst 40}.  OO står för
+    (\enquote{object-oriented} \textsc{or} \enquote{object oriented}) och
+    PROC för (procedural \textsc{or} \enquote{structured design}
+    \textsc{or} \enquote{structured programming} \textsc{or}
+    \enquote{functional decomposition}).  Frågan visas i den booleska
+    form som skickades till OpenAlex och IEEE; Web of Science fick samma
+    sträng som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  Streck: IEEE Xplore hade nått sin
+    dagsgräns.  DBLP och Semantic Scholar svarade inte och saknas.}
+  \label{tab:sok-queries-underhall}
+  % \scriptsize: at \footnotesize the table fills the page and the
+  % citation notes of the next pages outrun the margin.
+  \scriptsize
+  \begin{tabular}{@{}lp{0.58\linewidth}rrrr@{}}
+    \toprule
+    & Nyckelord & OA & WoS & Scopus & IEEE \\
+    \midrule
+    S1 & OO \textsc{and} PROC \textsc{and} (maintainability \textsc{or} maintenance \textsc{or} modifiability)
+       & 40 & 40 & 40 & 40 \\
+    S2 & OO \textsc{and} PROC \textsc{and} (defects \textsc{or} faults \textsc{or} \enquote{error-prone} \textsc{or} reliability)
+       & 40 & 40 & 40 & 40 \\
+    S3 & OO \textsc{and} PROC \textsc{and} (comprehension \textsc{or} understandability \textsc{or} \enquote{program understanding})
+       & 40 & 40 & 40 & 40 \\
+    S4 & OO \textsc{and} PROC \textsc{and} (experiment \textsc{or} \enquote{empirical study} \textsc{or} \enquote{controlled experiment} \textsc{or} \enquote{case study})
+       & 40 & 40 & 40 & 40 \\
+    S5 & OO \textsc{and} PROC \textsc{and} (\enquote{program size} \textsc{or} \enquote{large programs} \textsc{or} \enquote{large systems} \textsc{or} scalability \textsc{or} evolution \textsc{or} growth)
+       & 40 & 40 & 40 & 40 \\
+    S6 & OO \textsc{and} (\enquote{non-object-oriented} \textsc{or} \enquote{non object oriented} \textsc{or} \enquote{non-object oriented} \textsc{or} conventional \textsc{or} \enquote{third-generation}) \textsc{and} (maintainability \textsc{or} maintenance \textsc{or} modifiability \textsc{or} defects \textsc{or} comprehension)
+       & 40 & 40 & 40 & -- \\
+    S7 & OO \textsc{and} (\enquote{non-object-oriented} \textsc{or} \enquote{non object oriented} \textsc{or} \enquote{non-object oriented} \textsc{or} \enquote{functionally equivalent}) \textsc{and} (maintainability \textsc{or} maintenance \textsc{or} modifiability \textsc{or} defects \textsc{or} comprehension)
+       & 40 & 14 & 21 & -- \\
+    \midrule
+    M1 & OO \textsc{and} PROC \textsc{and} (maintainability \textsc{or} maintenance \textsc{or} modifiability \textsc{or} defects \textsc{or} faults \textsc{or} comprehension \textsc{or} understandability) \textsc{and} (myth \textsc{or} myths \textsc{or} \enquote{no evidence} \textsc{or} \enquote{no significant} \textsc{or} \enquote{no advantage} \textsc{or} disadvantages \textsc{or} harder \textsc{or} criticism)
+       & 40 & 10 & 6 & 10 \\
+    M2 & OO \textsc{and} (claims \textsc{or} promises \textsc{or} benefits \textsc{or} hype) \textsc{and} (\enquote{no evidence} \textsc{or} unsubstantiated \textsc{or} \enquote{not supported} \textsc{or} myth \textsc{or} myths \textsc{or} disappointing \textsc{or} productivity) \textsc{and} (maintainability \textsc{or} maintenance \textsc{or} defects \textsc{or} faults \textsc{or} comprehension \textsc{or} reuse)
+       & 40 & 33 & 40 & 40 \\
+    M3 & OO \textsc{and} (productivity \textsc{or} \enquote{development cost} \textsc{or} \enquote{defect density} \textsc{or} \enquote{corrective maintenance} \textsc{or} defects \textsc{or} maintainability) \textsc{and} (commercial \textsc{or} industrial \textsc{or} \enquote{case study} \textsc{or} \enquote{field study}) \textsc{and} (\enquote{no evidence} \textsc{or} \enquote{no significant} \textsc{or} \enquote{no improvement} \textsc{or} \enquote{more defects} \textsc{or} myth \textsc{or} disappointing)
+       & 40 & 2 & 5 & 2 \\
+    M4 & (\enquote{programming paradigm} \textsc{or} \enquote{programming paradigms} \textsc{or} \enquote{programming languages}) \textsc{and} (\enquote{code quality} \textsc{or} defects \textsc{or} faults \textsc{or} maintainability) \textsc{and} (\enquote{object-oriented} \textsc{or} procedural \textsc{or} functional) \textsc{and} (\enquote{large-scale} \textsc{or} GitHub \textsc{or} reproduction \textsc{or} replication)
+       & 40 & 13 & 40 & 28 \\
+    M5 & OO \textsc{and} (natural \textsc{or} intuitive \textsc{or} \enquote{how we think} \textsc{or} \enquote{human cognition} \textsc{or} cognitive) \textsc{and} (maintainability \textsc{or} maintenance \textsc{or} defects \textsc{or} faults \textsc{or} comprehension) \textsc{and} (claims \textsc{or} myth \textsc{or} \enquote{no evidence} \textsc{or} procedural)
+       & 40 & 20 & 23 & 32 \\
+    M6 & S6 \textsc{and} (\enquote{no evidence} \textsc{or} \enquote{no significant} \textsc{or} \enquote{no advantage} \textsc{or} harder \textsc{or} worse \textsc{or} myth \textsc{or} criticism)
+       & 40 & 2 & 3 & -- \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 2\,928 poster.  Flera databaser lämnar
+samma arbete, och två poster räknas som ett arbete när titlarna är
+desamma bortsett från versaler och skiljetecken; efter den
+sammanslagningen återstår 820 arbeten, och det är arbeten som räknas här
+och i \cref{tab:sok-underhall}.  Alla klassades: först med en
+språkmodell mot en beskrivning av frågan och fyra kategorier --- stöder
+påståendet, kvalificerar eller motsäger det, angränsande delämne, annat
+ämne --- och sedan för hand: varje post som modellen satt i någon av de
+två första kategorierna lästes i sammanfattning, liksom varje post med
+konfidens under 0,7.  Ett trettiotal poster flyttades då till de
+angränsande, främst rapporter om enskilda objektorienterade system och
+verktyg som inte jämför med något alternativ.
+
+Två källor hämtades som kända dokument, eftersom de är böcker eller
+står utanför databaserna: Robert C. Martins \emph{Clean
+Code}\autocite{Martin2008CleanCode}, läst i författarens eget exemplar,
+och fulltexten till Détiennes översikt\autocite{Detienne1997}, som
+sökningen gav men som lästes i den kopia Détienne själv lagt upp i det
+franska öppna arkivet HAL.  Av de citerade källorna lästes fem i
+fulltext\autocite{Detienne1997,CorritoreWiedenbeck2001,ArisholmSjoberg2004,Flint2026Python,Martin2008CleanCode}
+och resten i sammanfattning; \cref{sec:und-diskussion} återkommer till
+det.
+
+\section{Resultat}
+\label{sec:und-resultat}
+
+\paragraph{Stöd.}  De tidigaste kontrollerade försöken stöder
+påståendet.  \Textcite{HenryHumphrey1990} lät försökspersoner underhålla
+två funktionellt likvärdiga system, ett objektorienterat och ett
+procedurellt, och fann
+\textcquote{HenryHumphrey1990}{that programmers produce more
+maintainable code with an object-oriented language than with a standard
+procedural language}; samma grupp rapporterar att
+\textcquote{HenryHumphreyLewis1990}{systems using object-oriented
+languages are indeed more maintainable than those built with procedural
+languages}, mätt i tid, antal fel och antal ändringar.  Ändringarna i
+de objektorienterade programmen var dessutom mer lokala --- de rörde
+färre moduler\autocite[6]{CorritoreWiedenbeck2001}.  Två fältstudier pekar åt samma håll: en jämförelse i en organisation fann
+objektorienterade system signifikant mer tillförlitliga, underhållbara och
+återanvändbara än konventionellt utvecklade\autocite{LowHuan1999}, och
+när yrkesverksamma underhöll två funktionellt likvärdiga versioner av ett
+verkligt kreditsystem \textcquote{Lim2005}{the OO group took less time
+to maintain a greater number of software artifacts than its NOO
+counterpart} --- men fick fler filer att hålla reda på och ett långsammare
+program.  För \enquote{struktur} fann
+\textcite{FerrettOffutt2002} att modulerna i Java- och C++-program var
+hälften så stora och tog hälften så många parametrar som i Fortran och C.
+Och i den enda studien med förstaårsstudenter som jämför samma program
+med och utan klasser var versionen med klasser
+\textcquote{AlardawiAgil2015}{more understandable, readable, and
+accessible}.
+
+% The paragraph above cites its sources for the first time and fills the
+% margin; this one's notes would run onto the next page, so in the
+% standalone notes it starts there unless the page has room for it.  The
+% course book (which defines \deck) sets the margin differently and
+% breaks its pages elsewhere, so it skips this.
+\ifdefined\deck\else\needspace{30\baselineskip}\fi
+\paragraph{Motsökningen.}  Här bär motsökningen kapitlet.  Den mest
+citerade jämförelsen, Briand med flera, fann
+\textcquote{Briand1997Maintainability}{no strong evidence regarding the
+alleged higher maintainability of object-oriented design documents over
+structured design documents}; det som spelade roll var att
+designprinciper följdes, och objektorienterade dokument var
+\textcquote{Briand1997Maintainability}{more sensitive to poor design
+practices}.  Ett experiment med analysmodeller fann ingen skillnad på
+enkla frågor och att den processorienterade modellen var lättare att
+förstå på svåra\autocite{Agarwal1999}.  Nybörjare utan tidigare
+programmeringserfarenhet förstod imperativa program bättre överlag än
+objektorienterade\autocite{RamalingamWiedenbeck1997}, bildade sig en
+svagare bild av dataflödet i små objektorienterade program än i
+procedurella\autocite{WiedenbeckRamalingam1999}, och förstod ett längre
+objektorienterat program sämre\autocite{Wiedenbeck1999}.  Den enda
+studien i Python, med 29 mest studerande försökspersoner och fyra små
+program, fann att paradigmet inte påverkade förmågan att hitta ett fel
+signifikant\autocite{Flint2026Python}; den procedurella koden hade högst
+andel rätt, 93 procent mot 72 för den objektorienterade, men skillnaden
+höll inte efter korrektion för flera
+jämförelser\autocite[avsnitt~6.4.1]{Flint2026Python}.  Arisholm och
+Sjøberg lät 99 yrkesverksamma och 59 studenter ändra två Javaprogram,
+ett med ansvaret utspritt på många samarbetande klasser och ett med en
+central styrklass, och fann att de mest erfarna var snabbare med det
+förra men att \textcquote[521]{ArisholmSjoberg2004}{more novice
+developers, in particular, the undergraduate students and junior
+consultants, have serious problems understanding a delegated control
+style, and perform far better with a centralized control style}; deras
+slutsats är att \textcquote[521]{ArisholmSjoberg2004}{the
+maintainability of object-oriented software depends, to a large extent,
+on the skill of the developers who are going to maintain it}.
+
+\paragraph{Läget i fältet.}  Détiennes översikt av den empiriska
+forskningen sammanfattar det tudelade läget.  Om nybörjare skriver hon
+att resultaten \textcquote[avsnitt~4.4]{Detienne1997}{do not support the
+claims about naturalness and ease of OO design}, om experter att
+litteraturen \textcquote[avsnitt~4.4]{Detienne1997}{apparently supports}
+dem.  Hon
+tillägger att studierna ofta har få försökspersoner och att
+\textcquote[avsnitt~7]{Detienne1997}{it is often difficult to
+disentangle the effects of variables such as characteristics of the
+language, methods, environment, design metaphor, etc.}  En enkät bland
+praktiker från 1995 visar att de \emph{trodde} på fördelarna, men
+inleder med att paradigmet blivit populärt
+\textcquote{Daly1995Survey}{as a result of expert opinion and anecdotal
+evidence and not on the basis of sound empirical data}.  Forskare inom
+fältet beskriver underlaget som tunt, både 2001 ---
+\textcquote[7]{CorritoreWiedenbeck2001}{such research is very
+limited} --- och 2007: \textcquote{EiermanDishaw2007}{there is a lack
+of empirical evidence for claims that object-oriented software has an
+advantage in terms of software maintenance}.  En analys av erfarenheter
+och studier från 1995 konstaterar att tekniken
+\textcquote{Fischer1995OO}{has not been as successful as expected}.
+Även inifrån det objektorienterade lägret kommer förbehållet:
+\textcite{Martin2008CleanCode} skriver att procedurell kod gör det lätt
+att lägga till nya funktioner och objektorienterad kod att lägga till
+nya typer, och att \textcquote[97]{Martin2008CleanCode}{[m]ature
+programmers know that the idea that everything is an object is a myth.
+Sometimes you really do want simple data structures with procedures
+operating on them.}
+
+\paragraph{När programmet växer.}  Ingen studie i sökningen prövar
+påståendets sista led, att fördelen ökar med programmets storlek.  De
+som berör storlek pekar snarast åt andra hållet för nybörjare: skillnaden
+mot procedurella program syntes för ett långt program men inte för korta
+--- och då till de procedurella programmens
+fördel\autocite{Wiedenbeck1999}.
+
+\section{Diskussion och begränsningar}
+\label{sec:und-diskussion}
+
+Flera saker begränsar svaret.  Verifieringen är ojämn: Détiennes
+översikt, Corritore och Wiedenbeck, Arisholm och Sjøberg, Flint med
+flera (i förhandsversionen på arXiv) och Martins bok lästes i fulltext, men de stödjande experimenten och flera av de
+kvalificerande är stängda hos IEEE, Elsevier, Springer och Wiley och
+lästes i sammanfattning; deras uppläggning, försökspersoner och
+effektstorlekar är därför okända här.  Studierna gäller Ada, C, C++,
+Java och Smalltalk; bara en gäller Python, och den är liten.  De flesta är från 1990-talet, då
+objektorientering var nytt och försökspersonerna ofta hade lärt sig
+programmera procedurellt först.  De mäter olika saker ---
+underhållstid, antal fel, modulstorlek, förståelsefrågor ---
+på olika slags artefakter, från program till designdokument och
+analysmodeller.  Ordet \emph{structured} gav många felträffar
+(\emph{structured} betyder också strukturerad i allmänhet), och
+träffantalen är tak.  DBLP och Semantic Scholar saknas, IEEE Xplore
+saknas för tre frågor, och klassningen är modellstödd.
+
+\section{Slutsats}
+\label{sec:und-slutsats}
+
+Delvis, och mest för erfarna programmerare.  Tidiga kontrollerade försök
+och två fältstudier fann objektorienterade program lättare att underhålla
+\parencite{HenryHumphrey1990,HenryHumphreyLewis1990,LowHuan1999,Lim2005}, och
+objektorienterade moduler är mindre \parencite{FerrettOffutt2002}.  Men
+den mest citerade jämförelsen fann inget starkt stöd för en allmän
+fördel \parencite{Briand1997Maintainability}, för nybörjare pekar
+studierna åt båda hållen och flera mot
+\parencite{RamalingamWiedenbeck1997,WiedenbeckRamalingam1999,Wiedenbeck1999,ArisholmSjoberg2004,AlardawiAgil2015},
+den enda studien i Python fann ingen säker skillnad
+\parencite{Flint2026Python},
+och översikter och forskare inom fältet beskriver underlaget som tunt
+\parencite{Detienne1997,CorritoreWiedenbeck2001,EiermanDishaw2007}.
+Det som återkommer är att god design avgör mer än paradigmet, och att
+vinsten beror på vem som läser koden.  Att fördelen växer med programmet
+har ingen av studierna prövat.  Materialet säger därför att klasser
+\emph{kan} ge bättre struktur och göra ett program lättare att ändra,
+beroende på hur de är utformade och vem som läser koden, inte att de gör
+det generellt.
+
+\section{Fortsatt arbete}
+\label{sec:und-fortsatt}
+
+Sökningen lämnade två databaser obesökta --- DBLP svarade inte och
+Semantic Scholar avvisade sin nyckel --- och IEEE Xplore hade nått sin
+dagsgräns för de tre sista frågorna (S6, S7, M6); frågorna bör ställas
+där när tjänsterna svarar.  Tyngre väger att de stödjande experimenten
+\autocite{HenryHumphrey1990,HenryHumphreyLewis1990,LowHuan1999,Lim2005} och
+Briand med fleras jämförelse\autocite{Briand1997Maintainability} bara
+lästes i sammanfattning: först fulltexterna visar om försökspersonerna,
+programmen och måtten var jämförbara, och därmed om oenigheten är verklig
+eller följer av olika uppläggning.  Henry och Humphreys tidskriftsversion
+(\emph{Journal of Object-Oriented Programming}, 1993) är inte indexerad
+och har inte lästs.
+
+För ett säkrare svar saknas studier av just den situation materialet
+beskriver: nybörjare som skriver och ändrar Pythonprogram där samma data
+representeras som uppslagslista respektive klass, i program av växande
+storlek.  Ett kontrollerat försök där studenter gör samma ändringar i
+två versioner av samma program, i flera storlekar, skulle pröva både
+påståendet och tanken att fördelen växer med programmet.  Utfaller det
+till klassernas fördel kan materialet säga det starkare; utfaller det
+inte, bör \cref{sec:varor} säga att valet är en avvägning mellan
+enkelhet och struktur och inget mer.
+
+\section{Träffar som rör påståendet}
+\label{sec:und-traffar}
+
+\Cref{tab:sok-underhall} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-underhall}.
+% Author's note (verification and reproduction):
+%   scholar session : oo-underhall
+%   exports         : litteratursokning/oo-underhall.csv,
+%                     litteratursokning/oo-underhall-full.tex
+%   searched        : 2026-10-02; providers openalex wos scopus ieee
+%                     (dblp: bot challenge, then HTTP 429 -- absent;
+%                     s2: key rejected HTTP 403 -- absent); limit 40 per
+%                     provider and query; exact strings per provider in
+%                     the session (scholar sessions show oo-underhall)
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples --no-enrich, model
+%                     openai-codex/gpt-5.6-sol, tags supports-claim
+%                     qualifies-claim adjacent-subtopic off-topic-false-hit;
+%                     human overrides via scholar sessions decide
+%                     18 cited rows kept with themes stod / mot / lage;
+%                     36 rows moved from supports/qualifies to
+%                     adjacent-subtopic after reading the abstracts
+%                     (single-system OO reports, tools, inheritance-only
+%                     studies already in Klasser och objekt D).
+%                     S6, S7, M6 ran after IEEE's daily quota was spent:
+%                     those IEEE cells are not run, not zero.  S6/S7 were
+%                     added to cover the field's "non-object-oriented"
+%                     vocabulary, which S1--S5 lacked (they surfaced
+%                     Lim2005).
+%   hit-list table  : scholar sessions export oo-underhall -f table
+%                     --bearing-only --lang sv --label sok-underhall
+%                     --track "klasser och underhållbarhet"
+%                     --theme stod="stöd" --theme mot="motsökning"
+%                     --theme lage="läget i fältet"
+%                     -o litteratursokning/oo-underhall-full
+%   provenance      : ltnotes.bib (from oo-underhall.bib), keys
+%                     HenryHumphrey1990 HenryHumphreyLewis1990
+%                     Briand1997Maintainability LowHuan1999
+%                     FerrettOffutt2002 AlardawiAgil2015 Detienne1997
+%                     WiedenbeckRamalingam1999 CorritoreWiedenbeck2001
+%                     Agarwal1999 ArisholmSjoberg2004 EiermanDishaw2007
+%                     Fischer1995OO Martin2008CleanCode Lim2005
+%                     RamalingamWiedenbeck1997 Daly1995Survey
+%                     Flint2026Python, and
+%                     Wiedenbeck1999 (backed in Klasser och objekt)
+%   known items     : Martin2008CleanCode (book, user's reMarkable,
+%                     printed p. 97); Detienne1997 full text via HAL
+%   full text       : Detienne1997, CorritoreWiedenbeck2001,
+%                     ArisholmSjoberg2004, Martin2008CleanCode,
+%                     Flint2026Python (arXiv 2511.07612v1)
+%   abstract-level  : all others -- for the user to verify
+\input{litteratursokning/oo-underhall-full}
+
+\chapter{Finns det stöd för tumregeln om när en uppslagslista ska bli en klass?}
+\label{app:tumregel}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:varor} ger materialet en tumregel: \enquote{om du har en
+uppslagslista med fast struktur som används på många ställen i koden,
+överväg att göra den till en klass}.  En tumregel är ett råd, och ett
+råd påstår två saker: att det finns en grund för det --- någon har
+formulerat det och fältet känner igen det --- och att det lönar sig att
+följa.  Frågan som ska besvaras är därför: \emph{varifrån kommer
+tumregeln, och finns det belägg för att det lönar sig att följa den?}
+Rådets vinst, att klasser ger bättre struktur och underhållbarhet, prövas
+för sig i \cref{app:underhall}; här gäller det regeln själv.
+\Cref{sec:tum-metod} beskriver sökningen, \cref{sec:tum-resultat} vad
+den fann, \cref{sec:tum-diskussion} vad som begränsar svaret,
+\cref{sec:tum-slutsats} ger det och \cref{sec:tum-fortsatt} säger vad
+som återstår att göra; \cref{tab:sok-tumregel} sist i kapitlet listar de
+träffar som rör påståendet.
+
+\section{Metod}
+\label{sec:tum-metod}
+
+Regeln har inget eget namn i forskningen, men det den beskriver har det:
+samma få värden som följer med varandra genom koden kallas \emph{data
+clumps}, enkla värden där ett objekt borde stå \emph{primitive
+obsession}, och omvandlingen av en post till en klass \emph{encapsulate
+record}.  Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med
+verktyget \texttt{scholar}, mot OpenAlex, Web of Science, Scopus och IEEE
+Xplore; DBLP svarade inte och Semantic Scholar avvisade sin nyckel.
+Stödfrågorna söker de namnen tillsammans med omstrukturering och klasser
+(S1), med underhållbarhet och felbenägenhet (S2), och Pythons egna
+motsvarigheter --- uppslagslistor, \emph{dataclasses}, namngivna tupler
+--- tillsammans med klasser och design (S3).  Motfrågorna söker samma
+namn tillsammans med ord för utebliven effekt eller kritik (M1), och det
+motsatta felet, för många eller för tunna klasser --- \emph{lazy class},
+\emph{speculative generality}, överdesign (M2).
+\Cref{tab:sok-queries-tumregel} visar frågorna och antalet träffar per
+databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.
+\begin{table}[!b]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, tumregeln om
+    uppslagslistor och klasser, 2 oktober 2026, verktyget
+    \texttt{scholar}.  S = stödfråga, M = motfråga.  Databaser: OpenAlex
+    (OA; inte \foreignlanguage{english}{open access}), Web of Science
+    (WoS), Scopus, IEEE Xplore (IEEE).  Högst 40 träffar hämtades per
+    databas och fråga, så 40 betyder \enquote{minst 40}.  SM står för
+    (\enquote{primitive obsession} \textsc{or} \enquote{data clumps}
+    \textsc{or} \enquote{data class} \textsc{or} \enquote{parameter
+    object} \textsc{or} \enquote{encapsulate record} \textsc{or}
+    \enquote{record type} \textsc{or} dictionary \textsc{or}
+    dictionaries).  Frågan visas i den booleska form som skickades till
+    OpenAlex och IEEE; Web of Science fick samma sträng som
+    \texttt{TS=(\dots)}, Scopus som \texttt{TITLE-ABS-KEY(\dots)}.  DBLP
+    och Semantic Scholar svarade inte och saknas.}
+  \label{tab:sok-queries-tumregel}
+  \footnotesize
+  \begin{tabular}{@{}lp{0.58\linewidth}rrrr@{}}
+    \toprule
+    & Nyckelord & OA & WoS & Scopus & IEEE \\
+    \midrule
+    S1 & SM \textsc{and} (refactoring \textsc{or} \enquote{code smell} \textsc{or} \enquote{code smells}) \textsc{and} (class \textsc{or} classes \textsc{or} \enquote{object-oriented})
+       & 40 & 40 & 40 & 40 \\
+    S2 & SM \textsc{and} (\enquote{code smell} \textsc{or} \enquote{code smells} \textsc{or} refactoring) \textsc{and} (maintainability \textsc{or} \enquote{change-proneness} \textsc{or} \enquote{fault-proneness} \textsc{or} defects \textsc{or} faults)
+       & 40 & 33 & 40 & 25 \\
+    S3 & (Python \textsc{or} \enquote{dynamically typed} \textsc{or} \enquote{dynamic language}) \textsc{and} (dictionary \textsc{or} dictionaries \textsc{or} dataclass \textsc{or} dataclasses \textsc{or} namedtuple \textsc{or} \enquote{named tuple} \textsc{or} record) \textsc{and} (class \textsc{or} classes \textsc{or} \enquote{object-oriented}) \textsc{and} (design \textsc{or} maintainability \textsc{or} readability \textsc{or} \enquote{code quality})
+       & 40 & 38 & 39 & 40 \\
+    \midrule
+    M1 & SM \textsc{and} (\enquote{code smell} \textsc{or} \enquote{code smells} \textsc{or} refactoring) \textsc{and} (\enquote{no impact} \textsc{or} harmless \textsc{or} \enquote{not harmful} \textsc{or} perception \textsc{or} \enquote{do not perceive} \textsc{or} \enquote{false positives} \textsc{or} criticism)
+       & 40 & 0 & 3 & 0 \\
+    M2 & (\enquote{lazy class} \textsc{or} \enquote{speculative generality} \textsc{or} \enquote{too many classes} \textsc{or} \enquote{unnecessary classes} \textsc{or} overengineering \textsc{or} \enquote{over-engineering}) \textsc{and} (\enquote{code smell} \textsc{or} \enquote{code smells} \textsc{or} refactoring \textsc{or} \enquote{object-oriented}) \textsc{and} (maintainability \textsc{or} \enquote{change-proneness} \textsc{or} \enquote{fault-proneness} \textsc{or} defects \textsc{or} design)
+       & 40 & 12 & 17 & 13 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 580 poster.  Flera databaser lämnar
+samma arbete, och två poster räknas som ett arbete när titlarna är
+desamma bortsett från versaler och skiljetecken; efter den
+sammanslagningen återstår 314 arbeten, och det är arbeten som räknas här
+och i \cref{tab:sok-tumregel}.  Alla klassades: först med en språkmodell
+mot en beskrivning av frågan och fyra kategorier --- stöder påståendet,
+kvalificerar eller motsäger det, angränsande delämne, annat ämne --- och
+sedan för hand: varje post som modellen satt i den andra kategorin, och
+varje post med konfidens under 0,7, lästes i sammanfattning.  Fjorton
+poster flyttades då till de angränsande, främst verktyg för att hitta
+och åtgärda kodlukter, som förutsätter att lukten är skadlig men inte
+prövar det.  Stödfrågan om Python (S3) gav nästan bara Pythonbibliotek
+för andra ämnen.
+
+Regeln lever i praktikerlitteraturen, som databaserna inte indexerar.
+Den hämtades därför som känt dokument där forskningen pekar: de
+empiriska studierna av \emph{data clumps} anger Fowler med flera som
+källa till begreppet\autocite[tabell~I]{Hall2014Smells}, och Fowlers egen
+korta beskrivning av det\autocite{Fowler2006DataClump} och hans katalog
+över omstruktureringar\autocite{Fowler2018EncapsulateRecord} lästes på
+hans webbplats.  Boken där begreppet först står, \emph{Refactoring},
+fanns inte tillgänglig.  Robert C. Martins \emph{Clean
+Code}\autocite{Martin2008CleanCode} lästes i författarens eget
+exemplar.
+
+\section{Resultat}
+\label{sec:tum-resultat}
+
+\paragraph{Ursprung.}  Regeln är en variant av ett känt praktikerråd.
+Fowler beskriver kodlukten \emph{data clump} som att man
+\textcquote{Fowler2006DataClump}{constantly see[s] the same few data
+items passed around together}, och åtgärden är
+\textcquote{Fowler2006DataClump}{to replace data clumps with objects and
+use the objects whenever you see them}; vinsten kommer sedan, när man
+\textcquote{Fowler2006DataClump}{begin[s] to look for behavior to move
+into the new objects}.  Omstruktureringen \emph{Encapsulate Record},
+tidigare \emph{Replace Record with Data Class}, gör exakt det materialet
+gör: en post med fasta fält, i katalogens exempel
+\mintinline{javascript}|{name: "Acme Gooseberries", country: "GB"}|, blir
+en klass med metoder för att läsa och ändra
+fälten\autocite{Fowler2018EncapsulateRecord}.  Materialets villkor
+--- fast struktur, många ställen i koden --- motsvarar Fowlers
+\enquote{some data items together in lots of places}, som
+forskningen citerar\autocite[tabell~I]{Hall2014Smells}.  Ingen källa i
+sökningen formulerar regeln för just uppslagslistor i Python.
+
+\paragraph{Lönar det sig?}  Ingen studie i sökningen prövar regeln
+själv.  Det som finns är studier av kodlukter.  I allmänhet tycks de
+spela roll: i 30 öppna projekt var klasser med kodlukter mer benägna att
+ändras och att innehålla fel än klasser utan\autocite{Palomba2018Smells},
+men \emph{data clumps} var inte en av de tretton lukter som mättes.  Den
+lukten följer med programmet när det växer: i 16 projekt följda över
+2\,696 versioner levde den kvar och \textcquote{Baumgartner2025DataClumps}{tend[ed]
+to grow into larger clusters, which hinders refactoring}, men sambandet
+med fel återstår enligt författarna att studera.  Där det har mätts är
+det svagt.  Hall med flera mätte
+fem av Fowlers kodlukter i tre öppna system och fann att
+\textcquote{Hall2014Smells}{Data Clumps reduced faults in Apache and
+Eclipse but increased faults in ArgoUML}, och att effekten, där den
+fanns, var liten --- under tio procent; deras slutsats är att
+\textcquote{Hall2014Smells}{arbitrary refactoring is unlikely to
+significantly reduce fault-proneness and in some cases may increase
+fault-proneness}.  I ett försök med yrkesverksamma påverkade lukten hur
+lång tid redigeringen tog, men storleken på ändringen betydde mer för
+all tidsåtgång än någon kodlukt\autocite{Soh2016Smells}.  Mått på den
+närliggande lukten \emph{primitive obsession} förbättrade
+felprediktion bara marginellt\autocite{Pengo2021Primitive}.
+
+\paragraph{Motsökningen.}  Tre förbehåll kom fram.  Det första är att
+regeln kräver omdöme: när Hall med fleras två granskare letade efter
+lukten i samma kod var de inte överens alls, och författarna förklarar
+det med att den är \textcquote{Hall2014Smells}{particularly difficult
+to formally define from Fowler et al.'s original definitions}.  Det
+andra är att lukterna inte alltid är fel: många visar sig
+\textcquote{Fontana2016FalsePositives}{not to be as detrimental to
+quality as previously conjectured}, \emph{data clumps} och
+\emph{primitive obsession} kan vara medvetna val av prestanda- eller
+historiska skäl, och en klass som bara håller data --- det man får om
+man gör om uppslagslistan till en klass och inget mer --- är själv en
+kodlukt hos Fowler, men en som flera studier funnit ha
+\textcquote[avsnitt~III]{Fontana2016FalsePositives}{only little
+negative impact on maintainability}.  Vinsten kommer, med Fowlers ord,
+först när man flyttar beteende till den nya klassen.  Det tredje är att
+det finns ett motsatt råd i samma tradition:
+\textcite{Martin2008CleanCode} skriver att
+\textcquote[97]{Martin2008CleanCode}{[s]ometimes you really do want
+simple data structures with procedures operating on them}, och att
+objekt passar när man vill kunna lägga till nya datatyper, enkla
+datastrukturer när man vill kunna lägga till nya funktioner.  Samma
+avvägning gör materialet självt, när det kallar
+\mintinline{python}{Item}-klassen onödigt tung för inköpslistan och
+hänvisar till KISS.
+
+\section{Diskussion och begränsningar}
+\label{sec:tum-diskussion}
+
+Svaret vilar på praktikerkällor för ursprunget och på sex empiriska
+studier av kodlukter, varav tre lästes i
+fulltext\autocite{Hall2014Smells,Soh2016Smells,Fontana2016FalsePositives}
+och tre i
+sammanfattning\autocite{Pengo2021Primitive,Palomba2018Smells,Baumgartner2025DataClumps};
+de två senare är öppet tillgängliga men kunde inte hämtas automatiskt.  De empiriska
+studierna gäller Java, inte Python, och de mäter kodlukten i stora,
+mogna system, inte beslutet att göra en uppslagslista till en klass i
+ett litet program.  Fowlers bok, där begreppet först formulerades och
+där motiveringen för \emph{Encapsulate Record} står, kunde inte läsas;
+webbkatalogen visar bara namn och exempel.  Stödfrågan om Python (S3)
+gav nästan bara Pythonbibliotek för andra ämnen, vilket säger att frågan
+inte är studerad snarare än att den är avgjord.  DBLP och Semantic
+Scholar saknas, och klassningen är modellstödd.
+
+\section{Slutsats}
+\label{sec:tum-slutsats}
+
+Tumregeln har en grund men inget empiriskt test.  Den är en variant av
+Fowlers kodlukt \emph{data clumps} och hans omstrukturering
+\emph{Encapsulate Record}
+\parencite{Fowler2006DataClump,Fowler2018EncapsulateRecord}, ett etablerat
+praktikerråd; att det lönar sig att följa den är inte visat.  Kodlukter
+i allmänhet hänger ihop med fler fel och ändringar
+\parencite{Palomba2018Smells}, och \emph{data clumps} växer med
+programmet \parencite{Baumgartner2025DataClumps}, men där just den
+lukten har mätts är effekterna små och motsägande
+\parencite{Hall2014Smells,Soh2016Smells,Pengo2021Primitive}, och en
+klass som bara håller data vinner lite
+\parencite{Fontana2016FalsePositives}.  Var
+gränsen går är en bedömning, som erfarna granskare inte är överens om
+\parencite{Hall2014Smells}, och det finns ett motsatt råd för enkla data
+\parencite{Martin2008CleanCode}.  Materialets formulering ---
+\enquote{överväg} --- håller därför; regeln bör presenteras som
+författarens och fältets bedömning, inte som ett forskningsresultat.
+
+\section{Fortsatt arbete}
+\label{sec:tum-fortsatt}
+
+Sökningen lämnade tre saker ogjorda.  DBLP och Semantic Scholar svarade
+inte.  Fowlers \emph{Refactoring}, där kodlukten och omstruktureringen
+motiveras, lästes inte; den bör läsas för att se vilket kriterium
+Fowler själv ger för när en post ska bli en klass.  Och tre studier lästes bara i
+sammanfattning\autocite{Pengo2021Primitive,Palomba2018Smells,Baumgartner2025DataClumps};
+de två senare finns öppet hos Springer och bör läsas i fulltext.
+
+För ett säkrare svar saknas studier av själva beslutet: får program där
+en uppslagslista med fast struktur som används på många ställen har
+gjorts om till en klass färre fel eller lättare ändringar än samma
+program utan klassen, och var går gränsen i antal användningar och
+programstorlek?  Ett försök där nybörjare ändrar båda versionerna av
+samma Pythonprogram skulle besvara det.  Visar det en fördel kan
+materialet säga att regeln är prövad; visar det ingen, är regeln en
+fråga om smak och tydlighet, och det bör materialet då säga.
+
+\section{Träffar som rör påståendet}
+\label{sec:tum-traffar}
+
+\Cref{tab:sok-tumregel} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-tumregel}.
+% Author's note (verification and reproduction):
+%   scholar session : oo-tumregel
+%   exports         : litteratursokning/oo-tumregel.csv,
+%                     litteratursokning/oo-tumregel-full.tex
+%   searched        : 2026-10-02; providers openalex wos scopus ieee
+%                     (dblp: bot challenge, then HTTP 429 -- absent;
+%                     s2: key rejected HTTP 403 -- absent); limit 40
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples --no-enrich, model
+%                     openai-codex/gpt-5.6-sol; human overrides via
+%                     scholar sessions decide: 6 cited rows kept with
+%                     themes vinst / omdome; 14 rows (smell-detection
+%                     tools, generic smell surveys, Detienne1997) moved
+%                     from supports/qualifies to adjacent-subtopic after
+%                     reading the abstracts
+%   hit-list table  : scholar sessions export oo-tumregel -f table
+%                     --bearing-only --lang sv --label sok-tumregel
+%                     --track "tumregeln om uppslagslistor och klasser"
+%                     --theme vinst="vinst" --theme omdome="omdöme"
+%                     -o litteratursokning/oo-tumregel-full
+%   provenance      : ltnotes.bib (from oo-tumregel.bib), keys
+%                     Fowler2006DataClump Fowler2018EncapsulateRecord
+%                     Hall2014Smells Soh2016Smells Pengo2021Primitive
+%                     Palomba2018Smells Baumgartner2025DataClumps
+%                     Fontana2016FalsePositives Martin2008CleanCode
+%   known items     : Fowler2006DataClump, Fowler2018EncapsulateRecord
+%                     (web pages, read 2026-10-02); Martin2008CleanCode
+%                     (book, user's reMarkable, printed p. 97)
+%   full text       : Hall2014Smells (author manuscript, Lancaster
+%                     eprints), Soh2016Smells, Fontana2016FalsePositives
+%                     (CWI repository)
+%   abstract-level  : Pengo2021Primitive, Palomba2018Smells,
+%                     Baumgartner2025DataClumps (the last two OA at
+%                     Springer; automated fetch blocked)
+\input{litteratursokning/oo-tumregel-full}
+
+\chapter{Leder klasser till återanvändning?}
+\label{app:ateranvandning}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Materialet räknar återanvändbarhet till fördelarna med klasser på tre
+ställen: adressklassen i \cref{sec:komposition-tillampningar}
+\enquote{kan användas i andra sammanhang}, listan över designprinciper i
+\cref{sec:designprinciper} räknar återanvändbarhet till principerna,
+och \cref{sec:nar-klasser} säger att klasser är
+lämpliga när \enquote{du vill återanvända kod i olika sammanhang}.  Att
+en viss klass \emph{kan} användas på flera ställen ser man i koden.  Men
+råden vilar på ett allmännare påstående: att objektorientering ---
+klasser, arv och komposition --- faktiskt leder till återanvändning, och
+att återanvändningen lönar sig.  Frågan som ska besvaras är: \emph{leder
+klasser till återanvändning, och lönar sig den?}  \Cref{sec:ater-metod}
+beskriver sökningen, \cref{sec:ater-resultat} vad den fann,
+\cref{sec:ater-diskussion} vad som begränsar svaret,
+\cref{sec:ater-slutsats} ger det och \cref{sec:ater-fortsatt} säger vad
+som återstår att göra; \cref{tab:sok-ateranvandning} sist i kapitlet
+listar de träffar som rör påståendet.
+
+\section{Metod}
+\label{sec:ater-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med verktyget
+\texttt{scholar}, mot OpenAlex, Web of Science, Scopus och IEEE Xplore.
+DBLP svarade inte och Semantic Scholar avvisade sin nyckel; de saknas, och
+IEEE Xplore hade nått sin dagsgräns när den sista frågan ställdes.
+Stödfrågorna söker objektorientering tillsammans med återanvändning och
+empiriska mått på produktivitet och kvalitet (S1), samma sak med
+mekanismerna --- arv, komposition, klassbibliotek, ramverk --- utskrivna
+(S2), och fältets namn för de två sätten att återanvända en klass,
+\emph{white-box reuse} genom arv och \emph{black-box reuse} genom att
+använda klassen som den är (S3).  Motfrågorna använder samma begrepp
+tillsammans med ord för misslyckanden, myter och hinder (M1) och för
+kostnader och låg återanvändning (M2).  \Cref{tab:sok-queries-ateranvandning}
+visar frågorna och antalet träffar per databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.
+\begin{table}[!b]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, klasser och
+    återanvändning, 2 oktober 2026, verktyget \texttt{scholar}.
+    S = stödfråga, M = motfråga.  Databaser: OpenAlex (OA; inte
+    \foreignlanguage{english}{open access}), Web of Science (WoS),
+    Scopus, IEEE Xplore (IEEE).  Högst 40 träffar hämtades per databas
+    och fråga, så 40 betyder \enquote{minst 40}.  OO står för
+    (\enquote{object-oriented} \textsc{or} \enquote{object oriented}),
+    RU för (\enquote{software reuse} \textsc{or} \enquote{code reuse}
+    \textsc{or} reusability \textsc{or} reuse) och MEK för (inheritance
+    \textsc{or} composition \textsc{or} classes \textsc{or} \enquote{class
+    libraries} \textsc{or} frameworks).  Frågan visas i den booleska
+    form som skickades till OpenAlex och IEEE; Web of Science fick samma
+    sträng som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  Streck: IEEE Xplore hade nått sin
+    dagsgräns.  DBLP och Semantic Scholar svarade inte och saknas.}
+  \label{tab:sok-queries-ateranvandning}
+  \footnotesize
+  \begin{tabular}{@{}lp{0.58\linewidth}rrrr@{}}
+    \toprule
+    & Nyckelord & OA & WoS & Scopus & IEEE \\
+    \midrule
+    S1 & OO \textsc{and} RU \textsc{and} (empirical \textsc{or} experiment \textsc{or} \enquote{case study} \textsc{or} measurement) \textsc{and} (productivity \textsc{or} quality \textsc{or} defects \textsc{or} effort)
+       & 40 & 40 & 40 & 40 \\
+    S2 & MEK \textsc{and} OO \textsc{and} RU \textsc{and} (benefits \textsc{or} productivity \textsc{or} quality \textsc{or} \enquote{reuse rate})
+       & 40 & 40 & 40 & 40 \\
+    S3 & (\enquote{black-box reuse} \textsc{or} \enquote{white-box reuse} \textsc{or} \enquote{black box reuse} \textsc{or} \enquote{white box reuse} \textsc{or} inheritance \textsc{or} composition) \textsc{and} OO \textsc{and} (reuse \textsc{or} reusability) \textsc{and} (experiment \textsc{or} empirical \textsc{or} productivity)
+       & 40 & 40 & 39 & -- \\
+    \midrule
+    M1 & OO \textsc{and} RU \textsc{and} (myth \textsc{or} myths \textsc{or} failure \textsc{or} failures \textsc{or} barriers \textsc{or} \enquote{not automatic} \textsc{or} disappointing \textsc{or} \enquote{no evidence} \textsc{or} limited \textsc{or} criticism \textsc{or} \enquote{lessons learned})
+       & 40 & 40 & 40 & 40 \\
+    M2 & MEK \textsc{and} OO \textsc{and} RU \textsc{and} (cost \textsc{or} costs \textsc{or} overhead \textsc{or} \enquote{low reuse} \textsc{or} \enquote{little reuse} \textsc{or} \enquote{design for reuse} \textsc{or} drawbacks)
+       & 40 & 40 & 40 & 40 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 759 poster.  Flera databaser lämnar
+samma arbete, och två poster räknas som ett arbete när titlarna är
+desamma bortsett från versaler och skiljetecken; efter den
+sammanslagningen återstår 444 arbeten, och det är arbeten som räknas här
+och i \cref{tab:sok-ateranvandning}.  Alla klassades: först med en
+språkmodell mot en beskrivning av frågan och fyra kategorier --- stöder
+påståendet, kvalificerar eller motsäger det, angränsande delämne, annat
+ämne --- och sedan för hand: varje post som modellen satt i någon av de
+två första kategorierna lästes i sammanfattning, liksom varje post med
+konfidens under 0,7.  Ett femtiotal poster flyttades då till de
+angränsande: rapporter om enskilda tillämpningar och ramverk som
+återanvänder klasser utan att mäta vad det gav, och förslag till mått på
+återanvändbarhet som inte prövats mot utfall.
+
+Boken \emph{Design Patterns}\autocite{Gamma1994DesignPatterns}, som
+materialet redan citerar, lästes som känt dokument i författarens eget
+exemplar.  Basili med fleras studie lästes i den version som godkänts
+för publicering och som finns öppet hos University of Maryland, och
+Détiennes översikt\autocite{Detienne1997} i den kopia hon själv lagt
+upp i det franska öppna arkivet HAL.
+
+\section{Resultat}
+\label{sec:ater-resultat}
+
+\paragraph{Stöd.}  Det finns kontrollerade belägg för att
+objektorientering och återanvändning hänger ihop.  Lewis med flera fann i
+ett experiment att \textcquote{Lewis1991Reuse}{the object-oriented
+paradigm substantially improves productivity, although a significant
+part of this improvement is due to the effect of reuse}, och att
+paradigmet \textcquote{Lewis1991Reuse}{has a particular affinity to the
+reuse process}.  Basili, Briand och Melo följde åtta studentprojekt i C++
+och fann att återanvändning av klasser gav
+\textcquote{Basili1996Reuse}{significant benefits from reuse in terms of
+reduced defect density and rework as well as increased productivity}.
+En fältjämförelse i en organisation fann objektorienterade system
+signifikant mer återanvändbara än konventionellt
+utvecklade\autocite{LowHuan1999}, och i 93 öppna Javasystem används arv
+främst för att uttrycka undertyper och för det författarna kallar
+\textcquote{Tempero2013Inheritance}{external code reuse}.  Détiennes
+översikt sammanfattar: \textcquote[avsnitt~5.4]{Detienne1997}{Some
+results of empirical studies support the claim that the OO paradigm
+promotes reuse of software.}
+
+\paragraph{Vilket slags återanvändning?}  Studierna skiljer på
+mekanismerna, och skillnaden är den materialet gör mellan komposition och
+arv.  Lattanzi och Henry fann i två experiment att
+\textcquote{LattanziHenry1998}{black box reuse increases programmer
+productivity, but the benefits of white box reuse are less clear} ---
+att använda en klass som den är, som \mintinline{python}{Address}, gav
+mer än att ärva från den.  Détienne fann att
+\textcquote[avsnitt~5.4]{Detienne1997}{reuse efforts do not centre on
+reuse by specialising the inheritance hierarchy but on literal copying
+and modification of code}, och en genomgång från 1998 fann att arvet,
+som infördes \textcquote{Cartwright1998Inheritance}{primarily with a
+view to enhancing opportunities for reuse}, används förvånansvärt lite.
+
+\paragraph{Motsökningen.}  Motsökningen bär två förbehåll.  Det första
+är att återanvändning inte kommer av sig själv.  I 24 europeiska
+industriprojekt för återanvändning misslyckades ungefär en tredjedel, och
+grundorsaken var ofta \textcquote{Morisio2002Reuse}{the belief that
+using the object-oriented approach or setting up a repository seamlessly
+is all that is necessary to achieve success in reuse}.  Biddle och
+Tempero konstaterar att objektorientering hyllats för återanvändning,
+\textcquote{BiddleTempero1998}{[h]owever, the limited practical impact
+has not justified the acclaim}, och Basili att det finns
+\textcquote{Basili1994Myths}{a great deal of misunderstanding about
+reuse}.  Det andra förbehållet är att det kräver kunnande:
+\textcquote[avsnitt~5.4]{Detienne1997}{reuse through built-in classes is
+not used spontaneously by novices}, och boken som gjort återanvändning
+till sin undertitel inleder med att
+\textcquote[1]{Gamma1994DesignPatterns}{[d]esigning object-oriented
+software is hard, and designing reusable object-oriented software is
+even harder}.
+
+\section{Diskussion och begränsningar}
+\label{sec:ater-diskussion}
+
+Svaret vilar på tre källor lästa i fulltext eller i godkänd
+förhandsversion (Détienne, Basili med flera, \emph{Design Patterns}) och
+resten i sammanfattning; Lewis med fleras experiment och Lattanzi och
+Henrys, som bär kapitlets två viktigaste fynd, är stängda hos ACM och
+Elsevier.  De kontrollerade försöken använde studenter och C++ eller Ada
+under 1990-talet, och Basili med fleras studie mäter vad det ger att
+återanvända färdiga klassbibliotek, inte om objektorientering får
+programmerare att skriva återanvändbara klasser.  Ordet \emph{reuse}
+förekommer i tusentals poster, så de fyrtio som hämtades per fråga och
+databas är ett urval.  DBLP och Semantic Scholar saknas, IEEE Xplore
+saknas för den sista stödfrågan, och klassningen är modellstödd.
+
+\section{Slutsats}
+\label{sec:ater-slutsats}
+
+Ja, med förbehåll.  Kontrollerade försök och fältstudier visar att
+objektorienterad utveckling och återanvändning av klasser kan ge högre
+produktivitet och färre fel
+\parencite{Lewis1991Reuse,Basili1996Reuse,LowHuan1999}, och tydligast när
+klassen används som den är, inte ärvs \parencite{LattanziHenry1998}.
+Men återanvändningen kommer inte av sig själv: industriprogram som
+litade på objektorienteringen ensam misslyckades \parencite{Morisio2002Reuse},
+den praktiska effekten har legat under förväntningarna
+\parencite{BiddleTempero1998}, och nybörjare återanvänder inte spontant
+\parencite{Detienne1997}.  Materialets råd håller alltså som råd ---
+\enquote{tänk på återanvändbarhet}, gör klasser som
+\mintinline{python}{Address} med ett ansvar --- men inte som ett löfte om
+att klasser i sig ger återanvändning.
+
+\section{Fortsatt arbete}
+\label{sec:ater-fortsatt}
+
+Sökningen lämnade DBLP och Semantic Scholar obesökta och IEEE Xplore för
+en fråga; de bör ställas där när tjänsterna svarar.  Tyngre väger att
+Lewis med fleras experiment\autocite{Lewis1991Reuse} och Lattanzi och
+Henrys\autocite{LattanziHenry1998} bara lästes i sammanfattning; deras
+försökspersoner, uppgifter och effektstorlekar avgör hur långt fynden
+räcker.
+
+För ett säkrare svar saknas nyare studier.  Nästan allt som jämför
+objektorienterad och annan återanvändning är från 1990-talet, före
+pakethanterare och öppen källkod i stor skala, då återanvändning ofta
+betyder att importera ett bibliotek snarare än att skriva egna
+återanvändbara klasser.  En studie av hur nybörjare i Python faktiskt
+återanvänder sina egna klasser och funktioner --- importerar, kopierar
+eller skriver om --- skulle säga om rådet \enquote{tänk på
+återanvändbarhet} bär för just dem.  Visar den att de kopierar, bör
+materialet lägga tyngden på att använda en klass som den är, som
+\mintinline{python}{Address}, och mindre på att skriva generella
+klasser i förväg.
+
+\section{Träffar som rör påståendet}
+\label{sec:ater-traffar}
+
+\Cref{tab:sok-ateranvandning} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-ateranvandning}.
+% Author's note (verification and reproduction):
+%   scholar session : oo-ateranvandning
+%   exports         : litteratursokning/oo-ateranvandning.csv,
+%                     litteratursokning/oo-ateranvandning-full.tex
+%   searched        : 2026-10-02; providers openalex wos scopus ieee
+%                     (ieee: daily quota exhausted before S3 -- S3 not run
+%                     there; dblp: bot challenge, then HTTP 429 -- absent;
+%                     s2: key rejected HTTP 403 -- absent); limit 40
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples --no-enrich, model
+%                     openai-codex/gpt-5.6-sol; human overrides via
+%                     scholar sessions decide: 12 cited rows kept with
+%                     themes stod / mekanism / mot (two versions each of
+%                     Lewis et al., Basili et al., Tempero et al.,
+%                     Lattanzi and Henry, Cartwright, Biddle and
+%                     Tempero); 53 rows moved from supports/qualifies
+%                     to adjacent-subtopic after reading the abstracts
+%                     (application/framework reports, unvalidated
+%                     reusability metrics, inheritance mechanics papers).
+%                     Note: S3 was run when IEEE's daily quota was spent,
+%                     so its IEEE cell is not run, not zero.
+%   hit-list table  : scholar sessions export oo-ateranvandning -f table
+%                     --bearing-only --lang sv --label sok-ateranvandning
+%                     --track "klasser och återanvändning"
+%                     --theme stod="stöd" --theme mekanism="mekanism"
+%                     --theme mot="motsökning"
+%                     -o litteratursokning/oo-ateranvandning-full
+%   provenance      : ltnotes.bib (from oo-ateranvandning.bib), keys
+%                     Lewis1991Reuse Basili1996Reuse LattanziHenry1998
+%                     Morisio2002Reuse BiddleTempero1998 Basili1994Myths
+%                     Tempero2013Inheritance Cartwright1998Inheritance
+%                     Detienne1997 Gamma1994DesignPatterns LowHuan1999
+%   known items     : Gamma1994DesignPatterns (user's reMarkable, p. 1)
+%   full text       : Detienne1997 (HAL), Basili1996Reuse (accepted
+%                     preprint UMD CS-TR-3395), Gamma1994DesignPatterns
+%   abstract-level  : all others -- for the user to verify
+\input{litteratursokning/oo-ateranvandning-full}
+
+\chapter{Är abstraktion en etablerad designprincip?}
+\label{app:abstraktion}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Listan över designprinciper i \cref{sec:designprinciper} tar upp
+abstraktion: \enquote{Dölj komplexitet bakom enkla gränssnitt.
+Användaren av en klass behöver inte veta hur den fungerar invändigt.}
+Att kalla något en designprincip är två påståenden: att fältet erkänner
+den som princip, och --- underförstått --- att den gör program bättre,
+lättare att förstå och ändra.  Idén ligger nära inkapsling, och dess
+rötter i Parnas informationsdöljande\autocite{Parnas1972Criteria} är
+redan prövade i föreläsningen \emph{Klasser och objekt}, bilaga~C;
+här gäller det abstraktionen som princip för klasser och vad den ger.
+Frågan som ska besvaras är: \emph{är abstraktion en etablerad
+designprincip, och finns det belägg för att den gör program lättare att
+förstå och underhålla?}  \Cref{sec:abs-metod} beskriver sökningen,
+\cref{sec:abs-resultat} vad den fann, \cref{sec:abs-diskussion} vad som
+begränsar svaret, \cref{sec:abs-slutsats} ger det och
+\cref{sec:abs-fortsatt} säger vad som återstår att göra;
+\cref{tab:sok-abstraktion} sist i kapitlet listar de träffar som rör
+påståendet.
+
+\section{Metod}
+\label{sec:abs-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med verktyget
+\texttt{scholar}, mot OpenAlex, Web of Science, Scopus och IEEE Xplore;
+DBLP svarade inte och Semantic Scholar avvisade sin nyckel.  Begreppet
+söktes under alla sina namn i litteraturen --- \emph{abstraction},
+\emph{data abstraction}, \emph{abstract data type(s)}, \emph{information
+hiding} --- tillsammans med designprincip och gränssnitt (S1) och med
+förståelse och underhållbarhet i empiriska studier (S2).  Motfrågorna
+använder samma begrepp tillsammans med kritikens namn: läckande
+abstraktioner, \emph{open implementation}, abstraktionens kostnad (M1),
+och med uteblivna effekter, indirektion och överabstraktion (M2).
+\Cref{tab:sok-queries-abstraktion} visar frågorna och antalet träffar per
+databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.
+\begin{table}[!b]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, abstraktion som
+    designprincip, 2 oktober 2026, verktyget \texttt{scholar}.
+    S = stödfråga, M = motfråga.  Databaser: OpenAlex (OA; inte
+    \foreignlanguage{english}{open access}), Web of Science (WoS),
+    Scopus, IEEE Xplore (IEEE).  Högst 40 träffar hämtades per databas
+    och fråga, så 40 betyder \enquote{minst 40}.  AB står för
+    (abstraction \textsc{or} \enquote{data abstraction} \textsc{or}
+    \enquote{abstract data type} \textsc{or} \enquote{abstract data
+    types} \textsc{or} \enquote{information hiding}).  Frågan visas i
+    den booleska form som skickades till OpenAlex och IEEE; Web of
+    Science fick samma sträng som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  DBLP och Semantic Scholar svarade
+    inte och saknas.}
+  \label{tab:sok-queries-abstraktion}
+  \footnotesize
+  \begin{tabular}{@{}lp{0.58\linewidth}rrrr@{}}
+    \toprule
+    & Nyckelord & OA & WoS & Scopus & IEEE \\
+    \midrule
+    S1 & AB \textsc{and} (\enquote{design principle} \textsc{or} \enquote{software design} \textsc{or} modularity \textsc{or} \enquote{software engineering}) \textsc{and} (interface \textsc{or} interfaces)
+       & 40 & 40 & 40 & 40 \\
+    S2 & AB \textsc{and} (comprehension \textsc{or} maintainability \textsc{or} maintenance \textsc{or} understandability \textsc{or} \enquote{change impact}) \textsc{and} (experiment \textsc{or} empirical \textsc{or} \enquote{controlled experiment})
+       & 40 & 40 & 40 & 40 \\
+    \midrule
+    M1 & AB \textsc{and} (\enquote{leaky abstraction} \textsc{or} \enquote{leaky abstractions} \textsc{or} \enquote{open implementation} \textsc{or} \enquote{abstraction penalty} \textsc{or} criticism \textsc{or} limitations \textsc{or} \enquote{breaks down}) \textsc{and} (interface \textsc{or} interfaces \textsc{or} \enquote{software design} \textsc{or} modularity)
+       & 40 & 40 & 40 & 40 \\
+    M2 & AB \textsc{and} (comprehension \textsc{or} maintainability \textsc{or} maintenance \textsc{or} understandability) \textsc{and} (\enquote{no effect} \textsc{or} \enquote{no significant} \textsc{or} harder \textsc{or} overhead \textsc{or} \enquote{over-abstraction} \textsc{or} overengineering \textsc{or} \enquote{too many} \textsc{or} indirection)
+       & 40 & 40 & 40 & 40 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 640 poster.  Flera databaser lämnar
+samma arbete, och två poster räknas som ett arbete när titlarna är
+desamma bortsett från versaler och skiljetecken; efter den
+sammanslagningen återstår 492 arbeten, och det är arbeten som räknas här
+och i \cref{tab:sok-abstraktion}.  Alla klassades: först med en
+språkmodell mot en beskrivning av frågan och fyra kategorier --- stöder
+påståendet, kvalificerar eller motsäger det, angränsande delämne, annat
+ämne --- och sedan för hand: varje post som modellen satt i någon av de
+två första kategorierna lästes i sammanfattning, liksom varje post med
+konfidens under 0,7.  Ett sextiotal poster flyttades då till de
+angränsande, nästan alla beskrivningar av enskilda system som
+\emph{använder} abstraktion --- bibliotek, ramverk, operativsystem ---
+utan att pröva vad den ger.
+
+Robert C. Martins \emph{Clean Code}\autocite{Martin2008CleanCode}, en
+bok och därför inte indexerad, lästes som känt dokument i författarens
+eget exemplar.  Arisholm och Sjøbergs experiment\autocite{ArisholmSjoberg2004}
+kom fram i sökningen till \cref{app:underhall} och används här för vad
+det säger om abstraktion.
+
+\section{Resultat}
+\label{sec:abs-resultat}
+
+\paragraph{Ursprung och ställning.}  Idén att en datatyp ska vara känd
+för sina användare bara genom sina operationer går tillbaka på Liskov
+och Zilles abstrakta datatyper\autocite{LiskovZilles1974}, som byggde på
+att programmeraren då \textcquote{LiskovZilles1974}{concentrates on
+solving his problem, and the resulting program will be more reliable as
+a result}.  Liskov sammanfattade senare att
+\textcquote{Liskov1987}{[d]ata abstraction is a valuable method for
+organizing programs to make them easier to modify and maintain}, och
+att den är en viktigare idé än arv.  Att principen är etablerad
+bekräftas också av en av dess kritiker, Kiczales:
+\textcquote{Kiczales1996}{Encapsulation, informally known as black-box
+abstraction, is a widely known and accepted principle. It is a basic
+tenet of software design}.  Bland
+praktikerna formulerar \textcite{Martin2008CleanCode} principen nästan
+som materialet: en klass \textcquote[94]{Martin2008CleanCode}{exposes
+abstract interfaces that allow its users to manipulate the essence of
+the data, without having to know its implementation}.
+
+\paragraph{Gör den program lättare att förstå och underhålla?}  Här är
+underlaget tunt men pekar åt rätt håll.  Woodfield, Dunsmore och Shen
+gav 48 erfarna programmerare samma program uppdelat på fyra sätt och fann
+att de som fick versionen byggd kring abstrakta datatyper
+\textcquote{Woodfield1981}{were able to do significantly better than
+those with any other type of modularization} på frågor om programmet.
+Ett mindre experiment fann att moduler med gott informationsdöljande
+inte försämrades strukturellt när försökspersoner ändrade
+dem\autocite{RisingCalliss1993}.  Påståendena om underhållbarhet i
+övrigt är experters omdömen\autocite{Liskov1987}, inte mätningar, och
+för inkapsling, principens närmaste släkting, gäller detsamma:
+föreläsningen \emph{Klasser och objekt}, bilaga~C, fann den väl
+etablerad men löst formulerad.
+
+\paragraph{Motsökningen.}  Motsökningen gav tre förbehåll.  Det första
+är att abstraktion inte är gratis: Kiczales konstaterar att
+\textcquote{Kiczales1996}{many practitioners find themselves violating
+it in order to achieve performance requirements in a practical manner},
+och i praktiken punkterar människor abstraktionsgränser medvetet för att
+dela information som gränsen döljer\autocite{Subramonyam2022Leaky}.  Det
+andra gäller nybörjare.  När Arisholm och Sjøberg lät försökspersoner
+ändra ett Javaprogram där ansvaret var fördelat på många samarbetande
+klasser --- mer abstraktion --- och ett där en central klass gjorde
+jobbet, var det förra lättare för de mest erfarna, men
+\textcquote[521]{ArisholmSjoberg2004}{more novice developers, in
+particular, the undergraduate students and junior consultants, have
+serious problems understanding a delegated control style, and perform
+far better with a centralized control style}.  Det tredje är att
+närliggande former av abstraktion inte alltid hjälper: ett noggrant
+upplagt experiment om att dela upp kod i flera funktioner fann effekten
+på förståelsen \textcquote{Tempero2024Decomposition}{inconclusive}.
+
+\section{Diskussion och begränsningar}
+\label{sec:abs-diskussion}
+
+Ordet \emph{abstraction} förekommer i nästan alla fält, och de fyrtio
+träffar som hämtades per fråga och databas dominerades av
+hårdvaruabstraktion, planering i artificiell intelligens och biologi;
+de klassades som felträffar, men urvalet kan ha trängt undan relevanta
+poster längre ner i listorna.  De citerade forskningskällorna lästes i
+sammanfattning --- ACM:s digitala bibliotek stänger ute automatiserad
+hämtning och de övriga är stängda --- utom Arisholm och Sjøberg, som
+lästes i fulltext, och Martins bok.  Att abstraktionen är etablerad
+vilar på experters och kritikers vittnesmål, inte på en räkning av hur
+fältet använder begreppet.  DBLP och Semantic Scholar saknas, och
+klassningen är modellstödd.
+
+\section{Slutsats}
+\label{sec:abs-slutsats}
+
+Ja, den är etablerad; att den gör program lättare att förstå och
+underhålla har stöd, men ett tunt.
+Abstraktion, i form av abstrakta datatyper och informationsdöljande, är
+en grundprincip i programvarudesign sedan 1970-talet
+\parencite{LiskovZilles1974,Parnas1972Criteria}, och både dess
+förespråkare och dess kritiker kallar den allmänt accepterad
+\parencite{Liskov1987,Kiczales1996}.  Att den gör program lättare att
+förstå och underhålla stöds av två experiment
+\parencite{Woodfield1981,RisingCalliss1993} och av experters omdömen,
+men en närliggande form, uppdelning i funktioner, gav inget säkert
+resultat \parencite{Tempero2024Decomposition}.  Förbehållen är att abstraktion ibland måste
+brytas av prestandaskäl \parencite{Kiczales1996}, och att mycket
+abstraktion kan göra ett program svårare för nybörjare
+\parencite{ArisholmSjoberg2004}.  Materialet kan därför kalla
+abstraktion en designprincip, men bör inte lova att mer abstraktion
+alltid gör koden lättare att förstå.
+
+\section{Fortsatt arbete}
+\label{sec:abs-fortsatt}
+
+Sökningen lämnade DBLP och Semantic Scholar obesökta.  Liskov och
+Zilles artikel\autocite{LiskovZilles1974} och Liskovs
+huvudtal\autocite{Liskov1987}, som bär principens ursprung och
+ställning, lästes bara i sammanfattning, liksom de två
+experimenten\autocite{Woodfield1981,RisingCalliss1993}; de bör läsas i
+fulltext.  En
+sökning i läroböcker och kursplaner skulle mäta hur etablerad principen
+är på ett sätt som vittnesmål inte gör.
+
+För ett säkrare svar saknas experiment som varierar graden av
+abstraktion i samma program och mäter hur lätt det är att förstå och
+ändra, för nybörjare och för erfarna.  Arisholm och Sjøbergs resultat
+tyder på att svaret beror på läsaren; ett sådant försök i Python, med
+klasser som döljer mer eller mindre, skulle säga var gränsen går för en
+nybörjare.  Visar det att nybörjare har nytta av abstraktion kan
+materialet säga det rakt ut; visar det motsatsen bör det säga att
+abstraktion lönar sig först när programmet och programmeraren har vuxit.
+
+\section{Träffar som rör påståendet}
+\label{sec:abs-traffar}
+
+\Cref{tab:sok-abstraktion} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-abstraktion}.
+% Author's note (verification and reproduction):
+%   scholar session : oo-abstraktion
+%   exports         : litteratursokning/oo-abstraktion.csv,
+%                     litteratursokning/oo-abstraktion-full.tex
+%   searched        : 2026-10-02; providers openalex wos scopus ieee
+%                     (dblp: bot challenge, then HTTP 429 -- absent;
+%                     s2: key rejected HTTP 403 -- absent); limit 40
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples --no-enrich, model
+%                     openai-codex/gpt-5.6-sol; human overrides via
+%                     scholar sessions decide: 9 cited rows kept with
+%                     themes ursprung / effekt / mot; 66 rows moved
+%                     from supports/qualifies to adjacent-subtopic after
+%                     reading the abstracts (systems that use
+%                     abstraction without testing it, formal ADT papers)
+%   hit-list table  : scholar sessions export oo-abstraktion -f table
+%                     --bearing-only --lang sv --label sok-abstraktion
+%                     --track "abstraktion som designprincip"
+%                     --theme ursprung="ursprung och ställning"
+%                     --theme effekt="effekt" --theme mot="motsökning"
+%                     -o litteratursokning/oo-abstraktion-full
+%   provenance      : ltnotes.bib (from oo-abstraktion.bib), keys
+%                     LiskovZilles1974 Liskov1987 Kiczales1996
+%                     RisingCalliss1993 Woodfield1981
+%                     Tempero2024Decomposition ArisholmSjoberg2004
+%                     Martin2008CleanCode Subramonyam2022Leaky, and
+%                     Parnas1972Criteria (backed in Funktioner B /
+%                     Klasser och objekt C)
+%   known items     : Martin2008CleanCode (book, user's reMarkable,
+%                     printed p. 94)
+%   full text       : ArisholmSjoberg2004, Martin2008CleanCode
+%   abstract-level  : LiskovZilles1974 Liskov1987 Kiczales1996
+%                     RisingCalliss1993 Woodfield1981
+%                     Tempero2024Decomposition Subramonyam2022Leaky -- for the
+%                     user to verify
+\input{litteratursokning/oo-abstraktion-full}
+\endgroup
+\ifdefined\marginnotebesidefloats\marginnotebesidefloats{reserve}\fi
