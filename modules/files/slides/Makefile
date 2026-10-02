@@ -28,13 +28,13 @@ SRC+=		$(wildcard figs/*.png)
 
 EXAMPLES+=	examples/open_close.py
 EXAMPLES+=	examples/tal.txt
-EXAMPLES+=	examples/read_missing.py
 EXAMPLES+=	examples/ask_for_file.py
 EXAMPLES+=	examples/text.txt
 EXAMPLES+=	examples/close1.py
 EXAMPLES+=	examples/close2.py
 EXAMPLES+=	examples/write_text.py
 EXAMPLES+=	examples/read_all.py
+EXAMPLES+=	examples/read_lines1.py
 EXAMPLES+=	examples/read_lines.py
 EXAMPLES+=	examples/write_append.py
 EXAMPLES+=	examples/bytes_as_text.py

@@ -374,18 +374,16 @@ alltid handlar om en fil vi redan har öppnat.
       som syntax}.
   \end{itemize}
 
-  \textbf{Pedagogisk sekvens}: Visa explicit metod först för att göra
-  problemet synligt (glömma [[close()]], särfall), sedan [[with]] som
-  lösning.  Anmärkningen \emph{Garanterad resurshantering} är
-  kontrastpunkten: den säger ut vad som skiljer de två sätten åt.
+  \textbf{Pedagogisk sekvens}: Båda sätten visas först, och de ser
+  likvärdiga ut; \cref{ovn:close} gör sedan problemet synligt (ett
+  särfall mellan [[open()]] och [[close()]]) och låter körningarna visa
+  att bara [[with]] stänger filen.  Anmärkningen \emph{Garanterad
+  resurshantering} säger därefter ut vad som skiljer de två sätten åt.
   Blocktiteln säger bara vad som är garanterat --- kontrastvokabulären
-  hör hemma här och inte i det studenterna läser.  Kontrasten gör värdet
-  av kontexthanterare urskiljbart \parencite[45--47]{Marton2015}.  Den
-  manuella versionen visas \emph{utan} [[try]]/[[finally]]: hade den
-  skyddet inbyggt skulle \cref{ovn:sarfall}, övningen om vad som händer
-  vid ett särfall, redan vara besvarad, och kontrasten mot [[with]] skulle
-  bara gälla
-  längden.
+  hör hemma här och inte i det studenterna läser.  Den manuella
+  versionen visas \emph{utan} [[try]]/[[finally]]: hade den skyddet
+  inbyggt skulle \cref{ovn:close} redan vara besvarad, och kontrasten
+  mot [[with]] skulle bara gälla längden.
 }%
 Det finns två sätt att hantera öppning och stängning: manuellt med
 [[open()]] och [[close()]], eller automatiskt med [[with]]-satsen.  Låt
@@ -411,32 +409,13 @@ def read_number_by_hand(filename):
   \end{example}
 \end{frame}
 
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:sarfall}
-    Vad händer om ett särfall (\foreignlanguage{english}{exception})
-    uppstår mellan [[open()]] och [[close()]] --- säg att filen inte
-    innehåller ett tal, så att [[int()]] misslyckas?
-
-    Hur kan vi garantera att filen alltid stängs korrekt, även om något
-    går fel under bearbetningen?
-  \end{exercise}
-\end{frame}
-
-Går [[int()]] fel avbryts funktionen på den raden, precis som vi såg i
-föreläsningen \emph{Inmatning och felhantering}: raderna efter ---
-däribland
-[[file.close()]] --- körs aldrig.  Vi skulle kunna skydda oss med [[try]]
-och [[finally]], men det är precis den bokföringen Python kan göra åt
-oss.  Pythons dokumentation rekommenderar
-\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs då
-korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
-an exception is raised at some point}}\autocite{PythonTutorialFiles}.
+Med [[with]] behöver vi inget [[close()]]: filen öppnas på satsens
+första rad och stängs när blocket under den lämnas.
 
 \begin{frame}[fragile]
   \begin{example}[Med \texttt{with}]
     \label{ex:med-with}
-    Samma uppgift, men [[with]] stänger filen åt oss när blocket lämnas:
+    Samma uppgift med en [[with]]-sats:
 <<funktion som läser talet och låter [[with]] stänga filen>>=
 def read_number(filename):
     """Reads the number in the file, letting with close it"""
@@ -447,31 +426,11 @@ def read_number(filename):
   \end{example}
 \end{frame}
 
-\leavevmode\ltnote{%
-  Relevanta lärandemål: \cref{FilesLOContextMgr}.
-
-  \textbf{Variationsmönster}: Kontrast
-
-  \textbf{Vad som varierar}: hur filen öppnas och stängs --- för hand
-  med [[open()]] och [[close()]], eller med [[with]].
-
-  \textbf{Vad som hålls invariant}: filen, det misslyckade [[int()]] och
-  frågan programmet ställer till sist ([[file.closed]]).
-
-  Att filen lämnas öppen sägs inte bara utan körs, i \cref{ovn:close},
-  så att studenten ser \mintinline{python}{False} och
-  \mintinline{python}{True} bredvid varandra.  De två programmen står i
-  \emph{en} övning för att det ska vara studenten och inte materialet
-  som gör jämförelsen \parencite[45--47]{Marton2015}.  Av samma skäl
-  heter de [[close1.py]] och [[close2.py]]: namn som beskriver
-  skillnaden hade avslöjat vad som ska urskiljas.  Ordet
-  \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
-  [[tal.txt]], skrivet så att [[int()]] inte klarar det.
-}%
-Så långt är det ett påstående vi läser.  Vi kan i stället låta
-programmen svara: ett filobjekt vet självt om det är stängt, och
-[[file.closed]] är \mintinline{python}{True} när det är det.  Vi behöver
-också en fil som \emph{inte} innehåller ett tal.
+Båda funktionerna läser talet när filen innehåller ett.  För att se om
+de skiljer sig åt när något går fel behöver vi en fil som \emph{inte}
+innehåller ett tal, och ett sätt att fråga om filen blev stängd: ett
+filobjekt vet självt om det är stängt, och [[file.closed]] är
+\mintinline{python}{True} när det är det.
 
 \begin{frame}[fragile]
   \begin{example}[En fil med ett ord]
@@ -488,11 +447,29 @@ fyrtiotvå
   \begin{exercise}[Vad skriver programmen ut?]
     \label{ovn:close}
     \leavevmode\ltnote{%
-      Programmen följer funktionsregeln från föreläsningen
-      \emph{Funktioner}, också de minsta.
+      \Cref{ovn:close} och dess lösningsförslag ställer [[close1.py]] mot
+      [[close2.py]].  Relevanta lärandemål: \cref{FilesLOContextMgr}.
+
+      \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}:
+      hur filen öppnas och stängs, för hand eller med [[with]].
+      \textbf{Vad som hålls invariant}: filen, det misslyckade [[int()]],
+      utskrifterna och frågan till sist ([[file.closed]]).  [[try]] och
+      [[except]] finns i båda bara för att programmet ska hinna ställa den
+      frågan.
+
+      Skillnaden visas av körningarna, med \mintinline{python}{False}
+      och \mintinline{python}{True} bredvid varandra, och programmen står
+      i \emph{en} övning så att det är studenten och inte materialet som
+      gör jämförelsen \parencite[45--47]{Marton2015}.  Namnen
+      [[close1.py]] och [[close2.py]] avslöjar inte skillnaden.  Ordet
+      \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
+      [[tal.txt]], skrivet så att [[int()]] inte klarar det.  Programmen
+      följer funktionsregeln från föreläsningen \emph{Funktioner}, också
+      de minsta.
     }%
-    Här är två program.  Båda läser [[text.txt]] och frågar till sist om
-    filen är stängd.  Vad skriver vart och ett av dem ut?
+    Vad händer om ett särfall uppstår mellan [[open()]] och [[close()]]?
+    Båda programmen läser [[text.txt]] och frågar till sist om filen är
+    stängd.  Vad skriver vart och ett av dem ut?
 <<[[close1.py]]>>=
 """Reading a number from a file, closing the file by hand"""
 
@@ -531,23 +508,27 @@ if __name__ == "__main__":
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{close1.py}]
-    Programmet skriver ut
+  \begin{solution}[\texttt{close1.py} och \texttt{close2.py}]
+    Det första programmet skriver ut
     \runpython[transcript]{examples/close1.py}
-  \end{example}
-
-  \begin{example}[\texttt{close2.py}]
-    Programmet skriver ut
+    Det andra skriver ut
     \runpython[transcript]{examples/close2.py}
-  \end{example}
+  \end{solution}
 \end{frame}
 
-Det första programmet svarar \mintinline{python}{False}: raden
-[[file.close()]] hoppades över när [[int()]] misslyckades, så filen
-lämnades öppen.  Det andra svarar \mintinline{python}{True}: [[with]]
-stängde filen när blocket lämnades, också när det lämnades av ett
-särfall.  Det är hela skillnaden mellan de två sätten, och den syns
-inte förrän något går fel.
+Det första programmet svarar \mintinline{python}{False}: när [[int()]]
+misslyckades avbröts [[try]]-blocket på den raden, precis som vi såg i
+föreläsningen \emph{Inmatning och felhantering}, och raden
+[[file.close()]] kördes aldrig, så filen lämnades öppen.  Det andra
+svarar \mintinline{python}{True}: [[with]] stängde filen när blocket
+lämnades, också när det lämnades av ett särfall.  Det är hela skillnaden
+mellan de två sätten, och den syns inte förrän något går fel.  Pythons
+dokumentation rekommenderar därför
+\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs
+korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
+an exception is raised at some point}}\autocite{PythonTutorialFiles}.
+Vi hade kunnat skydda den manuella versionen med [[try]] och
+[[finally]], men det är precis den bokföringen [[with]] gör åt oss.
 
 \begin{frame}
   \only<presentation>{%
@@ -626,8 +607,7 @@ if __name__ == "__main__":
       Körningen i \cref{ex:open-close-korning} är en verklig körning av
       [[open_close.py]] på filen [[tal.txt]].  Att båda vägarna ger samma
       svar är poängen: skillnaden mellan dem syns inte när allt går
-      väl, utan först när något går fel --- vilket är varför kontrasten
-      ställs som fråga innan [[with]] visas.
+      väl, utan först när något går fel, som i \cref{ovn:close}.
 
       Talet 42 i [[tal.txt]] är svaret ur Douglas Adams \emph{Liftarens
       guide till galaxen}.  Upplysningen står här och inte i studenttexten.
@@ -669,20 +649,22 @@ if __name__ == "__main__":
 \label{sec:saknas}
 
 \leavevmode\ltnote{%
-  Relevanta lärandemål: \cref{FilesLOMissing}.
+  \Cref{ovn:saknas} och dess lösningsförslag ställs mot
+  \cref{ex:ett-forsok-till}: samma inmatning, ett filnamn som inte
+  finns, ger en krasch i [[open_close.py]] och en ny fråga i
+  [[ask_for_file.py]].  Relevanta lärandemål: \cref{FilesLOMissing}.
 
   \textbf{Variationsmönster}: Kontrast, sedan fusion.
 
-  \textbf{Vad som varierar}: Om felet tas om hand eller inte; samma
-  inmatning (ett filnamn som inte finns) ger en krasch i
-  [[read_missing.py]] och en ny fråga i [[ask_for_file.py]].
+  \textbf{Vad som varierar}: Om felet tas om hand eller inte.
 
   \textbf{Vad som hålls invariant}: Uppgiften (läs talet ur filen
-  användaren anger) och läsningen själv.
+  användaren anger), frågan programmet ställer och inmatningen
+  [[finns-inte.txt]].  Kraschen visas med talläsaren själv, det program
+  övningen frågar om.
 
-  Kraschen visas \emph{före} lösningen, som körning i
-  \cref{ex:read-missing-korning} och inte som påstående: studenten ska se
-  spårutskriften och känna igen den från
+  Kraschen visas \emph{före} lösningen, som körning och inte som
+  påstående: studenten ska se spårutskriften och känna igen den från
   föreläsningen \emph{Inmatning och felhantering} innan lösningen
   kommer.
   \foreignlanguage{english}{Try-first} i två led: först vad som händer,
@@ -704,43 +686,28 @@ sparades --- ber programmet öppna en fil som inte finns.
 
 \begin{frame}
   \begin{exercise}
+    \label{ovn:saknas}
     Vad händer om användaren skriver namnet på en fil som inte finns?
     Vad får hen se?
   \end{exercise}
 \end{frame}
 
 \begin{frame}[fragile]
-  Programmet [[read_missing.py]] försöker läsa en fil som inte finns:
-<<[[read_missing.py]]>>=
-"""Reading a file that does not exist"""
-
-
-def main():
-    """Prints the contents of a file that does not exist"""
-    with open("finns-inte.txt", "r") as file:
-        print(file.read())
-
-
-if __name__ == "__main__":
-    main()
-@
+  \begin{solution}[En fil som inte finns]
+    Användaren svarar [[finns-inte.txt]], och körningen avbryts med en
+    spårutskrift:
+    \runpython[transcript, breaklines,
+      stdin={finns-inte.txt}]{examples/open_close.py}
+  \end{solution}
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{example}[Körning]
-    \label{ex:read-missing-korning}
-    Körningen avbryts med en spårutskrift:
-    \runpython[transcript, breaklines]{examples/read_missing.py}
-  \end{example}
-\end{frame}
-
-Programmet kraschar med en spårutskrift (\foreignlanguage{english}{traceback})
-av den sort vi lärde oss läsa i föreläsningen \emph{Inmatning och
-felhantering}.  Sista raden säger vilken sorts fel det var:
-[[FileNotFoundError]], det särfall Python använder när
-\enquote{\foreignlanguage{english}{a file or directory is requested but doesn't
-exist}}\autocite{PythonExceptions}.  Det är [[open()]] som kastar det, redan
-innan något har lästs.  Meddelandet är skrivet för programmeraren: det talar om
+Programmet kraschar med en spårutskrift av den sort vi lärde oss läsa i
+föreläsningen \emph{Inmatning och felhantering}.  Sista raden säger
+vilken sorts fel det var: [[FileNotFoundError]], det särfall Python
+använder när \enquote{\foreignlanguage{english}{a file or directory is
+requested but doesn't exist}}\autocite{PythonExceptions}.  Det är
+[[open()]] i [[read_number_by_hand]] som kastar det, redan innan något
+har lästs.  Meddelandet är skrivet för programmeraren: det talar om
 vilken fil som saknades, men användaren behöver något annat --- en ny chans att
 skriva rätt.
 
@@ -816,6 +783,7 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Ett försök till]
+    \label{ex:ett-forsok-till}
     Användaren skriver först fel namn, sedan rätt:
     \runpython[transcript, stdin={finns-inte.txt},
       stdin={tal.txt}]{examples/ask_for_file.py}
@@ -945,10 +913,13 @@ enda rad.
   \foreignlanguage{english}{Try-first}: studenterna skriver slingan själva,
   i \cref{ovn:slinga}, innan den visas.  Den som skriver [[print(line)]] utan
   \mintinline{python}{end=""} har
-  inte urskilt att raden bär sin egen radbrytning --- det syns i
-  utskriften som tomma rader, och det är den kontrasten prosan efter
-  körningen förklarar.  Frågan avslöjar inte aspekten (\enquote{tänk på
-  radbrytningen}); den ställs som en ren konstruktionsuppgift.
+  inte urskilt att raden bär sin egen radbrytning.  Lösningsförslaget är
+  just den slingan, [[read_lines1.py]], och dess körning visar de tomma
+  raderna; [[read_lines.py]] varierar sedan bara
+  \mintinline{python}{end=""}, så att det är radbrytningen och ingenting
+  annat som skiljer de två körningarna åt.  Frågan avslöjar inte aspekten
+  (\enquote{tänk på radbrytningen}); den ställs som en ren
+  konstruktionsuppgift.
 
   Båda programmen skriver raden [[(slut)]] sist.  Utan den ser de två
   körningarna likadana ut: den tomma rad som [[read_all.py]] skriver
@@ -973,11 +944,43 @@ du själv skriva det?
 \end{frame}
 
 \begin{frame}[fragile,shrink=15]
-  \begin{example}[Läsa rad för rad]
-    Programmet [[read_lines.py]] går igenom filen med en [[for]]-slinga:
-<<[[read_lines.py]]>>=
+  \begin{solution}[Läsa rad för rad]
+    Programmet [[read_lines1.py]] går igenom filen med en [[for]]-slinga
+    och skriver ut varje rad:
+<<[[read_lines1.py]]>>=
 """Reading a file line by line"""
 
+def main():
+    """Prints the file, read line by line"""
+    with open("test1.txt", "r") as file:
+        for line in file:
+            print(line)
+    print("(slut)")
+
+if __name__ == "__main__":
+    main()
+@
+    Det skriver ut
+    \runpython[transcript]{examples/read_lines1.py}
+  \end{solution}
+\end{frame}
+
+Varje varv i slingan ger en rad ur filen, men utskriften fick en tom rad
+efter varje rad.  Raden slutar nämligen med det radbrytningstecken
+\mintinline{python}{"\n"} som står i filen:
+\enquote{\foreignlanguage{english}{a newline character (\textbackslash{}n)
+is left at the end of the string}}\autocite{PythonTutorialFiles}.  När
+vi skriver ut raden med [[print(line)]] lägger [[print]] till ännu en
+radbrytning.  Vill vi att filens egna radbrytningar ska räcka ber vi
+[[print]] att inte lägga till någon, med \mintinline{python}{end=""}.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Läsa rad för rad]
+    \label{ex:read-lines}
+    Programmet [[read_lines.py]] är samma program med
+    \mintinline{python}{end=""}:
+<<[[read_lines.py]]>>=
+"""Reading a file line by line"""
 
 def main():
     """Prints the file, read line by line"""
@@ -985,7 +988,6 @@ def main():
         for line in file:
             print(line, end="")
     print("(slut)")
-
 
 if __name__ == "__main__":
     main()
@@ -998,14 +1000,7 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Varje varv i slingan ger en rad ur filen --- och raden slutar med det
-radbrytningstecken \mintinline{python}{"\n"} som står i filen:
-\enquote{\foreignlanguage{english}{a newline character (\textbackslash{}n)
-is left at the end of the string}}\autocite{PythonTutorialFiles}.
-Skriver vi ut raden med ett vanligt [[print(line)]] lägger [[print]] till
-ännu en radbrytning, och utskriften får en tom rad mellan varje rad.
-Därför \mintinline{python}{end=""}: vi låter filens egna radbrytningar
-räcka.  Det är av samma skäl [[read_all.py]] får en tom rad före
+Det är av samma skäl [[read_all.py]] får en tom rad före
 [[(slut)]] och [[read_lines.py]] inte får det: där går hela innehållet
 --- radbrytningen på sista raden inräknad --- genom ett enda [[print]],
 som lägger till ännu en.  Samma tecken som vi själva lade dit när vi
@@ -1055,24 +1050,45 @@ leads to simple code}}\autocite{PythonTutorialFiles}.  Om [[read()]]
 utan argument säger den torrt att hela innehållet läses in, och att det
 är vårt problem om filen är dubbelt så stor som datorns minne.
 
-Ett sista läge är värt att känna till.  Öppnar vi filen med
-\mintinline{python}{"w"} en gång till töms den först --- allt vi skrev
-förut försvinner.  Vill vi i stället lägga till i slutet av en fil som
-redan finns öppnar vi den med \mintinline{python}{"a"}.
+\leavevmode\ltnote{%
+  \Cref{ex:write-again} ställs mot \cref{ex:append}:
+  [[write_append.py]] är [[write_text.py]] med \mintinline{python}{"a"}
+  i stället för \mintinline{python}{"w"}, med samma rader och samma
+  läsning efteråt, så att läget är det enda som varierar och vad som
+  händer med filens gamla innehåll syns i körningarna.
+}%
+Ett sista läge är värt att känna till.  Först ser vi vad som händer med
+det som redan står i filen när vi öppnar den med \mintinline{python}{"w"}
+en gång till.
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{write\_text.py} en gång till]
+    \label{ex:write-again}
+    Vi kör [[write_text.py]] igen och läser sedan filen med
+    [[read_lines.py]]:
+    \runpython[transcript]{examples/write_text.py}
+    \runpython[transcript]{examples/read_lines.py}
+  \end{example}
+\end{frame}
+
+Filen har två rader, inte fyra: läget \mintinline{python}{"w"} tömmer
+filen först, så allt vi skrev förut försvinner.  Vill vi i stället lägga
+till i slutet av en fil som redan finns öppnar vi den med
+\mintinline{python}{"a"}.
 
 \begin{frame}[fragile,shrink=25]
   \begin{example}[Lägga till i slutet]
-    Programmet [[write_append.py]] lägger till tre rader sist i filen:
+    \label{ex:append}
+    Programmet [[write_append.py]] är [[write_text.py]] med läget
+    \mintinline{python}{"a"}:
 <<[[write_append.py]]>>=
-"""Appending three lines to the end of a file"""
-
+"""Appending two lines to the end of a file"""
 
 def main():
-    """Appends three lines to the end of the file"""
+    """Appends two lines to the end of the file"""
     with open("test1.txt", "a") as file:
-        for i in range(3):
-            file.write(f"i = {i}\n")
-
+        file.write("Hej\n")
+        file.write("Världen\n")
 
 if __name__ == "__main__":
     main()
@@ -1092,9 +1108,10 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-De två raderna från [[write_text.py]] står kvar, och de tre nya kommer
-efter.  Läget avgör alltså inte bara om vi får läsa eller skriva, utan
-också vad som händer med det som redan finns i filen.
+Nu står raderna där två gånger: de två som fanns står kvar, och samma
+två rader kommer efter dem.  Läget avgör alltså inte bara om vi får läsa
+eller skriva, utan också vad som händer med det som redan finns i
+filen.
 
 \begin{frame}
   \begin{summary}[Fillägen]
@@ -1154,16 +1171,9 @@ som inte är direkt läsbart som text.
 Python skiljer mellan dessa två typer av filer, och vi måste ange rätt
 läge när vi öppnar dem.
 
-\begin{frame}
+\begin{frame}[fragile,shrink=25]
   \begin{exercise}
     \label{ovn:jpg}
-    Varför måste Python skilja mellan textfiler och binärfiler?  Vad
-    händer om vi försöker läsa en \texttt{.jpg}-fil som text?
-  \end{exercise}
-\end{frame}
-
-\begin{frame}[fragile,shrink=20]
-  \begin{example}[En \texttt{.jpg} läst som text]
     \leavevmode\ltnote{%
       Relevanta lärandemål: \cref{FilesLOFileTypes}.
 
@@ -1182,8 +1192,10 @@ läge när vi öppnar dem.
       vad som händer på en dator vars standardkodning inte tar emot
       bytesekvensen.
     }%
-    Programmet [[bytes_as_text.py]] skriver de fyra byte en JPEG-fil
-    börjar med och läser dem sedan som text:
+    Varför måste Python skilja mellan textfiler och binärfiler?  Vad
+    händer om vi försöker läsa en \texttt{.jpg}-fil som text?  Programmet
+    [[bytes_as_text.py]] skriver de fyra byte en JPEG-fil börjar med och
+    läser dem sedan som text:
 <<[[bytes_as_text.py]]>>=
 """Reading raw bytes as if they were text"""
 
@@ -1200,14 +1212,14 @@ def main():
 if __name__ == "__main__":
     main()
 @
-  \end{example}
+  \end{exercise}
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[Körning]
+  \begin{solution}[En \texttt{.jpg} läst som text]
     Läsningen avbryts med en spårutskrift:
     \runpython[transcript, breaklines]{examples/bytes_as_text.py}
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Det blev ett [[UnicodeDecodeError]].  Python tolkar nämligen filens
@@ -1512,19 +1524,21 @@ def read_pairs(filename):
 \end{frame}
 
 \begin{frame}[fragile]
-  Tolkningen av en rad, den sista hjälpfunktionen:
+  \begin{solution}[Tolkningen av en rad]
+    Tolkningen blir den sista hjälpfunktionen:
 <<talparsprogrammets hjälpfunktioner>>=
 def parse_pair(line):
     """Turns a line "x,y" into the pair of numbers (x, y)"""
     x, y = line.strip().split(",")
     return int(x), int(y)
 @
+  \end{solution}
 \end{frame}
 
 När vi läser tillbaka filen måste vi tolka strukturen: ta bort
 radbrytningen med [[strip()]], dela upp raden vid kommatecknet med
-[[split(",")]], och --- inte att glömma --- omvandla delarna till tal
-med [[int()]].  Att den sista omvandlingen behövs är värt att pröva.
+[[split(",")]] och omvandla delarna med [[int()]].  Behövs den sista
+omvandlingen?  Det är värt att pröva.
 
 \mode<article>{\needspace{24\baselineskip}}
 
@@ -1585,15 +1599,12 @@ if __name__ == "__main__":
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[\texttt{value1.py}]
-    Programmet skriver ut
+  \begin{solution}[\texttt{value1.py} och \texttt{value2.py}]
+    Det första programmet skriver ut
     \runpython[transcript]{examples/value1.py}
-  \end{example}
-
-  \begin{example}[\texttt{value2.py}]
-    Programmet skriver ut
+    Det andra skriver ut
     \runpython[transcript]{examples/value2.py}
-  \end{example}
+  \end{solution}
 \end{frame}
 
 Allt som läses ur en textfil är nämligen strängar, även det som ser ut
