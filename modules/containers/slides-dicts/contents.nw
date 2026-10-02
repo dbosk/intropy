@@ -1428,7 +1428,7 @@ if __name__ == "__main__":
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{DictLOChoose,DictLOProgram}.
 
-  \Cref{ovn:tva-kolumner} är den sista i modulen och är avsiktligt en
+  \Cref{ovn:tva-kolumner} är avsiktligt en
   \emph{försämring}
   av en funktion som var allmän.  Den prövar om studenten kan se
   avvägningen: mer nytta i utbyte mot ett snävare användningsområde.
@@ -1446,3 +1446,136 @@ uppslagslistor: så fort funktionen slår upp ett värde per namn har den
 antagit något om vad den får.  Det är priset för det extra den gör ---
 och en påminnelse om att varje antagande en funktion gör är ett
 antagande någon senare måste hålla reda på.
+
+\section[Personer]{Flera uppgifter om varje person}
+\label{sec:flera-uppgifter}
+
+Telefonboken lagrar ett nummer per person.  Men om en person vill vi
+oftast veta mer än så: var personen bor, till exempel.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:flera-uppgifter}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOChoose,DictLOCreate}.
+
+  \foreignlanguage{english}{Try-first}: \cref{ovn:flera-uppgifter}
+  säger inte att det är värdet som ska bytas, bara vad som ska lagras
+  och att uppslaget på namnet ska finnas kvar.  Den som svarar med två
+  uppslagslistor bredvid varandra har samma problem som de två listorna
+  i \cref{ovn:tva-listor}, och det kan prosan peka på.
+}%
+    Vi vill lagra både telefonnummer och adress för varje person, och
+    fortfarande slå upp på namnet.  Hur kan vi göra det?
+  \end{exercise}
+\end{frame}
+
+Värdet i en uppslagslista får vara vad som helst (\cref{sec:nycklar}),
+så det kan vara en behållare som håller båda uppgifterna.  Det
+närmaste till hands är en tupel, som i föreläsningen \emph{Behållare:
+Tupler}: ett fast antal delar som hör ihop.
+
+\begin{frame}[fragile]
+  \begin{example}[En tupel som värde]
+    \label{ex:person-tupel}
+    Numret först, adressen sedan:
+<<[[person_tupel.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    phonebook = {
+        "ronja": ("0701234567", "Gatan 1"),
+        "pippi": ("0721234567", "Gatan 2"),
+        "madicken": ("0731234567", "Gatan 3"),
+    }
+
+    print(phonebook["ronja"][1])
+    print(phonebook["madicken"][0])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/person_tupel.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOChoose}.
+
+  \textbf{Variationsmönster}: kontrast mellan
+  \cref{ex:person-tupel,ex:person-uppslag}.
+  \textbf{Vad som varierar}: värdets behållare, en tupel eller en
+  uppslagslista.
+  \textbf{Vad som hålls invariant}: nycklarna, personernas uppgifter och
+  de två uppslagen, Ronjas adress och Madickens nummer.
+
+  Kontrasten är också bryggan till föreläsningen \emph{Klasser och
+  objekt}, som börjar i en telefonbok där varje person är en
+  uppslagslista med fälten [[phone]] och [[address]].  Namnen, fälten
+  och numren är valda så att den föreläsningen kan peka hit.
+}%
+Uppslaget på namnet ger tupeln, och indexet väljer ur den.  Men
+uppslaget
+\begin{center}
+  \mintinline{python}|phonebook["ronja"][1]|
+\end{center}
+säger inte vad som står på plats \(1\): det måste den som läser
+programmet komma ihåg, och den som skriver det måste hålla ordningen
+likadan i varje tupel.  Vill vi att
+uppgifterna har namn kan värdet i stället vara en uppslagslista, med
+fältens namn som nycklar.
+
+\begin{frame}[fragile]
+  \begin{example}[En uppslagslista som värde]
+    \label{ex:person-uppslag}
+    Varje uppgift under sitt namn:
+<<[[person_uppslag.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    phonebook = {
+        "ronja": {"phone": "0701234567", "address": "Gatan 1"},
+        "pippi": {"phone": "0721234567", "address": "Gatan 2"},
+        "madicken": {"phone": "0731234567", "address": "Gatan 3"},
+    }
+
+    print(phonebook["ronja"]["address"])
+    print(phonebook["madicken"]["phone"])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/person_uppslag.py}
+  \end{example}
+\end{frame}
+
+Utskriften är densamma, men nu säger uppslaget vad det hämtar:
+\begin{center}
+  \mintinline{python}|phonebook["ronja"]["address"]|
+\end{center}
+läses som \enquote{Ronjas adress}.  Det kostar något också: varje
+fältnamn skrivs en gång för varje person, och ingenting hindrar att en
+person får ett felstavat fält, \mintinline{python}|"adress"| i stället för
+\mintinline{python}|"address"|.  Det märks först när vi slår upp fältet
+och får \mintinline{text}|KeyError|.  Valet följer samma
+regel som förut.  Ett fast antal delar som alltid kommer i samma
+ordning passar en tupel; uppgifter som vi vill nå med namn passar en
+uppslagslista.  Och till skillnad från nyckeln får värdet vara en
+behållare som kan ändras.  Att byta Ronjas adress i
+\cref{ex:person-uppslag} är en tilldelning,
+\begin{center}
+  \mintinline{python}|phonebook["ronja"]["address"] = "Gatan 4"|
+\end{center}
+medan tupeln i \cref{ex:person-tupel} måste bytas ut som helhet.

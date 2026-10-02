@@ -40,6 +40,8 @@ EXAMPLES+=	examples/sorterad.py
 EXAMPLES+=	examples/search.py
 EXAMPLES+=	examples/phonebook.py
 EXAMPLES+=	examples/phone-big.py
+EXAMPLES+=	examples/person_tupel.py
+EXAMPLES+=	examples/person_uppslag.py
 # phonebook.py's test program grows one test case at a time, and the
 # deck shows each case's output beside it.  Each of these programs runs
 # one case; they reference the test chunks in contents.nw from
