@@ -555,28 +555,39 @@ if __name__ == "__main__":
 
 Räkningen blir en egen funktion, \mintinline{python}{count_letters}, som
 tar en text och lämnar tillbaka uppslagslistan, så att den går att
-använda på vilken text som helst.  Tabellen är uppslagslistans nycklar i
-ordning, var och en med sitt antal.
+använda på vilken text som helst.  Tabellen blir också en funktion,
+\mintinline{python}{print_counts}, som tar emot uppslagslistan.
 
 \begin{frame}[fragile]
-  \frametitle{Utskriften}
-  Texten in, uppslagslistan tillbaka, och nycklarna i ordning:
+  \frametitle{Inläsningen och tabellen}
+  Texten in, uppslagslistan tillbaka, och tabellen ut:
 <<läs in en text, räkna bokstäverna och skriv ut tabellen>>=
 counts = count_letters(input("Ange en text: "))
-
-for letter, count in sorted(counts.items()):
-    print(f"{letter}: {count}")
+print_counts(counts)
 @
 \end{frame}
 
-Slingan går igenom \mintinline{python}{counts.items()}, som lämnar ut
-ett \emph{par} i taget --- nyckeln och värdet --- och vi packar upp paret
-i två namn i slingans huvud, precis som med
-\mintinline{python}{enumerate} i föreläsningen \emph{Behållare: Tupler}.
-Att paren först går genom \mintinline{python}{sorted} ger dem i
-bokstavsordning, eftersom en tupel jämförs på sin första del.
+Tabellen är uppslagslistans nycklar i bokstavsordning, var och en med
+sitt antal.
 
-Nu till räkningen, den första hjälpfunktionen.
+\begin{frame}[fragile]
+  \frametitle{Tabellen}
+  Paren av nyckel och värde, i ordning:
+<<bokstavsräknarens hjälpfunktioner>>=
+def print_counts(counts):
+    """Skriver ut varje bokstav i counts med sitt antal, i ordning."""
+    for letter, count in sorted(counts.items()):
+        print(f"{letter}: {count}")
+@
+\end{frame}
+
+Slingan går igenom paren av nyckel och värde och packar upp vart och
+ett i två namn, precis som med \mintinline{python}{phone.items()} i
+föreläsningen \emph{Behållare: Uppslagslistor}.  Att paren först går
+genom \mintinline{python}{sorted} ger dem i bokstavsordning, eftersom
+en tupel jämförs på sin första del.
+
+Nu till räkningen, som tabellen och den vanligaste bokstaven bygger på.
 
 \begin{frame}[fragile]
   \frametitle{Räkningen}
@@ -671,10 +682,11 @@ vet.
   den handskrivna varianten framstå som den bästa lär ut något falskt.
 
   Inläsningen och tabellen är ett och samma namngivna stycke i båda
-  programmen, \texttt{letters.py} och \texttt{counter.py}, så att det
+  programmen, \texttt{letters.py} och \texttt{counter.py}, och
+  tabellens funktion hämtar \texttt{counter.py} med import, så att det
   invarianta står en gång och det som varierar --- räkningen och frågan
-  om den vanligaste --- syns utan att två
-  kopior behöver jämföras rad för rad.
+  om den vanligaste --- syns utan att två kopior behöver jämföras rad för
+  rad.
 
   [[Counter]] är den behållare dokumentationsuppgiften i föreläsningen
   \emph{Behållare: Mängder, stackar och köer} bad studenterna slå upp.
@@ -685,15 +697,21 @@ Uppgiften i föreläsningen \emph{Behållare: Mängder, stackar och köer}
 bad dig slå upp \mintinline{python}{Counter} i dokumentationen för
 modulen \mintinline{python}{collections}.  Det är den som gör samma
 räkning åt oss.  Programmet med den får bokstavsräknarens upplägg, med
-importen av modulen överst.
+två importer överst: modulen \mintinline{python}{collections}, och
+tabellens \mintinline{python}{print_counts}, som programmet hämtar i
+stället för att skriva den en gång till.  Modulen
+\mintinline{python}{letters} är filen \texttt{letters.py}, som vi
+skrev i \cref{sec:bokstaver}.
 
 \begin{frame}[fragile]
   \frametitle{Samma upplägg med \texttt{Counter}}
-  Upplägget, med en import:
+  Upplägget, med två importer:
 <<[[counter.py]]>>=
 """Samma räkning, med collections.Counter"""
 
 import collections
+
+from letters import print_counts
 
 <<[[Counter]]-räknarens hjälpfunktioner>>
 
@@ -722,8 +740,9 @@ if __name__ == "__main__":
 \end{frame}
 
 Stycket som läser texten och skriver ut tabellen anropar
-\mintinline{python}{count_letters}, och den är programmets enda
-hjälpfunktion.
+\mintinline{python}{count_letters} och \mintinline{python}{print_counts}.
+Den andra hämtar programmet ur \mintinline{python}{letters}, och den
+första är programmets enda egna hjälpfunktion.
 
 \begin{frame}[fragile]
   \frametitle{Samma räkning med \texttt{Counter}}
@@ -749,7 +768,8 @@ den från förut är räkningen inuti den.
 \begin{frame}[fragile,shrink]
   \begin{example}[En körning]
     Vi matar in samma text som förut:
-    \runpython[transcript, stdin={Ronja, Pippi och Madicken}]%
+    \runpython[transcript, stdin={Ronja, Pippi och Madicken},
+      deps={examples/letters.py}]%
       {examples/counter.py}
   \end{example}
 \end{frame}
