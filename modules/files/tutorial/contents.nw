@@ -61,28 +61,72 @@ kraschar programmet redan på \mintinline{python}{open}.  Ska den
 \emph{skrivas} är det tvärtom: finns den redan töms den när den öppnas
 med \mintinline{python}{"w"}, och då är det som stod där borta.
 
-% REVIEW(C15): inget körexempel före den här uppgiften.  Uppgiften ber
-% inte om ett program utan om ett svar på varför filen måste stängas;
-% en körning skulle inte visa något mål och det som kan gå fel syns
-% inte i en körning.  Den andra läsningen --- körexempel före varje
-% uppgift utan undantag --- kräver ett program som demonstrerar den
-% fulla bufferten, vilket inte finns i övningen.
-\begin{frame}
-  \begin{exercise}[Att stänga filen]
-    Båda frågorna slutar med att programmet öppnar en fil --- och
-    därmed med att det förr eller senare måste stänga den.  Varför då?
-    Vad kan gå fel för den som låter bli?
+Båda frågorna slutar med att programmet öppnar en fil, och i
+föreläsningen \emph{Arbeta med filer} såg vi att den som öppnar en fil
+också ska stänga den.  Vad som händer innan den är stängd kan vi pröva
+innan vi börjar på modulen.
+
+% REVIEW(C15): inget körexempel före den här uppgiften.  Den ber om en
+% förutsägelse, och körningen efter den är svaret.
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:stang}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål: \cref{OvningFilesLOContextMgr}.
+
+      \textbf{Variationsmönster}: Kontrast, i ett enda program.
+      \textbf{Vad som varierar} mellan de två anropen av
+      [[antal_tecken]] i \cref{ovn:stang}: om filen är stängd när den
+      läses.  \textbf{Vad som hålls invariant}: filen, raden som
+      skrivs och funktionen som räknar.  Föreläsningen \emph{Arbeta
+      med filer} påstår att det skrivna kan bli kvar i en buffert men
+      visar det inte; här blir påståendet en körning, och förutsägelsen
+      \enquote{sex båda gångerna} är den som ska spricka.
+    }%
+    Programmet skriver en rad till en fil och räknar sedan tecknen i
+    filen två gånger.  Vad skriver det ut?
+<<[[skrivning.py]]>>=
+"""Skriver en rad till en fil och räknar tecknen i den två gånger"""
+
+FILNAMN = "ronja.txt"
+
+def antal_tecken(filnamn):
+    """Returnerar antalet tecken i filen filnamn"""
+    with open(filnamn, "r") as fil:
+        return len(fil.read())
+
+def main():
+    """Skriver en rad och räknar tecknen före och efter close"""
+    fil = open(FILNAMN, "w")
+    fil.write("Ronja\n")
+    print("Före close:", antal_tecken(FILNAMN))
+    fil.close()
+    print("Efter close:", antal_tecken(FILNAMN))
+
+if __name__ == "__main__":
+    main()
+@
   \end{exercise}
 \end{frame}
 
-Två saker, och den ena är allvarligare än den andra.  En öppen fil är en
-resurs operativsystemet håller åt programmet, och antalet sådana är
-begränsat: ett program som öppnar filer utan att stänga dem tar till
-slut slut på dem.  Värre är att det programmet \emph{skriver} går via
-en buffert, och det som ligger kvar i bufferten när programmet avslutas
-kan aldrig nå disken.  Därför ska filen stängas när programmet är klart
-med den, och därför gör \mintinline{python}{with} det åt
-oss\autocite{PythonTutorialFiles}.\footnote{%
+\begin{frame}[fragile]
+  \begin{solution}[Körningen]
+    Programmet skriver ut:
+    \runpython[showcommand, chdir]{examples/skrivning.py}
+  \end{solution}
+\end{frame}
+
+Innan filen stängs är den tom, fast raden redan är skriven.  Det
+programmet \emph{skriver} går via en buffert i minnet, och först när
+bufferten töms hamnar det i filen --- senast när filen stängs.  Det
+som ligger kvar i bufferten när programmet avslutas är inte säkert att
+det någonsin når disken.  Det är det föreläsningen \emph{Arbeta med
+filer} menade med att filen måste stängas för att det som skrivits ska
+hamna på disken; det andra skälet, att ett program bara får ha ett
+begränsat antal filer öppna, syns inte i en körning.  Därför ska filen
+stängas när programmet är klart med den, och därför gör
+\mintinline{python}{with} det åt oss\autocite{PythonTutorialFiles}.%
+\footnote{%
   Det vetenskapliga underlaget för vad Pythons filfunktioner gör ---
   och för att förvalet av teckenkodning beror på systemet --- finns i
   föreläsningen \emph{Arbeta med filer}, bilaga D.%

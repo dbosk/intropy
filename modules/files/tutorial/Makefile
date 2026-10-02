@@ -24,6 +24,7 @@ SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
+EXAMPLES+=	examples/skrivning.py
 EXAMPLES+=	examples/filer.py
 # filer.py's test program grows one test case at a time, and the deck
 # shows each case's output beside it.  Each of these programs runs one
