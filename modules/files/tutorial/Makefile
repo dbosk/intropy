@@ -46,9 +46,11 @@ EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/fortuneprov.py
 EXAMPLES+=	examples/fortune2.py
 EXAMPLES+=	examples/fortune2prov.py
+EXAMPLES+=	examples/skiljeradsprov.py
 EXAMPLES+=	examples/analys.py
 EXAMPLES+=	examples/fortunes.txt
 EXAMPLES+=	examples/fortunes2.txt
+EXAMPLES+=	examples/fortunes3.txt
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
 # and every deck's source is called contents.nw, so in the course book
@@ -65,7 +67,7 @@ examples/%.py: contents.nw
 
 ${TESTRUNS}: testkorningar.nw
 
-# The two fortune databases are part of the solutions, so they are
+# The three fortune databases are part of the solutions, so they are
 # tangled from the same source as the programs that read them.
 examples/fortunes.txt: contents.nw
 	@mkdir -p ${@D}
@@ -74,6 +76,10 @@ examples/fortunes.txt: contents.nw
 examples/fortunes2.txt: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[fortunes2.txt]]' $< > $@
+
+examples/fortunes3.txt: contents.nw
+	@mkdir -p ${@D}
+	notangle -R'[[fortunes3.txt]]' $< > $@
 
 .PHONY: examples
 examples: ${EXAMPLES}

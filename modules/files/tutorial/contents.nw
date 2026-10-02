@@ -1123,9 +1123,12 @@ och tillbaka igen.
 \begin{frame}[fragile]
   \begin{example}[Översättaren i bruk]
     Så här ska det se ut när du är klar.  En kort fil fram och
-    tillbaka, ett misslyckande som inte kostade filen, och sedan en
-    riktig hemlig text:
+    tillbaka, och sedan en riktig hemlig text:
     \runpython[transcript, showcommand=false]{examples/rövarprov.py}
+    Och en vanlig svensk text, som inte går att översätta \emph{från}
+    rövarspråket:
+    \runpython[transcript, showcommand=false,
+      stdin={från}, stdin={madicken.txt}]{examples/rövare.py}
   \end{example}
 \end{frame}
 
@@ -1339,22 +1342,22 @@ import rövare
 
 <<översättarprovets konstanter>>
 
+<<översättarprovets hjälpfunktioner>>
+
 <<översättarprovets huvudprogram>>
 @
 \end{frame}
 
-Huvudprogrammet gör tre prov i tur och ordning, och vi skriver dem först
+Huvudprogrammet gör två prov i tur och ordning, och vi skriver dem först
 som pseudokod.
 
 \begin{frame}[fragile,shrink=5]
   \begin{solution}[Provets huvudprogram]
-    Dit och tillbaka, åt fel håll, och till sist den riktiga filen:
+    Dit och tillbaka, och sedan den riktiga filen:
 <<översättarprovets huvudprogram>>=
 def main():
     """Översätter en kort fil dit och tillbaka, och läser rövare.txt"""
     <<skriv en provfil och översätt den dit och tillbaka>>
-
-    <<försök översätta provfilen åt fel håll>>
 
     <<översätt [[rövare.txt]] och visa första raden>>
 
@@ -1365,8 +1368,8 @@ if __name__ == "__main__":
   \end{solution}
 \end{frame}
 
-Provfilen får sitt namn i en konstant, eftersom de två första proven
-använder den.
+Provfilen får sitt namn i en konstant, eftersom provet använder det
+flera gånger.
 
 \begin{frame}[fragile,shrink=5]
   \begin{solution}[Fram och tillbaka]
@@ -1389,28 +1392,21 @@ print("Tillbaka: ", filer.läs_fil(PROVFIL), end="")
 \end{frame}
 
 Att texten kommer tillbaka oförändrad är provet på att de två
-funktionerna är varandras motsatser.  Provprogrammet prövar sedan det
-som ska gå fel: att översätta vanlig svenska \emph{från} rövarspråket.
+funktionerna är varandras motsatser.  Sedan den riktiga filen.  Att
+plocka ut den första raden ur en text är en uträkning, så den får en
+egen funktion.
 
-\begin{frame}[fragile,shrink=15]
-  \begin{solution}[Åt fel håll]
-    Samma uttryck som i huvudprogrammet, på en text som inte går:
-<<försök översätta provfilen åt fel håll>>=
-text = filer.läs_fil(PROVFIL)
-try:
-    filer.skriv_fil(PROVFIL, rövare.från_rövarspråket(text))
-except ValueError as fel:
-    print("Baklänges en gång till:", fel)
-print("Filen är kvar:", filer.läs_fil(PROVFIL), end="")
-@
-  \end{solution}
-
+\begin{frame}[fragile,shrink=10]
   \begin{solution}[Och så den riktiga filen]
     Med översättaren går \texttt{rövare.txt} att läsa:
+<<översättarprovets hjälpfunktioner>>=
+def första_raden(text):
+    """Returnerar den första raden i text"""
+    return text.split("\n")[0]
 <<översätt [[rövare.txt]] och visa första raden>>=
 print("Första raden i rövare.txt, översatt:")
 hela = filer.läs_fil("rövare.txt")
-print(rövare.från_rövarspråket(hela).split("\n")[0])
+print(första_raden(rövare.från_rövarspråket(hela)))
 @
   \end{solution}
 \end{frame}
@@ -1424,15 +1420,25 @@ print(rövare.från_rövarspråket(hela).split("\n")[0])
   \end{example}
 \end{frame}
 
+Det som ska gå fel prövar vi med översättaren själv, för det är dess
+huvudprogram som ska fånga felet: vi ber den översätta
+[[madicken.txt]], som är vanlig svenska, \emph{från} rövarspråket.
+
+% rövare.py writes over the file it is given, but only after the
+% translation has succeeded, and madicken.txt cannot be translated from
+% rövarspråket; the build therefore never changes the committed file.
 \begin{frame}[fragile]
-  \begin{solution}[Körning]
-    Fram, tillbaka, ett misslyckande som inte kostade filen, och sedan
-    en riktig hemlig text:
+  \begin{solution}[Körningarna]
+    Fram och tillbaka, och sedan en riktig hemlig text:
     \runpython[transcript]{examples/rövarprov.py}
+    Och åt fel håll, med översättaren själv:
+    \runpython[transcript, stdin={från},
+      stdin={madicken.txt}]{examples/rövare.py}
   \end{solution}
 \end{frame}
 
-Filen ligger kvar efter felet, precis som huvudprogrammet lovar.
+Programmet säger ifrån i stället för att krascha, och filen ligger
+kvar som den var: felet kom innan den öppnades för skrivning.
 
 Men det finns ett fel som lösningen inte klarar.  Den skyddar filen mot
 en text som inte går att översätta, eftersom felet kommer innan filen
@@ -2086,15 +2092,59 @@ Provprogrammet importerar [[fortune2]], filen från
 
 import fortune2
 
-
-def main():
-    """Visar hela databasen, så att de flerradiga posterna syns"""
-    kakor = fortune2.ladda_databas()
+def visa_kakor(kakor):
+    """Skriver ut kakorna, var och en efter en rubrikrad"""
     print(f"{len(kakor)} kakor i databasen.")
     for kaka in kakor:
         print("--- en kaka:")
         print(kaka)
 
+def main():
+    """Visar hela databasen, så att de flerradiga posterna syns"""
+    visa_kakor(fortune2.ladda_databas())
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Uppgiftens sista fråga prövar vi med en databas där en kaka innehåller
+skiljeraden.  Databasen är tänkt att innehålla \emph{två} kakor: den
+första, och en som själv innehåller skiljeraden.
+
+\begin{frame}[fragile]
+  \begin{solution}[Skiljeraden inuti en kaka]
+    Filen [[fortunes3.txt]]:
+<<[[fortunes3.txt]]>>=
+Du kommer att bli bra på att programmera!
+*** nästa fortune ***
+I den här kakan står skiljeraden:
+*** nästa fortune ***
+Ändå är den en enda kaka.
+@
+  \end{solution}
+\end{frame}
+
+Provet laddar den med [[ladda_databas]] ur [[fortune2]], filen från
+\cref{ex:fortune2}, och visar den med [[visa_kakor]] ur provprogrammet
+\texttt{fortune2prov.py} i \cref{sec:losning-fortune2}, så att det
+enda som skiljer de två proven åt är databasen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Provet med skiljeraden]
+    Samma laddning och samma utskrift, en annan databas:
+<<[[skiljeradsprov.py]]>>=
+"""Provkörning: en kaka som innehåller skiljeraden"""
+
+import fortune2
+import fortune2prov
+
+DATABAS = "fortunes3.txt"
+
+def main():
+    """Visar databasen där en kaka innehåller skiljeraden"""
+    fortune2prov.visa_kakor(fortune2.ladda_databas(DATABAS))
 
 if __name__ == "__main__":
     main()
@@ -2103,15 +2153,18 @@ if __name__ == "__main__":
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{solution}[Körning]
+  \begin{solution}[Körningarna]
     Tre poster, och den sista har både radbrytning och blankrad kvar:
     \runpython[transcript]{examples/fortune2prov.py}
+    Med skiljeraden inuti en kaka:
+    \runpython[transcript]{examples/skiljeradsprov.py}
   \end{solution}
 \end{frame}
 
-Uppgiftens sista fråga har ett obehagligt svar: en spådom som innehåller
-raden \mintinline{text}|*** nästa fortune ***| delas i två.  Formatet
-har alltså samma svaghet som det egna formatet i föreläsningen
+Uppgiftens sista fråga har alltså ett obehagligt svar: kakan som
+innehåller raden \mintinline{text}|*** nästa fortune ***| delas i två,
+och databasen med två kakor ger tre.  Formatet
+har samma svaghet som det egna formatet i föreläsningen
 \emph{Arbeta med filer}: avgränsaren kan stå i datan.  Vägen ur den, där
 också, är att låta ett format som redan finns göra jobbet.  JSON kan
 uttrycka en lista av strängar där strängarna får innehålla vilka tecken
