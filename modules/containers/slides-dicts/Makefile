@@ -25,6 +25,7 @@ EXAMPLES+=	examples/tva_listor.py
 EXAMPLES+=	examples/par_lista.py
 EXAMPLES+=	examples/phone-small.py
 EXAMPLES+=	examples/uppslag.py
+EXAMPLES+=	examples/uppslag_lista.py
 EXAMPLES+=	examples/lagga_till.py
 EXAMPLES+=	examples/namn.py
 EXAMPLES+=	examples/nycklar.py
