@@ -2254,7 +2254,7 @@ rader, och det är där behållarna kommer in.
 % det är svaret på uppgiftens egen fråga om vad som ska hända med ett
 % sådant ord.  Den andra läsningen är en körning även här.
 \begin{frame}[fragile,shrink]
-  \begin{exercise}[cowsay.py]
+  \begin{exercise}[cowsay2.py]
     \label{ovn:cowsay}
     \leavevmode\ltnote{%
       Relevanta lärandemål för \cref{ovn:cowsay}:
@@ -2266,37 +2266,30 @@ rader, och det är där behållarna kommer in.
       \cref{sec:epost,sec:bokstaver,sec:banken,sec:angra}.
       \textbf{Vad som varierar}: sammanhanget, från data som samlas in till
       en text som bearbetas, och antalet samtidiga val: här görs tre i en
-      och samma funktion.
+      och samma funktion, \mintinline{python}{split_lines} i
+      \texttt{cowsay2.py}.
 
-      Uppgiften är fördjupningsmaterial: den ligger sist och förutsätter
-      att de tidigare uppgifterna är gjorda.  Huvuddelen av arbetet ---
-      strängar, slingor och funktioner --- är tidigare veckors material, och
-      det är också poängen med en fördjupningsuppgift: den övar det man
-      redan kan i ett större sammanhang.
+      Uppgiften är fördjupning: den ligger sist och förutsätter de
+      tidigare.  Bubblan och kon finns redan i \texttt{cowsay.py} från
+      \emph{Övning: Upprepningar, listor och moduler}, och lösningen
+      hämtar dem därifrån med \mintinline{python}{import} i stället för
+      att skriva dem igen, som materialet gör sedan föreläsningen
+      \emph{Moduler och paket}.  Det nya är bara radbrytningen.
 
       Frågan om det för långa ordet är uppgiftens egentliga
-      behållarfråga.  Utan den går uppgiften att lösa med en
-      vanlig \mintinline{python}{for}-slinga över orden, och då finns inget
-      val av behållare att göra.  Med den måste ett ord kunna läggas
+      behållarfråga.  Utan den går uppgiften att lösa med en vanlig
+      \mintinline{python}{for}-slinga över orden, och då finns inget val
+      av behållare att göra.  Med den måste ett ord kunna läggas
       \emph{tillbaka} först i kön av ord som återstår, och det är just den
-      operation en \mintinline{python}{deque} finns för.
-
-      Uppgiften visar den önskade utskriften och ingen kod att utgå
-      från.  Skälet
-      är att utskriften säger vad som ska åstadkommas utan att peka på var i
-      koden ändringen ska göras.
-
-      Kon är den riktiga \mintinline{bash}{cowsay}:s, tecken för tecken;
-      bubblan är förenklad.  Det riktiga kommandot bryter redan vid fyrtio
-      tecken och ritar kanten med \texttt{\_} ovanför och
-      \texttt{< >}, \texttt{/ \textbackslash} vid sidorna (prövat med
-      \texttt{cowsay} 3.03), därav \enquote{i förenklad form}.
+      operation en \mintinline{python}{deque} finns för.  Uppgiften visar
+      den önskade utskriften och ingen kod, så att den säger vad som ska
+      åstadkommas utan att peka på var ändringen ska göras.
     }%
-    Ett program som i förenklad form imiterar terminalkommandot
-    \mintinline{bash}{cowsay} skriver ut en text i en pratbubbla från en
-    ko.  Så länge texten får plats på en rad ser det ut så här:
+    Programmet i uppgiften \emph{Cowsay} skriver ut färdiga rader i en
+    pratbubbla från en ko.  Så länge texten får plats på en rad ser det
+    ut så här:
     \begin{minted}{text}
- --------------------------------------------------------
+ ________________________________________________________
 | Smaka på den här utmaningen! Fast så svår är den inte. |
  --------------------------------------------------------
         \   ^__^
@@ -2305,10 +2298,10 @@ rader, och det är där behållarna kommer in.
                 ||----w |
                 ||     ||
     \end{minted}
-    Skriv programmet så att längre texter i stället bryts till rader som
-    är högst trettio tecken breda, och så att bubblan blir lika bred som
-    den bredaste raden.  Orden ska komma ut i den ordning de står i
-    texten.  Vad ska hända med ett ord som är längre än en hel rad?
+    Skriv en funktion som tar emot en text och låter kon säga den, men
+    där längre texter bryts till rader som är högst trettio tecken
+    breda.  Orden ska komma ut i den ordning de står i texten.  Vad ska
+    hända med ett ord som är längre än en hel rad?
 
     Och en sak till att slå upp: \mintinline{python}{deque} tar emot ett
     argument \mintinline{python}{maxlen} och har en metod
@@ -2320,93 +2313,79 @@ rader, och det är där behållarna kommer in.
 
 \subsection{Lösningsförslag}
 
-Kon ska gå att använda från andra program, så programmet är en modul,
-och modulens eget huvudprogram provar den.  Filen läggs upp som de
-förra programmen, med importen överst och en del för konstanterna.
+Bubblan och kon finns redan: \mintinline{python}{pratbubbla} och
+\mintinline{python}{KON} i \texttt{cowsay.py}, lösningen på uppgiften
+\emph{Cowsay} i \emph{Övning: Upprepningar, listor och moduler}.  Vi
+hämtar dem därifrån i stället för att skriva dem igen, och det nya
+programmet blir en egen fil, \texttt{cowsay2.py}.  Kon ska gå att
+använda från andra program, så filen är en modul, och dess testprogram
+provar den.  Filen läggs upp som de förra, med importerna överst och en
+del för konstanterna.
 
 \begin{frame}[fragile]
   \frametitle{Modulens upplägg}
   Den pratande kons upplägg:
-<<[[cowsay.py]]>>=
-"""En modul som skriver ut en text i en pratbubbla från en ko"""
+<<[[cowsay2.py]]>>=
+"""En ko som säger en text, bruten till rader"""
 
 import collections
+
+from cowsay import KON, pratbubbla
 
 <<den pratande kons konstanter>>
 
 <<den pratande kons hjälpfunktioner>>
 
-<<den pratande kons huvudprogram>>
+<<den pratande kons tester>>
 @
 \end{frame}
 
-Vi börjar med provet, alltså huvudprogrammet.  Det ska visa uppgiftens
-två fall: en mening som behöver brytas, och ett ord som är längre än en
-hel rad.  Båda gångerna anropar det en funktion,
-\mintinline{python}{cowsay}, som vi skriver sedan.
+Modulen \mintinline{python}{cowsay} är filen från uppgiften
+\emph{Cowsay}, och den ser ut så här.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[\texttt{cowsay.py} ur \emph{Övning: Upprepningar, listor
+      och moduler}]
+    \label{ex:cowsay-v40}
+    Bubblan tar emot en lista av färdiga rader:
+    \inputminted{python}{examples/cowsay.py}
+  \end{example}
+\end{frame}
+
+Vi börjar med testprogrammet.  Det ska visa uppgiftens två fall: en
+mening som behöver brytas, och ett ord som är längre än en hel rad.
+Båda gångerna anropar det en funktion, \mintinline{python}{cowsay}, som
+vi skriver sedan.
 
 \begin{frame}[fragile]
-  \frametitle{Provet}
+  \frametitle{Testprogrammet}
   En mening och ett ord som är längre än en hel rad:
-<<den pratande kons huvudprogram>>=
-def main():
+<<den pratande kons tester>>=
+def tests():
     """Provar kon på en mening och på ett mycket långt ord."""
     cowsay("Smaka på den här utmaningen! Fast så svår är den inte.")
     cowsay("Kandidatexamensarbetesredovisning i medieteknik")
 
 if __name__ == "__main__":
-    main()
+    tests()
 @
 \end{frame}
 
-Att kon säger något är två saker efter varandra: en bubbla med texten,
-och kon under den.  Var och en blir en funktion,
-\mintinline{python}{bubble} och \mintinline{python}{cow}, och
-\mintinline{python}{cowsay} anropar dem i den ordningen.
+Att kon säger något är två saker efter varandra: en bubbla med texten
+bruten till rader, och kon under den.  Bubblan och kon har vi; det som
+saknas är radbrytningen, och den blir en egen funktion,
+\mintinline{python}{split_lines}.
 
 \begin{frame}[fragile]
   \frametitle{Kon som säger något}
-  Först bubblan, sedan kon:
+  Först raderna i bubblan, sedan kon:
 <<den pratande kons hjälpfunktioner>>=
 def cowsay(text):
     """Skriver ut text i en pratbubbla från en ko."""
-    bubble(text)
-    cow()
+    pratbubbla(split_lines(text))
+    print(KON)
 @
 \end{frame}
-
-Bubblan kan inte skrivas ut förrän texten är bruten till rader, för
-bredden beror på den längsta raden.  Radbrytningen blir därför en egen
-funktion, \mintinline{python}{split_lines}, som bubblan anropar först.
-Med raderna på plats är bubblan som i \emph{Cowsay}: bredden är den
-längsta radens längd, och varje rad fylls ut till den bredden så att
-den högra kanten blir rak.  Kanten över och under bubblan är samma
-sträng, så den räknas ut en gång och skrivs ut två.
-
-\begin{frame}[fragile]
-  \frametitle{Bubblan}
-  Bredden och kanten räknas ut först, sedan skrivs raderna ut:
-<<den pratande kons hjälpfunktioner>>=
-def bubble(text):
-    """Skriver ut text i en pratbubbla."""
-    lines = split_lines(text)
-    width = len(max(lines, key=len))
-    border = " " + "-" * (width + 2)
-
-    print(border)
-    for line in lines:
-        print(f"| {line:{width}s} |")
-    print(border)
-@
-\end{frame}
-
-\mintinline{python}|max(lines, key=len)| är den längsta raden och
-\mintinline{python}{len} av den är bredden --- samma
-\mintinline{python}{key} som gav den vanligaste bokstaven i
-\cref{sec:bokstaver}, nu använd på längd.  Det är också samma uträkning
-som kolumnbredden i telefonboken i föreläsningen \emph{Behållare:
-Uppslagslistor}: en utskrift som ska bli jämn kräver att hela innehållet
-gås igenom en gång innan den första raden skrivs.
 
 Radbrytningen är den enda del som är svår.  Den tar ett ord i taget och
 fyller raden tills nästa ord inte får plats.  Orden ska komma i den
@@ -2458,25 +2437,8 @@ def split_lines(text, width=WIDTH):
 @
 \end{frame}
 
-Och så uppslagningsfrågan.  En \mintinline{python}{deque} som skapas med
-\mintinline{python}|collections.deque(maxlen=3)| håller högst tre element:
-läggs ett fjärde till i ena änden faller det äldsta ut i den andra, av
-sig självt.  Det är precis vad en ko som bara ska minnas sina tre senaste
-repliker behöver.  \mintinline{python}{rotate} gör något annat: den
-flyttar hela innehållet ett antal steg runt, så att det som låg sist
-hamnar först --- användbart för att stega igenom en följd om och om igen,
-men inte för att glömma.  Båda står i dokumentationen för modulen
-\mintinline{python}{collections}\autocite{PythonCollections}, på samma
-sida som kön.
-
 \leavevmode\ltnote{%
   Relevanta lärandemål för \cref{ovn:cowsay}: \cref{OvningContainersLOChoose}.
-
-  \textbf{Variationsmönster}: generalisering.
-  \textbf{Vad som hålls invariant}: kriteriet --- behållaren väljs efter
-  vilka operationer som behövs.
-  \textbf{Vad som varierar}: de tre rollerna i en och samma funktion,
-  som får tre olika svar.
 
   Stycket efter koden är uppgiftens behållarlärdom och står som
   studenttext.  Att tre behållare med tre olika motiveringar syns i en
@@ -2490,38 +2452,21 @@ mellan dem är hela innehållet och de bara läggs till på slutet.  Och
 raden som byggs upp är en sträng, inte en behållare av ord, eftersom det
 är dess \emph{längd} vi hela tiden frågar efter.
 
-Kvar är kon.  Den är densamma som i uppgiften \emph{Cowsay}, i en rå
-sträng: \mintinline{python}{r}:et framför strängen gör att varje
-snedstreck står kvar som det är ritat.
-
-\begin{frame}[fragile]
-  \frametitle{Kon}
-  Kon är en enda sträng, och det som står i den ska stå ordagrant:
-<<den pratande kons hjälpfunktioner>>=
-def cow():
-    """Skriver ut en ko."""
-    print(r"""        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||""")
-@
-\end{frame}
-
 \mode<article>{%
-\begin{example}[\texttt{cowsay.py}]
+\begin{example}[\texttt{cowsay2.py}]
   \label{ex:cowsay-ovning-behallare}
   Sätter vi in varje del där dess namn står får vi hela modulen,
-  \texttt{cowsay.py}:
-  \inputminted{python}{examples/cowsay.py}
+  \texttt{cowsay2.py}:
+  \inputminted{python}{examples/cowsay2.py}
 \end{example}
 
 }
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Utmatning]
-    Kör vi programmet får vi:
-    \runpython[showcommand, chdir]{examples/cowsay.py}
+    Kör vi modulen som program får vi testprogrammets utskrift:
+    \runpython[showcommand, chdir, deps={examples/cowsay.py}]%
+      {examples/cowsay2.py}
   \end{example}
 \end{frame}
 
@@ -2551,9 +2496,56 @@ bredare än en rad räcker en \mintinline{python}{for}-slinga över
 \mintinline{python}|text.split()|, och den är kortare och enklare.  Kön
 tillför bara något när ett ord ska läggas tillbaka, och det är därför
 frågan om det för långa ordet står i uppgiften.  Utan den frågan hade
-\emph{KISS}, som i \cref{sec:banken}, talat för slingan.  Den som lämnar en
-lösning med \mintinline{python}{for}-slinga och en kommentar om att
-långa ord inte hanteras har svarat rätt på en annan, enklare uppgift.
+\emph{KISS}, som i \cref{sec:banken}, talat för slingan.
+
+Och så uppslagningsfrågan, om \mintinline{python}{maxlen} och
+\mintinline{python}{rotate}.  Vi prövar båda på en kö som får minnas
+högst tre repliker.
+
+\begin{frame}[fragile]
+  \begin{example}[Kons minne]
+    \label{ex:minne}
+    Fyra repliker in i en kö med plats för tre, och sedan ett varv
+    runt:
+<<[[minne.py]]>>=
+"""Provar maxlen och rotate på en deque"""
+
+import collections
+
+def main():
+    """Huvudprogrammet"""
+    said = collections.deque(maxlen=3)
+
+    for line in ["Mu!", "Gräs!", "Mer gräs!", "Mjölk?"]:
+        said.append(line)
+        print(said)
+
+    said.rotate(1)
+    print(said)
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/minne.py}
+  \end{example}
+\end{frame}
+
+När den fjärde repliken läggs till faller den äldsta ut i andra änden,
+av sig själv: en \mintinline{python}{deque} som skapas med
+\mintinline{python}{maxlen=3} håller aldrig mer än tre element.  Det är
+precis vad en ko som bara ska minnas sina tre senaste repliker behöver.
+\mintinline{python}{rotate} gör något annat: den flyttar hela innehållet
+ett steg runt, så att det som låg sist hamnar först --- användbart för
+att stega igenom en följd om och om igen, men inte för att glömma.  Båda
+står i dokumentationen för modulen
+\mintinline{python}{collections}\autocite{PythonCollections}, på samma
+sida som kön.
 
 \section{Lyckokakor och kon}
 \label{sec:humor}
@@ -2603,7 +2595,7 @@ säga.
     ett kort, lustigt citat.  Skriv ett program som låter kon säga en
     slumpvis vald lyckokaka om studier, så att det ser ut så här:
     \begin{minted}{text}
- ------------------------------
+ ______________________________
 | Du kommer att bli bra på att |
 | programmera!                 |
  ------------------------------
@@ -2628,7 +2620,7 @@ den som använder modulen behöver inte veta det.
 \begin{frame}[fragile,shrink]
   \begin{example}[Lyckokakorna]
   \label{ex:fortune-ovning-behallare}
-  En lista, en funktion som väljer ur den, och ett prov:
+  En lista, en funktion som väljer ur den, och ett testprogram:
 <<[[fortune.py]]>>=
 """En modul som lämnar ut en slumpvis vald lyckokaka"""
 
@@ -2645,13 +2637,13 @@ def fortune():
     """Lämnar tillbaka en slumpvis vald lyckokaka."""
     return random.choice(FORTUNES)
 
-def main():
+def tests():
     """Provar modulen; startvärdet gör provet upprepbart."""
     random.seed(42)
     print(fortune())
 
 if __name__ == "__main__":
-    main()
+    tests()
 @
   \end{example}
 \end{frame}
@@ -2663,11 +2655,12 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Båda modulerna har ett \mintinline{python}{main} och ett
+Båda modulerna har ett testprogram,
+\mintinline{python}{tests}, bakom
 \mintinline{python}|if __name__ == "__main__":|, så att var och en går
-att köra för sig --- och det är det som gör dem provbara var för sig.
-Det tredje programmet importerar dem båda och gör ingenting annat än att
-sätta samman dem.  Modulen \mintinline{python}{cowsay} är filen från
+att köra och prova för sig.  Det tredje programmet importerar dem båda
+och gör ingenting annat än att sätta samman dem.  Modulen
+\mintinline{python}{cowsay2} är filen från
 \cref{sec:cowsay-ovning-behallare}\only<article>{, hel i
 \cref{ex:cowsay-ovning-behallare}}, och modulen
 \mintinline{python}{fortune} är filen i \cref{ex:fortune-ovning-behallare}.
@@ -2687,8 +2680,9 @@ sätta samman dem.  Modulen \mintinline{python}{cowsay} är filen från
     upprepbart men tråkigt, och det är den lösningen studenterna oftast
     väljer.  I \emph{modulens} eget prov är det fasta startvärdet däremot
     rätt, av precis motsatt skäl: ett prov ska ge samma svar varje gång.
-    Kontrasten mellan de två \mintinline{python}{main} är den enda plats i
-    materialet där den skillnaden syns, och den är värd att peka på.
+    Kontrasten mellan modulens \mintinline{python}{tests} och programmets
+    \mintinline{python}{main} är den enda plats i materialet där den
+    skillnaden syns, och den är värd att peka på.
 
     Uppgiften avslutar övningen med två moduler och ett program, vilket är
     den minsta form ett program med flera delar kan ha.  Att det är
@@ -2701,7 +2695,7 @@ sätta samman dem.  Modulen \mintinline{python}{cowsay} är filen från
 import random
 import sys
 
-import cowsay
+import cowsay2
 import fortune
 
 def main():
@@ -2709,7 +2703,7 @@ def main():
     if len(sys.argv) > 1:
         random.seed(int(sys.argv[1]))
 
-    cowsay.cowsay(fortune.fortune())
+    cowsay2.cowsay(fortune.fortune())
 
 if __name__ == "__main__":
     main()
@@ -2734,10 +2728,12 @@ ställe som ska göra det är det som vet varför.  Hade
 samma kaka varje gång den anropades, och det är inte vad någon som
 importerar modulen vill ha.
 
-De två \mintinline{python}{main} skiljer sig ändå.  Modulens egen sätter
-ett \emph{fast} startvärde, eftersom dess enda syfte är att pröva modulen
-och ett prov ska ge samma svar varje gång.  Programmets tar sitt
-startvärde från kommandoraden, eftersom den som kör programmet oftast
+Modulens \mintinline{python}{tests} och programmets
+\mintinline{python}{main} skiljer sig ändå.  \mintinline{python}{tests}
+sätter ett \emph{fast} startvärde, eftersom dess enda syfte är att pröva
+modulen och ett prov ska ge samma svar varje gång.
+\mintinline{python}{main} tar sitt startvärde från kommandoraden,
+eftersom den som kör programmet oftast
 vill ha en ny kaka --- men ibland samma igen.
 
 \begin{frame}[fragile,shrink]
@@ -2745,7 +2741,8 @@ vill ha en ny kaka --- men ibland samma igen.
     Med startvärdet \mintinline{text}|42| får vi samma lyckokaka varje
     gång; utan argument blir det en ny kaka varje körning:
     \runpython[showcommand, chdir, args={42},
-      deps={examples/cowsay.py,examples/fortune.py}]{examples/humor.py}
+      deps={examples/cowsay.py,examples/cowsay2.py,examples/fortune.py}]%
+      {examples/humor.py}
   \end{example}
 \end{frame}
 

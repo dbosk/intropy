@@ -65,7 +65,12 @@ BANKRUNS+=	examples/bank_test_angra.py
 EXAMPLES+=	${BANKRUNS}
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py
+# cowsay.py is written in the tutorial Övning: Upprepningar, listor och
+# moduler (../../iterations/tutorial); cowsay2.py imports the bubble and the
+# cow from it.  Build it there and copy it here (generated, not committed).
 EXAMPLES+=	examples/cowsay.py
+EXAMPLES+=	examples/cowsay2.py
+EXAMPLES+=	examples/minne.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/humor.py
 # Both runs of epost.py, the one typed by hand and the one piped with <,
@@ -88,6 +93,11 @@ ${TESTRUNS} ${BANKRUNS}: testkorningar.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+examples/cowsay.py: ../../iterations/tutorial/contents.nw
+	$(MAKE) -C $(<D) examples/cowsay.py
+	@mkdir -p ${@D}
+	cp $(<D)/examples/cowsay.py $@
 
 # .in is not one of noweb.mk's suffixes, and the file must not be piped
 # through black.
