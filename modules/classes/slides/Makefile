@@ -26,7 +26,7 @@ SRC+=		sokprotokoll.tex
 SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
-EXAMPLES+=	examples/phonebook.py
+EXAMPLES+=	examples/telefonbok.py
 EXAMPLES+=	examples/contacts.py
 EXAMPLES+=	examples/person.py
 EXAMPLES+=	examples/contacts_class.py
