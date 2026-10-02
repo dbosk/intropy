@@ -34,6 +34,7 @@ EXAMPLES+=	examples/bank.py
 # which is never woven, together with contents.nw, where the test cases
 # are.
 TESTRUNS+=	examples/shopping_test_visa.py
+TESTRUNS+=	examples/shopping_test_bocka.py
 TESTRUNS+=	examples/bank_test_person.py
 TESTRUNS+=	examples/bank_test_konto.py
 TESTRUNS+=	examples/bank_test_uttag.py
