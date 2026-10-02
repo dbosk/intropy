@@ -224,7 +224,7 @@ varje person blir fler som en klass börjar löna sig.
   stället för att göra om det.  \textbf{Vad som varierar} här är att
   fält kan saknas: Pippi har inget telefonnummer och Madicken ingen
   adress.  \textbf{Vad som hålls invariant} är uppslagslistan som
-  metod, huvudprogrammet, funktionerna och utskriftens form.  Det gör
+  metod, huvudprogrammet och funktionernas namn och roller.  Det gör
   begränsningen synlig som blir motivet för klassen: ingenting säger
   vilka fält en person har, och varje läsning måste klara att ett fält
   saknas.
@@ -275,7 +275,7 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=12]
   \begin{example}[Nästlade uppslagslistor]
     \label{ex:contacts-data}
     Varje person har en egen uppslagslista, men inte alla fält:
@@ -312,27 +312,52 @@ föreläsningen \emph{Behållare: Uppslagslistor}, och nu också
 \mintinline{python}{"birthday"}.  Det nya är att inte alla personer har
 alla fält: Pippi saknar telefonnummer och Madicken adress.
 
-\begin{frame}
-  \begin{exercise}
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:keyerror}
-    Vad händer om du försöker läsa ett fält som inte finns för en person?
+    Pippi saknar telefonnummer, men programmet läser det ändå:
+<<[[saknat_falt.py]]>>=
+def main():
+    """Huvudprogram"""
+    pippi = {
+        "first_name": "Pippi",
+        "last_name": "Långstrump",
+        "birthday": "1990-01-01",
+        "address": "Gatan 2",
+    }
+    print(pippi["phone"])
+
+if __name__ == "__main__":
+    main()
+@
   \end{exercise}
 \end{frame}
 
-Svaret är att vi får ett \mintinline{python}{KeyError}.  Det måste vi
+\begin{frame}[fragile]
+  \begin{example}[\texttt{saknat\_falt.py}]
+    \label{ex:saknat-falt-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines]{examples/saknat_falt.py}
+  \end{example}
+\end{frame}
+
+Vi får ett \mintinline{python}{KeyError}, precis som när en nyckel
+saknas i föreläsningen \emph{Behållare: Uppslagslistor}, avsnittet
+\emph{När nyckeln saknas}: ett fält är en nyckel i personens
+uppslagslista.  Det måste vi
 hantera när vi läser informationen, med något av sätten från
 föreläsningen \emph{Behållare: Uppslagslistor}: pröva med
 \mintinline{python}{in} först, fånga felet med
 \mintinline{python}{try} och \mintinline{python}{except}, eller låta
-\mintinline{python}{get} ge ett reservvärde.  Här fångar vi felet.  Låt
-oss se hur koden för att läsa informationen blir.
+\mintinline{python}{get} ge ett reservvärde.  Här fångar vi felet.
+Funktionen som skriver ut namnen är densamma som förut.  Den som skriver
+ut en kontakt sätter ihop namnet och fångar felet för varje fält som kan
+saknas.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=12]
   \begin{example}[Slå upp i nästlade uppslagslistor]
     \label{ex:contacts-lookup}
-    Funktionen som skriver ut namnen är densamma som förut.  Den som
-    skriver ut en kontakt sätter ihop namnet, och varje fält som kan
-    saknas får en egen felhantering:
+    Varje fält som kan saknas får en egen felhantering:
 <<hjälpfunktionerna i [[contacts.py]]>>=
 <<funktion som skriver ut alla namn>>
 
@@ -394,11 +419,6 @@ i programmet där fältet läses.
   nyckelnamnen, att ingenting säger vilka fält som finns, och att det
   inte finns någon plats att lägga validering på.  Kommer de inte fram
   av sig själva går de att fråga efter ett i taget.
-
-  \textbf{Kontrastmönstret fullbordas}: vi har nu visat en enkel
-  uppslagslista (fungerar) och en komplex uppslagslista (problematisk).
-  Därefter introducerar vi klasser för att kontrastera mot båda.
-  Smärtpunkterna blir motivationen.
 }%
     Vilka problem ser du med det här sättet?
   \end{exercise}
@@ -587,7 +607,8 @@ som behövs för det har klassen inte än.
 \end{frame}
 
 De dubbla understrecken gör attributen privata, vilket innebär att de
-inte kan nås direkt från utsidan av klassen.\footnote{\label{fn:mangling}%
+inte kan nås direkt från utsidan av klassen; det prövar vi i
+\cref{ovn:privat-atkomst}.\footnote{\label{fn:mangling}%
   Strängt taget finns inga privata attribut i Python.  Ett namn som
   \mintinline{python}{__phone} skrivs om till
   \mintinline{python}{_Person__phone} (\foreignlanguage{english}{name
@@ -612,8 +633,8 @@ står i \cref{ex:person-hel}.
 
 \begin{frame}[fragile]
   \begin{example}[En telefonbok med personobjekt]
-    \label{ex:contacts-class}
-    Samma upplägg och samma huvudprogram, och en import av klassen:
+    \label{ex:contacts-class-upplagg}
+    Samma upplägg, och en import av klassen:
 <<[[contacts_class.py]]>>=
 """En enkel telefonbok"""
 
@@ -623,6 +644,13 @@ import person
 
 <<huvudprogrammet i [[contacts_class.py]]>>
 @
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet med personobjekt]
+    \label{ex:contacts-class}
+    Samma huvudprogram, så när som på lagringen:
 <<huvudprogrammet i [[contacts_class.py]]>>=
 def main():
     """Huvudprogram"""
@@ -707,8 +735,8 @@ del under samma namn.
 \begin{frame}[fragile]
   \begin{example}[Metoder för namnet]
     \label{ex:person-namn}
-    En metod som sätter ihop namnet, och en dundermetod som gör att
-    objektet kan skrivas ut:
+    En metod som sätter ihop namnet, och en metod med ett särskilt
+    namn:
 <<metoderna i [[Person]]>>=
 def get_name(self):
     """Returns the full name as a concatenation"""
@@ -773,11 +801,29 @@ print(
     f"och bor på adressen {person.get_address()}"
 )
 @
-    Testfallet skriver ut
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:print-person}
+    Testfallet skriver ut personen två gånger, först med
+    \mintinline{python}{get_name()} och sedan med bara
+    \mintinline{python}{person} i f-strängen.  Vad tror du skrivs ut?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utskriften från testfallet]
+    \label{ex:person-print-run}
+    Testfallet\only<article>{ i \cref{ex:person-print}} skriver ut
     \runpython[chdir, breaklines, deps={examples/person.py}]%
       {examples/person_test_utskrift.py}
   \end{example}
 \end{frame}
+
+Båda raderna börjar med det fullständiga namnet.  Varför den andra gör
+det återkommer vi till i \cref{ovn:str}.
 
 \begin{frame}
   \begin{exercise}
@@ -872,16 +918,14 @@ print(person.get_last_name())
 <<[[two.py]]>>=
 from person import Person
 
-
 def main():
-    """Test program"""
+    """Huvudprogram"""
     person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
     person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
 
     person.change_name("Margareta Engström")
     print(person)
     print(person2)
-
 
 if __name__ == "__main__":
     main()
@@ -1078,10 +1122,10 @@ person ändras.
 \end{frame}
 
 I \texttt{contacts.py} ändras två ställen: uppslagslistan får nyckeln
-\mintinline{python}{"email"} hos de personer vars adress vi känner, och
-\mintinline{python}{print_contact} får ett \mintinline{python}{try} till
-och en del till i utskriften.  Personer utan e-postadress behöver vi
-inte röra.
+\mintinline{python}{"email"} hos de personer vars e-postadress vi
+känner, och \mintinline{python}{print_contact} får ett
+\mintinline{python}{try} till och en del till i utskriften.  Personer
+utan e-postadress behöver vi inte röra.
 
 Med klassen ändras fler ställen.  Konstruktorn i \texttt{person.py} får
 en parameter och ett attribut till, klassen får en läsmetod
@@ -1108,7 +1152,8 @@ att varje person har alla, är det som avgör valet.
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLOObject}.
 
-  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Variationsmönster}: Kontrast, i
+  \cref{ovn:klass-objekt,ovn:var-finns-objekten} och svaren på dem.
 
   \textbf{Vad som varierar}: begreppet (klass respektive objekt).
 
@@ -1260,7 +1305,8 @@ programmet.  En klass är en mall, inte en behållare.
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLOAttributes,ClassLOSelf}.
 
-  \textbf{Variationsmönster}: Separation.
+  \textbf{Variationsmönster}: Separation, i
+  \cref{ovn:attribut-metoder,ovn:init,ovn:lasa-privat} och svaren på dem.
 
   \textbf{Vad som varierar}: komponenttypen (attribut respektive
   metoder).
@@ -1363,42 +1409,20 @@ enkelt inte använda några understreck alls.
     \label{ex:public}
     Attributet \mintinline{python}{value} har inga understreck:
 <<[[public.py]]>>=
-"""
-An example with classes with public attributes and methods.
-"""
+"""Ett exempel med ett publikt attribut"""
 
-
-class PublicExample:
+class Example:
     def __init__(self, value):
-        self.value = value  # Public attribute
+        self.value = value
 
-    def get_value(self):  # Public method
+    def get_value(self):
         return self.value
 
-    def set_value(self, new_value):  # Public method
-        self.value = new_value
-
-<<testprogram för [[PublicExample]]>>
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Direkt åtkomst till ett publikt attribut]
-    \label{ex:public-main}
-    Testprogrammet läser attributet både via metoden och direkt, och
-    ändrar det sedan på båda sätten:
-<<testprogram för [[PublicExample]]>>=
 def main():
-    """Example program"""
-    example = PublicExample(10)
-    print(f"Initial value: {example.get_value()}")
-    print(f"Directly read value: {example.value}")
-    example.set_value(20)
-    print(f"Updated value: {example.get_value()}")
-    example.value = 30
-    print(f"Directly modified value: {example.value}")
-
+    """Exempelprogram"""
+    example = Example(10)
+    print(example.get_value())
+    print(example.value)
 
 if __name__ == "__main__":
     main()
@@ -1417,69 +1441,55 @@ if __name__ == "__main__":
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLOEncapsulation}.
 
-  \textbf{Variationsmönster}: Kontrast.
-
+  \textbf{Variationsmönster}: Kontrast, mellan
+  \cref{ex:public,ovn:privat-atkomst} och deras körningar,
+  \cref{ex:public-run,ex:private-run}.
   \textbf{Vad som varierar}: attributets namn, och därmed dess
   synlighet (\mintinline{python}{self.value} respektive
-  \mintinline{python}{self.__value}).
+  \mintinline{python}{self.__value}).  \textbf{Vad som hålls
+  invariant}: allt annat --- klassen, läsmetoden, huvudprogrammet och
+  de två läsningarna.  Programmen skiljer sig bara i attributnamnet och
+  i den docstring som säger vilket slags attribut det är.
 
-  \textbf{Vad som hålls invariant}: klassens uppgift (hålla ett värde
-  och lämna ut det), läsmetoden, och den direkta läsningen i
-  huvudprogrammet --- \mintinline{python}{example.value} i
-  \cref{ex:public-run} mot \mintinline{python}{example.__value} i
-  \cref{ovn:privat-atkomst}.
-  Det är den raden, och bara den, som kontrasten vilar på; resten av
-  \texttt{private.py} är nedbantad (ingen skrivmetod) för att den raden
-  ska stå oskymd.  Programmen är alltså inte identiska så när som på ett
-  tecken, och texten påstår inte längre att de är det.  Båda har
-  däremot samma form --- klassen, ett \mintinline{python}{main} och
-  anropet under \mintinline{python}{if __name__} --- så att det bara är
-  attributnamnet som skiljer de två raderna kontrasten vilar på.
+  \textbf{Varför två läsningar och ingen skrivning}:
+  namnomskrivningen gäller bara inuti klasskroppen.  En rad
+  \mintinline{python}{example.__value = 30} utanför klassen skulle tyst
+  skapa ett \emph{andra} attribut vid sidan av
+  \mintinline{python}{_Example__value}, och utskriften efteråt skulle
+  lyckas --- kontrasten hade visat ingenting.
 
-  \textbf{Varför inte ett rent ombyte av en enda rad}: namnomskrivningen
-  gäller bara inuti klasskroppen.  Skrev vi om \texttt{public.py} rakt av
-  skulle \mintinline{python}{example.__value = 30} utanför klassen
-  tyst skapa ett \emph{andra} attribut vid sidan av
-  \mintinline{python}{_PrivateExample__value}, och utskriften efteråt
-  skulle lyckas --- kontrasten hade visat ingenting.  Det är därför
-  jämförelsen står mellan två \emph{läsningar} och inte mellan en
-  skrivning och en läsning.
-
-  Genom att kontrastera publika och privata attribut kan studenterna
-  urskilja \emph{när} och \emph{varför} man ska använda inkapsling.  Det
-  konkreta exemplet (direkt åtkomst fungerar respektive fungerar inte)
-  gör den abstrakta principen påtaglig.
-
-  \textbf{Notera}: begränsningen visas i stället för att påstås.  Det
-  program som inte fungerar står med, och spårutskriften
-  (\foreignlanguage{english}{traceback}) är belägget.
-  Filen heter \texttt{private.py} efter attributet, inte efter vad
-  körningen ger: vad som händer är just det som ska urskiljas.
+  Begränsningen visas i stället för att påstås: det program som inte
+  fungerar står med, och spårutskriften
+  (\foreignlanguage{english}{traceback}) är belägget.  Filen heter
+  \texttt{private.py} efter attributet, inte efter vad körningen ger:
+  vad som händer är just det som ska urskiljas.
 }%
-Raden \mintinline{python}{example.value} läser attributet utan att gå
-via någon metod, och den fungerar.  Här är en klass med samma uppgift,
-men attributet heter \mintinline{python}{__value}, och huvudprogrammet
-försöker läsa det direkt på samma sätt.
+Programmet läser attributet på två sätt, och raden
+\mintinline{python}{example.value} gör det utan att gå via någon metod.
+Den fungerar.  På samma sätt kan vem som helst
+ändra ett publikt attribut utifrån, med en tilldelning som
+\mintinline{python}{example.value = 20}, utan att klassen får veta det.
+Här är samma program, men attributet heter \mintinline{python}{__value}.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:privat-atkomst}
-    Attributet är privat, och programmet läser det på två sätt.
+    Attributet är privat, och programmet läser det på samma två sätt:
 <<[[private.py]]>>=
-class PrivateExample:
+"""Ett exempel med ett privat attribut"""
+
+class Example:
     def __init__(self, value):
         self.__value = value
 
     def get_value(self):
         return self.__value
 
-
 def main():
-    """Example program"""
-    example = PrivateExample(10)
+    """Exempelprogram"""
+    example = Example(10)
     print(example.get_value())
     print(example.__value)
-
 
 if __name__ == "__main__":
     main()
@@ -1500,7 +1510,7 @@ inte.  Den direkta läsningen lyckades i \cref{ex:public-run} och
 misslyckas här, och det är den skillnaden understrecken gör: namnet
 \mintinline{python}{__value} finns inte på objektet.  Python har skrivit
 om det, till
-\mintinline{python}{_PrivateExample__value} (\cref{fn:mangling}).
+\mintinline{python}{_Example__value} (\cref{fn:mangling}).
 
 Nu ska vi titta på metoder --- funktioner som tillhör objektet.
 
@@ -1549,7 +1559,8 @@ i \cref{ex:person-getters} returnerar var sitt attribut.
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLODunder}.
 
-  \textbf{Variationsmönster}: Generalisering.
+  \textbf{Variationsmönster}: Generalisering, över
+  \cref{ex:person-namn,ex:person-dunder,ovn:eq}.
 
   \textbf{Vad som varierar}: den specifika dundermetoden
   (\mintinline{python}{__init__}, \mintinline{python}{__str__},
@@ -1581,16 +1592,10 @@ och \mintinline{python}{__str__}\only<article>{
 \enquote{\foreignlanguage{english}{magic methods}} som låter oss anpassa
 hur våra objekt beter sig i olika situationer.
 
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:print-person}
-    Vad tror du händer när vi skriver \mintinline{python}{print(person)}?
-  \end{exercise}
-\end{frame}
-
-Python anropar \mintinline{python}{__str__()}-metoden automatiskt, det
-vill säga \mintinline{python}{person.__str__()}.  Det gör att vi kan
-styra hur våra objekt presenteras när de skrivs ut.  Låt oss titta på
+När vi skriver ut ett objekt anropar Python dess
+\mintinline{python}{__str__()} automatiskt, som vi såg i
+\cref{ex:person-print-run}.  Det gör att vi kan styra hur våra objekt
+presenteras när de skrivs ut.  Låt oss titta på
 Pythons dokumentation i \cref{doc:dundermetoder} för att se fler
 dundermetoder.
 
@@ -1699,20 +1704,45 @@ Här ser vi flera intressanta dundermetoder:
   \end{example}
 \end{frame}
 
-\begin{frame}
-  \begin{exercise}
+\begin{frame}[fragile,shrink=10]
+  \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:gt}
     I \mintinline{python}{Person} jämför \mintinline{python}{__lt__}
-    födelsedagar, så vi kan jämföra två personer med
-    \mintinline{python}{<}.  Kan vi även använda
-    \mintinline{python}{>}?  Hur fungerar det i så fall?
+    födelsedagar, men klassen har ingen \mintinline{python}{__gt__}.
+    Programmet jämför ändå med \mintinline{python}{>}.\only<article>{
+    Modulen \texttt{person} är filen från \cref{ex:person-hel}.}
+<<[[greater.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
+    person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
+
+    print(person < person2)
+    print(person > person2)
+
+if __name__ == "__main__":
+    main()
+@
   \end{exercise}
 \end{frame}
 
-Ja!  Om klassen saknar \mintinline{python}{__gt__} provar Python i
+\begin{frame}[fragile]
+  \begin{example}[\texttt{greater.py}]
+    \label{ex:greater-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/greater.py}
+  \end{example}
+\end{frame}
+
+Även den andra jämförelsen fungerar.  Om klassen saknar
+\mintinline{python}{__gt__} provar Python i
 stället \mintinline{python}{__lt__} med argumenten omkastade:
-\mintinline{python}{person1 > person2} beräknas som
-\mintinline{python}{person2 < person1}.  På samma sätt är
+\mintinline{python}{person > person2} beräknas som
+\mintinline{python}{person2 < person}: Ada, född 1990, är yngre än
+Anne-Marie.  På samma sätt är
 \mintinline{python}{__le__} och \mintinline{python}{__ge__} varandras
 spegelbilder.\footnote{\label{fn:reflection}%
   \enquote{\mintinline{python}{__lt__()} and
@@ -1772,15 +1802,13 @@ resten.\footnote{\label{fn:total-ordering}%
 <<[[compare.py]]>>=
 from person import Person
 
-
 def main():
-    """Test program"""
+    """Huvudprogram"""
     person1 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
     person2 = Person("Ada", "Bedasdotter", "1990-01-01", "Kiruna", "-")
 
     print(person1 == person2)
     print(person1 == person1)
-
 
 if __name__ == "__main__":
     main()
@@ -1830,13 +1858,6 @@ sortera en lista med \mintinline{python}{Person}-objekt med funktionen
 som testprogrammet gör i \cref{ex:person-sort}: sorteringen behöver bara
 \mintinline{python}{<}.
 
-
-% Noten till \cref{ovn:eq} fyller marginalen på sidan där avsnittet
-% Arv börjar, och marginalnoter tas i tur och ordning: fotnoten till DRY
-% (HuntThomas1999) hamnade därför på nästa sida, bort från sin markör.
-% Sidbrytningen töms marginalkön innan avsnittet börjar.
-\mode<article>{\clearpage}
-
 \section{Arv}
 \label{sec:arv}
 
@@ -1844,11 +1865,16 @@ som testprogrammet gör i \cref{ex:person-sort}: sorteringen behöver bara
   Relevanta lärandemål:
   \cref{ClassLOInheritance,ClassLOOverride,ClassLOComposition}.
 
-  \textbf{Variationsmönster}: Kontrast följt av separation.
+  \textbf{Variationsmönster}: Kontrast följt av separation, först mellan
+  \cref{ovn:personnick,ex:person-nick-class}, sedan i
+  \cref{ex:person-nick-init,ex:person-nick-super,ex:person-nick-override}.
 
   \textbf{Först, kontrast mellan två tillvägagångssätt}: kodduplicering
   (kopiera all kod i \mintinline{python}{Person}) respektive arv (utvidga
-  \mintinline{python}{Person}).
+  \mintinline{python}{Person}, \cref{ex:person-nick-class}).  Den
+  duplicerade klassen står inte som kod i materialet: den sidan av
+  kontrasten är studentens eget svar på \cref{ovn:personnick}, som
+  sedan ställs mot underklassen där bara det nya står.
 
   \textbf{Sedan, separation av arvets aspekter}: ärvda metoder (används
   som de är), överlagrade metoder (anpassat beteende), nya metoder
@@ -1869,7 +1895,9 @@ som testprogrammet gör i \cref{ex:person-sort}: sorteringen behöver bara
     \item \Cref{ClassLOComposition}: kontrasten mellan
       \foreignlanguage{english}{is-a} (arv) och
       \foreignlanguage{english}{has-a} (komposition) hjälper studenterna
-      att välja rätt.
+      att välja rätt.  Här har bara arvet ett program; kompositionen
+      står i prosan (\cref{ovn:arv-nar} och svaret) och får sitt
+      program i föreläsningen \emph{Praktiska tillämpningar av klasser}.
   \end{itemize}
 
   \textbf{Varför detta fungerar}: vi börjar med \emph{problemet} (undvika
@@ -1986,7 +2014,8 @@ def get_nick(self):
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLOOverride}.
 
-  \textbf{Variationsmönster}: Separation.
+  \textbf{Variationsmönster}: Separation, i
+  \cref{ex:person-nick-init,ex:person-nick-super}.
 
   \textbf{Vad som varierar}: initieringsansvaret (förälderns attribut
   respektive barnets nya attribut).
@@ -2146,7 +2175,8 @@ anropar \mintinline{python}{self.get_name()}, och för en
 \mintinline{python}{PersonNick} är det den överlagrade versionen.
 
 \begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela filen:
+  Sätter vi in varje del där dess namn står får vi hela filen,
+  \texttt{person\_nick.py}:
   \inputminted{python}{examples/person_nick.py}
 \end{frame}
 
@@ -2204,7 +2234,9 @@ sedan resultatet.
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLOComposition}.
 
-  \textbf{Variationsmönster}: Kontrast.
+  \textbf{Variationsmönster}: Kontrast, mellan arvet i
+  \cref{ex:person-nick-class} och kompositionen i svaret på
+  \cref{ovn:arv-nar}.
 
   \textbf{Vad som varierar}: relationstypen
   (\foreignlanguage{english}{is-a} respektive
@@ -2216,7 +2248,10 @@ sedan resultatet.
   (\mintinline{python}{PersonNick} \emph{är en}
   \mintinline{python}{Person}, men en \mintinline{python}{Person}
   \emph{har en} \mintinline{python}{Address}) kan studenterna urskilja
-  när varje mönster är lämpligt.  Kontrasten gör den kritiska aspekten
+  när varje mönster är lämpligt.  Bara den första relationen finns som
+  program (\cref{ex:person-nick-class}); en klass
+  \mintinline{python}{Address} skrivs inte här, så den andra sidan är
+  ett exempel i ord.  Kontrasten gör den kritiska aspekten
   (relationstypen) synlig.  Både arv och komposition ger återanvändning,
   men \emph{typen} av relation avgör vilket som passar.  Den fulla
   behandlingen av komposition, med exempel, kommer i föreläsningen
@@ -2236,39 +2271,3 @@ inte ett förbud: experimenten om arv och underhåll pekar åt olika
 håll\autocite{Daly1996,Harrison2000}.\footnote{Det vetenskapliga
   underlaget för rådet --- både varifrån det kommer och hur väl det
   håller, med sina förbehåll --- finns i \cref{app:komposition}.}
-
-% The assembled programs belong to the notes only.  A frame wrapped in
-% onlyenv<article> is still typeset by the slides job (\mode* skips the
-% wrapper as text and then meets the frame), so this section is a
-% \mode<article> block without frames.
-\mode<article>{%
-
-\section{Övriga program i sin helhet}
-\label{sec:all-kod}
-
-De program som byggdes upp del för del står i sin helhet där de blev
-färdiga.  Här är de övriga samlade på ett ställe, i den form de tanglas
-ur källan --- det är de här filerna som körs.
-
-\begin{example}[\texttt{public.py}]
-  Hela programmet:
-  \inputminted{python}{examples/public.py}
-\end{example}
-
-\needspace{18\baselineskip}
-\begin{example}[\texttt{private.py}]
-  Hela programmet:
-  \inputminted{python}{examples/private.py}
-\end{example}
-
-\begin{example}[\texttt{two.py}]
-  Hela programmet:
-  \inputminted{python}{examples/two.py}
-\end{example}
-
-\begin{example}[\texttt{compare.py}]
-  Hela programmet:
-  \inputminted{python}{examples/compare.py}
-\end{example}
-
-}

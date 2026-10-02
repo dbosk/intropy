@@ -28,6 +28,7 @@ SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/telefonbok.py
 EXAMPLES+=	examples/contacts.py
+EXAMPLES+=	examples/saknat_falt.py
 EXAMPLES+=	examples/person.py
 EXAMPLES+=	examples/contacts_class.py
 EXAMPLES+=	examples/public.py
@@ -35,6 +36,7 @@ EXAMPLES+=	examples/person_nick.py
 EXAMPLES+=	examples/private.py
 EXAMPLES+=	examples/two.py
 EXAMPLES+=	examples/compare.py
+EXAMPLES+=	examples/greater.py
 
 # The class files' test programs grow one test case at a time, and the
 # deck shows each case's output beside it.  Each of these programs runs
