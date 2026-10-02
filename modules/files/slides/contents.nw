@@ -249,7 +249,8 @@ Python-program vi skriver själva är lagrade som textfiler på hårddisken.
 
 \leavevmode\ltnote{%
   Avsnittets kontraster: [[open()]] och [[close()]] för hand mot [[with]]
-  (\cref{ex:for-hand,ex:med-with}, sedan \cref{ovn:close}), läsa mot
+  (\cref{ex:for-hand,ex:med-with}, sedan
+  \cref{ovn:sarfall,ovn:garantera}), läsa mot
   skriva (\cref{sec:lasa-skriva}) och text mot binärt
   (\cref{sec:typer}); varje dimension varieras för sig.  Relevanta
   lärandemål: \cref{FilesLORead}, \cref{FilesLOWrite},
@@ -324,16 +325,21 @@ terminalen och därför inte behöver få veta något mål, är just den:
 alltid handlar om en fil vi redan har öppnat.
 
 \leavevmode\ltnote{%
-  \Cref{ex:for-hand} ställs mot \cref{ex:med-with}.
+  \Cref{ex:for-hand} ställs mot \cref{ex:med-with}, och körningen av
+  [[close1.py]] i lösningsförslaget till \cref{ovn:sarfall} mot
+  körningen av [[close2.py]] i lösningsförslaget till
+  \cref{ovn:garantera}.
 
   \textbf{Variationsmönster}: Kontrast
 
-  \textbf{Vad som varierar}: Resurshanteringsmetod (manuell
-  [[open()]]/[[close()]] i \cref{ex:for-hand} vs [[with]]-sats i
-  \cref{ex:med-with}).
+  \textbf{Vad som varierar}: Resurshanteringsmetod, för hand med
+  [[open()]] och [[close()]] eller med [[with]].
 
   \textbf{Vad som hålls invariant}: Själva filoperationerna ([[read()]],
-  omvandlingen med [[int()]]) och uppgiften.
+  omvandlingen med [[int()]]) och uppgiften; i paret [[close1.py]] och
+  [[close2.py]] dessutom filen [[text.txt]], det misslyckade [[int()]],
+  utskrifterna och frågan programmet ställer till sist
+  ([[file.closed]]).
 
   \textbf{Kritiska aspekter för} \cref{FilesLOContextMgr}:
   \begin{itemize}
@@ -348,18 +354,22 @@ alltid handlar om en fil vi redan har öppnat.
       som syntax}.
   \end{itemize}
 
-  \textbf{Pedagogisk sekvens}: Visa explicit metod först för att göra
-  problemet synligt (glömma [[close()]], särfall), sedan [[with]] som
-  lösning.  Anmärkningen \emph{Garanterad resurshantering} är
-  kontrastpunkten: den säger ut vad som skiljer de två sätten åt.
+  \textbf{Pedagogisk sekvens}: Problemet körs innan lösningen visas.
+  \Cref{ovn:sarfall} besvaras av en körning av [[close1.py]], där
+  studenten ser att filen lämnas öppen; först därefter ställs
+  \cref{ovn:garantera}, så att [[with]] kommer som svaret på ett problem
+  studenten själv har sett och inte som ett påstående om ett problem.
+  Varje övning besvaras av en körning.  [[close2.py]] är [[close1.py]]
+  med [[with]] i stället för [[open()]] och [[close()]] och körs på
+  samma fil, så att det enda som skiljer \mintinline{python}{False} från
+  \mintinline{python}{True} är sättet att stänga
+  \parencite[45--47]{Marton2015}.  Anmärkningen \emph{Garanterad
+  resurshantering} säger efteråt ut vad som skiljer de två sätten åt.
   Blocktiteln säger bara vad som är garanterat --- kontrastvokabulären
-  hör hemma här och inte i det studenterna läser.  Kontrasten gör värdet
-  av kontexthanterare urskiljbart \parencite[45--47]{Marton2015}.  Den
-  manuella versionen visas \emph{utan} [[try]]/[[finally]]: hade den
-  skyddet inbyggt skulle \cref{ovn:sarfall}, övningen om vad som händer
-  vid ett särfall, redan vara besvarad, och kontrasten mot [[with]] skulle
-  bara gälla
-  längden.
+  hör hemma här och inte i det studenterna läser.  Den manuella
+  versionen visas \emph{utan} [[try]]/[[finally]]: hade den skyddet
+  inbyggt skulle \cref{ovn:sarfall} redan vara besvarad, och kontrasten
+  mot [[with]] skulle bara gälla längden.
 }%
 Det finns två sätt att hantera öppning och stängning: manuellt med
 [[open()]] och [[close()]], eller automatiskt med [[with]]-satsen.  Låt
@@ -385,68 +395,18 @@ def read_number_by_hand(filename):
   \end{example}
 \end{frame}
 
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:sarfall}
-    Vad händer om ett särfall (\foreignlanguage{english}{exception})
-    uppstår mellan [[open()]] och [[close()]] --- säg att filen inte
-    innehåller ett tal, så att [[int()]] misslyckas?
-
-    Hur kan vi garantera att filen alltid stängs korrekt, även om något
-    går fel under bearbetningen?
-  \end{exercise}
-\end{frame}
-
-Går [[int()]] fel avbryts funktionen på den raden, precis som vi såg i
-föreläsningen \emph{Inmatning och felhantering}: raderna efter ---
-däribland
-[[file.close()]] --- körs aldrig.  Vi skulle kunna skydda oss med [[try]]
-och [[finally]], men det är precis den bokföringen Python kan göra åt
-oss.  Pythons dokumentation rekommenderar
-\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs då
-korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
-an exception is raised at some point}}\autocite{PythonTutorialFiles}.
-
-\begin{frame}[fragile]
-  \begin{example}[Med \texttt{with}]
-    \label{ex:med-with}
-    Samma uppgift, men [[with]] stänger filen åt oss när blocket lämnas:
-<<funktion som läser talet och låter [[with]] stänga filen>>=
-def read_number(filename):
-    """Reads the number in the file, letting with close it"""
-    with open(filename, "r") as file:
-        number = int(file.read())
-    return number
-@
-  \end{example}
-\end{frame}
-
 \leavevmode\ltnote{%
-  \Cref{ovn:close} och dess lösningsförslag ställer [[close1.py]] mot
-  [[close2.py]].  Relevanta lärandemål: \cref{FilesLOContextMgr}.
-
-  \textbf{Variationsmönster}: Kontrast
-
-  \textbf{Vad som varierar}: hur filen öppnas och stängs --- för hand
-  med [[open()]] och [[close()]], eller med [[with]].
-
-  \textbf{Vad som hålls invariant}: filen, det misslyckade [[int()]] och
-  frågan programmet ställer till sist ([[file.closed]]).
-
-  Att filen lämnas öppen sägs inte bara utan körs, i \cref{ovn:close},
-  så att studenten ser \mintinline{python}{False} och
-  \mintinline{python}{True} bredvid varandra.  De två programmen står i
-  \emph{en} övning för att det ska vara studenten och inte materialet
-  som gör jämförelsen \parencite[45--47]{Marton2015}.  Av samma skäl
-  heter de [[close1.py]] och [[close2.py]]: namn som beskriver
-  skillnaden hade avslöjat vad som ska urskiljas.  Ordet
-  \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
-  [[tal.txt]], skrivet så att [[int()]] inte klarar det.
+  Ordet \mintinline{text}{fyrtiotvå} i [[text.txt]] är samma tal som i
+  [[tal.txt]], skrivet så att [[int()]] inte klarar det.  [[try]] och
+  [[except]] står i [[close1.py]] bara för att programmet ska hinna
+  fråga om [[file.closed]] efter felet; [[close2.py]] har dem på samma
+  plats.  Namnen [[close1.py]] och [[close2.py]] avslöjar inte
+  skillnaden mellan programmen.
 }%
-Så långt är det ett påstående vi läser.  Vi kan i stället låta
-programmen svara: ett filobjekt vet självt om det är stängt, och
-[[file.closed]] är \mintinline{python}{True} när det är det.  Vi behöver
-också en fil som \emph{inte} innehåller ett tal.
+Vad händer om något går fel mellan [[open()]] och [[close()]]?  För att
+pröva det behöver vi en fil som \emph{inte} innehåller ett tal, och ett
+sätt att fråga om filen blev stängd: ett filobjekt vet självt om det är
+stängt, och [[file.closed]] är \mintinline{python}{True} när det är det.
 
 \begin{frame}[fragile]
   \begin{example}[En fil med ett ord]
@@ -457,17 +417,19 @@ fyrtiotvå
   \end{example}
 \end{frame}
 
-\mode<article>{\needspace{26\baselineskip}}
+\mode<article>{\needspace{18\baselineskip}}
 
-\begin{frame}[fragile,shrink=30]
-  \begin{exercise}[Vad skriver programmen ut?]
-    \label{ovn:close}
+\begin{frame}[fragile,shrink=10]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:sarfall}
     \leavevmode\ltnote{%
       Programmen följer funktionsregeln från föreläsningen
       \emph{Funktioner}, också de minsta.
     }%
-    Här är två program.  Båda läser [[text.txt]] och frågar till sist om
-    filen är stängd.  Vad skriver vart och ett av dem ut?
+    Vad händer om ett särfall (\foreignlanguage{english}{exception})
+    uppstår mellan [[open()]] och [[close()]]?  Programmet [[close1.py]]
+    frågar till sist om filen är stängd.  Vad skriver det ut när det
+    läser [[text.txt]], där [[int()]] misslyckas?
 <<[[close1.py]]>>=
 """Reading a number from a file, closing the file by hand"""
 
@@ -483,6 +445,54 @@ def main():
 
 if __name__ == "__main__":
     main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{close1.py}]
+    Programmet skriver ut
+    \runpython[transcript]{examples/close1.py}
+  \end{solution}
+\end{frame}
+
+Programmet svarar \mintinline{python}{False}: när [[int()]]
+misslyckades avbröts blocket under [[try]] på den raden, precis som vi
+såg i föreläsningen \emph{Inmatning och felhantering}, och raden
+[[file.close()]] kördes aldrig.  Filen lämnades öppen.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:garantera}
+    Hur kan vi garantera att filen alltid stängs, även om något går fel
+    mellan [[open()]] och [[close()]]?
+  \end{exercise}
+\end{frame}
+
+Python har en sats för just det: [[with]].  Den öppnar filen på sin
+första rad och stänger den när blocket under den lämnas, hur blocket än
+lämnas.
+
+\begin{frame}[fragile]
+  \begin{example}[Med \texttt{with}]
+    \label{ex:med-with}
+    Samma uppgift som i \cref{ex:for-hand}, med en [[with]]-sats:
+<<funktion som läser talet och låter [[with]] stänga filen>>=
+def read_number(filename):
+    """Reads the number in the file, letting with close it"""
+    with open(filename, "r") as file:
+        number = int(file.read())
+    return number
+@
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{18\baselineskip}}
+
+\begin{frame}[fragile,shrink=10]
+  \begin{solution}[\texttt{close2.py}]
+    Programmet [[close2.py]] är [[close1.py]] med en [[with]]-sats i
+    stället för [[open()]] och [[close()]].  Vi kör det på samma fil:
 <<[[close2.py]]>>=
 """Reading a number from a file, letting with close it"""
 
@@ -498,24 +508,21 @@ def main():
 if __name__ == "__main__":
     main()
 @
-  \end{exercise}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{solution}[\texttt{close1.py} och \texttt{close2.py}]
-    Det första programmet skriver ut
-    \runpython[transcript]{examples/close1.py}
-    Det andra skriver ut
+    Det skriver ut
     \runpython[transcript]{examples/close2.py}
   \end{solution}
 \end{frame}
 
-Det första programmet svarar \mintinline{python}{False}: raden
-[[file.close()]] hoppades över när [[int()]] misslyckades, så filen
-lämnades öppen.  Det andra svarar \mintinline{python}{True}: [[with]]
-stängde filen när blocket lämnades, också när det lämnades av ett
-särfall.  Det är hela skillnaden mellan de två sätten, och den syns
-inte förrän något går fel.
+Nu svarar programmet \mintinline{python}{True}: [[with]] stängde filen
+när blocket lämnades, också när det lämnades av ett särfall.  Det är
+hela skillnaden mellan de två sätten, och den syns inte förrän något går
+fel.  Pythons dokumentation rekommenderar därför
+\enquote{\foreignlanguage{english}{the with keyword}}: filen stängs
+korrekt när blocket är slut, \enquote{\foreignlanguage{english}{even if
+an exception is raised at some point}}\autocite{PythonTutorialFiles}.
+Vi hade kunnat skydda [[close1.py]] med [[try]] och [[finally]], ett
+block som körs hur [[try]]-blocket än lämnas, men det är precis den
+bokföringen [[with]] gör åt oss.
 
 \begin{frame}
   \only<presentation>{%
@@ -592,7 +599,7 @@ if __name__ == "__main__":
       Körningen i \cref{ex:open-close-korning} är en verklig körning av
       [[open_close.py]] på filen [[tal.txt]].  Att båda vägarna ger samma
       svar är poängen: skillnaden mellan dem syns inte när allt går
-      väl, utan först när något går fel, som i \cref{ovn:close}.
+      väl, utan först när något går fel, som i \cref{ovn:sarfall}.
 
       Talet [[42]] i [[tal.txt]] är svaret ur Douglas Adams \emph{Liftarens
       guide till galaxen}.  Upplysningen står här och inte i studenttexten.
