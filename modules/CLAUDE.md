@@ -18,9 +18,9 @@ Each module has one or more deck directories (`slides*/`) building
 is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
 excludes functions, recap, scipy and debug from the course-wide build.
-Six decks still lack a backed-claim chapter: `classes/slides-more`
-(Operatoröverlagring) and the five `containers/slides-*` decks — run the
-claim audit there in their next rounds.
+Five decks still lack a backed-claim chapter: the five
+`containers/slides-*` decks — run the claim audit there in their next
+rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
@@ -207,8 +207,23 @@ Backed so far (question → answer):
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
-- No backed-claim chapters yet: *Operatoröverlagring*, the five
-  *Behållare* decks (method chapter only) — run the claim audit there.
+- *Operatoröverlagring* B: properties ↔ uniform access → Meyer's
+  principle, the benefit is changeability, readability unmeasured;
+  C: overloading readability → unmeasured, designer consensus "for
+  number-like types, when the meaning is obvious"; D: canonical form →
+  equality and hashing easier, debugging unbacked (only the deck's own
+  run); the sign in the numerator is the convention of libraries and
+  language standards (no mathematical source read).
+- *Praktiska tillämpningar av klasser* B: classes give better structure
+  and maintainability → partly: early experiments and field studies yes,
+  the most cited comparison no general advantage, novices both ways,
+  "especially as the program grows" untested; C: the rule of thumb
+  dictionary → class → Fowler's data clumps, a practitioner heuristic,
+  not tested; D: reuse → yes with reservations, mostly when a class is
+  used as is, it does not come by itself; E: abstraction → established,
+  the benefit supported but thinly.
+- No backed-claim chapters yet: the five *Behållare* decks (method
+  chapter only) — run the claim audit there.
 
 ## Build environment
 

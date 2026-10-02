@@ -22,12 +22,20 @@ SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/guess.py
+EXAMPLES+=	examples/gissning.py
 EXAMPLES+=	examples/slump.py
 # The transcript is produced by feeding the program this file, with a
 # fixed seed, so the run in the notes is exactly reproducible.
 EXAMPLES+=	examples/guess.in
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so the rule is spelled out here.
@@ -40,6 +48,15 @@ examples/%.py: contents.nw
 examples/guess.in: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[guess.in]]' $< > $@
+
+# guess.py imports input_int from typed_input.py, which is written in the
+# lecture Moduler och paket; build it there and copy it here.  The copy is
+# generated, like everything in examples/, and is never re-tangled here.
+examples/typed_input.py: ../../packages/slides/contents.nw
+	$(MAKE) -C $(<D) examples/typed_input.py
+	@mkdir -p ${@D}
+	cp $(<D)/examples/typed_input.py $@
+EXAMPLES+=	examples/typed_input.py
 
 .PHONY: examples
 examples: ${EXAMPLES}

@@ -1,5 +1,5 @@
 \chapter{Att kontrollera ett påstående}
-\label{app:verifiera}
+\label{app:verifiera-operatorer}
 
 Det här materialet gör, som allt undervisningsmaterial, en rad
 påståenden.  De flesta går att pröva vid datorn: att
@@ -9,136 +9,1083 @@ Några handlar om vad Python \emph{gör} när en operator används, och för
 dem är språkets egen dokumentation den rätta källan: de står i
 fotnoterna till \cref{sec:addition-subtraktion,sec:forkortning}, med
 adress och datum, så att den som vill kan slå upp dem.  Och några
-handlar om vad forskningen säger, och dem kan ingen körning avgöra:
+handlar om vad forskningen och fältet säger, och dem kan ingen körning
+avgöra:
 \begin{enumerate}
+  \item att egenskaper är ett bättre sätt än läsmetoder att låta andra
+    läsa ett objekts värden (\cref{sec:egenskaper});
+  \item att operatoröverlagring gör koden lättare att läsa, så att vi
+    vill kunna skriva \mintinline{python}{frac_a + frac_b} som med
+    heltal (\cref{sec:addition-subtraktion});
+  \item att en kanonisk form gör bråk lättare att jämföra och felsöka,
+    och att minustecknet konventionellt står i täljaren
+    (\cref{sec:negation,ovn:negativ-namnare});
   \item att det är bra att inte upprepa sig i ett program --- principen
     \emph{DRY}, som materialet åberopar när
     \mintinline{python}{__radd__} återanvänder
     \mintinline{python}{__add__} --- och att den kommer från Hunt och
-    Thomas (\cref{sec:addition});
+    Thomas (\cref{sec:addition})\ifbool{ltnote}{;
   \item att det som varierar mot en invariant bakgrund är det som kan
     urskiljas --- den variationsteoretiska premiss som lärarnoterna i
-    marginalen bygger på.
+    marginalen bygger på.}{.}
+% The last claim is made only in the instructor notes, so it prints
+% only in the teacher edition.
 \end{enumerate}
 Hur vet man om sådant stämmer?  Samma fråga möter dig varje gång du läser
 en lärobok, en webbsida eller ett svar från en språkmodell --- och varje
-gång du själv ska skriva en rapport.  Den här bilagan sammanfattar
-arbetsgången.  Båda påståendena är redan prövade i andra
-föreläsningar, och \cref{tab:redan-belagt} anger var; arbetsgången
-beskrivs utförligare, och genomförd på flera påståenden, i bilagorna
-till föreläsningarna \emph{Algoritmiskt tänkande} och \emph{Klasser och
-objekt}.
+gång du själv ska skriva en rapport.  De tre första påståendena prövas
+i \cref{app:egenskaper,app:overlagring,app:kanonisk}; påståendet om DRY
+är redan prövat i föreläsningen \emph{Algoritmiskt
+tänkande}\ifbool{ltnote}{, och det sista är en premiss från
+variationsteorin, som lärarnoterna bygger på och inte prövar}{}.
+\Cref{tab:redan-belagt} visar frågorna och var svaren finns.
 
 \begin{table}[htbp]
   \centering
-  \caption{Materialets påståenden om forskningen som frågor, och var
-    svaren finns.}
+  \caption{Materialets påståenden om forskningen och fältet som frågor,
+    och var svaren finns.}
   \label{tab:redan-belagt}
-  \begin{tabular}{@{}p{0.5\linewidth}p{0.4\linewidth}@{}}
+  \begin{tabular}{@{}p{0.45\linewidth}p{0.5\linewidth}@{}}
     \toprule
     Fråga & Svar \\
     \midrule
+    Är egenskaper bättre än läsmetoder? & Som designprincip och Pythons
+      konvention ja: koden blir lättare att ändra; att den blir lättare
+      att läsa är inte mätt (\cref{app:egenskaper}) \\
+    Gör operatoröverlagring koden lättare att läsa? & Inte mätt;
+      konstruktörer och stilguider är ense om att den hjälper för
+      talliknande typer och stjälper när operatorns betydelse inte är
+      uppenbar (\cref{app:overlagring}) \\
+    Gör en kanonisk form bråk lättare att jämföra, hasha och felsöka? &
+      Jämföra och hasha: ja (datoralgebran, biblioteken för bråk);
+      felsöka: bara materialets eget exempel (\cref{app:kanonisk}) \\
+    Står minustecknet konventionellt i täljaren? & Ja i bibliotek och
+      språkstandarder (GMP, Python, Common Lisp, Scheme); ingen
+      matematisk källa läst (\cref{app:kanonisk}) \\
     Är det bra att inte upprepa sig, och kommer DRY från Hunt och
       Thomas? & Redan belagt i \emph{Algoritmiskt tänkande}, bilaga~E \\
+    % The row for the claim made only in the instructor notes prints only
+    % in the teacher edition.
+    \ifbool{ltnote}{%
     Är det som varierar mot en invariant bakgrund det som kan
       urskiljas? & Premiss från variationsteorin, med källor i
       lärarnoternas källfil; samma i alla kursens föreläsningar \\
+    }{}%
     \bottomrule
   \end{tabular}
 \end{table}
 
-\section{Gör påståendet till en fråga}
+Arbetsgången är densamma i alla kursens föreläsningar och beskrivs i
+föreläsningen \emph{Algoritmiskt tänkande}, bilaga~A: hur ett påstående
+görs till en fråga som kan besvaras, hur källan väljs efter frågan och
+söks fram ämnesdrivet och tvåsidigt, med en motsökning efter
+invändningar, hur fulltexten läses och spåret skrivs ner, och hur
+slutsatsen dras med sina förbehåll.
 
-Ett påstående går att kontrollera först när det är tydligt vad som skulle
-kunna visa att det är \emph{fel}.  Formulera det därför som en fråga med
-ett svar.  \enquote{Kommer DRY från Hunt och Thomas?} kan besvaras med
-ja eller nej; \enquote{DRY är viktigt} kan det inte, eftersom
-\enquote{viktigt} är ett omdöme och inte ett faktum.  Ofta döljer sig
-flera påståenden i ett: \enquote{en bra princip som kommer från Hunt
-och Thomas} är två frågor --- \emph{ursprung} och \emph{värde} --- och
-de kräver olika slags källor.
-
-\section{Välj rätt sorts källa}
-
-Olika frågor besvaras av olika källor.
-\begin{description}
-  \item[Uppslagsverk] för vad ett ord \emph{betyder}.  För vad ett
-    programspråk \emph{gör} är språkets egen dokumentation motsvarande
-    källa: att Python provar \mintinline{python}{__radd__} när den
-    vänstra operanden inte kan addera står i språkreferensen, inte i
-    forskningen.
-  \item[Primärkällan] för var en idé \emph{kommer ifrån}, och för ett
-    specifikt resultat.
-  \item[Översikter] (\foreignlanguage{english}{reviews}) för om något är
-    \emph{etablerat}, eller för vad forskningen \emph{sammantaget}
-    säger.
-  \item[Enskilda studier] för ett specifikt resultat --- med förbehållet
-    att en enskild studie bara visar att något observerats en gång, i en
-    viss population.
-\end{description}
-Var man hittar dem: universitetsbibliotekets söktjänst, och databaser som
-Scopus, Web of Science, IEEE Xplore, DBLP (datalogi) och OpenAlex
-(öppen).
-
-\section{Sök så att du kan ha fel}
-
-Den som söker på namn hon redan känner till hittar det hon väntar sig.
-Sök därför \emph{ämnesdrivet} --- på begrepp, inte författare.  Några
-praktiska regler:
-\begin{itemize}
-  \item Håll frågorna korta.  Flera korta frågor slår en lång.
-  \item Ställ \emph{samma} frågor i alla databaser.
-  \item Sök också efter \emph{invändningar}: lägg till ord som
-    \enquote{critique}, \enquote{limitations} eller \enquote{harmful}.
-    Ett påstående som överlevt en motsökning är värt mer än ett som
-    aldrig prövats, och en invändning som hittas blir ett
-    \emph{förbehåll} i svaret, inte ett nederlag.
-  \item Räkna med att databasernas rankning missar somligt.  Då hämtas
-    källan som \emph{känt dokument}: man vet att den finns och slår upp
-    den direkt.  Det är i sin ordning, bara det sägs.
-\end{itemize}
-
-\section{Läs i fulltext, och skriv ner hur}
-
-En träff i en databas är inte ett belägg.  Sammanfattningen
-(\foreignlanguage{english}{abstract}) räcker inte heller: den säger vad
-författarna vill ha sagt, inte vad de visat.  Läs hela texten och leta
-upp \emph{det ställe} som styrker påståendet --- ett ordagrant citat med
-sidnummer.  Räkna aldrig en källa du inte läst.
-
-Skriv sedan ner hur du gick till väga, så att någon annan kan följa
-spåret.  I det här materialet står den anteckningen som en kommentar
-ovanför varje post i litteraturlistans källfil, med fasta fält:
-\begin{description}
-  \item[\texttt{CLAIM}] vilket påstående källan ska styrka;
-  \item[\texttt{FOUND-VIA}] hur den hittades --- sökfråga och databas,
-    eller \enquote{känt dokument};
-  \item[\texttt{PICKED}] varför just den, framför andra träffar;
-  \item[\texttt{QUOTE}] det ordagranna citatet, med sida;
-  \item[\texttt{VERIFIED}] att fulltexten lästs, och var;
-  \item[\texttt{COUNTER}] motsökningen och vad den gav;
-  \item[\texttt{DATE}] när.
-\end{description}
-Det tar ett par minuter per källa, och det är det enda som gör det
-möjligt att om ett år svara på frågan \enquote{hur vet du det?}
-
-\section{Dra slutsatsen --- med förbehåll}
-
-Svaret skrivs ut tillsammans med det som talar emot.  Att inte upprepa
-sig är, enligt bilagan i \emph{Algoritmiskt tänkande}, en tumregel med
-undantag och inte en regel utan undantag: upprepningen är risken, men
-att undvika den till varje pris är också en risk.  Det är därför
-materialet säger att \mintinline{python}{__radd__} \emph{kan} återanvända
+Svaret om DRY har sina förbehåll: att inte upprepa sig är, enligt
+\emph{Algoritmiskt tänkande}, bilaga~E, en tumregel med undantag och
+inte en regel utan undantag.  Upprepningen är risken, men att undvika
+den till varje pris är också en risk.  Det är därför materialet säger
+att \mintinline{python}{__radd__} \emph{kan} återanvända
 \mintinline{python}{__add__} när operationen är kommutativ --- och visar
-med \mintinline{python}{__rsub__} att det inte alltid går.  Förbehållen
-är inte svagheter i svaret.  De \emph{är} svaret.
+med \mintinline{python}{__rsub__} att det inte alltid går.
 
-\section{En anmärkning om språkmodeller}
+% The backing chapters cite a source in nearly every sentence, more than
+% the margin beside the text holds.  Let the citation notes use the
+% margin beside the query tables (placed at the foot of the page, below
+% the text whose notes run on beside them) and the empty bottom margin
+% (the page number is in the running head), and set them one size
+% smaller, as the course book does throughout.  The group keeps the
+% font and the margin height local; the beside-floats mode is global and
+% is reset at the end of the file, since the book reads on.
+\begingroup
+\ifdefined\marginnotebesidefloats\marginnotebesidefloats{use}\fi
+\marginheightadjustment=48pt
+% Bilaga A's question table fills a page of its own at the end of that
+% chapter; set such a float page from the top, not vertically centred.
+\makeatletter\setlength{\@fptop}{0pt}\makeatother
+\renewcommand{\foottextfont}{\scriptsize\mpjustification}
+\chapter{Är egenskaper bättre än läsmetoder?}
+\label{app:egenskaper}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
 
-Där sökningar gjorts i kursens andra föreläsningar användes en
-språkmodell för att \emph{sortera} hundratals träffar --- hör träffen
-till ämnet, och åt vilket håll pekar den? --- så att gallringen kunde
-granskas.  Modellen sorterade, men varje källa som citeras ska läsas och
-väljas av en människa, och även sorteringen ska bekräftas av en
-människa.  Använd gärna språkmodeller för att hitta och sortera; låt dem
-aldrig vara det sista ledet.
+I \cref{sec:egenskaper} föredrar materialet egenskaper
+(\mintinline{python}{@property}) framför läsmetoder som
+\mintinline{python}{get_numerator()}.  Det är ett omdöme --- lätt att
+uttrycka som att egenskaper är \enquote{renare} eller \enquote{mer
+eleganta} --- och bakom det står ett påstående om nytta: att det är
+bättre för den som läser eller ändrar
+koden att ett värde nås med samma skrivsätt som ett attribut, oavsett om
+det är lagrat eller beräknas.  Idén har ett namn,
+\emph{principen om enhetlig åtkomst}
+(\foreignlanguage{english}{the Uniform Access principle}), efter
+Meyer\autocite{Meyer1997OOSC}, men att principen har ett namn och en
+upphovsman säger inget om huruvida den gör nytta.  Frågan har därför två
+delar: \emph{varifrån kommer idén, och vilken nytta lovar den?}  och
+\emph{finns det belägg för att attributsyntax gör koden lättare att
+läsa, förstå eller ändra än läsmetoder?}  Det som prövas är en
+jämförelse, inte ett påstående om att läsmetoder är fel.
+\Cref{sec:egen-metod} beskriver sökningen, \cref{sec:egen-resultat}
+vad den fann, \cref{sec:egen-diskussion} vad som begränsar svaret,
+\cref{sec:egen-slutsats} ger svaret och \cref{sec:egen-fortsatt} säger
+vad som återstår; \cref{tab:sok-egenskaper} sist i kapitlet listar de
+träffar som rör påståendet.
+
+Inkapslingen som egenskaperna bevarar --- att attributen är privata och
+nås genom klassens gränssnitt --- prövas inte här; den är redan prövad i
+föreläsningen \emph{Klasser och objekt}, bilaga~C, som fann principen
+etablerad, med förbehåll.
+
+\section{Metod}
+\label{sec:egen-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med verktyget
+\texttt{scholar}, mot OpenAlex, IEEE Xplore, Web of Science och Scopus.
+DBLP svarade inte på maskinella frågor den dagen (dess webbplats krävde
+en kontroll av att frågaren inte var en robot) och Semantic Scholar
+avvisade sin nyckel; båda saknas.  Stödfrågorna söker principen under
+dess båda namn (\foreignlanguage{english}{uniform access} och
+\foreignlanguage{english}{uniform reference}), egenskaper mot läs- och
+skrivmetoder (\foreignlanguage{english}{getters}, \foreignlanguage{english}{setters},
+\foreignlanguage{english}{accessor methods}) med läsbarhet, förståelse,
+användbarhet och underhåll, gränssnittsdesign
+(\foreignlanguage{english}{API usability}) och Pythons idiom.
+Motfrågorna använder samma begrepp och söker efter kritik, dolda
+kostnader och sidoeffekter, och efter fältets invändning att läs- och
+skrivmetoder är skadliga.  \Cref{tab:sok-queries-egenskaper} visar frågorna och
+antalet träffar per databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.  The query table is
+% transcribed from the per-provider hit counts recorded when the session
+% was run (runq.sh log, matrix.log).
+\begin{table}[!b]
+  \caption{Sökfrågor och antal träffar per databas,
+    egenskaper och enhetlig åtkomst, 2 oktober 2026, verktyget
+    \texttt{scholar}.  S = stödfråga, M = motfråga.  Databaser: OpenAlex
+    (OA; inte \foreignlanguage{english}{open access}), IEEE Xplore
+    (IEEE), Web of Science (WoS), Scopus.  Högst 40 träffar hämtades per
+    databas och fråga, så 40 betyder \enquote{minst 40}.  Frågan visas i
+    den booleska form som skickades till OpenAlex och IEEE Xplore; Web
+    of Science fick samma sträng som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  DBLP svarade inte och Semantic
+    Scholar avvisade sin nyckel; de saknas.}
+  \label{tab:sok-queries-egenskaper}
+    % \scriptsize: twelve long queries; at \footnotesize the float is
+    % taller than the text block.
+    \centering\scriptsize
+    \begin{tabular}{@{}lp{0.6\linewidth}rrrr@{}}
+      \toprule
+      & Nyckelord & OA & IEEE & WoS & Scopus \\
+      \midrule
+      S1 & (\enquote{uniform access principle} \textsc{or} \enquote{uniform access}) \textsc{and} (property \textsc{or} properties \textsc{or} attribute \textsc{or} attributes)
+         & 40 & 26 & 31 & 39 \\
+      S2 & (property \textsc{or} properties) \textsc{and} (getter \textsc{or} getters \textsc{or} accessor \textsc{or} accessors \textsc{or} \enquote{accessor methods}) \textsc{and} (readability \textsc{or} comprehension \textsc{or} usability \textsc{or} maintainability)
+         & 40 & 1 & 4 & 5 \\
+      S3 & (\enquote{API usability} \textsc{or} \enquote{API design}) \textsc{and} (properties \textsc{or} property \textsc{or} accessor \textsc{or} accessors \textsc{or} getters \textsc{or} fields)
+         & 40 & 40 & 30 & 40 \\
+      S4 & Python \textsc{and} (property \textsc{or} properties \textsc{or} \enquote{property decorator} \textsc{or} descriptors) \textsc{and} (idiom \textsc{or} idioms \textsc{or} idiomatic \textsc{or} pythonic)
+         & 40 & 3 & 2 & 4 \\
+      S5 & \enquote{uniform access principle} \textsc{or} \enquote{uniform reference principle}
+         & 18 & 0 & 3 & 4 \\
+      S6 & (\enquote{uniform reference} \textsc{or} \enquote{uniform access}) \textsc{and} (\enquote{data structures} \textsc{or} \enquote{object-oriented} \textsc{or} \enquote{programming language} \textsc{or} Eiffel \textsc{or} Simula)
+         & 40 & 26 & 19 & 40 \\
+      S7 & (\enquote{getters and setters} \textsc{or} \enquote{getter and setter} \textsc{or} \enquote{accessor methods} \textsc{or} \enquote{accessor method}) \textsc{and} (properties \textsc{or} \enquote{property syntax} \textsc{or} \enquote{field access} \textsc{or} \enquote{attribute access})
+         & 40 & 1 & 0 & 4 \\
+      S8 & (\enquote{C\# properties} \textsc{or} \enquote{Python properties} \textsc{or} \enquote{property accessors} \textsc{or} \enquote{computed properties} \textsc{or} \enquote{property declarations}) \textsc{and} (programming \textsc{or} usability \textsc{or} comprehension \textsc{or} readability)
+         & 40 & 6 & 27 & 29 \\
+      \midrule
+      M1 & (\enquote{uniform access principle} \textsc{or} \enquote{uniform access} \textsc{or} properties \textsc{or} accessor \textsc{or} accessors \textsc{or} getters) \textsc{and} (\enquote{object-oriented} \textsc{or} \enquote{programming language}) \textsc{and} (critique \textsc{or} criticism \textsc{or} harmful \textsc{or} \enquote{hidden cost} \textsc{or} misleading \textsc{or} \enquote{anti-pattern} \textsc{or} smell)
+         & 40 & 40 & 31 & 40 \\
+      M2 & (properties \textsc{or} property \textsc{or} getters \textsc{or} setters \textsc{or} accessor \textsc{or} accessors) \textsc{and} (\enquote{side effects} \textsc{or} performance \textsc{or} \enquote{hidden cost}) \textsc{and} (confusion \textsc{or} misconception \textsc{or} novice \textsc{or} novices \textsc{or} comprehension \textsc{or} readability)
+         & 40 & 40 & 40 & 40 \\
+      M3 & (\enquote{getters and setters} \textsc{or} \enquote{getter and setter} \textsc{or} \enquote{accessor methods} \textsc{or} \enquote{accessor method}) \textsc{and} (harmful \textsc{or} evil \textsc{or} \enquote{code smell} \textsc{or} \enquote{anti-pattern} \textsc{or} criticism \textsc{or} critique)
+         & 40 & 0 & 0 & 1 \\
+      M4 & (\enquote{uniform access} \textsc{or} \enquote{property accessors} \textsc{or} \enquote{computed properties} \textsc{or} \enquote{accessor methods}) \textsc{and} (\enquote{hidden cost} \textsc{or} \enquote{side effects} \textsc{or} performance \textsc{or} surprise) \textsc{and} (\enquote{programming language} \textsc{or} \enquote{object-oriented})
+         & 40 & 5 & 3 & 17 \\
+      \bottomrule
+    \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 1\,099 poster, vilket efter
+sammanslagning av dubbletter blir 847 arbeten.  Alla klassades först
+med en språkmodell mot en beskrivning av frågan och fyra kategorier ---
+stödjer påståendet, kvalificerar det (motsäger, begränsar eller snävar
+in det), angränsande ämne, felträff --- och sedan för hand för varje
+post som modellen satte i den kvalificerande kategorin och varje post
+med konfidens under 0,7.  Orden \emph{property}, \emph{attribute} och
+\emph{access} betyder annat i nästan alla fält --- materialegenskaper,
+behörighetskontroll, dataintegration --- så de flesta poster är
+felträffar.  Tre slags källor ligger utanför databaserna och hämtades
+som kända dokument: Meyers bok\autocite{Meyer1997OOSC}, i
+författarens egen fulltextkopia; Pythons egna dokument, stilguiden
+PEP~8\autocite{pep8} och van Rossums introduktion av egenskaperna i
+Python~2.2\autocite{vanRossum2001Unifying}; och de
+designriktlinjer för .NET som Cwalina och Abrams skrivit och som Microsoft
+återger på nätet\autocite{Cwalina2008Properties}.  Geschke och Mitchells
+artikel\autocite{GeschkeMitchell1975}, som Meyer anger som principens
+ursprung, kom med i sökningen men är stängd och lästes bara i
+sammanfattning, liksom två andra artiklar ur
+sökningen\autocite{Weiher2013Polymorphic,Stucki2018Truly}; de övriga
+källorna lästes i fulltext.
+
+\section{Resultat}
+\label{sec:egen-resultat}
+
+\paragraph{Ursprung och utlovad nytta.}  Principen formuleras av Meyer:
+\textcquote[57]{Meyer1997OOSC}{All services offered by a module should
+be available through a uniform notation, which does not betray whether
+they are implemented through storage or through computation}.  Skälet
+han ger är inte att skrivsättet är vackrare utan att koden blir lättare
+att ändra.  Om ett värde lagras eller beräknas är ett val som
+utvecklare ofta ändrar sig om, och därför
+\textcquote[56]{Meyer1997OOSC}{for continuity's sake it is desirable to
+have a feature access notation that does not distinguish between the two
+cases; then if you are in charge of x's implementation and change your
+mind at some stage, it will not be necessary to change the modules that
+use f}.  Att avvika från principen kallar han
+\textcquote[176]{Meyer1997OOSC}{a primary source of instability in
+software development}.  Själv anger han att idén kommer från Geschke och
+Mitchell\autocite[64]{Meyer1997OOSC}, som under namnet
+\emph{uniform references} ville att ett program skulle kunna arbeta med
+ett dataobjekt \textcquote{GeschkeMitchell1975}{in a manner which is
+dependent only on its logical or abstract properties and independent of
+its underlying concrete representation}.
+
+\paragraph{Pythons hållning.}  Python har tagit ställning för principen.
+Egenskaperna infördes i Python~2.2 som
+\textcquote{vanRossum2001Unifying}{a neat way to implement attributes
+whose usage resembles attribute access, but whose implementation uses
+method calls}, och stilguiden rekommenderar uttryckligen vanliga
+attribut framför läs- och skrivmetoder, med egenskaper som utväg när
+ett attribut senare behöver beteende:
+\textcquote{pep8}{For simple public data attributes, it is best to
+expose just the attribute name, without complicated accessor/mutator
+methods. [\dots] In that case, use properties to hide functional
+implementation behind simple data attribute access syntax}.  Samma
+hållning finns i den mest spridda designriktlinjen för C\#, vars
+egenskaper liknar Pythons: egenskaper \textcquote{Cwalina2008Properties}{should
+be seen as smart fields. They have the calling syntax of fields, and
+the flexibility of methods}.
+
+\paragraph{Om läsbarheten.}  Påståendet att attributsyntax är lättare
+att läsa än läsmetoder finns i litteraturen, men som omdöme.  Meyer
+upprepar 2022 principen, som han nu kallar \textcquote[6]{Meyer2022RightWrong}{the
+elegant principle}, och menar att läsmetoder är utfyllnad som
+\textcquote[9]{Meyer2022RightWrong}{doubly decreasing readability};
+samtidigt säger han om C\#:s egenskaper, som Pythons liknar, att de
+\textcquote[10]{Meyer2022RightWrong}{[do] not remove the need for getter
+functions}.  Ingen av de 847 arbetena mäter om den som läser kod med
+egenskaper förstår den snabbare eller säkrare än den som läser samma
+kod med läsmetoder.  Användbarhetsstudierna av programmeringsgränssnitt
+som sökningen gav (fråga S3) prövar andra designval, och frågan om
+egenskaper i C\# och Python (S8) gav nästan bara felträffar från andra
+fält.  Den enda mätning som rör läsmetoder alls gäller hur de
+används: i 102 öppna Javaprogram fann Lumpe med flera att läs- och
+skrivmetoder \textcquote[243]{Lumpe2010Properties}{are neither
+commonplace nor \enquote{evil}}, utan väljs efter vad programmets
+område kräver --- men studien jämför inte metoderna med
+attributsyntax.  Att principen fortfarande styr språkdesign visar
+Stucki med flera, som behandlar ett brott mot den i Scala som en brist
+att rätta\autocite{Stucki2018Truly}.
+
+\paragraph{Förbehållet: attributsyntaxen lovar en billig åtkomst.}  Motsökningen
+fann ingen studie som visar att egenskaper skadar, men både Pythons och
+.NET:s riktlinjer bär samma förbehåll.  PEP~8 varnar:
+\textcquote{pep8}{Avoid using properties for computationally expensive
+operations; the attribute notation makes the caller believe that access
+is (relatively) cheap}, och .NET-riktlinjen säger att
+\textcquote{Cwalina2008Properties}{[p]roperty getters should be simple
+operations and should not have any preconditions}.  Förbehållet är
+principens baksida: det skrivsätt som döljer om värdet lagras eller
+beräknas döljer också vad beräkningen kostar och om den kan misslyckas.
+För täljaren och nämnaren i bråkklassen, som bara läser ett lagrat
+värde, gäller förbehållet inte.  Ett annat förbehåll gäller principens räckvidd: Weiher och
+Hirschfeld menar att språkens stöd för enhetlig åtkomst inte har nått
+målet att resurser som filer och webbsidor ska kunna bytas ut utan att
+klienterna ändras, och att försöken kostar
+\textcquote{Weiher2013Polymorphic}{code-duplication and/or performance
+overhead} --- en invändning som gäller andra resurser än ett objekts
+attribut.  Fältets invändning mot läs- och
+skrivmetoder som sådana --- att de urholkar inkapslingen --- gav
+återigen ingen träff som rör påståendet (M3 gav studier av kodlukter i
+allmänhet), som i föreläsningen \emph{Klasser och objekt}, bilaga~C.
+
+\section{Diskussion och begränsningar}
+\label{sec:egen-diskussion}
+
+Svaret vilar på designlitteratur och riktlinjer, inte på mätningar
+(den enda mätningen, av hur läsmetoder används i Java, prövar inte
+läsbarheten):
+Meyers bok och artikel, Pythons stilguide och designanteckning och
+.NET-riktlinjen är argument från dem som utformat språken eller
+gränssnitten, och de säger samma sak.  Att ingen av de 847 arbetena
+mäter läsbarheten är ett fynd om den indexerade litteraturen, men
+sökningen hade luckor: DBLP och Semantic Scholar saknades, de fyrtio
+träffar som hämtades per fråga och databas är ett urval, och orden för
+begreppet är så vanliga i andra fält att en relevant studie kan ha
+hamnat långt ner i rangordningen.  Geschke och Mitchells, Weiher och Hirschfelds och Stucki med
+flera artiklar är lästa bara i sammanfattning.  Klassningen är modellstödd, med
+handgranskning av de kvalificerande posterna och av dem med låg
+konfidens.  Slutligen gäller de flesta källorna Eiffel, C\# och Java;
+bara PEP~8 och van Rossums anteckning gäller Python.
+
+\section{Slutsats}
+\label{sec:egen-slutsats}
+
+Ja, som designprincip, men inte som mätt fördel.  Idén att ett värde
+ska nås med samma skrivsätt oavsett om det lagras eller beräknas är
+Meyers princip om enhetlig åtkomst\autocite{Meyer1997OOSC}, med rötter
+hos Geschke och Mitchell\autocite{GeschkeMitchell1975}, och Python har
+tagit ställning för den: stilguiden rekommenderar attribut och
+egenskaper framför läs- och skrivmetoder\autocite{pep8}.  Den nytta
+principen lovar är att klassens implementation kan ändras utan att koden
+som använder den behöver ändras, inte att den är vackrare.  Att
+attributsyntaxen är lättare att läsa påstås av principens upphovsman men
+har inte mätts, och förbehållet är att syntaxen lovar en billig och
+säker åtkomst\autocite{pep8,Cwalina2008Properties}.  Därför säger
+materialet det som kan beläggas, inte att egenskaper är renare eller mer
+eleganta: att de är det Pythons stilguide rekommenderar, och att de
+låter klassen byta ett lagrat värde mot ett beräknat utan att
+användarna märker det.
+
+\section{Fortsatt arbete}
+\label{sec:egen-fortsatt}
+
+Sökningen lämnade tre saker ogjorda.  DBLP, som indexerar just
+programspråks- och programvarukonferenserna, svarade inte, och Semantic
+Scholar avvisade sin nyckel; en ny körning med dem skulle visa om en
+studie av egenskaper och läsmetoder finns i konferenslitteraturen.
+Geschke och Mitchells artikel\autocite{GeschkeMitchell1975} lästes bara i
+sammanfattning; fulltexten skulle visa hur de motiverade idén.  Och
+Meyers första upplaga från 1988, där principen först trycktes i den
+formen, fanns inte till hands.
+
+För ett säkrare svar saknas ett försök.  Ingen har, såvitt sökningen
+visar, låtit programmerare --- nybörjare eller vana --- läsa och ändra
+samma klass skriven med egenskaper och med läsmetoder och mätt tid och
+fel.  Ett sådant försök i Python, där en uppgift också kräver att ett
+lagrat värde görs om till ett beräknat, skulle pröva både läsbarheten
+och den nytta Meyer faktiskt lovar.  Visar försöket en vinst kan
+materialet säga att egenskaper är lättare att läsa; visar det ingen
+skillnad bör texten stanna vid att de är Pythons konvention och gör
+klassen lättare att ändra.
+
+\section{Träffar som rör påståendet}
+\label{sec:egen-traffar}
+
+\Cref{tab:sok-egenskaper} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-egenskaper}.
+% Author's note (verification and reproduction):
+%   scholar session : ovl-property
+%   exports         : litteratursokning/egenskaper.csv,
+%                     litteratursokning/egenskaper-full.tex
+%   searched        : 2026-10-02; providers openalex ieee wos scopus
+%                     (dblp: anti-bot wall, non-JSON reply, not run;
+%                     s2: key rejected HTTP 403, absent); limit 40 per
+%                     provider and query; wos got TS=(<query>), scopus
+%                     TITLE-ABS-KEY(<query>), openalex and ieee the
+%                     boolean string as in tab:sok-queries-egenskaper
+%   known items     : Meyer1997OOSC (author's PDF), pep8,
+%                     vanRossum2001Unifying, Cwalina2008Properties
+%                     (WebFetch of the Microsoft Learn reprint);
+%                     Meyer2022RightWrong and GeschkeMitchell1975 are in
+%                     the session (S5, S6)
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples, batches of 50; human review of every
+%                     qualifies-claim row and every row with confidence
+%                     < 0.7 (scholar sessions decide)
+%   theme tags      : origin, readability-claim, accessor-practice,
+%                     uap-limits, uap-design-value
+%   overrides       : 8 (5 LLM keeps discarded: general books, a book
+%                     review, an encyclopedia entry; 3 LLM discards kept:
+%                     Meyer2022RightWrong and the two versions of
+%                     Weiher2013Polymorphic); dec-property.tsv
+%   hit-list table  : scholar sessions export ovl-property -f table
+%                     --bearing-only --lang sv --label sok-egenskaper
+%                     --track "Egenskaper och enhetlig åtkomst"
+%                     --theme origin="principens ursprung"
+%                     --theme readability-claim="läsbarhet, påstådd av
+%                     upphovsmannen"
+%                     --theme accessor-practice="läsmetoder i praktiken,
+%                     mätt" --theme uap-limits="principens gränser"
+%                     --theme uap-design-value="principen som designvärde"
+%                     -o litteratursokning/egenskaper-full
+%   provenance      : ltnotes.bib, keys Meyer1997OOSC GeschkeMitchell1975
+%                     Meyer2022RightWrong pep8 vanRossum2001Unifying
+%                     Cwalina2008Properties Lumpe2010Properties
+%                     Weiher2013Polymorphic Stucki2018Truly
+\input{litteratursokning/egenskaper-full}
+
+\chapter{Gör operatoröverlagring koden lättare att läsa?}
+\label{app:overlagring}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Hela materialet vilar på ett antagande som det säger rakt ut i
+\cref{sec:addition-subtraktion}: \enquote{Vi vill kunna skriva
+\mintinline{python}{frac_a + frac_b} precis som vi gör med heltal och
+flyttal.}  Bakom det ligger ett påstående om nytta, att
+\mintinline{python}{frac_a + frac_b} är lättare att läsa och förstå än
+till exempel \mintinline{python}{frac_a.add(frac_b)}.  Påståendet är
+omstritt: operatoröverlagring finns i C++ och Python men lämnades
+medvetet utanför Java.  Frågan är därför: \emph{gör
+operatoröverlagring koden lättare eller svårare att läsa och förstå,
+och under vilka villkor?}  Den prövas i båda riktningarna.
+\Cref{sec:ovl-metod} beskriver sökningen, \cref{sec:ovl-resultat} vad
+den fann, \cref{sec:ovl-diskussion} vad som begränsar svaret,
+\cref{sec:ovl-slutsats} ger svaret och \cref{sec:ovl-fortsatt} säger
+vad som återstår; \cref{tab:sok-overlagring} sist i kapitlet listar de
+träffar som rör påståendet.
+
+\section{Metod}
+\label{sec:ovl-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med verktyget
+\texttt{scholar}, mot OpenAlex, IEEE Xplore, Web of Science och Scopus;
+DBLP svarade inte på maskinella frågor den dagen och Semantic Scholar
+avvisade sin nyckel.  Begreppet söktes under namnen \emph{operator
+overloading}, \emph{overloaded operators}, \emph{user-defined
+operators} och \emph{infix operators}.  Stödfrågorna kombinerar dem med
+läsbarhet och förståelse, med nytta och notation, med undervisning och
+nybörjare, och med empiriska studier av hur operatorerna används;
+motfrågorna med missbruk, förvirring och kritik, med läsbarhet och fel,
+och med beslutet att utesluta operatoröverlagring ur ett språk.
+\Cref{tab:sok-queries-overlagring} visar frågorna och antalet träffar per
+databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.
+\begin{table}[!b]
+  \caption{Sökfrågor och antal träffar per databas,
+    operatoröverlagring och läsbarhet, 2 oktober 2026, verktyget
+    \texttt{scholar}.  S = stödfråga, M = motfråga.  Databaser: OpenAlex
+    (OA; inte \foreignlanguage{english}{open access}), IEEE Xplore
+    (IEEE), Web of Science (WoS), Scopus.  Högst 40 träffar hämtades per
+    databas och fråga, så 40 betyder \enquote{minst 40}.  Frågan visas i
+    den booleska form som skickades till OpenAlex och IEEE Xplore; Web
+    of Science fick samma sträng som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  DBLP svarade inte och Semantic
+    Scholar avvisade sin nyckel; de saknas.}
+  \label{tab:sok-queries-overlagring}
+    % \scriptsize: at \footnotesize the citation notes of the results,
+    % one or two pages on, outrun the margin.
+    \centering\scriptsize
+    \begin{tabular}{@{}lp{0.6\linewidth}rrrr@{}}
+      \toprule
+      & Nyckelord & OA & IEEE & WoS & Scopus \\
+      \midrule
+      S1 & \enquote{operator overloading} \textsc{and} (readability \textsc{or} comprehension \textsc{or} understandability \textsc{or} usability \textsc{or} \enquote{program comprehension})
+         & 40 & 3 & 6 & 13 \\
+      S2 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{user-defined operators}) \textsc{and} (benefits \textsc{or} expressiveness \textsc{or} \enquote{notational convenience} \textsc{or} \enquote{mathematical notation} \textsc{or} \enquote{domain-specific})
+         & 40 & 3 & 28 & 36 \\
+      S3 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{user-defined operators}) \textsc{and} (teaching \textsc{or} education \textsc{or} novices \textsc{or} students \textsc{or} \enquote{introductory programming})
+         & 40 & 4 & 5 & 10 \\
+      S4 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{user-defined operators}) \textsc{and} (\enquote{empirical study} \textsc{or} experiment \textsc{or} usage \textsc{or} \enquote{in practice})
+         & 40 & 9 & 22 & 36 \\
+      S5 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{user-defined operators} \textsc{or} \enquote{infix operators}) \textsc{and} (notation \textsc{or} syntax) \textsc{and} (readability \textsc{or} comprehension \textsc{or} \enquote{mathematical code} \textsc{or} \enquote{numerical code})
+         & 40 & 0 & 3 & 6 \\
+      \midrule
+      M1 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{user-defined operators}) \textsc{and} (harmful \textsc{or} abuse \textsc{or} misuse \textsc{or} confusion \textsc{or} confusing \textsc{or} criticism \textsc{or} \enquote{anti-pattern} \textsc{or} smell \textsc{or} pitfalls)
+         & 38 & 0 & 2 & 1 \\
+      M2 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{method overloading} \textsc{or} overloading) \textsc{and} (readability \textsc{or} comprehension \textsc{or} understandability) \textsc{and} (confusing \textsc{or} confusion \textsc{or} misconception \textsc{or} misconceptions \textsc{or} errors \textsc{or} \enquote{atoms of confusion})
+         & 40 & 21 & 40 & 3 \\
+      M3 & (\enquote{operator overloading} \textsc{or} \enquote{overloaded operators} \textsc{or} \enquote{user-defined operators}) \textsc{and} (Java \textsc{or} Kotlin \textsc{or} Scala \textsc{or} \enquote{C++} \textsc{or} Python) \textsc{and} (design \textsc{or} \enquote{language design}) \textsc{and} (omitted \textsc{or} excluded \textsc{or} controversial \textsc{or} debate)
+         & 40 & 0 & 1 & 1 \\
+      \bottomrule
+    \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 571 poster, vilket efter
+sammanslagning av dubbletter blir 353 arbeten.  Alla klassades först
+med en språkmodell mot en beskrivning av frågan och fyra kategorier ---
+stödjer påståendet, kvalificerar det (motsäger, begränsar eller snävar
+in det), angränsande ämne, felträff --- och sedan för hand för varje
+post som modellen satte i en av de två första kategorierna och varje
+post med konfidens under 0,7.  Handgranskningen flyttade 30 poster som
+modellen hade räknat som stöd eller förbehåll till de angränsande eller
+felträffarna: de flesta använder operatoröverlagring som teknik men
+säger inget om läsaren.  Orden
+\emph{overload} och \emph{comprehension} ger dessutom många felträffar
+från andra fält (informationsöverflöd, läsförståelse).
+Eftersom sökningen inte gav någon studie som mäter läsbarheten söktes
+också med en allmän webbsökning efter experiment om operatoröverlagring
+och läsbarhet; den gav studier av läsbarhet i allmänhet och av
+bitoperatorer, men ingen av operatoröverlagring.  Språkkonstruktörernas
+egna motiveringar ligger utanför databaserna och hämtades som kända
+dokument i fulltext: Stroustrups historik över
+C++\autocite{Stroustrup1993History}, intervjun där Gosling förklarar
+varför Java saknar operatoröverlagring\autocite{Sutter2000CFamily},
+Pythons förslag om en egen operator för matrismultiplikation,
+PEP~465\autocite{Smith2014PEP465}, och .NET:s designriktlinjer för
+operatorer\autocite{Cwalina2008Operators}.  Meyers artikel om tio val i
+språkdesign\autocite{Meyer2022RightWrong} kom med i sökningen till
+\cref{app:egenskaper} och lästes i fulltext; två designartiklar ur den
+här sökningen\autocite{MilesJohnson1998,IchikawaChiba2017} lästes i
+sammanfattning.
+
+\section{Resultat}
+\label{sec:ovl-resultat}
+
+\paragraph{Ingen mätning.}  Ingen av de 353 arbetena, och inget som den
+allmänna webbsökningen gav, mäter om kod med överlagrade operatorer är
+lättare eller svårare att läsa än samma kod med vanliga metodanrop.
+Den största gruppen träffar använder operatoröverlagring som teknik ---
+särskilt för automatisk derivering och för matris- och tensorbibliotek
+--- och säger inget om läsaren.  Det som finns är språkkonstruktörers,
+stilguiders och forskares argument, och de pekar åt två håll.
+
+\paragraph{För.}  Stroustrup tvekade att införa överlagring i C++,
+bland annat för att den \textcquote[24]{Stroustrup1993History}{was
+reputed to make code incomprehensible}.  Hans svar byggde på erfarna
+kollegers vittnesmål, inte på en undersökning:
+\textcquote[24]{Stroustrup1993History}{several of my friends whose
+opinion I valued and whose experience was measured in decades claimed
+that their code would become cleaner if they had overloading. So what
+if one can write obscure code with overloading? It is possible to write
+obscure code in any language}.  Användningarna han hade i tankarna var
+just taltyper: \textcquote[24]{Stroustrup1993History}{complex numbers,
+matrices, and APL-like vectors}.  Pythons egen motivering när språket
+fick operatorn \mintinline{python}{@} för matrismultiplikation är
+samma: för en operation med en lång tradition av infixnotation är
+\textcquote{Smith2014PEP465}{this notation [\dots] dramatically more
+readable than any function call syntax}, och förslaget visar det med en
+statistisk formel skriven på båda sätten.  Meyer gör samma jämförelse
+för indexering: \mintinline{text}|a [i] := a [i] + 1|
+\textcquote[31]{Meyer2022RightWrong}{is easier to read than its
+default-OO-style equivalent}.  Forskare som bygger verktyg för egna
+operatorer motiverar dem likadant: att använda problemområdets notation
+\textcquote{MilesJohnson1998}{can improve program legibility and code
+comprehension within the problem domain}, och egna operatorer låter
+den som bygger ett inbäddat domänspråk definiera
+\textcquote{IchikawaChiba2017}{domain-natural notation}.
+
+% A paragraph of its own: the library authors' claims about their own
+% code are a different kind of support from the designers' arguments.
+\paragraph{Programbiblioteken.}  Ett dussin artiklar om vetenskapliga
+programbibliotek säger detsamma om sin egen kod, alla lästa i sammanfattning: att operatoröverlagring gör att
+koden kan skrivas med vanliga matematiska symboler\autocite{Weller1998Tensorial}
+eller i matematisk notation utan prestandaförlust\autocite{Hardtlein2009Expression},
+att den förbättrar läsbarheten jämfört med att skriva om
+källkoden\autocite{Kerstan2008Enabling} eller
+\textcquote{Rouson2006Formal}{greatly improved the readability of our
+code}, att den ger kod som är \textcquote{Sala2006Framework}{intuitive,
+easy-to-read, and easy-to-develop}\autocite[liknande][]{Martins2009pyMDO},
+\textcquote{Alnaes2014UFL}{compact, intuitive and readable programs},
+en \textcquote{Filho2019Process}{concise and natural syntax}, en
+\textcquote{Ostiguy1997Automatic}{greatly simplified syntax and highly
+maintainable software}, algoritmer uttryckta
+\textcquote{Kramer2015SciPAL}{in a mathematically intuitive way}, att
+komplexa tal och polynom kan användas \textcquote{Olsson2009Modelica}{in
+a convenient way}, och att den som inte kan använda den måste avstå
+från \textcquote{Ravasi2020PyLops}{the convenient linear-algebra
+syntax}.  Alla gäller talliknande typer, och inget av dem prövar
+påståendet på läsare.
+
+% The paragraph above cites a dozen sources for the first time and fills
+% the margin to the foot of the page; this one's notes would run onto
+% the next page, so in the standalone notes it starts there unless the
+% page has room for it (the page it ends is short in text but full in
+% the margin).  The course book (which defines \deck) sets the margin
+% differently and breaks its pages elsewhere, so it skips this.
+\ifdefined\deck\else\needspace{30\baselineskip}\fi
+\paragraph{Mot.}  Gosling lämnade operatoröverlagring utanför Java,
+\textcquote{Sutter2000CFamily}{as a fairly personal choice because I had
+seen too many people abuse it in C++}, och Javas konstruktörer räknade
+den bland de \textcquote{Nilsen1998Realtime}{troublesome features} som
+de tog bort ur C och C++.  Han beskriver en informell
+enkät bland programmerare där 20--30 procent såg överlagring som
+\textcquote{Sutter2000CFamily}{the spawn of the devil}, eftersom någon
+\textcquote{Sutter2000CFamily}{used like + for list insertion and it
+makes life really, really confusing}, medan omkring tio procent,
+\textcquote{Sutter2000CFamily}{almost exclusively people who do numerical
+work}, var beroende av den, eftersom \enquote{a + b} för komplexa tal
+eller matriser stämmer med deras intuition.  .NET-riktlinjen säger
+detsamma i form av regler: operatorerna har ofta missbrukats, de ska
+undvikas utom i typer som ska kännas som inbyggda, de ska definieras
+\textcquote{Cwalina2008Operators}{in structs that represent numbers},
+och \textcquote{Cwalina2008Operators}{[o]perator overloading is useful
+in cases in which it is immediately obvious what the result of the
+operation will be}.  Meyer, som försvarar operatorer som alias, kallar
+däremot överlagring av \emph{namn} --- samma metodnamn för olika
+parametertyper --- \textcquote[13]{Meyer2022RightWrong}{useless and
+harmful in an OO context}; det är en annan mekanism än den som
+materialet använder.
+
+\paragraph{Var argumenten möts.}  De två sidorna är oense om
+språket ska tillåta överlagring, men inte om när den hjälper: när typen
+är talliknande och operatorn betyder det den betyder i matematiken.
+Det är Stroustrups exempel, Goslings tio procent, PEP~465:s skäl och
+.NET-riktlinjens regel.  Missbruket som båda sidor nämner är en
+operator vars betydelse inte är uppenbar, som \mintinline{text}|+| för
+att stoppa in i en lista.
+
+\section{Diskussion och begränsningar}
+\label{sec:ovl-diskussion}
+
+Svaret vilar på argument, inte på mätningar.  Stroustrups och Goslings
+erfarenheter är verkliga men oprövade; Goslings procentsatser kommer,
+med hans egna ord, från en \textcquote{Sutter2000CFamily}{informal
+statistical sampling}.  PEP~465 visar sin poäng med ett räknat exempel,
+inte med försökspersoner.  Att ingen av 353 arbeten mäter
+läsbarheten är ett fynd om den indexerade litteraturen, men sökningen
+hade luckor: DBLP, där programspråkskonferenserna finns, och Semantic
+Scholar saknades, IEEE Xplore gav få träffar på de långa frågorna, och
+fyrtio träffar per fråga och databas är ett urval.  Två av de citerade
+artiklarna lästes bara i sammanfattning.  Inga källor gäller nybörjare:
+argumenten gäller vana programmerare i C++, Java och Python.
+
+\section{Slutsats}
+\label{sec:ovl-slutsats}
+
+Ingen vet säkert, men källorna är ense om villkoren.  Ingen studie har
+mätt om operatoröverlagring gör koden lättare eller svårare att läsa.
+Språkkonstruktörer och stilguider på båda sidor är däremot överens om
+att den hjälper för talliknande typer, där operatorn betyder det den
+betyder i matematiken\autocite{Stroustrup1993History,Smith2014PEP465,Sutter2000CFamily,Cwalina2008Operators},
+och att den stjälper när operatorns betydelse inte är uppenbar.  Ett
+bråk är det typiska fallet där den hjälper, så materialets
+\enquote{precis som vi gör med heltal och flyttal} håller som
+designomdöme --- och materialet säger det som ett omdöme med villkor,
+inte som en mätt fördel.  Förbehållet hör till det du lär dig:
+överlagra en operator bara när resultatet är uppenbart.
+
+\section{Fortsatt arbete}
+\label{sec:ovl-fortsatt}
+
+Sökningen lämnade några saker ogjorda.  DBLP och Semantic Scholar
+saknades, och programspråkskonferensernas litteratur är därför sämre
+täckt än tidskrifternas.  Stroustrups utförligare motivering i
+\emph{The Design and Evolution of C++} fanns inte att tillgå, och Miles
+och Johnsons samt Ichikawa och Chibas artiklar\autocite{MilesJohnson1998,IchikawaChiba2017}
+lästes bara i sammanfattning.
+
+För ett säkrare svar saknas ett försök, och det är ovanligt tydligt vad
+det skulle vara.  Låt programmerare läsa och ändra samma program i två
+versioner, en med överlagrade operatorer och en med namngivna metoder,
+och mät tid och fel; variera både typen (talliknande som bråk, och
+icke-talliknande som listor) och programmerarnas vana.  Visar försöket
+att operatorerna hjälper för bråk men stjälper för andra typer, har
+konsensus fått sitt stöd och materialet kan säga det rakt ut; visar det
+ingen skillnad för nybörjare bör texten motivera operatorerna med att de
+är Pythons sätt att låta egna typer bete sig som de inbyggda, inte med
+läsbarhet.
+
+\section{Träffar som rör påståendet}
+\label{sec:ovl-traffar}
+
+\Cref{tab:sok-overlagring} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-overlagring}.
+% Author's note (verification and reproduction):
+%   scholar session : ovl-readability
+%   exports         : litteratursokning/overlagring.csv,
+%                     litteratursokning/overlagring-full.tex
+%   searched        : 2026-10-02; providers openalex ieee wos scopus
+%                     (dblp: anti-bot wall, not run; s2: key rejected
+%                     HTTP 403, absent; ieee answered -- zero cells are
+%                     real zeros, checked with a probe query at 17:53);
+%                     limit 40 per provider and query
+%   web complement  : WebSearch 'empirical study "operator overloading"
+%                     readability OR comprehension experiment developers'
+%                     (2026-10-02): readability and bitwise-operator
+%                     studies, none on overloading
+%   known items     : Stroustrup1993History (stroustrup.com/hopl2.pdf),
+%                     Sutter2000CFamily (gotw.ca), Smith2014PEP465,
+%                     Cwalina2008Operators; Meyer2022RightWrong from
+%                     session ovl-property
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples, batches of 50; human review of every
+%                     qualifies-claim row and every row with confidence
+%                     < 0.7
+%   hit-list table  : scholar sessions export ovl-readability -f table
+%                     --bearing-only --lang sv --label sok-overlagring
+%                     --track "Operatoröverlagring och läsbarhet"
+%                     --theme designer-for="konstruktör eller forskare för"
+%                     --theme designer-against="språkkonstruktion mot"
+%                     --theme library-notation="bibliotek: notation och
+%                     läsbarhet, påstådd"
+%                     -o litteratursokning/overlagring-full
+%   provenance      : ltnotes.bib, keys Stroustrup1993History
+%                     Sutter2000CFamily Smith2014PEP465
+%                     Cwalina2008Operators Meyer2022RightWrong
+%                     MilesJohnson1998 IchikawaChiba2017 Nilsen1998Realtime
+%                     Weller1998Tensorial Kerstan2008Enabling
+%                     Hardtlein2009Expression Sala2006Framework
+%                     Martins2009pyMDO Alnaes2014UFL Rouson2006Formal
+%                     Filho2019Process Ostiguy1997Automatic
+%                     Kramer2015SciPAL Olsson2009Modelica Ravasi2020PyLops
+%   overrides       : 30 LLM kept rows (supports/qualifies) moved to adjacent-subtopic
+%                     (overloading used as a technique, no reader claim);
+%                     dec-readability*.tsv in the research directory
+\input{litteratursokning/overlagring-full}
+
+\chapter{Gör en kanonisk form bråk lättare att jämföra, och var står minustecknet?}
+\label{app:kanonisk}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+Materialet gör två påståenden om hur ett bråk ska lagras.  I
+\cref{sec:forkortning} och vid \cref{ovn:negativ-namnare} säger det att
+en klass som tillåter flera former för samma värde --- \(\frac{2}{4}\)
+och \(\frac{1}{2}\), \(\frac{1}{-2}\) och \(\frac{-1}{2}\) --- gör
+\enquote{felsökning och jämförelser svårare}\ifbool{ltnote}{, och
+lärarnoterna lägger till hashning: en \emph{kanonisk form}, en enda
+representation per värde, gör jämförelse och hashning
+enklare}{: en \emph{kanonisk form}, en enda representation per värde,
+gör jämförelser och felsökning enklare}.
+% The student edition has no instructor notes, so it must not point at
+% them.
+Och vid
+\cref{ovn:neg-namnare} säger det att de bibliotek och språk som räknar
+exakt med bråk håller nämnaren positiv, alltså minustecknet i
+täljaren.  Det första är ett påstående om nytta, det
+andra om en konvention.  Frågorna är därför: \emph{gör en kanonisk form
+det lättare att avgöra om två värden är lika, att hasha dem och att
+felsöka?}  och \emph{är det en etablerad konvention att ett bråk lagras
+med positiv nämnare, alltså med minustecknet i täljaren?}  Det som
+prövas är materialets styrka: \enquote{enklare} och \enquote{svårare},
+inte \enquote{omöjligt}.  \Cref{sec:kan-metod} beskriver sökningen,
+\cref{sec:kan-resultat} vad den fann, \cref{sec:kan-diskussion} vad
+som begränsar svaret, \cref{sec:kan-slutsats} ger svaret och
+\cref{sec:kan-fortsatt} säger vad som återstår;
+\cref{tab:sok-kanonisk} sist i kapitlet listar de träffar som rör
+påståendet.
+
+\section{Metod}
+\label{sec:kan-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 2 oktober 2026 med verktyget
+\texttt{scholar}, mot OpenAlex, IEEE Xplore, Web of Science och Scopus;
+DBLP svarade inte på maskinella frågor den dagen och Semantic Scholar
+avvisade sin nyckel.  Begreppet heter \emph{canonical form},
+\emph{canonical representation} eller \emph{normal form}, och det är
+datoralgebran som har studerat det mest; stödfrågorna söker därför
+begreppet tillsammans med rationella tal och bråk, med likhet och
+förenkling i datoralgebra, med största gemensamma delare och förkortade
+bråk i bibliotek för exakt aritmetik, med abstrakta datatyper,
+likhet och hashning, och med felsökning.  Två frågor söker tecknets placering: en i
+litteraturen om representation och notation av rationella tal, en i
+didaktiken om negativa bråk.  Motfrågorna använder samma begrepp och
+söker efter kostnad, lat förkortning och begränsningar.
+\Cref{tab:sok-queries-kanonisk} visar frågorna och antalet träffar per
+databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.
+\begin{table}[!b]
+  \caption{Sökfrågor och antal träffar per databas, kanonisk
+    form och tecknets placering, 2 oktober 2026, verktyget
+    \texttt{scholar}.  S = stödfråga, M = motfråga.  Databaser: OpenAlex
+    (OA; inte \foreignlanguage{english}{open access}), IEEE Xplore
+    (IEEE), Web of Science (WoS), Scopus.  Högst 40 träffar hämtades per
+    databas och fråga, så 40 betyder \enquote{minst 40}.  Frågan visas i
+    den booleska form som skickades till OpenAlex och IEEE Xplore; Web
+    of Science fick samma sträng som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}.  DBLP svarade inte och Semantic
+    Scholar avvisade sin nyckel; de saknas.  IEEE Xplore hade nått sin
+    dagsgräns när S8 kördes (---).}
+  \label{tab:sok-queries-kanonisk}
+    % \scriptsize: eleven long queries; at \footnotesize the float is
+    % taller than the text block.
+    \centering\scriptsize
+    \begin{tabular}{@{}lp{0.6\linewidth}rrrr@{}}
+      \toprule
+      & Nyckelord & OA & IEEE & WoS & Scopus \\
+      \midrule
+      S1 & (\enquote{canonical form} \textsc{or} \enquote{normal form} \textsc{or} \enquote{canonical representation}) \textsc{and} (\enquote{rational numbers} \textsc{or} fractions \textsc{or} \enquote{rational arithmetic})
+         & 40 & 40 & 40 & 40 \\
+      S2 & (\enquote{canonical form} \textsc{or} \enquote{canonical representation} \textsc{or} \enquote{normal form}) \textsc{and} (equality \textsc{or} \enquote{zero equivalence} \textsc{or} simplification) \textsc{and} (\enquote{computer algebra} \textsc{or} \enquote{symbolic computation} \textsc{or} \enquote{algebraic simplification})
+         & 40 & 5 & 10 & 18 \\
+      S3 & (\enquote{rational arithmetic} \textsc{or} \enquote{rational number arithmetic} \textsc{or} \enquote{exact rational}) \textsc{and} (gcd \textsc{or} \enquote{greatest common divisor} \textsc{or} \enquote{lowest terms} \textsc{or} reduced) \textsc{and} (implementation \textsc{or} algorithm \textsc{or} library)
+         & 40 & 6 & 24 & 18 \\
+      S4 & (\enquote{rational number} \textsc{or} \enquote{rational numbers} \textsc{or} fraction \textsc{or} fractions) \textsc{and} (\enquote{negative denominator} \textsc{or} \enquote{positive denominator} \textsc{or} \enquote{minus sign} \textsc{or} \enquote{sign convention}) \textsc{and} (representation \textsc{or} convention \textsc{or} notation)
+         & 40 & 3 & 7 & 11 \\
+      S5 & (\enquote{negative fractions} \textsc{or} \enquote{negative rational numbers} \textsc{or} \enquote{signed fractions}) \textsc{and} (students \textsc{or} learners \textsc{or} misconceptions \textsc{or} notation \textsc{or} representation)
+         & 40 & 1 & 6 & 14 \\
+      S6 & (\enquote{canonical form} \textsc{or} \enquote{canonical representation} \textsc{or} \enquote{normal form}) \textsc{and} (\enquote{rational numbers} \textsc{or} \enquote{rational arithmetic} \textsc{or} fractions) \textsc{and} (equality \textsc{or} comparison \textsc{or} uniqueness \textsc{or} unique)
+         & 40 & 11 & 19 & 23 \\
+      S7 & (\enquote{canonical form} \textsc{or} \enquote{canonical representation} \textsc{or} \enquote{normal form} \textsc{or} normalization) \textsc{and} (\enquote{abstract data type} \textsc{or} \enquote{data structure} \textsc{or} \enquote{value objects} \textsc{or} \enquote{representation invariant}) \textsc{and} (equality \textsc{or} comparison \textsc{or} hashing)
+         & 40 & 40 & 19 & 39 \\
+      S8 & (\enquote{canonical form} \textsc{or} \enquote{canonical representation} \textsc{or} \enquote{normal form} \textsc{or} normalization) \textsc{and} (debugging \textsc{or} \enquote{debug output} \textsc{or} printing \textsc{or} \enquote{pretty printing}) \textsc{and} (\enquote{data structure} \textsc{or} \enquote{abstract data type} \textsc{or} \enquote{value objects} \textsc{or} programming)
+         & 40 & --- & 35 & 40 \\
+      \midrule
+      M1 & (\enquote{canonical form} \textsc{or} \enquote{normal form} \textsc{or} \enquote{lowest terms} \textsc{or} reduced \textsc{or} normalization) \textsc{and} (\enquote{rational arithmetic} \textsc{or} \enquote{rational numbers} \textsc{or} fractions) \textsc{and} (cost \textsc{or} expensive \textsc{or} overhead \textsc{or} lazy \textsc{or} unnormalized \textsc{or} delayed)
+         & 40 & 40 & 40 & 40 \\
+      M2 & (\enquote{canonical form} \textsc{or} \enquote{canonical representation} \textsc{or} \enquote{normal form}) \textsc{and} (equality \textsc{or} comparison \textsc{or} debugging) \textsc{and} (limitation \textsc{or} limitations \textsc{or} disadvantage \textsc{or} undecidable \textsc{or} \enquote{non-canonical})
+         & 40 & 34 & 29 & 40 \\
+      M3 & (\enquote{canonical form} \textsc{or} \enquote{canonical representation} \textsc{or} \enquote{normal form} \textsc{or} normalization) \textsc{and} (\enquote{abstract data type} \textsc{or} \enquote{data structure} \textsc{or} \enquote{value objects} \textsc{or} \enquote{representation invariant}) \textsc{and} (cost \textsc{or} overhead \textsc{or} lazy \textsc{or} disadvantage \textsc{or} limitation)
+         & 40 & 40 & 18 & 40 \\
+      \bottomrule
+    \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 1\,230 poster, vilket efter
+sammanslagning av dubbletter blir 957 arbeten.  Alla klassades först
+med en språkmodell mot en beskrivning av frågan och fyra kategorier ---
+stödjer påståendet, kvalificerar det (motsäger, begränsar eller snävar
+in det), angränsande ämne, felträff --- och sedan för hand för varje
+post som modellen satte i en av de två första kategorierna och varje
+post med konfidens under 0,7.  Begreppet \emph{normal form} används i
+nästan hela matematiken, så modellen räknade 130 poster som stöd eller
+förbehåll; handgranskningen flyttade 109 av dem till de
+angränsande, oftast normalformer för matriser, tensorer,
+omskrivningssystem eller grupper som inte säger något om att jämföra
+värden av en datatyp.
+Bibliotek och språkstandarder för exakta rationella tal är sällan
+indexerade i databaserna, så deras egna dokument hämtades som kända
+dokument och lästes i sin helhet: manualen till GNU:s bibliotek för
+godtycklig precision, GMP\autocite{GMPManual}, Pythons
+\mintinline{python}{fractions}\autocite{PythonFractions} och dess
+källkod\autocite{CPythonFractionsSource}, Pythons regler för
+hashning\autocite{PythonStdtypes,PythonDataModel} och standardtexten för
+Common Lisp\autocite{CLHSRatio}; Scheme-standarden
+\autocite{R5RS1998} kom med i sökningen.  Tre datoralgebratexter i
+fulltext hittades med webbsökning, eftersom de bara finns som
+förtryck eller konferenstext\autocite{RichStoutemyer2013,Price2022Hiding,Fateman1979Simplifier}.
+De klassiska artiklarna av Caviness\autocite{Caviness1970} och
+Moses\autocite{Moses1971} kom med i sökningen men är stängda och lästes
+bara i sammanfattning.
+
+\section{Resultat}
+\label{sec:kan-resultat}
+
+\paragraph{Kanonisk form och likhet.}  I datoralgebran, där frågan är
+mest studerad, är detta själva syftet med en kanonisk form.  En sådan
+form definieras som en för vilken \textcquote[4]{RichStoutemyer2013}{all
+equivalent expressions in the class are represented uniquely}, och
+\textcquote{Price2022Hiding}{[a] key part of any symbolic computer
+algebra system is the ability to detect equivalence of two mathematical
+expressions. The common way to achieve this is to define [\dots] a
+\enquote{canonical form}, such that all expressions which are
+equivalent have the same canonical form}.  Begreppet går tillbaka på
+Caviness, som definierade kanonisk form \textcquote{Caviness1970}{as a
+well-defined alternative to the concept of simplified form}, och Moses
+klassiska översikt\autocite{Moses1971}.  Rich och Stoutemyer ger också
+materialets styrka nästan ordagrant:
+\textcquote[6]{RichStoutemyer2013}{a canonical form is not absolutely
+necessary for zero recognition. However zero recognition is much more
+difficult to implement and often slower to execute without a canonical
+form}.  Det är \enquote{svårare}, inte \enquote{omöjligt}.
+
+\paragraph{Samma sak i andra fält.}  Sökningen gav samma slutsats ur
+flera håll som inte har med bråk att göra, alla lästa i sammanfattning.
+I datoralgebran avgör en normalform likhet mellan styckvis definierade
+funktioner\autocite{vonMohrenschildt1998} och mellan
+tensorpolynom\autocite{Liu2017Riemann}.  I verktygen för att verifiera
+hårdvara hålls beslutsdiagram i \textcquote{BraceRudellBryant1990}{a
+strong canonical form} med hjälp av en hashtabell, och när en
+kompaktare form ger upp kanoniciteten blir \textcquote{Sack2000ModP}{the
+equivalence test [\dots] more difficult}.  I databaser används en
+kanonisk representation av grafer som hashnyckel just för att lika
+grafer ska få samma nyckel\autocite{Williams2007Graph}, och en kanonisk
+form för härkomstdokument gör dem jämförbara mellan
+format\autocite{Moreau2017PROV}.  För rationella tal i en bevisassistent
+låter en kanonisk representation jämförelsen definieras
+\textcquote{Bertot2003Canonical}{in a naive way}, och redan tidig
+hårdvara för rationell aritmetik byggdes kring förmågan att förkorta
+varje resultat\autocite{IrwinSmith1981}.
+
+\paragraph{I biblioteken för bråk.}  De bibliotek som räknar exakt med
+bråk gör alla så.  GMP:s alla funktioner för rationella tal
+\textcquote{GMPManual}{assume operands have a canonical form, and
+canonicalize their result. The canonical form means that the
+denominator and the numerator have no common factors, and that the
+denominator is positive}, och dess likhetstest är
+\textcquote{GMPManual}{much faster} än den allmänna jämförelsen.
+Pythons egen klass håller nämnaren \textcquote{PythonFractions}{in
+lowest terms. Guaranteed to be positive}, och i källkoden syns vad det
+ger: konstruktorn förkortar och flyttar tecknet, och likhet mellan två
+bråk avgörs sedan genom att jämföra täljare med täljare och nämnare med
+nämnare\autocite{CPythonFractionsSource} --- en jämförelse som bara är
+rätt därför att varje bråk är förkortat.  För hashning kräver Python att
+\textcquote{PythonStdtypes}{hash(x) == hash(y) whenever x == y}, och
+språkreferensens recept är att hasha en tupel av de komponenter som
+avgör likheten\autocite{PythonDataModel}.  Receptet ger lika hashvärden
+för lika bråk bara om lika bråk har lika komponenter, alltså om
+representationen är kanonisk; det är vår slutsats av de två texterna,
+inte deras egen.
+
+\paragraph{Felsökning.}  Att flera former för samma värde förvirrar vid
+felsökning är rimligt, och materialet visar det med en körning
+(\cref{ex:fraction-negative}): \(\frac{1}{3}\) adderat till två bråk med
+samma värde skrivs ut som \mintinline{text}|1/-6| respektive
+\mintinline{text}|-1/6|.  Ingen källa undersöker felsökning av kod med och
+utan kanonisk form.  Närmast kommer Kanade med flera, som visar att
+program som beter sig olika för olika representationer av samma värde
+har verkliga fel --- de fann sådana fel i spridda program som Open
+Office och Picasa --- och som låter utvecklaren uttrycka vilka
+representationer som är lika genom en funktion som
+\textcquote{Kanade2010Representation}{maps each concrete representation
+to a canonical one}.  Det stöder att flera former för samma värde är en
+felkälla, men inte att en kanonisk form gör felsökningen lättare; den
+delen vilar på materialets eget exempel.
+
+\paragraph{Förbehållen.}  Motsökningen gav två förbehåll, inget som
+motsäger påståendet för bråk.  Det första är kostnaden: varje
+förkortning kostar en beräkning av största gemensamma delaren, och GMP
+låter därför ren tilldelning lämna värdet oförkortat --- \textcquote{GMPManual}{[i]t
+is the responsibility of the user to canonicalize the assigned
+variable before any arithmetic operations are performed}.  Pythons
+källkod räknar av samma skäl ut addition så att talen hålls små och
+hänvisar till Knuths algoritmer\autocite{CPythonFractionsSource}.  Kostnaden
+växer med talens storlek; för långa tal har den motiverat egen
+hårdvara för förkortning\autocite{Jebelean1993Systolic}.  Och i andra
+fält visar Mishchenko med flera att ett kanoniskt \emph{resultat} kan
+beräknas utan en kanonisk \emph{representation}, mot en
+\textcquote{Mishchenko2018Canonical}{runtime overhead}.  Det
+andra gäller rikare klasser av uttryck än bråk: där är kanoniska former
+\textcquote[4]{RichStoutemyer2013}{unnecessarily costly and rigid}, de
+kan vara \textcquote{Price2022Hiding}{unwieldy}, de kan vara ett annat
+uttryck än det användaren skrev\autocite{Fateman1979Simplifier}, och för
+tillräckligt rika klasser finns de inte alls\autocite{Caviness1970}.  För
+bråk är den förkortade formen däremot både kanonisk och den vi är vana
+vid, och samma källor kallar kanoniska former
+\textcquote[4]{RichStoutemyer2013}{acceptable and good} för begränsade
+klasser av tal.
+
+\paragraph{Var minustecknet står.}  De standarder och bibliotek som
+sökningen och uppslagen nådde väljer alla positiv nämnare.  GMP:s
+kanoniska form har en positiv nämnare och representerar noll som
+\(\frac{0}{1}\)\autocite{GMPManual}; Python garanterar en positiv
+nämnare\autocite{PythonFractions}; Common Lisp definierar ett bråk som
+två heltal \textcquote{CLHSRatio}{whose greatest common divisor is one,
+and of which the denominator is positive and greater than one}; och
+Scheme-standarden lämnar ut nämnaren som om talet vore förkortat, och
+\textcquote{R5RS1998}{[t]he denominator is always positive}.  Pythons
+källkod hänvisar för sin aritmetik till Knuths \emph{The Art of
+Computer Programming}, avsnitt~4.5.1\autocite{CPythonFractionsSource},
+som inte lästes.  Sökningen efter didaktisk litteratur gav två arbeten om negativa bråk,
+ett om att ämnet är \textcquote{GallardoSaavedra2011}{poorly tackled at
+secondary school} och ett om att negativa bråk är ett hinder också för
+blivande lärare\autocite{Susiswo2021}, båda lästa i sammanfattning;
+inget av dem behandlar var tecknet ska stå.
+
+\section{Diskussion och begränsningar}
+\label{sec:kan-diskussion}
+
+Svaret om likhet vilar på två oberoende spår som säger samma sak:
+datoralgebrans litteratur, där kanonisk form är metoden för att
+avgöra likhet, och biblioteken för exakta bråk, som alla lagrar
+bråket förkortat med positiv nämnare och bygger sin likhet på det.
+Svaret om konventionen vilar på fyra språk och bibliotek, inte på en
+matematisk eller didaktisk källa: Knuths avsnitt, som Pythons källkod
+hänvisar till, lästes inte, och i skolans skrivsätt står minustecknet
+ofta framför bråkstrecket, \(-\frac{1}{2}\), vilket är detsamma som
+att det står i täljaren men inte prövades här.  Felsökningsdelen har
+inget stöd i litteraturen.  Caviness och Moses lästes bara i
+sammanfattning; definitionen av kanonisk form är citerad från två
+texter lästa i fulltext.  Tre av de citerade datoralgebratexterna är
+förtryck eller reviderade konferenstexter.  Korroborationen ur andra fält är läst i sammanfattning.  IEEE
+Xplore nådde sin dagsgräns innan felsökningsfrågan S8 kördes, som
+därför saknar den databasen; DBLP och Semantic Scholar saknas helt, och de fyrtio träffarna
+per fråga och databas är ett urval.  Klassningen är modellstödd, med
+handgranskning av kvalificerande poster och poster med låg konfidens.
+
+\section{Slutsats}
+\label{sec:kan-slutsats}
+
+Ja på båda frågorna, med ett förbehåll för felsökningen.  En kanonisk
+form gör det lättare och snabbare att avgöra om två värden är lika ---
+det är skälet till att datoralgebran använder den
+\autocite{RichStoutemyer2013,Price2022Hiding} och till att biblioteken
+för bråk förkortar och håller nämnaren
+positiv\autocite{GMPManual,PythonFractions} --- och den gör att den
+enklaste hashningen blir rätt\autocite{PythonDataModel}.  Likhet går
+att avgöra även utan kanonisk form, men det kräver mer, så materialets
+\enquote{enklare} och \enquote{svårare} håller.  Att lagra bråk med
+positiv nämnare, alltså med minustecknet i täljaren, är konventionen i
+de bibliotek och språkstandarder som räknar exakt med bråk
+\autocite{GMPManual,PythonFractions,CLHSRatio,R5RS1998}.  Att flera
+former för samma värde är en felkälla har stöd\autocite{Kanade2010Representation},
+men att en kanonisk form gör felsökningen lättare har inget stöd utöver
+materialets eget exempel och står därför som det materialet visar,
+inte som ett belagt faktum.  Priset är en beräkning av största
+gemensamma delaren vid varje nytt bråk.
+
+\section{Fortsatt arbete}
+\label{sec:kan-fortsatt}
+
+Sökningen lämnade några saker ogjorda.  Knuths avsnitt~4.5.1 i
+\emph{The Art of Computer Programming}, band~2, som Pythons källkod
+hänvisar till, fanns inte att tillgå och skulle ge konventionen en
+matematisk källa i stället för bara bibliotekens.  Caviness och Moses
+artiklar\autocite{Caviness1970,Moses1971} lästes bara i
+sammanfattning.  DBLP och Semantic Scholar saknades.  Och frågan om
+hur skolans matematik skriver negativa bråk söktes bara i den
+internationella didaktiska litteraturen, inte i svenska läromedel.
+
+För ett säkrare svar saknas en studie av felsökning.  Ingen har, såvitt
+sökningen visar, låtit programmerare felsöka en klass med och utan
+kanonisk form och mätt hur lång tid det tar och hur ofta de hittar
+felet.  Ett sådant försök med just bråkklassen, där ett fel döljer sig
+bakom \mintinline{text}|1/-6| och \mintinline{text}|-1/6|, skulle avgöra
+om materialets påstående om felsökning håller.  Visar det en skillnad
+kan texten säga att kanonisk form gör felsökningen lättare; visar det
+ingen bör den stanna vid likhet och hashning.
+
+\section{Träffar som rör påståendet}
+\label{sec:kan-traffar}
+
+\Cref{tab:sok-kanonisk} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-kanonisk}.
+% Author's note (verification and reproduction):
+%   scholar session : ovl-canonical
+%   exports         : litteratursokning/kanonisk.csv,
+%                     litteratursokning/kanonisk-full.tex
+%   searched        : 2026-10-02; providers openalex ieee wos scopus
+%                     (dblp: anti-bot wall, not run; s2: key rejected
+%                     HTTP 403, absent; ieee: daily quota exhausted during
+%                     classification enrichment, after S1--S7, M1--M3 had
+%                     run, so S8 has no ieee cell); limit 40 per provider
+%                     and query; wos got TS=(<query>), scopus
+%                     TITLE-ABS-KEY(<query>)
+%   known items     : GMPManual, PythonFractions, CPythonFractionsSource
+%                     (/usr/lib/python3.14/fractions.py = CPython 3.14
+%                     Lib/fractions.py), PythonStdtypes, PythonDataModel,
+%                     CLHSRatio; WebSearch complements:
+%                     RichStoutemyer2013, Price2022Hiding,
+%                     Fateman1979Simplifier (queries in the bib provenance)
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples, batches of 50; human review of every
+%                     qualifies-claim row and every row with confidence
+%                     < 0.7
+%   overrides       : 109 LLM keeps moved to adjacent/off-topic (normal
+%                     forms in other mathematics; other Scheme revisions;
+%                     program normalisation); canon-dec.json and
+%                     dec-canon-low.tsv in the research directory
+%   hit-list table  : scholar sessions export ovl-canonical -f table
+%                     --bearing-only --lang sv --label sok-kanonisk
+%                     --track "Kanonisk form och tecknets placering"
+%                     --theme cas-equality="datoralgebra: kanonisk form
+%                     och likhet" --theme cross-domain-equality="kanonisk
+%                     form och likhet i andra fält"
+%                     --theme representation-bugs="flera representationer
+%                     ger fel" --theme rational-canonical="bråk i kanonisk
+%                     form" --theme normalisation-cost="kostnad och
+%                     alternativ" --theme negative-fractions="negativa
+%                     bråk i didaktiken"
+%                     -o litteratursokning/kanonisk-full
+%   provenance      : ltnotes.bib, keys Caviness1970 Moses1971
+%                     RichStoutemyer2013 Price2022Hiding
+%                     Fateman1979Simplifier GMPManual PythonFractions
+%                     CPythonFractionsSource PythonStdtypes
+%                     PythonDataModel CLHSRatio R5RS1998
+%                     GallardoSaavedra2011 Susiswo2021
+%                     BraceRudellBryant1990 Sack2000ModP Liu2017Riemann
+%                     vonMohrenschildt1998 Moreau2017PROV
+%                     Williams2007Graph Kanade2010Representation
+%                     Bertot2003Canonical IrwinSmith1981
+%                     Jebelean1993Systolic Mishchenko2018Canonical
+\input{litteratursokning/kanonisk-full}
+\endgroup
+\ifdefined\marginnotebesidefloats\marginnotebesidefloats{reserve}\fi
