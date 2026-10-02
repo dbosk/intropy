@@ -48,14 +48,19 @@ Varje undervisningsvecka har samma rytm, i den här ordningen:
 1. **Föreläsningen** ges live så att du kan ställa frågor. Föredrar du att
    se den i efterhand eller läsa i stället finns inspelningen och
    föreläsningsanteckningarna på föreläsningens sida i modulen.
-2. **Övningen** i din grupp går igenom veckans innehåll genom egen
-   problemlösning tillsammans med andra; vi hinner ett urval av problemen
-   och resten finns med lösningar på övningens sida.
+2. **Övningen** går igenom veckans innehåll genom egen problemlösning
+   tillsammans med andra; vi hinner ett urval av problemen och resten
+   finns med lösningar på övningens sida. Övningarna är frivilliga.
 3. **Laborationen** gör ni i par. På labbpassen finns lärare och
    assistenter för att hjälpa er när ni fastnar.
 
-Alla tillfällen utom föreläsningarna är delade mellan grupp A–F och
-grupp G–L; du går bara på passen för din grupp.
+Labbpassen och redovisningarna är delade mellan grupp A–F och grupp G–L;
+du går bara på passen för din grupp. Föreläsningarna är för hela
+klassen, och från vecka 40 är övningarna det också. Båda
+övningstillfällena ges i D37 och på Zoom; på det andra fortsätter vi med
+veckans innehåll. Samtidigt leder en assistent, oftast Emelie, en
+repetition i ett eget grupprum på Zoom, så långt tillbaka i kursen som
+behövs. Vecka 37–39 var även övningarna delade mellan grupperna.
 
 ## Lärandemål
 
