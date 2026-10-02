@@ -103,7 +103,10 @@ class Fraction:
   och testkörningarna där stänger av förkortningen, så att utskriften
   är klassens som den står i texten (\mintinline{text}|2/8| och
   \mintinline{text}|2/2|, inte \mintinline{text}|1/4| och
-  \mintinline{text}|1/1|).  Förkortningens eget testfall får ingen
+  \mintinline{text}|1/1|).  På samma sätt tar
+  \cref{ex:fraction-add-int,ex:fraction-sub-int} bort den omvända
+  metoden, som texten ännu inte skrivit.  Förkortningens eget testfall
+  får ingen
   körning bredvid sig: dess utskrift är svaret på \cref{ovn:utmatning}.
 }%
 Testprogrammet heter \mintinline{python}{tests}, som i föreläsningen
@@ -700,42 +703,53 @@ Nu fungerar \mintinline{python}{frac_a + frac_b}.  Vad händer om den ena
 termen är ett heltal?
 
 \begin{frame}[fragile]
-  \begin{example}[Addera \(\frac{1}{2}\) och \(1\)]
-    \label{ex:fraction-add-int}
+  \begin{exercise}[Vad skriver testfallet ut?]
+    \label{ovn:radd}
     \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ex:fraction-add-int}:
-      \cref{FracLOReflected}.
+      Relevanta lärandemål för \cref{ovn:radd,ex:fraction-add-int,%
+      ex:fraction-radd}: \cref{FracLOReflected}.
 
-      \textbf{Variationsmönster}: Kontrast.
-
-      \textbf{Vad som varierar}: operandordningen
+      \textbf{Variationsmönster}: Kontrast, två gånger.  Inom testfallet
+      i \cref{ovn:radd} varierar operandordningen
       (\mintinline{python}{frac + int} respektive
-      \mintinline{python}{int + frac}).
-
-      \textbf{Vad som hålls invariant}: operationen (addition) och värdena.
+      \mintinline{python}{int + frac}), medan operationen och värdena
+      hålls invarianta.  Mellan körningarna i
+      \cref{ex:fraction-add-int,ex:fraction-radd} varierar bara om
+      klassen har \mintinline{python}{__radd__}; testfallet är detsamma.
 
       \textbf{Kritisk aspekt}: Python anropar \mintinline{python}{__add__}
       på den \emph{vänstra} operanden.  När det misslyckas försöker Python
-      \mintinline{python}{__radd__} på den \emph{högra} operanden.  Det är
-      nyckelinsikten för lärandemålet, och kontrasten avslöjar hur Python
-      löser upp en operator.  \foreignlanguage{english}{Try-first}:
-      studenterna felsöker problemet innan de får lösningen.  Exemplet med
-      \enquote{funkar ej} är avsiktligt \emph{inte} en del av testprogrammet:
-      det skulle avbryta körningen.
+      \mintinline{python}{__radd__} på den \emph{högra} operanden.
+      \foreignlanguage{english}{Try-first}: studenterna förutsäger,
+      ser spårutskriften och felsöker innan de får lösningen.  Testfallets
+      namn säger inte vad som skiljer raderna åt.
     }%
-    Vi provar med heltalet på båda sidor:
-    \begin{minted}{python}
-      frac_a = Fraction(1, 2)
-      print(frac_a + 1)
-      print(1 + frac_a)  # funkar ej
-    \end{minted}
+    Nästa testfall adderar \(\frac{1}{2}\) och heltalet \(1\):
+<<prova additionen med heltalet på båda sidor>>=
+print(frac_a + 1)
+print(1 + frac_a)
+<<tester för [[Fraction]]>>=
+<<prova additionen med heltalet på båda sidor>>
+@
+    Vad skriver de två raderna ut med klassen som den ser ut nu?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Addera \(\frac{1}{2}\) och \(1\)]
+    \label{ex:fraction-add-int}
+    Med klassen som den ser ut nu skriver testfallet ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_heltalsaddition.py}
   \end{example}
   \begin{exercise}
-    \label{ovn:radd}
+    \label{ovn:radd-varfor}
     Varför fungerar inte \mintinline{python}{1 + frac_a}?
   \end{exercise}
 \end{frame}
 
+Den första raden skriver ut summan, men den andra avbryter programmet
+med ett \mintinline{text}|TypeError|.
 Tänk på vilken ordning Python utvärderar \mintinline{python}{1 + frac_a}.
 Vilket objekt är till vänster om \mintinline{python}{+}?  Vilken metod
 anropas?  Python försöker först anropa
@@ -749,35 +763,10 @@ hantera operationen.\footnote{\label{fn:radd}%
   are only called if the operands are of different types, when the left
   operand does not support the corresponding operation}.  Samma avsnitt
   i språkreferensen som \cref{fn:add}.}
-
-% The \needspace keeps the method, the test case and its output together
-% in the notes.
-\mode<article>{\needspace{14\baselineskip}}
-\begin{frame}[fragile]
-  \begin{example}[Omvänd addition]
-    \label{ex:fraction-radd}
-    Den anropas med \mintinline{python}{self} som högra operand:
-<<bråkklassens metoder>>=
-def __radd__(self, other):
-    return self + other
-@
-    Vi provar \(1 + \frac{1}{2}\) igen, med heltalet på båda sidor:
-<<prova den omvända additionen>>=
-print(frac_a + 1)
-print(1 + frac_a)
-<<tester för [[Fraction]]>>=
-<<prova den omvända additionen>>
-@
-    Testfallet skriver ut
-    \runpython[chdir, deps={examples/fraction.py}]%
-      {examples/fraction_test_radd.py}
-  \end{example}
-\end{frame}
-
-Här implementerar vi \mintinline{python}{__radd__()}
+Metoden heter \mintinline{python}{__radd__()}
 (\foreignlanguage{english}{right add} eller
-\foreignlanguage{english}{reverse add}).  Den anropas när det vänstra
-objektet inte kan hantera additionen.
+\foreignlanguage{english}{reverse add}), och den anropas med vårt bråk
+som \mintinline{python}{self}, alltså den högra operanden.
 
 \begin{frame}
   \begin{exercise}
@@ -797,6 +786,20 @@ yourself}\autocite{HuntThomas1999}, från föreläsningen
   Det vetenskapliga underlaget för DRY --- både var principen kommer
   ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
   \emph{Algoritmiskt tänkande}, bilaga~E.}
+
+\begin{frame}[fragile]
+  \begin{example}[Omvänd addition]
+    \label{ex:fraction-radd}
+    Den omvända additionen återanvänder additionen:
+<<bråkklassens metoder>>=
+def __radd__(self, other):
+    return self + other
+@
+    Med den skriver samma testfall ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_radd.py}
+  \end{example}
+\end{frame}
 
 
 \subsection{Negation}
@@ -848,9 +851,9 @@ Negation är enkelt: vi negerar bara täljaren,
 \end{frame}
 
 Matematiskt är de ekvivalenta, men konventionen är att ha minustecknet i
-täljaren.  Det gör representationen mer konsekvent.  Dessutom kan det
-uppstå problem med en negativ nämnare när vi behöver hitta samma nämnare
-vid aritmetiska operationer, såsom addition.
+täljaren, så att varje värde skrivs på ett enda sätt.  Vad som händer
+med vår klass när någon ändå skapar ett bråk med negativ nämnare
+återkommer vi till i \cref{ovn:negativ-namnare}.
 
 
 \subsection{Subtraktion}
@@ -887,12 +890,27 @@ print(frac_a - Fraction(1, 4))
   \end{example}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
   \begin{exercise}
     \label{ovn:rsub}
-    Behöver vi göra något för att subtrahera ett bråk från ett heltal,
-    exempelvis \mintinline{python}{1 - frac_a}?  Vad?
+    Behöver vi göra något för att subtrahera ett bråk från ett heltal?
+    Nästa testfall subtraherar \(\frac{1}{2}\) från heltalet \(1\):
+<<prova att subtrahera från ett heltal>>=
+print(1 - frac_a)
+<<tester för [[Fraction]]>>=
+<<prova att subtrahera från ett heltal>>
+@
+    Vad skriver det ut med klassen som den ser ut nu?
   \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Subtrahera från ett heltal]
+    \label{ex:fraction-sub-int}
+    Med klassen som den ser ut nu skriver testfallet ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_heltalssubtraktion.py}
+  \end{example}
 \end{frame}
 
 Igen har vi samma problem som med addition:
@@ -945,13 +963,7 @@ Nej!  Subtraktion är \emph{inte} kommutativ:
 def __rsub__(self, other):
     return Fraction(other) - self
 @
-    Vi provar \(1 - \frac{1}{2}\):
-<<prova den omvända subtraktionen>>=
-print(1 - frac_a)
-<<tester för [[Fraction]]>>=
-<<prova den omvända subtraktionen>>
-@
-    Testfallet skriver ut
+    Med den skriver samma testfall ut
     \runpython[chdir, deps={examples/fraction.py}]%
       {examples/fraction_test_rsub.py}
   \end{example}
@@ -1020,7 +1032,22 @@ skapa ett \mintinline{python}{Fraction}-objekt av heltalet först.
   \end{exercise}
 \end{frame}
 
-Vi får \(\frac{2}{2}\), vilket matematiskt är 1.  Detta leder oss till
+\begin{frame}[fragile]
+  \begin{example}[Multiplicera med ett heltal]
+    \label{ex:fraction-mul-int}
+    Testfallet multiplicerar \(\frac{1}{2}\) med \(2\):
+<<prova multiplikationen med ett heltal>>=
+print(frac_a * 2)
+<<tester för [[Fraction]]>>=
+<<prova multiplikationen med ett heltal>>
+@
+    Det skriver ut
+    \runpython[chdir, deps={examples/fraction.py}]%
+      {examples/fraction_test_heltalsmultiplikation.py}
+  \end{example}
+\end{frame}
+
+Vi får \(\frac{2}{2}\), vilket matematiskt är \(1\).  Detta leder oss till
 nästa viktiga funktion: förkortning av bråk.
 
 Precis som med addition och subtraktion behöver vi
@@ -1039,12 +1066,11 @@ Precis som med addition och subtraktion behöver vi
 def __rmul__(self, other):
     return self * other
 @
-    Vi multiplicerar \(\frac{1}{2}\) och \(2\), åt båda hållen:
-<<prova den omvända multiplikationen>>=
-print(frac_a * 2)
+    Vi multiplicerar åt andra hållet, \(2 \cdot \frac{1}{2}\):
+<<prova multiplikationen med heltalet till vänster>>=
 print(2 * frac_a)
 <<tester för [[Fraction]]>>=
-<<prova den omvända multiplikationen>>
+<<prova multiplikationen med heltalet till vänster>>
 @
     Testfallet skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
