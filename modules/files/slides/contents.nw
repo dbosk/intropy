@@ -1412,21 +1412,19 @@ mellan \foreignlanguage{english}{docstring}en och hjälpfunktionerna.
 Att skriva och sedan läsa tillbaka är det enklaste sättet att pröva ett
 format: kommer samma data tillbaka har skrivaren och läsaren förstått
 kontraktet lika.  Huvudprogrammet gör just det: det skriver paren och
-läser tillbaka dem.  Skrivningen, läsningen och funktionen \(f\)
-anropar vi redan här, och dem skriver vi när vi kommer till dem.
+läser tillbaka dem.  Skrivningen, läsningen och jämförelsen anropar vi
+redan här, och dem skriver vi när vi kommer till dem.
 
 \begin{frame}[fragile]
-  Huvudprogrammet jämför varje inläst \(y\) med \(f(x)\):
+  Huvudprogrammet skriver ut de par som inte kom tillbaka rätt:
 <<talparsprogrammets huvudprogram>>=
 def main():
     """Writes the pairs, reads them back and compares"""
     write_pairs(FILENAME)
-    any_bad = False
-    for x, y in read_pairs(FILENAME):
-        if f(x) != y:
-            print(f"{x} -/> {y}")
-            any_bad = True
-    if not any_bad:
+    wrong = wrong_pairs(read_pairs(FILENAME))
+    for x, y in wrong:
+        print(f"{x} -/> {y}")
+    if not wrong:
         print("Alla par lästes tillbaka rätt!")
 
 
@@ -1525,7 +1523,7 @@ def read_pairs(filename):
 
 \begin{frame}[fragile]
   \begin{solution}[Tolkningen av en rad]
-    Tolkningen blir den sista hjälpfunktionen:
+    Tolkningen blir en hjälpfunktion till:
 <<talparsprogrammets hjälpfunktioner>>=
 def parse_pair(line):
     """Turns a line "x,y" into the pair of numbers (x, y)"""
@@ -1631,6 +1629,23 @@ ska aldrig ha mer än ett skäl att
 }
 Ändras formatet på en rad rör det bara [[parse_pair]]; ändras var paren
 finns rör det bara [[read_pairs]].
+
+Kvar är jämförelsen.  Den får också en egen funktion, [[wrong_pairs]],
+som samlar de par där det inlästa \(y\) inte är \(f(x)\), så att
+huvudprogrammet bara anropar och skriver ut.
+
+\begin{frame}[fragile]
+  Jämförelsen, den sista hjälpfunktionen:
+<<talparsprogrammets hjälpfunktioner>>=
+def wrong_pairs(pairs):
+    """Returns the pairs (x, y) where y is not f(x)"""
+    wrong = []
+    for x, y in pairs:
+        if f(x) != y:
+            wrong.append((x, y))
+    return wrong
+@
+\end{frame}
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1738,8 +1753,9 @@ programgränsen.\footnote{%
   \textbf{Vad som varierar}: Hur formatet hanteras --- egen tolkning med
   [[split]] i [[xy.py]], modulen [[csv]] i [[xy_csv.py]].
 
-  \textbf{Vad som hålls invariant}: Funktionen [[f]], som [[xy_csv.py]]
-  importerar från [[xy.py]], huvudprogrammet och jämförelsen, som är
+  \textbf{Vad som hålls invariant}: Funktionerna [[f]] och
+  [[wrong_pairs]], som [[xy_csv.py]] importerar från [[xy.py]],
+  huvudprogrammet och jämförelsen, som är
   \emph{samma} kodstycke i båda programmen, samt att [[int()]] behövs i
   båda.  Att omvandlingen står kvar även med [[csv]] är avsiktligt: den
   dokumenterade missuppfattningen är att det lästa redan är tal
@@ -1754,8 +1770,8 @@ programgränsen.\footnote{%
 }%
 Låt oss skriva samma talpar med CSV-formatet, i programmet
 [[xy_csv.py]].  Det är talparsprogrammet med modulen [[csv]].
-Funktionen \(f\) importerar vi från talparsprogrammet: modulen [[xy]]
-är filen från \cref{ex:xy-korning}.  Huvudprogrammet är detsamma, och
+Funktionen \(f\) och jämförelsen [[wrong_pairs]] importerar vi från
+talparsprogrammet: modulen [[xy]] är filen från \cref{ex:xy-korning}.  Huvudprogrammet är detsamma, och
 upplägget tar med det som det är.  Det nya --- filnamnet och de två
 funktioner som skriver och läser filen --- samlar vi under egna namn.
 
@@ -1768,7 +1784,7 @@ funktioner som skriver och läser filen --- samlar vi under egna namn.
 
 import csv
 
-from xy import f
+from xy import f, wrong_pairs
 
 <<CSV-talparsprogrammets konstanter>>
 
