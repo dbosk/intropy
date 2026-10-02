@@ -427,6 +427,91 @@ räkna om till en plats i uppslagslistan.  Det är samma egenskap som i
 föreläsningen \emph{Behållare: Tupler}, nu sedd som ett krav i stället
 för som ett val.
 
+Att paret är en tupel ger det också en ordning: tupeln har ett första
+och ett andra element.  Det märks när vi frågar efter avståndet åt andra
+hållet.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skrivs ut?]
+    \label{ovn:ordning}
+    Avståndet lagras från Stockholm till Uppsala och slås upp från
+    Uppsala till Stockholm:
+<<[[ordning.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    distance = {}
+
+    distance[("Stockholm", "Uppsala")] = 71
+    print(distance[("Uppsala", "Stockholm")])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Körningen avbryts:
+    \runpython[showcommand, chdir]{examples/ordning.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate}.
+
+  \textbf{Variationsmönster}: kontrast, mellan \cref{ovn:ordning} och
+  \cref{ex:avstand}.
+  \textbf{Vad som varierar}: om nyckeln görs om till sorterad ordning
+  innan den används.
+  \textbf{Vad som hålls invariant}: städerna, avståndet och i vilken
+  ordning de anges när avståndet lagras och slås upp.
+
+  Frågan om ordningen kommer först här, när kontrasten mellan lista och
+  tupel som nyckel är avklarad, så att den inte varierar samtidigt med
+  den.  Att [[sorted]] ger en lista som måste göras om till en tupel
+  använder i stället den kontrasten en gång till.
+}%
+\mintinline{python}|("Stockholm", "Uppsala")| och
+\mintinline{python}|("Uppsala", "Stockholm")| är två olika tupler, och
+därmed två olika nycklar, fast avståndet är detsamma.  För par där
+ordningen inte betyder något, som avståndet mellan två städer, gör vi
+det därför till en regel att alltid lagra paret i sorterad ordning, och
+att sortera det på samma sätt innan vi slår upp.  Då spelar det ingen
+roll i vilken ordning städerna anges.  \mintinline{python}{sorted}
+sorterar städerna, men lämnar tillbaka en lista, och en lista duger inte
+som nyckel.  Därför gör vi om listan till en tupel med
+\mintinline{python}{tuple}, på samma sätt som
+\mintinline{python}{int} gör om en sträng till ett heltal.  Att göra
+nyckeln är en beräkning, så den får en egen funktion.
+
+\begin{frame}[fragile]
+  \begin{example}[Nyckeln i sorterad ordning]
+    \label{ex:avstand}
+    Paret sorteras innan det blir nyckel:
+<<[[avstand.py]]>>=
+def distance_key(city, other_city):
+    """Returnerar paret av städer i sorterad ordning, som en tupel."""
+    return tuple(sorted([city, other_city]))
+
+
+def main():
+    """Huvudprogrammet"""
+    distance = {}
+
+    distance[distance_key("Stockholm", "Uppsala")] = 71
+    print(distance[distance_key("Uppsala", "Stockholm")])
+
+
+if __name__ == "__main__":
+    main()
+@
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/avstand.py}
+  \end{example}
+\end{frame}
+
 \section{När nyckeln saknas}
 \label{sec:saknad}
 
