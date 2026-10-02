@@ -21,6 +21,8 @@ SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
+EXAMPLES+=	examples/tva_listor.py
+EXAMPLES+=	examples/par_lista.py
 EXAMPLES+=	examples/phone-small.py
 EXAMPLES+=	examples/uppslag.py
 EXAMPLES+=	examples/lagga_till.py
