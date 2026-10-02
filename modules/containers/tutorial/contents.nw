@@ -30,8 +30,13 @@
   som lika, rör den.  Övningen inför inga nya missuppfattningar.
 }%
 Övningen består av sju uppgifter, var och en med ett lösningsförslag.
-Lös uppgiften först, och läs förslaget efteråt --- det är när du har
-försökt själv som förslaget har något att säga dig.  Lösningsförslaget är
+Lös uppgiften först, och läs förslaget efteråt.  Vinsten kommer nämligen
+inte av att svaret skjuts upp, utan av att ditt eget försök sedan ställs
+mot förslaget, och den är måttlig.\footnote{Det vetenskapliga underlaget
+  för båda delarna --- att effekten finns och hur stor den är, och att
+  det är jämförelsen som ger den --- finns i \emph{Övning: Funktioner och
+  variabler}, bilaga~B.}  Ett lösningsförslag som lästs i förväg finns
+det inget att jämföra med.  Lösningsförslaget är
 ett av flera möjliga, och där valet är värt att fundera på säger texten
 vilka andra vägar som fanns och varför just den här är tagen.
 
@@ -156,8 +161,16 @@ adressernas domäner ska samlas så att varje domän räknas en gång ---
 alltså i en mängd.  Om varje adress ställer programmet två frågor: ser
 den ut som en e-postadress, och vilken domän har den?  De är var sin
 sak, och de blir var sin hjälpfunktion, \mintinline{python}{is_email}
-och \mintinline{python}{domain_of}.  Vi anropar dem redan här och
-skriver dem sedan.  Att de är egna funktioner gör också att kontrollen
+och \mintinline{python}{domain_of}.  Varje funktion får ett ansvar: det
+är \emph{SRP}, principen om ett enda ansvar, från föreläsningen
+\emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
+\footnote{%
+  Det vetenskapliga underlaget för SRP --- både varifrån principen
+  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
+  ansvar} är en bedömningsfråga --- finns i föreläsningen
+  \emph{Funktioner}, bilaga B.%
+}
+Vi anropar dem redan här och skriver dem sedan.  Att de är egna funktioner gör också att kontrollen
 går att pröva utan att någon behöver mata in något.
 
 \begin{frame}[fragile,shrink]
@@ -168,15 +181,12 @@ def main():
     """Huvudprogrammet"""
     domains = set()
 
-    address = input("Ange en e-postadress: ")
-    while address:
+    while address := input("Ange en e-postadress: "):
         if is_email(address):
             print(f"{address} ser ut som en e-postadress.")
             domains.add(domain_of(address))
         else:
             print(f"{address} ser inte ut som en e-postadress.")
-
-        address = input("Ange en e-postadress: ")
 
     print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
 
@@ -184,6 +194,23 @@ if __name__ == "__main__":
     main()
 @
 \end{frame}
+
+Villkoret i \mintinline{python}{while}-satsen läser in adressen med
+tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
+\emph{Övning: Inmatning, felhantering och styrstrukturer}, i
+föreläsningen \emph{Upprepningar} och i föreläsningen \emph{Behållare:
+Uppslagslistor}: det ger \mintinline{python}{address} svaret och är
+självt ett uttryck med samma värde, som villkoret prövar.  En tom sträng
+är falsk, så slingan går tills användaren svarar med en blankrad.  Frågan
+står på ett ställe i stället för två --- före slingan och sist i den ---
+och det är vad principen \emph{DRY},
+\foreignlanguage{english}{Don't Repeat Yourself}, handlar
+om\autocite{HuntThomas1999}.%
+\footnote{%
+  Det vetenskapliga underlaget för DRY --- både varifrån principen
+  kommer och om den håller, med de förbehåll som hör till --- finns i
+  föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
+}
 
 Mängden gör två saker på en gång: den lägger till en domän som inte fanns
 och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
@@ -1424,8 +1451,8 @@ ett val att motivera.  Så här ska programmet bete sig när det är klart.
 
 \subsection{Lösningsförslag}
 
-Tre klasser, var och en med ett ansvar: banken vet vilka konton som
-finns, kontot vet vad det innehåller och vaktar sitt saldo, och personen
+Tre klasser, var och en med ett ansvar, som \emph{SRP} i
+\cref{sec:epost} säger: banken vet vilka konton som finns, kontot vet vad det innehåller och vaktar sitt saldo, och personen
 vet vad hen heter.  Klasserna ligger i en modul, och ett eget program
 använder dem --- så att modulen går att importera från flera program.
 Modulen har bara klasser: inga hjälpfunktioner och inget huvudprogram,
@@ -1741,12 +1768,6 @@ except ValueError as error:
   också nämns hindrar slutsatsen \enquote{uppslagslistan är alltid
   bättre}, som är den missuppfattning en oemotsagd jämförelse lämnar
   efter sig.
-
-  Att välja den enklaste behållare som klarar de operationer programmet
-  behöver är principen \foreignlanguage{english}{KISS}; det
-  vetenskapliga underlaget --- att enkelhet är ett etablerat designvärde,
-  medan den vanliga upphovsuppgiften inte går att bekräfta --- finns i
-  föreläsningen \emph{Funktioner}, bilaga~C.
 }%
 Och så uppgiftens fråga: lista eller uppslagslista?  Med en lista av
 konton måste banken gå igenom listan och jämföra
@@ -1759,6 +1780,17 @@ har\autocite{PythonTimeComplexity}, och två konton kan inte få samma
 nummer eftersom en nyckel bara finns en gång.  Det sista är det starkaste
 skälet, och det handlar inte om hastighet: uppslagslistan gör ett fel
 \emph{omöjligt} som listan bara gör osannolikt.
+
+Uppslagslistan är dessutom den enklare lösningen: en uppslagning där
+listan behöver en slinga i varje metod.  Att välja den enklaste lösning
+som klarar uppgiften är principen \emph{KISS}, som vi mötte i
+föreläsningen \emph{Funktioner}.%
+\footnote{%
+  Det vetenskapliga underlaget för KISS finns i föreläsningen
+  \emph{Funktioner}, bilaga C: enkelhet som designvärde är väl etablerat,
+  medan det inte går att bekräfta att uttrycket kommer från Kelly
+  Johnson, som det brukar tillskrivas.%
+}
 
 Listan hade ett övertag: den minns i vilken ordning kontona öppnades.
 Behöver banken det --- till exempel för att kunna visa det senast
@@ -2296,11 +2328,7 @@ en avstavningsalgoritm, alltså något helt annat än en behållare.
 
   Stycket om \mintinline{python}{for}-lösningen står med därför att den
   är enklare, och att låta kön framstå som nödvändig i alla fall hade
-  varit osant.  Att välja den enklaste lösning som klarar uppgiften är
-  principen \foreignlanguage{english}{KISS}; det vetenskapliga
-  underlaget --- att enkelhet är ett etablerat designvärde, medan den
-  vanliga upphovsuppgiften inte går att bekräfta --- finns i
-  föreläsningen \emph{Funktioner}, bilaga~C.
+  varit osant.
 
   Att en lista \emph{kan} göra samma sak med
   \mintinline{python}|insert(0, word)| nämns inte i studenttexten.  Det
@@ -2313,7 +2341,8 @@ Det finns ett sätt att lösa uppgiften utan kö.  Så länge inget ord är
 bredare än en rad räcker en \mintinline{python}{for}-slinga över
 \mintinline{python}|text.split()|, och den är kortare och enklare.  Kön
 tillför bara något när ett ord ska läggas tillbaka, och det är därför
-frågan om det för långa ordet står i uppgiften.  Den som lämnar en
+frågan om det för långa ordet står i uppgiften.  Utan den frågan hade
+\emph{KISS}, som i \cref{sec:banken}, talat för slingan.  Den som lämnar en
 lösning med \mintinline{python}{for}-slinga och en kommentar om att
 långa ord inte hanteras har svarat rätt på en annan, enklare uppgift.
 
