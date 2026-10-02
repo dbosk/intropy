@@ -97,6 +97,22 @@
 % A side caption takes part in no collision avoidance; anchoring it at the
 % bottom moves it below the \ltnote's.
 \ifdefined\setsidecappos\setsidecappos{b}\fi
+% The numbered didactic environments restart in every chapter and carry
+% the chapter number, "Övningsuppgift 9.3" (author, 2026-09-28): numbered
+% through the whole book, the tutorial chapters ran into the hundreds.
+% Each environment has a counter of its own, named after it.  The decks
+% standalone keep their own numbering.  The hyperlink targets must name
+% the chapter too, or two "Övningsuppgift 1" collide.
+\makeatletter
+\@for\book@ctr:={exercise,example,question,activity,definition,idea,%
+    assumption,theorem,lemma,corollary}\do{%
+  \ifcsname c@\book@ctr\endcsname
+    \counterwithin{\book@ctr}{chapter}%
+    \expandafter\xdef\csname theH\book@ctr\endcsname{%
+      \noexpand\theHchapter.\noexpand\arabic{\book@ctr}}%
+  \fi
+}
+\makeatother
 \ProvideSemanticEnv{lo}{Learning Objective}
   [style=definition,numbered=yes]
   {LO}{LO}
@@ -135,6 +151,14 @@
 % ------------------------------------------------------------------------
 % A table of contents per chapter.
 \usepackage{etoc}
+% Room for two-digit chapters with ten or more sections: memoir's default
+% number boxes (2.3em, 3.2em) let "13.10" run into its title and would do
+% the same to "26.12.1".  Each deeper level is indented by the level
+% above's indent plus its number width, as in memoir's defaults.
+\setlength{\cftsectionnumwidth}{3em}
+\setlength{\cftsubsectionindent}{\dimexpr\cftsectionindent+\cftsectionnumwidth\relax}
+\setlength{\cftsubsectionnumwidth}{3.9em}
+\setlength{\cftsubsubsectionindent}{\dimexpr\cftsubsectionindent+\cftsubsectionnumwidth\relax}
 
 % PythonTeX runs all of a session's code as one program, in document order,
 % so a directory change stays in force until the next one.  Each chapter

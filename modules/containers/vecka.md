@@ -45,18 +45,24 @@ och kontrollera inmatning från användaren.
    Fler behållare och mer om klasser*, som beskriver dess innehåll och
    länkar till anteckningarna. Kan du inte komma, eller föredrar du att
    läsa, finns inspelningen och föreläsningsanteckningarna där i stället.
-2. **Gå på övningen för din grupp:** se sidan *Övning: Fler behållare och
-   mer om klasser* här i modulen. Vi går igenom veckans innehåll genom att
-   lösa problem tillsammans i mindre grupper. Vi hinner bara ett urval av
-   problemen; uppgifterna och lösningarna till alla finns i det interaktiva
-   dokumentet (FeedbackFruits) så att du kan fortsätta på egen hand. Att
-   hitta och läsa dokumentationen för Pythons behållare är en stor del av
-   veckans mål, så ha den uppe under övningen.
+2. **Gå gärna på övningarna:** se sidan *Övning: Fler behållare och mer om
+   klasser* här i modulen. Övningarna är frivilliga och ges för hela
+   klassen, i D37 och på [Zoom][zoom-room]. På det första tillfället går vi
+   igenom veckans innehåll genom att lösa problem tillsammans. På det andra
+   fortsätter vi med veckans innehåll. Samtidigt leder en assistent, oftast
+   Emelie, en repetition i ett eget grupprum på Zoom; den går så långt
+   tillbaka i kursen som behövs, anpassad efter dem som kommer. Vi hinner
+   bara ett urval av problemen; uppgifterna och lösningarna till alla finns
+   i det interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på
+   egen hand. Att hitta och läsa dokumentationen för Pythons behållare är en
+   stor del av veckans mål, så ha den uppe under övningen.
 3. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.
 4. **Vill du fördjupa dig?** Gör *Fördjupande övning fler behållare och mer
    om klasser*.
+
+[zoom-room]: https://kth-se.zoom.us/j/61952197407
 
 ## Schema
 
@@ -64,16 +70,16 @@ och kontrollera inmatning från användaren.
 - **Mån 26/10**
   - 10:00–12:00 Föreläsning (helklass) — D3, Zoom — Grundläggande lärarledd undervisning, hybrid
 - **Tis 27/10**
-  - 10:00–12:00 Övning (grupp A–F) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 10:00–12:00 Övning (helklass) — D37, Zoom — Lärarledd undervisning, genomgång och problemlösning
 - **Ons 28/10**
-  - 15:00–17:00 Övning (grupp G–L) — D37, Zoom, E32 — Lärarledd undervisning, genomgång och problemlösning
+  - 15:00–17:00 Övning (helklass) — D37, Zoom — Fördjupning eller repetition.
 - **Tor 29/10**
   - 08:00–10:00 Labb (grupp A–F) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
   - 10:00–12:00 Labb (grupp G–L) — 4V5Grö (Grön), 4V6 Bru (Brun), D41 — Hjälpsession
 <!-- schema:end -->
 
-Du går bara på övnings- och labbpassen för din grupp (A–F eller G–L);
-föreläsningen är gemensam för hela klassen. Tiderna anges som i TimeEdit,
+Du går bara på labbpassen för din grupp (A–F eller G–L); föreläsningen
+och övningarna är gemensamma för hela klassen. Tiderna anges som i TimeEdit,
 utan akademisk kvart: föreläsningar och övningar börjar kvart över.
 
 ## Deadlines och hjälp
