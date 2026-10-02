@@ -24,27 +24,53 @@ SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
+EXAMPLES+=	examples/skrivning.py
 EXAMPLES+=	examples/filer.py
+# filer.py's test program grows one test case at a time, and the deck
+# shows each case's output beside it.  Each of these programs runs one
+# case; they reference the test chunks in contents.nw from
+# testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/filer_test_finns.py
+TESTRUNS+=	examples/filer_test_fragorna.py
+TESTRUNS+=	examples/filer_test_alternativ.py
+TESTRUNS+=	examples/filer_test_fil.py
+EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/bildkoll.py
 EXAMPLES+=	examples/wc.py
 EXAMPLES+=	examples/wcprov.py
 EXAMPLES+=	examples/rövare.py
 EXAMPLES+=	examples/rövarprov.py
+EXAMPLES+=	examples/rövare2.py
+EXAMPLES+=	examples/rövare2prov.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/fortuneprov.py
 EXAMPLES+=	examples/fortune2.py
 EXAMPLES+=	examples/fortune2prov.py
+EXAMPLES+=	examples/skiljeradsprov.py
 EXAMPLES+=	examples/analys.py
 EXAMPLES+=	examples/fortunes.txt
 EXAMPLES+=	examples/fortunes2.txt
+EXAMPLES+=	examples/fortunes3.txt
+# rövare.py writes over the file it is given, so its runs read a copy of
+# the committed madicken.txt, never the original.
+EXAMPLES+=	examples/madicken-kopia.txt
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
 
-# The two fortune databases are part of the solutions, so they are
+${TESTRUNS}: testkorningar.nw
+
+# The three fortune databases are part of the solutions, so they are
 # tangled from the same source as the programs that read them.
 examples/fortunes.txt: contents.nw
 	@mkdir -p ${@D}
@@ -53,6 +79,13 @@ examples/fortunes.txt: contents.nw
 examples/fortunes2.txt: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[fortunes2.txt]]' $< > $@
+
+examples/fortunes3.txt: contents.nw
+	@mkdir -p ${@D}
+	notangle -R'[[fortunes3.txt]]' $< > $@
+
+examples/madicken-kopia.txt: examples/madicken.txt
+	cp $< $@
 
 .PHONY: examples
 examples: ${EXAMPLES}

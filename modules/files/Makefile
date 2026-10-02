@@ -1,5 +1,4 @@
 SUBDIR+=		slides
-SUBDIR+=		slides-more
 SUBDIR+=		tutorial
 
 SUBDIR_GOALS=	all clean distclean
