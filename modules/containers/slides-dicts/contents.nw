@@ -799,7 +799,16 @@ if __name__ == "__main__":
 
 Nu har vi tre behållare --- listan, tupeln och uppslagslistan --- och
 frågan blir vilken man ska ta.  Svaret följer av vilka \emph{operationer}
-programmet behöver göra, inte av vilken data det är.
+programmet behöver göra, inte av vilken data det är, och klarar flera
+behållare de operationerna tar vi den enklaste.  Att välja den enklaste
+lösning som duger är \emph{KISS}, som vi mötte i föreläsningen
+\emph{Funktioner}.%
+\footnote{%
+  Det vetenskapliga underlaget för KISS finns i föreläsningen
+  \emph{Funktioner}, bilaga C: enkelhet som designvärde är väl etablerat,
+  medan det inte går att bekräfta att uttrycket kommer från Kelly
+  Johnson, som det brukar tillskrivas.%
+}
 
 \begin{frame}
   \begin{exercise}
@@ -818,12 +827,6 @@ programmet behöver göra, inte av vilken data det är.
   (CPython, genomsnittsfall) står i texten och inte bara i bilagan,
   eftersom en siffra utan förbehåll är just den sortens påstående
   studenterna ska lära sig att inte lita på.
-
-  Att välja den enklaste behållare som klarar de operationer man behöver
-  är principen \foreignlanguage{english}{KISS}.  Det vetenskapliga
-  underlaget för \foreignlanguage{english}{KISS} --- att enkelhet är ett
-  etablerat designvärde, medan den vanliga upphovsuppgiften inte går att
-  bekräfta --- finns i föreläsningen \emph{Funktioner}, bilaga~C.
 }%
 För att svara på det måste vi veta hur \mintinline{python}{in} arbetar.
 I en lista finns ingen genväg: Python måste gå igenom elementen tills det
@@ -1014,8 +1017,13 @@ blankrad, och frågan står på ett ställe i stället för två --- före
 slingan och sist i den.
 
 Namnet läses in på i stort sett samma sätt som i föreläsningen
-\emph{Behållare: Listor}: vi gör om det till gemener så att sökningen
-inte bryr sig om stora bokstäver.
+\emph{Behållare: Listor}: \mintinline{python}{casefold} gör om det till
+gemener, så att sökningen inte bryr sig om stora bokstäver.  Två saker
+är nya.  Först tar \mintinline{python}{strip}, som vi mötte i
+föreläsningen \emph{Inmatning och felhantering}, bort mellanslag i
+början och slutet av svaret, så att ett mellanslag som råkat komma med
+inte gör namnet till ett annat namn.  Och frågan är en parameter,
+eftersom inmatningen och sökningen frågar på olika sätt.
 
 \begin{frame}[fragile]
   Inläsningen av ett namn:
@@ -1026,24 +1034,22 @@ def input_name(prompt="Ange namn: "):
 @
 \end{frame}
 
-\leavevmode\ltnote{%
-  Relevanta lärandemål: \cref{DictLOProgram}.
-
-  Uppdelningen i [[is_phonenum]] och [[input_phonenum]] är ett exempel
-  på att varje funktion har ett ansvar --- kontrollen respektive
-  dialogen med användaren --- vilket är principen
-  \foreignlanguage{english}{SRP}.  Principen namnges här; det
-  vetenskapliga underlaget för \foreignlanguage{english}{SRP} --- att
-  principen härrör från Martin och är etablerad, medan vad som räknas
-  som \emph{ett} ansvar förblir en bedömningsfråga --- finns i
-  föreläsningen \emph{Funktioner}, bilaga~B.  Poängen är praktisk:
-  kontrollen går att testa utan att någon behöver mata in något.
-}%
 Numret är svårare: inläsningen ska fråga om tills svaret ser ut som ett
 telefonnummer.  Vad som ser ut som ett telefonnummer är en fråga för
-sig, så kontrollen blir en egen funktion med ett enda ansvar,
+sig, så kontrollen blir en egen funktion,
 \mintinline{python}{is_phonenum}, och inläsningsfunktionen behöver bara
-fråga om igen.  Ett telefonnummer får bara innehålla siffror --- och
+fråga om igen.  Varje funktion får ett ansvar, kontrollen respektive
+frågan till användaren: det är \emph{SRP}, principen om ett enda ansvar,
+från föreläsningen \emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
+\footnote{%
+  Det vetenskapliga underlaget för SRP --- både varifrån principen
+  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
+  ansvar} är en bedömningsfråga --- finns i föreläsningen
+  \emph{Funktioner}, bilaga B.%
+}
+Det gör också att kontrollen går att pröva utan att någon behöver mata
+in något: \mintinline{python}|is_phonenum("072-123 45 67")| svarar
+direkt.  Ett telefonnummer får bara innehålla siffror --- och
 mellanslag och bindestreck, som vi struntar i när vi kontrollerar.
 
 \begin{frame}[fragile,shrink]
@@ -1072,7 +1078,11 @@ def is_phonenum(phonenum):
 
 Inläsningen av numret använder valrossen på samma sätt, men inne i
 anropet: svaret sparas i \mintinline{python}{phonenum}, och det är det
-värdet som \mintinline{python}{is_phonenum} prövar.
+värdet som \mintinline{python}{is_phonenum} prövar.  Kontrollen tar
+först bort alla bindestreck och mellanslag: \mintinline{python}{replace}
+byter ut varje bindestreck, och sedan varje mellanslag, mot den tomma
+strängen.  Sedan prövar \mintinline{python}{isdigit} att det som är
+kvar bara består av siffror.
 
 Den andra fasen är byggd på samma sätt som den första: ett besked till
 användaren och sedan en funktion som gör jobbet, nu med boken som
