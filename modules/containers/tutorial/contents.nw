@@ -70,8 +70,8 @@ bete sig när det är klart.
 \begin{frame}[fragile,shrink]
   \begin{example}[Så ska det bete sig]
     \label{ex:epost-target}
-    Så här ska det se ut när du är klar --- programmet matas med sex
-    adresser, varav två inte duger:
+    Så här ska det se ut när du är klar --- vi skriver in sex adresser,
+    varav två inte duger:
     \runpython[transcript, stdinfile={examples/epost.in}]%
       {examples/epost.py}
   \end{example}
@@ -170,7 +170,8 @@ och \mintinline{python}{domain_of}.  Varje funktion får ett ansvar: det
   ansvar} är en bedömningsfråga --- finns i föreläsningen
   \emph{Funktioner}, bilaga B.%
 }
-Vi anropar dem redan här och skriver dem sedan.  Att de är egna funktioner gör också att kontrollen
+Vi anropar dem redan här och skriver dem sedan.  Att de är egna
+funktioner gör också att kontrollen
 går att pröva utan att någon behöver mata in något.
 
 \begin{frame}[fragile,shrink]
@@ -216,10 +217,53 @@ Mängden gör två saker på en gång: den lägger till en domän som inte fanns
 och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
 fall det är.
 
-Och så uppgiftens andra fråga, om ordningen: den finns inte.  En mängd
-lägger sina element där de hör hemma utifrån värdet, inte efter varandra,
-och därför går det varken att fråga efter det första elementet eller att
-räkna med att två körningar skriver ut dem i samma
+Och så uppgiftens andra fråga, om ordningen.  Vi prövar att skriva ut
+en mängd med inmatningens två domäner som den är, utan
+\mintinline{python}{sorted}, i ett litet program för sig.
+
+\begin{frame}[fragile]
+  \begin{example}[Mängden utan ordning]
+    \label{ex:ordning}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ex:ordning}:
+      \cref{OvningContainersLOSet}.
+
+      \textbf{Vad som varierar}: bara körningen --- samma
+      \texttt{ordning.py} två gånger.  \textbf{Vad som hålls invariant}:
+      programmet, mängden och utskriftens form, som är
+      \texttt{epost.py}:s utan \mintinline{python}{sorted}.
+
+      Python väljer ett nytt slumpvärde för strängarnas hashning vid
+      varje start, så två körningar kan ge olika ordning.  För att
+      anteckningarna ska bli desamma vid varje kompilering körs de två
+      med var sitt fast värde (\texttt{PYTHONHASHSEED}), valda så att
+      ordningen skiljer sig; kommandoraden som visas är den studenten
+      skriver.
+    }%
+    Programmet skriver ut domänerna som mängden lämnar ut dem:
+<<[[ordning.py]]>>=
+"""Skriver ut domänerna i en mängd, utan att ordna dem"""
+
+def main():
+    """Huvudprogrammet"""
+    domains = {"kth.se", "ug.kth.se"}
+    print("Domänerna bland de godtagna:", ", ".join(domains))
+
+if __name__ == "__main__":
+    main()
+@
+    Vi kör det två gånger:
+    \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+      deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+    \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+      deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}
+  \end{example}
+\end{frame}
+
+Samma program ger två olika ordningar, och det är svaret: en mängd har
+ingen ordning.  Den lägger sina element där de hör hemma utifrån värdet,
+inte efter varandra, och därför går det varken att fråga efter det första
+elementet eller att räkna med att två körningar skriver ut dem i samma
 ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
 välja den själva, och här väljer vi bokstavsordning med
 \mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
@@ -302,12 +346,37 @@ domän och inte ska räknas som två.  Det är samma
   \inputminted{python}{examples/epost.py}
 \end{frame}
 
-För att kunna visa en körning matar vi programmet med en färdig
-inmatning i stället för att skriva den för hand.
+Så här ser en körning ut när vi skriver adresserna för hand.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[En körning]
+    \label{ex:epost-run}
+    Sex adresser, varav två inte duger, och en blankrad som avslutar:
+    \runpython[transcript, stdinfile={examples/epost.in}]%
+      {examples/epost.py}
+  \end{example}
+\end{frame}
+
+Tre av adresserna delar domän, och domänen förekommer ändå bara en gång i
+utskriften.  Det är det mängden är till för.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ex:epost-run,ex:epost-fil}:
+  \cref{OvningContainersLOSet}.
+
+  Båda körningarna kommer ur samma tanglade inmatningsfil, så
+  utskriften i materialet är den programmet verkligen ger.  Ordningen
+  --- för hand, filen, omdirigeringen --- låter studenten känna igen
+  körningen innan formen ändras; att frågorna flyter ihop i den andra
+  körningen är då den enda skillnaden att se, och prosan förklarar den.
+}%
+Som i föreläsningen \emph{Behållare: Uppslagslistor} kan vi också mata
+programmet med en färdig inmatning i stället för att skriva den för hand.
+Inmatningen skriver vi i en fil, en adress per rad.
 
 \begin{frame}[fragile]
-  \frametitle{Inmatningen}
-  Sex adresser, varav två inte duger, och en blankrad som avslutar:
+  Filen \texttt{epost.in} --- samma sex adresser, och den tomma raden
+  sist avslutar:
 <<[[epost.in]]>>=
 ronja@kth.se
 pippi.langstrump@kth.se
@@ -319,16 +388,24 @@ lisabet@kth.se
 @
 \end{frame}
 
+I terminalen ger vi programmet filen med \texttt{<} framför filnamnet.
+Då läser \mintinline{python}{input} sina svar från filen i stället för
+från tangentbordet.
+
 \begin{frame}[fragile,shrink]
-  \begin{example}[En körning]
-    Så här ser det ut när programmet körs med den inmatningen:
-    \runpython[transcript, stdinfile={examples/epost.in}]%
-      {examples/epost.py}
+  \begin{example}[En körning med inmatningen från filen]
+    \label{ex:epost-fil}
+    Samma körning, med adresserna ur \texttt{epost.in}:
+    \runshell[showcommand, cwd=examples,
+      deps={examples/epost.py,examples/epost.in}]%
+      {python3 epost.py < epost.in}
   \end{example}
 \end{frame}
 
-Tre av adresserna delar domän, och domänen förekommer ändå bara en gång i
-utskriften.  Det är det mängden är till för.
+Frågorna och svaren hamnar inte längre på var sin rad.  Inmatningen
+kommer från filen och skrivs aldrig ut i terminalen, så varken adresserna
+eller radbytet efter dem syns: nästa utskrift börjar direkt efter
+frågan.
 
 \leavevmode\ltnote{%
   Relevanta lärandemål för \cref{ovn:epost}: \cref{OvningContainersLOChoose}.
@@ -595,7 +672,8 @@ vet.
 
   Inläsningen och tabellen är ett och samma namngivna stycke i båda
   programmen, \texttt{letters.py} och \texttt{counter.py}, så att det
-  invarianta står en gång och det som varierar --- räkningen och frågan om den vanligaste --- syns utan att två
+  invarianta står en gång och det som varierar --- räkningen och frågan
+  om den vanligaste --- syns utan att två
   kopior behöver jämföras rad för rad.
 
   [[Counter]] är den behållare dokumentationsuppgiften i föreläsningen
@@ -1452,7 +1530,8 @@ ett val att motivera.  Så här ska programmet bete sig när det är klart.
 \subsection{Lösningsförslag}
 
 Tre klasser, var och en med ett ansvar, som \emph{SRP} i
-\cref{sec:epost} säger: banken vet vilka konton som finns, kontot vet vad det innehåller och vaktar sitt saldo, och personen
+\cref{sec:epost} säger: banken vet vilka konton som finns, kontot vet
+vad det innehåller och vaktar sitt saldo, och personen
 vet vad hen heter.  Klasserna ligger i en modul, och ett eget program
 använder dem --- så att modulen går att importera från flera program.
 Modulen har bara klasser: inga hjälpfunktioner och inget huvudprogram,

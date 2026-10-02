@@ -40,6 +40,7 @@ SRC+=		ltnotes.bib
 # One line per tangled example program.  Recaps re-display these files
 # with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/epost.py
+EXAMPLES+=	examples/ordning.py
 EXAMPLES+=	examples/letters.py
 EXAMPLES+=	examples/counter.py
 EXAMPLES+=	examples/fraction.py
@@ -59,8 +60,9 @@ EXAMPLES+=	examples/angra.py
 EXAMPLES+=	examples/cowsay.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/humor.py
-# The transcript of epost.py is produced by feeding it this file, so the
-# run in the notes is exactly the run the reader can reproduce.
+# Both runs of epost.py, the one typed by hand and the one piped with <,
+# are fed this file, so the runs in the notes are exactly the runs the
+# reader can reproduce.
 EXAMPLES+=	examples/epost.in
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
