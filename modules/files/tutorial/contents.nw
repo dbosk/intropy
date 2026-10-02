@@ -450,18 +450,17 @@ De sex funktionerna fick bli en egen fil, inte en del av det första
 program som behöver dem.  Skälet syns nu när de står samlade: de har
 inte med något enskilt program att göra, utan svarar på frågor om filer
 --- och de frågorna ändras av andra skäl än ordräkningen eller
-översättningen ändras.  Det är principen om ett enda ansvar, \emph{SRP}
-(\foreignlanguage{english}{Single Responsibility Principle}) --- en
-modul ska inte ha mer än ett skäl att
-ändras\autocite[kap.~8]{Martin2003Agile}.\footnote{%
+översättningen ändras.  Det är \emph{SRP}, principen om ett enda ansvar
+från föreläsningen \emph{Funktioner}, här för en hel modul: den ska
+inte ha mer än ett skäl att ändras\autocite[kap.~8]{Martin2003Agile}.%
+\footnote{%
   Det vetenskapliga underlaget för SRP --- att principen är etablerad,
   och att avgränsningen av \enquote{ett ansvar} är en bedömningsfråga
   --- finns i föreläsningen \emph{Funktioner}, bilaga B.%
 }
-Att lägga dem här en gång i
-stället för i varje program är samtidigt \emph{DRY}
-(\foreignlanguage{english}{Don't Repeat Yourself}), varje kunskap på ett
-enda ställe\autocite{HuntThomas1999}.\footnote{%
+Att lägga dem här en gång i stället för i varje program är samtidigt
+\emph{DRY} från föreläsningen \emph{Algoritmiskt tänkande}, varje
+faktum på ett enda ställe\autocite{HuntThomas1999}.\footnote{%
   Det vetenskapliga underlaget för DRY --- både var principen kommer
   ifrån och om den håller, med sina förbehåll --- finns i
   föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
@@ -615,17 +614,19 @@ def börjar_som_jpeg(filnamn):
   \end{solution}
 \end{frame}
 
-Läget \mintinline{python}{"rb"} är det som gör det hela möjligt.  I
-textläge tolkar Python filens byte enligt en teckenkodning för att bygga
-upp en sträng, och en JPEG-fil följer ingen teckenkodning; i binärläge
-sker ingen avkodning alls, och [[read]] ger en [[bytes]] rakt av.
-Jämförelsen måste då ske mot en [[bytes]]:
+Läget \mintinline{python}{"rb"} är det som gör det hela möjligt.  Som
+vi såg i föreläsningen \emph{Arbeta med filer} sker ingen avkodning i
+binärläge, och [[read]] ger en [[bytes]] i stället för en [[str]]; en
+JPEG-fil följer ingen teckenkodning och går inte att avkoda som text.
+Det nya här är jämförelsen, som måste ske mot en [[bytes]]:
 \mintinline{python}{b"\xff"} och \mintinline{python}{"ÿ"} är olika
 värden av olika typ, och jämförelsen mellan dem blir alltid falsk ---
-samma slags fälla som strängen \mintinline{python}{"42"} mot talet 42.
+samma slags fälla som strängen \mintinline{python}{"42"} mot talet
+\mintinline{python}{42}.
 
 Argumentet till [[read]] är det andra som behövdes: utan argument läser
-den hela filen, med argumentet 3 bara de tre första byten.  För en
+den hela filen, med argumentet \mintinline{python}{3} bara de tre första
+byten.  För en
 bildfil på några megabyte är det skillnaden mellan tre byte och hela
 filen i minnet.
 
@@ -817,7 +818,8 @@ Att räkna orden och att räkna bokstäverna ser ut som två uppgifter, men
 det är en.  Båda går igenom en följd av delar och håller reda på hur
 många gånger varje del förekommit; det enda som skiljer dem är vad
 texten delas upp i.  Alltså skriver vi räkningen \emph{en} gång, med
-delarna som parameter, och kallar den \texttt{räkna}.  Då kostar de två
+delarna som parameter, och kallar den \texttt{räkna} --- DRY igen, som
+när filfrågorna fick en egen modul.  Då kostar de två
 räkningarna som huvudprogrammet anropar en rad var.
 
 \begin{frame}[fragile]
@@ -867,9 +869,10 @@ det går inte att öka den med ett.  Resten är slingan från
 föreläsningen \emph{Upprepningar} över en behållare från
 \emph{Behållare: Uppslagslistor}.
 
-Resultatet ska ut på fil, och formatet ska vara CSV.  Modulen [[csv]] i
-standardbiblioteket sköter formateringen: vi ger den en lista med värden
-per rad, och den skriver dem\autocite{PythonCSV}.
+Resultatet ska ut på fil, och formatet ska vara CSV.  Som i
+föreläsningen \emph{Arbeta med filer} låter vi modulen [[csv]] sköta
+formateringen: vi ger den en lista med värden per rad, och den skriver
+dem\autocite{PythonCSV}.
 
 \begin{frame}[fragile]
   \begin{solution}[Att skriva tabellen som CSV]
@@ -886,20 +889,18 @@ def skriv_csv(filnamn, antal):
 \end{frame}
 
 Argumentet \mintinline{python}{newline=""} till
-\mintinline{python}{open} är vad dokumentationen föreskriver för
-CSV-filer: modulen sköter radbrytningarna själv, och utan argumentet kan
-filen få dubbla radbrytningar på vissa system\autocite{PythonCSV}.
-Metoden [[items]] ger nyckel och värde tillsammans, så att slingan kan
-ta emot båda.
+\mintinline{python}{open} är det dokumentationen föreskriver för
+CSV-filer, som i föreläsningen.  Metoden [[items]] ger nyckel och
+värde tillsammans, så att slingan kan ta emot båda.
 
 Varför inte bara skriva raderna själv, med ett kommatecken emellan?
 Därför att orden i den här texten inte är rena ord: [[split]] delar bara
 vid blanktecken, så skiljetecknen sitter kvar --- och ett av dem är
 kommatecknet.  Ett ord som \mintinline{text}|föräldrar,| skulle bli två
-fält i stället för ett.  Det är det specialfallet CSV-beskrivningen i
-RFC~4180 löser genom att omge sådana fält med
-citattecken\autocite{RFC4180}, och modulen [[csv]] gör det åt
-oss.\footnote{%
+fält i stället för ett.  Det är kommatecknet inuti ett fält från
+föreläsningen \emph{Arbeta med filer}, här i riktiga data, och modulen
+[[csv]] löser det som CSV-beskrivningen i RFC~4180 gör: fältet omges
+av citattecken\autocite{RFC4180}.\footnote{%
   Det vetenskapliga underlaget --- att CSV är mycket vanligt men aldrig
   formellt standardiserat, till skillnad från JSON --- finns i
   föreläsningen \emph{Arbeta med filer}, bilaga E.%
@@ -1604,7 +1605,15 @@ if __name__ == "__main__":
 \end{frame}
 
 Vilket av de två sätten ska man välja?  Det första räcker för det
-uppgiften kräver, och det är kortare.  Det andra kostar en fil till och
+uppgiften kräver, och det är enklare: det är \emph{KISS}, den enklaste
+lösning som duger, som vi mötte i föreläsningen
+\emph{Funktioner}.\footnote{%
+  Det vetenskapliga underlaget för KISS finns i föreläsningen
+  \emph{Funktioner}, bilaga C: enkelhet som designvärde är väl etablerat,
+  medan det inte går att bekräfta att uttrycket kommer från Kelly
+  Johnson, som det brukar tillskrivas.%
+}
+Det andra kostar en fil till och
 ett namnbyte, men är det man vill ha när filen är värdefull och inte går
 att skapa på nytt.  Gemensamt för båda är det som uppgiften handlar om:
 filen är läst och stängd, och översättningen färdig, innan något
@@ -1748,9 +1757,9 @@ if __name__ == "__main__":
 \end{frame}
 
 Eftersom posten \emph{är} raden är raden också den naturliga enheten att
-läsa.  Slingan direkt över filobjektet ger en rad per varv, och behöver
-aldrig ha mer än en rad i minnet
-samtidigt\autocite{PythonTutorialFiles}.\footnote{%
+läsa.  Slingan direkt över filobjektet från föreläsningen \emph{Arbeta
+med filer} ger en rad per varv, och behöver aldrig ha mer än en rad i
+minnet samtidigt\autocite{PythonTutorialFiles}.\footnote{%
   Det vetenskapliga underlaget för vad Pythons filfunktioner gör, den
   minnessnåla slingan inräknad, finns i föreläsningen \emph{Arbeta med
   filer}, bilaga D.%
@@ -1782,9 +1791,9 @@ programmet går att pröva mot en annan databas utan att ändras.
 
 Att lägga till en spådom ser ut som en skrivning, men läget
 \mintinline{python}{"w"} duger inte: det tömmer filen, och då är de
-gamla spådomarna borta.  Det är vad läget \mintinline{python}{"a"} är
-till för --- allt som skrivs hamnar sist i filen, och det som redan
-stod där rörs inte.
+gamla spådomarna borta.  Det är vad läget \mintinline{python}{"a"} från
+föreläsningen \emph{Arbeta med filer} är till för: allt som skrivs
+hamnar sist i filen, och det som redan stod där rörs inte.
 
 \begin{frame}[fragile]
   \begin{solution}[Att bygga på databasen]
@@ -1812,12 +1821,11 @@ en post per rad --- vore brutet av just det som skulle fylla på det.
   \end{example}
 \end{frame}
 
-Ett program som svarar olika varje gång är obekvämt att visa i tryck, så
-provprogrammet börjar med att ställa slumptalsgeneratorn i ett bestämt
-läge med [[random.seed]].  Då blir valet detsamma varje körning, vilket
-är precis vad man vill när man provkör --- och inte vad man vill när
-programmet används.  Provprogrammet importerar modulen [[filer]], filen
-från \cref{ex:filer}, och fortuneprogrammet [[fortune]], filen från
+Provprogrammet ställer slumptalsgeneratorn i ett bestämt läge med
+[[random.seed]], som i \emph{Behållare: Ett gissningsspel}, så att valet
+blir detsamma i varje provkörning.  Provprogrammet importerar modulen
+[[filer]], filen från \cref{ex:filer}, och fortuneprogrammet
+[[fortune]], filen från
 \cref{ex:fortune}.
 
 \mode<article>{\needspace{8\baselineskip}}
@@ -2381,9 +2389,9 @@ def läs_jämförelse(filnamn):
   \end{solution}
 \end{frame}
 
-Argumentet \mintinline{python}{newline=""} står kvar också vid läsning:
-dokumentationen föreskriver det åt båda hållen, eftersom modulen sköter
-radbrytningarna själv\autocite{PythonCSV}.
+Argumentet \mintinline{python}{newline=""} står kvar också vid läsning,
+som i föreläsningen \emph{Arbeta med filer}: dokumentationen föreskriver
+det åt båda hållen\autocite{PythonCSV}.
 
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
