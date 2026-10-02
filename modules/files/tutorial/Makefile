@@ -51,6 +51,9 @@ EXAMPLES+=	examples/analys.py
 EXAMPLES+=	examples/fortunes.txt
 EXAMPLES+=	examples/fortunes2.txt
 EXAMPLES+=	examples/fortunes3.txt
+# rövare.py writes over the file it is given, so its runs read a copy of
+# the committed madicken.txt, never the original.
+EXAMPLES+=	examples/madicken-kopia.txt
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
 # and every deck's source is called contents.nw, so in the course book
@@ -80,6 +83,9 @@ examples/fortunes2.txt: contents.nw
 examples/fortunes3.txt: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[fortunes3.txt]]' $< > $@
+
+examples/madicken-kopia.txt: examples/madicken.txt
+	cp $< $@
 
 .PHONY: examples
 examples: ${EXAMPLES}
