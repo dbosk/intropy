@@ -34,6 +34,7 @@ EXAMPLES+=	examples/avstand.py
 EXAMPLES+=	examples/isin.py
 EXAMPLES+=	examples/isin-alt.py
 EXAMPLES+=	examples/hamta.py
+EXAMPLES+=	examples/slinga.py
 EXAMPLES+=	examples/genomgang.py
 EXAMPLES+=	examples/sorterad.py
 EXAMPLES+=	examples/search.py
