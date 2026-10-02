@@ -33,6 +33,13 @@ EXAMPLES+=	examples/overwrite.py
 EXAMPLES+=	examples/clock_loop.py
 EXAMPLES+=	examples/clock.py
 EXAMPLES+=	examples/countdown.py
+# countdown.py's test program grows one test case at a time, and the deck
+# shows each case's output beside it.  Each of these programs runs one
+# case; they reference the test chunks in contents.nw from
+# testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/countdown_test_count_down.py
+TESTRUNS+=	examples/countdown_test_format_time.py
+EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/timer.py
 EXAMPLES+=	examples/timer2.py
 # draw.py is written in the lecture Grafiska användargränssnitt
@@ -61,6 +68,8 @@ contents.tex: contents.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+${TESTRUNS}: testkorningar.nw
 
 .PHONY: examples
 examples: ${EXAMPLES}
