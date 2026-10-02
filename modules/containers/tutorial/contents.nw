@@ -1574,8 +1574,9 @@ Tre klasser, var och en med ett ansvar, som \emph{SRP} i
 vad det innehåller och vaktar sitt saldo, och personen
 vet vad hen heter.  Klasserna ligger i en modul, och ett eget program
 använder dem --- så att modulen går att importera från flera program.
-Modulen har bara klasser: inga hjälpfunktioner och inget huvudprogram,
-eftersom det är programmet som använder den som gör något.
+Modulen har klasserna och, som bråkfilen i
+\cref{sec:brak-ovning-behallare}, ett testprogram som provar dem när
+filen körs som program.
 
 \begin{frame}[fragile]
   \frametitle{Modulens upplägg}
@@ -1584,6 +1585,25 @@ eftersom det är programmet som använder den som gör något.
 """Klasser för en bank med konton"""
 
 <<bankmodulens klasser>>
+
+<<bankmodulens tester>>
+@
+\end{frame}
+
+Testprogrammet heter \mintinline{python}{tests}, som bråkfilens, och
+växer med klasserna: när en del går att prova lägger vi till ett
+testfall, och bredvid testfallet står vad just de raderna skriver ut.
+
+\begin{frame}[fragile]
+  \frametitle{Testprogrammet}
+  Testfallen läggs till ett i taget:
+<<bankmodulens tester>>=
+def tests():
+    """Provar bankens klasser"""
+    <<tester för banken>>
+
+if __name__ == "__main__":
+    tests()
 @
 \end{frame}
 
@@ -1791,6 +1811,44 @@ class Person:
     def __str__(self):
         return self.__name
 @
+\end{frame}
+
+De tre klasserna anropar varandra, så det är först nu, när alla tre
+finns, som de går att prova.  Det första testfallet provar kontot: en
+insättning och ett uttag som saldot täcker.
+
+\begin{frame}[fragile]
+  \frametitle{Prova kontot}
+  Fem hundra kronor, hundra in och två hundra ut:
+<<prova kontot>>=
+account = Account("1001", Person("Ronja"), 500)
+account.deposit(100)
+account.withdraw(200)
+print(account)
+<<tester för banken>>=
+<<prova kontot>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_konto.py}
+\end{frame}
+
+Det andra provar banken: två konton och en överföring mellan dem.
+
+\begin{frame}[fragile]
+  \frametitle{Prova banken}
+  Två hundra kronor byter konto:
+<<prova banken>>=
+bank = Bank()
+bank.open_account("1001", Person("Ronja"), 500)
+bank.open_account("1002", Person("Pippi"), 100)
+bank.transfer("1001", "1002", 200)
+print(bank)
+<<tester för banken>>=
+
+<<prova banken>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_banken.py}
 \end{frame}
 
 Programmet som använder banken importerar klasserna ur modulen.
@@ -2028,6 +2086,23 @@ Uppackningen i tre namn är densamma som
 föreläsningen \emph{Behållare: Uppslagslistor}, och att metoden vägrar
 när stacken är tom är samma slags kontroll som kontots.
 
+Det sista testfallet ångrar överföringen från testfallet för banken, så
+att saldona blir de ursprungliga igen.
+
+\begin{frame}[fragile]
+  \frametitle{Prova ångrandet}
+  Överföringen görs baklänges:
+<<prova ångrandet>>=
+bank.undo()
+print(bank)
+<<tester för banken>>=
+
+<<prova ångrandet>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_angra.py}
+\end{frame}
+
 % Modulen visas hel först här och inte i uppgiften Banken: den
 % tanglade filen innehåller minnet och ångrandet, som skulle röja
 % svaret på den här uppgiften innan den ställts.
@@ -2042,6 +2117,13 @@ Därmed är modulen [[bank.py]] färdig.
 \end{example}
 
 }
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Testprogrammet]
+    Kör vi modulen som program får vi testprogrammets utskrift:
+    \runpython[showcommand, chdir]{examples/bank.py}
+  \end{example}
+\end{frame}
 
 Programmet som provar ångrandet är upplagt som det förra, med
 huvudprogrammet i pseudokod.  Modulen \mintinline{python}{bank} är

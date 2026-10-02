@@ -58,6 +58,11 @@ EXAMPLES+=	examples/heltal_forst.py
 EXAMPLES+=	examples/nyckel1.py
 EXAMPLES+=	examples/nyckel2.py
 EXAMPLES+=	examples/bank.py
+# bank.py's test cases are shown the same way as fraction.py's.
+BANKRUNS+=	examples/bank_test_konto.py
+BANKRUNS+=	examples/bank_test_banken.py
+BANKRUNS+=	examples/bank_test_angra.py
+EXAMPLES+=	${BANKRUNS}
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py
 EXAMPLES+=	examples/cowsay.py
@@ -76,7 +81,7 @@ EXAMPLES+=	examples/epost.in
 NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
 	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
-${TESTRUNS}: testkorningar.nw
+${TESTRUNS} ${BANKRUNS}: testkorningar.nw
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.
