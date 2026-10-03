@@ -1212,6 +1212,12 @@ behövde ett eget \mintinline{python}{try} (\cref{ex:contacts-lookup}).
 Och attributen är privata, så klassen kan lägga till validering eller
 byta intern representation utan att den som använder den märker något.
 
+Men lägg märke till att programmet med uppslagslistor fungerade: det
+gav samma utskrift som programmet med klassen
+(\cref{ex:contacts-run,ex:contacts-class-run}).  Python kräver inga
+klasser.  Klassen är ett val vi gör, för att programmet ska bli lättare
+att läsa och svårare att använda fel.
+
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{ClassLORepresentation}.
 
@@ -1499,6 +1505,40 @@ Pythons inbyggda typer: \mintinline{python}{str("hej")} och
 \mintinline{python}{str("hejdå")} ger två strängar, och typen
 \mintinline{python}{str} har ingen lista över alla strängar i
 programmet.  En klass är en mall, inte en behållare.
+
+Men vad räknar en klass upp?  \mintinline{python}{Person} räknar upp vad
+telefonboken behöver veta om en person.  Ett annat program behöver veta
+annat.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:kursregister}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOObject,ClassLORepresentation}.
+
+  \Cref{ovn:kursregister} varierar problemet och håller personen
+  invariant: samma människa modelleras för två program.  Det gör
+  klassen som modell synlig, objektets och klassens tredje nivå
+  \parencite[91]{EckerdalThune2005}, och visar var liknelsen med
+  ritningen tar slut, en liknelse ur vardagen som kan vilseleda
+  \parencite{TeifHazzan2006}.  Underlaget finns i
+  \cref{app:fenomenografi-klasser}.
+}%
+    Ett kursregister behöver också veta saker om personer.  Vilka
+    uppgifter om en person behöver kursregistret?  Vilka av de uppgifter
+    som \mintinline{python}{Person} har behöver det inte?  Blir det
+    samma klass?
+  \end{exercise}
+\end{frame}
+
+Kursregistret behöver annat än telefonboken: personnummer,
+e-postadress, vilka kurser personen är registrerad på och vilka resultat
+den har.  Namnet behövs i båda, men adressen och telefonnumret behöver
+kursregistret inte.  Det blir en annan klass, fast det är samma
+människa.  En klass beskriver alltså inte en person som helhet, utan det
+som ett visst program behöver veta om personer.  Där tar liknelsen med
+ritningen slut: ritningen beskriver hela huset, men klassen tar bara med
+det som problemet kräver.
 
 
 \subsection{Metoder och attribut}
@@ -1788,6 +1828,12 @@ i \cref{ex:person-getters} returnerar var sitt attribut.
   memorera enskilda dundermetoder utan förstå den generella principen:
   när jag vill att mina objekt ska fungera med Pythons inbyggda
   operationer och funktioner implementerar jag motsvarande dundermetod.
+
+  Jämförelserna och sorteringen är de enda ställen i kapitlet där objekt
+  verkar på varandra.  Objekt som anropar varandras metoder, som
+  studenter i en studie med begreppskartor sällan tog med
+  \parencite{Sanders2008ConceptMaps}, lämnas åt föreläsningen
+  \emph{Praktiska tillämpningar av klasser}.
 }%
 Vi har redan sett några dundermetoder som \mintinline{python}{__init__}
 och \mintinline{python}{__str__}\only<article>{
@@ -2038,7 +2084,43 @@ person2}.\footnote{\label{fn:default-eq}%
   \url{https://docs.python.org/3/reference/datamodel.html\#object.__hash__}
   (hämtad 2026-09-03).}
 Två objekt med samma attributvärden är alltså två objekt; att ändra det
-ena rör inte det andra.  Vill vi att \mintinline{python}{==} ska jämföra
+ena rör inte det andra.  \Cref{fig:tva-objekt-lika} ritar upp det: två
+namn, två objekt.
+
+% A plain tabular, not TikZ: neither the decks nor the book load TikZ,
+% and boxes and arrows are all the diagram needs.  A normal caption: the
+% caption is taller than the figure, and the margin holds the footnote.
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \def\kq{\textquotedbl}%
+    \def\koobjekt{%
+      \fbox{\footnotesize
+        \begin{tabular}{@{}l@{\ }l@{}}
+          \multicolumn{2}{@{}c@{}}{ett \texttt{Person}-objekt} \\
+          \hline
+          \texttt{\_\_first\_name} & \texttt{\kq Ada\kq} \\
+          \texttt{\_\_last\_name} & \texttt{\kq Bedasdotter\kq} \\
+          \texttt{\_\_birthday} & \texttt{\kq 1990-01-01\kq} \\
+          \texttt{\_\_address} & \texttt{\kq Kiruna\kq} \\
+          \texttt{\_\_phone} & \texttt{\kq -\kq} \\
+        \end{tabular}}}%
+    \begin{tabular}{cc}
+      \texttt{person1} & \texttt{person2} \\
+      \(\downarrow\) & \(\downarrow\) \\
+      \koobjekt & \koobjekt
+    \end{tabular}
+    \caption{Namnen och objekten i \texttt{compare.py}.  Varje pil går
+      från ett namn till det objekt som namnet står för, och varje ruta är
+      ett objekt: överst dess klass, under den attributen med sina
+      värden.  De två rutorna har samma värden men är två objekt, så
+      \texttt{person1 == person2} är falskt; \texttt{person1 == person1}
+      jämför ett objekt med sig självt och är sant.}
+    \label{fig:tva-objekt-lika}
+  \end{figure}
+\end{frame}
+
+Vill vi att \mintinline{python}{==} ska jämföra
 innehållet --- säg namn och födelsedag --- definierar vi
 \mintinline{python}{__eq__(self, other)} på samma sätt som
 \mintinline{python}{__lt__}, och låter den returnera
