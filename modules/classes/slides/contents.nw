@@ -718,11 +718,76 @@ phonebook = {
   \end{example}
 \end{frame}
 
+% The two stores are listed from the tangled programs themselves, with
+% didactic's PythonTeX helpers, so the pair cannot drift from the chunks.
+% didactic_import executes each file, which is safe because both call
+% main only under the __name__ guard; contacts_class.py imports person,
+% so examples/ goes on the path first.  The output holds each mode's
+% version: the notes set the pair over the full width, with columns as
+% wide as the code needs, the slides in a smaller font.  The notes' pair
+% is a float, so that the margin notes keep clear of it the way they do
+% of a side caption; inline, \blockmargin lost a nearby footnote in the
+% course book.  A frame per mode does not work either: the slides job
+% typesets an article-only fragile frame too, only to throw it away.
+\begin{frame}[fragile,shrink=10]
+  \begin{figure}[htbp]
+    \centering
+\begin{pycode}
+import textwrap
+
+sys.path.insert(0, "examples")
+
+
+def phonebook_source(module):
+    """Returns the lines of module's main that store the contacts"""
+    lines = inspect.getsource(module.main).splitlines()
+    start = next(i for i, line in enumerate(lines) if "phonebook =" in line)
+    end = lines.index("    }", start)
+    return textwrap.dedent("\n".join(lines[start : end + 1]))
+
+
+def side_by_side(left, right, width, modes):
+    """Prints left and right side by side, the left column width (a
+    fraction of the full width) wide, in each of modes"""
+    for mode in modes:
+        if mode == "article":
+            start, end, options = r"\begin{fullwidth}", r"\end{fullwidth}", ""
+        else:
+            start, end, options = "", "", r"fontsize=\tiny"
+        print(r"\mode<%s>{%s" % (mode, start))
+        print(
+            r"\begin{tabular}{@{}p{%.2f\columnwidth}@{\hspace{1em}}"
+            r"p{%.2f\columnwidth}@{}}" % (width, 0.97 - width)
+        )
+        didactic_mint(left, lang="python", minted_opts=options)
+        print("&")
+        didactic_mint(right, lang="python", minted_opts=options)
+        print(r"\end{tabular}%s}" % end)
+
+
+contacts = didactic_import("contacts", "examples/contacts.py")
+contacts_class = didactic_import(
+    "contacts_class", "examples/contacts_class.py"
+)
+side_by_side(
+    phonebook_source(contacts),
+    phonebook_source(contacts_class),
+    0.33,
+    ["article", "presentation"],
+)
+\end{pycode}
+    \caption{De två sätten att lagra kontakterna: de nästlade
+      uppslagslistorna ur \texttt{contacts.py} till vänster och
+      personobjekten ur \texttt{contacts\_class.py} till höger.}
+    \label{fig:skapa-bredvid}
+  \end{figure}
+\end{frame}
+
 \begin{frame}
   \begin{exercise}
     \label{ovn:jamfor-skapa}
     Jämför koden för att skapa personer i de två
-    exemplen\only<article>{, \cref{ex:contacts-data,ex:contacts-class-data}}.
+    exemplen\only<article>{, \cref{fig:skapa-bredvid}}.
     Vilka skillnader ser du?  Vilket sätt tycker du är tydligare, och
     varför?
   \end{exercise}
@@ -1048,11 +1113,39 @@ def print_contact(phonebook, name):
   \end{example}
 \end{frame}
 
+% As for the two stores: the functions are listed from the tangled files.
+% They are too wide to stand side by side on a slide, so the slide shows
+% the dictionary version alone, right after the class version.
+\begin{frame}[fragile]
+  \begin{figure}[htbp]
+    \centering
+\begin{pycode}
+side_by_side(
+    inspect.getsource(contacts.print_contact).strip("\n"),
+    inspect.getsource(contacts_class.print_contact).strip("\n"),
+    0.52,
+    ["article"],
+)
+print(r"\mode<presentation>{Samma funktion i \texttt{contacts.py}:\par")
+didactic_source(contacts.print_contact, minted_opts="")
+print("}")
+\end{pycode}
+    \mode<article>{%
+      \caption{Funktionen \texttt{print\_contact} på de två sätten: ur
+        \texttt{contacts.py} till vänster och ur \texttt{contacts\_class.py}
+        till höger.}%
+      \label{fig:print-contact-bredvid}}
+  \end{figure}
+\end{frame}
+
 \leavevmode\ltnote{%
   Här blir kontrasten \enquote{metoder mot fristående funktioner} från
   avsnittets inledande not synlig: \mintinline{python}{print_contact} i
   \cref{ex:contacts-lookup,ex:contacts-class-lookup} har samma namn,
-  parametrar och utskrift, och bara kroppen varierar.
+  parametrar och utskrift, och bara kroppen varierar.  Därför står de
+  två bredvid varandra (\cref{fig:print-contact-bredvid}), och likaså
+  lagringen inför \cref{ovn:jamfor-skapa} (\cref{fig:skapa-bredvid}):
+  en kontrast syns när båda sidorna syns på en gång.
 }%
 Vilken skillnad!  Funktionerna heter och gör samma sak i båda
 programmen; det som skiljer är kroppen i
@@ -1138,7 +1231,9 @@ person ändras.
 }%
     Vi vill också spara en e-postadress för varje kontakt och skriva ut
     den.  Vad måste ändras i \texttt{contacts.py}, och vad i
-    \texttt{contacts\_class.py} och \texttt{person.py}?  Räkna ställena.
+    \texttt{contacts\_class.py} och \texttt{person.py}?  Räkna
+    ställena\only<article>{; \cref{fig:skapa-bredvid,fig:print-contact-bredvid}
+    visar de delar av programmen som berörs}.
   \end{exercise}
 \end{frame}
 
