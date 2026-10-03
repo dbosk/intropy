@@ -26,7 +26,6 @@ SRC+=		ltnotes.bib
 # One line per tangled solution program.  The last section re-displays
 # these files with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/book.py
-EXAMPLES+=	examples/books.py
 EXAMPLES+=	examples/read500.py
 EXAMPLES+=	examples/trace.py
 EXAMPLES+=	examples/shelf.py
@@ -41,6 +40,10 @@ EXAMPLES+=	examples/borrowed.py
 # deck shows each case's output beside it.  Each of these programs runs
 # one case (after the earlier ones, silenced); they reference the test
 # chunks in contents.nw from testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/book_test_utskrift.py
+TESTRUNS+=	examples/book_test_lasning.py
+TESTRUNS+=	examples/book_test_ordning.py
+TESTRUNS+=	examples/book_test_likhet.py
 TESTRUNS+=	examples/borrowed_test_utskrift.py
 EXAMPLES+=	${TESTRUNS}
 
