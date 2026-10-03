@@ -29,6 +29,7 @@ SRC+=		ltnotes.bib
 EXAMPLES+=	examples/telefonbok.py
 EXAMPLES+=	examples/contacts.py
 EXAMPLES+=	examples/saknat_falt.py
+EXAMPLES+=	examples/saknat_argument.py
 EXAMPLES+=	examples/person.py
 EXAMPLES+=	examples/contacts_class.py
 EXAMPLES+=	examples/public.py

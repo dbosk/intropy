@@ -142,7 +142,10 @@ def main():
     <<lagra telefonnumren i en uppslagslista>>
     print_names(phonebook)
     while name := input("Ange namn: "):
-        print_contact(phonebook, name)
+        if name in phonebook:
+            print_contact(phonebook, name)
+        else:
+            print(f"Tyvärr, {name} finns inte i telefonboken.")
 
 if __name__ == "__main__":
     main()
@@ -155,7 +158,12 @@ tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
 \emph{Övning: Inmatning, felhantering och styrstrukturer} och i
 föreläsningarna \emph{Upprepningar} och \emph{Behållare:
 Uppslagslistor}.  En tom sträng är falsk, så slingan går tills
-användaren svarar med en tom rad.
+användaren svarar med en tom rad.  Ett namn som inte finns i
+telefonboken skulle ge ett \mintinline{python}{KeyError} när
+\mintinline{python}{print_contact} slår upp det, så huvudprogrammet
+frågar först med \mintinline{python}{in}, som i föreläsningen
+\emph{Behållare: Uppslagslistor}, avsnittet \emph{När nyckeln saknas},
+och svarar med samma mening som där.
 
 Med en uppslagslista blir lagringen en rad eller två när vi preciserar
 den.
@@ -208,7 +216,8 @@ def print_contact(phonebook, name):
 \begin{frame}[fragile]
   \begin{example}[En körning av \texttt{telefonbok.py}]
     \label{ex:telefonbok-run}
-    Vi söker efter alla tre och avslutar med en tom rad:
+    Vi söker efter alla tre, och efter Annika, som inte finns i
+    telefonboken, och avslutar med en tom rad:
     \runpython[transcript, stdinfile={examples/sokningar.in}]%
       {examples/telefonbok.py}
   \end{example}
@@ -254,7 +263,7 @@ saknar några personer en uppgift.  Upplägget och huvudprogrammet är
 desamma som i \texttt{telefonbok.py}, så när som på hur kontakterna
 lagras.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=12]
   \begin{example}[En telefonbok med nästlade uppslagslistor]
     \label{ex:contacts}
     Samma upplägg och samma huvudprogram som i \texttt{telefonbok.py}:
@@ -272,7 +281,10 @@ def main():
     <<lagra kontakterna i en nästlad uppslagslista>>
     print_names(phonebook)
     while name := input("Ange namn: "):
-        print_contact(phonebook, name)
+        if name in phonebook:
+            print_contact(phonebook, name)
+        else:
+            print(f"Tyvärr, {name} finns inte i telefonboken.")
 
 if __name__ == "__main__":
     main()
@@ -511,7 +523,7 @@ importeras.
     \label{ex:person}
     Filen \texttt{person.py} uppifrån:
 <<[[person.py]]>>=
-"""Class for a person"""
+"""Klass för en person"""
 
 <<klasserna i [[person.py]]>>
 
@@ -531,7 +543,7 @@ läggs till efter dem som redan står under samma namn.
     Klassens skal, med metoderna samlade under ett namn:
 <<klasserna i [[person.py]]>>=
 class Person:
-    """Class for a person"""
+    """Klass för en person"""
 
     <<metoderna i [[Person]]>>
 @
@@ -548,11 +560,11 @@ emot uppgifterna om personen och sparar dem.
     Konstruktorn initierar alla attribut:
 <<metoderna i [[Person]]>>=
 def __init__(self, first_name, last_name, birthday, address, phone):
-    """first_name: string with first name.
-    last_name: string with last name.
-    birthday: string with birthday,
-    address: string or Address object with address.
-    phone: string with phone number"""
+    """first_name: sträng med förnamnet.
+    last_name: sträng med efternamnet.
+    birthday: sträng med födelsedagen.
+    address: sträng med adressen.
+    phone: sträng med telefonnumret."""
     self.__first_name = first_name
     self.__last_name = last_name
     self.__birthday = birthday
@@ -605,7 +617,7 @@ vi bygger vidare på den.
     Testprogrammet, med testfallen i pseudokod:
 <<testerna i [[person.py]]>>=
 def tests():
-    """Test program"""
+    """Testprogram"""
     <<skapa en person>>
     <<skriv ut personen>>
     <<byt namn på personen>>
@@ -688,7 +700,10 @@ def main():
     <<lagra kontakterna som personobjekt>>
     print_names(phonebook)
     while name := input("Ange namn: "):
-        print_contact(phonebook, name)
+        if name in phonebook:
+            print_contact(phonebook, name)
+        else:
+            print(f"Tyvärr, {name} finns inte i telefonboken.")
 
 if __name__ == "__main__":
     main()
@@ -831,11 +846,11 @@ metoder, efter konstruktorn.
     namn:
 <<metoderna i [[Person]]>>=
 def get_name(self):
-    """Returns the full name as a concatenation"""
+    """Returnerar hela namnet, förnamn och efternamn"""
     return self.__first_name + " " + self.__last_name
 
 def __str__(self):
-    """Returns a string representation suitable for printing"""
+    """Returnerar en sträng som passar för utskrift"""
     return self.get_name()
 @
   \end{example}
@@ -855,15 +870,15 @@ lika enkla: de returnerar attributets värde.
     En läsmetod per attribut:
 <<metoderna i [[Person]]>>=
 def get_birthday(self):
-    """Return birthday"""
+    """Returnerar födelsedagen"""
     return self.__birthday
 
 def get_address(self):
-    """Return address"""
+    """Returnerar adressen"""
     return self.__address
 
 def get_phone(self):
-    """Returns phone number"""
+    """Returnerar telefonnumret"""
     return self.__phone
 @
   \end{example}
@@ -942,19 +957,19 @@ efternamnet.
     Sista ordet blir efternamn, resten förnamn:
 <<metoderna i [[Person]]>>=
 def get_first_name(self):
-    """Returns the first name"""
+    """Returnerar förnamnet"""
     return self.__first_name
 
 def get_last_name(self):
-    """Returns the last name"""
+    """Returnerar efternamnet"""
     return self.__last_name
 
 def change_name(self, name):
-    """Takes a concatenated name, sets last and first names"""
+    """Tar emot ett helt namn och sätter för- och efternamn"""
     names = name.split()
-    # Shorthand for the last element in the list
+    # Kortform för det sista elementet i listan
     self.__last_name = names[-1]
-    # names[:-1] all elements except the last
+    # names[:-1] är alla element utom det sista
     self.__first_name = " ".join(names[:-1])
 @
   \end{example}
@@ -1248,9 +1263,42 @@ en parameter och ett attribut till, klassen får en läsmetod
 \mintinline{python}{get_email}, och \mintinline{python}{print_contact}
 får en rad till och en del till i utskriften.  Dessutom måste varje
 ställe där en person skapas ge ett argument till: de tre i
-\texttt{contacts\_class.py} och testfallet i \texttt{person.py}.
+\texttt{contacts\_class.py} och de två i testprogrammet i
+\texttt{person.py} (och de i varje annat program som skapar personer).
 Glömmer vi ett av dem säger Python ifrån när programmet kommer dit,
-eftersom ett argument saknas.  Ett standardvärde för parametern, som
+eftersom ett argument saknas.  Så ser det ut med konstruktorn som den är
+nu, om vi glömmer telefonnumret.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett argument saknas]
+    \label{ex:saknat-argument}
+    Madicken skapas med fyra av konstruktorns fem argument:
+<<[[saknat_argument.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    madicken = Person("Madicken", "Engström", "1907-08-28", "Vimmerby")
+    print(madicken)
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{saknat\_argument.py}]
+    \label{ex:saknat-argument-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines,
+      deps={examples/person.py}]{examples/saknat_argument.py}
+  \end{example}
+\end{frame}
+
+Felet kommer när personen skapas, inte när en uppgift om den läses
+senare, som \mintinline{python}{KeyError} i \cref{ex:saknat-falt-run}.
+Ett standardvärde för parametern, som
 \mintinline{python}{email="okänt"}, gör att de ställen som inte känner
 någon e-postadress kan lämnas som de är.
 
@@ -1668,7 +1716,7 @@ Nu ska vi titta på metoder --- funktioner som tillhör objektet.
   \begin{minted}{python}
     class Class:
         def method(self):
-            ...  # do something object related
+            ...  # gör något med objektet
   \end{minted}
 \end{frame}
 
@@ -1778,13 +1826,13 @@ vi lägger till sist bland metoderna.
     Två dundermetoder till:
 <<metoderna i [[Person]]>>=
 def __lt__(self, other):
-    """Returns True if self is younger than other,
-    False otherwise"""
-    # smaller birthday means older
+    """Returnerar True om self är yngre än other,
+    annars False"""
+    # ett tidigare födelsedatum betyder äldre
     return self.get_birthday() > other.get_birthday()
 
 def __repr__(self):
-    """Returns unique representation"""
+    """Returnerar en entydig representation"""
     return (
         f"({self}, {self.get_birthday()}, {self.get_address()}, "
         f"{self.get_phone()})"
@@ -2201,7 +2249,7 @@ testprogram.  Men klassen bygger på \mintinline{python}{Person}, så
     \label{ex:person-nick}
     Filen \texttt{person\_nick.py} uppifrån:
 <<[[person_nick.py]]>>=
-"""Class for a person"""
+"""Klass för en person med smeknamn"""
 
 from person import Person
 
@@ -2218,7 +2266,7 @@ from person import Person
     Klassens skal, med metoderna samlade under ett namn:
 <<klasserna i [[person_nick.py]]>>=
 class PersonNick(Person):
-    """Class for a person"""
+    """Klass för en person med smeknamn"""
 
     <<metoderna i [[PersonNick]]>>
 @
@@ -2254,11 +2302,11 @@ def __init__(
     Smeknamnet får en läs- och en skrivmetod:
 <<metoderna i [[PersonNick]]>>=
 def set_nick(self, nick):
-    """Sets nickname"""
+    """Sätter smeknamnet"""
     self.__nick = nick
 
 def get_nick(self):
-    """Returns the nickname"""
+    """Returnerar smeknamnet"""
     return self.__nick
 @
   \end{example}
@@ -2324,7 +2372,7 @@ testfallen i pseudokod.
     Testprogrammet, med testfallen i pseudokod:
 <<testerna i [[person_nick.py]]>>=
 def tests():
-    """Test program"""
+    """Testprogram"""
     <<skapa en [[PersonNick]]>>
     <<använd ärvda, nya och överlagrade metoder>>
 
@@ -2367,13 +2415,13 @@ om vi vill ändra deras beteende, vilket vi gjorde med
     \mintinline{python}{super()}:
 <<metoderna i [[PersonNick]]>>=
 def get_name(self):
-    """Returns nickname as name, overloads Person"""
+    """Returnerar smeknamnet som namn, överlagrar Person"""
     if not self.get_nick():
         return self.get_first_name()
     return self.get_nick()
 
 def get_full_name(self):
-    """Returns the full name"""
+    """Returnerar hela namnet"""
     return super().get_name()
 @
   \end{example}
@@ -2447,11 +2495,11 @@ Låt oss sammanfatta konceptet arv.
   \begin{minted}{python}
     class Class:
         def method(self):
-            ...  # do something object related
+            ...  # gör något med objektet
 
     class Child(Class):
         def method(self):
-            """ Better method """
+            """Bättre metod"""
             return super().method()**2
   \end{minted}
 \end{frame}
