@@ -28,7 +28,8 @@ Vi hinner bara ett urval av övningens uppgifter under passet. De här tar
 vi tillsammans, i den här ordningen:
 
 1. **Uppgift 1: Boken.** Skriva klassen `Book` med privata attribut och
-   en dundermetod som ger en läsbar utskrift.
+   en dundermetod som ger en läsbar utskrift, och ett testprogram i samma
+   fil.
 2. **Uppgift 2: Sista sidan.** Lägga till en metod som flyttar ett
    bokmärke och skyddar det mot att gå längre än bokens sista sida.
 3. **Uppgift 3: Två böcker.** Förutsäga vad ett program med två böcker
