@@ -1983,6 +1983,121 @@ innehållet --- säg namn och födelsedag --- definierar vi
 \mintinline{python}{__lt__}, och låter den returnera
 \mintinline{python}{True} när attributen är lika.
 
+Med \mintinline{python}{__eq__} på plats kan vi också få de
+jämförelser som \mintinline{python}{__lt__} ensam inte ger,
+\mintinline{python}{<=} och \mintinline{python}{>=}, med
+\mintinline{python}{functools.total_ordering}.  Klassen
+\mintinline{python}{Person} behåller sin jämförelse av identitet, så vi
+provar i ett eget litet program med en klass som bara har namn och
+födelsedag.  Raden \mintinline{python}{@functools.total_ordering}
+direkt före klassen är en \emph{dekorator}
+(\foreignlanguage{english}{decorator}): när klassen är definierad
+skickas den till funktionen \mintinline{python}{total_ordering} i
+standardbibliotekets modul \mintinline{python}{functools}, som lägger
+till de jämförelsemetoder som saknas, och det är den utökade klassen som
+får namnet \mintinline{python}{ComparablePerson}.
+
+% The program is too long for one slide: the notes show the chunk, the
+% slides consecutive line ranges of the tangled file.
+\begin{frame}<article>[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:total-ordering}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ClassLODunder}.
+
+  \Cref{ovn:total-ordering} visar dekoratorn i stället för att bara
+  nämna den.  \textbf{Kontrast} mot \cref{ovn:eq}: samma två Ada, men
+  nu med \mintinline{python}{__eq__}, så att likheten gäller värdena.
+  En egen klass, så att \mintinline{python}{Person} och
+  \texttt{compare.py} är oförändrade.
+}%
+    Klassen har \mintinline{python}{__eq__} och
+    \mintinline{python}{__lt__}, och dekoratorn:
+<<[[comparable.py]]>>=
+"""Personer som kan jämföras med alla sex jämförelseoperatorerna"""
+
+import functools
+
+@functools.total_ordering
+class ComparablePerson:
+    """En person med namn och födelsedag"""
+
+    def __init__(self, name, birthday):
+        self.__name = name
+        self.__birthday = birthday
+
+    def __eq__(self, other):
+        """Returnerar True om self och other har samma namn och
+        födelsedag"""
+        return (
+            self.__name == other.__name and self.__birthday == other.__birthday
+        )
+
+    def __lt__(self, other):
+        """Returnerar True om self är yngre än other; vid samma
+        födelsedag avgör namnet"""
+        if self.__birthday == other.__birthday:
+            return self.__name < other.__name
+        return self.__birthday > other.__birthday
+
+def main():
+    """Huvudprogram"""
+    ada = ComparablePerson("Ada Bedasdotter", "1990-01-01")
+    ada2 = ComparablePerson("Ada Bedasdotter", "1990-01-01")
+    madicken = ComparablePerson("Madicken Engström", "1907-08-28")
+
+    print(ada == ada2)
+    print(ada <= ada2)
+    print(ada >= madicken)
+    print(madicken >= ada)
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}<presentation>[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    Klassen har \mintinline{python}{__eq__} och
+    \mintinline{python}{__lt__}, och dekoratorn:
+    \inputminted[firstline=1,lastline=12]{python}{examples/comparable.py}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}<presentation>[fragile,shrink=5]
+  \begin{exercise}[\texttt{comparable.py}, forts.]
+    De två jämförelsemetoderna:
+    \inputminted[firstline=14,lastline=26]{python}{examples/comparable.py}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}<presentation>[fragile]
+  \begin{exercise}[\texttt{comparable.py}, forts.]
+    Huvudprogrammet:
+    \inputminted[firstline=29,lastline=42]{python}{examples/comparable.py}
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{comparable.py}]
+    \label{ex:comparable-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/comparable.py}
+  \end{example}
+\end{frame}
+
+De två Ada är lika, eftersom \mintinline{python}{__eq__} jämför namn
+och födelsedag, och därför är också \mintinline{python}{ada <= ada2}
+sant.  Ada är yngre än Madicken, så \mintinline{python}{ada >= madicken}
+är falskt och \mintinline{python}{madicken >= ada} sant.  Klassen har
+varken \mintinline{python}{__le__} eller \mintinline{python}{__ge__};
+dem har dekoratorn lagt till, byggda av \mintinline{python}{__eq__} och
+\mintinline{python}{__lt__}.  Att \mintinline{python}{__lt__} jämför
+namnen när födelsedagarna är lika gör att ordningen stämmer med
+likheten: två personer som inte är lika är alltid den ena mindre än den
+andra.
+
 \begin{frame}
   \begin{exercise}
     \label{ovn:varfor-jamfora}

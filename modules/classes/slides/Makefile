@@ -37,6 +37,7 @@ EXAMPLES+=	examples/private.py
 EXAMPLES+=	examples/two.py
 EXAMPLES+=	examples/compare.py
 EXAMPLES+=	examples/greater.py
+EXAMPLES+=	examples/comparable.py
 
 # The class files' test programs grow one test case at a time, and the
 # deck shows each case's output beside it.  Each of these programs runs
