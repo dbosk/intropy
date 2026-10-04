@@ -8,7 +8,7 @@ authors:
 name: 'Laboration (5) behållare och klasser (kamratgranskning)'
 regex: '^390264$'
 ---
-**\[Notera: Det räcker att en i gruppen lämnar in, men varje gruppmedlem ger åtkoppling på andra.\]**
+**\[Notera: Det räcker att en i gruppen lämnar in, men varje gruppmedlem ger återkoppling på andra.\]**
 
 I förra laborationen använde vi oss av en klass vars objekt vi sparade i en behållare i huvudprogrammet.
 Nu ska vi istället använda oss av två klasser, därav den första
