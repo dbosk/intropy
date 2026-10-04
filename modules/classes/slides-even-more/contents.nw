@@ -438,8 +438,12 @@ varan är värt att pröva.
 
       \textbf{Kontrast} mot \cref{ex:shopping-add}, där nyckeln heter
       \mintinline{python}{"name"}.  Vad som varierar: om nyckelnamnet
-      stämmer.  Vad som hålls invariant: uppslagslistan och koden runt
-      omkring.
+      stämmer.  Vad som hålls invariant: varornas uppslagslistor, med
+      samma nycklar.  Koden runt omkring varierar också:
+      \texttt{items1.py} är ett eget litet program och inte klassen, men
+      det gör samma sak som \mintinline{python}{add_item} och
+      \mintinline{python}{list_items}, lägger till varor och läser ut
+      namnen.
       Kontrasten ska urskilja \emph{när} felet upptäcks --- först när den
       raden körs, inte när programmet startar.  Studenten ser
       spårutskriften
@@ -625,6 +629,40 @@ def remove_checked(self):
   \end{example}
 \end{frame}
 
+% Notes only: the slides keep the two versions of the methods in
+% sequence.  One pair per method, so that each row holds one method in
+% both versions, in equal columns so that the rows line up; the
+% docstrings, which only the new version has, are left out, so that only
+% the representation varies.  The last row is wider than the page and
+% wraps.
+\begin{frame}<article>
+  \begin{example}[Metoderna bredvid varandra]
+    \label{ex:metoder-bredvid}
+    Metoderna i \texttt{shopping.py} till vänster och i
+    \texttt{shopping\_with\_items.py} till höger, en metod per rad:
+    \codebycode
+      [width=0.5, name=ShoppingList.add_item,
+        label={\texttt{shopping.py}}]{python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.add_item, nodocstring,
+        label={\texttt{shopping\_with\_items.py}}]
+      {python}{examples/shopping_with_items.py}
+    \codebycode
+      [width=0.5, name=ShoppingList.list_items]{python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.list_items, nodocstring]
+      {python}{examples/shopping_with_items.py}
+    \codebycode
+      [width=0.5, name=ShoppingList.check_item]{python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.check_item, nodocstring]
+      {python}{examples/shopping_with_items.py}
+    \codebycode
+      [width=0.5, name=ShoppingList.remove_checked, breaklines]
+      {python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.remove_checked, nodocstring,
+        breaklines]
+      {python}{examples/shopping_with_items.py}
+  \end{example}
+\end{frame}
+
 Lägg märke till förändringarna:
 \begin{description}
   \item[\texttt{add\_item()}] skapar nu \mintinline{python}{Item}-objekt
@@ -667,11 +705,16 @@ Lägg märke till förändringarna:
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile]
+% The answer repeats the run of shopping.py beside the new one, so that
+% "the same, line for line" can be seen instead of remembered.
+\begin{frame}[shrink]
   \begin{example}[Utmatning]
     \label{ex:items-run}
-    Kör vi \texttt{python3 shopping\_with\_items.py} får vi:
-    \runpython[transcript]{examples/shopping_with_items.py}
+    Kör vi \texttt{python3 shopping\_with\_items.py} får vi utskriften
+    till höger, med den från \texttt{shopping.py} till vänster:
+    \runbyrun
+      [transcript]{examples/shopping.py}
+      [transcript]{examples/shopping_with_items.py}
   \end{example}
 \end{frame}
 
@@ -740,13 +783,15 @@ representation utan att den som använder klassen behöver ändra något.
         studenterna ser exakt vad som ändras när representationen byts medan
         allt annat förblir detsamma \parencite{MartonPang2006}.  Utan
         kontrasten kan studenterna tro att \enquote{klasser är alltid bättre}
-        eller \enquote{använd det som är enklast}; jämförelsen sida vid sida
-        tvingar uppmärksamheten till de nyanserade avvägningar som styr
-        verkliga designbeslut.
+        eller \enquote{använd det som är enklast}; jämförelsen --- metoderna
+        bredvid varandra i \cref{ex:metoder-bredvid}, för- och nackdelarna
+        i två spalter på bilden --- tvingar uppmärksamheten till de
+        nyanserade avvägningar som styr verkliga designbeslut.
 
         Bilden säger inte att tolken upptäcker ett stavfel i ett
         \emph{attributnamn} tidigare än i en nyckel: också det upptäcks
-        först vid körning (ett \mintinline{python}{AttributeError}).
+        först vid körning (ett \mintinline{python}{AttributeError}), men
+        någon sådan körning visas inte.
         Fördelen med klassen är att utvecklingsmiljön känner till
         attributnamnen och kan autokomplettera och varna, och det är vad
         bilden säger.
@@ -963,6 +1008,8 @@ gäller när du skriver egna klasser.
       gav namnet och exemplet men ingen kod.  \textbf{Kontrast}:
       vad som varierar är organisationen (platt respektive sammansatt), vad
       som hålls invariant är informationen som lagras (samma adressfält).
+      Den platta varianten finns bara i frågan och skrivs aldrig som kod;
+      det är den sammansatta (\cref{ex:bank-person-address}) som visas.
       Svaren visar vilka som redan ser adressen som en egen enhet.
     }%
     Om vi vill lägga till adressinformation, skulle du lägga till
@@ -1475,10 +1522,12 @@ Enklare strukturer räcker när:
   \cref{ex:bank-person-address} och \cref{ex:bank-citizen}.  Vad som
   varierar: relationstypen (\foreignlanguage{english}{has-a} respektive
   \foreignlanguage{english}{is-a}).  Vad som hålls invariant: målet ---
-  att återanvända kod.  De två bilderna står intill varandra så att
-  kontrasten upplevs samtidigt \parencite[45--47]{Marton2015}, och
-  frågan om varför bankexemplet valde olika,
-  \cref{ovn:varfor-komposition}, ställs innan bilderna visas.  Samma
+  att återanvända kod.  De två klasserna står bredvid varandra i
+  anteckningarna (\cref{ex:komposition-arv-bredvid}), och på bilden står
+  de två relationerna i var sin spalt, så att kontrasten upplevs
+  samtidigt \parencite[45--47]{Marton2015}; frågan om varför
+  bankexemplet valde olika, \cref{ovn:varfor-komposition}, ställs
+  innan de visas.  Samma
   kontrast infördes i föreläsningen \emph{Klasser och
   objekt}; här är den generaliserad med ett program där båda
   relationerna faktiskt förekommer.
@@ -1494,17 +1543,51 @@ komposition respektive arv.
   \end{exercise}
 \end{frame}
 
+% Notes only: the two classes of the bank, one of each relation.
+\begin{frame}<article>
+  \begin{example}[Komposition och arv bredvid varandra]
+    \label{ex:komposition-arv-bredvid}
+    Personen med adress, som \emph{har} en adress, till vänster, och
+    medborgaren, som \emph{är en} person med adress, till höger, båda i
+    \texttt{bank.py}:
+    \codebycode
+      [name=PersonWithAddress, breaklines,
+        label={\texttt{PersonWithAddress}}]{python}{examples/bank.py}
+      [name=Citizen, breaklines,
+        label={\texttt{Citizen}}]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+% On the slides the two relations stand in one frame, in two columns; in
+% the notes, where beamer's columns collapse, they follow each other.
 \begin{frame}
   \only<presentation>{%
-    \begin{block}{Komposition (\foreignlanguage{english}{has-a})}
-      En klass \emph{innehåller} ett objekt av en annan klass:
-      \begin{itemize}
-        \item en person \emph{har} en \mintinline{python}{Address};
-        \item ett \mintinline{python}{BankAccount} \emph{har} en person.
-      \end{itemize}
-      Fördelar: mer flexibelt; lättare att ändra under körning; tydliga
-      relationer.
-    \end{block}%
+    \begin{columns}[t]
+      \column{0.49\textwidth}
+      \begin{block}{Komposition (\foreignlanguage{english}{has-a})}
+        \small
+        En klass \emph{innehåller} ett objekt av en annan klass:
+        \begin{itemize}
+          \item en person \emph{har} en \mintinline{python}{Address};
+          \item ett \mintinline{python}{BankAccount} \emph{har} en person.
+        \end{itemize}
+        Fördelar: mer flexibelt; lättare att ändra under körning; tydliga
+        relationer.
+      \end{block}
+      \column{0.49\textwidth}
+      \begin{block}{Arv (\foreignlanguage{english}{is-a})}
+        \small
+        En klass \emph{är en specialisering} av en annan klass:
+        \begin{itemize}
+          \item en \mintinline{python}{Citizen} \emph{är en} person (med
+            extra information).
+        \end{itemize}
+        Fördelar: återanvänder kod från basklassen; polymorfism --- kan
+        användas där basklassen förväntas; tydlig hierarkisk relation.
+        Nackdelar: starkare koppling mellan klasserna; svårare att ändra
+        senare.
+      \end{block}
+    \end{columns}%
   }
   \only<article>{%
     \begin{block}{Komposition (\foreignlanguage{english}{has-a})}
@@ -1514,24 +1597,6 @@ komposition respektive arv.
       är att det är mer flexibelt, att relationen är lättare att ändra
       under körning, och att relationerna blir tydliga.
     \end{block}%
-  }
-\end{frame}
-
-\begin{frame}
-  \only<presentation>{%
-    \begin{block}{Arv (\foreignlanguage{english}{is-a})}
-      En klass \emph{är en specialisering} av en annan klass:
-      \begin{itemize}
-        \item en \mintinline{python}{Citizen} \emph{är en} person (med
-          extra information).
-      \end{itemize}
-      Fördelar: återanvänder kod från basklassen; polymorfism --- kan
-      användas där basklassen förväntas; tydlig hierarkisk relation.
-      Nackdelar: starkare koppling mellan klasserna; svårare att ändra
-      senare.
-    \end{block}%
-  }
-  \only<article>{%
     \begin{block}{Arv (\foreignlanguage{english}{is-a})}
       En klass \emph{är en specialisering} av en annan klass: en
       \mintinline{python}{Citizen} \emph{är en} person, med extra
