@@ -90,8 +90,8 @@ objectives carry the week page's Lo-codes in a comment
   A) opens with the verbatim
   `\chapterprecis{Författaren har ännu inte granskat resultaten i den här
   bilagan i sin helhet.}`.
-- "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
-  it keeps its spelling.
+- "Laboration (0): Hello, world och remix! (kamratgranskning)" is the name
+  of a Canvas item; it keeps its spelling.
 - Practise what has been taught (author, 2026-09-18: "once we've said
   it's better to use functions, we'd better be non-hypocritical and use
   the function version everywhere"): from *Funktioner* (week 38) on,

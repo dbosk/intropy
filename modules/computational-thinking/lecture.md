@@ -50,7 +50,7 @@ ett recept.
 
 ## Efter föreläsningen
 
-Fortsätt enligt veckoöversikten: labbpasset med *Laboration (0) kom igång
-med Hello World* och *Övning: Terminalen och köra kod*. Beståndsdelarna
-från föreläsningen återkommer i tur och ordning under kursens följande
+Fortsätt enligt veckoöversikten: labbpasset med *Laboration (0): Hello,
+world och remix! (kamratgranskning)* och *Övning: Terminalen och köra
+kod*. Beståndsdelarna från föreläsningen återkommer i tur och ordning under kursens följande
 veckor.
