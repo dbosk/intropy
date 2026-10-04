@@ -15,36 +15,134 @@ veta vilket telefonnummer som hör till Ronja.
 
 \begin{frame}
   \begin{exercise}
-    Vi vill lagra en telefonbok.  Med det du kan hittills ligger det
-    nära till hands att använda två listor: en med namn och en med
-    nummer, där numret på plats \(i\) hör till namnet på plats \(i\).
-    Vad kan gå fel med den lösningen?
+    \label{ovn:tva-listor}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate,DictLOChoose}.
+
+  \foreignlanguage{english}{Try-first}, diagnostiskt, med en öppen
+  uppgift.  \Cref{ovn:tva-listor} ber studenterna implementera en
+  telefonbok med det de kan, utan att nämna någon lösning eller fråga
+  efter något fel: att lägga fram två listor och be om felet i dem hade
+  pekat ut det kritiska åt dem \parencite[13]{Marton2015}.  Med det
+  kursen har gått igenom ligger två lösningar inom räckhåll, två listor
+  och en lista med par, och båda är möjliga svar.  Vilken studenten
+  väljer, och om hon själv ser risken med två listor, visar om
+  kopplingen mellan nyckel och värde redan är urskild som något som
+  borde hållas ihop.
+
+  Svaret visar båda listlösningarna, var för sig körda och sedan
+  bredvid varandra, och kontrasten kommer i diskussionen av dem: två
+  listor måste hållas i takt, tupeln håller ihop paret, men först
+  uppslagslistan låter oss gå direkt från namnet till numret.
+}%
+    Implementera en telefonbok med det du kan hittills.  Den ska hålla
+    namn och telefonnummer, och vi ska kunna slå upp vilket nummer som
+    hör till Ronja.
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOCreate,DictLOChoose}.
+\leavevmode\ltnote{%
+  Programmen följer funktionsregeln från föreläsningen
+  \emph{Funktioner}, också de som hade gått att skriva på fyra rader
+  på toppnivån.
+}%
+Den första lösningen som ligger nära till hands är två listor:
 
-  \foreignlanguage{english}{Try-first}, diagnostiskt.  Uppgiften ger
-  studenterna den lösning de själva skulle ha kommit på och ber dem
-  hitta felet i den, i stället för att presentera uppslagslistan som ett
-  nytt verktyg utan problem.  Frågan pekar inte ut vad som är kritiskt;
-  svaren \enquote{listorna kan komma i otakt} och \enquote{man måste
-  ändra på två ställen} visar om studenten redan urskilt kopplingen
-  mellan nyckel och värde som något som borde hållas ihop
-  \parencite[13]{Marton2015}.
+\begin{frame}[fragile,shrink]
+  \begin{example}[Två listor]
+    \label{ex:tva-listor}
+    Namnet och numret på samma plats i var sin lista:
+<<[[tva_listor.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    names = ["ronja", "pippi"]
+    numbers = ["0701234567", "0721234567"]
 
-  Att paret \emph{ska} hållas ihop är samma tanke som motiverade tupeln;
-  skillnaden är att här är det \emph{sambandet} mellan två värden som
-  ska lagras, inte de två värdena som ett värde.
-}
+    for index, name in enumerate(names):
+        if name == "ronja":
+            print(numbers[index])
+
+
+if __name__ == "__main__":
+    main()
+@
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/tva_listor.py}
+  \end{example}
+\end{frame}
 
 Två listor som ska hållas i takt är en risk: tar vi bort ett namn måste
 vi komma ihåg att ta bort numret också, och gör vi inte det pekar allt
-efter den platsen fel.  Sambandet mellan namnet och numret finns
-egentligen inte i koden --- det finns bara i vårt huvud.  Det vi vill
-lagra är just det sambandet, och för det har Python
-\emph{uppslagslistan}, som skrivs med klamrar och kolon.
+efter den platsen fel.  Sambandet mellan namnet och numret finns inte i
+koden, bara i att platserna råkar stämma.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate,DictLOChoose}.
+
+  \textbf{Variationsmönster}: kontrast, tre värden i en dimension, i
+  \cref{ex:tva-listor,ex:par-lista} och [[phone-small.py]].
+  \textbf{Vad som varierar}: hur sambandet mellan namn och nummer lagras
+  --- två listor, en lista med par, en uppslagslista.
+  \textbf{Vad som hålls invariant}: personerna, numren och uppslaget av
+  Ronjas nummer.  [[phone-small.py]] gör dessutom två saker till, slår
+  upp Pippis nummer och skriver ut antalet poster, så där varierar mer
+  än lagringen.
+
+  Listan med par tar bort risken att listorna kommer i otakt men inte
+  slingan: kontrasten mot uppslagslistan blir därmed just uppslaget på
+  namnet, inte att paret hålls ihop.  Det är också det som
+  \cref{sec:valja-uppslag} sedan mäter i arbete.
+}%
+Sambandet kan vi lägga in i koden med det vi kan från föreläsningen
+\emph{Behållare: Tupler}: en lista med par, där varje tupel håller ihop
+ett namn och dess nummer.  Då kan namnen och numren inte komma i otakt.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[En lista med par]
+    \label{ex:par-lista}
+    Varje namn och nummer i samma tupel:
+<<[[par_lista.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    contacts = [("ronja", "0701234567"), ("pippi", "0721234567")]
+
+    for name, number in contacts:
+        if name == "ronja":
+            print(number)
+
+
+if __name__ == "__main__":
+    main()
+@
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/par_lista.py}
+  \end{example}
+\end{frame}
+
+% The pair is \codebycode, which reads the two tangled programs as text,
+% so it cannot drift from the chunks; only main is shown, without its
+% docstring, since that is where the two programs differ.  breaklines
+% wraps the list of pairs only on the slides, where it is wider than the
+% frame.
+\begin{frame}
+  \begin{example}[Två listor och en lista med par]
+    \label{ex:listor-bredvid}
+    Till vänster huvudprogrammet ur \texttt{tva\_listor.py}, till höger
+    det ur \texttt{par\_lista.py}:
+    \codebycode
+      [name=main, nodocstring,
+        label={\texttt{tva\_listor.py}}]{python}{examples/tva_listor.py}
+      [name=main, nodocstring, breaklines,
+        label={\texttt{par\_lista.py}}]{python}{examples/par_lista.py}
+  \end{example}
+\end{frame}
+
+Men i båda programmen måste vi gå igenom listan för att hitta Ronja.
+Listan håller reda på sina element efter plats, och för att hitta ett
+namn måste vi pröva plats efter plats.  Vi vill i stället gå direkt från
+namnet till numret, och för det har Python \emph{uppslagslistan}, som
+skrivs med klamrar och kolon.  Hur mycket arbete det sparar återkommer vi
+till i \cref{sec:valja-uppslag}.
 
 \begin{frame}[fragile]
   Nyckeln till vänster om kolonet, värdet till höger:
@@ -63,30 +161,6 @@ if __name__ == "__main__":
 @
 \end{frame}
 
-Programmet är skrivet som en funktion med ett anrop under, och inte som
-fyra rader rakt upp och ner.  Så är alla program i det här materialet
-skrivna --- också de kortaste exemplen, som det här.
-
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOCreate}.
-
-  Här, vid modulens första program, sägs det en gång: varje program i
-  materialet är funktionsversionen, ända ner till de minsta
-  demonstrationerna, som hade gått att skriva på fyra rader på
-  toppnivån.  Regeln upprepas inte vid varje senare program, och
-  materialet ber inte om ursäkt för den.
-
-  Skälet är att materialet ska öva det det lär ut.  Ett material som
-  självt slutar använda en vana det infört lär ut att vanan var
-  valfri. % TODO(claim-audit)
-
-  Priset är att de korta exemplen blir mer än dubbelt så långa och att
-  [[def main():]] står i vägen för det som egentligen ska urskiljas.
-  Det priset är värt att betala just därför att alternativet vore att
-  visa två sorters programstil i samma kurs, och skillnaden mellan dem
-  är inget studenten ska behöva urskilja.
-}
-
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
     Kör vi programmet får vi:
@@ -94,12 +168,41 @@ skrivna --- också de kortaste exemplen, som det här.
   \end{example}
 \end{frame}
 
-Uppslaget ser ut precis som en indexering i en lista: samma
-hakparenteser, samma skrivsätt.  Vi ställer de två bredvid varandra.
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate}.
 
-\begin{frame}[fragile,shrink]
+  \textbf{Variationsmönster}: kontrast i \cref{ovn:uppslag}.
+  \textbf{Vad som varierar}: behållarens sort.
+  \textbf{Vad som hålls invariant}: det som står inom hakparenteserna,
+  \mintinline{python}|[0]|, och personerna --- båda behållarna har Ronja
+  och Pippi, uppslagslistan dessutom deras nummer.
+
+  Missuppfattningen kontrasterna riktar sig mot är att uppslagslistan
+  vore en lista där man råkar få använda strängar som index --- alltså
+  att posterna skulle ligga i en ordning man kunde nå med [[0]], [[1]],
+  [[2]].  Det räcker inte att visa att \mintinline{python}|phone["ronja"]|
+  fungerar, för det är förenligt med missuppfattningen.  Först när
+  [[phone[0]]] och \mintinline{python}|names["ronja"]| båda misslyckas
+  syns det att det är två olika sorters uppslag.
+
+  Att missuppfattningar om listreferenser är dokumenterade hos nybörjare
+  \parencite{KumarVeerasamy2016} är ett skäl att inte förutsätta att
+  indexbegreppet sitter säkert innan nyckelbegreppet läggs ovanpå det.
+
+  Programmen heter [[uppslag.py]] och [[uppslag_lista.py]] och inte
+  något som säger hur uppslagen går: ett namn som beskriver skillnaden
+  hade avslöjat vad som ska urskiljas \parencite[13, 89 och
+  91]{Marton2015}.  Samma skäl styr namnen på alla programmen i den här
+  modulen.
+}%
+Uppslaget ser ut precis som en indexering i en lista: samma
+hakparenteser, samma skrivsätt.  Vi ställer de två bredvid varandra, och
+börjar med att ge båda behållarna samma index.
+
+\begin{frame}[fragile]
   \begin{exercise}[Vad skrivs ut?]
-    Ett program med fyra uppslag:
+    \label{ovn:uppslag}
+    Samma index i en lista och i en uppslagslista:
 <<[[uppslag.py]]>>=
 def main():
     """Huvudprogrammet"""
@@ -107,18 +210,7 @@ def main():
     phone = {"ronja": "0701234567", "pippi": "0721234567"}
 
     print(names[0])
-
-    try:
-        print(phone[0])
-    except KeyError as error:
-        print(f"phone[0]: nyckeln {error} finns inte")
-
-    try:
-        print(names["ronja"])
-    except TypeError as error:
-        print(f'names["ronja"]: {error}')
-
-    print(phone["ronja"])
+    print(phone[0])
 
 
 if __name__ == "__main__":
@@ -129,59 +221,84 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
-    Kör vi programmet får vi:
+    Körningen avbryts:
     \runpython[showcommand, chdir]{examples/uppslag.py}
   \end{example}
 \end{frame}
 
-Två av de fyra uppslagen går inte: \mintinline{python}|phone[0]| ger ett
-\mintinline{text}|KeyError| och \mintinline{python}|names["ronja"]| ett
-\mintinline{text}|TypeError|.  Programmet kraschar ändå inte, för de två
-\mintinline{python}{except}-satserna fångar felen och skriver ut ett
-meddelande i stället; utan dem hade körningen avbrutits vid det första
-felet.  Listan vill ha ett heltal och kan inte ta emot ett namn;
-uppslagslistan vill ha en nyckel, och \(0\) är ingen nyckel i just den
-här uppslagslistan.  Det finns alltså ingen \emph{första} post i en
-uppslagslista på det sätt det finns ett första element i en lista.
-Posterna ligger inte i någon ordning som vi kan räkna oss fram i med
+Listan ger sitt första element, men uppslagslistan avbryter körningen
+med \mintinline{text}|KeyError|: uppslagslistan vill ha en nyckel, och
+\(0\) är ingen nyckel i just den här uppslagslistan.  Det finns alltså
+ingen \emph{första} post i en uppslagslista på det sätt det finns ett
+första element i en lista.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate}.
+
+  \textbf{Variationsmönster}: kontrast i \cref{ovn:uppslag-lista}.
+  \textbf{Vad som varierar}: vad som står inom hakparenteserna, ett index
+  eller en nyckel.
+  \textbf{Vad som hålls invariant}: behållaren, listan från
+  \cref{ovn:uppslag}.
+
+  Varje program varierar en sak, så varje program har bara ett uppslag
+  som kan gå fel.  Därför kan felet få avbryta körningen och visa sin
+  spårutskrift, utan [[try]]/[[except]]: det studenten förutsäger är
+  precis det som sedan körs, och spårutskriften är den hon kommer att
+  möta i sina egna program.
+}%
+Nu vänder vi på det: samma behållare, men en nyckel inom hakparenteserna
+i stället för ett index.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skrivs ut?]
+    \label{ovn:uppslag-lista}
+    Ett index och ett namn i samma lista:
+<<[[uppslag_lista.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    names = ["ronja", "pippi"]
+
+    print(names[0])
+    print(names["ronja"])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Körningen avbryts:
+    \runpython[showcommand, chdir]{examples/uppslag_lista.py}
+  \end{example}
+\end{frame}
+
+Nu är det listan som avbryter körningen, med
+\mintinline{text}|TypeError|: listan vill ha ett heltal och kan inte ta
+emot ett namn.  Uppslaget i en uppslagslista och indexeringen i en lista
+ser alltså likadana ut, men är två olika sorters uppslag.  Posterna i en
+uppslagslista ligger inte i någon ordning som vi kan räkna oss fram i med
 tal --- de nås bara genom sina nycklar.  (Att de ändå går att gå igenom
 i en bestämd ordning återkommer vi till i \cref{sec:genomgang}.)
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOCreate}.
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate,DictLOMissing}.
 
-  \textbf{Variationsmönster}: kontrast.
-  \textbf{Vad som varierar}: behållarens sort och vad som står inom
-  hakparenteserna.
-  \textbf{Vad som hålls invariant}: skrivsättet, namnen och innehållet
-  --- båda behållarna har samma två personer.
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: den kritiska aspekten --- att
+  nyckeln inte är en plats utan ett namn på ett värde.
+  \textbf{Vad som varierar}: operationen, från uppslagning till
+  tilldelning och borttagning i \cref{ex:lagga-till}.
 
-  Missuppfattningen mönstret riktar sig mot är att uppslagslistan vore
-  en lista där man råkar få använda strängar som index --- alltså att
-  posterna skulle ligga i en ordning man kunde nå med [[0]], [[1]],
-  [[2]].  Kontrasten är gjord så att båda de \emph{fel} uppslagen står
-  med: det räcker inte att visa att \mintinline{python}|phone["ronja"]|
-  fungerar, för det är förenligt med missuppfattningen.  Först när
-  [[phone[0]]] och \mintinline{python}|names["ronja"]| båda misslyckas
-  syns det att det är två olika sorters uppslag.
-
-  Att missuppfattningar om listreferenser är dokumenterade hos nybörjare
-  \parencite{KumarVeerasamy2016} är ett skäl att inte förutsätta att
-  indexbegreppet sitter säkert innan nyckelbegreppet läggs ovanpå det.
-
-  Programmet heter [[uppslag.py]] och inte något som säger hur de fyra
-  uppslagen går: ett namn som beskriver skillnaden hade avslöjat vad som
-  ska urskiljas \parencite[13, 89 och 91]{Marton2015}.  Samma skäl styr
-  namnen på alla programmen i den här modulen.
-
-  Övningen visar samma program som sedan körs, och inte en kortare
-  variant utan [[try]]/[[except]].  Det kostar att de två
-  [[except]]-satserna röjer att två uppslag kan gå fel, men det köper
-  att studenten förutsäger utfallet av precis den text hon sedan ser
-  köras --- och att prosan efteråt kan namnge [[KeyError]] och
-  [[TypeError]] som det som faktiskt inträffar.
-}
-
+  Sista meningen i prosan är den viktiga: att uppslagslistan växer tyst
+  vid en felstavad nyckel är den praktiska konsekvensen av aspekten, och
+  det fel studenterna kommer att jaga i laborationen.  Den nämns här och
+  inte som en egen övning, eftersom en övning om felstavningar skulle
+  variera en annan dimension (skrivfel) än den som just nu urskiljs.
+}%
 Att lägga till en post gör vi med samma skrivsätt: en tilldelning till en
 nyckel.  Och här skiljer sig uppslagslistan från listan igen.
 
@@ -209,6 +326,7 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
+    \label{ex:lagga-till}
     Kör vi programmet får vi:
     \runpython[showcommand, chdir]{examples/lagga_till.py}
   \end{example}
@@ -219,14 +337,31 @@ en tilldelning till en nyckel som finns \emph{byter ut} värdet.
 
 \begin{frame}[fragile]
   \begin{exercise}[Vad skrivs ut?]
-    Samma slags tilldelning, men till en lista:
-<<[[namn.py]]>>=
+    \label{ovn:namn}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate}.
+
+  \textbf{Variationsmönster}: kontrast mellan den första tilldelningen i
+  [[lagga_till.py]] och \cref{ovn:namn}.
+  \textbf{Vad som varierar}: behållarens sort.
+  \textbf{Vad som hålls invariant}: tilldelningen till en plats som inte
+  finns, och numren: det som fanns och det som läggs till.
+
+  Att listan svarar med \mintinline{text}|IndexError| står inte bara
+  som ett påstående i prosan: studenten får förutsäga utfallet och
+  sedan se det inträffa, innan texten förklarar det; påståendet om vad
+  Python gör är därmed kontrollerbart på plats i stället för något att
+  tro på.  Programmet heter [[nummer.py]] efter innehållet och inte efter
+  det fel som uppstår.
+}%
+    Pippis nummer läggs till som förut, men nu i en lista:
+<<[[nummer.py]]>>=
 def main():
     """Huvudprogrammet"""
-    names = ["ronja", "pippi"]
+    numbers = ["0701234567"]
 
-    names[2] = "madicken"
-    print(names)
+    numbers[1] = "0721234567"
+    print(numbers)
 
 
 if __name__ == "__main__":
@@ -238,7 +373,21 @@ if __name__ == "__main__":
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
     Körningen avbryts:
-    \runpython[showcommand, chdir]{examples/namn.py}
+    \runpython[showcommand, chdir]{examples/nummer.py}
+  \end{example}
+\end{frame}
+
+% After the reveal, the first assignment of lagga_till.py is repeated
+% beside nummer.py; lines= cuts out the container and the assignment.
+\begin{frame}
+  \begin{example}[Samma tilldelning i två behållare]
+    \label{ex:tilldelning-bredvid}
+    Till vänster den första tilldelningen ur \texttt{lagga\_till.py},
+    till höger den ur \texttt{nummer.py}:
+    \codebycode
+      [lines=3-6,
+        label={\texttt{lagga\_till.py}}]{python}{examples/lagga_till.py}
+      [lines=3-6, label={\texttt{nummer.py}}]{python}{examples/nummer.py}
   \end{example}
 \end{frame}
 
@@ -248,46 +397,32 @@ ber den om det med \mintinline{python}{append}.  Uppslagslistan växer av
 sig själv, och det betyder också att en felstavad nyckel inte ger något
 fel --- den skapar tyst en ny post.
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOCreate,DictLOMissing}.
-
-  \textbf{Variationsmönster}: generalisering.
-  \textbf{Vad som hålls invariant}: den kritiska aspekten --- att
-  nyckeln inte är en plats utan ett namn på ett värde.
-  \textbf{Vad som varierar}: operationen, från uppslagning till
-  tilldelning och borttagning.
-
-  Sista meningen i prosan är den viktiga: att uppslagslistan växer tyst
-  vid en felstavad nyckel är den praktiska konsekvensen av aspekten, och
-  det fel studenterna kommer att jaga i laborationen.  Den nämns här och
-  inte som en egen övning, eftersom en övning om felstavningar skulle
-  variera en annan dimension (skrivfel) än den som just nu urskiljs.
-}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOCreate}.
-
-  \textbf{Variationsmönster}: kontrast.
-  \textbf{Vad som varierar}: behållarens sort.
-  \textbf{Vad som hålls invariant}: tilldelningen till en plats som inte
-  finns, och namnen i behållaren.
-
-  Att listan svarar med \mintinline{text}|IndexError| stod tidigare bara
-  som ett påstående i prosan.  Nu får studenten förutsäga utfallet och
-  sedan se det inträffa, innan texten förklarar det; påståendet om vad
-  Python gör är därmed kontrollerbart på plats i stället för något att
-  tro på.  Programmet heter [[namn.py]] efter behållaren och inte efter
-  det fel som uppstår.
-}
-
 \subsection{Vad duger som nyckel?}
 \label{sec:nycklar}
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOCreate}.
+
+  \textbf{Variationsmönster}: fusion.
+  \textbf{Vad som varieras samtidigt}: oföränderlighet (från
+  föreläsningen \emph{Behållare: Tupler}) och nyckelbegreppet (från det
+  här avsnittet).
+
+  Avsnittet ligger här, och inte tidigare, därför att båda aspekterna
+  måste vara urskilda innan de kan smältas samman.  \Cref{ovn:par-nyckel} är
+  formulerad som ett designval (\enquote{lista eller tupel?}) så att
+  studenten först måste välja och sedan får se att bara det ena går ---
+  ett svar som är svårt att gissa sig till men lätt att förstå när
+  skälet ges.  I [[nycklar.py]] varierar bara parets behållare: städerna
+  och avståndet är desamma på båda raderna, och listans rad får krascha
+  med sin spårutskrift.
+}%
 Värdet i en uppslagslista får vara vad som helst --- ett tal, en sträng,
 en lista, till och med en annan uppslagslista.  Nyckeln är kräsnare.
 
 \begin{frame}
   \begin{exercise}
+    \label{ovn:par-nyckel}
     Vi vill lagra hur långt det är mellan två städer, och vill slå upp
     avståndet på \emph{paret} av städer.  Kan vi använda ett par som
     nyckel?  Ska paret vara en lista eller en tupel?
@@ -304,11 +439,8 @@ def main():
     distance[("Stockholm", "Uppsala")] = 71
     print(distance[("Stockholm", "Uppsala")])
 
-    try:
-        distance[["Stockholm", "Malmö"]] = 613
-    except TypeError as error:
-        print("En lista dög inte som nyckel:")
-        print(error)
+    distance[["Stockholm", "Uppsala"]] = 71
+    print(distance[["Stockholm", "Uppsala"]])
 
 
 if __name__ == "__main__":
@@ -318,7 +450,7 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
-    Kör vi programmet får vi:
+    Körningen avbryts vid listan:
     \runpython[showcommand, chdir]{examples/nycklar.py}
   \end{example}
 \end{frame}
@@ -326,25 +458,113 @@ if __name__ == "__main__":
 Tupeln dög, listan inte.  En nyckel måste vara \emph{oföränderlig}, av
 precis det skäl som gjorde tupeln användbar från början: uppslagslistan
 hittar posten utifrån nyckelns värde, och om värdet kunde ändras efteråt
-skulle posten inte gå att hitta igen.  Det är samma egenskap som i
+skulle posten inte gå att hitta igen.  Det är vad felmeddelandet säger:
+en lista är inte \foreignlanguage{english}{hashable}, den går inte att
+räkna om till en plats i uppslagslistan.  Det är samma egenskap som i
 föreläsningen \emph{Behållare: Tupler}, nu sedd som ett krav i stället
 för som ett val.
 
-\ltnote{%
+Att paret är en tupel ger det också en ordning: tupeln har ett första
+och ett andra element.  Det märks när vi frågar efter avståndet åt andra
+hållet.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skrivs ut?]
+    \label{ovn:ordning}
+    Avståndet lagras från Stockholm till Uppsala och slås upp från
+    Uppsala till Stockholm:
+<<[[ordning.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    distance = {}
+
+    distance[("Stockholm", "Uppsala")] = 71
+    print(distance[("Uppsala", "Stockholm")])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Körningen avbryts:
+    \runpython[showcommand, chdir]{examples/ordning.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{DictLOCreate}.
 
-  \textbf{Variationsmönster}: fusion.
-  \textbf{Vad som varieras samtidigt}: oföränderlighet (från
-  föreläsningen \emph{Behållare: Tupler}) och nyckelbegreppet (från det
-  här avsnittet).
+  \textbf{Variationsmönster}: kontrast, mellan \cref{ovn:ordning} och
+  \cref{ex:avstand}.
+  \textbf{Vad som varierar}: om nyckeln görs om till sorterad ordning
+  innan den används.
+  \textbf{Vad som hålls invariant}: städerna, avståndet och i vilken
+  ordning de anges när avståndet lagras och slås upp.
 
-  Avsnittet ligger här, och inte tidigare, därför att båda aspekterna
-  måste vara urskilda innan de kan smältas samman.  Uppgiften är
-  formulerad som ett designval (\enquote{lista eller tupel?}) så att
-  studenten först måste välja och sedan får se att bara det ena går ---
-  ett svar som är svårt att gissa sig till men lätt att förstå när
-  skälet ges.
-}
+  Frågan om ordningen kommer först här, när kontrasten mellan lista och
+  tupel som nyckel är avklarad, så att den inte varierar samtidigt med
+  den.  Att [[sorted]] ger en lista som måste göras om till en tupel
+  använder i stället den kontrasten en gång till.
+}%
+\mintinline{python}|("Stockholm", "Uppsala")| och
+\mintinline{python}|("Uppsala", "Stockholm")| är två olika tupler, och
+därmed två olika nycklar, fast avståndet är detsamma.  För par där
+ordningen inte betyder något, som avståndet mellan två städer, gör vi
+det därför till en regel att alltid lagra paret i sorterad ordning, och
+att sortera det på samma sätt innan vi slår upp.  Då spelar det ingen
+roll i vilken ordning städerna anges.  \mintinline{python}{sorted}
+sorterar städerna, men lämnar tillbaka en lista, och en lista duger inte
+som nyckel.  Därför gör vi om listan till en tupel med
+\mintinline{python}{tuple}, på samma sätt som
+\mintinline{python}{int} gör om en sträng till ett heltal.  Att göra
+nyckeln är en beräkning, så den får en egen funktion.
+
+\begin{frame}[fragile]
+  Paret sorteras innan det blir nyckel:
+<<[[avstand.py]]>>=
+def distance_key(city, other_city):
+    """Returnerar städerna i sorterad ordning, som en tupel."""
+    return tuple(sorted([city, other_city]))
+
+
+def main():
+    """Huvudprogrammet"""
+    distance = {}
+
+    distance[distance_key("Stockholm", "Uppsala")] = 71
+    print(distance[distance_key("Uppsala", "Stockholm")])
+
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    \label{ex:avstand}
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/avstand.py}
+  \end{example}
+\end{frame}
+
+% Notes only: the slides keep the two programs in sequence.
+\begin{frame}<article>
+  \begin{example}[Nyckeln utan och med sortering]
+    \label{ex:avstand-bredvid}
+    Till vänster huvudprogrammet ur \texttt{ordning.py}, till höger det
+    ur \texttt{avstand.py}:
+    \codebycode
+      [name=main, nodocstring,
+        label={\texttt{ordning.py}}]{python}{examples/ordning.py}
+      [name=main, nodocstring,
+        label={\texttt{avstand.py}}]{python}{examples/avstand.py}
+  \end{example}
+\end{frame}
 
 \section{När nyckeln saknas}
 \label{sec:saknad}
@@ -355,6 +575,18 @@ boken.
 
 \begin{frame}[fragile]
   \begin{exercise}
+    \label{ovn:saknad}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOMissing}.
+
+  \foreignlanguage{english}{Try-first} med öppet svar.  Att
+  \cref{ovn:saknad} ber om \emph{minst två} sätt är avsiktligt: den som
+  bara ser ett har
+  ännu inte urskilt att det finns ett val att göra, och de tre
+  lösningarna som följer är just tre värden i samma dimension (vad
+  programmet ska göra när nyckeln saknas).  Uppgiften avslöjar inte
+  vilken aspekt som är kritisk, bara vad som är fel med programmet.
+}%
     Det här programmet kraschar om användaren skriver ett namn som
     inte finns.  Ge minst två olika sätt att rätta det.
     \begin{minted}{python}
@@ -372,19 +604,32 @@ if __name__ == "__main__":
   \end{exercise}
 \end{frame}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{DictLOMissing}.
 
-  \foreignlanguage{english}{Try-first} med öppet svar.  Att uppgiften
-  ber om \emph{minst två} sätt är avsiktligt: den som bara ser ett har
-  ännu inte urskilt att det finns ett val att göra, och de tre
-  lösningarna som följer är just tre värden i samma dimension (vad
-  programmet ska göra när nyckeln saknas).  Uppgiften avslöjar inte
-  vilken aspekt som är kritisk, bara vad som är fel med programmet.
-}
+  \textbf{Variationsmönster}: kontrast, med tre värden i samma
+  dimension.
+  \textbf{Vad som varierar}: hur programmet får veta att nyckeln
+  saknas, i \cref{ex:isin,ex:isin-alt,ex:hamta}.
+  \textbf{Vad som hålls invariant}: uppslagslistan, frågan till
+  användaren, svaret \enquote{madicken} och meningen som skrivs ut när
+  namnet finns.
 
+  Att kontrastera tre värden i samma dimension samtidigt --- i stället
+  för ett i taget --- är den ordning variationsteorin föreskriver: en
+  dimension i taget, men gärna flera värden inom den
+  \parencite[45--47]{Marton2015}.  Alla tre programmen körs med samma
+  svar (\enquote{madicken}) så att utskrifterna kan jämföras rakt av; i
+  [[hamta.py]] byts bara uppslaget mot [[get]], och reservvärdet är valt
+  så att det passar in i samma mening.
+
+  Den sista frågan i prosan är den enda plats där valet motiveras, och
+  den är avsiktligt inte besvarad: vilket sätt som är rätt beror på
+  programmet, och det är just den insikten som är lärandemålet.
+}%
 Det finns tre sätt, och de skiljer sig inte i vad de klarar utan i vad
-de \emph{säger} om programmet.  Vi ställer dem bredvid varandra.
+de \emph{säger} om programmet.  Vi tar dem ett i taget, och de två
+första ställer vi sedan bredvid varandra.
 
 \begin{frame}[fragile]
   Fråga först, slå upp sedan:
@@ -408,6 +653,7 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
+    \label{ex:isin}
     Vi kör programmet och svarar \enquote{madicken}:
     \runpython[transcript, stdin={madicken}]{examples/isin.py}
   \end{example}
@@ -435,8 +681,23 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
+    \label{ex:isin-alt}
     Vi kör programmet och svarar \enquote{madicken}:
     \runpython[transcript, stdin={madicken}]{examples/isin-alt.py}
+  \end{example}
+\end{frame}
+
+% Notes only: the slides keep the three programs in sequence.  lines=
+% cuts out the part after the question, where the two programs differ.
+\begin{frame}<article>
+  \begin{example}[Fråga först eller fånga felet]
+    \label{ex:isin-bredvid}
+    Uppslaget ur \texttt{isin.py} till vänster och ur
+    \texttt{isin-alt.py} till höger:
+    \codebycode
+      [lines=7-10, label={\texttt{isin.py}}]{python}{examples/isin.py}
+      [lines=7-10,
+        label={\texttt{isin-alt.py}}]{python}{examples/isin-alt.py}
   \end{example}
 \end{frame}
 
@@ -447,9 +708,9 @@ def main():
     """Huvudprogrammet"""
     phone = {"ronja": "0701234567", "pippi": "0721234567"}
 
-    print(phone.get("ronja", "okänt"))
-    print(phone.get("madicken", "okänt"))
-    print(phone.get("madicken"))
+    name = input("Vems telefonnummer? ")
+    number = phone.get(name, "som vi inte känner till")
+    print(f"{name} har telefonnummer {number}.")
 
 
 if __name__ == "__main__":
@@ -459,50 +720,57 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
-    Kör vi programmet får vi:
-    \runpython[showcommand, chdir]{examples/hamta.py}
+    \label{ex:hamta}
+    Vi kör programmet och svarar \enquote{madicken}:
+    \runpython[transcript, stdin={madicken}]{examples/hamta.py}
   \end{example}
 \end{frame}
 
-De tre gör samma sak.  \mintinline{python}{in} frågar först och läser
-sedan; \mintinline{python}{try} läser först och tar hand om felet om det
-kommer; \mintinline{python}{get} lämnar tillbaka ett reservvärde i
-stället för att det blir något fel alls --- och utan reservvärde blir
-svaret \mintinline{python}{None}.  Välj det som säger sanningen om
-programmet: är en saknad nyckel ett väntat fall,
-eller är det något som inte borde hända?
-
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOMissing}.
-
-  \textbf{Variationsmönster}: kontrast, med tre värden i samma
-  dimension.
-  \textbf{Vad som varierar}: hur programmet får veta att nyckeln
-  saknas.
-  \textbf{Vad som hålls invariant}: uppslagslistan, frågan till
-  användaren och den utskrift som ska komma ut.
-
-  Att kontrastera tre värden i samma dimension samtidigt --- i stället
-  för ett i taget --- är den ordning variationsteorin föreskriver: en
-  dimension i taget, men gärna flera värden inom den
-  \parencite[45--47]{Marton2015}.  De två första programmen körs med
-  samma svar (\enquote{madicken}) så att utskrifterna kan jämföras rakt av.
-
-  Den sista frågan i prosan är den enda plats där valet motiveras, och
-  den är avsiktligt inte besvarad: vilket sätt som är rätt beror på
-  programmet, och det är just den insikten som är lärandemålet.
-}
+Alla tre klarar ett namn som saknas.  \mintinline{python}{in} frågar
+först och läser sedan; \mintinline{python}{try} läser först och tar hand
+om felet om det kommer; \mintinline{python}{get} lämnar tillbaka ett
+reservvärde i stället för att det blir något fel alls.  Utan reservvärde
+lämnar \mintinline{python}{get} tillbaka \mintinline{python}{None}; det
+och resten av metodens beskrivning hittar du med
+\mintinline{bash}|pydoc3 dict.get| i terminalen.  Välj det som säger
+sanningen om programmet: är en saknad nyckel ett väntat fall, eller är
+det något som inte borde hända?
 
 \section{Att gå igenom en uppslagslista}
 \label{sec:genomgang}
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOIterate,DictLOChoose}.
+
+  \textbf{Variationsmönster}: kontrast, tre värden i en dimension.
+  \textbf{Vad som varierar}: vad slingan går igenom --- nycklar, värden
+  eller par.
+  \textbf{Vad som hålls invariant}: uppslagslistan och slingans form.
+
+  Materialet lär inte ut [[for]]; det förutsätts från föreläsningen
+  \emph{Upprepningar}.  Det som urskiljs här är den behållarspecifika
+  aspekten: vad en behållare lämnar ut när man går igenom den.  Att
+  [[items()]] ger tupler kopplas uttryckligen till [[enumerate]] från
+  föreläsningen \emph{Behållare: Tupler}, så att uppackningen i slingans
+  huvud är igenkänd och
+  inte ett nytt specialfall att lära sig.
+
+  Förutsägelsefrågan i \cref{ovn:for} räknar inte upp några
+  svarsalternativ (\enquote{namnen, numren eller båda}): en sådan
+  uppräkning pekar ut vilken aspekt som är den kritiska --- vad
+  slingvariabeln får --- och det är just den urskiljningen studenten ska
+  göra själv
+  \parencite[91]{Marton2015}.  De tre fallen syns ändå: det första i
+  körningen av övningens eget program, de två andra i [[genomgang.py]].
+}%
 En uppslagslista går att gå igenom med \mintinline{python}{for}, precis
 som en lista.  Frågan är vad slingvariabeln får.
 
 \begin{frame}[fragile]
   \begin{exercise}
+    \label{ovn:for}
     Vad skrivs ut?
-    \begin{minted}{python}
+<<[[slinga.py]]>>=
 def main():
     """Huvudprogrammet"""
     phone = {"ronja": "0701234567", "pippi": "0721234567"}
@@ -513,19 +781,26 @@ def main():
 
 if __name__ == "__main__":
     main()
-    \end{minted}
+@
   \end{exercise}
 \end{frame}
 
 \begin{frame}[fragile]
-  Vi kör, och provar de tre sätten efter varandra:
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/slinga.py}
+  \end{example}
+\end{frame}
+
+Slingvariabeln får namnen, men inte numren.  Vi provar två andra sätt
+att gå igenom samma uppslagslista.
+
+\begin{frame}[fragile]
+  Samma uppslagslista, med värdena och sedan paren:
 <<[[genomgang.py]]>>=
 def main():
     """Huvudprogrammet"""
     phone = {"ronja": "0701234567", "pippi": "0721234567"}
-
-    for person in phone:
-        print(person)
 
     for number in phone.values():
         print(number)
@@ -546,37 +821,20 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-En \mintinline{python}{for} över en uppslagslista ger \emph{nycklarna},
-inget annat.  Vill vi ha värdena ber vi om
+En \mintinline{python}{for} över en uppslagslista ger alltså
+\emph{nycklarna}, inget annat.  Vill vi ha värdena ber vi om
 \mintinline{python}{values()}, och vill vi ha båda ber vi om
 \mintinline{python}{items()} --- som ger oss ett par i taget, alltså en
 tupel, som vi packar upp i två namn på samma sätt som med
 \mintinline{python}{enumerate}.
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOIterate,DictLOChoose}.
-
-  \textbf{Variationsmönster}: kontrast, tre värden i en dimension.
-  \textbf{Vad som varierar}: vad slingan går igenom --- nycklar, värden
-  eller par.
-  \textbf{Vad som hålls invariant}: uppslagslistan och slingans form.
-
-  Materialet lär inte ut [[for]]; det förutsätts från föreläsningen
-  \emph{Upprepningar}.  Det som urskiljs här är den behållarspecifika
-  aspekten: vad en behållare lämnar ut när man går igenom den.  Att
-  [[items()]] ger tupler kopplas uttryckligen till [[enumerate]] från
-  föreläsningen \emph{Behållare: Tupler}, så att uppackningen i slingans
-  huvud är igenkänd och
-  inte ett nytt specialfall att lära sig.
-
-  Förutsägelsefrågan räknade tidigare upp tre svarsalternativ
-  (\enquote{namnen, numren eller båda}).  Uppräkningen är struken: den
-  pekade ut vilken aspekt som var den kritiska --- vad slingvariabeln
-  får --- och det är just den urskiljningen studenten ska göra själv
-  \parencite[91]{Marton2015}.  De tre fallen syns ändå, i de tre
-  slingorna som följer.
-}
-
+\leavevmode\ltnote{%
+  \textbf{Variationsmönster}: kontrast mellan [[genomgang.py]] och
+  [[sorterad.py]].
+  \textbf{Vad som varierar}: ordningen posterna skrivs ut i.
+  \textbf{Vad som hålls invariant}: uppslagslistan och utskriftens
+  mening.
+}%
 Ordningen är den som posterna lades in i, och den är sällan den vi vill
 skriva ut.  \mintinline{python}{sorted} fungerar på en uppslagslista och
 ger nycklarna i ordning.
@@ -586,10 +844,10 @@ ger nycklarna i ordning.
 <<[[sorterad.py]]>>=
 def main():
     """Huvudprogrammet"""
-    phone = {"ronja": "0701234567", "madicken": "0731234567"}
+    phone = {"ronja": "0701234567", "pippi": "0721234567"}
 
     for person in sorted(phone):
-        print(f"{person}: {phone[person]}")
+        print(f"{person} har telefonnummer {phone[person]}")
 
 
 if __name__ == "__main__":
@@ -605,11 +863,20 @@ if __name__ == "__main__":
 \end{frame}
 
 \section{Att välja behållare}
-\label{sec:valja}
+\label{sec:valja-uppslag}
 
 Nu har vi tre behållare --- listan, tupeln och uppslagslistan --- och
 frågan blir vilken man ska ta.  Svaret följer av vilka \emph{operationer}
-programmet behöver göra, inte av vilken data det är.
+programmet behöver göra, inte av vilken data det är, och klarar flera
+behållare de operationerna tar vi den enklaste.  Att välja den enklaste
+lösning som duger är \emph{KISS}, som vi mötte i föreläsningen
+\emph{Funktioner}.%
+\footnote{%
+  Det vetenskapliga underlaget för KISS finns i föreläsningen
+  \emph{Funktioner}, bilaga C: enkelhet som designvärde är väl etablerat,
+  medan det inte går att bekräfta att uttrycket kommer från Kelly
+  Johnson, som det brukar tillskrivas.%
+}
 
 \begin{frame}
   \begin{exercise}
@@ -619,27 +886,7 @@ programmet behöver göra, inte av vilken data det är.
   \end{exercise}
 \end{frame}
 
-För att svara på det måste vi veta hur \mintinline{python}{in} arbetar.
-I en lista finns ingen genväg: Python måste gå igenom elementen tills det
-hittar rätt, så arbetet växer med listans längd.  I en uppslagslista
-räknas nyckeln om till en plats direkt, och arbetet är i genomsnitt
-detsamma oavsett hur många poster det finns.  Det står i Pythons egen
-dokumentation över hur mycket arbete varje operation
-kostar\autocite{PythonTimeComplexity}: \enquote{x in s} är
-\(O(n)\) för en lista men \(O(1)\) i genomsnitt för en uppslagslista.
-Förbehållet som följer med den siffran ska sägas ut: den gäller
-CPython, den gäller genomsnittsfallet, och i värsta fall är även
-uppslagslistan \(O(n)\).
-
-\begin{frame}[fragile]
-  \begin{remark}[Att fråga kostar olika mycket]
-    Frågan \mintinline{python}{x in behållare} kostar arbete som växer
-    med antalet element i en lista, men i genomsnitt lika mycket oavsett
-    antalet i en uppslagslista --- i CPython, och i genomsnittsfallet.
-  \end{remark}
-\end{frame}
-
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{DictLOChoose}.
 
   Prestandapåståendet är ett faktapåstående och beläggs med en
@@ -648,13 +895,32 @@ uppslagslistan \(O(n)\).
   (CPython, genomsnittsfall) står i texten och inte bara i bilagan,
   eftersom en siffra utan förbehåll är just den sortens påstående
   studenterna ska lära sig att inte lita på.
-
-  Att välja den enklaste behållare som klarar de operationer man behöver
-  är principen \foreignlanguage{english}{KISS}.  Det vetenskapliga
-  underlaget för \foreignlanguage{english}{KISS} --- att enkelhet är ett
-  etablerat designvärde, medan den vanliga upphovsuppgiften inte går att
-  bekräfta --- finns i föreläsningen \emph{Funktioner}, bilaga~C.
+}%
+För att svara på det måste vi veta hur \mintinline{python}{in} arbetar.
+I en lista finns ingen genväg: Python måste gå igenom elementen tills det
+hittar rätt, så arbetet växer med listans längd.  I en uppslagslista
+räknas nyckeln om till en plats direkt, och arbetet är i genomsnitt
+detsamma oavsett hur många poster det finns.  Det står i Pythons egen
+dokumentation över hur mycket arbete varje operation
+kostar\autocite{PythonTimeComplexity}: \enquote{x in s} är
+\(O(n)\) för en lista men \(O(1)\) i genomsnitt för en
+uppslagslista.\footnote{%
+  Hur mycket arbete olika operationer kostar, och hur man räknar ut det,
+  behandlas i kurserna DD1320 Tillämpad datalogi, DD1352 Algoritmer,
+  datastrukturer och komplexitet, DD2350 Algoritmer, datastrukturer och
+  komplexitet och DD2352 Algoritmer och komplexitet.%
 }
+Förbehållet som följer med den siffran ska nämnas: den gäller CPython,
+den gäller genomsnittsfallet, och i värsta fall är även uppslagslistan
+\(O(n)\).
+
+\begin{frame}[fragile]
+  \begin{remark}[Att fråga kostar olika mycket]
+    Frågan \mintinline{python}{x in behållare} kostar arbete som växer
+    med antalet element i en lista, men i genomsnitt lika mycket oavsett
+    antalet i en uppslagslista --- i CPython, och i genomsnittsfallet.
+  \end{remark}
+\end{frame}
 
 \begin{frame}
   \only<presentation>{%
@@ -679,21 +945,21 @@ uppslagslistan \(O(n)\).
 
 \begin{frame}[fragile]
   \begin{exercise}
+    \label{ovn:dokumentation}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLODocs}.
+
+  \Cref{ovn:dokumentation} är formulerad kring två metoder som med flit
+  inte gåtts igenom, och den andra frågan --- när de behövs --- kräver
+  att studenten kopplar dem till telefonboken i \cref{sec:telefonbok}.
+  Att hitta och läsa dokumentationen är ett eget lärandemål och prövas
+  därför som en uppgift, inte som en uppräkning på en bild.
+}%
     Slå upp uppslagslistor i Pythons dokumentation och ta reda på vad
     \mintinline{python}{setdefault} och \mintinline{python}{update} gör.
     När skulle du ha nytta av dem i telefonboken?
   \end{exercise}
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLODocs}.
-
-  Dokumentationsuppgiften är formulerad kring två metoder som med flit
-  inte gåtts igenom, och den andra frågan --- när de behövs --- kräver
-  att studenten kopplar dem till telefonboken i \cref{sec:telefonbok}.
-  Att hitta och läsa dokumentationen är ett eget lärandemål och prövas
-  därför som en uppgift, inte som en uppräkning på en bild.
-}
 
 \section{En telefonbok}
 \label{sec:telefonbok}
@@ -703,6 +969,26 @@ användaren fylla telefonboken, och sedan söka i den.
 
 \begin{frame}
   \begin{exercise}[search.py]
+    \label{ovn:search}
+\leavevmode\ltnote{%
+  Relevanta lärandemål:
+  \cref{DictLOProgram,DictLOMissing,DictLOCreate}.
+
+  Fusion: \cref{ovn:search} kräver uppslagslistan, inmatningsslingan,
+  felhanteringen och funktionsuppdelningen samtidigt.  Den är medvetet
+  formulerad som samma uppgift som sökprogrammet i föreläsningen
+  \emph{Behållare: Listor}, med den skillnaden att varje namn nu har ett
+  nummer som ska kontrolleras.  Det gör det möjligt att jämföra de två
+  lösningarna, och det är den jämförelsen som visar vad uppslagslistan
+  tillför.  Jämförelsen lämnas åt studenten: prosan pekar på
+  föreläsningens program (de två faserna, inläsningen av namnet), men
+  programmen står inte bredvid varandra här.
+
+  Lösningen utvecklas uppifrån och ner, med stegvis förfining i samma
+  notation, som i föreläsningen \emph{Algoritmiskt tänkande}.
+  Funktionerna står därför i filen i den ordning de upptäcks, anroparen
+  före den anropade.
+}%
     Skriv ett program som låter oss mata in ett antal namn med
     tillhörande telefonnummer, och därefter söka bland namnen.  Båda
     faserna avslutas med en blankrad.  Vad ska hända om numret inte ser
@@ -710,152 +996,189 @@ användaren fylla telefonboken, och sedan söka i den.
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål:
-  \cref{DictLOProgram,DictLOMissing,DictLOCreate}.
+Vi lägger upp programmet som vanligt: överst en
+\foreignlanguage{english}{docstring} som säger vad programmet är till
+för, sedan hjälpfunktionerna och sist huvudprogrammet.  Men vi skriver
+det inte i ett svep, utan uppifrån och ner: först upplägget, i
+pseudokod, och sedan preciserar vi pseudokoden med pythonkod, en del i
+taget, när vi kommer till den.
 
-  Fusion: uppgiften kräver uppslagslistan, inmatningsslingan,
-  felhanteringen och funktionsuppdelningen samtidigt.  Den är medvetet
-  formulerad som samma uppgift som sökprogrammet i föreläsningen
-  \emph{Behållare: Listor}, med den skillnaden att varje namn nu har ett
-  nummer som ska kontrolleras.  Det gör det möjligt att jämföra de två
-  lösningarna, och det är den jämförelsen som visar vad uppslagslistan
-  tillför.
-
-  Lösningen utvecklas med stegvis förfining i samma notation som
-  infördes i föreläsningen \emph{Algoritmiskt tänkande}.
-}
-
-Vi bygger uppifrån och ner.  Programmet har två faser, precis som
-sökprogrammet i föreläsningen \emph{Behållare: Listor}.
-
-\begin{frame}[fragile,shrink]
-  Överblicken först:
+\begin{frame}[fragile]
+  Sökprogrammets upplägg:
 <<[[search.py]]>>=
 """Program om sökning i en telefonbok"""
 
-<<läs in ett namn>>
+<<sökprogrammets hjälpfunktioner>>
 
+<<sökprogrammets huvudprogram>>
+@
+\end{frame}
 
-<<kontrollera ett telefonnummer>>
+Programmet har två faser, precis som sökprogrammet i föreläsningen
+\emph{Behållare: Listor}: först fyller användaren telefonboken, sedan
+söker hon i den.  Huvudprogrammet blir de två faserna efter varandra,
+skrivna som pseudokod.  Direkt efter definitionen står villkoret som
+startar huvudprogrammet när filen körs som program, så att vi kan
+återanvända programmet som modul i andra program.
 
-
-<<läs in ett telefonnummer>>
-
-
-<<fyll telefonboken>>
-
-
-<<sök i telefonboken>>
-
-
+\begin{frame}[fragile]
+  Huvudprogrammet i stora drag:
+<<sökprogrammets huvudprogram>>=
 def main():
     """Huvudprogrammet"""
-    print("Nu bygger vi upp telefonboken. Ange namn och nummer.")
-    print("Ange tom sträng för att gå vidare.")
-    phonebook = fill_phonebook()
+    <<låt användaren fylla telefonboken>>
 
-    print()
-    print("Nu ska vi söka bland namnen. Skriv namn för att söka.")
-    print("Skriv blankrad för att avsluta.")
-    search_phonebook(phonebook)
-
+    <<låt användaren söka i telefonboken>>
 
 if __name__ == "__main__":
     main()
 @
 \end{frame}
 
+Den första fasen säger till användaren vad som ska hända och låter henne
+sedan fylla boken.  Att fylla boken är mer än en rad --- det är en
+slinga som frågar tills användaren svarar med en blankrad --- och
+resultatet behövs i nästa fas.  Därför blir det en funktion som lämnar
+tillbaka boken, \mintinline{python}{fill_phonebook}, som vi anropar här
+och skriver strax.
+
+\begin{frame}[fragile]
+  Den första fasen:
+<<låt användaren fylla telefonboken>>=
+print("Nu bygger vi upp telefonboken. Ange namn och nummer.")
+print("Ange tom sträng för att gå vidare.")
+phonebook = fill_phonebook()
+@
+\end{frame}
+
+Här är det uppslagslistan gör sitt jobb: namnet blir nyckeln och numret
+värdet, och paret hålls ihop av behållaren i stället för av oss.
+Namnet och numret läser vi in med två funktioner,
+\mintinline{python}{input_name} och \mintinline{python}{input_phonenum},
+som vi skriver efter den här: namnet ska läsas in på samma sätt i båda
+faserna, och numret ska kontrolleras.  Funktionen är den första av
+sökprogrammets hjälpfunktioner; som vanligt lägger +\(\equiv\) till
+en del under samma namn.
+
+\begin{frame}[fragile]
+  Inmatningsfasen:
+<<sökprogrammets hjälpfunktioner>>=
+def fill_phonebook():
+    """Låter användaren fylla telefonboken och returnerar den."""
+    phonebook = {}
+
+    while name := input_name("Ange namn för en ny kontakt: "):
+        phonebook[name] = input_phonenum(
+            f"Ange telefonnummer för {name.capitalize()}: "
+        )
+        print()
+
+    return phonebook
+@
+\end{frame}
+
+Villkoret i \mintinline{python}{while}-satsen läser in namnet med
+tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
+\emph{Övning: Inmatning, felhantering och styrstrukturer} och i
+föreläsningen \emph{Upprepningar}: det ger \mintinline{python}{name}
+svaret och är självt ett uttryck med samma värde, som villkoret prövar.
+En tom sträng är falsk, så slingan går tills användaren svarar med en
+blankrad, och frågan står på ett ställe i stället för två --- före
+slingan och sist i den.
+
 Namnet läses in på i stort sett samma sätt som i föreläsningen
-\emph{Behållare: Listor}: vi gör om det till gemener så att sökningen
-inte bryr sig om stora bokstäver.
+\emph{Behållare: Listor}: \mintinline{python}{casefold} gör om det till
+gemener, så att sökningen inte bryr sig om stora bokstäver.  Två saker
+är nya.  Först tar \mintinline{python}{strip}, som vi mötte i
+föreläsningen \emph{Inmatning och felhantering}, bort mellanslag i
+början och slutet av svaret, så att ett mellanslag som råkat komma med
+inte gör namnet till ett annat namn.  Och frågan är en parameter,
+eftersom inmatningen och sökningen frågar på olika sätt.
 
 \begin{frame}[fragile]
   Inläsningen av ett namn:
-<<läs in ett namn>>=
+<<sökprogrammets hjälpfunktioner>>=
 def input_name(prompt="Ange namn: "):
     """Läser in ett namn och returnerar det i sökbar form."""
     return input(prompt).strip().casefold()
 @
 \end{frame}
 
-Numret är svårare, för ett telefonnummer får bara innehålla siffror ---
-och mellanslag och bindestreck, som vi struntar i när vi kontrollerar.
-Kontrollen blir en egen funktion med ett enda ansvar, så att
-inläsningsfunktionen bara behöver fråga om igen.
+Numret är svårare: inläsningen ska fråga om tills svaret ser ut som ett
+telefonnummer.  Vad som ser ut som ett telefonnummer är en fråga för
+sig, så kontrollen blir en egen funktion,
+\mintinline{python}{is_phonenum}, och inläsningsfunktionen behöver bara
+fråga om igen.  Varje funktion får ett ansvar, kontrollen respektive
+frågan till användaren: det är \emph{SRP}, principen om ett enda ansvar,
+från föreläsningen \emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
+\footnote{%
+  Det vetenskapliga underlaget för SRP --- både varifrån principen
+  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
+  ansvar} är en bedömningsfråga --- finns i föreläsningen
+  \emph{Funktioner}, bilaga B.%
+}
+Det gör också att kontrollen går att pröva utan att någon behöver mata
+in något: \mintinline{python}|is_phonenum("072-123 45 67")| svarar
+direkt.  Ett telefonnummer får bara innehålla siffror --- och
+mellanslag och bindestreck, som vi struntar i när vi kontrollerar.
 
 \begin{frame}[fragile,shrink]
-  Först kontrollen:
-<<kontrollera ett telefonnummer>>=
-def is_phonenum(phonenum):
-    """Returnerar True om phonenum ser ut som ett telefonnummer."""
-    clean_phonenum = phonenum.replace("-", "").replace(" ", "")
-    return clean_phonenum.isdigit()
-@
-  \pause
-
-  Sedan inläsningen, som frågar om igen tills numret duger:
-<<läs in ett telefonnummer>>=
+  Först inläsningen, som frågar om igen tills numret duger:
+<<sökprogrammets hjälpfunktioner>>=
 def input_phonenum(
     prompt="Ange telefonnummer: ",
     fail_prompt="Det ser inte ut som ett telefonnummer.",
 ):
     """Läser in ett telefonnummer som ser rätt ut."""
-    phonenum = input(prompt)
-
-    while not is_phonenum(phonenum):
+    while not is_phonenum(phonenum := input(prompt)):
         print(fail_prompt)
-        phonenum = input(prompt)
 
     return phonenum
 @
-\end{frame}
+  \pause
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOProgram}.
-
-  Uppdelningen i [[is_phonenum]] och [[input_phonenum]] är ett exempel
-  på att varje funktion har ett ansvar --- kontrollen respektive
-  dialogen med användaren --- vilket är principen
-  \foreignlanguage{english}{SRP}.  Principen namnges här; det
-  vetenskapliga underlaget för \foreignlanguage{english}{SRP} --- att
-  principen härrör från Martin och är etablerad, medan vad som räknas
-  som \emph{ett} ansvar förblir en bedömningsfråga --- finns i
-  föreläsningen \emph{Funktioner}, bilaga~B.  Poängen är praktisk:
-  kontrollen går att testa utan att någon behöver mata in något.
-}
-
-Nu kan telefonboken fyllas.  Här är det uppslagslistan gör sitt jobb:
-namnet blir nyckeln och numret värdet, och paret hålls ihop av
-behållaren i stället för av oss.
-
-\begin{frame}[fragile]
-  Inmatningsfasen:
-<<fyll telefonboken>>=
-def fill_phonebook():
-    """Låter användaren fylla telefonboken och returnerar den."""
-    phonebook = {}
-
-    name = input_name("Ange namn för en ny kontakt: ")
-    while name:
-        phonebook[name] = input_phonenum(
-            f"Ange telefonnummer för {name.capitalize()}: "
-        )
-        print()
-        name = input_name("Ange namn för en ny kontakt: ")
-
-    return phonebook
+  Sedan kontrollen:
+<<sökprogrammets hjälpfunktioner>>=
+def is_phonenum(phonenum):
+    """Returnerar True om phonenum ser ut som ett telefonnummer."""
+    clean_phonenum = phonenum.replace("-", "").replace(" ", "")
+    return clean_phonenum.isdigit()
 @
 \end{frame}
+
+Inläsningen av numret använder valrossen på samma sätt, men inne i
+anropet: svaret sparas i \mintinline{python}{phonenum}, och det är det
+värdet som \mintinline{python}{is_phonenum} prövar.  Kontrollen tar
+först bort alla bindestreck och mellanslag: \mintinline{python}{replace}
+byter ut varje bindestreck, och sedan varje mellanslag, mot den tomma
+strängen.  Sedan prövar \mintinline{python}{isdigit} att det som är
+kvar bara består av siffror.
+
+Den andra fasen är byggd på samma sätt som den första: ett besked till
+användaren och sedan en funktion som gör jobbet, nu med boken som
+argument.
+
+\begin{frame}[fragile]
+  Den andra fasen:
+<<låt användaren söka i telefonboken>>=
+print()
+print("Nu ska vi söka bland namnen. Skriv namn för att söka.")
+print("Skriv blankrad för att avsluta.")
+search_phonebook(phonebook)
+@
+\end{frame}
+
+Sökningen läser namnen med samma \mintinline{python}{input_name} som
+inmatningen, och det var därför inläsningen av ett namn blev en
+funktion.  Varje namn slås upp i boken.
 
 \mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   Sökfasen, där en saknad nyckel är ett väntat fall:
-<<sök i telefonboken>>=
+<<sökprogrammets hjälpfunktioner>>=
 def search_phonebook(phonebook):
     """Låter användaren söka i phonebook."""
-    name = input_name()
-    while name:
+    while name := input_name():
         try:
             number = phonebook[name]
             print(f"{name.capitalize()} har nummer {number}.")
@@ -863,15 +1186,46 @@ def search_phonebook(phonebook):
             print(f"Hittade INTE {name.capitalize()}.")
 
         print()
-        name = input_name()
 @
 \end{frame}
 
-För att kunna visa en körning matar vi programmet med en färdig
-inmatning i stället för att skriva den för hand.
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet:
+  \inputminted{python}{examples/search.py}
+\end{frame}
+
+Så här ser en körning ut när vi skriver inmatningen för hand:
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[En körning]
+    \label{ex:search-run}
+    Vi fyller boken med två namn och söker efter två:
+    \runpython[transcript, stdinfile={examples/search.in}]{examples/search.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOProgram,DictLOMissing}.
+
+  Båda körningarna, \cref{ex:search-run,ex:search-fil}, kommer ur samma
+  tanglade inmatningsfil, så utskriften i materialet är garanterat den
+  programmet verkligen ger.  Ordningen --- för hand, filen,
+  omdirigeringen --- låter studenten känna igen körningen innan formen
+  ändras; att frågorna flyter ihop i den andra körningen är då den enda
+  skillnaden att se, och prosan förklarar den.  I anteckningarna står
+  körningen för hand därför bredvid den med filen i
+  \cref{ex:search-fil}; på bilderna kommer de efter varandra.
+
+  Inmatningen är vald så att alla tre fallen syns i en enda körning:
+  ett nummer med bindestreck och mellanslag (som ska godtas), en
+  sökning som lyckas och en som misslyckas.
+}%
+Vi kan också mata programmet med en färdig inmatning i stället för att
+skriva den för hand.  Detta underlättar när vi vill testa långa program.
+Inmatningen skriver vi i en fil, ett svar per rad.
 
 \begin{frame}[fragile]
-  Inmatningen, rad för rad --- de tomma raderna avslutar varje fas:
+  Filen \texttt{search.in} --- de tomma raderna avslutar varje fas:
 <<[[search.in]]>>=
 ronja
 0701234567
@@ -884,27 +1238,37 @@ madicken
 @
 \end{frame}
 
+I terminalen ger vi programmet filen med \texttt{<} framför filnamnet.
+Då läser \mintinline{python}{input} sina svar från filen i stället för
+från tangentbordet.
+
+\mode<article>{\needspace{22\baselineskip}}
 \begin{frame}[fragile,shrink]
-  \begin{example}[En körning]
-    Så här ser det ut när programmet körs med den inmatningen:
-    \runpython[transcript, stdinfile={examples/search.in}]{examples/search.py}
+  \begin{example}[En körning med inmatningen från filen]
+    \label{ex:search-fil}
+    \only<presentation>{%
+      Samma körning, med svaren ur \texttt{search.in}:
+      \runshell[showcommand, cwd=examples,
+        deps={examples/search.py,examples/search.in}]%
+        {python3 search.py < search.in}%
+    }%
+    % In the notes the run by hand is repeated beside it.
+    \only<article>{%
+      Samma körning, för hand till vänster och med svaren ur
+      \texttt{search.in} till höger:
+      \runbyrun
+        [transcript, stdinfile={examples/search.in}]{examples/search.py}
+        [shell, showcommand, cwd=examples,
+          deps={examples/search.py,examples/search.in}]%
+        {python3 search.py < search.in}%
+    }
   \end{example}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOProgram,DictLOMissing}.
-
-  Körningen visas med en \emph{tanglad} inmatningsfil i stället för med
-  en handskriven avskrift.  Det gör att utskriften i materialet
-  garanterat är den programmet verkligen ger --- båda kommer ur samma
-  källa --- och det visar samtidigt studenterna att ett interaktivt
-  program går att mata från en fil, vilket är hur man testar sådana
-  program utan att sitta och skriva.
-
-  Inmatningen är vald så att alla tre fallen syns i en enda körning:
-  ett nummer med bindestreck och mellanslag (som ska godtas), en
-  sökning som lyckas och en som misslyckas.
-}
+Frågorna och svaren hamnar inte längre på var sin rad.  Inmatningen
+kommer från filen och skrivs aldrig ut i terminalen, så varken svaren
+eller radbytet efter dem syns: nästa utskrift börjar direkt efter
+frågan.
 
 \subsection{Att skriva ut boken}
 \label{sec:utskrift}
@@ -914,57 +1278,189 @@ ha den i bokstavsordning, i kolumner, som i en riktig katalog.
 
 \begin{frame}
   \begin{exercise}[phonebook.py]
+    \label{ovn:phonebook}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOProgram,DictLOIterate}.
+
+  Den andra frågan i \cref{ovn:phonebook} är den kritiska: kolumnbredden
+  beror på det
+  \emph{längsta} elementet, så funktionen måste gå igenom hela
+  behållaren \emph{en gång innan} den skriver ut något.  Det är en ny
+  sorts insikt för studenterna, som hittills mest skrivit ut medan de
+  gick igenom.  Att frågan ställs innan koden visas gör insikten till
+  ett svar i stället för till ett steg i en färdig lösning.
+}%
     Skriv en funktion som skriver ut en behållares element snyggt på
     rader, med jämna kolumner.  Vad behöver funktionen veta innan den
     kan skriva ut den första raden?
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOProgram,DictLOIterate}.
-
-  Den andra frågan är den kritiska: kolumnbredden beror på det
-  \emph{längsta} elementet, så funktionen måste gå igenom hela
-  behållaren \emph{en gång innan} den skriver ut något.  Det är en ny
-  sorts insikt för studenterna, som hittills mest skrivit ut medan de
-  gick igenom.  Att frågan ställs innan koden visas gör insikten till
-  ett svar i stället för till ett steg i en färdig lösning.
-}
-
 Bredden på en kolumn måste vara det längsta namnets bredd, plus lite
 luft.  Alltså måste vi gå igenom alla namn en gång innan vi skriver ut
 det första.
 
+Modulen får samma upplägg som programmen, men i stället för ett
+huvudprogram har den ett testprogram, som provar funktionen när filen
+körs som program.  Det är modulens provkörning, som i föreläsningen
+\emph{Moduler och paket}.  Funktionen skriver vi först i pseudokod, i
+två steg: det den måste veta innan den skriver något, och själva
+utskriften.
+
 \begin{frame}[fragile]
-  Modulen börjar med att räkna ut kolumnbredden:
+  Modulens upplägg:
 <<[[phonebook.py]]>>=
 """En modul med funktioner för telefonböcker"""
 
-<<skriv ut i kolumner>>
+<<telefonboksmodulens funktioner>>
+
+<<telefonboksmodulens testprogram>>
 @
   \pause
 
-<<skriv ut i kolumner>>=
+  Funktionen i stora drag:
+<<telefonboksmodulens funktioner>>=
 def print_sorted(names, max_row_width=60):
     """Skriver ut names i bokstavsordning, i jämna kolumner."""
-    column_width = len(max(names, key=len)) + 2
-    per_row = max(1, max_row_width // column_width)
+    <<räkna ut kolumnbredden och hur många kolumner som får plats>>
 
-    for count, name in enumerate(sorted(names)):
-        if count > 0 and count % per_row == 0:
-            print()
-        print(f"{name:{column_width}s}", end="")
-
-    print()
+    <<skriv ut namnen i bokstavsordning, en rad i taget>>
 @
 \end{frame}
 
+Testprogrammet heter \mintinline{python}{tests} och inte
+\mintinline{python}{main}, eftersom det enda filen gör när den körs som
+program är att prova funktionen.  Vi skriver det inte sist, när
+funktionen är klar, utan samlar testfallen under ett namn och lägger
+till dem när det finns något att prova.  Importeras modulen är
+villkoret falskt, och den som importerar den får bara funktionerna.
+
+\begin{frame}[fragile]
+  Testprogrammet, med testfallen samlade under ett namn:
+<<telefonboksmodulens testprogram>>=
+def tests():
+    """Provkör print_sorted."""
+    <<tester för [[print_sorted]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+\end{frame}
+
+Luften blir två tecken.  Det längsta namnet ger
+\mintinline{python}{max} med \mintinline{python}{key=len}, samma nyckel
+som vi sorterade efter längd med i föreläsningen \emph{Behållare:
+Listor}.  Hur många kolumner som
+får plats på en rad ger heltalsdivisionen, men alltid minst en, så att
+ett namn som är längre än hela raden ändå skrivs ut.
+
+\begin{frame}[fragile]
+  Först det funktionen måste veta innan den skriver något:
+<<räkna ut kolumnbredden och hur många kolumner som får plats>>=
+column_width = len(max(names, key=len)) + 2
+per_row = max(1, max_row_width // column_width)
+@
+\end{frame}
+
+Sedan skrivs namnen ut, i bokstavsordning, på samma rad med
+\mintinline{python}|end=""|.  Varje namn fylls ut till kolumnbredden,
+som \mintinline{python}{:4d} fyllde ut talen i
+multiplikationstabellen i föreläsningen \emph{Upprepningar}, men här
+står bredden i en variabel, inom egna klamrar, och
+\mintinline{python}{s} säger att det är en sträng som fylls ut.  Före
+varje namn som börjar en ny rad --- utom det första --- byter vi rad,
+och till sist avslutar vi den sista raden.
+
+\begin{frame}[fragile]
+  Sedan utskriften:
+<<skriv ut namnen i bokstavsordning, en rad i taget>>=
+for count, name in enumerate(sorted(names)):
+    if count > 0 and count % per_row == 0:
+        print()
+    print(f"{name:{column_width}s}", end="")
+
+print()
+@
+\end{frame}
+
+Nu är funktionen klar och kan provas.  Det första testfallet ger den fem
+namn och en rad som rymmer tre kolumner.
+
+% Each test case's output below is a run of a small program tangled from
+% testkorningar.nw: it imports print_sorted and runs this case, so the
+% output is exactly what tests() prints for these lines.
+
+\begin{frame}[fragile]
+  \begin{example}[Fem namn i kolumner]
+    \label{ex:phonebook-kolumner}
+    Testfallet sorterar namnen och bryter raden efter tre:
+<<tester för [[print_sorted]]>>=
+<<skriv ut fem namn i kolumner>>
+<<skriv ut fem namn i kolumner>>=
+names = ["ronja", "pippi", "madicken", "birk", "annika"]
+print_sorted(names, max_row_width=30)
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/phonebook.py}]%
+      {examples/phonebook_test_kolumner.py}
+  \end{example}
+\end{frame}
+
+Det andra testfallet provar att ett namn som är längre än hela raden
+ändå skrivs ut: då får varje rad en kolumn.
+
+\begin{frame}[fragile]
+  \begin{example}[Längre namn än raden]
+    \label{ex:phonebook-lang-rad}
+    Raden rymmer inte ens ett namn:
+<<tester för [[print_sorted]]>>=
+<<skriv ut namn som är längre än raden>>
+<<skriv ut namn som är längre än raden>>=
+print_sorted(["lisabet", "birk"], max_row_width=5)
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/phonebook.py}]%
+      {examples/phonebook_test_lang_rad.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Hela \texttt{phonebook.py}]
+    \label{ex:phonebook-hel}
+    Sätter vi in varje del där dess namn står får vi hela modulen:
+    \inputminted{python}{examples/phonebook.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOProgram,DictLOIterate,DictLOChoose}.
+
+  \textbf{Variationsmönster}: generalisering.
+  \textbf{Vad som hålls invariant}: funktionen [[print_sorted]] och vad
+  den gör.
+  \textbf{Vad som varierar}: vilken behållare den får --- en lista av
+  namn i testfallen, \cref{ex:phonebook-kolumner,ex:phonebook-lang-rad},
+  en uppslagslista i \cref{ex:phone-big}.
+
+  Att samma funktion fungerar på båda är inte en bekvämlighet utan
+  precis det som ska urskiljas: [[sorted]], [[max]] och [[enumerate]]
+  arbetar på \emph{det man kan gå igenom}, och en uppslagslista går
+  igenom sina nycklar.  Här möts alltså \cref{sec:genomgang} och
+  utskriften.
+
+  [[update]] används här utan att ha gåtts igenom --- det är metoden
+  dokumentationsuppgiften i \cref{sec:valja-uppslag} bad studenterna slå upp.
+  Att den dyker upp i ett program strax efteråt är avsiktligt: uppgiften
+  har en följd i materialet och är inte bara en artighetsfras.
+}%
 Funktionen tar en behållare av namn --- den bryr sig inte om det är en
 lista eller en uppslagslista, för både \mintinline{python}{max},
 \mintinline{python}{sorted} och \mintinline{python}{enumerate} fungerar
 på båda.  Det är samma sak som gjorde sökfunktionen i föreläsningen
 \emph{Behållare: Listor} återanvändbar: en funktion som inte antar något
-om vad den får behöver bara skrivas en gång.
+om vad den får behöver bara skrivas en gång.  Programmet nedan importerar
+den: modulen \texttt{phonebook} är filen från \cref{ex:phonebook-hel},
+och programmet ger den det kortare namnet \texttt{pb}.
 
 \begin{frame}[fragile,shrink]
   Ett program som fyller boken och skriver ut den:
@@ -1002,34 +1498,25 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{example}[Utmatning]
+    \label{ex:phone-big}
     Kör vi programmet får vi:
     \runpython[showcommand, chdir]{examples/phone-big.py}
   \end{example}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOProgram,DictLOIterate,DictLOChoose}.
-
-  \textbf{Variationsmönster}: generalisering.
-  \textbf{Vad som hålls invariant}: funktionen [[print_sorted]] och vad
-  den gör.
-  \textbf{Vad som varierar}: vilken behållare den får --- en lista av
-  namn i övningen, en uppslagslista här.
-
-  Att samma funktion fungerar på båda är inte en bekvämlighet utan
-  precis det som ska urskiljas: [[sorted]], [[max]] och [[enumerate]]
-  arbetar på \emph{det man kan gå igenom}, och en uppslagslista går
-  igenom sina nycklar.  Här möts alltså \cref{sec:genomgang} och
-  utskriften.
-
-  [[update]] används här utan att ha gåtts igenom --- det är metoden
-  dokumentationsuppgiften i \cref{sec:valja} bad studenterna slå upp.
-  Att den dyker upp i ett program strax efteråt är avsiktligt: uppgiften
-  har en följd i materialet och är inte bara en artighetsfras.
-}
-
 \begin{frame}[fragile]
   \begin{exercise}
+    \label{ovn:tva-kolumner}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOChoose,DictLOProgram}.
+
+  \Cref{ovn:tva-kolumner} är avsiktligt en
+  \emph{försämring}
+  av en funktion som var allmän.  Den prövar om studenten kan se
+  avvägningen: mer nytta i utbyte mot ett snävare användningsområde.
+  Att svaret ges i prosan direkt efter är nödvändigt --- utan det ser
+  uppgiften ut som ren programmering, och poängen är designresonemanget.
+}%
     Ändra \mintinline{python}{print_sorted} så att den skriver ut både
     namn och nummer, i två kolumner.  Vad behöver funktionen då veta om
     behållaren den får, som den inte behövde veta förut?
@@ -1042,12 +1529,160 @@ antagit något om vad den får.  Det är priset för det extra den gör ---
 och en påminnelse om att varje antagande en funktion gör är ett
 antagande någon senare måste hålla reda på.
 
-\ltnote{%
-  Relevanta lärandemål: \cref{DictLOChoose,DictLOProgram}.
+\section[Personer]{Flera uppgifter om varje person}
+\label{sec:flera-uppgifter}
 
-  Uppgiften är den sista i modulen och är avsiktligt en \emph{försämring}
-  av en funktion som var allmän.  Den prövar om studenten kan se
-  avvägningen: mer nytta i utbyte mot ett snävare användningsområde.
-  Att svaret ges i prosan direkt efter är nödvändigt --- utan det ser
-  uppgiften ut som ren programmering, och poängen är designresonemanget.
-}
+Telefonboken lagrar ett nummer per person.  Men om en person vill vi
+oftast veta mer än så: var personen bor, till exempel.
+
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:flera-uppgifter}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOChoose,DictLOCreate}.
+
+  \foreignlanguage{english}{Try-first}: \cref{ovn:flera-uppgifter}
+  säger inte att det är värdet som ska bytas, bara vad som ska lagras
+  och att uppslaget på namnet ska finnas kvar.  Den som svarar med två
+  uppslagslistor bredvid varandra har samma problem som de två listorna
+  i \cref{ovn:tva-listor}, och det kan prosan peka på.
+}%
+    Vi vill lagra både telefonnummer och adress för varje person, och
+    fortfarande slå upp på namnet.  Hur kan vi göra det?
+  \end{exercise}
+\end{frame}
+
+Värdet i en uppslagslista får vara vad som helst (\cref{sec:nycklar}),
+så det kan vara en behållare som håller båda uppgifterna.  Det
+närmaste till hands är en tupel, som i föreläsningen \emph{Behållare:
+Tupler}: ett fast antal delar som hör ihop.
+
+\begin{frame}[fragile]
+  \begin{example}[En tupel som värde]
+    \label{ex:person-tupel}
+    Numret först, adressen sedan:
+<<[[person_tupel.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    phonebook = {
+        "ronja": ("0701234567", "Mattisborgen"),
+        "pippi": ("0721234567", "Villa Villekulla"),
+        "madicken": ("0731234567", "Vimmerby"),
+    }
+
+    print(phonebook["ronja"][1])
+    print(phonebook["madicken"][0])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/person_tupel.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOChoose}.
+
+  \textbf{Variationsmönster}: kontrast mellan
+  \cref{ex:person-tupel,ex:person-uppslag}.
+  \textbf{Vad som varierar}: värdets behållare, en tupel eller en
+  uppslagslista.
+  \textbf{Vad som hålls invariant}: nycklarna, personernas uppgifter och
+  de två uppslagen, Ronjas adress och Madickens nummer.
+
+  Kontrasten är också bryggan till föreläsningen \emph{Klasser och
+  objekt}, som börjar i en telefonbok där varje person är en
+  uppslagslista med fälten [[phone]] och [[address]], och dessutom
+  namnen och födelsedagen.  Namnen, fälten
+  och numren är valda så att den föreläsningen kan peka hit.
+
+  Adresserna bär en dold koppling till Astrid Lindgrens böcker, som inte
+  sägs i studenttexten: Ronja bor i Mattisborgen
+  \parencite{LindgrenRonjaUtgivning} och Pippi i Villa Villekulla
+  \parencite{LindgrenPippiBok}, och förebilden för Madicken var
+  Lindgrens barndomsvän i Vimmerby \parencite{LindgrenMadickenForebild}.
+  När Ronja byter adress flyttar hon, som i boken, till Björngrottan
+  \parencite{RabenBjorngrottan}.  Föreläsningen \emph{Klasser och
+  objekt} har samma adresser, men där saknar Ronja adress.
+}%
+Uppslaget på namnet ger tupeln, och indexet väljer ur den.  Men
+uppslaget
+\begin{center}
+  \mintinline{python}|phonebook["ronja"][1]|
+\end{center}
+säger inte vad som står på plats \(1\): det måste den som läser
+programmet komma ihåg, och den som skriver det måste hålla ordningen
+likadan i varje tupel.  Vill vi att
+uppgifterna har namn kan värdet i stället vara en uppslagslista, med
+fältens namn som nycklar.
+
+\begin{frame}[fragile,shrink=5]
+  \begin{example}[En uppslagslista som värde]
+    \label{ex:person-uppslag}
+    Varje uppgift under sitt namn:
+<<[[person_uppslag.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    phonebook = {
+        "ronja": {"phone": "0701234567", "address": "Mattisborgen"},
+        "pippi": {"phone": "0721234567", "address": "Villa Villekulla"},
+        "madicken": {"phone": "0731234567", "address": "Vimmerby"},
+    }
+
+    print(phonebook["ronja"]["address"])
+    print(phonebook["madicken"]["phone"])
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Utmatning]
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/person_uppslag.py}
+  \end{example}
+\end{frame}
+
+% Notes only: the slides keep the two programs in sequence.  lines= cuts
+% out the phonebook and the two lookups, where the programs differ.
+\begin{frame}<article>
+  \begin{example}[En tupel och en uppslagslista som värde]
+    \label{ex:person-bredvid}
+    Telefonboken och uppslagen ur \texttt{person\_tupel.py} till vänster
+    och ur \texttt{person\_uppslag.py} till höger:
+    \codebycode
+      [lines=3-10,
+        label={\texttt{person\_tupel.py}}]{python}{examples/person_tupel.py}
+      [lines=3-10, label={\texttt{person\_uppslag.py}}]
+      {python}{examples/person_uppslag.py}
+  \end{example}
+\end{frame}
+
+Utskriften är densamma, men nu säger uppslaget vad det hämtar:
+\begin{center}
+  \mintinline{python}|phonebook["ronja"]["address"]|
+\end{center}
+läses som \enquote{Ronjas adress}.  Det kostar något också: varje
+fältnamn skrivs en gång för varje person, och ingenting hindrar att en
+person får ett felstavat fält, \mintinline{python}|"adress"| i stället för
+\mintinline{python}|"address"|.  Det märks först när vi slår upp fältet
+och får \mintinline{text}|KeyError|.  Valet följer samma
+regel som förut.  Ett fast antal delar som alltid kommer i samma
+ordning passar en tupel; uppgifter som vi vill nå med namn passar en
+uppslagslista.  Och till skillnad från nyckeln får värdet vara en
+behållare som kan ändras.  Att byta Ronjas adress i
+\cref{ex:person-uppslag} är en tilldelning,
+\begin{center}
+  \mintinline{python}|phonebook["ronja"]["address"] = "Björngrottan"|
+\end{center}
+medan tupeln i \cref{ex:person-tupel} måste bytas ut som helhet.
