@@ -8,7 +8,7 @@ authors:
 name: 'Laboration (4) klasser och objekt (kamratgranskning)'
 regex: '^390263$'
 ---
-**\[Notera: Det räcker att en i gruppen lämnar in, men varje gruppmedlem ger återkoppling på andra.\]**
+**Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 
 Hittills i kursen har vi jobbat med existerande datatyper i Python. 
 I den här laborationen ska ni istället skapa er egen sammansatta datatyp genom att

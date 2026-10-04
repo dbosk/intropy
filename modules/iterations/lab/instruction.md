@@ -8,7 +8,7 @@ authors:
 name: 'Laboration (3) upprepningar, listor och moduler'
 regex: '^390262$'
 ---
-**\[Notera: Varje gruppmedlem måste lämna in denna uppgift individuellt!\]**
+**Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 
 Hittills har vi avslutat programmet om användaren matat in inkorrekt data, men 
 det är inte särskilt användbart. I den här laborationen ska vi felsäkra det 
