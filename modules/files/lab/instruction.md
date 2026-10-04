@@ -8,7 +8,7 @@ authors:
 name: 'Laboration (6) filhantering'
 regex: '^390265$'
 ---
-**\[Notera: Varje gruppmedlem måste lämna in denna uppgift individuellt!\]**
+**Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 
 Tidigare har vi låtit användaren ange all information om studenterna. Detta
 känns dock inte helt rimligt för administrativ personal på en stor skola att 
