@@ -252,11 +252,23 @@ def main():
 if __name__ == "__main__":
     main()
 @
-    Vi kör det två gånger:
-    \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
-      deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
-    \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
-      deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}
+    % On the slides the two one-line runs stay one under the other, where
+    % they line up; in the notes they stand side by side.
+    \only<presentation>{%
+      Vi kör det två gånger:
+      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+        deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+        deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
+    }%
+    \only<article>{%
+      Vi kör det två gånger, den första till vänster:
+      \runbyrun
+        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
+          deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
+          deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
+    }
   \end{example}
 \end{frame}
 
@@ -426,21 +438,15 @@ En lista hade också gått.  Vi ställer de två sätten bredvid varandra ---
 allt annat i programmet är sig likt, så det enda som skiljer är hur
 dubbletten hindras.
 
-\begin{frame}[fragile]
+% The two excerpts are tangled from testkorningar.nw, since \codebycode
+% reads its sides from files; they are shown nowhere else.
+\begin{frame}
   \frametitle{Två sätt att samla domänerna}
-  Med en mängd, som i lösningen:
-  \begin{minted}{python}
-domains = set()
-...
-domains.add(domain_of(address))
-  \end{minted}
-  Med en lista, och kontrollen skriven för hand:
-  \begin{minted}{python}
-domains = []
-...
-if domain_of(address) not in domains:
-    domains.append(domain_of(address))
-  \end{minted}
+  Med en mängd, som i lösningen, till vänster, och med en lista och
+  kontrollen skriven för hand till höger:
+  \codebycode
+    [label={Med en mängd}]{python}{examples/domaner_mangd.py}
+    [label={Med en lista}]{python}{examples/domaner_lista.py}
 \end{frame}
 
 Listan ger samma utskrift, men den säger något annat om programmet:
@@ -686,7 +692,8 @@ vet.
   tabellens funktion hämtar \texttt{counter.py} med import, så att det
   invarianta står en gång och det som varierar --- räkningen och frågan
   om den vanligaste --- syns utan att två kopior behöver jämföras rad för
-  rad.
+  rad.  Räkningen står dessutom i båda versionerna bredvid varandra
+  (\cref{ex:count-letters-bredvid}), och körningarna likaså.
 
   [[Counter]] är den behållare dokumentationsuppgiften i föreläsningen
   \emph{Behållare: Mängder, stackar och köer} bad studenterna slå upp.
@@ -759,17 +766,39 @@ Funktionen behåller sitt namn och sitt löfte --- en text in, en
 uppslagslista från bokstav till antal ut --- så att det enda som skiljer
 den från förut är räkningen inuti den.
 
+% The docstrings are left out: they are the same in both, and the pair
+% is wider than the page with them.  breaklines wraps only on the slides.
+\begin{frame}
+  \begin{example}[Två sätt att räkna]
+    \label{ex:count-letters-bredvid}
+    Räkningen i \texttt{letters.py} till vänster och i
+    \texttt{counter.py} till höger:
+    \codebycode
+      [name=count_letters, nodocstring,
+        label={\texttt{letters.py}}]{python}{examples/letters.py}
+      [name=count_letters, nodocstring, breaklines,
+        label={\texttt{counter.py}}]{python}{examples/counter.py}
+  \end{example}
+\end{frame}
+
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet,
   \texttt{counter.py}:
   \inputminted{python}{examples/counter.py}
 \end{frame}
 
-\begin{frame}[fragile,shrink]
+% The run of letters.py is repeated beside the new one, so that the
+% shared lines can be seen to be the same instead of remembered.
+\begin{frame}[shrink]
+  \only<presentation>{\setminted{fontsize=\tiny}}%
   \begin{example}[En körning]
-    Vi matar in samma text som förut:
-    \runpython[transcript, stdin={Ronja, Pippi och Madicken},
-      deps={examples/letters.py}]%
+    Vi matar in samma text som förut, med körningen av
+    \texttt{letters.py} till vänster:
+    \runbyrun
+      [transcript, stdin={Ronja, Pippi och Madicken}]%
+      {examples/letters.py}
+      [transcript, stdin={Ronja, Pippi och Madicken},
+        deps={examples/letters.py}]%
       {examples/counter.py}
   \end{example}
 \end{frame}
@@ -893,7 +922,7 @@ Vi tar det första, och då är arbetet redan gjort åt oss: föreläsningen
 och skriver ut de tre rader som flyttar tecknet till täljaren.  Vi lägger
 in dem, och sedan blir både jämförelsen, hashningen och utskriften
 enkla.  Varför just den vägen och inte den andra kommer vi tillbaka till
-när båda går att se i kod.
+när jämförelserna skrivs.
 
 Filen läggs upp som de förra programmen, med en del till: klasserna, som
 står före programmet.  Här finns bara en klass, och programmet är ett
@@ -1076,17 +1105,19 @@ Likheten går att skriva precis som räkneoperationerna i föreläsningen
 \emph{Operatoröverlagring}: gör om ett heltal till ett bråk, jämför två
 bråk, och kasta ett \mintinline{python}{TypeError} för allt annat.
 
+% The method is a file of its own, never imported by fraction.py, so
+% that it can stand beside the method with NotImplemented later.
 \begin{frame}[fragile]
   \frametitle{Likheten, skriven som räkneoperationerna}
   Allt som inte är ett heltal eller ett bråk blir ett fel:
-  \begin{minted}{python}
+<<[[likhet_typeerror.py]]>>=
 def __eq__(self, other):
     if isinstance(other, int):
         other = Fraction(other)
     if isinstance(other, Fraction):
         return self.parts == other.parts
     raise TypeError(f"can't compare with type {type(other)}")
-  \end{minted}
+@
 \end{frame}
 
 Med den versionen avbryter \mintinline{python}|Fraction(1, 3) == "1/3"|
@@ -1136,6 +1167,19 @@ särfall.  Det är skillnaden mellan en jämförelse och en räkneoperation:
 \mintinline{python}{NotImplemented} är det sätt en metod säger till
 Python \enquote{fråga den andra operanden i stället}.
 
+\begin{frame}
+  \begin{example}[Två svar på ett okänt argument]
+    \label{ex:likhet-bredvid}
+    Likheten med \mintinline{python}{TypeError} till vänster och den i
+    \texttt{fraction.py} till höger:
+    \codebycode
+      [name=__eq__, label={\texttt{likhet\_typeerror.py}}]
+      {python}{examples/likhet_typeerror.py}
+      [name=Fraction.__eq__, label={\texttt{fraction.py}}]
+      {python}{examples/fraction.py}
+  \end{example}
+\end{frame}
+
 Versionen med \mintinline{python}{TypeError} löser också uppgiften, och
 den är inte fel --- den säger bara något annat: att en jämförelse med en
 sträng är ett programmeringsfel snarare än en fråga med svaret nej.
@@ -1171,21 +1215,17 @@ Det finns en följd av \mintinline{python}{__eq__} som är lätt att missa,
 och som hör ihop med behållarna.  Två små program räcker för att se den.
 
 % Programmen ska läsas, så anteckningarna visar dem hela, i var sin chunk.
-% Bilderna visar samma tanglade filer, en på varje bild.
-\mode<presentation>{%
-  \begin{frame}[shrink]
-    \begin{question}[Vad skriver programmen ut?]
-      Det första programmet använder ett objekt av en tom klass som
-      nyckel:
-      \inputminted{python}{examples/nyckel1.py}
-    \end{question}
-  \end{frame}
-  \begin{frame}[shrink]
-    \frametitle{Vad skriver programmen ut? (forts.)}
-    Det andra är detsamma, med en metod till i klassen:
-    \inputminted{python}{examples/nyckel2.py}
-  \end{frame}%
-}
+% Bilden visar samma tanglade filer bredvid varandra.
+\begin{frame}<presentation>[shrink=10]
+  \begin{question}[Vad skriver programmen ut?]
+    Det första programmet, till vänster, använder ett objekt av en tom
+    klass som nyckel.  Det andra är detsamma, med en metod till i
+    klassen:
+    \codebycode
+      [breaklines, label={\texttt{nyckel1.py}}]{python}{examples/nyckel1.py}
+      [breaklines, label={\texttt{nyckel2.py}}]{python}{examples/nyckel2.py}
+  \end{question}
+\end{frame}
 
 \begin{frame}<article>[fragile]
   \begin{question}[Vad skriver programmen ut?]
@@ -1256,11 +1296,27 @@ if __name__ == "__main__":
   \end{question}
 \end{frame}
 
+% In the notes the two classes, where the programs differ, stand side
+% by side above the two runs; the slides keep the runs in sequence.  The
+% \needspace keeps the classes and the runs on one page.
+\mode<article>{\needspace{20\baselineskip}}
 \begin{frame}[fragile,shrink]
   \begin{example}[Utmatning]
-    Kör vi de två programmen får vi:
-    \runpython[showcommand, chdir]{examples/nyckel1.py}
-    \runpython[showcommand, chdir]{examples/nyckel2.py}
+    \only<presentation>{%
+      Kör vi de två programmen får vi:
+      \runpython[showcommand, chdir]{examples/nyckel1.py}
+      \runpython[showcommand, chdir]{examples/nyckel2.py}%
+    }%
+    \only<article>{%
+      Klasserna bredvid varandra, med \texttt{nyckel1.py} till vänster:
+      \codebycode
+        [name=Key, label={\texttt{nyckel1.py}}]{python}{examples/nyckel1.py}
+        [name=Key, label={\texttt{nyckel2.py}}]{python}{examples/nyckel2.py}
+      Kör vi de två programmen får vi:
+      \runbyrun
+        [showcommand, chdir]{examples/nyckel1.py}
+        [showcommand, chdir, breaklines]{examples/nyckel2.py}%
+    }
   \end{example}
 \end{frame}
 
@@ -1341,6 +1397,21 @@ def __truediv__(self, other):
 def __rtruediv__(self, other):
     return Fraction(other) / self
 @
+\end{frame}
+
+% The multiplication's reflected method, pages back, beside the
+% division's: the one reuses the operator, the other cannot.
+\begin{frame}
+  \begin{example}[Två omvända metoder]
+    \label{ex:rmul-rtruediv-bredvid}
+    Den omvända multiplikationen till vänster och den omvända divisionen
+    till höger, båda i \texttt{fraction.py}:
+    \codebycode
+      [name=Fraction.__rmul__, fontsize=\footnotesize,
+        label={\texttt{\_\_rmul\_\_}}]{python}{examples/fraction.py}
+      [name=Fraction.__rtruediv__, fontsize=\footnotesize,
+        label={\texttt{\_\_rtruediv\_\_}}]{python}{examples/fraction.py}
+  \end{example}
 \end{frame}
 
 Testfallet för divisionen provar alla tre slagen: ett bråk delat med ett
@@ -2210,7 +2281,8 @@ except ValueError as error:
   Relevanta lärandemål för \cref{ovn:angra}: \cref{OvningContainersLOChoose}.
 
   Stycket om kön är kontrastens andra hälft, och den står i studenttexten
-  därför att den är svaret på uppgiftens andra fråga.  Att skillnaden
+  därför att den är svaret på uppgiftens andra fråga.  Den hälften finns
+  bara i ord: någon version med en kö skrivs inte som kod.  Att skillnaden
   motiveras med ett \emph{skäl} --- beroendet mellan överföringarna ---
   och inte med \enquote{en stack är rätt här} är avsiktligt: en
   behållarregel utan skäl är en regel att memorera.
@@ -2484,7 +2556,8 @@ en avstavningsalgoritm, alltså något helt annat än en behållare.
 
   Stycket om \mintinline{python}{for}-lösningen står med därför att den
   är enklare, och att låta kön framstå som nödvändig i alla fall hade
-  varit osant.
+  varit osant.  Slingan beskrivs bara i ord och skrivs inte som kod, så
+  den jämförelsen görs ur beskrivningen och inte bredvid kön.
 
   Att en lista \emph{kan} göra samma sak med
   \mintinline{python}|insert(0, word)| nämns inte i studenttexten.  Det
@@ -2684,7 +2757,9 @@ och gör ingenting annat än att sätta samman dem.  Modulen
     rätt, av precis motsatt skäl: ett prov ska ge samma svar varje gång.
     Kontrasten mellan modulens \mintinline{python}{tests} och programmets
     \mintinline{python}{main} är den enda plats i materialet där den
-    skillnaden syns, och den är värd att peka på.
+    skillnaden syns, och den är värd att peka på; därför står de två
+    funktionerna bredvid varandra efter förklaringen
+    (\cref{ex:startvarden-bredvid}).
 
     Uppgiften avslutar övningen med två moduler och ett program, vilket är
     den minsta form ett program med flera delar kan ha.  Att det är
@@ -2737,6 +2812,19 @@ modulen och ett prov ska ge samma svar varje gång.
 \mintinline{python}{main} tar sitt startvärde från kommandoraden,
 eftersom den som kör programmet oftast
 vill ha en ny kaka --- men ibland samma igen.
+
+\begin{frame}
+  \begin{example}[Två startvärden]
+    \label{ex:startvarden-bredvid}
+    Modulens \mintinline{python}{tests} till vänster och programmets
+    \mintinline{python}{main} till höger:
+    \codebycode
+      [name=tests, nodocstring,
+        label={\texttt{fortune.py}}]{python}{examples/fortune.py}
+      [name=main, nodocstring,
+        label={\texttt{humor.py}}]{python}{examples/humor.py}
+  \end{example}
+\end{frame}
 
 \begin{frame}[fragile,shrink]
   \begin{example}[En körning]

@@ -55,6 +55,9 @@ EXAMPLES+=	${TESTRUNS}
 # The integer to the left of a fraction is not a test case but a program
 # of its own, since its run ends in a traceback.
 EXAMPLES+=	examples/heltal_forst.py
+# The equality written like the arithmetic operators, which the notes
+# show alone and then beside the one with NotImplemented.
+EXAMPLES+=	examples/likhet_typeerror.py
 EXAMPLES+=	examples/nyckel1.py
 EXAMPLES+=	examples/nyckel2.py
 EXAMPLES+=	examples/bank.py
@@ -73,6 +76,11 @@ EXAMPLES+=	examples/cowsay2.py
 EXAMPLES+=	examples/minne.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/humor.py
+# The two ways of collecting the domains, shown only side by side: they
+# are excerpts, tangled from testkorningar.nw (\codebycode reads files).
+EXCERPTS+=	examples/domaner_mangd.py
+EXCERPTS+=	examples/domaner_lista.py
+EXAMPLES+=	${EXCERPTS}
 # Both runs of epost.py, the one typed by hand and the one piped with <,
 # are fed this file, so the runs in the notes are exactly the runs the
 # reader can reproduce.
@@ -86,7 +94,7 @@ EXAMPLES+=	examples/epost.in
 NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
 	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
-${TESTRUNS} ${BANKRUNS}: testkorningar.nw
+${TESTRUNS} ${BANKRUNS} ${EXCERPTS}: testkorningar.nw
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.
