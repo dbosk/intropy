@@ -3,8 +3,12 @@ title: Laboration om Upprepningar, moduler och mer felhantering
 authors:
   - Daniel Bosk <dbosk@kth.se>
   - Celina Soori <celinah@kth.se>
+# Canvas (canvaslms assignments edit): the assignment is matched by its
+# Canvas id so the name can change freely; make push-labs pushes it.
+name: 'Laboration (3) upprepningar, listor och moduler'
+regex: '^390262$'
 ---
-# Laboration: Upprepningar, moduler och mer felhantering
+**Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 
 Hittills har vi avslutat programmet om användaren matat in inkorrekt data, men 
 det är inte särskilt användbart. I den här laborationen ska vi felsäkra det 
@@ -45,10 +49,16 @@ def main():
   d = typed_input.input_float("Skriv in värdet på d: ")
   n = typed_input.input_int("Skriv in värdet på n: ")
   
+  while n <= 0:
+    n = typed_input.input_int("Skriv in värdet på n: ")
+  
   arithmetic = sum_arithmetic(a1, d, n)
   
-  g1 = typed_input.input_float("Skriv in värdet på a1: ")
-  q = typed_input.input_float("Skriv in värdet på d: ")
+  g1 = typed_input.input_float("Skriv in värdet på g1: ")
+  q = typed_input.input_float("Skriv in värdet på q: ")
+  
+  while q <= 0:
+    q = typed_input.input_float("Skriv in värdet på q: ")
   
   geometric = sum_geometric(g1, q, n)
   

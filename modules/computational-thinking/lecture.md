@@ -50,7 +50,11 @@ ett recept.
 
 ## Efter föreläsningen
 
-Fortsätt enligt veckoöversikten: labbpasset med *Laboration (0) kom igång
-med Hello World* och *Övning: Terminalen och köra kod*. Beståndsdelarna
-från föreläsningen återkommer i tur och ordning under kursens följande
+Fortsätt enligt veckoöversikten: labbpasset med *Laboration (0): Hello,
+world och remix! (kamratgranskning)* och *Övning: Terminalen och köra
+kod*. Beståndsdelarna från föreläsningen återkommer i tur och ordning under kursens följande
 veckor.
+
+## Inspelning
+
+<iframe id="kmsembed-0_3a6jnhn7" class="kmsembed" title="Kaltura Player" src="https://play.kth.se/embed/secure/iframe/entryId/0_3a6jnhn7/uiConfId/23453971" width="650" height="366" sandbox="allow-forms allow-same-origin allow-scripts allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" allow="autoplay *; fullscreen *; encrypted-media *" frameborder="0" loading="lazy"></iframe>

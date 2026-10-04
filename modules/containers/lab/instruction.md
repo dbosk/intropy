@@ -1,63 +1,63 @@
 ---
-title: Laboration om Klasser, behållare och upprepningar
+title: Laboration om Mer klasser och behållare
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>
+# Canvas (canvaslms assignments edit): the assignment is matched by its
+# Canvas id so the name can change freely; make push-labs pushes it.
+name: 'Laboration (5) behållare och klasser (kamratgranskning)'
+regex: '^390264$'
 ---
-# Laboration: Klasser, behållare och upprepningar
+**Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 
-Hittills i kursen har vi jobbat med existerande datatyper i Python. 
-I den här laborationen ska ni istället skapa er egen sammansatta datatyp genom att
-skriva er första klass. Ni kommer öva på att skapa objekt av er typ och
-att spara ner dessa i en behållare som ni sedan ska iterera igenom.
+I förra laborationen använde vi oss av en klass vars objekt vi sparade i en behållare i huvudprogrammet.
+Nu ska vi istället använda oss av två klasser, därav den första
+klassen har en behållare som ett attribut, där vi sparar objekt från
+den andra klassen. 
 
-I laborationen ska ni öva på att representera ett objekt med en sträng. Fördelen med 
-att representera objekt på ett bättre sätt är att det underlättar 
-för den som ska programmera. Det kan göra koden mer intuitiv, mer läsbar. Detta 
-minskar risken för fel (buggar).
+Fördelen med att spara ner objekt på detta vis är att vi kan skapa en mer
+strukturerad och användbar kod, vilket gör koden mer lättläst och flexibel.
 
 ## Innan du börjar koda
 
-Läs på om [klasser][klasser], [listor][listor] och [upprepningar][upprepningar].
+Repetera [uppslagslistor][uppslagslistor] från föreläsningen
+*Behållare: Uppslagslistor*.
 
-[klasser]: https://docs.python.org/3/tutorial/classes.html
-[listor]: https://docs.python.org/3/library/stdtypes.html#lists
-[upprepningar]: https://docs.python.org/3/reference/compound_stmts.html?highlight=while#the-while-statement
+[uppslagslistor]: https://docs.python.org/3/tutorial/datastructures.html#dictionaries
 
 ## Uppgift
 
-Definiera en klass "Student" som har minst tre attribut: __förnamn__, __efternamn__ och __personnummer__.
-Klassen ska ha minst två metoder, `__init__` och `__str__`. 
+Nu ska vi skriva en klass "School" som har minst ett attribut __students__.
 
-Skapa minst tre objekt av typen "Student" genom att be användaren skriva in
-information om studenter. Fundera på bästa sättet att spara ner de skapade objekten.
+Skapa ett objekt av typen School. Låt igen användaren skriva in information om 
+minst tre studenter och skapa objekt av typen Student. 
 
-När alla objekt är skapade ska programmet skriva ut alla skapade objekt. 
+Spara objekten i School-objektets attribut __students__. 
+
+Fundera på vad som är den bästa typen av behållare för att spara objekten. 
+Vilka nackdelar och fördelar finns det med olika behållare?
+
+Lägg nu till en metod i klassen School som låter användaren söka efter en
+elev som går på skolan och som skriver ut om eleven finns och det funna
+Student-objektet. Du får välja själv om du ska söka med hjälp av förnamn, efternamn
+eller personnummer. 
 
 ### Exempelutskrift
 
 ```
-Vad heter studenten? Jan Jansson
-Vad är studentens personnummer? 0404040010
-
-Objektet skapat!
-
-Vad heter studenten? Per Persson
-Vad är studentens personnummer? 0303030030
-
-Objektet skapat!
-
+...
 Vad heter studenten? Emma Emilsson
 Vad är studentens personnummer? 010101000a
 Personnumret får bara innehålla siffror, försök igen!
 Vad är studentens personnummer? 0101010000
 
-Objektet skapat!
+Studenten är tillagd!
 
-Här är alla sparade objekt:
+Vilken student vill du söka efter? Jan
+
+Den studenten läser på KTH:
 Namn: Jan Jansson Personnr: 0404040010
-Namn: Per Persson Personnr: 0303030030
-Namn: Emma Emilsson Personnr: 0101010000
+
 ```
 
 ### Krav
@@ -72,42 +72,31 @@ Denna laboration redovisas inte för en lärarassistent, utan kommer kamraträtt
 
 ## Frivilliga extrauppgifter
 
-### Redigera listan
+### Hantera lärare
 
-I grunduppgiften kan vi endast lägga till objekt av typen Student. 
-Lägg till så att användaren kan ändra och ta bort objekt från listan. 
+Lägg till en klass Person som klassen Student ärver ifrån, se [arv][arv]. 
+Skapa en till klass Teacher som också ärver från Person. Lägg till så att
+klassen Skola har två attribut, en för studenter och en för lärare, alternativt
+hitta på ett eget sätt att hålla isär elever och lärare i ditt program. 
 
-#### Exempelutskrift
-
-```
-Vill du lägga till (l), ändra (a) eller ta bort (t) ett objekt? a
-
-Skriv in personnumret på objektet du vill ändra: 0101010000
-Vill du ändra namn på Emma Löv (j/n)? j
-Skriv in det nya namnet: Ebba Löv
-
-Nu är namnet för 0101010000 ändrat till Ebba Löv!
-```
-
-### Lägga till många studenter
-
-Ändra så att programmet kan fråga efter $n$ studenter istället för bara tre.
+[arv]: https://docs.python.org/3/tutorial/classes.html#inheritance
 
 #### Exempelutskrift
+
 ```
-Hur många studenter vill du lägga till? 2
+...
+Vad för roll har personen? Lärare
+Vad heter personen? Albert Einstein
+Vad är personens personnummer? 7903140050
 
-Vad heter studenten? Jan Jansson
-Vad är studentens personnummer? 0404040010
+Personen tillagd!
 
-Objektet skapat!
-
-Vad heter studenten? Per Persson
-Vad är studentens personnummer? 0303030030
-
-Objektet skapat!
-
-Här är alla sparade objekt:
+Här är alla studenter på KTH:
 Namn: Jan Jansson Personnr: 0404040010
 Namn: Per Persson Personnr: 0303030030
+Namn: Emma Emilsson Personnr: 0101010000
+
+Här är alla lärare på KTH:
+Namn: Albert Einsten Personnr: 7903140050
+
 ```
