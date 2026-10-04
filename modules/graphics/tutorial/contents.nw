@@ -49,8 +49,10 @@ lösa utan att du letar där.
   går att använda.  Att urskilja något
   kräver att man erfar vad det är i kontrast till vad det inte är, och
   de två fallen måste erfaras samtidigt \parencite[45--47]{Marton2015};
-  därför står terminalklockan och fönsterklockan tätt efter varandra och
-  inte i skilda delar av övningen.
+  därför står terminalklockans huvudprogram bredvid fönsterklockans
+  första försök (\cref{ex:term-clock-loop-bredvid}), och det försökets
+  slinga bredvid metoden som ersätter den
+  (\cref{ex:slinga-after-bredvid}).
 
   % TODO(claim-audit): att nybörjare uppfattar utskrift som \enquote{en
   % rad i taget} och därför inte väntar sig buffring är ett påstående om
@@ -231,6 +233,26 @@ time.sleep(1)
   \end{solution}
 \end{frame}
 
+% The pairs in this file are \codebycode, which reads the tangled programs
+% as text (it never runs them, and these never end), so they cannot drift
+% from the chunks.
+%
+% term_clock_noflush.py is made from term_clock.py by the Makefile, by
+% leaving out the line that empties the buffer, so the left side is the
+% same loop as the right one but for that line.
+\begin{frame}[fragile]
+  \begin{example}[Slingan utan och med den sista delen]
+    \label{ex:flush-bredvid}
+    Slingan utan den sista delen till vänster och slingan i
+    \texttt{term\_clock.py} till höger:
+    \codebycode
+      [from={while True}, label={utan den sista delen}]
+      {python}{examples/term_clock_noflush.py}
+      [from={while True}, label={\texttt{term\_clock.py}}]
+      {python}{examples/term_clock.py}
+  \end{example}
+\end{frame}
+
 Ordningen är inte likgiltig: väntar programmet först och tömmer sedan
 ligger tiden på skärmen en sekund fel hela tiden.  Kör programmet i en
 terminal; avbryta gör du med \texttt{Ctrl-C}, för slingan har inget slut
@@ -274,10 +296,11 @@ den aspekt \cref{ex:overwrite} handlar om.
   kontrasten \emph{inne} i avsnittet, där
   \texttt{clock\_loop.py} och \texttt{clock.py} har samma medium, samma
   uppgift, samma format, samma rytm, samma urtavla och samma
-  \mintinline{python}{show_time} och visas tätt efter varandra
-  \parencite[45--47]{Marton2015}; det enda som skiljer dem är
+  \mintinline{python}{show_time}; det enda som skiljer dem är
   slingan i \mintinline{python}{main} mot
-  \mintinline{python}{update_time} med \mintinline{python}{after}.
+  \mintinline{python}{update_time} med \mintinline{python}{after}, och
+  de två står bredvid varandra (\cref{ex:slinga-after-bredvid})
+  \parencite[45--47]{Marton2015}.
 
   \textbf{Vad som hålls invariant}: uppgiften, tidsformatet och rytmen
   från \cref{sec:term-clock}, och att tiden hämtas med
@@ -290,8 +313,9 @@ den aspekt \cref{ex:overwrite} handlar om.
   Gjorde den det fanns inget kvar att urskilja: den kritiska aspekten
   vore utpekad \parencite[13]{Marton2015}.  Uppgiften ber i stället
   studenten lösa problemet på samma sätt som i terminalen och se vad som
-  händer, och lösningsförslaget visar det misslyckade försöket
-  \emph{tillsammans} med det som fungerar, så att de två kan erfaras
+  händer, och lösningsförslaget visar det misslyckade försökets slinga
+  \emph{bredvid} metoden som ersätter den
+  (\cref{ex:slinga-after-bredvid}), så att de två kan erfaras
   samtidigt.
 
   \textbf{Missuppfattning som uppgiften riktar sig mot}: att
@@ -384,6 +408,18 @@ if __name__ == "__main__":
     main()
 @
   \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Två huvudprogram]\label{ex:term-clock-loop-bredvid}
+    \mintinline{python}{main} ur \texttt{term\_clock.py} till vänster och
+    ur \texttt{clock\_loop.py} till höger:
+    \codebycode
+      [name=main, nodocstring,
+        label={\texttt{term\_clock.py}}]{python}{examples/term_clock.py}
+      [name=main, nodocstring,
+        label={\texttt{clock\_loop.py}}]{python}{examples/clock_loop.py}
+  \end{example}
 \end{frame}
 
 Klassen ärver från \mintinline{python}{tk.Tk}, som i föreläsningens
@@ -535,6 +571,19 @@ def update_time(self):
     self.after(1000, self.update_time)
 @
   \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Slingan och metoden som ersätter den]
+    \label{ex:slinga-after-bredvid}
+    Slingan ur \texttt{clock\_loop.py} till vänster och
+    \mintinline{python}{update_time} ur \texttt{clock.py} till höger:
+    \codebycode
+      [from={while True}, label={\texttt{clock\_loop.py}}]
+      {python}{examples/clock_loop.py}
+      [name=Clock.update_time, nodocstring,
+        label={\texttt{clock.py}}]{python}{examples/clock.py}
+  \end{example}
 \end{frame}
 
 \mintinline{python}{after} får \mintinline{python}{self.update_time}
@@ -1112,6 +1161,18 @@ def tick(self):
   \end{solution}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{example}[Klockans metod och timerns]\label{ex:tick-bredvid}
+    \mintinline{python}{update_time} ur \texttt{clock.py} till vänster och
+    \mintinline{python}{tick} ur \texttt{timer.py} till höger:
+    \codebycode
+      [name=Clock.update_time, nodocstring,
+        label={\texttt{clock.py}}]{python}{examples/clock.py}
+      [name=Timer.tick, nodocstring,
+        label={\texttt{timer.py}}]{python}{examples/timer.py}
+  \end{example}
+\end{frame}
+
 \mintinline{python}{tick} är klockans \mintinline{python}{update_time}
 med ett slut: när ingenting är kvar visas noll, kedjan bryts genom att
 ingen ny beställning läggs, och \mintinline{python}{running} blir falsk
@@ -1143,7 +1204,9 @@ ställe, i \mintinline{python}{start}.
   \textbf{Variationsmönster}: Kontrast mellan \texttt{timer.py}
   (\cref{ex:timer}, med körningen i \cref{fig:timer-negative}) och
   \texttt{timer2.py} (\cref{ex:timer2}, med körningen i
-  \cref{fig:timer2-negative}).
+  \cref{fig:timer2-negative}).  Metoderna \mintinline{python}{start}
+  står bredvid varandra i \cref{ex:start-bredvid}, och skärmbilderna i
+  \cref{fig:timers-negative}.
 
   \textbf{Vad som varierar}: programmet, i en enda metod.
   \texttt{timer.py} och \texttt{timer2.py} skiljer sig bara i
@@ -1323,6 +1386,18 @@ if min(self.time_left) < 0:
   \end{solution}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{example}[Metoden \texttt{start} på två sätt]\label{ex:start-bredvid}
+    \mintinline{python}{start} ur \texttt{timer.py} till vänster och ur
+    \texttt{timer2.py} till höger:
+    \codebycode
+      [name=Timer.start, nodocstring,
+        label={\texttt{timer.py}}]{python}{examples/timer.py}
+      [name=CheckedTimer.start, nodocstring,
+        label={\texttt{timer2.py}}]{python}{examples/timer2.py}
+  \end{example}
+\end{frame}
+
 \mode<article>{\needspace{8\baselineskip}}
 \begin{frame}<article>[fragile]
   \begin{example}[Timern som säger ifrån (\texttt{timer2.py})]
@@ -1333,20 +1408,31 @@ if min(self.time_left) < 0:
 \end{frame}
 
 \Cref{fig:timer2-negative} visar \texttt{timer2.py} med samma
-inställning som i \cref{fig:timer-negative}.
+inställning som i \cref{fig:timer-negative}, bredvid den första timern.
 
 \begin{frame}
   \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.5\textwidth]{figs/timer2-negative.png}
-    \caption{\texttt{timer2.py} strax efter ett tryck på knappen med
+    \begin{subfigure}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figs/timer-negative.png}
+      \caption{\texttt{timer.py}, som i \cref{fig:timer-negative}: en
+        negativ tid i etiketten.}
+      \label{fig:timer-negative-igen}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figs/timer2-negative.png}
+      \caption{\texttt{timer2.py}: meddelandet i stället för en tid, och
+        ingen nedräkning startar.}
+      \label{fig:timer2-negative}
+    \end{subfigure}
+    \caption{De två timrarna strax efter ett tryck på knappen med
       \texttt{0}, \texttt{0} och \texttt{-5} i fälten, samma inställning
-      som i
-      \cref{fig:timer-negative}.  Etiketten visar meddelandet i stället
-      för en tid, och ingen nedräkning startar.  Bilden är förstorad tre
-      gånger och visar programmets egen yta, utan skrivbordsmiljöns
-      fönsterram.}
-    \label{fig:timer2-negative}
+      i båda.  Bilderna är förstorade tre gånger och visar programmens
+      egen yta, utan skrivbordsmiljöns fönsterram.}
+    \label{fig:timers-negative}
   \end{figure}
 \end{frame}
 
@@ -1608,6 +1694,20 @@ def draw_line(self, x_start, y_start, x_dest, y_dest):
     )
 @
   \end{solution}
+\end{frame}
+
+% Notes only: on the slides the pair would be too wide for the frame.
+\begin{frame}<article>[fragile]
+  \begin{example}[Metoden \texttt{draw\_line} på två sätt]
+    \label{ex:draw-line-farg-bredvid}
+    \mintinline{python}{draw_line} ur \texttt{draw.py} till vänster och
+    ur \texttt{draw\_colors.py} till höger:
+    \codebycode
+      [name=DrawGUI.draw_line, nodocstring,
+        label={\texttt{draw.py}}]{python}{examples/draw.py}
+      [name=ColorGUI.draw_line, nodocstring,
+        label={\texttt{draw\_colors.py}}]{python}{examples/draw_colors.py}
+  \end{example}
 \end{frame}
 
 Den ärvda \mintinline{python}{paint}, och

@@ -29,6 +29,12 @@ SRC+=		ltnotes.bib
 # The tkinter programs cannot be run by \runpython (they need a display and
 # they never terminate); their results are the screenshots in figs/.
 EXAMPLES+=	examples/term_clock.py
+# The clock's loop without the line that empties the buffer, shown beside
+# the loop with it.  It is made from term_clock.py, so the two cannot
+# differ in anything else.
+examples/term_clock_noflush.py: examples/term_clock.py
+	grep -v 'sys.stdout.flush()' $< > $@
+EXAMPLES+=	examples/term_clock_noflush.py
 EXAMPLES+=	examples/overwrite.py
 EXAMPLES+=	examples/clock_loop.py
 EXAMPLES+=	examples/clock.py
