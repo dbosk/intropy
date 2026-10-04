@@ -35,11 +35,12 @@ sådant med biblioteket `tkinter`. Det stora skiftet mot tidigare program
 är händelseprogrammering: i stället för att programmet frågar användaren
 i tur och ordning väntar det på händelser — klick, tangenttryckningar,
 tid som går — och anropar en funktion för varje händelse. Vi börjar med
-ett minimalt fönster och bygger ut det stegvis med in- och utmatning,
-och ser hur koden blir tydligare när gränssnittet skrivs som en klass
-som ärver från `tkinter`s egna klasser. Föreläsningen avslutar med ett
-ritprogram som lyssnar på musens rörelser och knapptryckningar, och som
-får knappar för att byta färg.
+en modell av händelseslingan i terminalen och ett minimalt fönster, och
+bygger ut det stegvis med in- och utmatning. Där ser vi varför fönstrets
+delar hör hemma i en klass som ärver från `tkinter`s egna klasser, med
+det som inte har med fönstret att göra i en vanlig funktion utanför.
+Föreläsningen avslutar med ett ritprogram som lyssnar på musens rörelser
+och knapptryckningar, och som får knappar för att byta färg.
 
 ## Lärandemål
 
@@ -49,8 +50,8 @@ Efter föreläsningen ska du kunna
   en callbackfunktion är,
 - konstruera ett enkelt grafiskt gränssnitt med `tkinter` med fönster,
   etiketter, textfält och knappar,
-- koppla händelser från användaren (knapptryck, tangenter) och från
-  klockan till funktioner och metoder som uppdaterar gränssnittet,
+- koppla händelser från användaren — knapptryck, tangenter och
+  musrörelser — till metoder som uppdaterar gränssnittet,
 - strukturera ett grafiskt program med klasser, till exempel genom att
   ärva från `tkinter`-klasser, så att gränssnitt och programlogik hålls
   isär,

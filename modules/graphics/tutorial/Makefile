@@ -29,21 +29,53 @@ SRC+=		ltnotes.bib
 # The tkinter programs cannot be run by \runpython (they need a display and
 # they never terminate); their results are the screenshots in figs/.
 EXAMPLES+=	examples/term_clock.py
+# The clock's loop without the line that empties the buffer, shown beside
+# the loop with it.  It is made from term_clock.py, so the two cannot
+# differ in anything else.
+examples/term_clock_noflush.py: examples/term_clock.py
+	grep -v 'sys.stdout.flush()' $< > $@
+EXAMPLES+=	examples/term_clock_noflush.py
 EXAMPLES+=	examples/overwrite.py
 EXAMPLES+=	examples/clock_loop.py
 EXAMPLES+=	examples/clock.py
 EXAMPLES+=	examples/countdown.py
+# countdown.py's test program grows one test case at a time, and the deck
+# shows each case's output beside it.  Each of these programs runs one
+# case; they reference the test chunks in contents.nw from
+# testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/countdown_test_count_down.py
+TESTRUNS+=	examples/countdown_test_format_time.py
+EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/timer.py
+EXAMPLES+=	examples/timer2.py
+# draw.py is written in the lecture Grafiska användargränssnitt
+# (../slides) and draw_colors.py imports its class: build it there, copy
+# it here.  Never commit the copy (the lecture commits its own, for the
+# Canvas link).
+examples/draw.py: ../slides/contents.nw
+	@mkdir -p ${@D}
+	$(MAKE) -C $(<D) examples/draw.py
+	cp $(<D)/examples/draw.py $@
+EXAMPLES+=	examples/draw.py
 EXAMPLES+=	examples/draw_colors.py
 EXAMPLES+=	examples/draw_rect.py
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+${TESTRUNS}: testkorningar.nw
 
 .PHONY: examples
 examples: ${EXAMPLES}
