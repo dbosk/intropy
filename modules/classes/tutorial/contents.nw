@@ -1048,9 +1048,10 @@ if __name__ == "__main__":
 \begin{frame}[fragile]
   \begin{example}[\texttt{same.py}]
     \label{ex:same-run}
-    Programmet skriver ut
-    \runpython[showcommand, chdir, deps={examples/book.py}]%
-      {examples/same.py}
+    Programmet skriver ut, till höger om körningen av \texttt{copies.py}:
+    \runbyrun
+      [showcommand, chdir]{examples/copies.py}
+      [showcommand, chdir, deps={examples/book.py}]{examples/same.py}
   \end{example}
 \end{frame}
 
@@ -1147,7 +1148,9 @@ tur och ordning.
   vad som \emph{inte} står i klassen --- syns då i klassen själv.
   Priset är att raderna står två gånger i källan: ändras
   \mintinline{python}{Book}s delar måste
-  \mintinline{python}{PlainBook} följa med.  På bilderna står klassen i
+  \mintinline{python}{PlainBook} följa med, och det kontrollerar
+  bygget: regeln för \texttt{plain.py} i \texttt{Makefile} jämför varje
+  metod med \mintinline{python}{Book}s.  På bilderna står klassen i
   tre delar efter varandra; testprogrammet, som är svaret, står först i
   lösningsförslaget.
 
@@ -1566,6 +1569,23 @@ och skrev raden själv; \mintinline{python}{BorrowedBook} överlagrar
 den.  Skillnaden är inte mekanismen utan vilken klass som står ovanför
 --- och om den ärvda versionen är värd att återanvända.
 
+% The pair is \codebycode, which reads the two tangled files as text, so
+% it cannot drift from the chunks.  Without the docstrings the pair fits
+% the notes; breaklines wraps only on the slides, where it is wider than
+% the frame.
+\begin{frame}[fragile]
+  \begin{example}[Två överlagrade \texttt{\_\_str\_\_}]
+    \label{ex:str-bredvid}
+    Utskriften ur \texttt{book.py} till vänster och ur
+    \texttt{borrowed.py} till höger:
+    \codebycode
+      [name=Book.__str__, nodocstring, breaklines,
+        label={\texttt{book.py}}]{python}{examples/book.py}
+      [name=BorrowedBook.__str__, nodocstring, breaklines,
+        label={\texttt{borrowed.py}}]{python}{examples/borrowed.py}
+  \end{example}
+\end{frame}
+
 Ett annat val hade varit att låta \mintinline{python}{BorrowedBook}
 skriva hela raden själv.  Det hade fungerat, men då står
 bokmärkesformatet på två ställen, och ändrar du det i
@@ -1586,7 +1606,8 @@ det DRY varnar för.
 
   \textbf{Vad som hålls invariant}: datan (titel, författare, sidor,
   bokmärke) och de två representationerna, som båda står i
-  uppgiftstexten så att kontrasten går att se och inte bara läsa om.
+  uppgiftstexten, uppslagslistan bredvid klassens konstruktor, så att
+  kontrasten går att se och inte bara läsa om.
 
   Föreläsningen ställer frågan \enquote{vilka fördelar ser du?};
   \cref{ovn:representation} ställer den som ett val i ett givet fall,
@@ -1605,21 +1626,18 @@ där.  Frågan är när vilket passar.
 
 % REVIEW(C15): ingen körning --- uppgiften ber om ett val och en
 % motivering, inte om ett program, så det finns ingen körning att visa.
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink=5]
   \begin{exercise}[Vilket skulle du välja?]
     \label{ovn:representation}
     Du ska lagra titel, författare, antal sidor och bokmärke för de
-    böcker du läser.  Det ena förslaget är en uppslagslista per bok:
-    \begin{minted}{python}
-      ronja = {
-          "title": "Ronja Rövardotter",
-          "author": "Astrid Lindgren",
-          "pages": 235,
-          "read_pages": 0,
-      }
-    \end{minted}
-    Det andra är klassen \mintinline{python}{Book}.  Välj ett av dem för
-    vardera fallet, och skriv ner varför.
+    böcker du läser.  Det ena förslaget är en uppslagslista per bok, till
+    vänster.  Det andra är klassen \mintinline{python}{Book}, vars
+    konstruktor står till höger:
+    \codebycode
+      [label={\texttt{book\_dict.py}}]{python}{examples/book_dict.py}
+      [name=Book.__init__, nodocstring,
+        label={\texttt{book.py}}]{python}{examples/book.py}
+    Välj ett av dem för vardera fallet, och skriv ner varför.
     \begin{enumerate}
       \item Ett kort skript som du skriver en gång, matar in tre böcker
         i och skriver ut en lista av.
@@ -1832,6 +1850,23 @@ principen de bryter mot.
   \end{solution}
 \end{frame}
 
+Den första punkten, att metoden inte kontrollerar något, syns bäst
+bredvid metoden i klassen från den här övningen.
+
+% The pair is \codebycode, which reads the two files as text and never
+% runs them (review.py runs its lines at the top level).
+\begin{frame}[fragile]
+  \begin{example}[Två metoder som flyttar bokmärket]
+    \label{ex:read-bredvid}
+    Metoden \mintinline{python}{read} ur \texttt{review.py} till vänster
+    och ur \texttt{book.py} till höger:
+    \codebycode
+      [name=Book.read, label={\texttt{review.py}}]{python}{examples/review.py}
+      [name=Book.read, nodocstring,
+        label={\texttt{book.py}}]{python}{examples/book.py}
+  \end{example}
+\end{frame}
+
 Namnen är den punkt som kostar mest i det tysta.  Beskrivande namn gör
 att en läsare hittar ett fel snabbare,\footnote{%
   Det vetenskapliga underlaget --- både vad som har stöd och vilka
@@ -1878,9 +1913,24 @@ if __name__ == "__main__":
 \begin{frame}[fragile]
   \begin{example}[\texttt{review\_better.py}]
     \label{ex:review-better-run}
-    Programmet skriver ut
-    \runpython[showcommand, chdir, breaklines, deps={examples/book.py}]%
-      {examples/review_better.py}
+    \only<presentation>{%
+      Programmet skriver ut
+      \runpython[showcommand, chdir, breaklines, deps={examples/book.py}]%
+        {examples/review_better.py}%
+    }%
+    % In the notes the run of review.py is repeated beside it.
+    \only<article>{%
+      Programmet skriver ut, till höger om körningen av
+      \texttt{review.py}:
+      % \scriptsize, so that the longest line of review_better.py fits
+      % its half without wrapping.
+      \runbyrun
+        [showcommand, chdir, breaklines, fontsize=\scriptsize]%
+        {examples/review.py}
+        [showcommand, chdir, breaklines, fontsize=\scriptsize,
+          deps={examples/book.py}]%
+        {examples/review_better.py}%
+    }
   \end{example}
 \end{frame}
 
