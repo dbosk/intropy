@@ -5,7 +5,7 @@ authors:
   - Celina Soori <celinah@kth.se>
 # Canvas (canvaslms assignments edit): the assignment is matched by its
 # Canvas id so the name can change freely; make push-labs pushes it.
-name: 'Laboration (2) inmatning, felhantering och styrstrukturer (kamratgranskning)'
+name: 'Laboration (2) inmatning, felhantering och styrstrukturer (kamratgranskning) (obligatorisk)'
 regex: '^395799$'
 ---
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
