@@ -3,8 +3,12 @@ title: Laboration om Mer klasser och behållare
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>
+# Canvas (canvaslms assignments edit): the assignment is matched by its
+# Canvas id so the name can change freely; make push-labs pushes it.
+name: 'Laboration (5) behållare och klasser (kamratgranskning)'
+regex: '^390264$'
 ---
-# Laboration: Mer klasser och behållare
+**\[Notera: Det räcker att en i gruppen lämnar in, men varje gruppmedlem ger åtkoppling på andra.\]**
 
 I förra laborationen använde vi oss av en klass vars objekt vi sparade i en behållare i huvudprogrammet.
 Nu ska vi istället använda oss av två klasser, därav den första

@@ -3,8 +3,12 @@ title: Laboration om Filer och felhantering
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>
+# Canvas (canvaslms assignments edit): the assignment is matched by its
+# Canvas id so the name can change freely; make push-labs pushes it.
+name: 'Laboration (6) filhantering'
+regex: '^390265$'
 ---
-# Laboration: Filer och felhantering
+**\[Notera: Varje gruppmedlem måste lämna in denna uppgift individuellt!\]**
 
 Tidigare har vi låtit användaren ange all information om studenterna. Detta
 känns dock inte helt rimligt för administrativ personal på en stor skola att 
@@ -48,7 +52,7 @@ Namn: Jan Jansson Personnr: 0404040010
 
 ### Krav
 * Användaren ska få mata in ett nytt filnamn om filen inte hittas.
-* Alla krav från laboration 5 ska vara uppfyllda.
+* Kraven för laboration 5 ska vara uppfyllda.
 * Din kod ska uppfylla kraven i rättningsmatrisen.
 
 ### Redovisning

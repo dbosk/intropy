@@ -3,8 +3,12 @@ title: Laboration om Klasser, behållare och upprepningar
 authors:
   - Celina Soori <celinah@kth.se>
   - Daniel Bosk <dbosk@kth.se>
+# Canvas (canvaslms assignments edit): the assignment is matched by its
+# Canvas id so the name can change freely; make push-labs pushes it.
+name: 'Laboration (4) klasser och objekt (kamratgranskning)'
+regex: '^390263$'
 ---
-# Laboration: Klasser, behållare och upprepningar
+**\[Notera: Det räcker att en i gruppen lämnar in, men varje gruppmedlem ger åtkoppling på andra.\]**
 
 Hittills i kursen har vi jobbat med existerande datatyper i Python. 
 I den här laborationen ska ni istället skapa er egen sammansatta datatyp genom att
