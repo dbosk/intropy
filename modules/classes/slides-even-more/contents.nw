@@ -3,7 +3,7 @@
 \section{Inköpslistor med klasser}
 \label{sec:inkopslistor}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{AppLOContainer,AppLORepresentation}.
 
   Avsnittet är modulens första exempel på en klass som \emph{har en
@@ -15,14 +15,12 @@
   föreläsningarna om behållare; det nya är att de sitter i ett objekt
   och nås genom metoder.
 
-  Författarens egen granskning av det här materialet efterlyste en
-  kontrast \emph{med och utan klasser} för inköpslistan, som den i
-  föreläsningen \emph{Klasser och objekt}.  Kontrasten finns nu på
-  varunivån (\cref{sec:varor}: uppslagslista mot klass) men inte på
-  listnivån; en version av inköpslistan helt utan klasser är ett
-  öppet förslag, inte genomfört, eftersom det kräver ett nytt program.
-}
-
+  En kontrast \emph{med och utan klasser}, som den i föreläsningen
+  \emph{Klasser och objekt}, finns på varunivån (\cref{sec:varor}:
+  uppslagslista mot klass) men inte på listnivån.  En öppen fråga är
+  om inköpslistan också borde visas helt utan klasser; det kräver ett
+  nytt program.
+}%
 I detta avsnitt ska vi utforska hur klasser kan användas för att
 hantera inköpslistor.  Detta är ett praktiskt exempel som visar hur vi
 kan använda klasser för att organisera data och funktionalitet på ett
@@ -34,6 +32,17 @@ strukturerat sätt.
 \begin{frame}
   \begin{exercise}
     \label{ovn:inkopslista}
+    \leavevmode\ltnote{%
+      \foreignlanguage{english}{Try-first}: båda frågorna, i
+      \cref{ovn:inkopslista,ovn:representera}, ställs innan någon lösning
+      visas.  Den första ber om ett program, den andra om en
+      representation --- svaren på den andra (en lista av strängar, en lista
+      av uppslagslistor, en klass) är precis de alternativ som
+      \cref{sec:varor} sedan ställer mot varandra.  Kommer inget svar går
+      det att fråga vad en inköpslista är i verkligheten och vad den behöver
+      kunna göra.  Det står inte i uppgiften, eftersom det pekar ut just
+      den struktur studenterna ska hitta själva.
+    }%
     Skriv ett program som hanterar en inköpslista.  Programmet ska
     kunna:
     \begin{itemize}
@@ -54,17 +63,6 @@ strukturerat sätt.
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  \foreignlanguage{english}{Try-first}: båda frågorna ställs innan någon
-  lösning visas.  Den första ber om ett program, den andra om en
-  representation --- svaren på den andra (en lista av strängar, en lista
-  av uppslagslistor, en klass) är precis de alternativ som
-  \cref{sec:varor} sedan ställer mot varandra.  Kommer inget svar går
-  det att fråga vad en inköpslista är i verkligheten och vad den behöver
-  kunna göra; det stod förr i uppgiften, men pekar ut just den
-  strukturen studenterna ska hitta själva.
-}
-
 \subsection{Design och implementation}
 \label{sec:design}
 
@@ -73,53 +71,95 @@ varor i en lämplig datastruktur, har metoder för att lägga till, visa
 och ta bort varor, och håller koll på vilka varor som är avbockade.
 Filen \texttt{shopping.py} innehåller klassen och ett testprogram.
 
+\leavevmode\ltnote{%
+  \textbf{Uppifrån och ner}, som i föreläsningen \emph{Algoritmiskt
+  tänkande}, också för klasserna: en klass eller metod läggs till först
+  där resonemanget når den.  Konstruktorn står för sig i
+  upplägget i \cref{ex:shopping-init} därför att inköpslistan med
+  varuobjekt tar med den oförändrad.
+}%
+Vi bygger filen uppifrån och ner, som i föreläsningen
+\emph{Operatoröverlagring}: först filens upplägg, i pseudokod, och sedan
+preciserar vi pseudokoden med pythonkod, en del i taget, när vi kommer
+till den.
+
+\mode<article>{\needspace{12\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[En enkel inköpslista]
     \label{ex:shopping}
-    Klassen med sina delar namngivna:
+    Inköpslistans upplägg:
 <<[[shopping.py]]>>=
 """Inköpslista med klasser"""
 
+<<klasserna i inköpslistan>>
 
-class ShoppingList:
-    <<konstruktorn för [[ShoppingList]]>>
-
-    <<lägga till och visa varor>>
-
-    <<bocka av och ta bort varor>>
-
-
-<<testprogram för inköpslistor>>
+<<testerna i inköpslistan>>
 @
   \end{example}
 \end{frame}
 
-\ltnote{%
-  Alla program i det här kapitlet är skrivna med funktioner: på
-  filens toppnivå står bara importer, konstanter, klass- och
-  funktionsdefinitioner och anropet som startar programmet, och all
-  logik ligger i funktioner med namn som säger vad de gör.  Regeln
-  gäller varje program, också de kortaste demonstrationerna, och den
-  sägs här en gång för hela kapitlet i stället för vid varje
-  exempel.  Skälet är att materialet ska öva det det har lärt ut: ett
-  material som självt frångår en praktik det lärt ut lär samtidigt ut
-  att praktiken var frivillig.
-  % TODO(claim-audit): att ett material som frångår sin egen praktik
-  % därmed lär ut att praktiken är frivillig är ett påstående om
-  % lärande, och det är inte belagt här.
-}
+Programmet har en enda klass, \mintinline{python}{ShoppingList}.  Dess
+upplägg är en konstruktor och metoderna, som vi fyller på en i taget
+när vi behöver dem.  Konstruktorn får ett eget namn, eftersom vi
+kommer att använda den igen.
 
 \begin{frame}[fragile]
-  \begin{example}[Attribut och de första metoderna]
-    \label{ex:shopping-add}
+  \begin{example}[Klassen och dess konstruktor]
+    \label{ex:shopping-init}
+    Klassens upplägg:
+<<klasserna i inköpslistan>>=
+class ShoppingList:
+    <<konstruktorn för [[ShoppingList]]>>
+    <<metoderna i [[ShoppingList]]>>
+@
     Listan har ett namn och en lista av varor:
 <<konstruktorn för [[ShoppingList]]>>=
 def __init__(self, name):
     self.name = name
     self.items = []
 @
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Testprogrammet i \cref{ex:shopping-main} växer med klassen, som i
+  föreläsningen \emph{Klasser och objekt}; inköpslistan med varuobjekt
+  tar över det oförändrat (\cref{ex:items-file}).  Utskriften bredvid ett
+  testfall kommer från en liten testkörning i \texttt{testkorningar.nw},
+  som aldrig vävs: den importerar klasserna, kör de tidigare testfallen
+  tyst och sedan testfallet självt, så att testfallens rader står en
+  enda gång.  Ett testfall vars utskrift är svaret på en senare
+  förutsägelseövning får ingen körning bredvid sig.
+}%
+Testprogrammet heter \mintinline{python}{tests}, som i föreläsningen
+\emph{Klasser och objekt}, och växer med klassen: efter varje del
+lägger vi till ett testfall, och bredvid testfallet står vad just de
+raderna skriver ut.
+
+\begin{frame}[fragile]
+  \begin{example}[Testprogrammet]
+    \label{ex:shopping-main}
+    Testfallen läggs till ett i taget:
+<<testerna i inköpslistan>>=
+def tests():
+    """Exempel på användning"""
+    <<tester för [[ShoppingList]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+  \end{example}
+\end{frame}
+
+Nu fyller vi på klassens metoder, först med de två som lägger till och
+visar varor; som vanligt lägger +\(\equiv\) till en del under samma
+namn.
+
+\begin{frame}[fragile]
+  \begin{example}[De första metoderna]
+    \label{ex:shopping-add}
     Varje vara läggs till som en uppslagslista:
-<<lägga till och visa varor>>=
+<<metoderna i [[ShoppingList]]>>=
 def add_item(self, item):
     self.items.append({"name": item, "checked": False})
 
@@ -137,6 +177,14 @@ Här ser vi en grundläggande implementation.  Klassen har ett attribut
 representeras av en uppslagslista med nycklarna
 \mintinline{python}{"name"} och \mintinline{python}{"checked"}.
 
+Raden som sätter \mintinline{python}{status} använder ett
+\emph{villkorsuttryck}, något vi inte har mött förut:
+\mintinline{python}{"[X]" if item["checked"] else "[ ]"} har värdet
+\mintinline{python}{"[X]"} om villkoret är sant och annars
+\mintinline{python}{"[ ]"}.  Det är en \mintinline{python}{if}-sats med
+två grenar, \mintinline{python}{status = "[X]"} och
+\mintinline{python}{status = "[ ]"}, skriven som ett enda uttryck.
+
 \begin{frame}
   \begin{exercise}
     \label{ovn:varfor-dict}
@@ -149,11 +197,34 @@ Genom att använda uppslagslistor kan vi lagra mer information om varje
 vara än bara namnet.  I detta fall lagrar vi även om varan är avbockad
 eller inte.
 
+Nu kan vi prova de två metoderna.
+
+\begin{frame}[fragile]
+  \begin{example}[Prova de första metoderna]
+    \label{ex:shopping-use}
+    Testfallet skapar en lista för mat med tre varor och visar den:
+<<skapa en inköpslista och visa varorna>>=
+# Skapa en inköpslista för mat
+mat_lista = ShoppingList("Mat")
+mat_lista.add_item("Mjölk")
+mat_lista.add_item("Bröd")
+mat_lista.add_item("Ägg")
+
+mat_lista.list_items()
+<<tester för [[ShoppingList]]>>=
+<<skapa en inköpslista och visa varorna>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/shopping.py}]%
+      {examples/shopping_test_visa.py}
+  \end{example}
+\end{frame}
+
 \begin{frame}[fragile]
   \begin{example}[Fler metoder för \texttt{ShoppingList}]
     \label{ex:shopping-check}
     Bocka av och ta bort:
-<<bocka av och ta bort varor>>=
+<<metoderna i [[ShoppingList]]>>=
 def check_item(self, index):
     if 0 <= index < len(self.items):
         self.items[index]["checked"] = True
@@ -164,67 +235,48 @@ def remove_checked(self):
   \end{example}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{example}[Prova att bocka av och ta bort]
+    \label{ex:shopping-check-test}
+    Testfallet bockar av mjölken, visar listan och tar bort det
+    avbockade:
+<<bocka av en vara och ta bort den>>=
+mat_lista.check_item(0)  # Bocka av mjölk
+mat_lista.list_items()
+mat_lista.remove_checked()
+<<tester för [[ShoppingList]]>>=
+<<bocka av en vara och ta bort den>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/shopping.py}]%
+      {examples/shopping_test_bocka.py}
+  \end{example}
+\end{frame}
+
 Metoden \mintinline{python}{check_item()} tar ett index och bockar av
 varan på den positionen.  Metoden \mintinline{python}{remove_checked()}
-använder en listbyggare (\foreignlanguage{english}{list comprehension})
-för att skapa en ny lista som bara innehåller varor som inte är
-avbockade.
+använder en listbyggare, som vi mötte i föreläsningen \emph{Behållare:
+Listor}, för att skapa en ny lista som bara innehåller varor som inte
+är avbockade.
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:check-by-name}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:check-by-name}: \cref{AppLOContainer}.
+
+      \textbf{Variationsmönster}: Kontrast mot
+      \mintinline{python}{check_item()} i \cref{ex:shopping-check} --- vad
+      som varierar är
+      hur varan pekas ut (index respektive namn), vad som hålls invariant
+      är operationen (bocka av) och behållaren.  Frågan är lärandemålets
+      kärna, att \emph{söka i} behållaren, och den lämnas åt studenterna:
+      svaret är en slinga över \mintinline{python}{self.items} som jämför
+      \mintinline{python}{item["name"]}.
+    }%
     Hur skulle du implementera en metod för att bocka av en vara baserat
     på varans namn istället för index?
   \end{exercise}
-\end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOContainer}.
-
-  \textbf{Variationsmönster}: Kontrast i frågan --- vad som varierar är
-  hur varan pekas ut (index respektive namn), vad som hålls invariant
-  är operationen (bocka av) och behållaren.  Frågan är lärandemålets
-  kärna, att \emph{söka i} behållaren, och den lämnas åt studenterna:
-  svaret är en slinga över \mintinline{python}{self.items} som jämför
-  \mintinline{python}{item["name"]}.
-}
-
-Testprogrammet skapar en lista och använder metoderna.
-
-\begin{frame}[fragile]
-  \begin{example}[Användning av \texttt{ShoppingList}]
-    \label{ex:shopping-main}
-    Skapa en lista och hantera varor:
-<<testprogram för inköpslistor>>=
-def main():
-    """Exempel på användning"""
-    <<skapa en inköpslista och hantera varor>>
-
-    <<hantera flera listor>>
-
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Skapa en lista och hantera varor]
-    \label{ex:shopping-use}
-    Tre varor läggs till, en bockas av och tas bort:
-<<skapa en inköpslista och hantera varor>>=
-# Skapa en inköpslista för mat
-mat_lista = ShoppingList("Mat")
-mat_lista.add_item("Mjölk")
-mat_lista.add_item("Bröd")
-mat_lista.add_item("Ägg")
-
-mat_lista.list_items()
-mat_lista.check_item(0)  # Bocka av mjölk
-mat_lista.remove_checked()
-@
-  \end{example}
 \end{frame}
 
 \subsection{Flera listor}
@@ -240,9 +292,11 @@ mat_lista.remove_checked()
 
 Vi kan använda en lista av \mintinline{python}{ShoppingList}-objekt.
 Detta illustrerar ett viktigt koncept: vi kan ha behållare (listor) som
-innehåller objekt av våra egna klasser.
+innehåller objekt av våra egna klasser.  Testprogrammets sista testfall
+gör just det.  Vad det skriver ut visar vi inte här: det är en del av
+svaret på nästa övning.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \begin{example}[Hantera flera listor]
     \label{ex:shopping-lists}
     En lista av \mintinline{python}{ShoppingList}-objekt:
@@ -261,13 +315,45 @@ listor[1].add_item("Tandkräm")
 for lista in listor:
     print(f"\n{lista.name}:")
     lista.list_items()
+<<tester för [[ShoppingList]]>>=
+
+<<hantera flera listor>>
 @
   \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Hela programmet, \texttt{shopping.py}, får vi genom att sätta in
+  varje del där dess namn står:
+  \inputminted{python}{examples/shopping.py}
 \end{frame}
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:utmatning-shopping}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:utmatning-shopping}:
+      \cref{AppLOContainer}.
+
+      \textbf{Variationsmönster}: Generalisering över
+      \cref{ex:shopping-add,ex:shopping-lists}.  Vad som varierar: vad
+      behållaren innehåller (uppslagslistor i \mintinline{python}{items},
+      \mintinline{python}{ShoppingList}-objekt i \mintinline{python}{listor}).
+      Vad som hålls invariant: att en lista kan innehålla vad som helst och
+      itereras med \mintinline{python}{for}.  Utmatningen körs av det
+      tanglade programmet genom didactic-paketets
+      \mintinline{latex}{\runpython[transcript]}, efter en
+      förutsägelsefråga (\foreignlanguage{english}{try-first}).  De tre
+      första raderna har körningen bredvid det första testfallet redan
+      visat, och de tre därpå körningen bredvid avbockningen; frågan
+      gäller alltså i första hand testfallet med flera listor, som fick
+      vänta med sin körning för att inte svara på den.
+      \mintinline{python}{mat_lista} skrivs ut efter avbockningen men
+      inte efter borttagningen: avbockningen syns som
+      \mintinline{text}|[X]|, och vad
+      \mintinline{python}{remove_checked()} gjorde får studenterna
+      resonera fram, vilket är ett tillfälle att fråga om det.
+    }%
     Vad skriver testprogrammet ut?  Räkna först ut det, och kör sedan
     programmet.
   \end{exercise}
@@ -281,47 +367,27 @@ for lista in listor:
   \end{example}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOContainer}.
-
-  \textbf{Variationsmönster}: Generalisering.  Vad som varierar: vad
-  behållaren innehåller (uppslagslistor i \mintinline{python}{items},
-  \mintinline{python}{ShoppingList}-objekt i \mintinline{python}{listor}).
-  Vad som hålls invariant: att en lista kan innehålla vad som helst och
-  itereras med \mintinline{python}{for}.  Utmatningen var inte med i
-  den tidigare versionen; den körs nu av det tanglade programmet genom
-  didactic-paketets \mintinline{latex}{\runpython[transcript]}, efter en
-  förutsägelsefråga (\foreignlanguage{english}{try-first}).  Lägg märke
-  till att \mintinline{python}{mat_lista} skrivs ut \emph{före}
-  avbockningen och aldrig efter --- ett tillfälle att fråga vad
-  \mintinline{python}{remove_checked()} gjorde.
-}
-
 \begin{frame}
   \begin{exercise}
     \label{ovn:forbattra}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:forbattra}:
+      \cref{AppLOContainer,AppLORepresentation}.
+
+      Frågan är öppen med flit.  De tre svar som är värda att fånga upp är
+      dubbletter av samma vara, avbockning som sker flera gånger och en
+      \mintinline{python}{__str__}-metod --- de två sista pekar rakt mot
+      \mintinline{python}{Item}-klassen i \cref{sec:varor}.  De står inte
+      som punkter i uppgiften, för då är det uppgiften som svarar.
+    }%
     Hur skulle du förbättra klassen \mintinline{python}{ShoppingList}?
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOContainer,AppLORepresentation}.
-
-  Frågan är öppen med flit.  De tre svar som är värda att fånga upp är
-  dubbletter av samma vara, avbockning som sker flera gånger och en
-  \mintinline{python}{__str__}-metod --- de två sista pekar rakt mot
-  \mintinline{python}{Item}-klassen i \cref{sec:varor}.  De stod förr
-  som punkter i uppgiften, men då är det uppgiften som svarar.
-}
-
 \subsection{Att representera varor: uppslagslistor eller klass?}
 \label{sec:varor}
 
-Vi har använt uppslagslistor för att representera varor i vår
-inköpslista.  Men är det det bästa sättet?  Låt oss undersöka
-alternativen.
-
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål: \cref{AppLORepresentation}, och de tre
   delmål avsnittet är byggt kring: att urskilja när uppslagslistor
   respektive klasser passar för att representera data; att se
@@ -330,16 +396,22 @@ alternativen.
   sammanhanget (programmets storlek, komplexitet, hur många som arbetar
   med koden).
 
-  \textbf{Pedagogisk strategi}: vi introducerar här en viktig
-  designfråga: när ska man använda enklare datastrukturer
-  (uppslagslistor) och när klasser?  Genom att visa samma funktionalitet
-  implementerad på två sätt kan studenterna urskilja den kritiska
-  skillnaden mellan flexibilitet och enkelhet respektive struktur och
-  säkerhet.  Kontrasten stöder de två första delmålen; frågan ställs
-  \emph{innan} vi visar lösningen, enligt
+  \textbf{Pedagogisk strategi}: vi ställer på nytt designfrågan från
+  föreläsningen \emph{Klasser och objekt}: när ska man använda enklare
+  datastrukturer (uppslagslistor) och när klasser?  Genom att visa samma
+  funktionalitet implementerad på två sätt, \cref{ex:shopping-add} och
+  \cref{ex:shopping-items-methods}, med samma testprogram, kan
+  studenterna urskilja den kritiska skillnaden mellan flexibilitet och
+  enkelhet respektive struktur och säkerhet.  Kontrasten stöder de två
+  första delmålen; frågan i
+  \cref{ovn:dict-vs-class} ställs \emph{innan} vi visar lösningen, enligt
   \foreignlanguage{english}{try-first}, för att aktivera studenternas
   tänkande om avvägningarna (det tredje delmålet).
-}
+}%
+Vi har använt uppslagslistor för att representera varor i vår
+inköpslista.  I föreläsningen \emph{Klasser och objekt} ställde vi
+uppslagslistor mot en klass för personerna i en telefonbok; nu ställer
+vi samma fråga för varorna.
 
 \begin{frame}
   \begin{exercise}
@@ -356,9 +428,31 @@ Titta igen på hur varorna skapas och visas i
 nycklarna som håller ihop den.  Vad det innebär för den som använder
 varan är värt att pröva.
 
+% The \needspace keeps items1.py on one page in the notes.
+\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{exercise}[Vad skriver programmet ut?]
     \label{ovn:stavfel}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:stavfel}: \cref{AppLORepresentation}.
+
+      \textbf{Kontrast} mot \cref{ex:shopping-add}, där nyckeln heter
+      \mintinline{python}{"name"}.  Vad som varierar: om nyckelnamnet
+      stämmer.  Vad som hålls invariant: varornas uppslagslistor, med
+      samma nycklar.  Koden runt omkring varierar också:
+      \texttt{items1.py} är ett eget litet program och inte klassen, men
+      det gör samma sak som \mintinline{python}{add_item} och
+      \mintinline{python}{list_items}, lägger till varor och läser ut
+      namnen.
+      Kontrasten ska urskilja \emph{när} felet upptäcks --- först när den
+      raden körs, inte när programmet startar.  Studenten ser
+      spårutskriften
+      (\foreignlanguage{english}{traceback}) innan texten förklarar den, och
+      utskriften från \mintinline{python}{len} före felet är belägget för
+      att programmet hann arbeta ett tag först.  Filen heter
+      \texttt{items1.py} och inte något som säger att den innehåller ett
+      stavfel: det är just det studenten ska upptäcka.
+    }%
     Programmet lägger till två varor och läser sedan ut dem.
 <<[[items1.py]]>>=
 def main():
@@ -386,7 +480,8 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Detta är ett vanligt problem med uppslagslistor: ett stavfel i ett
+Det är ett av de problem med uppslagslistor som vi såg i föreläsningen
+\emph{Klasser och objekt}: ett stavfel i ett
 nyckelnamn upptäcks först vid körning, när just den raden körs och
 kastar ett \mintinline{python}{KeyError} --- och bara om den raden körs.
 Raden med \mintinline{python}{len} hann köras först, och i ett större
@@ -395,57 +490,38 @@ Låt oss se hur en \mintinline{python}{Item}-klass kan förbättra
 situationen.  De två klasserna och ett testprogram ligger i filen
 \texttt{shopping\_with\_items.py}.
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLORepresentation}.
-
-  \textbf{Kontrast.}  Vad som varierar: om nyckelnamnet stämmer.  Vad
-  som hålls invariant: uppslagslistan och koden runt omkring.
-  Kontrasten ska urskilja \emph{när} felet upptäcks --- först när den
-  raden körs, inte när programmet startar.  Påståendet stod förr bara i
-  brödtexten; nu ser studenten spårutskriften
-  (\foreignlanguage{english}{traceback}) innan texten förklarar den, och
-  utskriften från \mintinline{python}{len} före felet är belägget för
-  att programmet hann arbeta ett tag först.  Filen heter
-  \texttt{items1.py} och inte något som säger att den innehåller ett
-  stavfel: det är just det studenten ska upptäcka.
-}
-
 \begin{frame}[fragile]
   \begin{example}[Alternativ: en \texttt{Item}-klass]
     \label{ex:items-file}
-    Filen i sin helhet:
+    Samma upplägg som förut, med samma testprogram:
 <<[[shopping_with_items.py]]>>=
 """Inköpslista med Item-klass"""
 
+<<klasserna i inköpslistan med varuobjekt>>
 
-<<klassen [[Item]]>>
-
-
-<<klassen [[ShoppingList]] med varuobjekt>>
-
-
-<<testprogram för inköpslistor med varuobjekt>>
+<<testerna i inköpslistan>>
 @
   \end{example}
 \end{frame}
+
+Testprogrammet är samma namngivna del som i \cref{ex:shopping-main},
+med samma testfall: vi byter hur klassen lagrar varorna, inte vad den
+kan göra.  Vad testprogrammet skriver ut nu återkommer vi till när
+klasserna är klara.
 
 \begin{frame}[fragile]
   \begin{example}[Klassen \texttt{Item}]
     \label{ex:item}
     En separat klass för varor, med privata attribut:
-<<klassen [[Item]]>>=
+<<klasserna i inköpslistan med varuobjekt>>=
 class Item:
     """En vara på inköpslistan"""
 
-    def __init__(self, name, checked=False):
-        self.__name = name
-        self.__checked = checked
-
-    <<egenskaper för namn och avbockning>>
-
-    <<bocka av och bocka ur>>
-
-    <<strängrepresentation av en vara>>
+    <<metoderna i [[Item]]>>
+<<metoderna i [[Item]]>>=
+def __init__(self, name, checked=False):
+    self.__name = name
+    self.__checked = checked
 @
   \end{example}
 \end{frame}
@@ -454,7 +530,7 @@ class Item:
   \begin{example}[Egenskaper och metoder i \texttt{Item}]
     \label{ex:item-methods}
     Attributen läses som egenskaper:
-<<egenskaper för namn och avbockning>>=
+<<metoderna i [[Item]]>>=
 @property
 def name(self):
     return self.__name
@@ -470,7 +546,7 @@ def checked(self):
   \begin{example}[Avbockning och utskrift av en vara]
     \label{ex:item-str}
     Avbockningen ändras bara genom metoder:
-<<bocka av och bocka ur>>=
+<<metoderna i [[Item]]>>=
 def check(self):
     """Bocka av varan"""
     self.__checked = True
@@ -480,7 +556,7 @@ def uncheck(self):
     self.__checked = False
 @
     Varan vet själv hur den ska skrivas ut:
-<<strängrepresentation av en vara>>=
+<<metoderna i [[Item]]>>=
 def __str__(self):
     status = "[X]" if self.__checked else "[ ]"
     return f"{status} {self.__name}"
@@ -488,24 +564,32 @@ def __str__(self):
   \end{example}
 \end{frame}
 
-Nu har vi inkapsling av varans information i en egen klass.  Varje
-\mintinline{python}{Item} har privata attribut och publika egenskaper för
-att läsa dem.  Metoden \mintinline{python}{__str__()} gör det enkelt
-att skriva ut varan.  Konstruktorn för \mintinline{python}{ShoppingList}
-är densamma som förut --- det är samma namngivna steg som i
-\cref{ex:shopping-add} --- men metoderna arbetar nu med
-\mintinline{python}{Item}-objekt.
+Varans namn och avbockning ligger nu i privata attribut, som i
+föreläsningen \emph{Klasser och objekt}, och läses genom egenskaper, som
+i föreläsningen \emph{Operatoröverlagring}; avbockningen ändras bara
+genom metoderna \mintinline{python}{check()} och
+\mintinline{python}{uncheck()}.  Att samla datan och det man får göra
+med den i klassen, och dölja resten, är \emph{inkapsling}, som vi mötte
+i föreläsningen \emph{Klasser och objekt}.\footnote{%
+  Det vetenskapliga underlaget för inkapsling --- både varifrån
+  principen kommer och hur etablerad den är, med de förbehåll som hör
+  till --- finns i föreläsningen \emph{Klasser och objekt}, bilaga~C.}
+Metoden \mintinline{python}{__str__()} gör att varan själv vet hur den
+skrivs ut.  Konstruktorn för \mintinline{python}{ShoppingList}
+är densamma som förut --- det är samma namngivna del som i
+\cref{ex:shopping-init} --- men metoderna arbetar nu med
+\mintinline{python}{Item}-objekt, och därför samlar vi dem under ett
+eget namn.
 
 \begin{frame}[fragile]
   \begin{example}[Uppdaterad \texttt{ShoppingList}]
     \label{ex:shopping-items}
     Nu använder \mintinline{python}{ShoppingList}
     \mintinline{python}{Item}-objekt:
-<<klassen [[ShoppingList]] med varuobjekt>>=
+<<klasserna i inköpslistan med varuobjekt>>=
 class ShoppingList:
     <<konstruktorn för [[ShoppingList]]>>
-
-    <<metoder som arbetar med varuobjekt>>
+    <<metoderna i [[ShoppingList]] med varuobjekt>>
 @
   \end{example}
 \end{frame}
@@ -513,8 +597,8 @@ class ShoppingList:
 \begin{frame}[fragile]
   \begin{example}[Metoderna med varuobjekt]
     \label{ex:shopping-items-methods}
-    Samma fyra metoder som förut, men varje vara är ett objekt:
-<<metoder som arbetar med varuobjekt>>=
+    Samma metoder som förut, men varje vara är ett objekt:
+<<metoderna i [[ShoppingList]] med varuobjekt>>=
 def add_item(self, item_name):
     """Lägg till en vara (skapar Item-objekt)"""
     item = Item(item_name)
@@ -524,8 +608,6 @@ def list_items(self):
     """Visa alla varor"""
     for i, item in enumerate(self.items, 1):
         print(f"{i}. {item}")  # Använder Item.__str__()
-
-<<bocka av och ta bort varuobjekt>>
 @
   \end{example}
 \end{frame}
@@ -534,7 +616,7 @@ def list_items(self):
   \begin{example}[Bocka av och ta bort varuobjekt]
     \label{ex:shopping-items-check}
     Avbockningen sker genom varans egen metod:
-<<bocka av och ta bort varuobjekt>>=
+<<metoderna i [[ShoppingList]] med varuobjekt>>=
 def check_item(self, index):
     """Bocka av en vara"""
     if 0 <= index < len(self.items):
@@ -544,6 +626,40 @@ def remove_checked(self):
     """Ta bort alla avbockade varor"""
     self.items = [item for item in self.items if not item.checked]
 @
+  \end{example}
+\end{frame}
+
+% Notes only: the slides keep the two versions of the methods in
+% sequence.  One pair per method, so that each row holds one method in
+% both versions, in equal columns so that the rows line up; the
+% docstrings, which only the new version has, are left out, so that only
+% the representation varies.  The last row is wider than the page and
+% wraps.
+\begin{frame}<article>
+  \begin{example}[Metoderna bredvid varandra]
+    \label{ex:metoder-bredvid}
+    Metoderna i \texttt{shopping.py} till vänster och i
+    \texttt{shopping\_with\_items.py} till höger, en metod per rad:
+    \codebycode
+      [width=0.5, name=ShoppingList.add_item,
+        label={\texttt{shopping.py}}]{python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.add_item, nodocstring,
+        label={\texttt{shopping\_with\_items.py}}]
+      {python}{examples/shopping_with_items.py}
+    \codebycode
+      [width=0.5, name=ShoppingList.list_items]{python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.list_items, nodocstring]
+      {python}{examples/shopping_with_items.py}
+    \codebycode
+      [width=0.5, name=ShoppingList.check_item]{python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.check_item, nodocstring]
+      {python}{examples/shopping_with_items.py}
+    \codebycode
+      [width=0.5, name=ShoppingList.remove_checked, breaklines]
+      {python}{examples/shopping.py}
+      [width=0.5, name=ShoppingList.remove_checked, nodocstring,
+        breaklines]
+      {python}{examples/shopping_with_items.py}
   \end{example}
 \end{frame}
 
@@ -561,54 +677,53 @@ Lägg märke till förändringarna:
     \mintinline{python}{item["checked"]}.
 \end{description}
 
-\begin{frame}[fragile]
-  \begin{example}[Testprogrammet med varuobjekt]
-    \label{ex:items-main}
-    Samma användning som förut, med utskrift efter varje steg:
-<<testprogram för inköpslistor med varuobjekt>>=
-def main():
-    """Exempel på användning"""
-    <<prova inköpslistan med varuobjekt>>
-
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  Hela programmet, \texttt{shopping\_with\_items.py}, får vi genom att
+  sätta in varje del där dess namn står:
+  \inputminted{python}{examples/shopping_with_items.py}
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{example}[Prova inköpslistan med varuobjekt]
-    \label{ex:items-use}
-    Listan skrivs ut efter varje steg:
-<<prova inköpslistan med varuobjekt>>=
-# Skapa en inköpslista för mat
-mat_lista = ShoppingList("Mat")
-mat_lista.add_item("Mjölk")
-mat_lista.add_item("Bröd")
-mat_lista.add_item("Ägg")
+\begin{frame}
+  \begin{exercise}
+    \label{ovn:utmatning-items}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:utmatning-items}:
+      \cref{AppLORepresentation}.
 
-print("Inköpslista:")
-mat_lista.list_items()
-
-print("\nBockar av mjölk...")
-mat_lista.check_item(0)
-mat_lista.list_items()
-
-print("\nTar bort avbockade varor...")
-mat_lista.remove_checked()
-mat_lista.list_items()
-@
-  \end{example}
+      \textbf{Kontrast} mellan körningarna i
+      \cref{ex:shopping-run,ex:items-run}.  Vad som varierar: hur
+      varorna representeras (\cref{ex:shopping-add} mot
+      \cref{ex:shopping-items-methods}).  Vad som hålls invariant:
+      testprogrammet --- samma namngivna del, alltså samma data, namn och
+      anrop --- och därmed utskriften.  Svaret är att utskriften blir
+      densamma rad för rad; den som väntar sig något annat tror att
+      representationen syns utanför klassen.
+    }%
+    Vad skriver testprogrammet i \texttt{shopping\_with\_items.py} ut?
+    Jämför med utmatningen från \texttt{shopping.py}.
+  \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile,shrink]
+% The answer repeats the run of shopping.py beside the new one, so that
+% "the same, line for line" can be seen instead of remembered.
+\begin{frame}[shrink]
   \begin{example}[Utmatning]
     \label{ex:items-run}
-    Kör vi \texttt{python3 shopping\_with\_items.py} får vi:
-    \runpython[transcript]{examples/shopping_with_items.py}
+    Kör vi \texttt{python3 shopping\_with\_items.py} får vi utskriften
+    till höger, med den från \texttt{shopping.py} till vänster:
+    \runbyrun
+      [transcript]{examples/shopping.py}
+      [transcript]{examples/shopping_with_items.py}
   \end{example}
 \end{frame}
+
+Utskriften är densamma som från \texttt{shopping.py}
+(\cref{ex:shopping-run}), rad för rad.  Testprogrammet använder bara
+klassens metoder och listans namn, aldrig listan
+\mintinline{python}{items} direkt, så det märker inte att vi bytte hur
+varorna lagras.  Det är vad inkapslingen ger: klassen kan byta sin inre
+representation utan att den som använder klassen behöver ändra något.
 
 \begin{frame}
   \only<presentation>{%
@@ -639,6 +754,48 @@ mat_lista.list_items()
   }
   \only<article>{%
     \begin{block}{Jämförelse: uppslagslistor mot \texttt{Item}-klass}
+      \leavevmode\ltnote{%
+        Relevanta lärandemål: \cref{AppLORepresentation}.
+
+        Jämförelsen adresserar direkt de två första delmålen: listan med för-
+        och nackdelar ger konkreta kriterier för beslutet, och kontrasten gör
+        avvägningen mellan flexibilitet och enkelhet respektive struktur och
+        säkerhet explicit och synlig.
+
+        \textbf{Variationsmönster}: Kontrast mellan
+        \cref{ex:shopping-add} och \cref{ex:item,ex:shopping-items-methods}.
+
+        \textbf{Vad som varierar}: hur vi representerar varor (uppslagslista
+        respektive klass).
+
+        \textbf{Vad som hålls invariant}: vilken information vi lagrar (namn
+        och avbockningsstatus) och vilken funktionalitet vi behöver.
+
+        \textbf{Kritiska aspekter studenterna ska urskilja}: avvägningens
+        struktur (flexibilitet och enkelhet mot struktur och säkerhet);
+        kriterierna för valet (när fel upptäcks, stöd från utvecklingsmiljön,
+        utökningsbarhet, initial insats); och att inget val är universellt
+        \enquote{bättre} --- sammanhanget avgör.
+
+        \textbf{Varför denna variation fungerar}: vi varierar
+        implementationen medan funktionaliteten hålls invariant, så att de
+        kritiska särskiljande egenskaperna (avvägningarna) blir urskiljbara:
+        studenterna ser exakt vad som ändras när representationen byts medan
+        allt annat förblir detsamma \parencite{MartonPang2006}.  Utan
+        kontrasten kan studenterna tro att \enquote{klasser är alltid bättre}
+        eller \enquote{använd det som är enklast}; jämförelsen --- metoderna
+        bredvid varandra i \cref{ex:metoder-bredvid}, för- och nackdelarna
+        i två spalter på bilden --- tvingar uppmärksamheten till de
+        nyanserade avvägningar som styr verkliga designbeslut.
+
+        Bilden säger inte att tolken upptäcker ett stavfel i ett
+        \emph{attributnamn} tidigare än i en nyckel: också det upptäcks
+        först vid körning (ett \mintinline{python}{AttributeError}), men
+        någon sådan körning visas inte.
+        Fördelen med klassen är att utvecklingsmiljön känner till
+        attributnamnen och kan autokomplettera och varna, och det är vad
+        bilden säger.
+      }%
       Med uppslagslistor
       (\mintinline{python}{{"name": "...", "checked": False}}) går det
       snabbt att komma igång och strukturen är flexibel --- nycklar kan
@@ -654,120 +811,63 @@ mat_lista.list_items()
   }
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLORepresentation}.
-
-  Jämförelsen adresserar direkt de två första delmålen: listan med för-
-  och nackdelar ger konkreta kriterier för beslutet, och kontrasten gör
-  avvägningen mellan flexibilitet och enkelhet respektive struktur och
-  säkerhet explicit och synlig.
-
-  \textbf{Variationsmönster}: Kontrast.
-
-  \textbf{Vad som varierar}: hur vi representerar varor (uppslagslista
-  respektive klass).
-
-  \textbf{Vad som hålls invariant}: vilken information vi lagrar (namn
-  och avbockningsstatus) och vilken funktionalitet vi behöver.
-
-  \textbf{Kritiska aspekter studenterna ska urskilja}: avvägningens
-  struktur (flexibilitet och enkelhet mot struktur och säkerhet);
-  kriterierna för valet (när fel upptäcks, stöd från utvecklingsmiljön,
-  utökningsbarhet, initial insats); och att inget val är universellt
-  \enquote{bättre} --- sammanhanget avgör.
-
-  \textbf{Varför denna variation fungerar}: vi varierar
-  implementationen medan funktionaliteten hålls invariant, så att de
-  kritiska särskiljande egenskaperna (avvägningarna) blir urskiljbara:
-  studenterna ser exakt vad som ändras när representationen byts medan
-  allt annat förblir detsamma \parencite{MartonPang2006}.  Utan
-  kontrasten kan studenterna tro att \enquote{klasser är alltid bättre}
-  eller \enquote{använd det som är enklast}; jämförelsen sida vid sida
-  tvingar uppmärksamheten till de nyanserade avvägningar som styr
-  verkliga designbeslut.
-
-  En sakuppgift är rättad mot den tidigare versionen: ett stavfel i
-  ett \emph{attributnamn} upptäcks inte av Pythontolken förrän vid
-  körning heller (ett \mintinline{python}{AttributeError}); fördelen
-  med klassen är att utvecklingsmiljön känner till attributnamnen och
-  kan autokomplettera och varna, så bilden säger nu det.
-}
-
 \begin{frame}
   \begin{exercise}
     \label{ovn:nar-klass}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:nar-klass}:
+      \cref{AppLORepresentation}.
+
+      Reflektionsövningen gäller det tredje delmålet: att motivera
+      designvalet utifrån sammanhanget.  Kör studenterna fast ställs tre
+      följdfrågor muntligt, inte i uppgiften, eftersom de är svaret: hur
+      ofta används strukturen, behövs metoder som arbetar med datan, och
+      kommer den att växa?  Varje ja talar för en klass.
+
+      \textbf{Bedömningstillfälle}: lyssna efter sammanhanget, inte
+      \enquote{klasser är bättre}.  Säger någon \enquote{alltid}, pröva
+      med ett motexempel: konfigurationsdata från JSON, eller ett stort
+      system för användarprofiler.
+    }%
     Fundera över när det är lämpligt att använda uppslagslistor och när
     det är bättre att skapa en egen klass.
   \end{exercise}
 \end{frame}
 
-Som tumregel: om du har en uppslagslista med fast struktur som används
-på många ställen i koden, överväg att göra den till en klass.  Klasser
-ger bättre struktur, säkerhet och underhållbarhet --- särskilt när
-programmet växer.
+Som tumregel, efter det varningstecken i koden --- en \emph{kodlukt}
+(\foreignlanguage{english}{code smell}) --- som Fowler kallar
+\emph{\foreignlanguage{english}{data clumps}}\autocite{Fowler2006DataClump}:
+om du har en uppslagslista med fast struktur som används på många ställen
+i koden, överväg att göra den till en klass.\footnote{\Cref{app:tumregel}
+  visar att regeln är ett etablerat praktikerråd men inte prövad: där
+  kodlukten har mätts är effekterna små och motsägande, och var gränsen
+  går är en bedömning som erfarna granskare inte är överens om.}
+Klasser kan ge bättre struktur och göra programmet lättare att ändra,
+men det är ingen automatisk vinst: det beror på hur väl klasserna är
+utformade och på vem som ska läsa koden.\footnote{Det vetenskapliga
+  underlaget finns i \cref{app:underhall}: tidiga experiment och två
+  fältstudier fann objektorienterade program lättare att underhålla, men
+  den mest citerade jämförelsen fann ingen allmän fördel, och för
+  nybörjare pekar studierna åt båda hållen; att fördelen växer med
+  programmet har ingen prövat.}
 
 I vårt fall med inköpslistor är \mintinline{python}{Item}-klassen
 förmodligen onödigt tung för ett så enkelt program: uppslagslistan är
-den enklaste lösning som gör jobbet.
-Att välja den enklaste lösningen som fungerar kallas \emph{KISS},
-\foreignlanguage{english}{keep it simple, stupid}, en princip som
-tillskrivs flygplanskonstruktören Kelly
-Johnson\autocite{Rich1995Johnson}.\footnote{%
-  Det vetenskapliga underlaget för KISS, och varför upphovsuppgiften
-  bara är en tillskrivning, finns i föreläsningen \emph{Funktioner},
-  bilaga~C.}
+den enklaste lösning som gör jobbet, och testprogrammet märkte ingen
+skillnad.  Att välja den enklaste lösning som duger är \emph{KISS}, som
+vi mötte i föreläsningen \emph{Funktioner}.\footnote{%
+  Det vetenskapliga underlaget för KISS finns i föreläsningen
+  \emph{Funktioner}, bilaga~C: enkelhet som designvärde är väl
+  etablerat, medan det inte går att bekräfta att uttrycket kommer från
+  Kelly Johnson, som det brukar tillskrivas.}
 Men om vi skulle lägga till funktioner som
 prioritet, kategori, antal, pris och så vidare, skulle
 \mintinline{python}{Item}-klassen snabbt bli mycket mer värd besväret.
 
-\ltnote{%
-  Kursen praktiserar KISS här --- den enklare representationen vinner
-  för ett litet program --- så principen namnges i texten (issue
-  \#265).  Belägget för tillskrivningen är sökt en gång för alla i
-  föreläsningen \emph{Funktioner}, bilaga~C, och upprepas inte här;
-  därför står det \enquote{tillskrivs}, inte \enquote{myntades av}.
-}
-
-% Marginalen på sidan där jämförelsens not står är fylld av den noten
-% (415 av 611 punkter).  Stod övningens not kvar direkt efter övningen
-% köade den före fotnoten till Kelly Johnson, och marginalnoter tas i
-% tur och ordning: fotnoten sköts då till nästa sida, bort från sin
-% markör.  Noten står därför efter stycket den ändå kommenterar, så att
-% fotnoten får plats under jämförelsens not.
-
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLORepresentation}.
-
-  Reflektionsövningen adresserar direkt det tredje delmålet (motivera
-  designval utifrån sammanhanget).  Tre följdfrågor operationaliserar
-  den abstrakta avvägningen till konkreta beslutskriterier --- hur ofta
-  datastrukturen används, om det behövs metoder som arbetar med datan,
-  och om strukturen är stabil eller kommer att växa.  De stod förr som
-  punkter i uppgiften, men de är svaret, så de ställs nu muntligt om
-  studenterna kör fast: hur ofta datastrukturen används hänger ihop med
-  underhållsbörda och felpotential --- mer användning ger högre värde
-  av klassens struktur; behovet av metoder kopplar till distinktionen
-  mellan beteende och data --- behövs metoder blir klasser lämpliga;
-  och förväntad tillväxt talar för klasser, som hanterar förändring
-  bättre.
-
-  \textbf{Generalisering och överföring}: frågan hjälper studenterna att
-  generalisera från det specifika exemplet (en
-  \mintinline{python}{Item}-klass för inköpslistan) till en bredare
-  designprincip, så att designtänkandet kan tillämpas på andra problem.
-
-  \textbf{Bedömningstillfälle}: lyssna efter om studenterna nämner
-  kontextuella faktorer (inte bara \enquote{klasser är bättre}).  Säger
-  de \enquote{använd alltid klasser} eller \enquote{använd alltid
-  uppslagslistor}, undersök med motexempel: \enquote{Vad sägs om
-  konfigurationsdata från JSON?} eller \enquote{Vad sägs om ett komplext
-  användarprofilsystem?}
-}
-
 \section{Banksystem med sammansatta klasser}
 \label{sec:bank}
 
-\ltnote{%
+\leavevmode\ltnote{%
   Relevanta lärandemål:
   \cref{AppLOComposition,AppLOInheritance,AppLOChoice}.
 
@@ -775,52 +875,46 @@ prioritet, kategori, antal, pris och så vidare, skulle
   person i konto) och arv (medborgare av person) i samma program, så
   att valet mellan dem kan urskiljas i \cref{sec:komposition-arv}.
   \textbf{Variationsmönster}: Separation --- komposition införs först,
-  för sig (\cref{sec:komposition}), sedan arv för sig
+  för sig (\cref{sec:komposition-tillampningar}), sedan arv för sig
   (\cref{sec:arv-medborgare}), och först därefter ställs de mot
-  varandra.  Programmet visas som i den litterära programmeringens
-  anda: först filens delar, sedan varje klass där den behövs; kontot
-  visas i två steg (insättning, uttag) som i den tidigare versionen.
-}
-
+  varandra.  Programmet byggs uppifrån och ner: först filens upplägg,
+  sedan läggs varje klass till där resonemanget når den; kontot byggs
+  metod för metod i två steg (insättning, uttag), och testprogrammet
+  växer med klasserna: varje klass får
+  sitt testfall direkt efter sig, så att medborgaren inte nämns innan
+  arvet har diskuterats.
+}%
 Nu ska vi bygga ett mer komplext system där flera klasser samverkar.
 Vi ska skapa ett enkelt banksystem med konton och ägare.  Detta exempel
 illustrerar koncepten komposition och arv.  Filen \texttt{bank.py}
-innehåller fem klasser och ett testprogram.
+innehåller fem klasser och ett testprogram.  Vi lägger upp filen som
+inköpslistan och lägger till varje klass när vi kommer till den.
 
 \begin{frame}[fragile]
-  \begin{example}[Banksystemet i sin helhet]
+  \begin{example}[Ett banksystem]
     \label{ex:bank-file}
-    Klasserna och ett testprogram:
+    Banksystemets upplägg:
 <<[[bank.py]]>>=
 """Banksystem med klasser"""
 
-
 <<klasserna i banksystemet>>
 
-
-<<testprogram för banksystemet>>
+<<testerna i banksystemet>>
 @
   \end{example}
 \end{frame}
 
 \begin{frame}[fragile]
-  \begin{example}[Klasserna i banksystemet]
-    \label{ex:bank-classes}
-    De fem klasserna, i den ordning de kommer i filen:
-<<klasserna i banksystemet>>=
-<<klassen [[Person]]>>
+  \begin{example}[Banksystemets testprogram]
+    \label{ex:bank-main}
+    Testfallen läggs till ett i taget:
+<<testerna i banksystemet>>=
+def tests():
+    """Exempel på användning"""
+    <<tester för banksystemet>>
 
-
-<<klassen [[Address]]>>
-
-
-<<klassen [[PersonWithAddress]]>>
-
-
-<<klassen [[BankAccount]]>>
-
-
-<<klassen [[Citizen]]>>
+if __name__ == "__main__":
+    tests()
 @
   \end{example}
 \end{frame}
@@ -845,7 +939,7 @@ attribut som telefonnummer och adress.
   \begin{example}[En enkel personklass]
     \label{ex:bank-person}
     Namn, ålder och strängrepresentation:
-<<klassen [[Person]]>>=
+<<klasserna i banksystemet>>=
 class Person:
     def __init__(self, name, age):
         self.name = name
@@ -857,10 +951,42 @@ class Person:
   \end{example}
 \end{frame}
 
+% The \needspace keeps the test case with its output in the notes.
+\mode<article>{\needspace{11\baselineskip}}
+\begin{frame}[fragile]
+  \begin{example}[Prova personen]
+    \label{ex:bank-person-test}
+    Testfallet skapar en person och skriver ut den:
+<<prova personen>>=
+# Enkel person
+person = Person("Ronja Rövardotter", 30)
+print(person)
+<<tester för banksystemet>>=
+<<prova personen>>
+@
+    Det skriver ut
+    \runpython[chdir, deps={examples/bank.py}]%
+      {examples/bank_test_person.py}
+  \end{example}
+\end{frame}
+
 Denna enkla klass lagrar namn och ålder.  Metoden
 \mintinline{python}{__str__} gör det enkelt att skriva ut personen på
 ett läsbart sätt.
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{AppLOComposition}.
+
+  Här finns en motsägelse: föreläsningen
+  \emph{Klasser och objekt} gör inkapsling till ett lärandemål, det här
+  kapitlet namnger den som designprincip i
+  \cref{sec:designprinciper}, och ändå har banksystemets fem klasser
+  publika attribut.  Avsteget är gjort för att hålla nere kodmängden när
+  fem klasser ska visas samtidigt, och stycket säger det rakt ut i
+  stället för att låta studenterna upptäcka motsägelsen själva.  En
+  öppen fråga är om banksystemet borde skrivas om med privata attribut
+  och egenskaper.
+}%
 Lägg märke till att attributen är publika här, och att de är det i alla
 banksystemets klasser.  Det är ett medvetet avsteg: avsnittet handlar om
 hur flera klasser hänger ihop, och med publika attribut ryms varje klass
@@ -869,23 +995,23 @@ privata attribut och egenskaper som läser dem --- står i
 \mintinline{python}{Item} (\cref{ex:item}), och det är den formen som
 gäller när du skriver egna klasser.
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOComposition}.
-
-  Författarens egen genomläsning påpekade motsägelsen: föreläsningen
-  \emph{Klasser och objekt} gör inkapsling till ett lärandemål, det här
-  kapitlet namnger den som designprincip i
-  \cref{sec:designprinciper}, och ändå har banksystemets fem klasser
-  publika attribut.  Avsteget är gjort för att hålla nere kodmängden när
-  fem klasser ska visas samtidigt, och stycket säger det rakt ut i
-  stället för att låta studenterna upptäcka motsägelsen själva.  Att
-  skriva om banksystemet med privata attribut och egenskaper är ett
-  öppet förslag, inte genomfört.
-}
-
 \begin{frame}
   \begin{exercise}
     \label{ovn:adress-var}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:adress-var}: \cref{AppLOComposition}.
+
+      \foreignlanguage{english}{Try-first}: frågan ställer de två
+      alternativen --- attributen direkt i personen
+      (\cref{ex:bank-person}), eller en egen adressklass --- innan
+      kapitlet visar komposition; föreläsningen \emph{Klasser och objekt}
+      gav namnet och exemplet men ingen kod.  \textbf{Kontrast}:
+      vad som varierar är organisationen (platt respektive sammansatt), vad
+      som hålls invariant är informationen som lagras (samma adressfält).
+      Den platta varianten finns bara i frågan och skrivs aldrig som kod;
+      det är den sammansatta (\cref{ex:bank-person-address}) som visas.
+      Svaren visar vilka som redan ser adressen som en egen enhet.
+    }%
     Om vi vill lägga till adressinformation, skulle du lägga till
     attributen \mintinline{python}{street}, \mintinline{python}{city} och
     \mintinline{python}{zipcode} direkt i \mintinline{python}{Person}-klassen,
@@ -894,30 +1020,19 @@ gäller när du skriver egna klasser.
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOComposition}.
-
-  \foreignlanguage{english}{Try-first}: frågan ställer de två
-  alternativen --- attributen direkt i personen, eller en egen
-  adressklass --- innan komposition har fått namn.  \textbf{Kontrast}:
-  vad som varierar är organisationen (platt respektive sammansatt), vad
-  som hålls invariant är informationen som lagras (samma adressfält).
-  Svaren visar vilka som redan ser adressen som en egen enhet.
-}
-
 \subsection{Komposition: person med adress}
-\label{sec:komposition}
+\label{sec:komposition-tillampningar}
 
-Vi kan använda \emph{komposition} för att lägga till adresser.
-Komposition innebär att en klass innehåller objekt av en annan klass.
-Detta är ofta att föredra framför att lägga till många attribut i en
-enda klass.
+Vi ger adressen en egen klass och låter personen ha ett adressobjekt
+som attribut.  Det är \emph{komposition}, som vi mötte i föreläsningen
+\emph{Klasser och objekt}: där konstaterade vi att en person
+\enquote{har en} adress, och här skriver vi koden.
 
 \begin{frame}[fragile]
   \begin{example}[Adressklass]
     \label{ex:bank-address}
     Gata, stad och postnummer:
-<<klassen [[Address]]>>=
+<<klasserna i banksystemet>>=
 class Address:
     def __init__(self, street, city, zipcode):
         self.street = street
@@ -937,7 +1052,7 @@ Nu kan vi uppdatera personklassen för att använda
   \begin{example}[Person med adress]
     \label{ex:bank-person-address}
     Komposition av ett \mintinline{python}{Address}-objekt:
-<<klassen [[PersonWithAddress]]>>=
+<<klasserna i banksystemet>>=
 class PersonWithAddress:
     def __init__(self, name, age, address):
         self.name = name
@@ -946,6 +1061,22 @@ class PersonWithAddress:
 
     def __str__(self):
         return f"{self.name} ({self.age} år)\n{self.address}"
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Prova personen med adress]
+    \label{ex:bank-person-address-test}
+    Testfallet skapar en adress och en person som bor där; det skriver
+    inte ut något:
+<<prova personen med adress>>=
+# Person med adress
+address = Address("Storgatan 1", "Stockholm", "12345")
+person_with_addr = PersonWithAddress("Pippi Långstrump", 35, address)
+<<tester för banksystemet>>=
+
+<<prova personen med adress>>
 @
   \end{example}
 \end{frame}
@@ -961,29 +1092,36 @@ class PersonWithAddress:
   \end{exercise}
 \end{frame}
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ovn:komposition-fordelar}:
+  \cref{AppLOComposition}.
+
+  \textbf{Variationsmönster}: Generalisering i fördelarna med
+  \cref{ex:bank-address} --- vad som
+  varierar är sammanhanget adressen används i (person, företag, skola),
+  vad som hålls invariant är adressklassen själv; det är det som gör
+  den återanvändbar.  Att adressklassen har \emph{ett} ansvar är SRP,
+  och principen namnges här, där materialet tillämpar den.
+}%
 Fördelarna med komposition inkluderar:
 \begin{description}
   \item[Återanvändbarhet] \mintinline{python}{Address}-klassen kan
     användas i andra sammanhang (företag, skolor och så vidare).
-  \item[Modularitet] Adresslogik kan ändras utan att påverka
-    personklassen.
+  \item[Ett ansvar per klass] Adressklassen har ett enda ansvar,
+    adressen, så adresslogiken kan ändras utan att personklassen
+    påverkas.  Det är \emph{SRP}, Robert C.
+    Martins princip\autocite{Martin2003Agile}, som vi mötte i
+    föreläsningen \emph{Funktioner}.\footnote{%
+      Det vetenskapliga underlaget för SRP --- både att principen är
+      Martins och att den är etablerad, med förbehållet att vad som är
+      ett ansvar är en bedömning --- finns i föreläsningen
+      \emph{Funktioner}, bilaga~B.}
   \item[Tydlighet] Det är tydligt att adressen är en sammanhängande
     enhet.
   \item[Validering] Vi kan lägga till validering i
     \mintinline{python}{Address}-klassen (till exempel kontrollera att
     postnumret har rätt format).
 \end{description}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOComposition}.
-
-  \textbf{Variationsmönster}: Generalisering i fördelarna --- vad som
-  varierar är sammanhanget adressen används i (person, företag, skola),
-  vad som hålls invariant är adressklassen själv; det är det som gör
-  den återanvändbar.  \enquote{Modularitet} här är samma sak som att
-  klassen har \emph{ett} ansvar, adressen: principen namnges i
-  \cref{sec:designprinciper}.
-}
 
 \subsection{Bankkontot}
 \label{sec:bankkontot}
@@ -999,25 +1137,26 @@ Fördelarna med komposition inkluderar:
 Ett bankkonto behöver hålla reda på vem som äger kontot (en person) och
 hur mycket pengar som finns på kontot (saldot).  Vi behöver också
 metoder för att sätta in och ta ut pengar.  Uttag ska bara tillåtas om
-det finns tillräckligt med pengar på kontot.
+det finns tillräckligt med pengar på kontot.  Kontots metoder samlar vi
+under ett eget namn, som vi fyller på i två steg.
 
 \begin{frame}[fragile]
   \begin{example}[Bankkontoklass]
     \label{ex:bank-account}
     Ägare, saldo och insättning; uttaget kommer strax:
-<<klassen [[BankAccount]]>>=
+<<klasserna i banksystemet>>=
 class BankAccount:
-    def __init__(self, owner, initial_balance=0):
-        self.owner = owner  # Ett Person-objekt
-        self.balance = initial_balance
+    <<metoderna i [[BankAccount]]>>
+<<metoderna i [[BankAccount]]>>=
+def __init__(self, owner, initial_balance=0):
+    self.owner = owner  # Ett Person-objekt
+    self.balance = initial_balance
 
-    def deposit(self, amount):
-        if amount > 0:
-            self.balance += amount
-            return True
-        return False
-
-    <<uttag och utskrift av kontot>>
+def deposit(self, amount):
+    if amount > 0:
+        self.balance += amount
+        return True
+    return False
 @
   \end{example}
 \end{frame}
@@ -1042,10 +1181,33 @@ som i föreläsningen \emph{Inmatning och felhantering}; vi återkommer
 till valet i \cref{ovn:uttag-for-mycket}.
 
 \begin{frame}[fragile]
+  \begin{example}[Prova kontot]
+    \label{ex:bank-use}
+    Pippi får ett konto med tusen kronor och sätter in femhundra:
+<<prova kontot och en insättning>>=
+# Skapa ett konto
+account = BankAccount(person_with_addr, 1000)
+
+# Utför transaktioner
+account.deposit(500)
+print(f"Efter insättning: {account.balance} kr")
+<<tester för banksystemet>>=
+
+<<prova kontot och en insättning>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/bank.py}]%
+      {examples/bank_test_konto.py}
+  \end{example}
+\end{frame}
+
+% The \needspace keeps the withdrawal's chunk on one page in the notes.
+\mode<article>{\needspace{15\baselineskip}}
+\begin{frame}[fragile]
   \begin{example}[Ta ut pengar från kontot]
     \label{ex:bank-withdraw}
     Uttag med kontroll, och en utskrift av kontot:
-<<uttag och utskrift av kontot>>=
+<<metoderna i [[BankAccount]]>>=
 def withdraw(self, amount):
     if 0 < amount <= self.balance:
         self.balance -= amount
@@ -1058,6 +1220,25 @@ def __str__(self):
   \end{example}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{example}[Prova ett uttag]
+    \label{ex:bank-transactions}
+    Ett uttag, med kontroll av om det gick:
+<<prova ett uttag>>=
+if account.withdraw(200):
+    print(f"Efter uttag: {account.balance} kr")
+else:
+    print("Uttaget misslyckades!")
+<<tester för banksystemet>>=
+
+<<prova ett uttag>>
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/bank.py}]%
+      {examples/bank_test_uttag.py}
+  \end{example}
+\end{frame}
+
 Metoden \mintinline{python}{withdraw} kontrollerar att beloppet är
 positivt och att det finns tillräckligt med pengar på kontot innan
 uttaget görs.
@@ -1065,114 +1246,52 @@ uttaget görs.
 \begin{frame}
   \begin{exercise}
     \label{ovn:uttag-for-mycket}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:uttag-for-mycket}:
+      \cref{AppLOContainer}.
+
+      \textbf{Kontrast} i frågan, mot sanningsvärdet i
+      \cref{ex:bank-withdraw}: vad som varierar är felhanteringsstrategin
+      (ett sanningsvärde som anroparen kan glömma att kontrollera, ett
+      särfall som \emph{måste} tas om hand, eller ett partiellt uttag), vad
+      som hålls invariant är kravet att inte göra ogiltiga uttag.  Svaret
+      lämnas öppet; särfallsvarianten hör till föreläsningen
+      \emph{Inmatning och felhantering} och står här som hänvisning.  Om
+      den också borde skrivas ut som kod är en öppen fråga.
+    }%
     Vad händer om vi försöker ta ut mer pengar än vad som finns på
     kontot?  Kan du tänka dig andra sätt att hantera detta?
   \end{exercise}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOContainer}.
-
-  \textbf{Kontrast} i frågan: vad som varierar är felhanteringsstrategin
-  (ett sanningsvärde som anroparen kan glömma att kontrollera, ett
-  särfall som \emph{måste} tas om hand, eller ett partiellt uttag), vad
-  som hålls invariant är kravet att inte göra ogiltiga uttag.  Svaret
-  lämnas öppet; särfallsvarianten hör till föreläsningen
-  \emph{Inmatning och felhantering}, och författarens egen granskning
-  föreslog att den skulle skrivas ut här --- det är gjort som
-  hänvisning, inte som kod.
-}
-
-Testprogrammet skapar en person med adress och ett konto, och gör
-några transaktioner.
-
-\begin{frame}[fragile]
-  \begin{example}[Använda banksystemet]
-    \label{ex:bank-main}
-    Skapa person, konto och transaktioner:
-<<testprogram för banksystemet>>=
-def main():
-    """Exempel på användning"""
-    <<skapa person, adress och konto>>
-
-    <<skapa en medborgare med konto>>
-
-
-if __name__ == "__main__":
-    main()
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Person, adress och konto]
-    \label{ex:bank-use}
-    En person, en person med adress, ett konto och två transaktioner:
-<<skapa person, adress och konto>>=
-# Enkel person
-person = Person("Ronja Rövardotter", 30)
-print(person)
-
-# Person med adress
-address = Address("Storgatan 1", "Stockholm", "12345")
-person_with_addr = PersonWithAddress("Pippi Långstrump", 35, address)
-
-# Skapa ett konto
-account = BankAccount(person_with_addr, 1000)
-
-<<utför transaktioner>>
-@
-  \end{example}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[Transaktioner]
-    \label{ex:bank-transactions}
-    En insättning och ett uttag, med kontroll av uttaget:
-<<utför transaktioner>>=
-# Utför transaktioner
-account.deposit(500)
-print(f"Efter insättning: {account.balance} kr")
-
-if account.withdraw(200):
-    print(f"Efter uttag: {account.balance} kr")
-else:
-    print("Uttaget misslyckades!")
-@
-  \end{example}
-\end{frame}
-
 \subsection{Arv: medborgare med personnummer}
 \label{sec:arv-medborgare}
 
-Nu ska vi se hur \emph{arv} kan användas för att utöka funktionalitet.
-Arv innebär att vi skapar en ny klass baserad på en befintlig klass.
+Nu använder vi \emph{arv}, som vi mötte i föreläsningen \emph{Klasser
+och objekt}, där \mintinline{python}{PersonNick} ärvde från
+\mintinline{python}{Person} och lade till ett smeknamn.  Här är det
+tillägget ett personnummer.
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:citizen-hur}
     Om vi vill ha en specialiserad typ av person som också har ett
-    personnummer, skulle du:
-    \begin{enumerate}
-      \item lägga till personnummer som attribut i personklassen;
-      \item skapa en helt ny klass med all kod duplicerad;
-      \item använda arv för att skapa en \mintinline{python}{Citizen}-klass
-        som ärver från personklassen?
-    \end{enumerate}
-    Motivera ditt val.
+    personnummer, skulle du lägga till personnumret som attribut i
+    personklassen, eller skapa en \mintinline{python}{Citizen}-klass som
+    ärver från personklassen?  Motivera ditt val.
   \end{exercise}
 \end{frame}
 
-Vi använder arv för att skapa en \mintinline{python}{Citizen}-klass som
-ärver från \mintinline{python}{PersonWithAddress}.  Detta betyder att
-\mintinline{python}{Citizen} får alla attribut och metoder från
-föräldraklassen, men kan lägga till eller ändra funktionalitet.
+Inte alla personer har ett personnummer, så det hör inte hemma i
+personklassen, men en medborgare är en person med adress och något
+till.  Vi skapar därför en \mintinline{python}{Citizen}-klass som ärver
+från \mintinline{python}{PersonWithAddress}.
 
 \begin{frame}[fragile]
   \begin{example}[Medborgare med personnummer]
     \label{ex:bank-citizen}
     Arv från personklassen med adress:
-<<klassen [[Citizen]]>>=
+<<klasserna i banksystemet>>=
 class Citizen(PersonWithAddress):
     def __init__(self, name, age, address, ssn):
         super().__init__(name, age, address)
@@ -1185,28 +1304,27 @@ class Citizen(PersonWithAddress):
   \end{example}
 \end{frame}
 
-Här använder vi \mintinline{python}{super()} för att anropa
-föräldraklassens metoder.  Det är viktigt för att inte duplicera kod.
+Som \mintinline{python}{PersonNick} i föreläsningen \emph{Klasser och
+objekt} anropar \mintinline{python}{Citizen} föräldraklassens
+konstruktor och \mintinline{python}{__str__} genom
+\mintinline{python}{super()} och lägger bara till det nya.  Det
+besparar oss en kopia av föräldraklassens kod --- en kopia som skulle
+behöva ändras i takt med originalet, den risk som principen
+\emph{DRY}\autocite{HuntThomas1999} varnar för; vi mötte den i
+föreläsningen \emph{Algoritmiskt tänkande}.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga~E.}
 
-\begin{frame}
-  \begin{exercise}
-    \label{ovn:super}
-    Vad gör \mintinline{python}{super().__init__(name, age, address)}?
-    Varför är det bra att använda \mintinline{python}{super()} istället
-    för att duplicera initieringskoden?
-  \end{exercise}
-\end{frame}
+\subsection{Banksystemets testprogram}
+\label{sec:bank-test}
 
-\mintinline{python}{super()} ger oss tillgång till föräldraklassen.
-Genom att anropa \mintinline{python}{super().__init__()} säkerställer vi
-att föräldraklassens initieringskod körs.  Det besparar oss en kopia av
-initieringskoden --- en kopia som skulle behöva ändras i takt med
-originalet, den risk principen \emph{DRY}, \foreignlanguage{english}{don't
-repeat yourself}\autocite{HuntThomas1999}, varnar för.\footnote{%
-  Principen kommer från föreläsningen \emph{Algoritmiskt tänkande},
-  vars bilaga~E prövar både var den kommer ifrån och om den håller,
-  med sina förbehåll.}
+Nu har vi alla fem klasserna.  Testprogrammets sista testfall skapar
+en medborgare med ett eget konto.  Vad det skriver ut visar vi inte här:
+det är en del av svaret på övningen efter hela programmet.
 
+% The \needspace keeps the test case on one page in the notes.
+\mode<article>{\needspace{14\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Användning av \texttt{Citizen}]
     \label{ex:bank-citizen-main}
@@ -1218,6 +1336,9 @@ citizen = Citizen("Madicken Engström", 45, address2, "450101-1234")
 
 account2 = BankAccount(citizen, 5000)
 print(account2)
+<<tester för banksystemet>>=
+
+<<skapa en medborgare med konto>>
 @
   \end{example}
 \end{frame}
@@ -1235,11 +1356,39 @@ Eftersom \mintinline{python}{Citizen} är en
 \mintinline{python}{PersonWithAddress} (genom arv), kan vi använda den
 överallt där en sådan person förväntas.  Kontot behöver inte veta att
 ägaren är en medborgare; det räcker att ägaren har det en person har.
-Detta kallas \emph{polymorfism}.
+Det är \emph{polymorfism}, som vi mötte i föreläsningen
+\emph{Operatoröverlagring}: där tog samma metod emot olika typer av
+indata, här tar kontot emot olika slags ägare.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  Hela programmet, \texttt{bank.py}, får vi genom att sätta in
+  varje del där dess namn står:
+  \inputminted{python}{examples/bank.py}
+\end{frame}
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:utmatning-bank}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:utmatning-bank}:
+      \cref{AppLOInheritance,AppLOChoice}.
+
+      Utmatningsfrågan är en \emph{fusion}: raden för
+      \mintinline{python}{print(account2)} kräver att studenten samtidigt
+      följer kompositionen (kontot skriver ut ägarens namn genom
+      \mintinline{python}{self.owner.name}) och arvet (ägaren är en
+      \mintinline{python}{Citizen} vars \mintinline{python}{__str__} bygger
+      på förälderns med \mintinline{python}{super()}).  Att kontots
+      \mintinline{python}{__str__} bara använder namnet, inte medborgarens
+      hela utskrift, är den detalj som avslöjar om studenten skiljer
+      \emph{vilket} objekt som skrivs ut från vilket som äger vilket.
+      Utmatningen körs av det tanglade programmet
+      (\mintinline{latex}{\runpython[transcript]}).  De tre första raderna har
+      körningarna bredvid testfallen redan visat; medborgarens testfall fick
+      ingen körning bredvid sig, så att frågan fortfarande gäller just
+      fusionsraden.
+    }%
     Vad skriver testprogrammet ut, rad för rad?
   \end{exercise}
 \end{frame}
@@ -1252,25 +1401,8 @@ Detta kallas \emph{polymorfism}.
   \end{example}
 \end{frame}
 
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOInheritance,AppLOChoice}.
-
-  Utmatningsfrågan är en \emph{fusion}: raden för
-  \mintinline{python}{print(account2)} kräver att studenten samtidigt
-  följer kompositionen (kontot skriver ut ägarens namn genom
-  \mintinline{python}{self.owner.name}) och arvet (ägaren är en
-  \mintinline{python}{Citizen} vars \mintinline{python}{__str__} bygger
-  på förälderns med \mintinline{python}{super()}).  Att kontots
-  \mintinline{python}{__str__} bara använder namnet, inte medborgarens
-  hela utskrift, är den detalj som avslöjar om studenten skiljer
-  \emph{vilket} objekt som skrivs ut från vilket som äger vilket.
-  Utmatningen körs av det tanglade programmet
-  (\mintinline{latex}{\runpython[transcript]}); i den tidigare
-  versionen visades ingen utmatning.
-}
-
 \section{Sammanfattning}
-\label{sec:sammanfattning}
+\label{sec:sammanfattning-tillampningar}
 
 I detta kapitel har vi utforskat praktiska tillämpningar av klasser
 genom två omfattande exempel: inköpslistor och ett banksystem.
@@ -1302,31 +1434,47 @@ data.  Genom banksystemet utforskade vi:
   \end{exercise}
 \end{frame}
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{AppLOChoice}.
+
+  Principerna namnges, med sina fotnoter, där materialet praktiserar
+  dem: SRP vid adressklassen i \cref{sec:komposition-tillampningar}, DRY
+  vid \mintinline{python}{super()} i \cref{sec:arv-medborgare}, KISS
+  och inkapsling i \cref{sec:varor}; listan här samlar dem.  De flesta
+  är belagda i tidigare föreläsningar och citeras därifrån, också
+  \enquote{komposition före arv}, ett påstående om vad fältet
+  rekommenderar, som prövas i föreläsningen \emph{Klasser och
+  objekt}, bilaga~D.  Abstraktion och återanvändbarhet prövas här, i
+  \cref{app:abstraktion,app:ateranvandning}.
+}%
 Viktiga designprinciper vi har sett:
 \begin{description}
   \item[Inkapsling] Håll data och metoder tillsammans, och låt varje
-    klass ha tydligt definierad funktionalitet.\footnote{%
-      Det vetenskapliga underlaget för inkapsling --- både varifrån
-      principen kommer och hur etablerad den är, med de förbehåll som
-      hör till --- finns i föreläsningen \emph{Klasser och objekt},
-      bilaga~C.}
+    klass ha tydligt definierad funktionalitet, som varorna i
+    \cref{sec:varor}.
   \item[Abstraktion] Dölj komplexitet bakom enkla gränssnitt.
     Användaren av en klass behöver inte veta hur den fungerar
-    invändigt.
-  \item[Återanvändbarhet] Skapa generella, återanvändbara klasser.
-    \mintinline{python}{Address} kan användas i många sammanhang, inte
-    bara för personer.
+    invändigt.  Idén går tillbaka på Liskov och Zilles abstrakta
+    datatyper\autocite{LiskovZilles1974}.\footnote{\Cref{app:abstraktion}
+      visar att principen är etablerad och att ett par experiment stöder
+      att den gör program lättare att förstå, men också att den ibland
+      bryts av prestandaskäl och att mycket abstraktion kan göra ett
+      program svårare för nybörjare.}
+  \item[Återanvändbarhet] En klass med ett tydligt ansvar, som
+    \mintinline{python}{Address}, kan användas i många sammanhang.
+    Återanvändning kommer inte av sig själv med klasser, men att använda
+    en färdig klass som den är lönar sig oftare än att ärva från
+    den.\footnote{Det vetenskapliga underlaget finns i
+      \cref{app:ateranvandning}: experiment visar att återanvändning av
+      klasser kan ge högre produktivitet och färre fel, tydligast när
+      klassen används som den är, men industriprogram som litade på
+      objektorienteringen ensam misslyckades ofta.}
   \item[Ett ansvar per klass] Dela upp problemet i mindre, hanterbara
-    delar, så att varje klass har ett tydligt ansvar.  Principen kallas
-    \emph{SRP} (\foreignlanguage{english}{single responsibility
-    principle}) och är Robert C.
-    Martins\autocite{Martin2003Agile}.\footnote{%
-      Det vetenskapliga underlaget för SRP --- både att principen är
-      Martins och att den är etablerad, med förbehållet att vad som är
-      ett ansvar är en bedömning --- finns i föreläsningen
-      \emph{Funktioner}, bilaga~B.}
+    delar, så att varje klass har ett tydligt ansvar: SRP, som
+    adressklassen i \cref{sec:komposition-tillampningar}.
   \item[Komposition före arv] Föredra komposition (att innehålla objekt)
     framför arv när det är möjligt; det ger mer flexibilitet.  Rådet
+    mötte vi i föreläsningen \emph{Klasser och objekt}.  Det
     formulerades av Gamma, Helm, Johnson och Vlissides i boken
     \emph{Design Patterns}\autocite[20]{Gamma1994DesignPatterns}, som i
     samma andetag säger att arv och komposition
@@ -1335,19 +1483,6 @@ Viktiga designprinciper vi har sett:
       kommer och hur väl det håller, med sina förbehåll --- finns i
       föreläsningen \emph{Klasser och objekt}, bilaga~D.}
 \end{description}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOChoice}.
-
-  Principerna namnges där materialet praktiserar dem (issue \#265):
-  SRP i \enquote{ett ansvar per klass}, DRY vid
-  \mintinline{python}{super()} i \cref{sec:arv-medborgare}, KISS i
-  \cref{sec:varor}, inkapsling i \mintinline{python}{Item}.  Alla är
-  belagda i tidigare föreläsningar och citeras därifrån, också
-  \enquote{komposition före arv}, ett påstående om vad fältet
-  rekommenderar, som prövas i föreläsningen \emph{Klasser och
-  objekt}, bilaga~D.
-}
 
 \subsection{När ska vi använda klasser?}
 \label{sec:nar-klasser}
@@ -1380,6 +1515,23 @@ Enklare strukturer räcker när:
 \subsection{Komposition eller arv}
 \label{sec:komposition-arv}
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{AppLOChoice}.
+
+  \textbf{Variationsmönster}: Kontrast mellan
+  \cref{ex:bank-person-address} och \cref{ex:bank-citizen}.  Vad som
+  varierar: relationstypen (\foreignlanguage{english}{has-a} respektive
+  \foreignlanguage{english}{is-a}).  Vad som hålls invariant: målet ---
+  att återanvända kod.  De två klasserna står bredvid varandra i
+  anteckningarna (\cref{ex:komposition-arv-bredvid}), och på bilden står
+  de två relationerna i var sin spalt, så att kontrasten upplevs
+  samtidigt \parencite[45--47]{Marton2015}; frågan om varför
+  bankexemplet valde olika, \cref{ovn:varfor-komposition}, ställs
+  innan de visas.  Samma
+  kontrast infördes i föreläsningen \emph{Klasser och
+  objekt}; här är den generaliserad med ett program där båda
+  relationerna faktiskt förekommer.
+}%
 En viktig avvägning i objektorienterad design är när man ska använda
 komposition respektive arv.
 
@@ -1391,17 +1543,51 @@ komposition respektive arv.
   \end{exercise}
 \end{frame}
 
+% Notes only: the two classes of the bank, one of each relation.
+\begin{frame}<article>
+  \begin{example}[Komposition och arv bredvid varandra]
+    \label{ex:komposition-arv-bredvid}
+    Personen med adress, som \emph{har} en adress, till vänster, och
+    medborgaren, som \emph{är en} person med adress, till höger, båda i
+    \texttt{bank.py}:
+    \codebycode
+      [name=PersonWithAddress, breaklines,
+        label={\texttt{PersonWithAddress}}]{python}{examples/bank.py}
+      [name=Citizen, breaklines,
+        label={\texttt{Citizen}}]{python}{examples/bank.py}
+  \end{example}
+\end{frame}
+
+% On the slides the two relations stand in one frame, in two columns; in
+% the notes, where beamer's columns collapse, they follow each other.
 \begin{frame}
   \only<presentation>{%
-    \begin{block}{Komposition (\foreignlanguage{english}{has-a})}
-      En klass \emph{innehåller} ett objekt av en annan klass:
-      \begin{itemize}
-        \item en person \emph{har} en \mintinline{python}{Address};
-        \item ett \mintinline{python}{BankAccount} \emph{har} en person.
-      \end{itemize}
-      Fördelar: mer flexibelt; lättare att ändra under körning; tydliga
-      relationer.
-    \end{block}%
+    \begin{columns}[t]
+      \column{0.49\textwidth}
+      \begin{block}{Komposition (\foreignlanguage{english}{has-a})}
+        \small
+        En klass \emph{innehåller} ett objekt av en annan klass:
+        \begin{itemize}
+          \item en person \emph{har} en \mintinline{python}{Address};
+          \item ett \mintinline{python}{BankAccount} \emph{har} en person.
+        \end{itemize}
+        Fördelar: mer flexibelt; lättare att ändra under körning; tydliga
+        relationer.
+      \end{block}
+      \column{0.49\textwidth}
+      \begin{block}{Arv (\foreignlanguage{english}{is-a})}
+        \small
+        En klass \emph{är en specialisering} av en annan klass:
+        \begin{itemize}
+          \item en \mintinline{python}{Citizen} \emph{är en} person (med
+            extra information).
+        \end{itemize}
+        Fördelar: återanvänder kod från basklassen; polymorfism --- kan
+        användas där basklassen förväntas; tydlig hierarkisk relation.
+        Nackdelar: starkare koppling mellan klasserna; svårare att ändra
+        senare.
+      \end{block}
+    \end{columns}%
   }
   \only<article>{%
     \begin{block}{Komposition (\foreignlanguage{english}{has-a})}
@@ -1411,24 +1597,6 @@ komposition respektive arv.
       är att det är mer flexibelt, att relationen är lättare att ändra
       under körning, och att relationerna blir tydliga.
     \end{block}%
-  }
-\end{frame}
-
-\begin{frame}
-  \only<presentation>{%
-    \begin{block}{Arv (\foreignlanguage{english}{is-a})}
-      En klass \emph{är en specialisering} av en annan klass:
-      \begin{itemize}
-        \item en \mintinline{python}{Citizen} \emph{är en} person (med
-          extra information).
-      \end{itemize}
-      Fördelar: återanvänder kod från basklassen; polymorfism --- kan
-      användas där basklassen förväntas; tydlig hierarkisk relation.
-      Nackdelar: starkare koppling mellan klasserna; svårare att ändra
-      senare.
-    \end{block}%
-  }
-  \only<article>{%
     \begin{block}{Arv (\foreignlanguage{english}{is-a})}
       En klass \emph{är en specialisering} av en annan klass: en
       \mintinline{python}{Citizen} \emph{är en} person, med extra
@@ -1440,20 +1608,6 @@ komposition respektive arv.
     \end{block}%
   }
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: \cref{AppLOChoice}.
-
-  \textbf{Variationsmönster}: Kontrast.  Vad som varierar:
-  relationstypen (\foreignlanguage{english}{has-a} respektive
-  \foreignlanguage{english}{is-a}).  Vad som hålls invariant: målet ---
-  att återanvända kod.  De två bilderna står intill varandra så att
-  kontrasten upplevs samtidigt \parencite[45--47]{Marton2015}, och
-  frågan om varför bankexemplet valde olika ställs innan bilderna
-  visas.  Samma kontrast infördes i föreläsningen \emph{Klasser och
-  objekt}; här är den generaliserad med ett program där båda
-  relationerna faktiskt förekommer.
-}
 
 Tumregel: föredra komposition, och använd arv när du verkligen har en
 \foreignlanguage{english}{is-a}-relation.  Arvets kostnader --- bruten
@@ -1471,6 +1625,13 @@ underbyggd med förbehåll.\footnote{%
 \begin{frame}
   \begin{exercise}[Vidareutveckling]
     \label{ovn:vidare}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:vidare}: alla fem.  Projekten
+      är modulens
+      \emph{fusion} på egen hand: varje projekt kräver en klass med en
+      behållare, ett val av representation, komposition och --- i
+      kontotyperna --- arv, utan att uppgiften pekar ut vilket.
+    }%
     Välj ett av följande projekt och implementera det:
     \begin{enumerate}
       \item \emph{Inköpslistan}: utöka med prioriteter för varje vara,
@@ -1486,13 +1647,6 @@ underbyggd med förbehåll.\footnote{%
     \end{enumerate}
   \end{exercise}
 \end{frame}
-
-\ltnote{%
-  Relevanta lärandemål: alla fem.  Projekten är modulens
-  \emph{fusion} på egen hand: varje projekt kräver en klass med en
-  behållare, ett val av representation, komposition och --- i
-  kontotyperna --- arv, utan att uppgiften pekar ut vilket.
-}
 
 \subsection{Relaterad läsning}
 \label{sec:lasning}
