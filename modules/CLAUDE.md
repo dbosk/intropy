@@ -138,12 +138,14 @@ objectives carry the week page's Lo-codes in a comment
   may have to type the suffixed name, just as with `python3` (author,
   2026-09-22, beside `pydoc input`: "they might have to type pydoc3 just as
   they have to write python3").
-- *Övning: Klasser och objekt* covers both operator overloading and
-  inheritance, in that order: overloading first (comparison and
-  arithmetic dunder methods; the old exercise *En bråkig klass* is back),
-  then inheritance as the generalisation, since overloading `__eq__` or
-  `__str__` already overrides a method inherited from `object` (author,
-  2026-09-18: "probably the same phenomenon").
+- *Övning: Klasser och objekt* covers the comparison dunders (`__str__`,
+  `__lt__`, `__eq__`) and then inheritance as the generalisation, since
+  overloading `__eq__` or `__str__` already overrides a method inherited
+  from `object` (author, 2026-09-18: "probably the same phenomenon").
+  Arithmetic operator overloading and *En bråkig klass* belong to week
+  44, *Operatoröverlagring* and its Övning (author, 2026-09-28: the
+  fraction class was built three times, and arithmetic was practised
+  before it was taught).
 
 ## Backed claims (the ledger)
 
@@ -199,11 +201,17 @@ Backed so far (question → answer):
 - *Moduler och paket* B: modules/import as a novice difficulty → NOT
   backed (no direct study).
 - *Klasser och objekt* B: class/object misconceptions → three backed
-  (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
-  defined and contested in its classic form. D: composition over inheritance → Design Patterns, established,
-  maintenance experiments on inheritance point both ways (moved here from
-  *Praktiska tillämpningar av klasser* B on 2026-09-22; *Klasser och
-  objekt* is the first deck that recommends composition).
+  (Java, Smalltalk); C: novices' conceptions of class and object
+  (phenomenography, variation theory) → three levels (program text,
+  active at run time, model of reality) with their critical aspects;
+  small Java studies, the levels need not be reached in order, and the
+  reality level can mislead (added 2026-10-03; C and D became D and E);
+  D: encapsulation → established, from Parnas, loosely defined and
+  contested in its classic form; E: composition over inheritance →
+  Design Patterns, established, maintenance experiments on inheritance
+  point both ways (moved here from *Praktiska tillämpningar av klasser*
+  B on 2026-09-22; *Klasser och objekt* is the first deck that
+  recommends composition).
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
