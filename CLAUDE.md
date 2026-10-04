@@ -40,7 +40,7 @@ The author arranged *Inmatning, felhantering och styrstrukturer* by hand
 6. `Övning: <vecka> (övningsanteckningar)`, FeedbackFruits, author-made.
    Until then the text header `Övningsanteckningar kommer`
 7. `Laboration (N) …`
-8. anything else the module holds (week 42: *Läsförståelse: Dokumentation
+8. anything else the module holds (week 44: *Läsförståelse: Dokumentation
    för olika behållare*)
 
 The imported items of the previous course design are detached and
