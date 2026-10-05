@@ -52,7 +52,10 @@ Monday mornings:
 0 8 * * 1 cd ~/devel/edu/intropy/adm/redovisningar && ./redovisningar.sh prgi26
 \end{minted}
 Cron mails me the output.
-I open the mail in Vim, check each command, select it and run it with
+It starts with what Canvas already holds for those days, see
+\cref{sec:canvas}, followed by the commands.
+I open the mail in Vim, check each command against the overview, select it
+and run it with
 [[:'<,'>w !bash]], which writes the selected lines to [[bash]] and leaves
 the mail as it is.
 The script still only prints; running a command remains my decision.
@@ -260,8 +263,7 @@ We drop \enquote{online}: it says where the session is, which the location
 already tells the students, not what they present.
 A kind that does not start with \enquote{redovisning}, such as the empty one
 of \enquote{Datorlaboration}, \enquote{online} or \enquote{Excel}, is an
-ordinary lab session, not a presentation, and gives no title; [[main]] skips
-such sessions.
+ordinary lab session, not a presentation, and gives no title.
 We capitalize the first letter, since the kind starts a title in Canvas.
 <<functions>>=
 session_title() {
@@ -270,6 +272,22 @@ session_title() {
   if [[ ${kind,,} == redovisning* ]]; then
     echo "${kind^}"
   fi
+}
+@
+
+A filter, [[presentations]], drops the sessions without a title and passes
+the other rows through unchanged.
+They must go before [[main]] looks at the rows at all: a week of only
+ordinary lab sessions should give no output, so that cron sends no mail,
+see \cref{sec:canvas}.
+<<functions>>=
+presentations() {
+  local start end event description
+  while IFS=$'\t' read -r start end event description; do
+    if [ -n "$(session_title "$event")" ]; then
+      printf '%s\t%s\t%s\t%s\n' "$start" "$end" "$event" "$description"
+    fi
+  done
 }
 @
 
@@ -364,20 +382,90 @@ print_command() {
 @
 
 
+\section{What is already in Canvas}\label{sec:canvas}
+
+Before I run a command, I want to see whether the session already has an
+appointment group, made by hand or by an earlier run with another window.
+Running the command anyway would give the students two groups to book in.
+So the output starts with what Canvas already holds over the days of the
+sessions, followed by the commands.
+The overview lines are comments, like the skipped sessions, so they do no
+harm if the whole output is run.
+
+[[canvaslms calendar list]] prints one row per slot, with the columns title,
+start, end and booked/capacity:
+\begin{minted}{text}
+Redovisning  2026-10-05 13:15  2026-10-05 13:30  4/4
+Redovisning  2026-10-05 13:30  2026-10-05 13:45  4/4
+\end{minted}
+A two-hour session is eight such rows, so we fold the slots of one
+appointment group into one line:
+\begin{minted}{text}
+#   Redovisning  2026-10-05 13:15-15:00  7 slots  28/28 booked
+\end{minted}
+Canvas does not tell us which group a slot belongs to, so we take a run of
+slots with the same title and capacity, each starting where the previous one
+ended, to be one group.
+Two groups of the same title and capacity that follow each other without a
+pause are thus shown as one line; that does not hide whether the time is
+covered, which is what the overview is for.
+Two groups over the same time, on the other hand, interleave their slots and
+break the runs, so they show up as a stretch of one-slot lines, which is hard
+to miss.
+We ask for [[--type event]] so that assignment deadlines stay out.
+<<functions>>=
+canvas_overview() {
+  local from="$1" to="$2"
+  echo "# Already in Canvas, $from to $to:"
+  canvaslms calendar list -c "$course" --type event \
+    --start-time "$from" --end-time "$to 23:59" \
+  | awk -F'\t' '
+      function flush() {
+        if (n)
+          printf "#   %s  %s-%s  %d slots  %d/%d booked\n",
+            title, first, substr(last, 12), n, booked, capacity
+      }
+      {
+        split($4, count, "/")
+        if (n && $1 == title && $2 == last && count[2] == size) {
+          last = $3; n++
+        } else {
+          flush()
+          title = $1; first = $2; last = $3; size = count[2]; n = 1
+          booked = capacity = 0
+        }
+        booked += count[1]; capacity += count[2]
+      }
+      END { if (n) flush(); else print "#   nothing" }'
+}
+@
+
+
 \section{The main function}
 
-[[main]] reads the arguments, fetches the sessions and prints one command
-per presentation session, with a blank line between them.
-For each session it first settles the title and the slot length, from the
-event unless the command line overrides them, see \cref{sec:title}.
+[[main]] reads the arguments, fetches the sessions, shows what Canvas already
+holds over their days and prints one command per presentation session, with
+a blank line between them.
+nytid returns the sessions in time order, so the first row's start and the
+last row's end give the days for the Canvas overview.
+With no presentation sessions, nothing is printed at all, and cron sends no
+mail.
+For each session, [[main]] first settles the title and the slot length, from
+the event unless the command line overrides them, see \cref{sec:title}.
 <<functions>>=
 main() {
   <<read the arguments>>
-  local start end event description kind title duration tas n max
-  sessions "$@" \
+  local rows start end event description kind title duration tas n max
+  rows=$(sessions "$@" | presentations)
+  [ -n "$rows" ] || return 0
+  canvas_overview "$(head -n 1 <<< "$rows" | cut -f1 | cut -d' ' -f1)" \
+    "$(tail -n 1 <<< "$rows" | cut -f2 | cut -d' ' -f1)"
+  echo
+  echo "# To create:"
+  echo
+  echo "$rows" \
   | while IFS=$'\t' read -r start end event description; do
       kind=$(session_title "$event")
-      [ -n "$kind" ] || continue
       title="${title_override:-$kind}"
       duration="${duration_override:-$(slot_duration_for "$title")}"
       tas=$(booked_tas "$description" | tr '\n' ' ')
