@@ -40,9 +40,9 @@ Creating an appointment group is not idempotent---running the same command
 twice gives the students two groups to book in---so the script must never be
 the one that sends them to Canvas.
 
-We only create the slots one week in advance.
-Before that, TAs still book and unbook sessions, so the number of students per
-slot would be based on a staffing that has not yet stabilized.
+We publish the slots of a session at least a week before it, but not much
+earlier: further ahead, TAs still book and unbook sessions, so the number of
+students per slot would be based on a staffing that has not yet stabilized.
 
 \subsection{Running it weekly from cron}
 
@@ -57,12 +57,15 @@ I open the mail in Vim, check each command, select it and run it with
 the mail as it is.
 The script still only prints; running a command remains my decision.
 
-Each run covers the seven days from the day it runs, see
-\cref{sec:schedule}, so consecutive weekly runs cover consecutive weeks and
-never overlap.
+Each run covers the seven days that start a week after the day it runs, see
+\cref{sec:schedule}: the run on Monday 12 October covers 19--25 October.
+So every session is published 7 to 13 days before it takes place, and
+consecutive weekly runs cover consecutive weeks, with neither overlap nor
+gap.
 No session is printed twice, so running the commands of every mail never
-gives a session two appointment groups.
-The defaults are chosen for this use: the window is the coming week, and
+gives a session two appointment groups, and none is missed.
+The defaults are chosen for this use: the window is the week that starts a week from
+today, and
 each session's title, and with it the slot length, follows from its event in
 nytid.
 A week of P-uppgift presentations thus gets 30-minute slots without a change
@@ -112,14 +115,19 @@ length than the title gives, say 20 minutes, we run
 \section{The presentation sessions}\label{sec:schedule}
 
 [[nytid schedule show]] shows the events from today until a week from today
-by default, and it includes the events of both dates.
-That is eight days, not seven: a run on a Monday includes the next Monday,
-which the run a week later includes again.
-For the weekly cron job that would print the Monday sessions twice.
-So we ask for an end date six days from today, which gives exactly one week.
-We put our [[--end]] before the user's arguments: nytid, like any Click-based
-program, takes the last value of an option given twice, so an [[--end]] among
-the extra arguments overrides ours.
+by default.
+That is not the window we want: we publish a week ahead, so the window starts
+[[LEAD_DAYS]] days from today and lasts [[WINDOW_DAYS]] days.
+nytid includes the events of both dates, so the end date is
+[[WINDOW_DAYS - 1]] days after the start.
+Had we used the start plus a week as the end, as nytid's own default does,
+the window would be eight days, and the weekly cron job would print the
+sessions of that eighth day twice: as the last day of one run and the first
+of the next.
+
+We put our [[--start]] and [[--end]] before the user's arguments: nytid, like
+any Click-based program, takes the last value of an option given twice, so
+the same options among the extra arguments override ours.
 Extra arguments, such as [[--start 2026-10-12 --end 2026-10-18]], are passed
 on to nytid that way.
 When moving the window, give both dates: with only [[--start]], our end date
@@ -136,6 +144,7 @@ configuration, and a changed default would shift the columns that we read
 below.
 <<constants>>=
 TIME_FORMAT="%Y-%m-%d %H:%M"
+LEAD_DAYS=7
 WINDOW_DAYS=7
 <<functions>>=
 sessions() {
@@ -143,7 +152,8 @@ sessions() {
     --format csv --delimiter $'\t' \
     --no-week --no-location --no-todo \
     --end-time --time-format "$TIME_FORMAT" \
-    --end "$(date -d "+$((WINDOW_DAYS - 1)) days" +%F)" \
+    --start "$(date -d "+$LEAD_DAYS days" +%F)" \
+    --end "$(date -d "+$((LEAD_DAYS + WINDOW_DAYS - 1)) days" +%F)" \
     "$@" \
   | tr -d '\r' \
   | awk -F'\t' -v pattern="$SESSION_PATTERN" \
