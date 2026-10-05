@@ -7,6 +7,7 @@ authors:
 # Canvas id so the name can change freely; make push-labs pushes it.
 name: 'Laboration (5) behållare och klasser (kamratgranskning) (obligatorisk)'
 regex: '^390264$'
+due_at: '2026-10-30 19:00'
 ---
 **Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 
