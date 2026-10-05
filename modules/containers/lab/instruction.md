@@ -5,7 +5,7 @@ authors:
   - Daniel Bosk <dbosk@kth.se>
 # Canvas (canvaslms assignments edit): the assignment is matched by its
 # Canvas id so the name can change freely; make push-labs pushes it.
-name: 'Laboration (5) behållare och klasser (kamratgranskning)'
+name: 'Laboration (5) behållare och klasser (kamratgranskning) (obligatorisk)'
 regex: '^390264$'
 ---
 **Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
