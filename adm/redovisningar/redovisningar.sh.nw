@@ -53,11 +53,13 @@ Monday mornings:
 \end{minted}
 Cron mails me the output.
 It starts with what Canvas already holds for those days, see
-\cref{sec:canvas}, followed by the commands.
-I open the mail in Vim, check each command against the overview, select it
-and run it with
-[[:'<,'>w !bash]], which writes the selected lines to [[bash]] and leaves
-the mail as it is.
+\cref{sec:canvas}, followed by the commands, and it ends with a command that
+reads Canvas back.
+I open the mail in Vim and check each command against the overview.
+If all are wanted, I select from the first command to the end and run it
+with [[:'<,'>w !bash]], which writes the selected lines to [[bash]] and
+leaves the mail as it is; the groups are created and then read back.
+Otherwise I delete the unwanted ones first.
 The script still only prints; running a command remains my decision.
 
 Each run covers the seven days that start a week after the day it runs, see
@@ -440,14 +442,30 @@ canvas_overview() {
 }
 @
 
+After the create commands, the output ends with the same listing as a
+command, not a comment.
+When I run the create commands together with it, Canvas is read back right
+after them, and I see the new groups, slot by slot, next to the old ones.
+It is printed raw rather than folded: the folding lives in this script, and
+the command in the mail should run anywhere, without it.
+The query is the same as in [[canvas_overview]], so the read-back covers
+exactly the days of the overview.
+<<functions>>=
+print_list_command() {
+  local from="$1" to="$2"
+  printf 'canvaslms calendar list -c %s --type event \\\n' "$course"
+  printf '    --start-time "%s" --end-time "%s 23:59"\n' "$from" "$to"
+}
+@
+
 
 \section{The main function}
 
 [[main]] reads the arguments, fetches the sessions, shows what Canvas already
-holds over their days and prints one command per presentation session, with
-a blank line between them.
+holds over their days, prints one command per presentation session, with a
+blank line between them, and ends with the command that reads Canvas back.
 nytid returns the sessions in time order, so the first row's start and the
-last row's end give the days for the Canvas overview.
+last row's end give the days for the Canvas overview and the read-back.
 With no presentation sessions, nothing is printed at all, and cron sends no
 mail.
 For each session, [[main]] first settles the title and the slot length, from
@@ -455,11 +473,12 @@ the event unless the command line overrides them, see \cref{sec:title}.
 <<functions>>=
 main() {
   <<read the arguments>>
-  local rows start end event description kind title duration tas n max
+  local rows from to start end event description kind title duration tas n max
   rows=$(sessions "$@" | presentations)
   [ -n "$rows" ] || return 0
-  canvas_overview "$(head -n 1 <<< "$rows" | cut -f1 | cut -d' ' -f1)" \
-    "$(tail -n 1 <<< "$rows" | cut -f2 | cut -d' ' -f1)"
+  from=$(head -n 1 <<< "$rows" | cut -f1 | cut -d' ' -f1)
+  to=$(tail -n 1 <<< "$rows" | cut -f2 | cut -d' ' -f1)
+  canvas_overview "$from" "$to"
   echo
   echo "# To create:"
   echo
@@ -479,6 +498,9 @@ main() {
       fi
       echo
     done
+  echo "# Read back what is in Canvas:"
+  echo
+  print_list_command "$from" "$to"
 }
 @
 
