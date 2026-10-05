@@ -7,6 +7,7 @@ authors:
 # Canvas id so the name can change freely; make push-labs pushes it.
 name: 'Laboration (2) inmatning, felhantering och styrstrukturer (kamratgranskning) (obligatorisk)'
 regex: '^395799$'
+due_at: '2026-09-25 19:00'
 ---
 I denna laboration ska vi utöka programmet vi skrev i föregående laboration.
 I föregående laboration skrev vi två funktioner, en som beräknar en aritmetisk 
