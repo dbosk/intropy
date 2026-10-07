@@ -5,7 +5,7 @@
 #
 # Svaren (svar-canvas.tex, bilaga.tex) checkas inte in, eftersom repot är
 # publikt: de hämtas från Canvas vid första bygget. Rapporttexten räknar
-# med svaren per 2026-10-07 (17 st).
+# med svaren per 2026-10-07 (18 st).
 
 .PHONY: all clean update-svar
 
