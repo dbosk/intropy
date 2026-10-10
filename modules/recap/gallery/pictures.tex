@@ -216,7 +216,7 @@
   \pyflowfor[baseline=(current bounding box.center)]{finns det fler\\värden i \texttt{transactions}?}%
     {\texttt{amount} = nästa värde}%
     {balance = balance + amount}%
-    {ja}{nej}%
+    {\texttt{True}}{\texttt{False}}%
 }
 % The iterations of the same loop, as a table beside the flowchart.
 \newcommand{\tabFor}{%
@@ -264,8 +264,10 @@
     \pyframe[below=9mm of m.south west, anchor=north west]{dep}%
       {deposit}{account: \pyptr, amount: \pyptr}
     \pydict[right=12mm of m-account, yshift=-6mm]{d}%
-      {"owner": "Ronja", "balance": 1500}
+      {"owner": "Ronja", "balance": \pyptr}
     \pyval[below=8mm of d.south west, anchor=north west]{v}{int}{500}
+    \pyval[right=8mm of d-1]{b}{int}{1500}
+    \pyarrow{d-1}{b}
     \pyarrow{m-account}{d}
     \pyarrow{dep-account}{d}
     \pyarrow{dep-amount}{v}
@@ -273,35 +275,46 @@
 }
 
 % Rebinding and mutating inside deposit: the state after each line.
-% #1 the balance in Ronja's dict, #2 the object deposit's account names
-% (d1 or d2); d2 is drawn only after the third line.  main's amount is
-% listed first, so that no two arrows cross.
-\newcommand{\figRebind}[2]{%
+% #1 the line (1, 2 or 3).  The numbers in the dicts are objects too, so
+% that the second line shows the arrow in the shared dict moving from
+% 1500 to 2001.  main's amount is listed first, and the objects stand at
+% the heights of the names that point to them, so that no arrows cross.
+\newcommand{\figRebind}[1]{%
   \begin{pyfig}
     \pyframe{m}{main}{amount: \pyptr, account: \pyptr}
     \pyframe[below=9mm of m.south west, anchor=north west]{dep}%
       {deposit}{account: \pyptr, amount: \pyptr}
-    \pyval[at={($(m-amount.east)+(14mm,0)$)}, anchor=west]{v500}%
+    \pyval[at={($(m-amount.east)+(12mm,0)$)}, anchor=west]{v500}%
       {int}{500}
-    \pydict[at={($(m-account.east)!0.5!(dep-account.east)+(14mm,0)$)},
-            anchor=west]{d1}{"owner": "Ronja", "balance": #1}
-    \pyval[at={($(dep-amount.east)+(14mm,0)$)}, anchor=west]{v501}%
+    \pydict[at={($(m-account.east)!0.5!(dep-account.east)+(12mm,0)$)},
+            anchor=west]{d1}{"owner": "Ronja", "balance": \pyptr}
+    \pyval[at={($(dep-amount.east)+(12mm,0)$)}, anchor=west]{v501}%
       {int}{501}
+    \pyval[right=13mm of d1-1]{v1500}{int}{1500}
     \pyarrow{m-amount}{v500}
     \pyarrow{m-account}{d1}
     \pyarrow{dep-amount}{v501}
-    \ifstrequal{#2}{d2}{%
-      \pydict[at={($(dep-account.east)+(52mm,0)$)}, anchor=north west,
-              yshift=0.8em]{d2}{"owner": "Pippi", "balance": 0}
+    \ifnumequal{#1}{1}{%
+      \pyarrow{d1-1}{v1500}
+    }{%
+      \pyval[at={($(v1500.west |- m-account)$)}, anchor=west]{v2001}%
+        {int}{2001}
+      \pyarrow[out=0, in=180, looseness=1.3]{d1-1}{v2001}
+    }%
+    \ifnumequal{#1}{3}{%
+      \pydict[at={($(v1500.east |- dep-account)+(5mm,0)$)}, anchor=west]%
+        {d2}{"owner": "Pippi", "balance": \pyptr}
+      \pyval[below=6mm of d2-1, pyfig type at=left]{v0}{int}{0}
+      \pyarrow{d2-1}{v0}
       \pyarrow{dep-account}{d2.west |- dep-account}
     }{%
       \pyarrow{dep-account}{d1}
-    }
+    }%
   \end{pyfig}%
 }
-\newcommand{\figRebindA}{\figRebind{1500}{d1}}
-\newcommand{\figRebindB}{\figRebind{2001}{d1}}
-\newcommand{\figRebindC}{\figRebind{2001}{d2}}
+\newcommand{\figRebindA}{\figRebind{1}}
+\newcommand{\figRebindB}{\figRebind{2}}
+\newcommand{\figRebindC}{\figRebind{3}}
 
 % if/elif/else: a withdrawal.
 \newcommand{\figIf}{%
