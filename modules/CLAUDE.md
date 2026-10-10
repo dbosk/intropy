@@ -17,7 +17,8 @@ Each module has one or more deck directories (`slides*/`) building
 `computational-thinking/slides` (tracking issue #269); `helloworld/slides`
 is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
-excludes functions, recap, scipy and debug from the course-wide build.
+excludes functions, scipy and debug from the course-wide build (and
+`recap/gallery`, the picture gallery, which `recap/Makefile` leaves out).
 Six decks still lack a backed-claim chapter: `classes/slides-more`
 (Operatoröverlagring) and the five `containers/slides-*` decks — run the
 claim audit there in their next rounds.
@@ -31,7 +32,8 @@ Listor*, *Behållare: Tupler*; *Moduler och paket*; *Behållare:
 Uppslagslistor*; *Klasser och objekt*; *Behållare: Mängder, stackar och
 köer*, *Behållare: Ett gissningsspel*; *Operatoröverlagring*; *Praktiska
 tillämpningar av klasser*; *Arbeta med filer*; *Grafiska
-användargränssnitt*. The tutorial decks
+användargränssnitt*; *Repetition: kursens grunder* (`recap/slides`, the
+whole course with one running example, a bank). The tutorial decks
 (`modules/<module>/tutorial/`, one per week, one chapter, one exercise per
 section followed by a literate solution) are titled *Övning: Funktioner och
 variabler*; *Övning: Inmatning, felhantering och styrstrukturer*; *Övning:
@@ -49,7 +51,9 @@ och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
 Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
 *Behållare: Uppslagslistor*, *Klasser och objekt*, its Övning (moved
 from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
-dictionaries). Week 44: *Behållare: Mängder, stackar och köer*,
+dictionaries). Week 44: *Repetition: kursens grunder* (the whole
+lecture, before the week's other decks; in the book it is the last
+chapter, after week 46), *Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
 tillämpningar av klasser*, its Övning.
 Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
@@ -217,6 +221,10 @@ Backed so far (question → answer):
   guide as a whole and several rules (four spaces) not.
 - No backed-claim chapters yet: *Operatoröverlagring*, the five
   *Behållare* decks (method chapter only) — run the claim audit there.
+  *Repetition: kursens grunder* points to the decks above for every
+  claim about Python and backs none itself; its own rationale
+  (retrieval, spacing, pretests, polls) is in its \ltnotes, with its
+  appendix in progress.
 
 ## Build environment
 
