@@ -152,11 +152,8 @@ Vecka för vecka är målen följande.
 
 **Vecka 44, Fler behållare och mer om klasser:**
 
-- välja lämplig behållare (lista, tuppel, mängd, uppslagslista, stack
-  eller kö) för ett givet problem och motivera valet utifrån vilka
-  operationer som behövs,
-- använda mängder för att samla unika värden, pröva om ett värde finns
-  bland dem och iterera över dem,
+- välja lämplig behållare (lista, tupel eller uppslagslista) för ett
+  givet problem och motivera valet utifrån vilka operationer som behövs,
 - implementera operatoröverlagring med dundermetoder som `__add__`,
   `__eq__` och `__lt__` samt typkonvertering med `__str__`, `__float__`
   och `__int__`,
@@ -164,6 +161,13 @@ Vecka för vecka är målen följande.
   attribut och där metoderna söker i och uppdaterar behållaren,
 - hitta och läsa dokumentationen för Pythons behållare och använda den för
   att lösa problem du inte sett förut.
+
+*Fördjupning (valfritt):*
+
+- använda mängder för att samla unika värden, pröva om ett värde finns
+  bland dem och iterera över dem,
+- använda en lista som stack och `collections.deque` som kö, och välja
+  mängd, stack eller kö när programmet behöver just deras operationer.
 
 **Vecka 45, Filhantering:**
 
