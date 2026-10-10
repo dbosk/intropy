@@ -68,6 +68,13 @@ BANKRUNS+=	examples/bank_test_angra.py
 EXAMPLES+=	${BANKRUNS}
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py
+# The starting point for the exercise Att ångra det senaste, which the
+# tutorial's Canvas page links: bank.py as the exercise Banken leaves it.
+# bank.py itself already holds the answer (the memory and the undo fill
+# the two steps Banken leaves empty), so this one is tangled from the part
+# of contents.nw above the marker line before that exercise, with the two
+# steps defined empty.  Both files are committed (see .gitignore).
+EXAMPLES+=	examples/start/bank.py
 # cowsay.py is written in the tutorial Övning: Upprepningar, listor och
 # moduler (../../iterations/tutorial); cowsay2.py imports the bubble and the
 # cow from it.  Build it there and copy it here (generated, not committed).
@@ -101,6 +108,16 @@ ${TESTRUNS} ${BANKRUNS} ${EXCERPTS}: testkorningar.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+BANKEN_SLUT=	^% Här slutar uppgiften Banken\.
+examples/start/bank.py: contents.nw
+	@mkdir -p ${@D}
+	grep -q '${BANKEN_SLUT}' $<
+	{ sed '/${BANKEN_SLUT}/,$$d' $<; \
+	  printf '%s\n' '<<skapa bankens minne av överföringar>>=' '@' \
+	    '<<anteckna överföringen i bankens minne>>=' '@'; } | \
+	  notangle -R'[[bank.py]]' - > $@
+	${NOWEB_PYCODEFMT}
 
 examples/cowsay.py: ../../iterations/tutorial/contents.nw
 	$(MAKE) -C $(<D) examples/cowsay.py
