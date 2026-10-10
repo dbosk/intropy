@@ -244,9 +244,35 @@ print(balance)
 \end{minted}
 Inne i \mintinline{python}{add_interest} finns två
 \mintinline{python}{balance}, ett globalt och ett lokalt
-(\cref{fig:scope}).
+(\cref{fig:scope}).  Bilden visar också vad
+\mintinline{python}{def} gör: \mintinline{python}{add_interest} är ett
+globalt namn som pekar på ett funktionsobjekt.  Det är den enda bilden
+som ritar funktionerna; i de andra utelämnas de, för att bilderna ska
+hållas små.
 \entry{scope}{Ett globalt och ett lokalt namn med samma namn, i var
-  sin ruta.}{\figScope}
+  sin ruta.  Funktionen är själv ett namn, som pekar på ett objekt av
+  typen \texttt{function}.}{\figScope}
+
+\entrysection{Ett returvärde}
+
+\begin{minted}{python}
+def interest(balance, rate):
+    return balance * rate
+
+
+def main():
+    due = interest(1500, 0.02)
+    print(due)
+
+
+main()
+\end{minted}
+\Cref{fig:return} visar anropet i två ögonblick: strax innan
+\mintinline{python}{interest} returnerar, med returvärdet i sin ram, och
+efter anropet, när ramen är borta och värdet har hamnat i
+\mintinline{python}{due}.
+\entry{return}{Ett returvärde: först i den anropade funktionens ram,
+  sedan i namnet hos den som anropade.}{\figReturn}
 
 \entrysection{Villkor}
 
@@ -275,6 +301,21 @@ I \cref{fig:while} går vägen tillbaka till villkoret efter varje varv.
 \entry{while}{\texttt{while} som flödesschema: kroppen, och vägen
   tillbaka till villkoret.}{\figWhile}
 
+\entrysection{Upprepning med \texttt{for}}
+
+\begin{minted}{python}
+transactions = [500, -200, 1000]
+balance = 1000
+for amount in transactions:
+    balance = balance + amount
+\end{minted}
+\Cref{fig:for} ritar slingan som flödesschema, med varven i en tabell
+bredvid: varje varv tar nästa värde ur listan, och slingan slutar när
+värdena tar slut.
+\entry{for}{\texttt{for} som flödesschema, och samma slinga varv för
+  varv: \texttt{amount} och \texttt{balance} efter varje
+  varv.}{\figFor\hspace{1.5em}\tabFor}
+
 \entrysection{Spara och läsa en fil}
 
 \begin{minted}{python}
@@ -290,10 +331,83 @@ disken.
 \entry{file}{Programmet och filen: \texttt{write} skriver kontona till
   filen, \texttt{readlines} hämtar raderna till en lista.}{\figFile}
 
+\entrysection{Egentligen är alla namn pilar}
+
+Bilderna ovan ritar tal och strängar som lådor.  I Python är också de
+objekt, och alla namn är pilar.  Det här avsnittet ritar om några av
+bilderna så: ett tal är ett objekt med sin typ ovanför, som en lista.
+Kursen ritar ändå lådor först, eftersom ett tal eller en sträng inte
+kan ändras: då ger lådan och pilen alltid samma resultat, och lådan är
+enklare att följa tills det första objektet som kan ändras, listan,
+gör skillnaden synlig.
+
+\subsection{Tilldelning}
+
+\begin{minted}{python}
+balance = 1000
+old = balance
+balance = balance + 500
+\end{minted}
+I \cref{fig:arrowsteps} pekar båda namnen först på samma tal.  Den
+tredje raden skapar ett nytt tal och flyttar \mintinline{python}{balance}
+dit, medan \mintinline{python}{old} pekar kvar på 1000.  Resultatet är
+detsamma som i \cref{fig:steps}, av ett annat skäl.
+\entry{arrowsteps}{Tilldelning med pilar: efter varje rad.  Ingen
+  kopia görs; den tredje raden flyttar en pil.}{\figArrowSteps}
+
+\needspace{0.4\textheight}
+\subsection{Ett anrop}
+
+Samma anrop som i \cref{fig:call}, \mintinline{python}{deposit(account,
+500)}, med pilar (\cref{fig:arrowcall}): båda parametrarna lämnas över
+på samma sätt, som en pil till objektet hos den som anropar.
+\entry{arrowcall}{Ett anrop med pilar: \texttt{account} och
+  \texttt{amount} pekar båda på anroparens objekt.}{\figArrowCall}
+
+\needspace{0.4\textheight}
+\subsection{Att flytta en pil och att ändra ett objekt}
+
+Varför ser ett tal ut att kopieras när en lista inte gör det?
+\begin{minted}{python}
+def deposit(account, amount):
+    amount = amount + 1
+    account["balance"] += amount
+    account = {"owner": "Pippi", "balance": 0}
+
+
+def main():
+    amount = 500
+    account = {"owner": "Ronja", "balance": 1500}
+    deposit(account, amount)
+    print(account["balance"], amount)
+
+
+main()
+\end{minted}
+Programmet skriver ut \texttt{2001 500}.  Den första raden i
+\mintinline{python}{deposit} flyttar den lokala pilen
+\mintinline{python}{amount} till ett nytt tal, och anroparen märker
+ingenting (\cref{fig:rebindA}).  Den andra raden ändrar objektet som
+båda \mintinline{python}{account} pekar på, och det märker anroparen
+(\cref{fig:rebindB}).  Den tredje raden flyttar den lokala pilen
+\mintinline{python}{account} till en ny uppslagslista, och det märker
+anroparen inte heller (\cref{fig:rebindC}).  Gränsen går alltså mellan
+att flytta en pil och att ändra ett objekt, inte mellan typer: tal och
+strängar ser bara ut att kopieras, eftersom de inte kan ändras.
+\entry{rebindA}{Efter \texttt{amount = amount + 1}: den lokala pilen
+  pekar på ett nytt tal, \texttt{main} pekar kvar på 500.}{\figRebindA}
+\entry{rebindB}{Efter \mbox{\texttt{account[\textquotedbl balance\textquotedbl] += amount}}: det
+  gemensamma objektet är ändrat, och \texttt{main} ser
+  det.  (Talen i uppslagslistan står i cellerna som
+  förut.)}{\figRebindB}
+\entry{rebindC}{Efter \texttt{account = \{...\}}: den lokala pilen pekar
+  på en ny uppslagslista, \texttt{main} pekar kvar på den
+  gamla.}{\figRebindC}
+
 \chapter{Samma bild på en bild}
 
-Tre av bilderna på riktiga bilder i föreläsningarnas
-\texttt{beamer}-tema (\cref{fig:slide1,fig:slide2,fig:slide3}).
+Fyra av bilderna på riktiga bilder i föreläsningarnas
+\texttt{beamer}-tema (\cref{fig:slide1,fig:slide2,fig:slide3,fig:slide4}).
 
 \begin{figure}[htbp]
   \centering
@@ -315,6 +429,14 @@ Tre av bilderna på riktiga bilder i föreläsningarnas
   \includegraphics[page=3,width=0.9\textwidth]{gallery-slides.pdf}
   \caption{Ett anrop: anropsramarna bredvid en förklaring.}
   \label{fig:slide3}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[page=4,width=0.9\textwidth]{gallery-slides.pdf}
+  \caption{\texttt{for} som flödesschema, med programmet och varven
+    bredvid.}
+  \label{fig:slide4}
 \end{figure}
 
 \end{document}

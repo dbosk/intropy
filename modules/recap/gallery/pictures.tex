@@ -184,14 +184,124 @@
   \end{pyfig}%
 }
 
-% Scope: a global balance and a local balance.
+% Scope: a global balance and a local balance.  The one picture where a
+% function is shown as what it is, a name for a function object.
 \newcommand{\figScope}{%
   \begin{pyfig}
-    \pyframe*{g}{Globala namn}{balance: 1000}
+    \pyframe*{g}{Globala namn}{balance: 1000, add_interest: \pyptr}
     \pyframe[below=9mm of g.south west, anchor=north west]{f}%
       {add_interest}{rate: 0.02, balance: 1020.0}
+    \pyval[right=12mm of g-add_interest]{fn}{function}{add_interest(rate)}
+    \pyarrow{g-add_interest}{fn}
   \end{pyfig}%
 }
+
+% A frame about to return, and the caller after the call.
+\newcommand{\figReturn}{%
+  \begin{pyfig}
+    \pyframe[anchor=north west, at={(0,0)}]{m1}{main}{}
+    \pyframe[below=9mm of m1.south west, anchor=north west]{i}%
+      {interest}{balance: 1500, rate: 0.02, \pyret{returvärde}: 30.0}
+    \pyframe[anchor=north west, at={(52mm,0)}]{m2}{main}{due: 30.0}
+    \node[pyfig region title] at ([yshift=6mm]m1.north west)
+      {Strax före \texttt{return}};
+    \node[pyfig region title] at ([yshift=6mm]m2.north west)
+      {Efter anropet};
+    \pyio[out=0, in=-90]{i-return.east}{m2-due.south}{return}
+  \end{pyfig}%
+}
+
+% for: the loop as a flowchart, all prose from the caller.
+\newcommand{\figFor}{%
+  \pyflowfor[baseline=(current bounding box.center)]{finns det fler\\värden i \texttt{transactions}?}%
+    {\texttt{amount} = nästa värde}%
+    {balance = balance + amount}%
+    {ja}{nej}%
+}
+% The iterations of the same loop, as a table beside the flowchart.
+\newcommand{\tabFor}{%
+  \begin{tabular}{@{}rrr@{}}
+    \toprule
+    Varv & \texttt{amount} & \texttt{balance} \\
+    \midrule
+    före & & \texttt{1000} \\
+    1 & \texttt{500} & \texttt{1500} \\
+    2 & \texttt{-200} & \texttt{1300} \\
+    3 & \texttt{1000} & \texttt{2300} \\
+    \bottomrule
+  \end{tabular}%
+}
+
+% ---- Every name is an arrow -------------------------------------------
+
+% balance = 1000; old = balance; balance = balance + 500, with arrows.
+\newcommand{\figArrowSteps}{%
+  \begin{pyfig}
+    \pynames[anchor=north west, at={(0,0)}]{a1}{balance: \pyptr}
+    \pyval[right=7mm of a1-balance]{a1v}{int}{1000}
+    \pyarrow{a1-balance}{a1v}
+    \pynames[anchor=north west, at={(40mm,0)}, row sep=6mm]{a2}%
+      {balance: \pyptr, old: \pyptr}
+    \pyval[right=7mm of a2-balance, yshift=-5mm]{a2v}{int}{1000}
+    \pyarrow{a2-balance}{a2v}
+    \pyarrow{a2-old}{a2v}
+    \pynames[anchor=north west, at={(80mm,0)}, row sep=6mm]{a3}%
+      {balance: \pyptr, old: \pyptr}
+    \pyval[right=7mm of a3-balance]{a3n}{int}{1500}
+    \pyval[right=7mm of a3-old]{a3v}{int}{1000}
+    \pyarrow{a3-balance}{a3n}
+    \pyarrow{a3-old}{a3v}
+    \foreach \s/\t in {a1/1, a2/2, a3/3}
+      \node[pyfig region title] at ([yshift=5mm]\s.north west)
+        {Efter rad \t};
+  \end{pyfig}%
+}
+
+% The call deposit(account, 500), with arrows: both parameters alike.
+\newcommand{\figArrowCall}{%
+  \begin{pyfig}
+    \pyframe{m}{main}{account: \pyptr}
+    \pyframe[below=9mm of m.south west, anchor=north west]{dep}%
+      {deposit}{account: \pyptr, amount: \pyptr}
+    \pydict[right=12mm of m-account, yshift=-6mm]{d}%
+      {"owner": "Ronja", "balance": 1500}
+    \pyval[below=8mm of d.south west, anchor=north west]{v}{int}{500}
+    \pyarrow{m-account}{d}
+    \pyarrow{dep-account}{d}
+    \pyarrow{dep-amount}{v}
+  \end{pyfig}%
+}
+
+% Rebinding and mutating inside deposit: the state after each line.
+% #1 the balance in Ronja's dict, #2 the object deposit's account names
+% (d1 or d2); d2 is drawn only after the third line.  main's amount is
+% listed first, so that no two arrows cross.
+\newcommand{\figRebind}[2]{%
+  \begin{pyfig}
+    \pyframe{m}{main}{amount: \pyptr, account: \pyptr}
+    \pyframe[below=9mm of m.south west, anchor=north west]{dep}%
+      {deposit}{account: \pyptr, amount: \pyptr}
+    \pyval[at={($(m-amount.east)+(14mm,0)$)}, anchor=west]{v500}%
+      {int}{500}
+    \pydict[at={($(m-account.east)!0.5!(dep-account.east)+(14mm,0)$)},
+            anchor=west]{d1}{"owner": "Ronja", "balance": #1}
+    \pyval[at={($(dep-amount.east)+(14mm,0)$)}, anchor=west]{v501}%
+      {int}{501}
+    \pyarrow{m-amount}{v500}
+    \pyarrow{m-account}{d1}
+    \pyarrow{dep-amount}{v501}
+    \ifstrequal{#2}{d2}{%
+      \pydict[at={($(dep-account.east)+(52mm,0)$)}, anchor=north west,
+              yshift=0.8em]{d2}{"owner": "Pippi", "balance": 0}
+      \pyarrow{dep-account}{d2.west |- dep-account}
+    }{%
+      \pyarrow{dep-account}{d1}
+    }
+  \end{pyfig}%
+}
+\newcommand{\figRebindA}{\figRebind{1500}{d1}}
+\newcommand{\figRebindB}{\figRebind{2001}{d1}}
+\newcommand{\figRebindC}{\figRebind{2001}{d2}}
 
 % if/elif/else: a withdrawal.
 \newcommand{\figIf}{%

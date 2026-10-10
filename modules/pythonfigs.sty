@@ -29,7 +29,7 @@
 
 \RequirePackage{xparse}
 \RequirePackage{tikz}
-\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds,shapes.geometric}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds,shapes.geometric,shapes.misc}
 
 % ------------------------------------------------------------------------
 % Fonts and styles.  Redefine \pyfigfont (code in cells and boxes),
@@ -114,12 +114,12 @@
 % \pyptr: the value of a cell that holds a reference.  It prints nothing.
 \NewDocumentCommand{\pyptr}{}{}
 
-% \pyarrow[<to-path options>]{<from node>}{<to node>}: a reference, from
-% a dot in the middle of <from> to the border of <to>.  The options go to
-% the to path: bend left, out=0, in=180, looseness=...
+% \pyarrow[<options>]{<from node>}{<to node>}: a reference, from a dot in
+% the middle of <from> to the border of <to>.  The options go to the
+% arrow: bend left, out=0, in=180, looseness=..., densely dotted.
 \NewDocumentCommand{\pyarrow}{O{}mm}{%
   \fill[pyfig dot] (#2.center) circle;
-  \draw[pyfig ref] (#2.center) to[#1] (#3);
+  \draw[pyfig ref, #1] (#2.center) to (#3);
 }
 
 \ExplSyntaxOn
@@ -503,8 +503,16 @@
         \seq_map_inline:Nn \l__pyfig_items_seq
           {
             \__pyfig_split_pair:n {##1}
-            \tl_set:Nx \l__pyfig_tmp_tl { \tl_to_str:V \l__pyfig_name_tl }
-            \exp_args:NV \__pyfig_code:nN \l__pyfig_name_tl \l__pyfig_name_tl
+            % A row named \pyret{<prose>} is not a Python name: its label
+            % is the caller's prose, and its box is <id>-return.
+            \tl_if_head_eq_meaning:VNTF \l__pyfig_name_tl \pyret
+              { \tl_set:Nn \l__pyfig_tmp_tl { return } }
+              {
+                \tl_set:Nx \l__pyfig_tmp_tl
+                  { \tl_to_str:V \l__pyfig_name_tl }
+                \exp_args:NV \__pyfig_code:nN
+                  \l__pyfig_name_tl \l__pyfig_name_tl
+              }
             \exp_args:NV \__pyfig_code:nN \l__pyfig_value_tl \l__pyfig_value_tl
             \tl_put_right:Nx \l__pyfig_body_tl
               {
@@ -528,6 +536,29 @@
           (#3) { \exp_not:V \l__pyfig_body_tl } ;
       }
     \__pyfig_run:
+  }
+
+\cs_generate_variant:Nn \tl_if_head_eq_meaning:nNTF { V }
+
+% \pyret{<prose>}: in a row of names, a row that is not a name, e.g. the
+% return value of a frame about to return:
+%   \pyframe{f}{interest}{rate: 0.02, \pyret{returvärde}: 30.0}
+\NewDocumentCommand{\pyret}{m}{{\pyfigtextfont #1}}
+
+% \pyval[<options>]{<id>}{<type>}{<value>}: a number or a string drawn as
+% an object of its own, its type above it as for a list, for the picture
+% where every name is an arrow (\pyvar{x}{\pyptr}, then \pyarrow).
+\NewDocumentCommand{\pyval}{O{}mmm}
+  {
+    \__pyfig_code:nN {#4} \l__pyfig_value_tl
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \node [ pyfig~cell, \exp_not:n {#1} ] (#2)
+          { \exp_not:V \l__pyfig_value_tl } ;
+      }
+    \__pyfig_run:
+    \__pyfig_code:nN {#3} \l__pyfig_tmp_tl
+    \__pyfig_type:nV {#2} \l__pyfig_tmp_tl
   }
 
 % \pyvar[<options>]{<name>}{<value>}: one name, alone.  Its box is the
@@ -723,6 +754,40 @@
       \draw[->] (pyflow-b.north) |- (pyflow-entry);
       \draw[->] (pyflow-t.south) -- ++(0,-6mm)
         node[pyflow~label, pos=0.5, right] {False};
+    \end{tikzpicture}
+  }
+
+% \pyflowfor[<tikz options>]{<test>}{<step>}{<body>}{<yes>}{<no>}
+%   a for loop: the test whether there is another value (a hexagon, the
+%   flowchart symbol for a loop, more compact than a diamond), the step that
+%   takes it, the body below them, the way back to the test on the left,
+%   and out to the right when the values run out.  <test>, <step>, <yes>
+%   and <no> are the caller's prose (\\ breaks the test); <body> is code.
+\NewDocumentCommand{\pyflowfor}{O{}mmmmm}
+  {
+    \begin{tikzpicture}[pyflow, #1]
+      \__pyfig_code:nN {#4} \l__pyfig_value_tl
+      \coordinate (pyflow-entry);
+      \node[draw, chamfered~rectangle, chamfered~rectangle~xsep=2.5mm,
+            font=\pyfigtextfont, align=center, inner~xsep=1pt,
+            inner~ysep=2pt,
+            below=4mm~of~pyflow-entry] (pyflow-t) {#2};
+      \node[pyflow~step, font=\pyfigtextfont, below=5mm~of~pyflow-t]
+        (pyflow-s) {#3};
+      \node[pyflow~step, below=4mm~of~pyflow-s] (pyflow-b)
+        {\l__pyfig_value_tl};
+      \node[fit=(pyflow-t)(pyflow-s)(pyflow-b), inner~sep=0pt]
+        (pyflow-all) {};
+      \draw ([yshift=5mm]pyflow-entry) -- (pyflow-entry);
+      \draw[->] (pyflow-entry) -- (pyflow-t);
+      \draw[->] (pyflow-t) -- node[pyflow~label, font=\scriptsize\normalfont,
+        right] {#5} (pyflow-s);
+      \draw[->] (pyflow-s) -- (pyflow-b);
+      \draw[->] (pyflow-b.south) -- ++(0,-3mm)
+        -| ($(pyflow-all.west)+(-4mm,0)$) |- (pyflow-entry);
+      \draw[->] (pyflow-t.east) -- ++(5mm,0)
+        node[pyflow~label, font=\scriptsize\normalfont, pos=0.5, above]
+        {#6} -- ++(0,-8mm);
     \end{tikzpicture}
   }
 
