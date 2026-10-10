@@ -56,7 +56,8 @@ och kontrollera inmatning från användaren.
    klasser* här i modulen. På tisdagen tar vi allt du behöver till
    laborationen: uppgiften *Banken*, en klass som har en behållare av andra
    objekt, där valet mellan lista och uppslagslista är själva frågan. På
-   onsdagen tar vi operatoröverlagring och arv. Onsdagens övning bygger
+   onsdagen tar vi operatoröverlagring (konstruktorn, egenskaper med
+   `@property`, addition och subtraktion) och arv. Onsdagens övning bygger
    inte på tisdagens. Övningarna är frivilliga och ges för hela klassen, i
    D37 och på [Zoom][zoom-room]. Samtidigt med onsdagens övning leder en
    assistent, oftast Emelie, en repetition i ett eget grupprum på Zoom; den
@@ -69,10 +70,15 @@ och kontrollera inmatning från användaren.
    Det som är märkt **före labben** behöver du till laborationen; resten
    läser du när du hinner. Anteckningarna är också alternativet för den som
    inte kan komma på övningarna: allt vi går igenom där står i dem.
-4. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
+4. **Gör läsförståelseövningen** *Läsförståelse: Dokumentation för olika
+   behållare* här i modulen. Den är **obligatorisk**. Den arbetar med
+   samma dokumentation för Pythons behållare som veckans behållardelar
+   hänvisar till.
+   <!-- TODO: deadline; Canvas-uppgiften saknar slutdatum (due_at null, 2026-10-11) -->
+5. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.
-5. **Vill du fördjupa dig?** Gör övningens fördjupningsuppgifter, Uppgift
+6. **Vill du fördjupa dig?** Gör övningens fördjupningsuppgifter, Uppgift
    6 och 7, och läs den valfria delen *Behållare: Mängder, stackar och
    köer*.
 
@@ -94,9 +100,9 @@ du ska kunna efteråt.
 - *Behållare: Ett gissningsspel*: hela. **Före labben:** avsnittet *Att
   läsa in en gissning*, en återanvändbar funktion som läser in och
   kontrollerar inmatning.
-- *Operatoröverlagring*: avsnitten *Attribut som egenskaper*,
-  *Typkonvertering*, *Negation*, *Multiplikation*, *Förkortning* och
-  *Sammanfattning*; resten går vi igenom på onsdagens övning.
+- *Operatoröverlagring*: avsnitten *Typkonvertering*, *Negation*,
+  *Multiplikation*, *Förkortning* och *Sammanfattning*; resten går vi
+  igenom på onsdagens övning.
 - *Praktiska tillämpningar av klasser*: **före labben:** avsnittet
   *Inköpslistor med klasser*, en klass som har en behållare av andra
   objekt. I övrigt resten, utom *Arv: medborgare med personnummer* och

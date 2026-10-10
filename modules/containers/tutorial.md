@@ -49,11 +49,12 @@ lösningen.
 ### Onsdag: operatoröverlagring och arv
 
 1. **Operatoröverlagring.** I anteckningarna *Operatoröverlagring*
-   bygger vi en klass för bråk: konstruktorn, addition med `__add__`, och
-   varför `a + 1` fungerar medan `1 + a` kräver en annan dundermetod,
+   bygger vi en klass för bråk: konstruktorn, egenskaper med `@property`
+   för att läsa täljare och nämnare, addition med `__add__`, och varför
+   `a + 1` fungerar medan `1 + a` kräver en annan dundermetod,
    `__radd__`. Sedan subtraktionen, och varför `__rsub__` inte kan
    återanvända `__sub__` på samma sätt (avsnitten *Konstruktorn*,
-   *Addition* och *Subtraktion*).
+   *Attribut som egenskaper*, *Addition* och *Subtraktion*).
 2. **Arv.** Avsnittet *Arv: medborgare med personnummer* i
    anteckningarna *Praktiska tillämpningar av klasser*: en klass som
    specialiserar en annan, och föräldraklassens metoder med `super()`.
@@ -174,9 +175,9 @@ operatorn, och till sist automatisk förkortning. På vägen ser vi varför
 `1 + a` kräver en annan dundermetod än `a + 1`, och när den ena kan
 återanvända den andra.
 
-**Att läsa:** avsnitten *Attribut som egenskaper*, *Typkonvertering*,
-*Negation*, *Multiplikation*, *Förkortning* och *Sammanfattning*. Resten
-går vi igenom på onsdagens övning.
+**Att läsa:** avsnitten *Typkonvertering*, *Negation*, *Multiplikation*,
+*Förkortning* och *Sammanfattning*. Resten går vi igenom på onsdagens
+övning.
 
 Efter den här delen ska du kunna
 
@@ -256,6 +257,9 @@ Banken från tisdagens övning och, i anteckningarna, avsnittet *Att läsa
 in en gissning* i *Behållare: Ett gissningsspel* och avsnittet
 *Inköpslistor med klasser* i *Praktiska tillämpningar av klasser*.
 Labbens frivilliga extrauppgift bygger på arv, som vi går igenom på
-onsdagens övning. Läsförståelseövningen *Läsförståelse: Dokumentation för
-olika behållare* arbetar med samma dokumentation som veckans
-behållardelar hänvisar till.
+onsdagens övning.
+
+Gör också läsförståelseövningen *Läsförståelse: Dokumentation för olika
+behållare* här i modulen. Den är **obligatorisk**, och den arbetar med
+samma dokumentation som veckans behållardelar hänvisar till.
+<!-- TODO: deadline; Canvas-uppgiften saknar slutdatum (due_at null, 2026-10-11) -->
