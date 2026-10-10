@@ -118,6 +118,15 @@ examples/start/bank.py: contents.nw
 	    '<<anteckna överföringen i bankens minne>>=' '@'; } | \
 	  notangle -R'[[bank.py]]' - > $@
 	${NOWEB_PYCODEFMT}
+# If the marker line is moved below the exercise Att ångra det senaste,
+# the cut keeps that exercise's answer and the linked starting point
+# silently holds the solution.  Fail on the names the answer adds, and
+# delete the file, or the next make would find it up to date.
+	@if grep -q -E 'undo|__transfers' $@; then \
+	  echo "$@ holds the answer to Att ångra det senaste" \
+	    "(undo, __transfers): is the line" \
+	    "'% Här slutar uppgiften Banken.' above that exercise?" >&2; \
+	  ${RM} $@; exit 1; fi
 
 examples/cowsay.py: ../../iterations/tutorial/contents.nw
 	$(MAKE) -C $(<D) examples/cowsay.py
