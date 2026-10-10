@@ -32,7 +32,7 @@ notes.pdf slides.pdf: $(wildcard mentipy-obj/Q-*.pdf_tex)
 
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
-SRC+=		sokprotokoll.tex bilaga-repetition.tex
+SRC+=		sokprotokoll.tex bilaga-repetition.tex bilaga-flippat.tex
 # The appendices \input the generated hit-list tables; a regenerated table
 # must trigger a rebuild even when no .tex source changed.
 SRC+=		$(wildcard litteratursokning/*.tex)
