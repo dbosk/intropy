@@ -1,0 +1,224 @@
+% The gallery's pictures, one macro each, so that gallery.tex (the notes
+% layout) and gallery-slides.tex (beamer) draw exactly the same picture.
+% The running example is a bank, as in the recap.
+
+% balance = 1000; old = balance; balance = balance + 500: three moments,
+% boxes only.
+\newcommand{\figBoxSteps}{%
+  \begin{pyfig}
+    \pynames[anchor=north west, at={(0,0)}]{s1}{balance: 1000}
+    \pynames[anchor=north west, at={(32mm,0)}]{s2}{balance: 1000, old: 1000}
+    \pynames[anchor=north west, at={(64mm,0)}]{s3}{balance: 1500, old: 1000}
+    \foreach \s/\t in {s1/1, s2/2, s3/3}
+      \node[pyfig region title] at ([yshift=2mm]\s.north west)
+        {Efter rad \t};
+  \end{pyfig}%
+}
+
+% owner = "Malvina"
+\newcommand{\figString}{%
+  \begin{pyfig}
+    \pyvar{owner}{"Malvina"}
+  \end{pyfig}%
+}
+
+% transactions = [500, -200, 1000]; history = transactions;
+% backup = transactions.copy()
+\newcommand{\figAlias}{%
+  \begin{pyfig}
+    \pynames[row sep=5mm]{n}%
+      {transactions: \pyptr, history: \pyptr, backup: \pyptr}
+    \pylist[right=12mm of n-transactions]{l1}{500, -200, 1000}
+    \pylist[right=12mm of n-backup]{l2}{500, -200, 1000}
+    \pyarrow{n-transactions}{l1}
+    \pyarrow{n-history}{l1.west}
+    \pyarrow{n-backup}{l2}
+  \end{pyfig}%
+}
+
+% A list of strings with its indices (a construct in general).
+\newcommand{\figListStrings}{%
+  \begin{pyfig}
+    \pyvar{names}{\pyptr}
+    \pylist[right=12mm of names]{l}{"Ronja", "Pippi", "Madicken"}
+    \pyarrow{names}{l}
+  \end{pyfig}%
+}
+
+% A tuple: one transaction, (date, amount).
+\newcommand{\figTuple}{%
+  \begin{pyfig}
+    \pyvar{transaction}{\pyptr}
+    \pytuple[right=12mm of transaction]{t}{"2026-10-26", 500}
+    \pyarrow{transaction}{t}
+  \end{pyfig}%
+}
+
+% A nested list: the outer list's cells refer to the inner lists.
+\newcommand{\figNested}{%
+  \begin{pyfig}
+    \pyvar{grid}{\pyptr}
+    \pylist[right=12mm of grid]{o}{\pyptr, \pyptr}
+    \pylist[below=10mm of o-0.south west, anchor=north east,
+            xshift=2mm, pyfig type at=left]{r0}{1, 2}
+    \pylist[below=10mm of o-1.south east, anchor=north west,
+            xshift=-2mm, pyfig type at=left]{r1}{3, 4}
+    \pyarrow{grid}{o}
+    \pyarrow{o-0}{r0}
+    \pyarrow{o-1}{r1}
+  \end{pyfig}%
+}
+
+% A list of (date, amount) pairs.
+\newcommand{\figPairs}{%
+  \begin{pyfig}
+    \pyvar{transactions}{\pyptr}
+    \pylist[right=12mm of transactions]{o}{\pyptr, \pyptr}
+    \pytuple[below=9mm of o-0.south west, anchor=north west,
+             pyfig type at=left]{t0}%
+      {"2026-10-26", 500}
+    \pytuple[below=7mm of t0.south west, anchor=north west,
+             pyfig type at=left]{t1}%
+      {"2026-10-27", -200}
+    \pyarrow{transactions}{o}
+    \pyarrow{o-0}{t0.north -| o-0}
+    \pyarrow[out=0, in=0, looseness=1.6]{o-1}{t1.east}
+  \end{pyfig}%
+}
+
+% A dict: owner -> balance.
+\newcommand{\figDict}{%
+  \begin{pyfig}
+    \pyvar{accounts}{\pyptr}
+    \pydict[right=12mm of accounts]{d}{"ronja": 1500, "pippi": 300}
+    \pyarrow{accounts}{d}
+  \end{pyfig}%
+}
+
+% A dict whose values are dicts: account number -> the account.
+\newcommand{\figDictOfDicts}{%
+  \begin{pyfig}
+    \pyvar{accounts}{\pyptr}
+    \pydict[right=10mm of accounts]{d}%
+      {"1234": \pyptr, "5678": \pyptr, "9012": \pyptr}
+    \pydict[right=12mm of d-0, yshift=9mm]{r}%
+      {"owner": "Ronja", "balance": 1500}
+    \pydict[right=12mm of d-1]{p}%
+      {"owner": "Pippi", "balance": 300}
+    \pydict[right=12mm of d-2, yshift=-9mm]{m}%
+      {"owner": "Madicken", "balance": 2000}
+    \pyarrow{accounts}{d}
+    \pyarrow{d-0}{r}
+    \pyarrow{d-1}{p}
+    \pyarrow{d-2}{m}
+  \end{pyfig}%
+}
+
+% A set of owners.
+\newcommand{\figSet}{%
+  \begin{pyfig}
+    \pyvar{owners}{\pyptr}
+    \pyset[right=12mm of owners]{s}{"Ronja", "Pippi", "Madicken"}
+    \pyarrow{owners}{s}
+  \end{pyfig}%
+}
+
+% A list used as a stack: the transactions to undo.
+\newcommand{\figStack}{%
+  \begin{pyfig}
+    \pyvar{undo}{\pyptr}
+    \pystack[right=12mm of undo]{s}{500, -200, 1000}
+    \pyarrow{undo}{s}
+  \end{pyfig}%
+}
+
+% A deque used as a queue: the customers waiting.
+\newcommand{\figQueue}{%
+  \begin{pyfig}
+    \pyqueue{q}{"Ronja", "Pippi", "Madicken"}
+    \pyvar[above=7mm of q-1]{customers}{\pyptr}
+    \pyarrow{customers}{q-1.north}
+  \end{pyfig}%
+}
+
+% An Account object and two names for it.
+\newcommand{\figObject}{%
+  \begin{pyfig}
+    \pynames[row sep=5mm]{n}{account: \pyptr, mine: \pyptr}
+    \pyobject[right=15mm of n-account, yshift=-4mm]{a}{Account}%
+      {owner: "Ronja", number: "1234", balance: 1500}
+    \pyarrow{n-account}{a}
+    \pyarrow{n-mine}{a}
+  \end{pyfig}%
+}
+
+% A Bank object: object -> dict -> objects.
+\newcommand{\figBank}{%
+  \begin{pyfig}
+    \pyvar{bank}{\pyptr}
+    \pyobject[right=10mm of bank]{b}{Bank}%
+      {name: "Malvinas bank", accounts: \pyptr}
+    \pydict[below=10mm of b.south east, anchor=north east]{d}%
+      {"1234": \pyptr, "5678": \pyptr}
+    \pyobject[right=9mm of d-0, yshift=8mm]{a0}{Account}%
+      {owner: "Ronja", number: "1234", balance: 1500}
+    \pyobject[right=9mm of d-1, yshift=-14mm]{a1}{Account}%
+      {owner: "Pippi", number: "5678", balance: 300}
+    \pyarrow{bank}{b}
+    \pyarrow[out=-90, in=90]{b-accounts}{d}
+    \pyarrow{d-0}{a0}
+    \pyarrow{d-1}{a1}
+  \end{pyfig}%
+}
+
+% A call: main has called deposit(account, 500).
+\newcommand{\figCall}{%
+  \begin{pyfig}
+    \pyframe{m}{main}{account: \pyptr}
+    \pyframe[below=9mm of m.south west, anchor=north west]{dep}%
+      {deposit}{account: \pyptr, amount: 500}
+    \pydict[right=10mm of m-account, yshift=-8mm]{d}%
+      {"owner": "Ronja", "balance": 1500}
+    \pyarrow{m-account}{d}
+    \pyarrow{dep-account}{d}
+  \end{pyfig}%
+}
+
+% Scope: a global balance and a local balance.
+\newcommand{\figScope}{%
+  \begin{pyfig}
+    \pyframe*{g}{Globala namn}{balance: 1000}
+    \pyframe[below=9mm of g.south west, anchor=north west]{f}%
+      {add_interest}{rate: 0.02, balance: 1020.0}
+  \end{pyfig}%
+}
+
+% if/elif/else: a withdrawal.
+\newcommand{\figIf}{%
+  \pyflowif{amount <= 0: print("Ogiltigt belopp"),
+            amount > balance: print("Otillräckligt saldo")}%
+    {balance -= amount}%
+}
+
+% while: asking for the PIN until it is right.
+\newcommand{\figWhile}{%
+  \pyflowwhile{pin != "1234"}{pin = input("PIN: ")}%
+}
+
+% Saving the accounts to a file, and reading them back.
+\newcommand{\figFile}{%
+  \begin{pyfig}
+    \pynames[row sep=10mm]{n}{accounts: \pyptr, rader: \pyptr}
+    \pydict[right=10mm of n-accounts]{d}{"ronja": 1500, "pippi": 300}
+    \pylist[right=10mm of n-rader]{l}{{"ronja,1500\n"}, {"pippi,300\n"}}
+    \pyarrow{n-accounts}{d}
+    \pyarrow{n-rader}{l}
+    \pyfile[below right=14mm and 8mm of l.south east, anchor=north west]{f}%
+      {konton.txt}%
+      {ronja,1500 \\ pippi,300}
+    \pyio[out=0, in=90]{d.east}{f.north east}{write}
+    \pyio{f.north west}{l.south east}{readlines}
+    \pyregion{(n)(d)(l)}{Programmet (minnet)}
+    \pyregion{(f)}{Disken}
+  \end{pyfig}%
+}

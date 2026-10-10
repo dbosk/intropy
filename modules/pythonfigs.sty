@@ -1,0 +1,730 @@
+% pythonfigs.sty -- pictures of Python's memory model and control flow.
+%
+% One picture language for every deck, the notes and the book: names and
+% values, lists, tuples, dicts, sets, objects, call frames, stacks and
+% queues, files, and small flowcharts.  Every macro takes plain arguments,
+% so the pictures work in beamer frames that are not [fragile].
+%
+% The model (author's decision, 2026-10-10):
+%   * a name holding an int, float, bool or str is a box with the value
+%     inside;
+%   * a list, tuple, dict, set or object is drawn apart from the names
+%     that refer to it, and the name's box holds an arrow to it;
+%   * inside a container, numbers and strings sit in the cell, and
+%     containers inside containers are arrows.
+%
+% Code arguments (names, values, keys, conditions) are printed as typed,
+% character by character: write "Malvina", x_y and 'a' as in Python,
+% without escaping.  (With babel's Swedish shorthands a raw " would
+% otherwise be eaten.)  A value that is a reference is written \pyptr: the
+% cell stays empty and \pyarrow draws the arrow from it.
+%
+% Each sequence of values is a comma-separated list; brace an item that
+% contains a comma: {"Hej, världen"}.  Rows of names are `name: value'.
+%
+% Nothing here is in any one language except Python's own words
+% (list, dict, append, True, ...); every title in prose is the caller's.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{pythonfigs}[2026/10/10 v0.1 Pictures of Python's memory model]
+
+\RequirePackage{xparse}
+\RequirePackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds,shapes.geometric}
+
+% ------------------------------------------------------------------------
+% Fonts and styles.  Redefine \pyfigfont (code in cells and boxes),
+% \pyfigsmallfont (type labels, indices) and \pyfigtextfont (titles in
+% prose) to change the size everywhere; append to the styles with
+% \tikzset{pyfig cell/.append style={...}}.
+% ------------------------------------------------------------------------
+\newcommand{\pyfigfont}{\footnotesize\ttfamily}
+\newcommand{\pyfigsmallfont}{\scriptsize\ttfamily}
+\newcommand{\pyfigtextfont}{\footnotesize\normalfont}
+
+\tikzset{
+  pyfig/.style={
+    line width=0.4pt,
+    >={Stealth[length=4pt,width=3.2pt]},
+    node distance=6mm,
+  },
+  % A box holding one value: a name's box, a list cell, a dict cell.
+  pyfig cell/.style={
+    draw, fill=white, font=\pyfigfont,
+    inner xsep=3pt, inner ysep=0pt,
+    minimum height=1.6em, minimum width=1.6em,
+    text height=0.75em, text depth=0.25em,
+  },
+  % The name in front of a box.
+  pyfig name/.style={
+    font=\pyfigfont, inner xsep=2pt, inner ysep=0pt,
+    text height=0.75em, text depth=0.25em,
+  },
+  % The type above an object: list, tuple, dict, set, Person.
+  pyfig type/.style={
+    font=\pyfigsmallfont, inner sep=1pt, anchor=south west,
+  },
+  % The index under a list cell.
+  pyfig index/.style={
+    font=\pyfigsmallfont, inner sep=1pt, anchor=north,
+  },
+  % A call frame: the function's name above, its local names inside.
+  pyfig frame/.style={draw, fill=black!6, inner sep=4pt},
+  pyfig frame title/.style={
+    font=\pyfigfont, inner sep=1pt, anchor=south west,
+  },
+  pyfig object/.style={draw, fill=white, inner sep=4pt},
+  % The arrow from a name (or a cell) to the object it refers to.
+  pyfig ref/.style={->, shorten <=0pt},
+  pyfig dot/.style={fill, radius=1.3pt},
+  % Operations at the ends of a stack or a queue.
+  pyfig op/.style={->},
+  pyfig op label/.style={font=\pyfigsmallfont, inner sep=1pt},
+  % Data moving between the program and a file.
+  pyfig io/.style={densely dashed, -{Stealth[open,length=5pt,width=4pt]}},
+  pyfig io label/.style={font=\pyfigsmallfont, inner sep=2pt},
+  % A file on disk.
+  pyfig file/.style={
+    font=\pyfigfont, align=left, inner xsep=5pt, inner ysep=4pt,
+    minimum width=2.5cm, minimum height=1cm,
+  },
+  % A dotted region with a title: "the program", "the disk".
+  pyfig region/.style={draw, densely dotted, rounded corners=3pt,
+    inner sep=3mm},
+  pyfig region title/.style={
+    font=\pyfigtextfont, inner sep=1pt, anchor=south west,
+  },
+  % Flowcharts.
+  pyflow/.style={pyfig, node distance=5mm},
+  pyflow test/.style={
+    draw, diamond, aspect=2.4, inner sep=1pt, font=\pyfigfont,
+  },
+  pyflow step/.style={
+    draw, font=\pyfigfont, inner xsep=4pt, inner ysep=0pt,
+    minimum height=1.6em, text height=0.75em, text depth=0.25em,
+  },
+  pyflow label/.style={font=\pyfigsmallfont, inner sep=1.5pt},
+}
+
+% \begin{pyfig}[<tikz options>] ... \end{pyfig}: a tikzpicture with the
+% styles above.  The drawing macros below go inside it.
+\NewDocumentEnvironment{pyfig}{O{}}
+  {\begin{tikzpicture}[pyfig,#1]}
+  {\end{tikzpicture}}
+
+% \pyptr: the value of a cell that holds a reference.  It prints nothing.
+\NewDocumentCommand{\pyptr}{}{}
+
+% \pyarrow[<to-path options>]{<from node>}{<to node>}: a reference, from
+% a dot in the middle of <from> to the border of <to>.  The options go to
+% the to path: bend left, out=0, in=180, looseness=...
+\NewDocumentCommand{\pyarrow}{O{}mm}{%
+  \fill[pyfig dot] (#2.center) circle;
+  \draw[pyfig ref] (#2.center) to[#1] (#3);
+}
+
+\ExplSyntaxOn
+
+\tl_new:N \l__pyfig_body_tl
+\tl_new:N \l__pyfig_cmd_tl
+\tl_new:N \l__pyfig_name_tl
+\tl_new:N \l__pyfig_value_tl
+\tl_new:N \l__pyfig_tmp_tl
+\tl_new:N \l__pyfig_fit_tl
+\tl_new:N \l__pyfig_prev_tl
+\seq_new:N \l__pyfig_items_seq
+\seq_new:N \l__pyfig_pair_seq
+\seq_new:N \l__pyfig_branches_seq
+\int_new:N \l__pyfig_n_int
+\int_new:N \l__pyfig_i_int
+\dim_new:N \l__pyfig_wa_dim
+\dim_new:N \l__pyfig_wb_dim
+\box_new:N \l__pyfig_box
+
+% The text of a code argument: printed character by character, with
+% Python's straight quotes.  A reference (\pyptr) prints nothing.
+\cs_new_protected:Npn \__pyfig_code:nN #1 #2
+  {
+    \tl_if_eq:nnTF {#1} { \pyptr }
+      { \tl_clear:N #2 }
+      {
+        \tl_set:Nx #2 { \tl_to_str:n {#1} }
+        % \tl_to_str:n puts a space after an escape such as \n; drop it.
+        \regex_replace_all:nnN { (\\[A-Za-z]+)\s } { \1 } #2
+        % Read the characters again with every special character as an
+        % ordinary one, but the document's own catcodes otherwise, so
+        % that the UTF-8 of "Otillräckligt" is letters again.
+        \exp_args:NNno \tl_set_rescan:Nnn #2 { \__pyfig_verbatim: } {#2}
+        \tl_replace_all:Nnn #2 { ' } { \textquotesingle }
+        \tl_replace_all:Nnn #2 { ` } { \textasciigrave }
+      }
+  }
+\cs_new_protected:Npn \__pyfig_verbatim:
+  {
+    \char_set_catcode_other:N \\
+    \char_set_catcode_other:N \{
+    \char_set_catcode_other:N \}
+    \char_set_catcode_other:N \$
+    \char_set_catcode_other:N \&
+    \char_set_catcode_other:N \#
+    \char_set_catcode_other:N \^
+    \char_set_catcode_other:N \_
+    \char_set_catcode_other:N \%
+    \char_set_catcode_other:N \~
+    \char_set_catcode_other:N \"
+    \char_set_catcode_other:N \'
+    \char_set_catcode_other:N \`
+    \char_set_catcode_other:N \-
+    \char_set_catcode_other:N \<
+    \char_set_catcode_other:N \>
+    \char_set_catcode_other:N \:
+    \char_set_catcode_other:N \;
+    \char_set_catcode_other:N \!
+    \char_set_catcode_other:N \?
+    \char_set_catcode_other:N \=
+    \char_set_catcode_other:N \|
+  }
+% The type above an object (or, with the TikZ option `pyfig type at=left'
+% on the object, in front of it; `none' leaves it out).
+\tl_new:N \g__pyfig_typeat_tl
+\tl_gset:Nn \g__pyfig_typeat_tl { above }
+\tikzset{ pyfig~type~at/.code = { \tl_gset:Nn \g__pyfig_typeat_tl {#1} } }
+\cs_generate_variant:Nn \str_case:nnF { V }
+\cs_new_protected:Npn \__pyfig_type:nn #1 #2
+  {
+    \str_case:VnF \g__pyfig_typeat_tl
+      {
+        { left } { \node[pyfig~type, anchor=east] at (#1.west) {#2}; }
+        { none } { }
+      }
+      { \node[pyfig~type] at (#1.north~west) {#2}; }
+    \tl_gset:Nn \g__pyfig_typeat_tl { above }
+  }
+\cs_generate_variant:Nn \__pyfig_type:nn { nV }
+
+% Width of a code text in a font.  Inside a picture the font is
+% \nullfont, so the text is measured outside it.
+\dim_new:N \g__pyfig_width_dim
+\cs_new_protected:Npn \__pyfig_width:nnN #1 #2 #3
+  {
+    \__pyfig_code:nN {#2} \l__pyfig_tmp_tl
+    \begin{pgfinterruptpicture}
+      \hbox_set:Nn \l__pyfig_box { #1 \l__pyfig_tmp_tl }
+      \dim_gset:Nn \g__pyfig_width_dim { \box_wd:N \l__pyfig_box }
+    \end{pgfinterruptpicture}
+    \dim_set:Nn #3 { \dim_max:nn {#3} { \g__pyfig_width_dim } }
+  }
+% The narrowest box: two characters wide.
+\cs_new_protected:Npn \__pyfig_minwidth:N #1
+  {
+    \dim_zero:N #1
+    \__pyfig_width:nnN { \pyfigfont } { 00 } #1
+  }
+
+% Split `name: value' at its first colon (catcode 12, as typed).
+\cs_new_protected:Npn \__pyfig_split_pair:n #1
+  {
+    \exp_args:NNo \seq_set_split:Nnn \l__pyfig_pair_seq
+      { \c_colon_str } {#1}
+    \seq_pop_left:NN \l__pyfig_pair_seq \l__pyfig_name_tl
+    \tl_set:Nx \l__pyfig_value_tl
+      {
+        \exp_args:NNo \seq_use:Nn \l__pyfig_pair_seq { \c_colon_str }
+      }
+    \tl_trim_spaces:N \l__pyfig_value_tl
+  }
+\cs_generate_variant:Nn \__pyfig_split_pair:n { V }
+
+% Run a TikZ command assembled in \l__pyfig_cmd_tl.
+\cs_new_protected:Npn \__pyfig_run:
+  {
+    \tl_gset:Nn \g__pyfig_typeat_tl { above }
+    \tl_use:N \l__pyfig_cmd_tl
+  }
+
+% ------------------------------------------------------------------------
+% Sequences: list, tuple, deque.
+%
+% \__pyfig_seq:nnnnn {<options>}{<id>}{<type>}{<items>}{<style: list|tuple>}
+% The matrix node <id> is the row of cells; cell i is the node <id>-i
+% (numbered from 0, as Python's indices); <id>-last is the last one.
+% ------------------------------------------------------------------------
+\cs_new_protected:Npn \__pyfig_seq:nnnnn #1 #2 #3 #4 #5
+  {
+    \seq_set_split:Nnn \l__pyfig_items_seq { , } {#4}
+    \seq_remove_all:Nn \l__pyfig_items_seq { }
+    \int_set:Nn \l__pyfig_n_int { \seq_count:N \l__pyfig_items_seq }
+    \__pyfig_minwidth:N \l__pyfig_wa_dim
+    \seq_map_inline:Nn \l__pyfig_items_seq
+      { \__pyfig_width:nnN { \pyfigfont } {##1} \l__pyfig_wa_dim }
+    \dim_add:Nn \l__pyfig_wa_dim { 6pt }
+    \tl_clear:N \l__pyfig_body_tl
+    \int_compare:nNnTF { \l__pyfig_n_int } = { 0 }
+      {
+        % The empty sequence: one empty cell, no index.
+        \tl_put_right:Nn \l__pyfig_body_tl
+          { \node[pyfig~cell, minimum~width=1.2em] (#2-last) {}; \\ }
+      }
+      {
+        \seq_map_indexed_inline:Nn \l__pyfig_items_seq
+          {
+            \__pyfig_code:nN {##2} \l__pyfig_tmp_tl
+            \tl_put_right:Nx \l__pyfig_body_tl
+              {
+                \int_compare:nNnF {##1} = { 1 }
+                  { \exp_not:N \pgfmatrixnextcell }
+                \exp_not:N \node
+                  [ pyfig~cell,
+                    \str_if_eq:nnT {#5} { tuple } { draw=none, fill=none, }
+                    \int_compare:nNnT {##1} = { \l__pyfig_n_int }
+                      { alias=#2-last, }
+                    minimum~width=\dim_use:N \l__pyfig_wa_dim ]
+                  ( #2-\int_eval:n { ##1 - 1 } )
+                  { \exp_not:V \l__pyfig_tmp_tl } ;
+              }
+          }
+        \tl_put_right:Nn \l__pyfig_body_tl { \\ }
+      }
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \matrix
+          [ inner~sep=0pt, column~sep=-\exp_not:N \pgflinewidth,
+            anchor=west,
+            \str_if_eq:nnT {#5} { tuple }
+              { draw, rounded~corners=4pt, column~sep=0pt, }
+            \exp_not:n {#1} ]
+          (#2) { \exp_not:V \l__pyfig_body_tl } ;
+      }
+    \__pyfig_run:
+    \__pyfig_type:nn {#2} {#3}
+    \int_compare:nNnT { \l__pyfig_n_int } > { 0 }
+      {
+        \int_step_inline:nnn { 0 } { \l__pyfig_n_int - 1 }
+          { \node[pyfig~index] at (#2-##1.south) {##1}; }
+        \str_if_eq:nnT {#5} { tuple }
+          {
+            \int_step_inline:nnn { 1 } { \l__pyfig_n_int - 1 }
+              { \draw (#2-##1.north~west) -- (#2-##1.south~west); }
+          }
+      }
+  }
+
+% \pylist[<options>]{<id>}{<v0>, <v1>, ...}
+\NewDocumentCommand{\pylist}{O{}mm}
+  { \__pyfig_seq:nnnnn {#1} {#2} { list } {#3} { list } }
+% \pytuple[<options>]{<id>}{<v0>, <v1>, ...}
+\NewDocumentCommand{\pytuple}{O{}mm}
+  { \__pyfig_seq:nnnnn {#1} {#2} { tuple } {#3} { tuple } }
+% \pyseq[<options>]{<id>}{<type>}{<v0>, ...}: any other sequence type,
+% e.g. deque, drawn as a list.
+\NewDocumentCommand{\pyseq}{O{}mmm}
+  { \__pyfig_seq:nnnnn {#1} {#2} {#3} {#4} { list } }
+
+% \pyin[<options>]{<point>}{<label>}: an operation putting a value in at
+% <point>, an arrow coming from above right; \pyin* from above left.
+% \pyout and \pyout* take one out, the arrow leaving below right (left).
+% The label is code (append, pop, popleft), at the far end of the arrow.
+\NewDocumentCommand{\pyin}{sO{}mm}
+  {
+    \__pyfig_code:nN {#4} \l__pyfig_tmp_tl
+    \draw[pyfig~op, #2]
+      ([shift={(\IfBooleanTF{#1}{-}{}9mm,4mm)}]#3)
+      node[pyfig~op~label, anchor=\IfBooleanTF{#1}{east}{west}]
+        {\l__pyfig_tmp_tl}
+      -- ([yshift=2pt]#3);
+  }
+\NewDocumentCommand{\pyout}{sO{}mm}
+  {
+    \__pyfig_code:nN {#4} \l__pyfig_tmp_tl
+    \draw[pyfig~op, #2] ([yshift=-2pt]#3)
+      -- ([shift={(\IfBooleanTF{#1}{-}{}9mm,-4mm)}]#3)
+      node[pyfig~op~label, anchor=\IfBooleanTF{#1}{east}{west}]
+        {\l__pyfig_tmp_tl};
+  }
+
+% \pystack[<options>]{<id>}{<v0>, ...}: a list used as a stack, append
+% and pop both at the end.
+\NewDocumentCommand{\pystack}{O{}mm}
+  {
+    \__pyfig_seq:nnnnn {#1} {#2} { list } {#3} { list }
+    \pyin{#2-last.east}{append}
+    \pyout{#2-last.east}{pop}
+  }
+% \pyqueue[<options>]{<id>}{<v0>, ...}: a collections.deque used as a
+% queue, append at the end, popleft at the front.
+\NewDocumentCommand{\pyqueue}{O{}mm}
+  {
+    \__pyfig_seq:nnnnn {#1} {#2} { deque } {#3} { list }
+    \pyin{#2-last.east}{append}
+    \pyout*{#2-0.west}{popleft}
+  }
+
+% ------------------------------------------------------------------------
+% A dict: one row per item, the key cell <id>-k<i> and the value cell
+% <id>-<i>, rows numbered from 0 in the order given.
+% \pydict[<options>]{<id>}{<key>: <value>, ...}
+% ------------------------------------------------------------------------
+\NewDocumentCommand{\pydict}{O{}mm}
+  {
+    \seq_set_split:Nnn \l__pyfig_items_seq { , } {#3}
+    \seq_remove_all:Nn \l__pyfig_items_seq { }
+    \__pyfig_minwidth:N \l__pyfig_wa_dim
+    \__pyfig_minwidth:N \l__pyfig_wb_dim
+    \seq_map_inline:Nn \l__pyfig_items_seq
+      {
+        \__pyfig_split_pair:n {##1}
+        \exp_args:NnV \__pyfig_width:nnN { \pyfigfont }
+          \l__pyfig_name_tl \l__pyfig_wa_dim
+        \exp_args:NnV \__pyfig_width:nnN { \pyfigfont }
+          \l__pyfig_value_tl \l__pyfig_wb_dim
+      }
+    \dim_add:Nn \l__pyfig_wa_dim { 6pt }
+    \dim_add:Nn \l__pyfig_wb_dim { 6pt }
+    \tl_clear:N \l__pyfig_body_tl
+    \seq_if_empty:NTF \l__pyfig_items_seq
+      {
+        \tl_put_right:Nn \l__pyfig_body_tl
+          { \node[pyfig~cell, minimum~width=2em] {}; \\ }
+      }
+      {
+        \seq_map_indexed_inline:Nn \l__pyfig_items_seq
+          {
+            \__pyfig_split_pair:n {##2}
+            \exp_args:NV \__pyfig_code:nN \l__pyfig_name_tl \l__pyfig_name_tl
+            \exp_args:NV \__pyfig_code:nN \l__pyfig_value_tl \l__pyfig_value_tl
+            \tl_put_right:Nx \l__pyfig_body_tl
+              {
+                \exp_not:N \node
+                  [ pyfig~cell, minimum~width=\dim_use:N \l__pyfig_wa_dim ]
+                  ( #2-k\int_eval:n { ##1 - 1 } )
+                  { \exp_not:V \l__pyfig_name_tl } ;
+                \exp_not:N \pgfmatrixnextcell
+                \exp_not:N \node
+                  [ pyfig~cell, minimum~width=\dim_use:N \l__pyfig_wb_dim ]
+                  ( #2-\int_eval:n { ##1 - 1 } )
+                  { \exp_not:V \l__pyfig_value_tl } ;
+                \exp_not:N \\
+              }
+          }
+      }
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \matrix
+          [ inner~sep=0pt, column~sep=-\exp_not:N \pgflinewidth,
+            row~sep=-\exp_not:N \pgflinewidth, anchor=west,
+            \exp_not:n {#1} ]
+          (#2) { \exp_not:V \l__pyfig_body_tl } ;
+      }
+    \__pyfig_run:
+    \__pyfig_type:nn {#2} {dict}
+  }
+
+% ------------------------------------------------------------------------
+% A set: the values staggered over two rows inside a rounded outline, so
+% that no order can be read into them.  Element i is <id>-i, in the order
+% given.  \pyset[<options>]{<id>}{<v>, ...}
+% ------------------------------------------------------------------------
+\NewDocumentCommand{\pyset}{O{}mm}
+  {
+    \seq_set_split:Nnn \l__pyfig_items_seq { , } {#3}
+    \seq_remove_all:Nn \l__pyfig_items_seq { }
+    \int_set:Nn \l__pyfig_n_int { \seq_count:N \l__pyfig_items_seq }
+    \tl_clear:N \l__pyfig_body_tl
+    \tl_clear:N \l__pyfig_tmp_tl
+    \int_compare:nNnTF { \l__pyfig_n_int } = { 0 }
+      {
+        \tl_put_right:Nn \l__pyfig_body_tl
+          { \node[minimum~width=2em, minimum~height=1.6em] {}; \\ }
+      }
+      {
+        % Row 1 holds the even elements, row 2 the odd ones.
+        \tl_clear:N \l__pyfig_fit_tl
+        \tl_clear:N \l__pyfig_prev_tl
+        \seq_map_indexed_inline:Nn \l__pyfig_items_seq
+          {
+            \__pyfig_code:nN {##2} \l__pyfig_value_tl
+            \int_compare:nNnF {##1} = { 1 }
+              {
+                \tl_put_right:Nn \l__pyfig_body_tl { \pgfmatrixnextcell }
+                \tl_put_right:Nn \l__pyfig_fit_tl { \pgfmatrixnextcell }
+              }
+            \tl_put_right:Nx \l__pyfig_prev_tl
+              {
+                \exp_not:N \node [ pyfig~cell, sharp~corners ]
+                  ( #2-\int_eval:n { ##1 - 1 } )
+                  { \exp_not:V \l__pyfig_value_tl } ;
+              }
+            \int_if_odd:nTF {##1}
+              { \tl_put_right:NV \l__pyfig_body_tl \l__pyfig_prev_tl }
+              { \tl_put_right:NV \l__pyfig_fit_tl \l__pyfig_prev_tl }
+            \tl_clear:N \l__pyfig_prev_tl
+          }
+        \tl_put_right:Nn \l__pyfig_body_tl { \\ }
+        \tl_put_right:NV \l__pyfig_body_tl \l__pyfig_fit_tl
+        \tl_put_right:Nn \l__pyfig_body_tl { \\ }
+      }
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \matrix
+          [ draw, rounded~corners=8pt, inner~xsep=5pt, inner~ysep=4pt,
+            column~sep=1pt, row~sep=-2pt, anchor=west,
+            \exp_not:n {#1} ]
+          (#2) { \exp_not:V \l__pyfig_body_tl } ;
+      }
+    \__pyfig_run:
+    \__pyfig_type:nn {#2} {set}
+  }
+
+% ------------------------------------------------------------------------
+% Names: a column of `name: value' rows, the name right-aligned in front
+% of its box.  The box of name n is the node <id>-n.  Used bare
+% (\pynames), as a call frame (\pyframe) and as an object (\pyobject).
+%
+% \__pyfig_names:nnnn {<matrix style>}{<options>}{<id>}{<rows>}
+% ------------------------------------------------------------------------
+\cs_new_protected:Npn \__pyfig_names:nnnn #1 #2 #3 #4
+  {
+    \seq_set_split:Nnn \l__pyfig_items_seq { , } {#4}
+    \seq_remove_all:Nn \l__pyfig_items_seq { }
+    \__pyfig_minwidth:N \l__pyfig_wb_dim
+    \seq_map_inline:Nn \l__pyfig_items_seq
+      {
+        \__pyfig_split_pair:n {##1}
+        \exp_args:NnV \__pyfig_width:nnN { \pyfigfont }
+          \l__pyfig_value_tl \l__pyfig_wb_dim
+      }
+    \dim_add:Nn \l__pyfig_wb_dim { 6pt }
+    \tl_clear:N \l__pyfig_body_tl
+    \seq_if_empty:NTF \l__pyfig_items_seq
+      {
+        \tl_put_right:Nn \l__pyfig_body_tl
+          { \node[minimum~width=4em, minimum~height=1.6em] {}; \\ }
+      }
+      {
+        \seq_map_inline:Nn \l__pyfig_items_seq
+          {
+            \__pyfig_split_pair:n {##1}
+            \tl_set:Nx \l__pyfig_tmp_tl { \tl_to_str:V \l__pyfig_name_tl }
+            \exp_args:NV \__pyfig_code:nN \l__pyfig_name_tl \l__pyfig_name_tl
+            \exp_args:NV \__pyfig_code:nN \l__pyfig_value_tl \l__pyfig_value_tl
+            \tl_put_right:Nx \l__pyfig_body_tl
+              {
+                \exp_not:N \node [ pyfig~name, anchor=east ]
+                  { \exp_not:V \l__pyfig_name_tl } ;
+                \exp_not:N \pgfmatrixnextcell
+                \exp_not:N \node
+                  [ pyfig~cell, anchor=west,
+                    minimum~width=\dim_use:N \l__pyfig_wb_dim ]
+                  ( #3-\l__pyfig_tmp_tl )
+                  { \exp_not:V \l__pyfig_value_tl } ;
+                \exp_not:N \\
+              }
+          }
+      }
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \matrix
+          [ #1, column~sep=0pt, row~sep=3pt, anchor=west,
+            \exp_not:n {#2} ]
+          (#3) { \exp_not:V \l__pyfig_body_tl } ;
+      }
+    \__pyfig_run:
+  }
+
+% \pyvar[<options>]{<name>}{<value>}: one name, alone.  Its box is the
+% node <name>; the options place it (at=..., right=of ...).
+\NewDocumentCommand{\pyvar}{O{}mm}
+  {
+    \__pyfig_code:nN {#3} \l__pyfig_value_tl
+    \__pyfig_code:nN {#2} \l__pyfig_name_tl
+    \tl_set:Nx \l__pyfig_tmp_tl { \tl_to_str:n {#2} }
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \node [ pyfig~cell, \exp_not:n {#1} ]
+          ( \l__pyfig_tmp_tl ) { \exp_not:V \l__pyfig_value_tl } ;
+        \exp_not:N \node [ pyfig~name, anchor=east ]
+          at ( \l__pyfig_tmp_tl .west ) { \exp_not:V \l__pyfig_name_tl } ;
+      }
+    \__pyfig_run:
+  }
+
+% \pynames[<options>]{<id>}{<name>: <value>, ...}: names without a frame.
+\NewDocumentCommand{\pynames}{O{}mm}
+  { \__pyfig_names:nnnn { inner~sep=0pt } {#1} {#2} {#3} }
+
+% \pyframe[<options>]{<id>}{<function>}{<name>: <value>, ...}: a call
+% frame titled with the function's name (code).  \pyframe* takes a title
+% in prose instead (the caller's words for the global frame).
+\NewDocumentCommand{\pyframe}{sO{}mmm}
+  {
+    \__pyfig_names:nnnn { pyfig~frame } {#2} {#3} {#5}
+    \IfBooleanTF {#1}
+      { \tl_set:Nn \l__pyfig_tmp_tl { \pyfigtextfont #4 } }
+      { \__pyfig_code:nN {#4} \l__pyfig_tmp_tl }
+    \node[pyfig~frame~title] at (#3.north~west) {\l__pyfig_tmp_tl};
+  }
+
+% \pyobject[<options>]{<id>}{<class>}{<attribute>: <value>, ...}: an
+% object of a class of one's own, its type above it as for a list.
+\NewDocumentCommand{\pyobject}{O{}mmm}
+  {
+    \__pyfig_names:nnnn { pyfig~object } {#1} {#2} {#4}
+    \__pyfig_code:nN {#3} \l__pyfig_tmp_tl
+    \__pyfig_type:nV {#2} \l__pyfig_tmp_tl
+  }
+
+% ------------------------------------------------------------------------
+% Files.
+% \pyfile[<options>]{<id>}{<file name>}{<line> \\ <line> \\ ...}: a page
+% with a folded corner, its name above it.  Lines are separated by \\,
+% since a line may well hold commas.
+% \pyio[<options>]{<from>}{<to>}{<label>}: data moving between the
+% program and a file (read, write), dashed, the label code.
+% \pyregion[<options>]{<fit list, e.g. (a)(b)>}{<title in prose>}: a
+% dotted outline around a part of the picture, behind it.
+% ------------------------------------------------------------------------
+\NewDocumentCommand{\pyfile}{O{}mmm}
+  {
+    \seq_set_split:Nnn \l__pyfig_items_seq { \\ } {#4}
+    \tl_clear:N \l__pyfig_body_tl
+    \seq_map_indexed_inline:Nn \l__pyfig_items_seq
+      {
+        \__pyfig_code:nN {##2} \l__pyfig_tmp_tl
+        \int_compare:nNnF {##1} = { 1 }
+          { \tl_put_right:Nn \l__pyfig_body_tl { \\ } }
+        \tl_put_right:NV \l__pyfig_body_tl \l__pyfig_tmp_tl
+      }
+    \tl_set:Nx \l__pyfig_cmd_tl
+      {
+        \exp_not:N \node [ pyfig~file, \exp_not:n {#1} ] (#2)
+          { \exp_not:V \l__pyfig_body_tl } ;
+      }
+    \__pyfig_run:
+    \draw ([xshift=-2.5mm]#2.north~east) -- (#2.north~west)
+      -- (#2.south~west) -- (#2.south~east)
+      -- ([yshift=-2.5mm]#2.north~east) -- cycle;
+    \draw ([xshift=-2.5mm]#2.north~east) |- ([yshift=-2.5mm]#2.north~east);
+    \__pyfig_code:nN {#3} \l__pyfig_tmp_tl
+    \node[pyfig~type] at (#2.north~west) {\l__pyfig_tmp_tl};
+  }
+
+\NewDocumentCommand{\pyio}{O{}mmm}
+  {
+    \__pyfig_code:nN {#4} \l__pyfig_tmp_tl
+    \draw[pyfig~io, #1] (#2) -- node[pyfig~io~label, auto]
+      {\l__pyfig_tmp_tl} (#3);
+  }
+
+\NewDocumentCommand{\pyregion}{O{}mm}
+  {
+    \begin{scope}[on~background~layer]
+      \node[pyfig~region, fit=#2, #1] (pyfig-region) {};
+    \end{scope}
+    \node[pyfig~region~title] at (pyfig-region.north~west)
+      {\pyfigtextfont #3};
+  }
+
+% ------------------------------------------------------------------------
+% Flowcharts.  Each is a whole picture.
+%
+% \pyflowif[<tikz options>]{<cond>: <body>, <cond>: <body>, ...}{<else body>}
+%   if/elif.../else: the tests down the left, each True branch to its
+%   right, the False branch down to the next test; an empty <else body>
+%   means no else.  The branches meet below.
+% \pyflowwhile[<tikz options>]{<cond>}{<body>}
+%   the test, the body to its right, the way back to the test above it,
+%   False out below.
+% Conditions and bodies are code, one line each.
+% ------------------------------------------------------------------------
+\NewDocumentCommand{\pyflowif}{O{}mm}
+  {
+    \begin{tikzpicture}[pyflow, #1]
+      \seq_set_split:Nnn \l__pyfig_branches_seq { , } {#2}
+      \seq_remove_all:Nn \l__pyfig_branches_seq { }
+      \coordinate (pyflow-top);
+      \tl_set:Nn \l__pyfig_prev_tl { pyflow-top }
+      \tl_clear:N \l__pyfig_fit_tl
+      \seq_map_indexed_inline:Nn \l__pyfig_branches_seq
+        {
+          \__pyfig_split_pair:n {##2}
+          \exp_args:NV \__pyfig_code:nN \l__pyfig_name_tl \l__pyfig_name_tl
+          \exp_args:NV \__pyfig_code:nN \l__pyfig_value_tl \l__pyfig_value_tl
+          \tl_set:Nx \l__pyfig_cmd_tl
+            {
+              \exp_not:N \node [ pyflow~test,
+                  below=\int_compare:nNnTF {##1} = {1} {4mm} {5mm}
+                  ~of~\l__pyfig_prev_tl ]
+                (pyflow-t##1) { \exp_not:V \l__pyfig_name_tl } ;
+              \exp_not:N \node [ pyflow~step, right=8mm~of~pyflow-t##1 ]
+                (pyflow-b##1) { \exp_not:V \l__pyfig_value_tl } ;
+              \exp_not:N \draw [->] (\l__pyfig_prev_tl) -- (pyflow-t##1)
+                \int_compare:nNnF {##1} = {1}
+                  { node [ pyflow~label, midway, right ] {False} } ;
+              \exp_not:N \draw [->] (pyflow-t##1) --
+                node [ pyflow~label, above ] {True} (pyflow-b##1) ;
+            }
+          \__pyfig_run:
+          \tl_set:Nn \l__pyfig_prev_tl { pyflow-t##1 }
+          \tl_put_right:Nn \l__pyfig_fit_tl { (pyflow-b##1) }
+        }
+      \tl_if_blank:nTF {#3}
+        {
+          \tl_set:Nx \l__pyfig_cmd_tl
+            {
+              \exp_not:N \node [ inner~sep=0pt, below=6mm~of~\l__pyfig_prev_tl ]
+                (pyflow-join) {} ;
+              \exp_not:N \draw (\l__pyfig_prev_tl) -- (pyflow-join)
+                node [ pyflow~label, pos=0.5, right ] {False} ;
+            }
+        }
+        {
+          \__pyfig_code:nN {#3} \l__pyfig_value_tl
+          \tl_set:Nx \l__pyfig_cmd_tl
+            {
+              \exp_not:N \node [ pyflow~step, below=5mm~of~\l__pyfig_prev_tl ]
+                (pyflow-else) { \exp_not:V \l__pyfig_value_tl } ;
+              \exp_not:N \draw [->] (\l__pyfig_prev_tl) --
+                node [ pyflow~label, midway, right ] {False} (pyflow-else) ;
+              \exp_not:N \node [ inner~sep=0pt, below=4mm~of~pyflow-else ]
+                (pyflow-join) {} ;
+              \exp_not:N \draw (pyflow-else) -- (pyflow-join) ;
+            }
+        }
+      \__pyfig_run:
+      \tl_set:Nx \l__pyfig_cmd_tl
+        {
+          \exp_not:N \node [ fit=\l__pyfig_fit_tl, inner~sep=0pt ]
+            (pyflow-bodies) {} ;
+        }
+      \__pyfig_run:
+      \seq_map_indexed_inline:Nn \l__pyfig_branches_seq
+        {
+          \draw (pyflow-b##1.east)
+            -- ($(pyflow-b##1.east~-|~pyflow-bodies.east)+(4mm,0)$)
+            |- (pyflow-join);
+        }
+      \draw[->] (pyflow-join) -- ++(0,-5mm);
+      \draw[->] ([yshift=2mm]pyflow-top) -- (pyflow-t1);
+    \end{tikzpicture}
+  }
+
+\NewDocumentCommand{\pyflowwhile}{O{}mm}
+  {
+    \begin{tikzpicture}[pyflow, #1]
+      \__pyfig_code:nN {#2} \l__pyfig_name_tl
+      \__pyfig_code:nN {#3} \l__pyfig_value_tl
+      \coordinate (pyflow-entry);
+      \node[pyflow~test, below=4mm~of~pyflow-entry] (pyflow-t)
+        {\l__pyfig_name_tl};
+      \node[pyflow~step, right=8mm~of~pyflow-t] (pyflow-b)
+        {\l__pyfig_value_tl};
+      \draw ([yshift=5mm]pyflow-entry) -- (pyflow-entry);
+      \draw[->] (pyflow-entry) -- (pyflow-t);
+      \draw[->] (pyflow-t) -- node[pyflow~label, above] {True} (pyflow-b);
+      \draw[->] (pyflow-b.north) |- (pyflow-entry);
+      \draw[->] (pyflow-t.south) -- ++(0,-6mm)
+        node[pyflow~label, pos=0.5, right] {False};
+    \end{tikzpicture}
+  }
+
+\ExplSyntaxOff
+\endinput
