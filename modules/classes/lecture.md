@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Klasser och objekt$'
-    position: 2
+    position: 3
 ---
 Föreläsningen ges live; tid och plats står i veckoöversikten överst i
 modulen. Den har två delar: *Behållare: Uppslagslistor* och *Klasser och
