@@ -25,7 +25,12 @@ claim audit there in their next rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
-bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
+bilaga B" and say what that appendix answers; the four week-44 decks
+that are no longer lectured --- *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
+tillämpningar av klasser* --- are "anteckningarna \emph{X}" instead,
+author 2026-10-10: "Yes, please say anteckningarna"): *Algoritmiskt
+tänkande*;
 *Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
 felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Behållare:
 Listor*, *Behållare: Tupler*; *Moduler och paket*; *Behållare:
