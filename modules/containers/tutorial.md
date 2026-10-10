@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Fler behållare och mer om klasser$'
-    position: 6
+    position: 3
 ---
 Övningen är frivillig och ges för hela klassen, i D37 och på
 [Zoom][zoom-room]; tider och plats står i veckoöversikten överst i
