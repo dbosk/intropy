@@ -219,12 +219,18 @@ Backed so far (question → answer):
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
+- *Repetition: kursens grunder* B: retrieval practice → backed in
+  classrooms (g ≈ 0.5, more with feedback), mostly for what was asked,
+  untested in programming; C: spacing → moderate (d = 0.54), varies
+  between courses; D: prequestions (preview) → only for the concept
+  asked, ≈ 5 points in 30 real classes, fades in 1–2 weeks; E: response
+  systems → small, contested; the gain is retrieval plus the explanation
+  after the vote; F: flipped vs lecture → ≈ 0.2 SD after bias
+  correction, shrinks when the lecture is active (from the Delutvärdering
+  prgi26 report).  Not audited: är-en/har-en, queue as deque, "ett
+  särfall kan inte glömmas bort".
 - No backed-claim chapters yet: *Operatoröverlagring*, the five
   *Behållare* decks (method chapter only) — run the claim audit there.
-  *Repetition: kursens grunder* points to the decks above for every
-  claim about Python and backs none itself; its own rationale
-  (retrieval, spacing, pretests, polls) is in its \ltnotes, with its
-  appendix in progress.
 
 ## Build environment
 
