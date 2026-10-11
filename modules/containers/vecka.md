@@ -71,10 +71,9 @@ och kontrollera inmatning från användaren.
    läser du när du hinner. Anteckningarna är också alternativet för den som
    inte kan komma på övningarna: allt vi går igenom där står i dem.
 4. **Gör läsförståelseövningen** *Läsförståelse: Dokumentation för olika
-   behållare* här i modulen. Den är **obligatorisk**. Den arbetar med
-   samma dokumentation för Pythons behållare som veckans behållardelar
-   hänvisar till.
-   <!-- TODO: deadline; Canvas-uppgiften saknar slutdatum (due_at null, 2026-10-11) -->
+   behållare* här i modulen. Den är **obligatorisk** och ska vara gjord
+   **senast fredag 30 oktober**. Den arbetar med samma dokumentation för
+   Pythons behållare som veckans behållardelar hänvisar till.
 5. **Arbeta med** *Laboration (5) behållare och klasser (kamratgranskning)* i
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.

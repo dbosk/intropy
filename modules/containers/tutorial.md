@@ -260,6 +260,6 @@ Labbens frivilliga extrauppgift bygger på arv, som vi går igenom på
 onsdagens övning.
 
 Gör också läsförståelseövningen *Läsförståelse: Dokumentation för olika
-behållare* här i modulen. Den är **obligatorisk**, och den arbetar med
-samma dokumentation som veckans behållardelar hänvisar till.
-<!-- TODO: deadline; Canvas-uppgiften saknar slutdatum (due_at null, 2026-10-11) -->
+behållare* här i modulen. Den är **obligatorisk** och ska vara gjord
+**senast fredag 30 oktober**. Den arbetar med samma dokumentation som
+veckans behållardelar hänvisar till.
