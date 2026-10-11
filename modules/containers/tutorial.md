@@ -1,7 +1,7 @@
 ---
 title: 'Övning: Fler behållare och mer om klasser'
 regex: '^Övning: Fler behållare och mer om klasser$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:
