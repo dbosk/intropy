@@ -41,19 +41,16 @@ class Account:
         self.__owner = owner
         self.__balance = balance
 
-    @property
-    def number(self):
-        """number getter"""
+    def get_number(self):
+        """Returnerar kontonumret"""
         return self.__number
 
-    @property
-    def owner(self):
-        """owner getter"""
+    def get_owner(self):
+        """Returnerar kontots ägare"""
         return self.__owner
 
-    @property
-    def balance(self):
-        """balance getter"""
+    def get_balance(self):
+        """Returnerar saldot"""
         return self.__balance
 
     def deposit(self, amount):
@@ -73,7 +70,7 @@ class Account:
         self.__balance -= amount
 
     def __str__(self):
-        return f"{self.number}: {self.owner}, {self.balance} kr"
+        return f"{self.__number}: {self.__owner}, {self.__balance} kr"
 
 
 class Person:
@@ -82,9 +79,8 @@ class Person:
     def __init__(self, name):
         self.__name = name
 
-    @property
-    def name(self):
-        """name getter"""
+    def get_name(self):
+        """Returnerar namnet"""
         return self.__name
 
     def __str__(self):
