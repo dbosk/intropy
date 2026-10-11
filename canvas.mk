@@ -91,6 +91,10 @@ ${PUSH_STAMPDIR_PAGES}/%: %
 # assignment names.
 LAB_PAGES+=	modules/variables/lab/instruction.md
 LAB_PAGES+=	modules/conditionals/lab/instruction.md
+LAB_PAGES+=	modules/iterations/lab/instruction.md
+LAB_PAGES+=	modules/classes/lab/instruction.md
+LAB_PAGES+=	modules/containers/lab/instruction.md
+LAB_PAGES+=	modules/files/lab/instruction.md
 
 .PHONY: push-labs
 push-labs: $(LAB_PAGES:.md=.canvas.html)

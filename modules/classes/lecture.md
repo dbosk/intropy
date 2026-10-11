@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Klasser och objekt$'
-    position: 2
+    position: 3
 ---
 Föreläsningen ges live; tid och plats står i veckoöversikten överst i
 modulen. Den har två delar: *Behållare: Uppslagslistor* och *Klasser och
@@ -66,8 +66,9 @@ Efter föreläsningen ska du kunna
   eller med `get`, och välja mellan sätten,
 - gå igenom en uppslagslista: dess nycklar, dess värden och dess par med
   `items`, samt i sorterad ordning,
-- välja mellan lista och uppslagslista utifrån vilka operationer
-  programmet behöver, och motivera valet,
+- välja mellan lista, tupel och uppslagslista utifrån vilka operationer
+  programmet behöver, också för värdena i en uppslagslista, och motivera
+  valet,
 - bygga ett program som samlar in data i en uppslagslista, skriver ut
   den läsbart och låter användaren söka i den,
 - hitta och läsa dokumentationen för uppslagslistor och därifrån
