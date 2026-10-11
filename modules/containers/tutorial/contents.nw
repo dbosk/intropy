@@ -1621,8 +1621,14 @@ ett val att motivera.  Så här ska programmet bete sig när det är klart.
 
       Anteckningarnas banksystem har publika attribut och säger själv att det
       är ett medvetet avsteg för att fem klasser ska rymmas på bilderna.
-      Lösningsförslaget här har privata attribut och egenskaper, alltså den
-      form anteckningarna säger gäller när studenten skriver egna klasser.
+      Lösningsförslaget här har privata attribut, alltså den form
+      anteckningarna säger gäller när studenten skriver egna klasser, men
+      läser dem med läsmetoder som \mintinline{python}{get_balance}, som i
+      föreläsningen \emph{Klasser och objekt}, och inte med egenskaper som
+      anteckningarnas \mintinline{python}{Item}.  Egenskaperna,
+      \mintinline{python}{@property}, lärs ut i anteckningarna
+      \emph{Operatoröverlagring}, och Banken görs på övningen före den
+      genomgången (författaren, 2026-10-11).
       Skillnaden är avsiktlig och värd att peka på om någon frågar.
     }%
     Skriv ett program som håller reda på en banks konton.  Varje konto
@@ -1798,23 +1804,27 @@ def __init__(self, number, owner, balance=0):
 @
 \end{frame}
 
+Att attributen är privata betyder inte att de är hemliga: den som har
+ett konto ska kunna få veta dess nummer, ägare och saldo, bara inte
+ändra dem.  Vi läser dem som i föreläsningen \emph{Klasser och objekt},
+med en läsmetod per attribut som lämnar tillbaka värdet.  Någon metod som
+skriver i attributen finns inte, så numret och ägaren ändras aldrig efter
+konstruktorn, och saldot bara på de sätt kontot självt tillåter.
+
 \begin{frame}[fragile,shrink]
-  \frametitle{Kontots attribut}
+  \frametitle{Kontots läsmetoder}
   Nummer, ägare och saldo, alla läsbara men inte skrivbara:
 <<kontots metoder>>=
-@property
-def number(self):
-    """number getter"""
+def get_number(self):
+    """Returnerar kontonumret"""
     return self.__number
 
-@property
-def owner(self):
-    """owner getter"""
+def get_owner(self):
+    """Returnerar kontots ägare"""
     return self.__owner
 
-@property
-def balance(self):
-    """balance getter"""
+def get_balance(self):
+    """Returnerar saldot"""
     return self.__balance
 @
 \end{frame}
@@ -1850,7 +1860,7 @@ def withdraw(self, amount):
     self.__balance -= amount
 
 def __str__(self):
-    return f"{self.number}: {self.owner}, {self.balance} kr"
+    return f"{self.__number}: {self.__owner}, {self.__balance} kr"
 @
 \end{frame}
 
@@ -1859,15 +1869,15 @@ behöver kontrollera något själv.  Räcker inte pengarna kastar uttaget
 sitt särfall innan insättningen har hunnit göras, så pengar kan inte
 uppstå ur ingenting.
 
-Kvar är ägaren, den minsta av klasserna.  Namnet är privat och läses som
-en egenskap, och \mintinline{python}{__str__} gör att en person kan
+Kvar är ägaren, den minsta av klasserna.  Namnet är privat och läses med
+en läsmetod, och \mintinline{python}{__str__} gör att en person kan
 skrivas ut utan att den som skriver ut --- här kontots
 \mintinline{python}{__str__} --- behöver veta hur personobjektet är
 byggt.
 
 \begin{frame}[fragile]
   \frametitle{Personen}
-  Ett namn, en egenskap och en utskrift:
+  Ett namn, en läsmetod och en utskrift:
 <<bankmodulens klasser>>=
 class Person:
     """En person som kan äga ett konto"""
@@ -1875,9 +1885,8 @@ class Person:
     def __init__(self, name):
         self.__name = name
 
-    @property
-    def name(self):
-        """name getter"""
+    def get_name(self):
+        """Returnerar namnet"""
         return self.__name
 
     def __str__(self):
@@ -2028,8 +2037,8 @@ except ValueError as error:
 }%
 Och så uppgiftens fråga: lista eller uppslagslista?  Med en lista av
 konton måste banken gå igenom listan och jämföra
-\mintinline{python}{konto.number} med det sökta numret varje gång ett
-konto ska hittas --- en slinga i varje metod, och arbete som växer med
+\mintinline{python}{konto.get_number()} med det sökta numret varje gång
+ett konto ska hittas --- en slinga i varje metod, och arbete som växer med
 antalet konton.  Med uppslagslistan är numret nyckeln: uppslagningen är
 en operation, den kostar i genomsnitt lika mycket oavsett hur många
 konton banken
