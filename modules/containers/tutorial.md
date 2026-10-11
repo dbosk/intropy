@@ -36,9 +36,9 @@ lösningen.
 1. **Uppgift 4: Banken.** Bygga en bank vars konton ligger i en behållare
    inuti klassen. Ska kontona ligga i en lista eller i en uppslagslista,
    och vad ska ett konto i så fall hittas med? Det är frågan om att välja
-   behållare, samma fråga som laborationen ställer. På vägen: egenskaper
-   med `@property`, ett konto som *har* en person som ägare, och om ett
-   misslyckat uttag ska kasta ett särfall eller lämna tillbaka `False`.
+   behållare, samma fråga som laborationen ställer. På vägen: ett konto som
+   *har* en person som ägare, och om ett misslyckat uttag ska kasta ett
+   särfall eller lämna tillbaka `False`.
    Banken har samma form som laborationen: en klass som har en behållare
    av andra objekt.
 2. **Om vi hinner: uppslagslista eller klass?** Avsnittet *Att
