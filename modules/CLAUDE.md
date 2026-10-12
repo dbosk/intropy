@@ -235,8 +235,9 @@ Backed so far (question → answer):
   the textbook procedure (Shaffer) with roots in ADTs, and the choice
   measurably matters (Java energy and performance studies, mostly read
   in abstract), but swapping implementations of one abstraction gains
-  little in the median, the right choice is hard to predict, and no
-  study concerns Python or novices.  To move to *Behållare:
+  little in the median, the right choice is hard to predict, no study
+  concerns Python, and how novices choose is barely studied (one
+  interview study with six students).  To move to *Behållare:
   Uppslagslistor* (`sec:valja-uppslag`), which makes the claim first,
   when that deck is audited (nytid #511, prgi27).
 - *Behållare: Ett gissningsspel*: audited 2026-10-12, no chapter of its
