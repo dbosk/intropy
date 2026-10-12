@@ -18,9 +18,9 @@ Each module has one or more deck directories (`slides*/`) building
 is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
 excludes functions, recap, scipy and debug from the course-wide build.
-Five decks still lack a backed-claim chapter: the five
-`containers/slides-*` decks — run the claim audit there in their next
-rounds.
+Three decks still lack a backed-claim chapter: `containers/slides-lists`,
+`slides-tuples` and `slides-dicts` — run the claim audit there in their
+next rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
@@ -230,8 +230,23 @@ Backed so far (question → answer):
   not tested; D: reuse → yes with reservations, mostly when a class is
   used as is, it does not come by itself; E: abstraction → established,
   the benefit supported but thinly.
-- No backed-claim chapters yet: the five *Behållare* decks (method
-  chapter only) — run the claim audit there.
+- *Behållare: Mängder, stackar och köer* B: choose the container by the
+  operations the program needs, not by what the data is about → yes:
+  the textbook procedure (Shaffer) with roots in ADTs, and the choice
+  measurably matters (Java energy and performance studies, mostly read
+  in abstract), but swapping implementations of one abstraction gains
+  little in the median, the right choice is hard to predict, and no
+  study concerns Python or novices.  To move to *Behållare:
+  Uppslagslistor* (`sec:valja-uppslag`), which makes the claim first,
+  when that deck is audited (nytid #511, prgi27).
+- *Behållare: Ett gissningsspel*: audited 2026-10-12, no chapter of its
+  own: its advice is reused (container choice → Mängder B; named
+  constants in one place → DRY, *Algoritmiskt tänkande* E, as in
+  *Upprepningar*; SRP → *Funktioner* B), the rest is Python's docs or
+  shown by running the program.
+- No backed-claim chapters yet: *Behållare: Listor*, *Behållare: Tupler*
+  and *Behållare: Uppslagslistor* (method chapter only) — run the claim
+  audit there.
 
 ## Build environment
 
