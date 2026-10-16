@@ -28,13 +28,13 @@ SRC+=		$(wildcard figs/*.png)
 
 EXAMPLES+=	examples/open_close.py
 EXAMPLES+=	examples/tal.txt
-EXAMPLES+=	examples/read_missing.py
 EXAMPLES+=	examples/ask_for_file.py
 EXAMPLES+=	examples/text.txt
 EXAMPLES+=	examples/close1.py
 EXAMPLES+=	examples/close2.py
 EXAMPLES+=	examples/write_text.py
 EXAMPLES+=	examples/read_all.py
+EXAMPLES+=	examples/read_lines1.py
 EXAMPLES+=	examples/read_lines.py
 EXAMPLES+=	examples/write_append.py
 EXAMPLES+=	examples/bytes_as_text.py
@@ -44,7 +44,14 @@ EXAMPLES+=	examples/xy.py
 EXAMPLES+=	examples/xy_csv.py
 EXAMPLES+=	examples/contacts_json.py
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
