@@ -245,6 +245,19 @@ Backed so far (question → answer):
   constants in one place → DRY, *Algoritmiskt tänkande* E, as in
   *Upprepningar*; SRP → *Funktioner* B), the rest is Python's docs or
   shown by running the program.
+- *Grafiska användargränssnitt* B: event-driven programs and callbacks →
+  partly: novices' uncertainty about who calls a handler and when, and
+  taking attaching a handler for running it, are documented (JavaScript,
+  adult novices); "event-driven programming is hard" per se is not (the
+  mapping review finds no consensus and blames the tools; events-first
+  CS1 reports success); the `mainloop` and `command=f()` forms are
+  unstudied. C: keeping UI and logic apart → established (MVC,
+  Reenskaug 1979, Krasner and Pope 1988; separation of concerns is
+  Dijkstra's broader idea), but that it makes a program easier to test
+  and debug is backed only indirectly (GUI testing is costly and
+  fragile); no controlled study measures it. The tutorial's open
+  questions on the `mainloop`/callback misconceptions and on debugging
+  without the GUI can point here.
 - No backed-claim chapters yet: *Behållare: Listor*, *Behållare: Tupler*
   and *Behållare: Uppslagslistor* (method chapter only) — run the claim
   audit there.

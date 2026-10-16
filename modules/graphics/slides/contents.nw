@@ -1,0 +1,1810 @@
+\mode*
+
+% The tkinter programs cannot be run by \runpython: they need a display
+% and they do not end until their window is closed.  What they do is
+% shown as screenshots in figs/, taken of the tangled programs themselves
+% with scripted input, and their terminal sessions (figs/*.txt) are
+% captured the same way.  The programs
+% that do end --- the event-loop model, the greeting check and pydoc ---
+% are run by PythonTeX as in the other decks.
+
+% The Berlin headline has room for short section names only.
+\mode<presentation>{\section[Händelser]{Händelsestyrda program}}
+\mode<article>{\section{Händelsestyrda program}}
+\label{sec:handelsestyrda}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOEventLoop}.
+
+  \Cref{ovn:tva-knappar} ber studenten lösa ett problem som inte går att
+  lösa med det hon kan, och säger inte varför.  Den kritiska aspekten är
+  \emph{vem som bestämmer ordningen} --- programmet eller användaren ---
+  och den ska urskiljas i försöket, inte pekas ut i frågan
+  \parencite[13 och 91]{Marton2015}.  Den som svarar med en slinga
+  kring \mintinline{python}{input} har inte urskilt den än, och det är
+  det svar texten efter uppgiften bygger vidare på.
+}%
+Hittills har våra program själva bestämt vad som ska hända härnäst.
+Programmet frågar med \mintinline{python}{input}, väntar på svaret och
+fortsätter, och i föreläsningen \emph{Inmatning och felhantering} frågade
+det om igen, i en slinga, tills svaret gick att använda.  Ordningen står
+i programmet.  Ett program med ett fönster ser annorlunda ut, och vi
+börjar med att försöka skriva ett sådant med det vi redan kan.
+
+\begin{frame}
+  \begin{exercise}[Ett fönster med två knappar]\label{ovn:tva-knappar}
+    Tänk dig ett program med ett fönster.  I fönstret finns ett textfält
+    och två knappar, och användaren kan när som helst skriva i fältet
+    eller trycka på vilken som helst av knapparna.  Hur skulle du skriva
+    ett sådant program med det du redan kan ---
+    \mintinline{python}{input}, \mintinline{python}{while} och
+    \mintinline{python}{if}?  Vad blir svårt?
+  \end{exercise}
+\end{frame}
+
+Med \mintinline{python}{input} går det inte.
+\mintinline{python}{input} väntar på \emph{en} sak, en rad i terminalen,
+och programmet står still tills raden kommer.  Här vet programmet inte
+vad som kommer härnäst: ett tryck på den ena knappen, ett tryck på den
+andra eller ett tecken i fältet.  Den som bestämmer ordningen är
+användaren, inte programmet.
+
+Därför vänder ett grafiskt program på ansvaret.  I stället för att
+programmet frågar efter en sak i taget finns en enda slinga som väntar
+på nästa \emph{händelse} (\foreignlanguage{english}{event}), vilken den
+än är: ett knapptryck, en tangent, en musrörelse, att fönstret behöver
+ritas om.  Varje händelse kommer som ett meddelande från
+operativsystemet, ett meddelande per händelse, och för varje meddelande
+anropar slingan den funktion som programmet har sagt ska svara på just
+den sortens händelse.  Slingan kallas \emph{händelseslingan}
+(\foreignlanguage{english}{event loop}), och den skriver vi inte själva:
+den följer med biblioteket för fönster.  Vårt program får i stället tre
+uppgifter: att bygga fönstret, att tala om vilken funktion som svarar på
+vilken händelse, och att sedan lämna över till händelseslingan.
+
+\begin{frame}
+  \begin{block}{Händelsestyrt}
+    \begin{itemize}
+      \item En slinga som väntar på nästa händelse, vilken den än är.
+      \item Operativsystemet skickar ett meddelande per händelse.
+      \item Slingan anropar den funktion som hör till händelsen.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\subsection{En modell i terminalen}
+\label{sec:modell}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOEventLoop}.
+
+  Modellen i \cref{ex:events1} finns av två skäl.  Det ena är att den
+  går att köra här: ett \mintinline{python}{tkinter}-program kräver en
+  skärm och tar inte slut förrän fönstret stängs, så det kan bara visas
+  som bilder, medan modellen körs av samma verktyg som alla andra
+  program i materialet.  Det andra är att den visar det som
+  \mintinline{python}{tkinter} döljer: raden där slingan anropar
+  funktionen.  I ett riktigt fönster ser studenten bara att texten
+  dyker upp, inte vem som anropade funktionen.
+
+  Modellen bygger på två saker studenten redan har, en uppslagslista
+  och att en funktion kan lämnas över utan att anropas
+  (\mintinline{python}{key=len}); det nya är att de två sätts ihop.
+}%
+Vi kan pröva idén utan fönster.  Programmet i \cref{ex:events1} är en
+modell av en händelseslinga i terminalen.  Händelserna är en lista i
+stället för meddelanden från operativsystemet, och kopplingen mellan en
+händelse och funktionen som svarar på den är en uppslagslista, som i
+föreläsningen \emph{Behållare: Uppslagslistor}: nyckeln är händelsens
+namn, värdet är funktionen.
+
+\begin{frame}[fragile]
+  \begin{example}[En händelseslinga i terminalen]\label{ex:events1}
+    En funktion, en koppling och en slinga:
+<<[[events1.py]]>>=
+"""A model of an event loop, in the terminal"""
+
+def greet():
+    """Answer a click"""
+    print("Hello, world!")
+
+def main():
+    """Call the function bound to each event, in turn"""
+    bindings = {"click": greet}
+    events = ["move", "click", "move", "move", "click"]
+    for event in events:
+        if event in bindings:
+            bindings[event]()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen av \texttt{events1.py}]\label{ex:events1-run}
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/events1.py}
+  \end{example}
+\end{frame}
+
+Slingan går igenom händelserna i tur och ordning.  Musrörelserna,
+\mintinline{python}|"move"|, har ingen funktion i uppslagslistan ---
+ingen i programmet bryr sig om dem --- så de går förbi utan att något
+händer.  Vid varje
+klick hälsar programmet.  Ett riktigt program har många sådana
+kopplingar, en för varje sorts händelse det bryr sig om, men en räcker
+för att se hur det går till.
+
+Lägg märke till att ingen rad i programmet anropar
+\mintinline{python}{greet} på det sätt vi är vana vid.  I
+uppslagslistan står \mintinline{python}{greet} utan parenteser: där
+lämnas funktionen själv över, inte det den ger tillbaka.  Det är samma
+sak som när vi skrev \mintinline{python}{sorted(names, key=len)} i
+föreläsningen \emph{Behållare: Listor}: \mintinline{python}{sorted}
+fick funktionen \mintinline{python}{len} och anropade den själv, en gång
+per element.  Här är det slingan som anropar, på raden
+\mintinline{python}{bindings[event]()}: uppslagningen ger funktionen,
+och parenteserna efter den anropar den.
+
+\mode<article>{\needspace{24\baselineskip}}
+\begin{frame}[fragile]
+  \begin{exercise}[Nästan samma program]\label{ovn:events2}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOEventLoop}.
+
+  \textbf{Variationsmönster}: Kontrast mellan \cref{ex:events1} (med
+  körningen i \cref{ex:events1-run}) och \cref{ovn:events2}, med svaret
+  i \cref{ex:events2}.  Bredvid varandra står de två programmen först
+  efter svaret (\cref{ex:events-bredvid}).
+
+  \textbf{Vad som varierar}: ett par parenteser, att funktionen lämnas
+  över eller anropas.
+
+  \textbf{Vad som hålls invariant}: allt annat, tecken för tecken.
+
+  Rubriken och inledningen till \cref{ovn:events2} säger inte vad som
+  skiljer programmen åt; att hitta skillnaden är en del av uppgiften.
+  Förväxlingen mellan att koppla en funktion till en händelse och att
+  köra den är belagd hos nybörjare i JavaScript
+  \parencite{Lehtinen2021Struggle}; i Python och
+  \mintinline{python}{tkinter} är den inte studerad
+  (\cref{app:grafik-handelser}).
+  Felet det leder till är just det som i ett riktigt fönster inte syns
+  som ett fel alls: en knapp med \mintinline{python}{command=greet()}
+  hälsar en gång när fönstret byggs och gör sedan ingenting.  Här ger
+  det i stället ett fel med en förklaring, och det är därför kontrasten
+  görs i modellen och inte i fönstret.
+}%
+    Programmet \texttt{events2.py} är nästan likadant.  Vad skriver det
+    ut?
+<<[[events2.py]]>>=
+"""A model of an event loop, in the terminal"""
+
+def greet():
+    """Answer a click"""
+    print("Hello, world!")
+
+def main():
+    """Call the function bound to each event, in turn"""
+    bindings = {"click": greet()}
+    events = ["move", "click", "move", "move", "click"]
+    for event in events:
+        if event in bindings:
+            bindings[event]()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+Körningen visar vad parenteserna gör.
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen av \texttt{events2.py}]\label{ex:events2}
+    Programmet hälsar en gång, innan någon händelse har kommit, och
+    kraschar sedan vid det första klicket:
+    \runpython[showcommand, chdir]{examples/events2.py}
+  \end{example}
+\end{frame}
+
+% The pair is \codebycode, which reads the two tangled programs as text,
+% so it cannot drift from the chunks.  It comes only after the answer:
+% beside the exercise it would point out the difference the exercise asks
+% the student to find.
+\begin{frame}[fragile]
+  \begin{example}[De två huvudprogrammen]\label{ex:events-bredvid}
+    \mintinline{python}{main} ur \texttt{events1.py} till vänster och ur
+    \texttt{events2.py} till höger:
+    \codebycode
+      [name=main, nodocstring, breaklines,
+        label={\texttt{events1.py}}]{python}{examples/events1.py}
+      [name=main, nodocstring, breaklines,
+        label={\texttt{events2.py}}]{python}{examples/events2.py}
+  \end{example}
+\end{frame}
+
+Med parenteser anropas \mintinline{python}{greet} redan när
+uppslagslistan byggs.  Därför kommer hälsningen först, före alla
+händelser.  Det som hamnar i uppslagslistan är det
+\mintinline{python}{greet} ger tillbaka, och eftersom
+\mintinline{python}{greet} saknar \mintinline{python}{return} är det
+\mintinline{python}{None}.  När det första klicket kommer försöker
+slingan anropa \mintinline{python}{None}, och det går inte:
+\texttt{'NoneType' object is not callable}.  Skillnaden är
+alltså den mellan funktionen, \mintinline{python}{greet}, och det
+funktionen ger när den anropas, \mintinline{python}{greet()}.
+
+Förväxlingen är känd från studier av nybörjare: en del tror att en
+funktion körs redan när den kopplas till en händelse, och flera är
+osäkra på vem som anropar den och
+när\autocite{Lehtinen2021Struggle,Lukkarinen2021Listener}.\footnote{%
+  Det vetenskapliga underlaget finns i \cref{app:grafik-handelser}, som
+  visar vilka missförstånd om händelsestyrda program och
+  \foreignlanguage{english}{callback}-funktioner som är belagda hos
+  nybörjare --- och att ämnet i sig inte är belagt som svårt.}
+
+Nu kan vi ge sakerna namn.
+
+\begin{frame}
+  \begin{definition}[Händelseslinga och
+    \foreignlanguage{english}{callback}-funktion]
+    En \emph{händelseslinga} väntar på händelser och anropar, för varje
+    händelse, den funktion som kopplats till den sortens händelse.  En
+    funktion som lämnas över för att anropas senare, när något händer,
+    kallas en \emph{\foreignlanguage{english}{callback}-funktion}.
+  \end{definition}
+\end{frame}
+
+På svenska säger man ibland återanropsfunktion, men det engelska ordet
+är det du oftast möter; det är också det Pythons egen dokumentation
+använder.\footnote{%
+  Om funktioner som kopplas till händelser: \enquote{Functions deployed
+  this way are commonly known as callbacks.}  \emph{tkinter --- Python
+  interface to Tcl/Tk}, avsnittet \emph{Bindings and events}.
+  \url{https://docs.python.org/3/library/tkinter.html} (hämtad
+  2026-09-30).}
+Modellen skiljer sig från en riktig händelseslinga på en punkt: listan
+tar slut.  En riktig händelseslinga väntar på nästa händelse så länge
+fönstret finns, och det är den vi använder i resten av föreläsningen.
+
+
+% The Berlin headline has room for short section names only.
+\mode<presentation>{\section[Fönster]{Ett första fönster}}
+\mode<article>{\section{Ett första fönster}}
+\label{sec:forsta-fonster}
+
+Pythons standardbibliotek har ett bibliotek för fönster,
+\mintinline{python}{tkinter}, byggt på biblioteket Tk (namnet betyder
+\foreignlanguage{english}{Tk interface}).  Vi importerar det under ett
+kortare namn, med \mintinline{python}{as} som i föreläsningen
+\emph{Moduler och paket}.  Det minsta tänkbara programmet visar ett
+fönster med en hälsning.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett fönster som hälsar]\label{ex:helloworld}
+    Fönstret, en etikett i det, och händelseslingan:
+<<[[helloworld.py]]>>=
+"""A first window"""
+
+import tkinter as tk
+
+def main():
+    """Show a window with a greeting"""
+    window = tk.Tk()
+    greeting = tk.Label(window, text="Hello, world!")
+    greeting.pack()
+    window.mainloop()
+    print("Done!")
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \begin{sidecaption}{Fönstret som \texttt{helloworld.py} visar: en
+      etikett med texten \texttt{Hello, world!}.  Bilden visar
+      programmets egen yta; fönsterramen runt den ritas av
+      skrivbordsmiljön.}[fig:helloworld]
+      \includegraphics[width=0.3\textwidth]{figs/helloworld.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\Cref{fig:helloworld} visar fönstret.  Varje del av programmet har sin
+uppgift.  \mintinline{python}{tk.Tk()} skapar fönstret.
+\mintinline{python}{tk.Label} skapar en \emph{etikett}, en rad text i
+fönstret, och det första argumentet säger vilket fönster etiketten hör
+till.  En etikett, en knapp och ett textfält är alla
+\emph{komponenter} (\foreignlanguage{english}{widgets}).  En komponent
+som skapats syns inte förrän den har fått en plats, och det är vad
+\mintinline{python}{pack} gör: den packar in komponenten i fönstret.
+Kvar är de två sista raderna.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Den sista raden]\label{ovn:done}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOEventLoop}.
+
+  Utskriften efter \mintinline{python}{mainloop} i \cref{ex:helloworld}
+  finns för \cref{ovn:done}: den gör synligt att programmet står kvar
+  i händelseslingan tills fönstret stängs.  Den som svarar
+  \enquote{direkt, efter att
+  fönstret visats} läser \mintinline{python}{mainloop} som
+  \enquote{visa fönstret}.  Just den formen av missuppfattningen är inte
+  studerad; det närmaste belagda är nybörjares osäkerhet om vem som
+  anropar vad och vilket anrop som väntar
+  \parencite{Lukkarinen2021Listener}, se \cref{app:grafik-handelser}.
+  Samma läsning ligger bakom uppgiften \emph{Klockan i ett fönster} i
+  övningen, där en egen slinga före \mintinline{python}{mainloop} ger
+  ett fönster som aldrig syns.
+}%
+    Den sista raden i \mintinline{python}{main} skriver ut
+    \texttt{Done!}.  När skrivs det ut, och varför?
+  \end{exercise}
+\end{frame}
+
+Kör vi programmet syns fönstret i \cref{fig:helloworld}, men terminalen
+står still.
+
+% figs/helloworld-open.txt and figs/helloworld-closed.txt are captured
+% from the tangled program: the capture script records what the program
+% has printed while the window is open, then closes the window and records
+% it again (see the comment at the top of this file).
+\begin{frame}[fragile]
+  \begin{example}[Körningen av \texttt{helloworld.py}]
+    \label{ex:helloworld-run}
+    Medan fönstret är öppet står bara kommandoraden i terminalen:
+    \inputminted{text}{figs/helloworld-open.txt}
+    När fönstret stängs kommer utskriften:
+    \inputminted{text}{figs/helloworld-closed.txt}
+  \end{example}
+\end{frame}
+
+\texttt{Done!} skrivs ut först när fönstret stängs.
+\mintinline{python}{window.mainloop()} är händelseslingan, och den
+\enquote{processes events until all windows are
+destroyed}.\footnote{%
+  \emph{tkinter --- Python interface to Tcl/Tk}, metoden
+  \mintinline{python}{mainloop}.
+  \url{https://docs.python.org/3/library/tkinter.html} (hämtad
+  2026-09-30).}
+Så länge fönstret finns står programmet kvar i
+\mintinline{python}{mainloop}, och allt som händer i fönstret händer
+därför att händelseslingan anropar något.  Det gäller även att fönstret
+ritas: ingenting syns förrän händelseslingan har fått köra.  Hade vi
+strukit raden med \mintinline{python}{mainloop} hade programmet kommit
+till slutet av \mintinline{python}{main} direkt och avslutats, och
+fönstret med det.
+
+
+% The Berlin headline has room for short section names only.
+\mode<presentation>{\section[In- och utmatning]{Inmatning och utmatning}}
+\mode<article>{\section{Inmatning och utmatning}}
+\label{sec:inmatning-grafik}
+
+Ett fönster som bara visar en text gör inte mycket.  Nästa fönster
+frågar efter ett namn och hälsar, som ett program med
+\mintinline{python}{input} kunde göra på två rader.  \Cref{fig:hello-user}
+visar det före och efter att användaren skrivit sitt namn och tryckt på
+knappen.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \begin{subfigure}{0.45\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figs/hello_user.png}
+      \caption{När programmet startar.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\linewidth}
+      \centering
+      \includegraphics[width=\linewidth]{figs/hello_user_malvina.png}
+      \caption{Efter \texttt{Malvina} och ett tryck på \texttt{OK}.}
+    \end{subfigure}
+    \caption{Ett fönster som frågar efter ett namn och hälsar.  Överst
+      står en etikett, ett textfält och en knapp i en rad, och under
+      fältet en etikett som är tom tills knappen trycks.  Bilderna
+      visar programmets egen yta, utan skrivbordsmiljöns fönsterram.}
+    \label{fig:hello-user}
+  \end{figure}
+\end{frame}
+
+Fönstret har två nya komponenter.  Ett \emph{textfält},
+\mintinline{python}{tk.Entry}, tar emot en rad text, och en
+\emph{knapp}, \mintinline{python}{tk.Button}, anropar en funktion när
+den trycks.  Funktionen lämnas över med argumentet
+\mintinline{python}{command}, utan parenteser, precis som
+\mintinline{python}{greet} i modellen.  Med fyra komponenter räcker det
+inte att packa dem efter varandra, så de placeras i ett rutnät med
+\mintinline{python}{grid}: rad och kolumn, räknat från noll.
+
+\subsection{Ett första försök}
+\label{sec:forsta-forsoket}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOWidgets} och
+  \cref{GraphicsLOStructure}.
+
+  \texttt{hello\_user1.py} skrivs som studenten skulle skriva det med
+  det hon har från föreläsningen \emph{Funktioner}: allt i
+  \mintinline{python}{main}, och funktionerna bredvid.  Det är avsiktligt:
+  försöket ska misslyckas på ett sätt som studenten känner igen,
+  med ett \mintinline{python}{NameError} för en variabel i en annan
+  funktion, så att klassen i \cref{sec:klassen} kommer som svaret på
+  ett problem och inte som ett påbud.  Den andra vägen, en funktion
+  definierad inuti \mintinline{python}{main}, fungerar men är inte
+  lärd ut i kursen, och den tas därför inte upp.
+}%
+Vi skriver programmet som vi har skrivit alla program sedan
+föreläsningen \emph{Funktioner}: ett huvudprogram, och funktionerna
+före det.  Filens upplägg är detta:
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{hello\_user1.py}]\label{ex:hello-user1}
+    Hälsningsprogrammets upplägg:
+<<[[hello_user1.py]]>>=
+"""Greet the user by name, in a window"""
+
+import tkinter as tk
+
+<<det första hälsningsprogrammets funktioner>>
+
+<<det första hälsningsprogrammets huvudprogram>>
+@
+  \end{example}
+\end{frame}
+
+Huvudprogrammet skapar fönstret och dess delar och lämnar sedan över
+till händelseslingan.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Fönstret, dess delar, och händelseslingan:
+<<det första hälsningsprogrammets huvudprogram>>=
+def main():
+    """Build the window, then run the event loop"""
+    window = tk.Tk()
+
+    <<skapa namnfältet och en etikett framför det, i [[main]]>>
+    <<skapa knappen och etiketten för hälsningen, i [[main]]>>
+
+    window.mainloop()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+Delarna placeras i rutnätet i den ordning de står i
+\cref{fig:hello-user}: etiketten \texttt{Name:} och fältet i rad noll,
+knappen efter dem, och etiketten för hälsningen i rad ett, under
+fältet.  Knappen ska anropa en funktion
+\mintinline{python}{update_output}, som vi skriver snart.
+
+\begin{frame}[fragile]
+  \begin{example}[Fönstrets delar]
+    Varje komponent skapas i fönstret och får sin plats i rutnätet:
+<<skapa namnfältet och en etikett framför det, i [[main]]>>=
+name_label = tk.Label(window, text="Name:")
+name_label.grid(row=0, column=0)
+name_entry = tk.Entry(window)
+name_entry.grid(row=0, column=1)
+<<skapa knappen och etiketten för hälsningen, i [[main]]>>=
+ok_button = tk.Button(window, text="OK", command=update_output)
+ok_button.grid(row=0, column=2)
+output_label = tk.Label(window)
+output_label.grid(row=1, column=1)
+@
+  \end{example}
+\end{frame}
+
+Att formulera hälsningen har ingenting med fönstret att göra.  Det är
+en vanlig funktion, som tar ett namn och ger en sträng, och vi låter
+den också ta hand om det fall där fältet är tomt: då frågar den efter
+namnet i stället för att hälsa på ingen.  Mellanslag före och efter
+namnet tar \mintinline{python}{strip} bort.  Funktionen är den första
+av hälsningsprogrammets funktioner, och eftersom den kommer att behövas
+i fler program än det här får den ett eget namn i pseudokoden.
+
+\begin{frame}[fragile]
+  \begin{example}[Hälsningen]
+    En funktion som inte vet något om fönster:
+<<det första hälsningsprogrammets funktioner>>=
+<<funktion som formulerar hälsningen>>
+<<funktion som formulerar hälsningen>>=
+def greeting(name):
+    """Return a greeting for `name`, or ask for the name if it is empty"""
+    name = name.strip()
+    if name == "":
+        return "What's your name?"
+    return f"Hello, {name}!"
+@
+  \end{example}
+\end{frame}
+
+Kvar är funktionen som knappen anropar.  Den ska läsa namnet ur fältet
+och skriva hälsningen på etiketten.  Två saker om komponenterna behöver
+du för det: ett textfälts text läser man med metoden
+\mintinline{python}{get}, och en etiketts text sätter man som i en
+uppslagslista, genom att tilldela \mintinline{python}|output_label["text"]|.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Funktionen som knappen anropar]\label{ovn:update-output}
+    Skriv \mintinline{python}{update_output}, som läser namnet ur fältet
+    och skriver hälsningen på etiketten.  Var i filen ska den stå, och
+    hur kommer den åt fältet och etiketten?
+  \end{exercise}
+\end{frame}
+
+Det naturliga svaret är att skriva funktionen bredvid
+\mintinline{python}{greeting}, som en till av hälsningsprogrammets
+funktioner.  Så här blir det:
+
+\begin{frame}[fragile]
+  \begin{example}[Funktionen bredvid de andra]\label{ex:update-output1}
+    Ytterligare en av hälsningsprogrammets funktioner:
+<<det första hälsningsprogrammets funktioner>>=
+def update_output():
+    """Greet the name in the entry, on the output label"""
+    output_label["text"] = greeting(name_entry.get())
+@
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Det första hälsningsprogrammet
+    (\texttt{hello\_user1.py})]\label{ex:hello-user1-whole}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/hello_user1.py}
+  \end{example}
+\end{frame}
+
+Fönstret ser ut som i \cref{fig:hello-user}, men när vi skriver
+\texttt{Malvina} och trycker på \texttt{OK} händer ingenting i fönstret.
+I terminalen står i stället det här:
+
+% figs/hello_user1-click.txt is captured from the tangled program: the
+% capture script types Malvina, invokes the button and closes the window
+% (see the comment at the top of this file).
+\begin{frame}[fragile]
+  \begin{example}[Ett tryck på \texttt{OK}]\label{ex:hello-user1-click}
+    Knappen anropar funktionen, och funktionen hittar inte fältet:
+    \inputminted[breaklines]{text}{figs/hello_user1-click.txt}
+  \end{example}
+\end{frame}
+
+Felet är ett vi känner igen från föreläsningen \emph{Funktioner}.
+\mintinline{python}{name_entry} och \mintinline{python}{output_label}
+är variabler i \mintinline{python}{main}, och en annan funktion kommer
+inte åt dem.  Att lämna över dem som argument går inte heller, eftersom
+det inte är vi som anropar \mintinline{python}{update_output}: det gör
+händelseslingan, när knappen trycks, och den anropar utan argument ---
+som \mintinline{python}{bindings[event]()} i modellen.
+
+Lägg också märke till att programmet inte kraschade.  Felet uppstod i en
+\foreignlanguage{english}{callback}-funktion, och händelseslingan
+fångade det, skrev ut det och fortsatte vänta på nästa händelse.
+Fönstret finns kvar, och trycker vi på knappen igen kommer samma fel en
+gång till.
+
+\subsection{Fönstret som en klass}
+\label{sec:klassen}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOStructure}.
+
+  \textbf{Variationsmönster}: Kontrast mellan \texttt{hello\_user1.py}
+  (\cref{ex:hello-user1-whole,ex:hello-user1-click}) och
+  \texttt{hello\_user2.py} (\cref{ex:hello-user2}).  Bredvid varandra
+  står namnfältet (\cref{ex:namnfalt-bredvid}) och funktionen mot
+  metoden (\cref{ex:update-output-bredvid}).
+
+  \textbf{Vad som varierar}: var fönstrets delar finns --- som lokala
+  variabler i \mintinline{python}{main} eller som attribut i ett objekt
+  --- och därmed om funktionen som knappen anropar kommer åt dem.
+
+  \textbf{Vad som hålls invariant}: fönstret, komponenterna och deras
+  platser, och funktionen \mintinline{python}{greeting}, som är samma
+  kod i båda filerna.
+
+  Att klassen dessutom ärver från \mintinline{python}{tk.Tk} är en
+  andra skillnad.  Den kunde ha varierats för sig, med en klass som har
+  fönstret som attribut däremellan, men den varianten sägs bara i en
+  mening: arv och komposition kontrasterades redan i föreläsningen
+  \emph{Klasser och objekt}, och här räcker det att tillämpa regeln.
+}%
+Vi behöver en plats där fönstrets delar finns kvar mellan händelserna,
+och som funktionen kan nå.  Det är precis vad ett objekt är, från
+föreläsningen \emph{Klasser och objekt}: attributen finns så länge
+objektet finns, och metoderna når dem genom
+\mintinline{python}{self}.  Fönstret blir därför en klass, delarna blir
+attribut och \mintinline{python}{update_output} blir en metod.  Filens
+upplägg får en rad för klasserna, före funktionerna:
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{hello\_user2.py}]
+    Hälsningsprogrammets upplägg, med en klass:
+<<[[hello_user2.py]]>>=
+"""Greet the user by name, in a window"""
+
+import tkinter as tk
+
+<<det andra hälsningsprogrammets klasser>>
+
+<<det andra hälsningsprogrammets funktioner>>
+
+<<huvudprogram som skapar hälsningsfönstret>>
+@
+  \end{solution}
+\end{frame}
+
+Funktionen som formulerar hälsningen är densamma, och den är det enda
+av det första programmets funktioner som behövs.
+
+\begin{frame}[fragile]
+  \begin{solution}[Funktionerna]
+    Samma hälsning som förut:
+<<det andra hälsningsprogrammets funktioner>>=
+<<funktion som formulerar hälsningen>>
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet krymper till två rader: skapa fönstret och kör
+händelseslingan.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över till händelseslingan:
+<<huvudprogram som skapar hälsningsfönstret>>=
+def main():
+    """Create the window, then run the event loop"""
+    window = InputGUI()
+    window.mainloop()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Klassen ärver från \mintinline{python}{tk.Tk}.  I föreläsningen
+\emph{Klasser och objekt} var tumregeln att ärva när den nya klassen
+\emph{är} en variant av den gamla, och att föredra komposition --- ett
+objekt som attribut --- när den \emph{har}
+en\autocite[20]{Gamma1994DesignPatterns}.%
+\footnote{Det vetenskapliga underlaget för tumregeln --- både varifrån
+  den kommer och hur väl den håller, med sina förbehåll --- finns i
+  föreläsningen \emph{Klasser och objekt}, bilaga~D.}
+Ett hälsningsfönster är ett fönster, med våra delar i, så arv passar.
+Det hade också gått att låta klassen ha ett fönster, med
+\mintinline{python}{self.window = tk.Tk()} i konstruktorn; då hade det
+stått \mintinline{python}{self.window} överallt där det nu står
+\mintinline{python}{self}, och huvudprogrammet hade fått gå genom
+objektet till fönstret för att starta händelseslingan.  Med arv \emph{är}
+objektet fönstret, och \mintinline{python}{mainloop} är en av de
+metoder det ärver.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    Ett fönster som ärver från \mintinline{python}{tk.Tk}:
+<<det andra hälsningsprogrammets klasser>>=
+class InputGUI(tk.Tk):
+    """A window that greets the user by name"""
+
+    <<metoder i det andra hälsningsprogrammets fönster>>
+@
+  \end{solution}
+\end{frame}
+
+Konstruktorn anropar först \mintinline{python}{tk.Tk}:s konstruktor med
+\mintinline{python}{super()}, så att fönstret skapas, och skapar sedan
+delarna.  Det är samma rader som i \mintinline{python}{main}, med två
+skillnader: delarna blir attribut, \mintinline{python}{self.name_entry}
+i stället för \mintinline{python}{name_entry}, och de hör till fönstret
+\mintinline{python}{self}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn]
+    Fönstret först, sedan dess delar:
+<<metoder i det andra hälsningsprogrammets fönster>>=
+def __init__(self):
+    """Create the window and its parts"""
+    super().__init__()
+
+    <<skapa namnfältet och en etikett framför det>>
+    <<skapa knappen som hälsar>>
+    self.output_label = tk.Label(self)
+    self.output_label.grid(row=1, column=1)
+@
+  \end{solution}
+\end{frame}
+
+Etiketten och fältet för namnet, och knappen, får egna namn i
+pseudokoden, eftersom de kommer att behövas igen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Namnfältet och knappen]
+    Delarna ur \mintinline{python}{main}, som attribut i fönstret
+    \mintinline{python}{self}:
+<<skapa namnfältet och en etikett framför det>>=
+self.name_label = tk.Label(self, text="Name:")
+self.name_label.grid(row=0, column=0)
+self.name_entry = tk.Entry(self)
+self.name_entry.grid(row=0, column=1)
+<<skapa knappen som hälsar>>=
+self.ok_button = tk.Button(self, text="OK", command=self.update_output)
+self.ok_button.grid(row=0, column=2)
+@
+  \end{solution}
+\end{frame}
+
+% Notes only, as the audit of 2026-10-03 has it: on the slides the two
+% chunks are a few frames apart already.
+\begin{frame}<article>[fragile]
+  \begin{example}[Namnfältet på två sätt]\label{ex:namnfalt-bredvid}
+    Namnfältet och dess etikett ur \mintinline{python}{main} i
+    \texttt{hello\_user1.py} till vänster och ur konstruktorn i
+    \texttt{hello\_user2.py} till höger:
+    \codebycode
+      [from={name_label = tk.Label}, to={name_entry.grid},
+        label={\texttt{hello\_user1.py}}]{python}{examples/hello_user1.py}
+      [from={self.name_label = tk.Label}, to={self.name_entry.grid},
+        label={\texttt{hello\_user2.py}}]{python}{examples/hello_user2.py}
+  \end{example}
+\end{frame}
+
+Knappen får \mintinline{python}{self.update_output}: metoden hos just
+det här fönstret, utan parenteser.  När händelseslingan anropar den är
+\mintinline{python}{self} fönstret, och därmed når metoden fältet och
+etiketten.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden]
+    Samma rad som i funktionen, men genom \mintinline{python}{self}:
+<<metoder i det andra hälsningsprogrammets fönster>>=
+def update_output(self):
+    """Greet the name in the entry, on the output label"""
+    self.output_label["text"] = greeting(self.name_entry.get())
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Funktionen och metoden]\label{ex:update-output-bredvid}
+    \mintinline{python}{update_output} ur \texttt{hello\_user1.py} till
+    vänster och ur \texttt{hello\_user2.py} till höger:
+    \codebycode
+      [name=update_output, nodocstring, breaklines,
+        label={\texttt{hello\_user1.py}}]{python}{examples/hello_user1.py}
+      [name=InputGUI.update_output, nodocstring, breaklines,
+        label={\texttt{hello\_user2.py}}]{python}{examples/hello_user2.py}
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Hälsningsfönstret (\texttt{hello\_user2.py})]
+    \label{ex:hello-user2}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/hello_user2.py}
+  \end{example}
+\end{frame}
+
+Det här är programmet som visas i \cref{fig:hello-user}.
+
+\subsection{Hälsningen utan fönster}
+\label{sec:utan-fonster}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOStructure}.
+
+  \Cref{ex:check-greeting} är föreläsningens enda körning av något ur
+  ett fönsterprogram, och den visar just det lärandemålet gäller: det
+  som hålls isär från gränssnittet kan köras och kontrolleras utan det.
+  Påståendet i texten stannar vid det som körningen visar; att
+  isärhållandet dessutom gör programmet lättare att pröva i allmänhet
+  är ett påstående om nytta, och det bär bilagan.
+}%
+Att \mintinline{python}{greeting} inte vet något om fönster har en
+följd: den går att köra utan fönster.  Programmet i
+\cref{ex:check-greeting} importerar den ur \texttt{hello\_user2.py} ---
+modulen \mintinline{python}{hello_user2} är filen från
+\cref{ex:hello-user2} --- och prövar den med tre namn.  Villkoret
+\mintinline{python}|if __name__ == "__main__":| från föreläsningen
+\emph{Moduler och paket} gör att importen inte öppnar något fönster.
+
+\begin{frame}[fragile]
+  \begin{example}[Hälsningen utan fönster]\label{ex:check-greeting}
+    Tre namn, varav ett tomt:
+<<[[check_greeting.py]]>>=
+"""Check the greeting of hello_user2.py, without a window"""
+
+from hello_user2 import greeting
+
+def main():
+    """Print the greeting for a few names"""
+    print(greeting("Malvina"))
+    print(greeting("  Ronja  "))
+    print(greeting(""))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Körningen av \texttt{check\_greeting.py}]
+    \label{ex:check-greeting-run}
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir,
+      deps={examples/hello_user2.py}]{examples/check_greeting.py}
+  \end{example}
+\end{frame}
+
+Klassen är gränssnittet och \mintinline{python}{greeting} är
+programmets logik, hur liten den än är här.  Att hålla gränssnitt och
+logik isär är en etablerad designprincip, formulerad som
+Model--View--Controller\autocite{Reenskaug1979MVC,KrasnerPope1988} och
+ett fall av det Dijkstra kallade separation av ansvarsområden
+(\foreignlanguage{english}{separation of
+concerns})\autocite{Dijkstra1982Role}.  Att logiken då går att pröva
+utan fönster är ett av de skäl som ges för principen, eftersom det är
+dyrt och osäkert att pröva ett program genom dess
+gränssnitt\autocite{Coppola2019Fragility,Hellmann2014AGT}.\footnote{%
+  Det vetenskapliga underlaget finns i \cref{app:grafik-separation},
+  som visar både varifrån principen kommer och hur väl nyttan är belagd:
+  principen är etablerad, men att den gör programmet lättare att pröva
+  och felsöka stöds bara indirekt, och ingen kontrollerad studie har
+  mätt vinsten.}
+
+
+\subsection{Värden i stället för komponenter}
+\label{sec:stringvar}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOWidgets} och
+  \cref{GraphicsLOStructure}.
+
+  \textbf{Variationsmönster}: Kontrast mellan \texttt{hello\_user2.py}
+  (\cref{ex:hello-user2}) och \texttt{hello\_user3.py}
+  (\cref{ex:hello-user3,ex:hello-user3-whole}); metoderna står bredvid
+  varandra i \cref{ex:stringvar-bredvid}.
+
+  \textbf{Vad som varierar}: vad metoden läser och skriver ---
+  komponenterna själva eller två \mintinline{python}{tk.StringVar}.
+
+  \textbf{Vad som hålls invariant}: fönstret, knappen, som är samma
+  kod i båda filerna, och \mintinline{python}{greeting}.
+}%
+\mintinline{python}{update_output} i \texttt{hello\_user2.py} vet
+fortfarande en del om fönstret: att namnet står i ett textfält och att
+hälsningen ska på en etikett.  \mintinline{python}{tkinter} har ett
+sätt att slippa det, \mintinline{python}{tk.StringVar}: en sträng som
+\mintinline{python}{tkinter} håller reda på.  Ett textfält kan skriva
+det användaren skriver i en sådan, och en etikett kan visa en; ändras
+strängen ritas etiketten om av sig själv.  I \texttt{hello\_user3.py}
+får fönstret två sådana strängar, en för namnet och en för hälsningen.
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{hello\_user3.py}]\label{ex:hello-user3}
+    Fönstret med två strängar, och en metod som bara rör strängarna:
+<<metoder i det tredje hälsningsprogrammets fönster>>=
+def __init__(self):
+    """Create the window, its parts and the strings they show"""
+    super().__init__()
+
+    self.name = tk.StringVar()
+    self.output = tk.StringVar()
+
+    self.name_label = tk.Label(self, text="Name:")
+    self.name_label.grid(row=0, column=0)
+    self.name_entry = tk.Entry(self, textvariable=self.name)
+    self.name_entry.grid(row=0, column=1)
+    <<skapa knappen som hälsar>>
+    self.output_label = tk.Label(self, textvariable=self.output)
+    self.output_label.grid(row=1, column=1)
+
+def update_output(self):
+    """Greet the name, in the output"""
+    self.output.set(greeting(self.name.get()))
+@
+  \end{example}
+\end{frame}
+
+% Equal widths: in proportion to the longest lines, the right side's one
+% line is a little wider than its column on the slides, and it cannot
+% wrap (it has no space to break at); the left one wraps instead.
+\begin{frame}[fragile]
+  \begin{example}[Metoden på två sätt]\label{ex:stringvar-bredvid}
+    \mintinline{python}{update_output} ur \texttt{hello\_user2.py} till
+    vänster och ur \texttt{hello\_user3.py} till höger:
+    \codebycode
+      [name=InputGUI.update_output, nodocstring, breaklines, width=0.5,
+        label={\texttt{hello\_user2.py}}]{python}{examples/hello_user2.py}
+      [name=InputGUI.update_output, nodocstring, width=0.5,
+        label={\texttt{hello\_user3.py}}]{python}{examples/hello_user3.py}
+  \end{example}
+\end{frame}
+
+Fältet får strängen med \mintinline{python}{textvariable}, och
+etiketten likaså.  Metoden läser namnet ur den ena strängen och
+skriver hälsningen i den andra med \mintinline{python}{set}, och den
+vet inte längre vilka komponenter som visar dem.  Resten av filen är
+densamma som \texttt{hello\_user2.py}, och filens upplägg är därför
+detsamma.
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  Upplägget för \texttt{hello\_user3.py}, med den nya klassen:
+<<[[hello_user3.py]]>>=
+"""Greet the user by name, in a window"""
+
+import tkinter as tk
+
+class InputGUI(tk.Tk):
+    """A window that greets the user by name"""
+
+    <<metoder i det tredje hälsningsprogrammets fönster>>
+
+<<funktion som formulerar hälsningen>>
+
+<<huvudprogram som skapar hälsningsfönstret>>
+@
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Hälsningsfönstret med strängar
+    (\texttt{hello\_user3.py})]\label{ex:hello-user3-whole}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/hello_user3.py}
+  \end{example}
+\end{frame}
+
+\subsection{En tangent}
+\label{sec:tangent}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOBind} och
+  \cref{GraphicsLODocs}.
+
+  \Cref{ovn:enter} pekar ut var dokumentationen finns men inte vad i
+  den som är viktigt.  Det kritiska är meningen om \texttt{FUNC} i
+  \mintinline{python}{bind}:s beskrivning, att funktionen anropas med
+  ett argument.  Den som missar den kopplar
+  \mintinline{python}{self.update_output} direkt, och det är därför
+  det första försöket, \cref{ex:hello-user4}, gör just det: felet
+  syns i körningen innan meningen förklarar det.
+}%
+Den som har skrivit sitt namn trycker gärna på Enter i stället för att
+klicka på \texttt{OK}.  I \texttt{hello\_user3.py} händer ingenting då.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Enter i stället för OK]\label{ovn:enter}
+    Utöka \texttt{hello\_user3.py} så att fönstret hälsar också när
+    användaren trycker på Enter i textfältet.  Komponenterna har en
+    metod \mintinline{python}{bind} som kopplar en händelse till en
+    funktion.  Läs om den med \texttt{pydoc3 tkinter.Entry.bind}, och
+    titta på exemplen i Pythons dokumentation för
+    \mintinline{python}{tkinter}.
+  \end{exercise}
+\end{frame}
+
+Dokumentationen är lång, men den säger det vi behöver.
+
+\begin{frame}[fragile]
+  \begin{example}[Dokumentationen för \texttt{bind}]\label{ex:pydoc-bind}
+    Kommandot skriver ut vad metoden gör och vad den tar emot:
+    \runshell[showcommand, breaklines,
+      commandtext={pydoc3 tkinter.Entry.bind}]%
+      {pydoc3 tkinter.Entry.bind | head -n 14}
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Dokumentationen för \texttt{bind}, fortsättning]
+    \label{ex:pydoc-bind-2}
+    Hur en händelse skrivs:
+    \runshell[breaklines]{pydoc3 tkinter.Entry.bind | sed -n 15,27p}
+  \end{example}
+\end{frame}
+
+% One line of this part is wider than the frame at the decks' minted
+% size; the frame shrinks on the slides only (the notes ignore shrink).
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[Dokumentationen för \texttt{bind}, slutet]
+    \label{ex:pydoc-bind-3}
+    Vad funktionen får, och resten av texten:
+    \runshell[breaklines]{pydoc3 tkinter.Entry.bind | tail -n +28}
+  \end{example}
+\end{frame}
+
+Två saker i texten behövs.  Den första är hur en händelse skrivs
+(\cref{ex:pydoc-bind,ex:pydoc-bind-2}): inom vinkelparenteser, med
+händelsens typ och eventuellt en detalj, som en tangent eller en
+musknapp.  Enter heter \texttt{Return}, och exemplet i Pythons
+dokumentation binder just \mintinline{python}{"<Return>"}.  Den andra
+saken visar sig när vi prövar.
+
+Fönstret i \texttt{hello\_user3.py} har redan allt annat, så vi skriver
+inte om det: vi importerar dess klass och ärver från den, som
+\mintinline{python}{PersonNick} ärvde från
+\mintinline{python}{Person} i föreläsningen \emph{Klasser och objekt}.
+Modulen \mintinline{python}{hello_user3} är filen från
+\cref{ex:hello-user3-whole}.  Det första försöket binder Enter i textfältet
+till samma metod som knappen anropar.
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{hello\_user4.py}]\label{ex:hello-user4}
+\leavevmode\ltnote{%
+  \textbf{Variationsmönster}: Kontrast mellan \texttt{hello\_user4.py}
+  (\cref{ex:hello-user4}, med körningen i \cref{ex:hello-user4-enter})
+  och \texttt{hello\_user5.py} (\cref{ex:hello-user5}); konstruktorerna
+  står bredvid varandra i \cref{ex:enter-bredvid}.
+
+  \textbf{Vad som varierar}: vilken metod Enter binds till --- den som
+  knappen anropar, som inte tar emot någon händelse, eller en ny som
+  gör det.
+
+  \textbf{Vad som hålls invariant}: fönstret, som båda ärver från
+  \texttt{hello\_user3.py}, händelsen \texttt{<Return>}, klassens namn,
+  huvudprogrammet, som är samma kod i båda filerna, och namnet
+  \texttt{Malvina} i körningen.
+}%
+    Fönstret från \texttt{hello\_user3.py}, med Enter bundet till
+    knappens metod:
+<<[[hello_user4.py]]>>=
+"""Greet the user by name, on OK or Enter: a first attempt"""
+
+from hello_user3 import InputGUI
+
+class EnterGUI(InputGUI):
+    """The greeting window, which also greets when Enter is pressed"""
+
+    def __init__(self):
+        """Create the greeting window, and bind Enter in the entry"""
+        super().__init__()
+        self.name_entry.bind("<Return>", self.update_output)
+
+<<huvudprogram som skapar fönstret som hälsar vid Enter>>
+@
+  \end{example}
+\end{frame}
+
+Huvudprogrammet är som förut, med den nya klassen.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Skapa fönstret, och lämna över till händelseslingan:
+<<huvudprogram som skapar fönstret som hälsar vid Enter>>=
+def main():
+    """Create the window, then run the event loop"""
+    window = EnterGUI()
+    window.mainloop()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+Knappen fungerar som förut.  Men när vi skriver \texttt{Malvina} och
+trycker på Enter händer ingenting i fönstret, och i terminalen står det
+här:
+
+% figs/hello_user4-enter.txt is captured from the tangled program: the
+% capture script types Malvina, sends Enter to the entry and closes the
+% window (see the comment at the top of this file).
+\begin{frame}[fragile]
+  \begin{example}[Ett tryck på Enter]\label{ex:hello-user4-enter}
+    Händelseslingan anropar metoden, och metoden får ett argument för
+    mycket:
+    \inputminted[breaklines]{text}{figs/hello_user4-enter.txt}
+  \end{example}
+\end{frame}
+
+Felet förklaras av den andra saken i texten, det första stycket om
+\texttt{FUNC} (\cref{ex:pydoc-bind-3}): funktionen anropas
+\enquote{with an instance of Event as argument}.  En knapps
+\mintinline{python}{command} anropas utan argument, en bindning med ett
+--- en händelse, som berättar mer om vad som hände.
+\mintinline{python}{update_output} tar bara \mintinline{python}{self},
+men när händelseslingan anropar den får den händelsen också: fönstret
+som \mintinline{python}{self} och händelsen som ett andra argument, och
+det är de två argument felet talar om.  Som i
+\cref{ex:hello-user1-click} lever fönstret vidare: händelseslingan
+skriver ut felet och väntar på nästa händelse.
+
+Det som behövs är en metod som tar emot händelsen.
+\texttt{hello\_user5.py} har samma upplägg och samma huvudprogram; det
+är klassen som är ny.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{hello\_user5.py}]
+    Fönstret från \texttt{hello\_user3.py}, och en tangent till:
+<<[[hello_user5.py]]>>=
+"""Greet the user by name, on OK or Enter"""
+
+from hello_user3 import InputGUI
+
+<<fönstret som också hälsar vid Enter>>
+
+<<huvudprogram som skapar fönstret som hälsar vid Enter>>
+@
+  \end{solution}
+\end{frame}
+
+Konstruktorn binder Enter i textfältet till en ny metod, och den nya
+metoden anropar den som knappen anropar.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    En bindning och en metod till:
+<<fönstret som också hälsar vid Enter>>=
+class EnterGUI(InputGUI):
+    """The greeting window, which also greets when Enter is pressed"""
+
+    def __init__(self):
+        """Create the greeting window, and bind Enter in the entry"""
+        super().__init__()
+        self.name_entry.bind("<Return>", self.greet_on_enter)
+
+    def greet_on_enter(self, _):
+        """Greet as if OK had been pressed"""
+        self.update_output()
+@
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Konstruktorn på två sätt]\label{ex:enter-bredvid}
+    Konstruktorn ur \texttt{hello\_user4.py} till vänster och ur
+    \texttt{hello\_user5.py} till höger:
+    \codebycode
+      [name=EnterGUI.__init__, nodocstring, breaklines,
+        label={\texttt{hello\_user4.py}}]{python}{examples/hello_user4.py}
+      [name=EnterGUI.__init__, nodocstring, breaklines,
+        label={\texttt{hello\_user5.py}}]{python}{examples/hello_user5.py}
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Hälsningsfönstret med Enter
+    (\texttt{hello\_user5.py})]\label{ex:hello-user5}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/hello_user5.py}
+  \end{example}
+\end{frame}
+
+Metoden \mintinline{python}{greet_on_enter} tar emot händelsen och gör
+ingenting med den; den anropar bara den metod som knappen anropar.  En
+parameter som heter bara \mintinline{python}{_} är en överenskommelse
+bland Pythonprogrammerare: den säger att parametern finns för att
+anroparen skickar ett argument, men att funktionen inte använder det.
+\Cref{fig:hello-user5} visar fönstret efter ett tryck på Enter.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{figs/hello_user5_enter.png}
+    \caption{\texttt{hello\_user5.py} efter \texttt{Malvina} och ett
+      tryck på Enter i textfältet, utan att knappen har rörts.  Bilden
+      visar programmets egen yta, utan skrivbordsmiljöns fönsterram.}
+    \label{fig:hello-user5}
+  \end{figure}
+\end{frame}
+
+
+% The Berlin headline has room for short section names only.
+\mode<presentation>{\section[Rita]{Ett ritprogram}}
+\mode<article>{\section{Ett ritprogram}}
+\label{sec:rita}
+
+Knappar och tangenter är inte de enda händelserna.  Musen ger en
+händelse varje gång den flyttas, och en när en knapp på den trycks ned
+eller släpps.  Med dem kan vi skriva ett ritprogram: du drar med musen,
+och programmet ritar där den går.  \Cref{fig:draw} visar hur det ska
+se ut.
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \begin{sidecaption}{Ritprogrammet efter tre drag med musen.  Varje
+      drag, från det att musknappen trycks ned tills den släpps, blir en
+      egen linje.  Bilden visar programmets egen yta, utan
+      skrivbordsmiljöns fönsterram.}[fig:draw]
+      \includegraphics[width=0.6\textwidth]{figs/draw.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}[Ritprogrammets händelser]\label{ovn:rita}
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOBind} och
+  \cref{GraphicsLODocs}.
+
+  \textbf{Variationsmönster}: Generalisering av
+  \mintinline{python}{bind} från \texttt{hello\_user5.py}
+  (\cref{ex:hello-user5}) till \cref{ovn:rita} och ritprogrammet
+  (\cref{ex:draw}).
+
+  \textbf{Vad som varierar}: händelsen, från en tangent till musens
+  rörelser, och vad funktionen gör med händelsen: den bortser inte
+  längre från den utan läser ut var musen är.
+
+  \textbf{Vad som hålls invariant}: \mintinline{python}{bind}, en
+  metod som tar emot en händelse, och dokumentationen studenten redan
+  har läst.
+
+  \Cref{ovn:rita} säger inte att programmet måste minnas något mellan
+  två händelser.  Det är den aspekt övningens sista uppgifter bygger på,
+  och den ska komma ur svaret, inte ur frågan.
+}%
+    Vilka händelser behöver programmet i \cref{fig:draw} få veta om, och
+    vad ska det göra vid var och en av dem?
+  \end{exercise}
+\end{frame}
+
+Två händelser räcker.  Den ena är att musen flyttas medan knappen är
+nedtryckt; i dokumentationen i \cref{ex:pydoc-bind} heter den
+\texttt{<B1-Motion>}, rörelse (\texttt{Motion}) med knapp ett
+(\texttt{B1}) nedtryckt.  Den andra är att knappen släpps,
+\texttt{<Button\allowbreak Release-1>}.  Varje rörelse ger en punkt:
+händelsen har attributen \mintinline{python}{x} och
+\mintinline{python}{y}, musens läge i ritytan.  Men en linje behöver
+två punkter, så programmet måste minnas den förra punkten tills nästa
+händelse kommer, och det är objektets attribut som minns.  När knappen
+släpps glömmer programmet den förra punkten, annars skulle nästa drag
+börja med en linje från där det förra slutade.
+
+Ritytan är en komponent till, \mintinline{python}{tk.Canvas}, och den
+ritar en linje med metoden \mintinline{python}{create_line}.  Vad den
+tar emot står i dokumentationen:
+
+\begin{frame}[fragile]
+  \begin{example}[Dokumentationen för \texttt{create\_line}]
+    \label{ex:pydoc-create-line}
+    Kort, men det räcker:
+    \runshell[showcommand, breaklines]{pydoc3 tkinter.Canvas.create_line}
+  \end{example}
+\end{frame}
+
+Två punkter, \mintinline{python}{x1, y1, x2, y2}, ger en linje mellan
+dem.  Nu kan vi skriva programmet, och vi börjar med filens upplägg:
+en klass för fönstret och ett huvudprogram.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{draw.py}]
+    Ritprogrammets upplägg:
+<<[[draw.py]]>>=
+"""A window to draw lines in with the mouse"""
+
+import tkinter as tk
+
+<<ritfönstrets klass>>
+
+<<ritfönstrets huvudprogram>>
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är hälsningsprogrammets: skapa fönstret, och kör
+händelseslingan.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över till händelseslingan:
+<<ritfönstrets huvudprogram>>=
+def main():
+    """Create the drawing window, then run the event loop"""
+    window = DrawGUI()
+    window.mainloop()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Fönstret ärver från \mintinline{python}{tk.Tk}, som hälsningsfönstret,
+och dess metoder skriver vi när vi kommer till dem.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen]
+    Ett fönster med metoder kvar att skriva:
+<<ritfönstrets klass>>=
+class DrawGUI(tk.Tk):
+    """A window with a canvas to draw lines on with the mouse"""
+
+    <<ritfönstrets metoder>>
+@
+  \end{solution}
+\end{frame}
+
+Konstruktorn skapar ritytan, \mintinline{python}{800} gånger
+\mintinline{python}{600} bildpunkter med vit bakgrund, och packar in
+den.  Sedan kommer minnet av den förra punkten, som från början är tomt,
+\mintinline{python}{None}.  Sist
+kopplar konstruktorn de två händelserna till var sin metod.  Bindningen
+görs på ritytan, inte på fönstret, så att musens läge räknas från
+ritytans hörn.
+
+\mode<article>{\needspace{14\baselineskip}}
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn]
+    Ritytan, minnet av den förra punkten, och musens två händelser:
+<<ritfönstrets metoder>>=
+def __init__(self):
+    """Create the canvas and bind the mouse to it"""
+    super().__init__()
+
+    self.canvas = tk.Canvas(self, width=800, height=600, bg="white")
+    self.canvas.pack()
+
+    self.x_old = None
+    self.y_old = None
+
+    self.canvas.bind("<B1-Motion>", self.paint)
+    self.canvas.bind("<ButtonRelease-1>", self.reset_old_coord)
+@
+  \end{solution}
+\end{frame}
+
+Metoden \mintinline{python}{paint} anropas vid varje rörelse.  Finns
+det en förra punkt ritar den en linje därifrån till den nya punkten;
+finns ingen är det här dragets första händelse, och då finns ingenting
+att rita.  I båda fallen blir den nya punkten den förra.
+
+Själva linjen ritar \mintinline{python}{paint} inte, utan den lämnar det
+till en egen metod, \mintinline{python}{draw_line}.
+\mintinline{python}{paint} avgör \emph{vilka} punkter som ska förbindas,
+\mintinline{python}{draw_line} \emph{hur} en linje mellan dem ritas.  Det
+är principen om ett enda ansvar, \emph{SRP}, som vi mötte i föreläsningen
+\emph{Funktioner}, tillämpad på metoder: en metod ska aldrig ha mer än
+ett skäl att ändras\autocite[kap.~8]{Martin2003Agile}.\footnote{%
+  Det vetenskapliga underlaget för SRP --- att principen är etablerad,
+  och att avgränsningen av \enquote{ett ansvar} är en bedömningsfråga
+  --- finns i föreläsningen \emph{Funktioner}, bilaga B.%
+}
+Ska linjerna ritas på ett annat sätt, till exempel i en annan färg, är
+det bara \mintinline{python}{draw_line} som ändras.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{paint}]
+    Rita från den förra punkten, om det finns någon, och minns den nya:
+<<ritfönstrets metoder>>=
+def paint(self, event):
+    """Draw a line from the previous point to this one"""
+    if self.x_old is not None:
+        self.draw_line(self.x_old, self.y_old, event.x, event.y)
+    self.x_old = event.x
+    self.y_old = event.y
+@
+  \end{solution}
+\end{frame}
+
+Metoden \mintinline{python}{draw_line} är ett enda anrop av
+\mintinline{python}{create_line}, med de två punkterna.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{draw\_line}]
+    En linje mellan två punkter på ritytan:
+<<ritfönstrets metoder>>=
+def draw_line(self, x_start, y_start, x_dest, y_dest):
+    """Draw a line between two points on the canvas"""
+    self.canvas.create_line(x_start, y_start, x_dest, y_dest)
+@
+  \end{solution}
+\end{frame}
+
+När knappen släpps glömmer programmet den förra punkten.  Händelsen
+behövs inte, så parametern heter \mintinline{python}{_}, som i
+\texttt{hello\_user5.py} i \cref{sec:tangent}.
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{reset\_old\_coord}]
+    Glöm den förra punkten:
+<<ritfönstrets metoder>>=
+def reset_old_coord(self, _):
+    """Forget the previous point, when the mouse button is released"""
+    self.x_old = None
+    self.y_old = None
+@
+  \end{solution}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Ritprogrammet (\texttt{draw.py})]\label{ex:draw}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/draw.py}
+  \end{example}
+\end{frame}
+
+Programmet är det som ritade linjerna i \cref{fig:draw}.
+
+\subsection{Hur många händelser?}
+\label{sec:hur-manga}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOEventLoop} och
+  \cref{GraphicsLOStructure}.
+
+  \Cref{ovn:hur-manga} gör händelseslingan synlig igen, nu i ett riktigt
+  fönster: varje utskrift är ett anrop från slingan.  Svaret kan inte
+  visas som en körning här, eftersom antalet beror på hur fort och hur
+  långt studenten drar musen; texten säger därför vad som syns, och
+  uppgiften ber studenten köra programmet själv.  Programmet ärver från
+  \texttt{draw.py} i stället för att kopiera det, och därmed är det
+  enda som står i filen det som ändrats: två utskrifter.
+}%
+Hur ofta anropas egentligen \mintinline{python}{paint}?
+
+\begin{frame}
+  \begin{exercise}[Hur många händelser?]\label{ovn:hur-manga}
+    Hur många gånger anropas \mintinline{python}{paint} när du drar ett
+    streck tvärs över ritytan?  Gissa först.  Hur kan du ta reda på det?
+  \end{exercise}
+\end{frame}
+
+Ett sätt att ta reda på det är att låta programmet skriva ut något i
+terminalen vid varje händelse.  Vi behöver inte ändra i
+\texttt{draw.py} för det.  Ett nytt fönster kan ärva från
+\mintinline{python}{DrawGUI} och byta ut de två metoderna mot metoder
+som först skriver ut händelsen och sedan gör det de ärvda metoderna
+gjorde, med \mintinline{python}{super()}.  Modulen
+\mintinline{python}{draw} är filen från \cref{ex:draw}.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett ritfönster som berättar]\label{ex:draw-debug}
+    Ritfönstret, med en utskrift för varje händelse, upplägget:
+<<[[draw_debug.py]]>>=
+"""The drawing window, printing every event it handles"""
+
+from draw import DrawGUI
+
+<<ritfönstret som berättar>>
+
+<<huvudprogram som skapar ritfönstret som berättar>>
+@
+  \end{example}
+\end{frame}
+
+Huvudprogrammet är ritprogrammets, med den nya klassen.
+
+\begin{frame}[fragile]
+  \begin{example}[Huvudprogrammet]
+    Skapa fönstret, och lämna över till händelseslingan:
+<<huvudprogram som skapar ritfönstret som berättar>>=
+def main():
+    """Create the drawing window, then run the event loop"""
+    window = DebugGUI()
+    window.mainloop()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+Klassen byter ut de två metoderna som händelserna är kopplade till.
+Varje ny metod skriver ut något och anropar sedan den ärvda.
+
+\begin{frame}[fragile]
+  \begin{example}[Klassen]
+    Två metoder, var och en med en utskrift före det ärvda:
+<<ritfönstret som berättar>>=
+class DebugGUI(DrawGUI):
+    """A drawing window that prints each event before handling it"""
+
+    def paint(self, event):
+        """Print where the mouse is, then draw as before"""
+        print(f"x: {event.x}, y: {event.y}")
+        super().paint(event)
+
+    def reset_old_coord(self, event):
+        """Print that the button was released, then forget as before"""
+        print("button released")
+        super().reset_old_coord(event)
+@
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Ritfönstret som berättar (\texttt{draw\_debug.py})]
+    \label{ex:draw-debug-whole}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/draw_debug.py}
+  \end{example}
+\end{frame}
+
+Konstruktorn ärvs oförändrad, och den kopplar händelserna till
+\mintinline{python}{self.paint} och
+\mintinline{python}{self.reset_old_coord}.  Eftersom
+\mintinline{python}{self} nu är ett \mintinline{python}{DebugGUI} är det
+de nya metoderna som anropas.  Kör programmet och dra ett streck, så
+fylls terminalen med rader: en för varje gång operativsystemet
+rapporterat att musen flyttats, många för varje streck, och fler ju
+långsammare du drar.  Varje linje i ritningen är alltså många korta
+linjer efter varandra.  Varje anrop måste också bli klart innan nästa
+händelse kan tas om hand, så en metod som tar lång tid gör hela
+fönstret trögt.\footnote{%
+  \enquote{[E]vent handlers must respond quickly, otherwise they will
+  block other events from being processed.}  \emph{tkinter --- Python
+  interface to Tcl/Tk}, avsnittet \emph{Threading model}.
+  \url{https://docs.python.org/3/library/tkinter.html} (hämtad
+  2026-09-30).}
+
+\subsection{Färgknappar}
+\label{sec:fargknappar}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{GraphicsLOWidgets},
+  \cref{GraphicsLOBind}, \cref{GraphicsLOStructure} och
+  \cref{GraphicsLODocs}.
+
+  \textbf{Variationsmönster}: Sammanfogning.  \Cref{ovn:fargknappar}
+  kräver knappar och \mintinline{python}{command} från
+  \cref{sec:inmatning-grafik}, attribut som minns mellan händelser från
+  ritprogrammet, arv från \cref{sec:hur-manga} och dokumentationen, på
+  en gång.
+
+  Uppgiften säger inte var färgen står i dokumentationen.
+  \mintinline{python}{pydoc3} säger ingenting om färger, och studenten
+  måste gå vidare till Tk:s manual; det är lärandemålet om
+  dokumentation på riktigt, där den första källan inte räcker.
+  Lösningen har en metod per färg, och det är avsiktligt: övningens
+  uppgift \emph{Färgknapparna} kräver fler färger utan en ny metod per
+  färg, och bygger på den här lösningen.
+}%
+Hittills ritar programmet bara i svart.
+
+\begin{frame}
+  \begin{exercise}[Färgknappar]\label{ovn:fargknappar}
+    Lägg till knappar under ritytan, en för svart och en för rött, som
+    bestämmer vilken färg det du ritar får.
+  \end{exercise}
+\end{frame}
+
+Det första problemet är att ta reda på hur en linje får en färg.
+Dokumentationen i \cref{ex:pydoc-create-line} säger ingenting om det:
+\mintinline{python}{create_line} tar \mintinline{python}{**kw}, alltså
+valfria namngivna argument, men inte vilka.  Här tar Pythons
+dokumentation slut, eftersom \mintinline{python}{tkinter} är ett tunt
+lager över biblioteket Tk.  Tk:s egen manual för ritytan beskriver
+argumenten, och under \emph{Common item options} står
+\texttt{-fill color}: \enquote{For the line item, it specifies the
+color of the line drawn.}\footnote{%
+  \emph{canvas}, Tk 8.6 Documentation.
+  \url{https://www.tcl-lang.org/man/tcl8.6/TkCmd/canvas.htm} (hämtad
+  2026-09-30).}
+Ett alternativ \texttt{-namn} i Tk blir ett namngivet argument
+\mintinline{python}{namn=} i \mintinline{python}{tkinter}, så en röd
+linje ritas med \mintinline{python}{fill="red"}.
+
+Resten är det vi redan gjort.  Färgen är något programmet måste minnas
+mellan två händelser --- valet görs med en knapp, och varje rörelse
+efteråt ska rita i den färgen --- så den blir ett attribut.  Knapparna
+anropar varsin metod som ändrar attributet.  Och ritfönstret skriver vi
+inte om: vi ärver det, som i \cref{ex:draw-debug}.  Modulen
+\mintinline{python}{draw} är filen från \cref{ex:draw}.
+
+\begin{frame}[fragile]
+  \begin{solution}[\texttt{draw\_buttons.py}]
+    Ritprogrammet med färgknappar, upplägget:
+<<[[draw_buttons.py]]>>=
+"""The drawing window, with buttons that choose the colour"""
+
+import tkinter as tk
+
+from draw import DrawGUI
+
+<<färgknapparnas klass>>
+
+<<färgknapparnas huvudprogram>>
+@
+  \end{solution}
+\end{frame}
+
+Huvudprogrammet är detsamma som förut, med den nya klassen.
+
+\begin{frame}[fragile]
+  \begin{solution}[Huvudprogrammet]
+    Skapa fönstret, och lämna över till händelseslingan:
+<<färgknapparnas huvudprogram>>=
+def main():
+    """Create the drawing window, then run the event loop"""
+    window = ButtonGUI()
+    window.mainloop()
+
+if __name__ == "__main__":
+    main()
+@
+  \end{solution}
+\end{frame}
+
+Klassen ärver från \mintinline{python}{DrawGUI}, och konstruktorn låter
+den ärvda konstruktorn skapa ritytan och bindningarna.  Sedan kommer
+färgen, svart från början, och knapparna.  Knapparna samlas i en
+\emph{ram}, \mintinline{python}{tk.Frame}, en komponent vars uppgift är
+att hålla andra komponenter.  Ramen packas in under ritytan, och
+knapparna placeras i ramens eget rutnät.
+
+\begin{frame}[fragile]
+  \begin{solution}[Klassen och konstruktorn]
+    Ritfönstret, en färg och en knapp per färg:
+<<färgknapparnas klass>>=
+class ButtonGUI(DrawGUI):
+    """A drawing window with a button for each colour"""
+
+    def __init__(self):
+        """Create the drawing window, with colour buttons below it"""
+        super().__init__()
+        self.color = "black"
+
+        <<skapa en ram med en knapp per färg>>
+
+    <<färgknapparnas metoder>>
+@
+  \end{solution}
+\end{frame}
+
+Ramen skapas i fönstret och knapparna i ramen: det första argumentet
+säger, som för alla komponenter, var komponenten hör hemma.  Varje knapp
+får sin metod med \mintinline{python}{command}, utan parenteser.
+
+\begin{frame}[fragile]
+  \begin{solution}[Knapparna]
+    Ramen, och en knapp per färg i den:
+<<skapa en ram med en knapp per färg>>=
+self.color_frame = tk.Frame(self)
+self.color_frame.pack()
+self.black_button = tk.Button(
+    self.color_frame, text="Black", command=self.set_black
+)
+self.black_button.grid(row=0, column=0)
+self.red_button = tk.Button(
+    self.color_frame, text="Red", command=self.set_red
+)
+self.red_button.grid(row=0, column=1)
+@
+  \end{solution}
+\end{frame}
+
+Varje knapp anropar sin egen metod, och metoden sätter färgen.
+
+\begin{frame}[fragile]
+  \begin{solution}[En metod per färg]
+    Svart och rött:
+<<färgknapparnas metoder>>=
+def set_black(self):
+    """Draw in black from now on"""
+    self.color = "black"
+
+def set_red(self):
+    """Draw in red from now on"""
+    self.color = "red"
+@
+  \end{solution}
+\end{frame}
+
+Linjen ska få färgen, och linjen ritas i \mintinline{python}{draw_line}.
+Det är alltså den enda metoden i \texttt{draw.py} som behöver bytas ut;
+\mintinline{python}{paint} ärvs som den är och anropar den nya
+\mintinline{python}{draw_line}, eftersom \mintinline{python}{self} är ett
+\mintinline{python}{ButtonGUI}.  Det är vad uppdelningen i
+\mintinline{python}{paint} och \mintinline{python}{draw_line} ger:
+ingenting av \mintinline{python}{paint} behöver skrivas en gång till,
+som principen \emph{DRY} vill\autocite{HuntThomas1999}.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga~E.%
+}
+
+\begin{frame}[fragile]
+  \begin{solution}[Metoden \texttt{draw\_line}]
+    Samma linje, med en färg:
+<<färgknapparnas metoder>>=
+def draw_line(self, x_start, y_start, x_dest, y_dest):
+    """Draw a line between two points, in the chosen colour"""
+    self.canvas.create_line(
+        x_start, y_start, x_dest, y_dest, fill=self.color
+    )
+@
+  \end{solution}
+\end{frame}
+
+% Notes only, as the audit of 2026-10-03 has it: on the slides the pair
+% would be too wide for the frame.
+\begin{frame}<article>[fragile]
+  \begin{example}[Metoden \texttt{draw\_line} på två sätt]
+    \label{ex:draw-line-bredvid}
+    \mintinline{python}{draw_line} ur \texttt{draw.py} till vänster och
+    ur \texttt{draw\_buttons.py} till höger:
+    \codebycode
+      [name=DrawGUI.draw_line, nodocstring,
+        label={\texttt{draw.py}}]{python}{examples/draw.py}
+      [name=ButtonGUI.draw_line, nodocstring,
+        label={\texttt{draw\_buttons.py}}]{python}{examples/draw_buttons.py}
+  \end{example}
+\end{frame}
+
+\mode<article>{\needspace{8\baselineskip}}
+\begin{frame}<article>[fragile]
+  \begin{example}[Ritprogrammet med färgknappar
+    (\texttt{draw\_buttons.py})]\label{ex:draw-buttons}
+    Sätter vi in varje del där dess namn står får vi hela programmet:
+    \inputminted{python}{examples/draw_buttons.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{figure}[htbp]
+    \centering
+    \begin{sidecaption}{\texttt{draw\_buttons.py} efter två drag med
+      musen, det första i svart och det andra i rött efter ett tryck på
+      \texttt{Red}.  Ramen med de två knapparna står under ritytan.
+      Bilden visar programmets egen yta, utan
+      skrivbordsmiljöns fönsterram.}[fig:draw-buttons]
+      \includegraphics[width=0.6\textwidth]{figs/draw_buttons.png}
+    \end{sidecaption}
+  \end{figure}
+\end{frame}
+
+\Cref{fig:draw-buttons} visar resultatet.  Lösningen fungerar, men den
+växer med en knapp och en metod för varje ny färg.
+
+
+\section{Sammanfattning}
+\label{sec:sammanfattning-grafik}
+
+\begin{frame}
+  \only<presentation>{%
+    \begin{summary}
+      \begin{itemize}
+        \item Ett grafiskt program väntar på händelser; händelseslingan
+          anropar dess \foreignlanguage{english}{callback}-funktioner.
+        \item Funktionen lämnas över utan parenteser.
+        \item Fönstret är en klass som ärver från
+          \mintinline{python}{tk.Tk}; delarna är attribut.
+        \item \mintinline{python}{command} för knappar,
+          \mintinline{python}{bind} för resten.
+        \item Logiken utanför klassen går att köra utan fönster.
+        \item \texttt{pydoc3} först, sedan Tk:s manual.
+      \end{itemize}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}
+      Ett grafiskt program bestämmer inte ordningen själv.  Det bygger
+      fönstret, kopplar händelser till
+      \foreignlanguage{english}{callback}-funktioner och lämnar över
+      till händelseslingan, som anropar funktionerna när händelserna
+      kommer.  Funktionen lämnas över utan parenteser; med parenteser
+      anropas den på en gång.  Fönstret skrivs som en klass som ärver
+      från \mintinline{python}{tk.Tk}, med delarna som attribut, så att
+      metoderna som händelseslingan anropar når dem.  En knapp anropar
+      sin funktion med \mintinline{python}{command}, utan argument, och
+      \mintinline{python}{bind} kopplar andra händelser, som tangenter
+      och musrörelser, till en funktion som får händelsen som argument.
+      Det som inte har med fönstret att göra hålls utanför klassen och
+      kan köras utan fönster.  Och det dokumentationen i
+      \texttt{pydoc3} inte säger står i Tk:s manual.
+    \end{summary}%
+  }
+\end{frame}
