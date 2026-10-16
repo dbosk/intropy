@@ -57,8 +57,8 @@ terminaldelen i DD1301* här i modulen leder dit.
 
 ## Efter föreläsningen
 
-Gör *Laboration (0) kom igång med Hello World* på egen hand; föreläsningen
-är dess underlag, och på labbpasset direkt efter får du hjälp att få igång
+Gör *Laboration (0): Hello, world och remix! (kamratgranskning)* på
+egen hand; föreläsningen är dess underlag, och på labbpasset direkt efter får du hjälp att få igång
 din arbetsmiljö. Fortsätt sedan enligt veckoöversikten med *Övning:
 Terminalen och köra kod*, som den här veckan också fortsätter där
 föreläsningen slutade om allt inte hann med.

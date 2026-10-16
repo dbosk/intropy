@@ -27,8 +27,9 @@ samt listor och tupler från de tidigare veckorna.
 
 - använda uppslagslistor för att lagra och slå upp data, hantera att en
   nyckel saknas och gå igenom en uppslagslista med `for`,
-- välja mellan lista och uppslagslista utifrån vilka operationer
-  programmet behöver, och motivera valet,
+- välja mellan lista, tupel och uppslagslista utifrån vilka operationer
+  programmet behöver, också för värdena i en uppslagslista, och motivera
+  valet,
 - förklara skillnaden mellan en klass och ett objekt,
 - skapa klasser med attribut och metoder och förstå vad parametern `self`
   är,

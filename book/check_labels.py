@@ -11,6 +11,8 @@ It reads the decks from `book-body.tex` (the `\\deck{<dir>}{<title>}` lines),
 then scans each deck's sources for
 
 - `\\label{...}` and `\\label[type]{...}`;
+- the label argument of memoir's side captions,
+  `\\begin{sidecaption}[<toc>]{<caption>}[<label>]`;
 - the names of `restatable` environments, which define a macro each
   (`\\begin{restatable}{lo}{HelloLOProgram}` defines `\\HelloLOProgram`);
 - noweb's chunk labels in the woven `contents.tex` (`NW<prefix>-...`), which
@@ -28,6 +30,7 @@ DECK = re.compile(r"^\s*\\deck(?:\[[^\]]*\])?\{([^}]*)\}", re.MULTILINE)
 LABEL = re.compile(r"\\label(?:\[[^\]]*\])?\{([^}]*)\}")
 RESTATABLE = re.compile(r"\\begin\{restatable\}(?:\[[^\]]*\])?\{[^}]*\}\{([^}]*)\}")
 NOWEB = re.compile(r"\\sublabel\{([^}]*)\}")
+SIDECAPTION = re.compile(r"\\begin\{sidecaption\}\s*(?:\[[^\]]*\])?\s*\{")
 # The deck's sources as the book reads them.  contents.tex is woven from
 # contents.nw, so it carries the deck's own labels and noweb's.
 SOURCES = ["abstract.tex", "contents.tex", "sokprotokoll.tex"]
@@ -36,6 +39,20 @@ SOURCES = ["abstract.tex", "contents.tex", "sokprotokoll.tex"]
 def strip_comments(text):
     """Drop TeX comments, so a commented-out label does not count."""
     return re.sub(r"(?<!\\)%.*", "", text)
+
+
+def sidecaption_labels(text):
+    """Return the labels given as sidecaption's last optional argument."""
+    labels = []
+    for m in SIDECAPTION.finditer(text):
+        i, depth = m.end(), 1
+        while depth and i < len(text):
+            depth += (text[i] == "{") - (text[i] == "}")
+            i += 1
+        label = re.match(r"\s*\[([^\]]*)\]", text[i:])
+        if label:
+            labels.append(label.group(1))
+    return labels
 
 
 def deck_labels(deck):
@@ -48,7 +65,7 @@ def deck_labels(deck):
                 sys.exit(f"{path}: not woven yet; run make -C {deck} first")
             continue
         text = strip_comments(path.read_text(encoding="utf-8"))
-        for label in LABEL.findall(text):
+        for label in LABEL.findall(text) + sidecaption_labels(text):
             found[label] = "label"
         for label in RESTATABLE.findall(text):
             found["\\" + label] = "restatable"

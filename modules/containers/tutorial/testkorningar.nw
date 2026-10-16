@@ -1,0 +1,90 @@
+% Testkörningarna till bråkets och bankens testfall.  Filen vävs aldrig:
+% den tanglas bara, tillsammans med contents.nw, där testfallen står.
+
+Bredvid varje testfall i \texttt{fraction.py} och \texttt{bank.py}
+visar anteckningarna vad just de raderna skriver ut när \texttt{tests()} körs.  Ett testfall kan
+använda variabler som ett tidigare testfall skapat, så varje testkörning
+importerar klassen, kör de tidigare testfallen tyst --- deras utskrift
+fångas med [[redirect_stdout]] och kastas --- och kör sedan testfallet
+självt.  Då är utskriften precis de rader [[tests()]] skriver för det
+testfallet, med samma tillstånd.  Testfallens rader står bara i
+\texttt{contents.nw}; här refereras de.
+
+<<[[fraction_test_jamforelse.py]]>>=
+from fraction import Fraction
+
+<<prova jämförelserna>>
+@
+
+<<[[fraction_test_hashning.py]]>>=
+from contextlib import redirect_stdout
+from io import StringIO
+
+from fraction import Fraction
+
+with redirect_stdout(StringIO()):
+    <<prova jämförelserna>>
+<<prova hashningen>>
+@
+
+<<[[fraction_test_division.py]]>>=
+from contextlib import redirect_stdout
+from io import StringIO
+
+from fraction import Fraction
+
+with redirect_stdout(StringIO()):
+    <<prova jämförelserna>>
+    <<prova hashningen>>
+<<prova divisionen>>
+@
+
+Bankens testfall tanglas på samma sätt.
+
+<<[[bank_test_konto.py]]>>=
+from bank import Account, Person
+
+<<prova kontot>>
+@
+
+<<[[bank_test_banken.py]]>>=
+from contextlib import redirect_stdout
+from io import StringIO
+
+from bank import Account, Bank, Person
+
+with redirect_stdout(StringIO()):
+    <<prova kontot>>
+<<prova banken>>
+@
+
+<<[[bank_test_angra.py]]>>=
+from contextlib import redirect_stdout
+from io import StringIO
+
+from bank import Account, Bank, Person
+
+with redirect_stdout(StringIO()):
+    <<prova kontot>>
+    <<prova banken>>
+<<prova ångrandet>>
+@
+
+\section*{Utdrag som bara står bredvid varandra}
+
+Lösningsförslaget till e-postuppgiften ställer två sätt att samla
+domänerna bredvid varandra.  Det är utdrag, inte program: de tre
+punkterna står för resten av slingan, som är densamma i båda.  De
+tanglas här, eftersom [[\codebycode]] läser sina sidor ur filer, och
+vävs aldrig, så att de står en enda gång.
+
+<<[[domaner_mangd.py]]>>=
+domains = set()
+...
+domains.add(domain_of(address))
+<<[[domaner_lista.py]]>>=
+domains = []
+...
+if domain_of(address) not in domains:
+    domains.append(domain_of(address))
+@
