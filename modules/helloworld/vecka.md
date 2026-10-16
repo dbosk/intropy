@@ -42,8 +42,11 @@ Varje vecka har en egen sida som den här överst i sin modul.
    och hur du kör programmet från terminalen. Den ges live så att du kan
    ställa frågor; kan du inte komma finns inspelningen och anteckningarna på
    föreläsningarnas sidor.
-2. **Gör *Laboration (0) kom igång med Hello World* på egen hand** och
-   markera den som klar när ditt program kör. Labbpasset för din grupp
+2. **Gör *Laboration (0): Hello, world och remix! (kamratgranskning)* på
+   egen hand.** Den är frivillig, men lämna gärna in ditt program: sedan
+   får du två klasskamraters program att ge återkoppling på, och övar på
+   att lämna in och kamratgranska i Canvas precis som på de kommande
+   laborationerna. Labbpasset för din grupp
    direkt efter föreläsningen (onsdag eller torsdag) är en hjälpsession där
    du får hjälp att få igång din arbetsmiljö. Materialet från terminalkursen
    DD1301 finns i modulen *The terminal* (från *Briefly on interfaces* till
@@ -78,7 +81,8 @@ utan akademisk kvart: föreläsningar och övningar börjar kvart över.
 
 ## Deadlines och hjälp
 
-Laboration 0 markerar du själv som klar i Canvas; den redovisas inte.
+Laboration 0 är frivillig och redovisas inte; lämnar du in den ger du
+sedan återkoppling på två klasskamraters program.
 Datum för övriga inlämningar står på respektive uppgift; se sidan
 *Deadlines, examination av olika moment, betyg och fusk* för hur momenten
 examineras. Fastnar du mellan passen, se sidan *Få hjälp*.

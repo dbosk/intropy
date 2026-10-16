@@ -26,8 +26,10 @@ SRC+=		sokprotokoll.tex
 SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
-EXAMPLES+=	examples/phonebook.py
+EXAMPLES+=	examples/telefonbok.py
 EXAMPLES+=	examples/contacts.py
+EXAMPLES+=	examples/saknat_falt.py
+EXAMPLES+=	examples/saknat_argument.py
 EXAMPLES+=	examples/person.py
 EXAMPLES+=	examples/contacts_class.py
 EXAMPLES+=	examples/public.py
@@ -35,12 +37,42 @@ EXAMPLES+=	examples/person_nick.py
 EXAMPLES+=	examples/private.py
 EXAMPLES+=	examples/two.py
 EXAMPLES+=	examples/compare.py
+EXAMPLES+=	examples/greater.py
+EXAMPLES+=	examples/comparable.py
 
+# The class files' test programs grow one test case at a time, and the
+# deck shows each case's output beside it.  Each of these programs runs
+# one case (after the earlier ones, silenced); they reference the test
+# chunks in contents.nw from testkorningar.nw, which is never woven.
+TESTRUNS+=	examples/person_test_utskrift.py
+TESTRUNS+=	examples/person_test_namnbyte.py
+TESTRUNS+=	examples/person_test_sortering.py
+TESTRUNS+=	examples/person_nick_test_metoder.py
+EXAMPLES+=	${TESTRUNS}
+
+# The three phonebook programs are run with the same searches, read from
+# this file (an empty line, which ends their loops, cannot be given with
+# \runpython's stdin option).  .in is not one of noweb.mk's suffixes, and
+# the file must not be piped through black.
+EXAMPLES+=	examples/sokningar.in
+examples/sokningar.in: testkorningar.nw
+	@mkdir -p ${@D}
+	notangle -R'[[sokningar.in]]' $< > $@
+
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+${TESTRUNS}: testkorningar.nw
 
 .PHONY: examples
 examples: ${EXAMPLES}

@@ -40,8 +40,13 @@ The author arranged *Inmatning, felhantering och styrstrukturer* by hand
 6. `Övning: <vecka> (övningsanteckningar)`, FeedbackFruits, author-made.
    Until then the text header `Övningsanteckningar kommer`
 7. `Laboration (N) …`
-8. anything else the module holds (week 42: *Läsförståelse: Dokumentation
+8. anything else the module holds (week 44: *Läsförståelse: Dokumentation
    för olika behållare*)
+
+Week 44 departs from the shape (author, 2026-10-10): its lecture is a
+recap of the whole course, and the week's four decks are taught at the
+övningar, so the page `Övning: <vecka>` comes right after the lecture page,
+followed by the decks' notes and videos (items 3–4), then item 6.
 
 The imported items of the previous course design are detached and
 unpublished, never deleted: `Övning <vecka>`, `Fördjupande övning <vecka>`,

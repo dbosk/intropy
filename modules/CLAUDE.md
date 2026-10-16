@@ -18,9 +18,9 @@ Each module has one or more deck directories (`slides*/`) building
 is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
 excludes functions, recap, scipy and debug from the course-wide build.
-Six decks still lack a backed-claim chapter: `classes/slides-more`
-(Operatoröverlagring) and the five `containers/slides-*` decks — run the
-claim audit there in their next rounds.
+Five decks still lack a backed-claim chapter: the five
+`containers/slides-*` decks — run the claim audit there in their next
+rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
@@ -90,8 +90,8 @@ objectives carry the week page's Lo-codes in a comment
   A) opens with the verbatim
   `\chapterprecis{Författaren har ännu inte granskat resultaten i den här
   bilagan i sin helhet.}`.
-- "Laboration 0: kom igång med Hello World" is the name of a Canvas item;
-  it keeps its spelling.
+- "Laboration (0): Hello, world och remix! (kamratgranskning)" is the name
+  of a Canvas item; it keeps its spelling.
 - Practise what has been taught (author, 2026-09-18: "once we've said
   it's better to use functions, we'd better be non-hypocritical and use
   the function version everywhere"): from *Funktioner* (week 38) on,
@@ -138,12 +138,14 @@ objectives carry the week page's Lo-codes in a comment
   may have to type the suffixed name, just as with `python3` (author,
   2026-09-22, beside `pydoc input`: "they might have to type pydoc3 just as
   they have to write python3").
-- *Övning: Klasser och objekt* covers both operator overloading and
-  inheritance, in that order: overloading first (comparison and
-  arithmetic dunder methods; the old exercise *En bråkig klass* is back),
-  then inheritance as the generalisation, since overloading `__eq__` or
-  `__str__` already overrides a method inherited from `object` (author,
-  2026-09-18: "probably the same phenomenon").
+- *Övning: Klasser och objekt* covers the comparison dunders (`__str__`,
+  `__lt__`, `__eq__`) and then inheritance as the generalisation, since
+  overloading `__eq__` or `__str__` already overrides a method inherited
+  from `object` (author, 2026-09-18: "probably the same phenomenon").
+  Arithmetic operator overloading and *En bråkig klass* belong to week
+  44, *Operatoröverlagring* and its Övning (author, 2026-09-28: the
+  fraction class was built three times, and arithmetic was practised
+  before it was taught).
 
 ## Backed claims (the ledger)
 
@@ -199,14 +201,35 @@ Backed so far (question → answer):
 - *Moduler och paket* B: modules/import as a novice difficulty → NOT
   backed (no direct study).
 - *Klasser och objekt* B: class/object misconceptions → three backed
-  (Java, Smalltalk); C: encapsulation → established, from Parnas, loosely
-  defined and contested in its classic form. D: composition over inheritance → Design Patterns, established,
-  maintenance experiments on inheritance point both ways (moved here from
-  *Praktiska tillämpningar av klasser* B on 2026-09-22; *Klasser och
-  objekt* is the first deck that recommends composition).
+  (Java, Smalltalk); C: novices' conceptions of class and object
+  (phenomenography, variation theory) → three levels (program text,
+  active at run time, model of reality) with their critical aspects;
+  small Java studies, the levels need not be reached in order, and the
+  reality level can mislead (added 2026-10-03; C and D became D and E);
+  D: encapsulation → established, from Parnas, loosely defined and
+  contested in its classic form; E: composition over inheritance →
+  Design Patterns, established, maintenance experiments on inheritance
+  point both ways (moved here from *Praktiska tillämpningar av klasser*
+  B on 2026-09-22; *Klasser och objekt* is the first deck that
+  recommends composition).
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
+- *Operatoröverlagring* B: properties ↔ uniform access → Meyer's
+  principle, the benefit is changeability, readability unmeasured;
+  C: overloading readability → unmeasured, designer consensus "for
+  number-like types, when the meaning is obvious"; D: canonical form →
+  equality and hashing easier, debugging unbacked (only the deck's own
+  run); the sign in the numerator is the convention of libraries and
+  language standards (no mathematical source read).
+- *Praktiska tillämpningar av klasser* B: classes give better structure
+  and maintainability → partly: early experiments and field studies yes,
+  the most cited comparison no general advantage, novices both ways,
+  "especially as the program grows" untested; C: the rule of thumb
+  dictionary → class → Fowler's data clumps, a practitioner heuristic,
+  not tested; D: reuse → yes with reservations, mostly when a class is
+  used as is, it does not come by itself; E: abstraction → established,
+  the benefit supported but thinly.
 - *Grafiska användargränssnitt* B: event-driven programs and callbacks →
   partly: novices' uncertainty about who calls a handler and when, and
   taking attaching a handler for running it, are documented (JavaScript,
@@ -220,8 +243,8 @@ Backed so far (question → answer):
   fragile); no controlled study measures it. The tutorial's open
   questions on the `mainloop`/callback misconceptions and on debugging
   without the GUI can point here.
-- No backed-claim chapters yet: *Operatoröverlagring*, the five
-  *Behållare* decks (method chapter only) — run the claim audit there.
+- No backed-claim chapters yet: the five *Behållare* decks (method
+  chapter only) — run the claim audit there.
 
 ## Build environment
 
