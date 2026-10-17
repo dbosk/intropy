@@ -11,10 +11,8 @@ modules:
 Övningen ges live i din grupp; tid och plats står i veckoöversikten
 överst i modulen. Vi löser uppgifter tillsammans i mindre grupper.
 Uppgifterna och deras lösningsförslag finns i det interaktiva dokumentet
-(FeedbackFruits) här i modulen, *Övning: Inmatning, felhantering och
-styrstrukturer (övningsanteckningar)*: pröva varje uppgift innan du läser lösningen.
-
-<!-- TODO: FBF-dokumentet skapas av författaren -->
+(FeedbackFruits) här i modulen, *Inmatning, felhantering och styrstrukturer
+(övningsanteckningar)*: pröva varje uppgift innan du läser lösningen.
 
 ## Vad vi går igenom på övningen
 
