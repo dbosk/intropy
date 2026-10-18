@@ -51,9 +51,10 @@ def fraga(helper, *args, **kwargs):
 \newcommand{\mentipyqrcaption}[1]{{\tiny\url{#1}}}
 
 % Galleriets bilder (modules/recap/gallery/pictures.tex), ritade med
-% pythonfigs: flödesscheman, listor, stack och kö, och avsnittet om att
-% alla namn är pilar.  Bilderna nedan är föreläsningens egna, i samma
-% bildspråk, för de steg där galleriets data inte är bankens.
+% pythonfigs: flödesscheman, listor och par, och avsnittet om att alla
+% namn är pilar.  Bilderna nedan är föreläsningens egna, i samma
+% bildspråk, för de steg där galleriets data inte är bankens, och för
+% pilavsnittets steg, där också strängarna är objekt.
 \input{../gallery/pictures.tex}
 
 % Ett anrop utan return: deposit ändrar sitt eget balance, inte main:s.
@@ -153,6 +154,48 @@ def fraga(helper, *args, **kwargs):
     \pyregion{(f)(fname)}{Disken}
   \end{pyfig}%
 }
+
+% Ändringarna inne i deposit i pilar.py: läget efter rad #1 (1, 2 eller 3).
+% Som galleriets \figRebind, men strängarna i uppslagslistorna är också
+% objekt med egna pilar, som talen: avsnittet om pilar tar bort lådorna
+% helt.  Nycklarna ritas kvar i cellerna, så att bilden går att läsa.
+\newcommand{\recapFigRebind}[1]{%
+  \begin{pyfig}
+    \pyframe{m}{main}{amount: \pyptr, account: \pyptr}
+    \pyframe[below=9mm of m.south west, anchor=north west]{dep}%
+      {deposit}{account: \pyptr, amount: \pyptr}
+    \pyval[at={($(m-amount.east)+(12mm,0)$)}, anchor=west]{v500}%
+      {int}{500}
+    \pydict[at={($(m-account.east)!0.5!(dep-account.east)+(12mm,0)$)},
+            anchor=west]{d1}{"owner": \pyptr, "balance": \pyptr}
+    \pyval[at={($(dep-amount.east)+(12mm,0)$)}, anchor=west]{v501}%
+      {int}{501}
+    \pyval[right=13mm of d1-1]{v1500}{int}{1500}
+    \pyval[at={($(v500.east)+(10mm,0)$)}, anchor=west]{sR}{str}{"Ronja"}
+    \pyarrow{m-amount}{v500}
+    \pyarrow{m-account}{d1}
+    \pyarrow{dep-amount}{v501}
+    \pyarrow[out=0, in=-90]{d1-0}{sR}
+    \ifnumequal{#1}{1}{%
+      \pyarrow{d1-1}{v1500}
+    }{%
+      \pyval[at={($(v1500.west |- m-account)$)}, anchor=west]{v2001}%
+        {int}{2001}
+      \pyarrow[out=0, in=180, looseness=1.3]{d1-1}{v2001}
+    }%
+    \ifnumequal{#1}{3}{%
+      \pydict[at={($(v1500.east |- dep-account)+(5mm,0)$)}, anchor=west]%
+        {d2}{"owner": \pyptr, "balance": \pyptr}
+      \pyval[below=6mm of d2-1, pyfig type at=left]{v0}{int}{0}
+      \pyval[right=8mm of d2-0]{sP}{str}{"Pippi"}
+      \pyarrow{d2-1}{v0}
+      \pyarrow{d2-0}{sP}
+      \pyarrow{dep-account}{d2.west |- dep-account}
+    }{%
+      \pyarrow{dep-account}{d1}
+    }%
+  \end{pyfig}%
+}
 \mode*
 
 \leavevmode\ltnote{%
@@ -199,8 +242,9 @@ kurser\autocite{Yang2021Testing}.\footnote{Det vetenskapliga underlaget
 Svara därför själv innan du läser vidare, även när du är osäker.
 
 \leavevmode\ltnote{%
-  Föreläsningen repeterar kursen efter ett uppehåll och kan användas igen
-  inför provet.  Spridd övning ger bättre minne än övning i ett svep:
+  Föreläsningen repeterar kursen efter ett uppehåll, och anteckningarna
+  går att läsa igen efter ett nytt.  Spridd övning ger bättre minne än
+  övning i ett svep:
   d = 0,54 i klassrumsstudier \parencite{Mawson2025Classroom}, och
   g = 0,74 för utspridda hämtningsövningar i en metaanalys som inte är
   begränsad till klassrum \parencite{Latimier2021Spaced}.  Spridningen
@@ -214,7 +258,7 @@ ett svep\autocite{Cepeda2006Distributed}.\footnote{Det vetenskapliga
   minns bättre det man repeterar efter ett uppehåll och hur stor
   effekten är i verkliga kurser --- med förbehållet att den varierar
   mellan kurser och för programmering bara är belagd med samband.}
-Kapitlet går därför att läsa igen inför provet.
+Kapitlet går därför att läsa igen, efter ett nytt uppehåll.
 
 \begin{frame}[fragile,shrink]
   \begin{exercise}
@@ -686,10 +730,8 @@ varandra, med var sin körning.
     \texttt{insattning1.py} till vänster och \texttt{insattning2.py} till
     höger:
     \codebycode
-      [breaklines, fontsize=\scriptsize,
-        label={\texttt{insattning1.py}}]{python}{examples/insattning1.py}
-      [breaklines, fontsize=\scriptsize,
-        label={\texttt{insattning2.py}}]{python}{examples/insattning2.py}
+      [label={\texttt{insattning1.py}}]{python}{examples/insattning1.py}
+      [label={\texttt{insattning2.py}}]{python}{examples/insattning2.py}
     \runbyrun[showcommand, chdir]{examples/insattning1.py}%
       [showcommand, chdir]{examples/insattning2.py}
   \end{example}
@@ -981,10 +1023,8 @@ var sin körning.
     \label{ex:recap-uttag-par}
     \texttt{uttag1.py} till vänster och \texttt{uttag2.py} till höger:
     \codebycode
-      [breaklines, fontsize=\scriptsize,
-        label={\texttt{uttag1.py}}]{python}{examples/uttag1.py}
-      [breaklines, fontsize=\scriptsize,
-        label={\texttt{uttag2.py}}]{python}{examples/uttag2.py}
+      [label={\texttt{uttag1.py}}]{python}{examples/uttag1.py}
+      [label={\texttt{uttag2.py}}]{python}{examples/uttag2.py}
     \runbyrun[showcommand, chdir]{examples/uttag1.py}%
       [showcommand, chdir]{examples/uttag2.py}
   \end{example}
@@ -1389,45 +1429,49 @@ inte ändras var för sig.  Ur en tupel kan vi packa upp värdena i var sin
 variabel, och en funktion kan lämna tillbaka flera värden som en tupel
 (\cref{fig:recap-tupler}).
 
+\begin{frame}<article>[fragile]
+  \begin{example}[Ett program med par]
+    \label{ex:recap-tupel2-fil}
+    Programmet [[tupel2.py]] består av en funktion och huvudprogrammet:
+<<[[tupel2.py]]>>=
+<<funktion som summerar transaktionerna>>
+
+
+<<transaktionernas huvudprogram>>
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+% A notes-only frame still advances beamer's frame counter.
+\mode<presentation>{\addtocounter{framenumber}{-1}}
+
 \begin{frame}[fragile,shrink]
   \begin{example}[Insättningar och uttag]
     \label{ex:recap-tupel2}
-    \only<presentation>{\setminted{fontsize=\scriptsize}}%
-    Programmet \texttt{tupel2.py}:
-    \begin{columns}[T]
-      \begin{column}{0.6\textwidth}
-<<[[tupel2.py]]>>=
+    Funktionen i \texttt{tupel2.py}:
+<<funktion som summerar transaktionerna>>=
 def summary(transactions):
     """Summerar insättningar och uttag"""
     deposits = 0
     withdrawals = 0
     for date, amount in transactions:
         if amount > 0:
-            deposits = deposits + amount
+            deposits += amount
         else:
-            withdrawals = withdrawals - amount
+            withdrawals -= amount
     return deposits, withdrawals
-
-
+@
+    och huvudprogrammet:
+<<transaktionernas huvudprogram>>=
 def main():
-    transactions = [
-        ("2026-10-26", 500),
-        ("2026-10-27", -200),
-    ]
+    transactions = [("2026-10-26", 500), ("2026-10-27", -200)]
     deposits, withdrawals = summary(transactions)
     print(f"In: {deposits} kr, ut: {withdrawals} kr")
-
-
-if __name__ == "__main__":
-    main()
 @
-      \end{column}
-      \begin{column}{0.38\textwidth}
-        \runpython[showcommand, chdir]{examples/tupel2.py}
-      \end{column}
-    \end{columns}
-    \only<presentation>{\centering\figPairs\par
-      \setminted{fontsize=\footnotesize}}
+    \runpython[showcommand, chdir]{examples/tupel2.py}
   \end{example}
 \end{frame}
 \begin{figure}[htbp]
@@ -1744,12 +1788,8 @@ Kontot har tre attribut, och alla är privata: de börjar med två
 understreck och är inte tänkta att nås utifrån.  [[__init__]] ger ett nytt
 objekt dess värden, och [[self]] är objektet självt, det som metoden
 anropades på.  Saldot ska gå att läsa men inte att ändra direkt, så det
-läses genom [[balance]], som är en egenskap: raden
-\mintinline{python}{@property} gör att metoden anropas utan parenteser,
-som [[konto.balance]].  Egenskaper är en försmak: anteckningarna
-\emph{Operatoröverlagring} går igenom dem, och här räcker det att den
-lämnar tillbaka det privata attributet.  [[__str__]] bestämmer hur
-kontot skrivs ut.
+läses genom metoden [[get_balance]], som lämnar tillbaka det privata
+attributet.  [[__str__]] bestämmer hur kontot skrivs ut.
 
 \begin{frame}<article>[fragile]
   \begin{example}[Bankens modul]
@@ -1772,8 +1812,7 @@ kontot skrivs ut.
 \begin{frame}[fragile,shrink]
   \begin{example}[Kontot som en klass]
     \label{ex:recap-konto}
-    Klassen [[Account]] i \texttt{bank.py} (\texttt{@property} är en
-    försmak):
+    Klassen [[Account]] i \texttt{bank.py}:
 <<kontoklassen>>=
 class Account:
     """Ett bankkonto med nummer, ägare och saldo"""
@@ -1787,9 +1826,8 @@ def __init__(self, number, owner, balance=0):
     self.__owner = owner
     self.__balance = balance
 
-@property
-def balance(self):
-    """Saldot i kronor"""
+def get_balance(self):
+    """Returnerar saldot"""
     return self.__balance
 
 def __str__(self):
@@ -1842,7 +1880,7 @@ def main():
     ronja = Account("1001", "Ronja", 1000)
     copy = Account("1001", "Ronja", 1000)
     copy.deposit(500)
-    print(ronja.balance)
+    print(ronja.get_balance())
     print(copy)
 
 
@@ -1964,8 +2002,8 @@ ett bättre val än en uppslagslista.
   källorna kommer undervisningen strax efter förfrågan; ingen källa
   prövar ett avstånd på veckor \parencite{Pan2026Temporal}.  Därför
   frågar
-  \cref{ovn:recap-mangd,ovn:recap-belopp,ovn:recap-sparkonto,%
-  ovn:recap-fil,ovn:recap-fonster} efter ämnets centrala begrepp, inte
+  \cref{ovn:recap-belopp,ovn:recap-sparkonto,ovn:recap-fil,%
+  ovn:recap-fonster} efter ämnets centrala begrepp, inte
   efter en detalj, och svaret ges direkt; samma fråga är värd att ställa
   igen när begreppet undervisas.
 }%
@@ -1982,137 +2020,11 @@ fel\autocite{Richland2009Pretesting}.\footnote{Det vetenskapliga
 gäller bara det som frågan handlar om, så
 frågorna gäller det viktigaste i varje ämne.
 
-\subsection{Mängder, stackar och köer (valfritt)}
-\label{sec:recap-mangder}
-
-\leavevmode\ltnote{%
-  Relevanta lärandemål: \cref{RecapLOChoose}; ur \emph{Behållare:
-  Mängder, stackar och köer} målen om mängd, stack och kö (Lo09).
-
-  Avsnittet är valfritt, liksom föreläsningen det pekar på, och är därför
-  det kortaste: en fråga, ett program och en ruta.
-  \Cref{ovn:recap-mangd} prövar att en mängd inte har dubbletter.
-  \textbf{Kontrast}: tre behållare med samma ägare och belopp som i
-  bankens tidigare steg, där det som varierar är vilket element som
-  kommer ut.  \textbf{Generalisering}: \cref{ex:recap-bokstaver}.
-  Spelet i \emph{Behållare: Ett gissningsspel} är ett längre exempel
-  på behållare, inte en egen konstruktion, och får bara en hänvisning.
-}%
-Det här avsnittet är valfritt.  Tre behållare till löser tre vanliga
-problem i en bank: vilka som äger konton, vilken
-transaktion som ska ångras först, och vilken kund som står först i kön.
-
-\begin{frame}[fragile,shrink]
-  \begin{exercise}
-    \label{ovn:recap-mangd}
-    Ronja har två konton.  Programmet [[behallare.py]]:
-<<[[behallare.py]]>>=
-from collections import deque
-
-
-def main():
-    owners = {"Ronja", "Pippi", "Madicken", "Ronja"}
-    print(len(owners))
-    undo = [500, -200, 1000]
-    print(undo.pop())
-    customers = deque(["Ronja", "Pippi", "Madicken"])
-    print(customers.popleft())
-
-
-if __name__ == "__main__":
-    main()
-@
-    \begin{pycode}
-print(fraga(
-    mc,
-    "Vad skriver behallare.py ut på sin första rad?",
-    [
-        "4",
-        "3",
-        "2",
-        "Ett felmeddelande",
-    ],
-))
-    \end{pycode}
-  \end{exercise}
-\end{frame}
-
-\begin{frame}[fragile]
-  \begin{example}[En mängd, en stack och en kö]
-    \label{ex:recap-behallare}
-    Så här blir körningen, och så ser behållarna ut före
-    \texttt{pop} och \texttt{popleft}:
-    \begin{columns}[T]
-      \begin{column}{0.3\textwidth}
-        \runpython[showcommand, chdir]{examples/behallare.py}
-      \end{column}
-      \begin{column}{0.68\textwidth}
-        \only<presentation>{%
-          \scalebox{0.75}{\figSet}\par\medskip
-          \scalebox{0.75}{\figStack}\par\medskip
-          \scalebox{0.75}{\figQueue}}
-      \end{column}
-    \end{columns}
-  \end{example}
-\end{frame}
-
-En mängd har varken ordning eller dubbletter, så Ronja räknas en gång.
-En lista som bara ändras i slutet, med [[append]] och [[pop]], är en
-stack: det som lades dit sist tas bort först, som när den senaste
-transaktionen ångras.  En [[deque]] som får nya element i slutet och
-lämnar ifrån sig det första med [[popleft]] är en kö: den som kom först
-blir betjänad först (\cref{fig:recap-behallare}).  En lista kan också
-vara en kö, men en [[deque]] är byggd för att ta bort det första elementet
-snabbt, och det kan inte en lista.\footnote{Underlaget finns i
-  anteckningarna \emph{Behållare: Mängder, stackar och köer}, bilaga~A,
-  som svarar på om en \mintinline{python}{deque} är ett bättre val än en
-  lista för en kö: ja, enligt Pythons dokumentation.}
-
-\begin{figure}[htbp]
-  \begin{sidecaption}{Behållarna i [[behallare.py]], före [[pop]] och
-    [[popleft]]: mängden av ägare
-    utan ordning och utan index, listan som stack med [[append]] och
-    [[pop]] i samma ände, och [[deque]] som kö med [[append]] i slutet
-    och [[popleft]] först.}[fig:recap-behallare]
-    \begin{tabular}{@{}l@{}}
-      \figSet \\[1ex]
-      \figStack \\[1ex]
-      \figQueue
-    \end{tabular}
-  \end{sidecaption}
-\end{figure}
-
-\begin{frame}[fragile,shrink]
-  \begin{syntax}[mängd, stack och kö]
-    \label{syn:recap-mangd}
-    En mängd, en lista som stack och en \mintinline{python}{deque} som
-    kö:
-    \begin{minted}{python}
-mängd = {värde, värde}      # set() om den ska vara tom
-mängd.add(värde)
-stack = []
-stack.append(värde)         # överst
-stack.pop()                 # det översta
-kö = deque()                # from collections import deque
-kö.append(värde)            # sist i kön
-kö.popleft()                # den första i kön
-    \end{minted}
-  \end{syntax}
-
-  \begin{example}[Olika bokstäver]
-    \label{ex:recap-bokstaver}
-    En mängd av bokstäver:
-    \begin{minted}{python}
-print(len(set("pippi")))
-    \end{minted}
-  \end{example}
-\end{frame}
-
 Mängder, stackar och köer, och hur vi väljer behållare efter vad
 programmet ska göra, går anteckningarna \emph{Behållare: Mängder, stackar
-och köer} igenom.  Anteckningarna \emph{Behållare: Ett gissningsspel}
-sätter ihop behållare, upprepningar och felhantering i ett helt program.
-
+och köer} igenom; de är valfri läsning, och därför tar repetitionen inte
+upp dem.  Anteckningarna \emph{Behållare: Ett gissningsspel} sätter ihop
+behållare, upprepningar och felhantering i ett helt program.
 
 \subsection{Operatoröverlagring}
 \label{sec:recap-operatorer}
@@ -2178,6 +2090,14 @@ print(fraga(
   \end{exercise}
 \end{frame}
 
+\begin{frame}[fragile]
+  \begin{example}[Två belopp och en summa]
+    \label{ex:recap-belopp1}
+    Så här blir körningen:
+    \runpython[showcommand, chdir]{examples/belopp1.py}
+  \end{example}
+\end{frame}
+
 En egen klass kan få operatorerna genom dundermetoder: [[a + b]] blir
 anropet [[a.__add__(b)]].  Klassen [[Amount]] lagrar beloppet i ören, så
 att varje belopp har en enda representation, och ett negativt belopp
@@ -2206,15 +2126,15 @@ def __str__(self):
   \end{example}
 \end{frame}
 
-\Cref{ex:recap-belopp2} kör [[belopp1.py]] bredvid [[belopp2.py]],
-som har den metod som saknas.  Den första raden fungerar i båda:
-[[Amount(500) + Amount(12, 50)]] anropar
-[[__add__]] på det vänstra beloppet.  Men [[sum]] börjar med talet [[0]],
+I körningen (\cref{ex:recap-belopp1}) fungerar den första raden,
+eftersom summan [[Amount(500) + Amount(12, 50)]] anropar [[__add__]] på
+det vänstra beloppet.  Men [[sum]] börjar med talet [[0]],
 och [[0 + Amount(500)]] har talet till vänster.  Python frågar först
 talet, som inte vet vad ett [[Amount]] är, och sedan beloppet om det kan
 addera med talet till vänster: det är metoden [[__radd__]], den omvända
 additionen.  Den saknas, och då blir det ett [[TypeError]].  Eftersom
-addition är kommutativ kan [[__radd__]] låta [[__add__]] göra jobbet.
+addition är kommutativ kan [[__radd__]] låta [[__add__]] göra jobbet, och
+det gör [[belopp2.py]] (\cref{ex:recap-belopp2}).
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Den omvända additionen]
@@ -2232,8 +2152,7 @@ class Amount:
 
 <<beloppens provkörning>>
 @
-    Körningarna av \texttt{belopp1.py} och \texttt{belopp2.py}:
-    \runpython[showcommand, chdir]{examples/belopp1.py}
+    Nu fungerar båda raderna:
     \runpython[showcommand, chdir]{examples/belopp2.py}
   \end{example}
 \end{frame}
@@ -2345,7 +2264,7 @@ class SavingsAccount(Account):
 
     def add_interest(self):
         """Sätter in räntan, i hela kronor, på saldot"""
-        interest = round(self.balance * self.__rate)
+        interest = round(self.get_balance() * self.__rate)
         if interest > 0:
             self.deposit(interest)
 @
@@ -2512,11 +2431,10 @@ variablerna finns i minnet, och minnet töms.  Det som ska finnas kvar
 måste sparas i en fil på disken.  Programmet [[fil1.py]] har en funktion
 som sparar kontona och en som läser dem.
 
-\begin{frame}[fragile,shrink]
-  \begin{exercise}
-    \label{ovn:recap-fil}
-    \label{ex:recap-fil1}%
-    [[fil1.py]] sparar två gånger i samma fil:
+\begin{frame}<article>[fragile]
+  \begin{example}[Ett program som sparar och läser]
+    \label{ex:recap-fil1}
+    Programmet [[fil1.py]] består av två funktioner och huvudprogrammet:
 <<[[fil1.py]]>>=
 <<funktion som sparar kontona i en fil>>
 
@@ -2525,23 +2443,33 @@ som sparar kontona och en som läser dem.
 
 
 <<filprogrammets huvudprogram>>
+
+
+if __name__ == "__main__":
+    main()
 @
-    där
+  \end{example}
+\end{frame}
+% A notes-only frame still advances beamer's frame counter.
+\mode<presentation>{\addtocounter{framenumber}{-1}}
+
+\begin{frame}[fragile,shrink]
+  \begin{exercise}
+    \label{ovn:recap-fil}
+    [[fil1.py]] sparar två gånger i samma fil, med
 <<funktion som sparar kontona i en fil>>=
 def save(accounts, filename):
     """Sparar kontona i filen filename, ett konto per rad"""
     with open(filename, "w") as file:
         for number, balance in accounts.items():
             file.write(f"{number},{balance}\n")
+@
+    och huvudprogrammet
 <<filprogrammets huvudprogram>>=
 def main():
     save({"1001": 1500, "1002": 300}, "konton.txt")
     save({"1003": 2000}, "konton.txt")
     print(load("konton.txt"))
-
-
-if __name__ == "__main__":
-    main()
 @
     \begin{pycode}
 print(fraga(
@@ -2551,7 +2479,7 @@ print(fraga(
         "Alla tre: 1001, 1002 och 1003",
         "Bara 1003",
         "Bara 1001 och 1002",
-        "Inga, det blir ett felmeddelande eftersom filen redan finns",
+        "Ett felmeddelande: filen finns redan",
     ],
 ))
     \end{pycode}
@@ -2711,22 +2639,17 @@ if __name__ == "__main__":
 \begin{frame}[fragile,shrink]
   \begin{exercise}
     \label{ovn:recap-fonster}
-    Fönstrets metoder i [[bankomat.py]]; [[main]] skapar fönstret och
-    anropar [[window.mainloop()]]:
+    Fönstrets metoder; [[main]] anropar [[window.mainloop()]]:
 <<fönstrets metoder>>=
 def __init__(self, account):
     super().__init__()
     self.account = account
-    self.amount = tk.StringVar()
-    self.message = tk.StringVar()
-    tk.Label(self, text="Belopp:").grid(row=0, column=0)
-    tk.Entry(self, textvariable=self.amount).grid(row=0, column=1)
+    <<fältet för beloppet och raden för svaret>>
     button = tk.Button(self, text="Ta ut", command=self.withdraw)
     button.grid(row=0, column=2)
-    tk.Label(self, textvariable=self.message).grid(row=1, column=1)
 
 def withdraw(self):
-    """Tar ut beloppet i fältet och visar hur det gick"""
+    """Tar ut beloppet och visar hur det gick"""
     self.message.set(withdrawal(self.account, self.amount.get()))
 @
     \begin{pycode}
@@ -2736,8 +2659,8 @@ print(fraga(
     [
         "I main, efter mainloop",
         "I __init__, när fönstret skapas",
-        "Ingenstans i vår kod: händelseslingan anropar den",
-        "Ingenstans: den måste anropas från main",
+        "I händelseslingan, inte i vår kod",
+        "Ingenstans: main måste anropa den",
     ],
 ))
     \end{pycode}
@@ -2750,6 +2673,27 @@ metoden ska inte anropas där, bara lämnas över.  Sedan lämnar [[main]]
 över till händelseslingan, [[mainloop]], som väntar på nästa händelse och
 anropar [[withdraw]] varje gång användaren trycker på knappen.  Det är
 användaren, inte programmet, som bestämmer ordningen.
+
+Fältet för beloppet och raden för svaret har var sin [[StringVar]], en
+sträng som fönstret och programmet delar: det användaren skriver i
+fältet läser [[withdraw]] med [[get]], och det [[withdraw]] sätter med
+[[set]] visas på raden.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Fältet och svarsraden]
+    \label{ex:recap-falt}
+    Resten av [[__init__]]:
+<<fältet för beloppet och raden för svaret>>=
+self.amount = tk.StringVar()
+self.message = tk.StringVar()
+tk.Label(self, text="Belopp:").grid(row=0, column=0)
+tk.Entry(self, textvariable=self.amount).grid(row=0, column=1)
+tk.Label(self, textvariable=self.message).grid(row=1, column=1)
+@
+  \end{example}
+\end{frame}
+% A notes-only frame still advances beamer's frame counter.
+\mode<presentation>{\addtocounter{framenumber}{-1}}
 
 Själva uttaget ligger i en funktion utanför fönstret.  Den kan vi prova
 utan att öppna något fönster, och fönstret behöver bara visa det den
@@ -2769,7 +2713,7 @@ def withdrawal(account, text):
         account.withdraw(int(text))
     except ValueError as error:
         return f"Det gick inte: {error}"
-    return f"Saldo: {account.balance} kr"
+    return f"Saldo: {account.get_balance()} kr"
 @
   \end{example}
 \end{frame}
@@ -2858,7 +2802,9 @@ användargränssnitt} igenom.
   mellan typer.  Den som svarar \texttt{1500 500} tror att uppslagslistan
   kopieras vid anropet, som lådmodellen säger om talet; den som svarar
   \texttt{2001 501} tror att talet ändras på plats.  Bilderna är
-  galleriets avsnitt om pilar.
+  galleriets avsnitt om pilar, men här är också strängarna objekt med
+  egna pilar, så att ingen låda finns kvar; de tidigare avsnitten behåller
+  lådorna, där de är lättare att följa.
 }%
 Bilderna har ritat tal och strängar som lådor, med värdet inuti, och
 listor, uppslagslistor och objekt som något för sig, som namnet pekar på.
@@ -2945,15 +2891,18 @@ som argumenten.  Den första raden i [[deposit]] flyttar den lokala pilen
   \begin{example}[Efter den första raden]
     \mintinline{python}{amount = amount + 1} flyttar en lokal pil:
     \medskip\centering
-    \scalebox{0.85}{\figRebindA}
+    \scalebox{0.85}{\recapFigRebind{1}}
   \end{example}
 \end{frame}
 
 \begin{figure}[htbp]
   \begin{sidecaption}{Efter \texttt{amount = amount + 1}: den lokala
-    pilen pekar på ett nytt tal, och [[main]] pekar kvar på
-    500.}[fig:recap-flytta]
-    \figRebindA
+    pilen pekar på ett nytt tal, och [[main]] pekar kvar på 500.  Också
+    strängen \texttt{\textquotedbl Ronja\textquotedbl} är ett objekt,
+    med en pil från
+    uppslagslistans cell, som talen; nycklarna är också objekt men står
+    kvar i cellerna, så att bilden går att läsa.}[fig:recap-flytta]
+    \recapFigRebind{1}
   \end{sidecaption}
 \end{figure}
 
@@ -2966,7 +2915,7 @@ tal, 2001.  Båda namnen pekar kvar på samma uppslagslista, så det märker
   \begin{example}[Efter den andra raden]
     Raden ändrar den gemensamma uppslagslistan:
     \medskip\centering
-    \scalebox{0.85}{\figRebindB}
+    \scalebox{0.85}{\recapFigRebind{2}}
   \end{example}
 \end{frame}
 
@@ -2974,8 +2923,9 @@ tal, 2001.  Båda namnen pekar kvar på samma uppslagslista, så det märker
   \begin{sidecaption}{Efter \texttt{account[\textquotedbl balance\textquotedbl]
     += amount}: pilen i
     den gemensamma uppslagslistan pekar nu på 2001, och [[main]] ser
-    det.  Talet 1500 har ingen pil kvar.}[fig:recap-andra]
-    \figRebindB
+    det.  Talet 1500 har ingen pil kvar, och pilen till strängen
+    \texttt{\textquotedbl Ronja\textquotedbl} är orörd.}[fig:recap-andra]
+    \recapFigRebind{2}
   \end{sidecaption}
 \end{figure}
 
@@ -2987,15 +2937,17 @@ uppslagslista, och det märker [[main]] inte heller
   \begin{example}[Efter den tredje raden]
     En ny uppslagslista, och en lokal pil som flyttas dit:
     \medskip\centering
-    \scalebox{0.85}{\figRebindC}
+    \scalebox{0.85}{\recapFigRebind{3}}
   \end{example}
 \end{frame}
 
 \begin{figure}[htbp]
   \begin{sidecaption}{Efter tilldelningen av en ny uppslagslista: den
-    lokala pilen pekar på den nya, och [[main]] pekar kvar på den
+    lokala pilen pekar på den nya, med sina egna objekt, strängen
+    \texttt{\textquotedbl Pippi\textquotedbl} och talet 0, och [[main]]
+    pekar kvar på den
     gamla.}[fig:recap-ny]
-    \figRebindC
+    \recapFigRebind{3}
   \end{sidecaption}
 \end{figure}
 

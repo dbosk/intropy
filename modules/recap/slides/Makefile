@@ -62,7 +62,6 @@ EXAMPLES+=	examples/konton1.py
 EXAMPLES+=	examples/konton2.py
 EXAMPLES+=	examples/bank.py
 EXAMPLES+=	examples/objekt.py
-EXAMPLES+=	examples/behallare.py
 EXAMPLES+=	examples/belopp1.py
 EXAMPLES+=	examples/belopp2.py
 EXAMPLES+=	examples/sparkonto.py
