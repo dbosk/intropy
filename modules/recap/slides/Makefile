@@ -41,6 +41,20 @@ SRC+=		ltnotes.bib
 # the deck reuses (contents.nw \inputs them).
 SRC+=		pythonfigs.sty ../gallery/pictures.tex
 
+# Pictures of the two windows (bankomat.py and raknare.py).  Taking them
+# needs an X server, which a build machine may lack, so they are
+# committed, and only `make screenshots` takes them again: after a change
+# to either program, run it and commit the new pictures.  It runs the
+# programs' own classes in a virtual X server (xvfb-run, from the package
+# xvfb), so no window opens on the screen.
+SCREENSHOTS=	figs/bankomat.png figs/raknare.png
+SRC+=		${SCREENSHOTS}
+
+.PHONY: screenshots
+screenshots: figs/skarmbild.py examples/bank.py examples/bankomat.py \
+		examples/raknare.py
+	cd examples && PYTHONPATH=. xvfb-run -a python3 ../figs/skarmbild.py ../figs
+
 # One line per tangled example program, in the order the deck shows them.
 EXAMPLES+=	examples/valkommen.py
 EXAMPLES+=	examples/temperatur.py
@@ -70,6 +84,7 @@ EXAMPLES+=	examples/fil1.py
 EXAMPLES+=	examples/fil2.py
 EXAMPLES+=	examples/bankomat.py
 EXAMPLES+=	examples/uttagsprov.py
+EXAMPLES+=	examples/raknare.py
 EXAMPLES+=	examples/pilar.py
 
 # noweb names every chunk label after the woven file, and every deck's

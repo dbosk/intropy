@@ -102,11 +102,13 @@
 \usepackage[marginparmargin=outer,footnotereuse=compact]{didactic}
 % Two programs side by side (\codebycode) on a slide may reach into the
 % frame's side margins, which leaves room for \scriptsize instead of
-% didactic's \tiny default; the notes use the same size across their full
-% width.  Without breaklines, didactic warns when a line is wider than its
+% didactic's \tiny default.  In the notes the deck's short programs fit
+% side by side in the text width, in the size of all other code, so the
+% pairs keep to it and leave the margin to the notes (fullwidth=false).
+% Without breaklines, didactic warns when a line is wider than its
 % column, so a line that does not fit is shortened in the program.
 \codebycodesetup{slidewidth=frame, slides={fontsize=\scriptsize},
-  notes={fontsize=\scriptsize}}
+  fullwidth=false}
 % didactic sets footnotes --- and, under the verbose citation style, every
 % \autocite --- as margin notes, and LaTeX allocates \marginpar boxes from
 % the same pool of eighteen boxes as floats.  A chapter with this many
@@ -119,6 +121,29 @@
 % of the figure moves it below the notes, which anchor where they stand in
 % the body text.  (\setsidecappos is memoir's; beamer does not define it.)
 \ifdefined\setsidecappos\setsidecappos{b}\fi
+% A small figure (or table) goes in the outer margin, beside the text that
+% discusses it, with its caption under it: memoir's margin floats, which
+% didactic sets with the margin's justification.  memoir begins them with
+% \FloatBlock, which ends the paragraph and starts a new page whenever an
+% ordinary float is still waiting to be placed; marginfig and margintab
+% are the same margin floats without that block.  They are \marginpar's,
+% so marginfix queues them with the \ltnote's, and they print where they
+% stand: write them right after \leavevmode at the start of the paragraph
+% they belong to.  memoir raises a margin float by 1.2ex, into the gap
+% that separates it from a margin note above it; ours keeps that gap.
+% (Notes only: beamer skips the text between frames.)
+\makeatletter
+\@ifclassloaded{memoir}{%
+  \setfloatadjustment{margintable}{\mpjustification}%
+  \setmarginfloatcaptionadjustment{table}{\captionstyle{\mpjustification}}%
+  \newenvironment{marginfig}
+    {\let\FloatBlock\relax\begin{marginfigure}[0pt]}
+    {\end{marginfigure}}%
+  \newenvironment{margintab}
+    {\let\FloatBlock\relax\begin{margintable}[0pt]}
+    {\end{margintable}}%
+}{}
+\makeatother
 % The form of a construct --- its lines, indentation, colons and
 % parentheses, when it is used and what usually comes with it --- in one
 % environment of its own, so that every such box in the deck looks the
