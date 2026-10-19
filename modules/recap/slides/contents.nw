@@ -82,6 +82,25 @@ def fraga(helper, *args, **kwargs):
   \end{pyfig}%
 }
 
+% Ett anrop med return: värdet går tillbaka till main:s balance.  Som
+% galleriets \figReturn, men med stegen under varandra, så att bilden ryms
+% i marginalen.
+\newcommand{\recapFigReturn}{%
+  \begin{pyfig}
+    \pyframe[anchor=north west, at={(0,0)}]{m1}{main}{balance: 1000}
+    \pyframe[below=9mm of m1.south west, anchor=north west]{d}%
+      {deposit}{balance: 1000, amount: 500, \pyret{returvärde}: 1500}
+    \pyframe[below=14mm of d.south west, anchor=north west]{m2}%
+      {main}{balance: 1500}
+    \node[pyfig region title] at ([yshift=6mm]m1.north west)
+      {Strax före \texttt{return}};
+    \node[pyfig region title] at ([yshift=6mm]m2.north west)
+      {Efter anropet};
+    \pyio[out=0, in=0, looseness=1.6]{d-return.east}{m2-balance.east}%
+      {return}
+  \end{pyfig}%
+}
+
 % Samma inmatning före och efter typomvandlingen.
 \newcommand{\recapFigInput}{%
   \begin{pyfig}
@@ -92,6 +111,13 @@ def fraga(helper, *args, **kwargs):
     \node[pyfig region title] at ([yshift=2mm]s2.north west)
       {Efter \texttt{int}};
   \end{pyfig}%
+}
+
+% Kedjan i klädprogrammet, i samma form som galleriets \figIf.
+\newcommand{\recapFigKlader}{%
+  \pyflowif{celsius < 0: print("Vinterjacka"),
+            celsius < 15: print("Tröja")}%
+    {print("T-shirt")}%
 }
 
 % PIN-koden, frågad om tills den är rätt.
@@ -420,7 +446,9 @@ och korgen är data.
   beståndsdelar skissen ska ha: att se att lagret behöver samma fyra som
   bankomaten, och en upprepning inuti en annan (varorna i varje
   beställning), är det som övningen prövar.  Fritextsvaren visar vilka
-  beståndsdelar gruppen hittar och vilka den missar.
+  beståndsdelar gruppen hittar och vilka den missar.  Lösningsförslaget
+  står bara i anteckningarna: på föreläsningen går läraren i stället
+  igenom gruppens svar, och de beståndsdelar som saknas där.
 }%
 Nu är det din tur, med en uppgift som ingen ännu har skrivit stegen för.
 
@@ -442,9 +470,35 @@ print(fraga(
 \end{frame}
 
 Jämför din skiss med bankomatens algoritm och inköpsrundan.  Har lagret
-samma beståndsdelar, och var i din skiss står de?  Algoritmerna och
-stegvis förfining gick föreläsningen \emph{Algoritmiskt tänkande}
-igenom.
+samma beståndsdelar, och var i din skiss står de?  Jämför den sedan med
+lösningsförslaget.
+
+\begin{solution}[Lagrets algoritm]
+  En möjlig skiss, där ett steg får ett namn och förfinas för sig.  För
+  varje beställning som kommer in:
+  \begin{enumerate}
+    \item \(\langle\)\emph{packa beställningen}\(\rangle\).
+    \item Skicka lådan till kunden.
+  \end{enumerate}
+  där \(\langle\)\emph{packa beställningen}\(\rangle\) är
+  \begin{enumerate}
+    \item Ta fram en tom låda.
+    \item För varje vara i beställningen: om varan finns i hyllan, hämta
+      den, lägg den i lådan och dra den från lagersaldot.  Annars: skriv
+      upp att den saknas.
+    \item Stäng lådan och märk den med kundens adress.
+  \end{enumerate}
+\end{solution}
+
+Lagret har samma fyra beståndsdelar som bankomaten.  Stegen i
+\(\langle\)\emph{packa beställningen}\(\rangle\) är en sekvens; valet gäller
+om varan finns, som bankomatens val gällde om beloppet ryms i saldot;
+beställningen, hyllorna, lagersaldot och lådan är data.  Det nya är
+upprepningen: den över varorna står inuti den över beställningarna, så
+att varje vara i varje beställning blir packad.  Skissen behöver inte
+se ut exakt så här för att vara rätt: det som avgör är att varje
+beståndsdel finns och står på rätt ställe.  Algoritmerna och stegvis
+förfining gick föreläsningen \emph{Algoritmiskt tänkande} igenom.
 
 
 \subsection{Ett program som körs}
@@ -679,7 +733,8 @@ utskrifter} igenom.
   \enquote{Saldo: None kr} fångar den som blandar ihop anropets värde med
   variabeln.  \textbf{Kontrast}: \cref{ex:recap-insattning2} skiljer sig
   från \cref{ovn:recap-insattning} bara i \texttt{return} och i att
-  anroparen tar emot värdet.  \textbf{Generalisering}:
+  anroparen tar emot värdet, och \cref{fig:recap-anrop,fig:recap-retur}
+  visar samma kontrast i datorn.  \textbf{Generalisering}:
   \cref{ex:recap-fahrenheit}, en omvandling med samma form.
   \Cref{sec:recap-pilar} återvänder till samma anrop med pilar.
 }%
@@ -733,9 +788,18 @@ namnet som får det nya värdet, och det försvinner när funktionen är klar
 (\cref{fig:recap-anrop}).  Namnen i [[main]] och namnen i [[deposit]] har
 ingenting med varandra att göra, även när de heter likadant.
 
+\begin{marginfigure}
+  \recapFigReturn
+  \caption{Anropet i [[insattning2.py]]: strax före [[return]] har
+    [[deposit]] räknat ut returvärdet 1500.  Anropet lämnar tillbaka det,
+    och tilldelningen i [[main]] ger [[main]]:s [[balance]] det nya
+    värdet.}\label{fig:recap-retur}
+\end{marginfigure}
 Det som ska tillbaka till den som anropade måste lämnas tillbaka med
 [[return]], och den som anropade måste ta emot värdet.  Programmet
-[[insattning2.py]] gör det.
+[[insattning2.py]] gör det: [[deposit]] lämnar tillbaka det nya saldot,
+och [[main]] tilldelar det till sitt eget [[balance]]
+(\cref{fig:recap-retur}).
 
 \begin{frame}<article>[fragile]
   \begin{example}[Insättningen med returvärde]
@@ -977,7 +1041,9 @@ egen funktion kastar ett särfall med [[raise]].
   Otillräckligt saldo} läser dem som en kedja där bara en gren kan
   exekveras.  \textbf{Kontrast}: \cref{ex:recap-uttag2} är kedjan, och
   där exekveras exakt en gren.  \textbf{Generalisering}:
-  \cref{ex:recap-klader}, samma kedja om väder.
+  \cref{ex:recap-klader}, samma kedja om väder, med ett flödesschema av
+  samma form (\cref{fig:recap-klader}).  Varje flödesschema står vid den
+  kod det visar.
 }%
 Ett uttag får bara göras om pengarna finns.  Programmet måste välja.
 
@@ -1018,12 +1084,24 @@ prövas oavsett hur det gick med den första, och båda villkoren är sanna.
 Ska programmet välja \emph{en} väg skrivs villkoren som en kedja med
 [[elif]] och [[else]], och då exekveras exakt en gren: den första vars
 villkor är sant, eller [[else]] om inget är det.  Bankens uttag,
-[[withdraw]] i [[uttag2.py]], är en sådan kedja.
+[[withdraw]] i [[uttag2.py]], är en sådan kedja
+(\cref{fig:recap-villkor}).
 
-\begin{frame}<article>[fragile]
+\begin{marginfigure}
+  \resizebox{\linewidth}{!}{\figIf}
+  \caption{Villkoren i [[withdraw]] som flödesschema: villkoren prövas
+    uppifrån, och det första som är sant (\texttt{True}) avgör vägen; är
+    inget sant (\texttt{False} hela vägen ner) är det [[else]]-grenen som
+    exekveras.}\label{fig:recap-villkor}
+\end{marginfigure}
+\begin{frame}[fragile,shrink]
   \begin{example}[Uttaget som en kedja av villkor]
     \label{ex:recap-uttag2}
-    Programmet [[uttag2.py]]:
+    \only<presentation>{\setminted{fontsize=\scriptsize}}%
+    Programmet [[uttag2.py]]\only<presentation>{, och kedjan i
+    \texttt{withdraw} som flödesschema}:
+    \begin{columns}[T]
+      \begin{column}{0.46\textwidth}
 <<[[uttag2.py]]>>=
 def withdraw(balance, amount):
     """Lämnar saldot efter uttaget"""
@@ -1046,10 +1124,14 @@ def main():
 if __name__ == "__main__":
     main()
 @
+      \end{column}
+      \begin{column}{0.54\textwidth}
+        \only<presentation>{\resizebox{\linewidth}{!}{\figIf}}
+      \end{column}
+    \end{columns}
+    \only<presentation>{\setminted{fontsize=\footnotesize}}%
   \end{example}
 \end{frame}
-% A notes-only frame still advances beamer's frame counter.
-\mode<presentation>{\addtocounter{framenumber}{-1}}
 
 \Cref{ex:recap-uttag-par} ställer de två programmen bredvid varandra, med
 var sin körning.
@@ -1067,19 +1149,9 @@ var sin körning.
 \end{frame}
 
 I [[uttag2.py]] är det första uttaget större än saldot och nekas; det
-andra går igenom.  \Cref{fig:recap-villkor} visar kedjan som
-flödesschema.  Att [[withdraw]] skriver ut sitt nej i stället för att
+andra går igenom.  Att [[withdraw]] skriver ut sitt nej i stället för att
 kasta ett särfall är ett val vi gör om när banken blir en klass, i
 \cref{sec:recap-klasser}.
-
-\begin{figure}[htbp]
-  \begin{sidecaption}{Villkoren i [[withdraw]] som flödesschema:
-    villkoren prövas uppifrån, och det första som är sant
-    (\texttt{True}) avgör vägen; är inget sant (\texttt{False} hela vägen
-    ner) är det [[else]]-grenen som exekveras.}[fig:recap-villkor]
-    \figIf
-  \end{sidecaption}
-\end{figure}
 
 \begin{frame}[fragile,shrink=15]
   \begin{columns}[T]
@@ -1103,7 +1175,7 @@ else:
       \end{syntax}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \only<presentation>{\resizebox{0.9\linewidth}{!}{\figIf}\par}
+      \only<presentation>{\resizebox{0.9\linewidth}{!}{\recapFigKlader}\par}
       \begin{example}[Vad ska jag ha på mig?]
         \label{ex:recap-klader}
         Samma kedja om väder:
@@ -1119,6 +1191,16 @@ else:
     \end{column}
   \end{columns}
 \end{frame}
+
+\begin{marginfigure}
+  \resizebox{\linewidth}{!}{\recapFigKlader}
+  \caption{Kedjan i \cref{ex:recap-klader} som flödesschema: samma form
+    som i [[withdraw]], med andra villkor och andra
+    grenar.}\label{fig:recap-klader}
+\end{marginfigure}
+Kedjans form är densamma i helt andra program, som det som väljer kläder
+efter temperaturen i \cref{ex:recap-klader}: villkor efter villkor,
+uppifrån, och en gren för det som blir kvar (\cref{fig:recap-klader}).
 
 Villkor och förgreningar gick föreläsningen \emph{Villkor och
 styrstrukturer} igenom.
@@ -2092,10 +2174,15 @@ behållare, upprepningar och felhantering i ett helt program.
 
   \Cref{ovn:recap-belopp} frågar efter ämnets centrala begrepp: att
   \texttt{+} mellan två egna objekt blir ett anrop av
-  \texttt{\_\_add\_\_}.  Den som svarar med det första felmeddelandet
-  tror att operatorerna bara finns för Pythons egna typer.  Programmets
-  andra rad, med \texttt{sum}, leder sedan vidare till den omvända
-  operatorn.  \textbf{Kontrast}: \cref{ex:recap-belopp2} skiljer sig
+  \texttt{\_\_add\_\_}.  Klassens metoder visas före frågan, så att
+  alternativen går att skilja åt med det som visas.  Den som svarar
+  \enquote{bara ett felmeddelande, eftersom + bara fungerar för tal} tror
+  att operatorerna bara finns för Pythons egna typer; den som svarar
+  \enquote{512,50 kr två gånger} tror att \texttt{sum} fungerar så snart
+  \texttt{+} gör det; den som skyller på \texttt{\_\_radd\_\_} redan
+  på första raden vet att det finns en omvänd operator men inte när den
+  behövs.  Programmets andra rad, med \texttt{sum}, leder vidare till den
+  omvända operatorn.  \textbf{Kontrast}: \cref{ex:recap-belopp2} skiljer sig
   från \cref{ovn:recap-belopp} bara i \texttt{\_\_radd\_\_}.
   \textbf{Generalisering}: \cref{ex:recap-tid}, en tid i stället för ett
   belopp.  Beloppet lagras i ören av samma skäl som bråket förkortas i
@@ -2103,14 +2190,41 @@ behållare, upprepningar och felhantering i ett helt program.
 }%
 Ett belopp i kronor och ören är ett värde, som ett tal, och det vore
 bekvämt att kunna lägga ihop två belopp med [[+]].  Klassen [[Amount]]
-har en metod som heter [[__add__]], och programmet [[belopp1.py]] lägger
-ihop två belopp, först med [[+]] och sedan med [[sum]].
+lagrar beloppet i ören, så att varje belopp har en enda representation,
+och ett negativt belopp finns inte.  Metoden [[__add__]] tar också emot
+ett heltal, i kronor: [[isinstance]] avgör vad den har fått.  Formatet
+[[:02]] i f-strängen skriver örena med två siffror, med en nolla först
+om det behövs.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Ett belopp]
+    \label{ex:recap-belopp-metoder}
+    Metoderna i klassen [[Amount]], i \texttt{belopp1.py}:
+<<beloppets metoder>>=
+def __init__(self, kronor, ore=0):
+    if kronor < 0 or ore < 0:
+        raise ValueError("ett belopp kan inte vara negativt")
+    self.__ore = 100 * kronor + ore
+
+def __add__(self, other):
+    if isinstance(other, int):
+        other = Amount(other)
+    return Amount(0, self.__ore + other.__ore)
+
+def __str__(self):
+    return f"{self.__ore // 100},{self.__ore % 100:02} kr"
+@
+  \end{example}
+\end{frame}
+
+Programmet [[belopp1.py]] lägger ihop två belopp, först med [[+]] och
+sedan med [[sum]].
 
 \begin{frame}[fragile,shrink]
   \begin{exercise}
     \label{ovn:recap-belopp}
-    Klassen [[Amount]] har metoden [[__add__]].  Programmet
-    [[belopp1.py]]:
+    Programmet [[belopp1.py]], med metoderna från exemplet \emph{Ett
+    belopp}:
 <<[[belopp1.py]]>>=
 class Amount:
     """Ett belopp i kronor och ören"""
@@ -2129,12 +2243,12 @@ if __name__ == "__main__":
     \begin{pycode}
 print(fraga(
     mc,
-    "Vad skriver belopp1.py ut på sin första rad?",
+    "Vad skriver belopp1.py ut?",
     [
-        "512,50 kr",
-        "Ett felmeddelande, eftersom + bara fungerar för tal",
-        "500,00 kr 12,50 kr",
-        "Ett felmeddelande, eftersom Amount inte har __radd__",
+        "512,50 kr och ett felmeddelande",
+        "512,50 kr två gånger",
+        "Bara ett felmeddelande, eftersom + bara fungerar för tal",
+        "Bara ett felmeddelande, eftersom Amount inte har __radd__",
     ],
 ))
     \end{pycode}
@@ -2150,39 +2264,13 @@ print(fraga(
 \end{frame}
 
 En egen klass kan få operatorerna genom dundermetoder: [[a + b]] blir
-anropet [[a.__add__(b)]].  Klassen [[Amount]] lagrar beloppet i ören, så
-att varje belopp har en enda representation, och ett negativt belopp
-finns inte.  [[__add__]] tar också emot ett heltal, i kronor:
-[[isinstance]] avgör vad den har fått.  Formatet [[:02]] i f-strängen
-skriver örena med två siffror, med en nolla först om det behövs.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Ett belopp]
-    \label{ex:recap-belopp-metoder}
-    Beloppets metoder, i \texttt{belopp1.py}:
-<<beloppets metoder>>=
-def __init__(self, kronor, ore=0):
-    if kronor < 0 or ore < 0:
-        raise ValueError("ett belopp kan inte vara negativt")
-    self.__ore = 100 * kronor + ore
-
-def __add__(self, other):
-    if isinstance(other, int):
-        other = Amount(other)
-    return Amount(0, self.__ore + other.__ore)
-
-def __str__(self):
-    return f"{self.__ore // 100},{self.__ore % 100:02} kr"
-@
-  \end{example}
-\end{frame}
-
-I körningen (\cref{ex:recap-belopp1}) fungerar den första raden,
-eftersom summan [[Amount(500) + Amount(12, 50)]] anropar [[__add__]] på
-det vänstra beloppet.  Men [[sum]] börjar med talet [[0]],
-och [[0 + Amount(500)]] har talet till vänster.  Python frågar först
-talet, som inte vet vad ett [[Amount]] är, och sedan beloppet om det kan
-addera med talet till vänster: det är metoden [[__radd__]], den omvända
+anropet [[a.__add__(b)]].  I körningen (\cref{ex:recap-belopp1})
+fungerar därför den första raden: summan
+[[Amount(500) + Amount(12, 50)]] anropar [[__add__]] på det vänstra
+beloppet.  Men [[sum]] börjar med talet [[0]], och [[0 + Amount(500)]]
+har talet till vänster.  Python frågar först talet, som inte vet vad ett
+[[Amount]] är, och sedan beloppet om det kan addera med talet till
+vänster: det är metoden [[__radd__]], den omvända
 additionen.  Den saknas, och då blir det ett [[TypeError]].  Eftersom
 addition är kommutativ kan [[__radd__]] låta [[__add__]] göra jobbet, och
 det gör [[belopp2.py]] (\cref{ex:recap-belopp2}).
@@ -2258,8 +2346,11 @@ igenom, med ett bråk som exempel.
   \texttt{super()} (Lo09).
 
   \Cref{ovn:recap-sparkonto} prövar att en underklass har
-  överklassens metoder: den som väljer felmeddelandet tror att
-  \texttt{withdraw} måste skrivas en gång till.  \textbf{Kontrast}: två
+  överklassens metoder.  Klassen visas före frågan och räntan står i
+  anropet, så att alternativen går att skilja åt med det som visas: den
+  som väljer felmeddelandet ser att \texttt{SavingsAccount} saknar
+  \texttt{withdraw} och tror att den måste skrivas en gång till; 820 kr
+  är räntan på saldot före uttaget.  \textbf{Kontrast}: två
   sätt att bygga en klass av en annan, arv (ett sparkonto \emph{är} ett
   konto) och komposition (en bank \emph{har} konton), med samma
   kontoklass i båda.  \textbf{Generalisering}: \cref{ex:recap-inkopslista}
@@ -2271,15 +2362,39 @@ Ett sparkonto är ett konto som också ger ränta.  Klassen
 [[add_interest]], som sätter in räntan på saldot.
 
 \begin{frame}[fragile,shrink]
+  \begin{example}[Ett sparkonto]
+    \label{ex:recap-sparkonto}
+    Klassen, i \texttt{bank.py}:
+<<bankens övriga klasser>>=
+class SavingsAccount(Account):
+    """Ett sparkonto: ett konto som också ger ränta"""
+
+    def __init__(self, number, owner, balance=0, rate=0.02):
+        super().__init__(number, owner, balance)
+        self.__rate = rate
+
+    def add_interest(self):
+        """Sätter in räntan, i hela kronor, på saldot"""
+        interest = round(self.get_balance() * self.__rate)
+        if interest > 0:
+            self.deposit(interest)
+@
+  \end{example}
+\end{frame}
+
+Programmet [[sparkonto.py]] öppnar ett sparkonto, tar ut pengar från det
+och sätter in räntan.
+
+\begin{frame}[fragile,shrink]
   \begin{exercise}
     \label{ovn:recap-sparkonto}
-    Programmet [[sparkonto.py]], med räntan två procent:
+    Programmet [[sparkonto.py]]:
 <<[[sparkonto.py]]>>=
 from bank import SavingsAccount
 
 
 def main():
-    savings = SavingsAccount("1003", "Madicken", 1000)
+    savings = SavingsAccount("1003", "Madicken", 1000, rate=0.02)
     savings.withdraw(200)
     savings.add_interest()
     print(savings)
@@ -2303,31 +2418,17 @@ print(fraga(
   \end{exercise}
 \end{frame}
 
-I stället för att skriva kontoklassen en gång till ärver sparkontot den:
-[[SavingsAccount]] har allt som [[Account]] har, och dessutom
-[[add_interest]].
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Ett sparkonto]
-    \label{ex:recap-sparkonto}
-    Klassen, i \texttt{bank.py}, och körningen:
-<<bankens övriga klasser>>=
-class SavingsAccount(Account):
-    """Ett sparkonto: ett konto som också ger ränta"""
-
-    def __init__(self, number, owner, balance=0, rate=0.02):
-        super().__init__(number, owner, balance)
-        self.__rate = rate
-
-    def add_interest(self):
-        """Sätter in räntan, i hela kronor, på saldot"""
-        interest = round(self.get_balance() * self.__rate)
-        if interest > 0:
-            self.deposit(interest)
-@
+\begin{frame}[fragile]
+  \begin{example}[Uttag och ränta]
+    \label{ex:recap-sparkonto-korning}
+    Så här blir körningen:
     \runpython[showcommand, chdir]{examples/sparkonto.py}
   \end{example}
 \end{frame}
+
+I stället för att skriva kontoklassen en gång till ärver sparkontot den:
+[[SavingsAccount]] har allt som [[Account]] har, och dessutom
+[[add_interest]].
 
 [[withdraw]] och [[__str__]] har sparkontot ärvt.  Sparkontots
 [[__init__]] ersätter kontots, men anropar det med [[super()]], så att
@@ -2420,9 +2521,7 @@ if __name__ == "__main__":
 [[withdraw]] gäller också här: räcker inte pengarna kastar uttaget sitt
 särfall innan insättningen har gjorts.
 
-\begin{frame}[fragile,shrink]
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
+\begin{frame}[fragile]
   \begin{syntax}[arv och komposition]
     \label{syn:recap-arv}
     Arv när den nya klassen är en sorts den gamla; komposition när ett
@@ -2432,7 +2531,7 @@ särfall innan insättningen har gjorts.
       om komposition bör föredras framför arv: ett etablerat råd, att
       ärva bara när den nya klassen verkligen är en sorts den gamla,
       fast experimenten med arv pekar åt båda hållen.}}
-    \begin{minted}[fontsize=\scriptsize]{python}
+    \begin{minted}{python}
 class Underklass(Överklass):
     def __init__(self, gammal, ny):
         super().__init__(gammal)
@@ -2444,12 +2543,24 @@ class Helhet:
         self.__delar = {}
     \end{minted}
   \end{syntax}
-    \end{column}
-    \begin{column}{0.46\textwidth}
+\end{frame}
+
+En inköpslista har sina varor på samma sätt som banken har sina konton:
+varorna är objekt av en egen klass, och listan håller dem.
+
+\begin{frame}<article>[fragile]
   \begin{example}[En inköpslista]
     \label{ex:recap-inkopslista}
-    En lista som har varor:
-    \begin{minted}[fontsize=\scriptsize]{python}
+    Programmet [[inkopslista.py]], en lista som har varor:
+<<[[inkopslista.py]]>>=
+class ShoppingItem:
+    """En vara på inköpslistan"""
+
+    def __init__(self, name, count):
+        self.__name = name
+        self.__count = count
+
+
 class ShoppingList:
     """En inköpslista"""
 
@@ -2457,11 +2568,40 @@ class ShoppingList:
         self.__items = []
 
     def add(self, item):
+        """Lägger till varan item"""
         self.__items.append(item)
-    \end{minted}
+
+
+def main():
+    shopping = ShoppingList()
+    milk = ShoppingItem("mjölk", 2)
+    eggs = ShoppingItem("ägg", 12)
+    shopping.add(milk)
+    shopping.add(eggs)
+
+
+if __name__ == "__main__":
+    main()
+@
   \end{example}
-    \end{column}
-  \end{columns}
+\end{frame}
+% A notes-only frame still advances beamer's frame counter.
+\mode<presentation>{\addtocounter{framenumber}{-1}}
+
+\begin{frame}<presentation>[fragile]
+  \begin{example}[En inköpslista]
+    Programmet \texttt{inkopslista.py}, en lista som har varor:
+    \begin{columns}[T,onlytextwidth]
+      \begin{column}{0.5\linewidth}
+        \inputminted[firstline=1, lastline=17,
+          fontsize=\scriptsize]{python}{examples/inkopslista.py}
+      \end{column}
+      \begin{column}{0.5\linewidth}
+        \inputminted[firstline=20,
+          fontsize=\scriptsize]{python}{examples/inkopslista.py}
+      \end{column}
+    \end{columns}
+  \end{example}
 \end{frame}
 
 Komposition, arv och [[super()]], och när vi väljer vilket, går
@@ -2478,7 +2618,8 @@ anteckningarna \emph{Praktiska tillämpningar av klasser} igenom.
 
   \Cref{ovn:recap-fil} prövar vad läget \texttt{w} gör med en fil som
   redan finns: den som svarar med alla tre kontona tror att skrivningen
-  lägger till.  \textbf{Kontrast}: samma uppslagslista som i
+  lägger till.  Funktionen som läser visas före frågan, så att svaret
+  bara hänger på läget.  \textbf{Kontrast}: samma uppslagslista som i
   \cref{ex:recap-konton2}, nu sparad mellan två körningar i stället för
   att försvinna.  \textbf{Generalisering}: \cref{ex:recap-logg}, en logg
   som växer med läget \texttt{a}.
@@ -2509,6 +2650,31 @@ if __name__ == "__main__":
 \end{frame}
 % A notes-only frame still advances beamer's frame counter.
 \mode<presentation>{\addtocounter{framenumber}{-1}}
+
+Funktionen som läser går igenom filen rad för rad och gör varje rad till
+ett par i en uppslagslista.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Funktionen som läser]
+    \label{ex:recap-fil-load}
+    Funktionen i \texttt{fil1.py} som läser kontona ur en fil:
+<<funktion som läser kontona ur en fil>>=
+def load(filename):
+    """Läser kontona ur filen filename"""
+    accounts = {}
+    try:
+        with open(filename) as file:
+            for line in file:
+                number, balance = line.strip().split(",")
+                accounts[number] = int(balance)
+    except FileNotFoundError:
+        print(f"Hittar inte {filename}.")
+    return accounts
+@
+  \end{example}
+\end{frame}
+
+Den andra funktionen sparar kontona, och huvudprogrammet anropar båda.
 
 \begin{frame}[fragile,shrink]
   \begin{exercise}
@@ -2543,33 +2709,19 @@ print(fraga(
   \end{exercise}
 \end{frame}
 
-Läget [[w]] öppnar filen för att skriva, och finns filen redan töms den
-först.  Den andra sparningen ersätter alltså den första.  Den som vill
-lägga till i slutet av en fil öppnar den i läget [[a]].  Läsningen går
-igenom filen rad för rad och gör varje rad till ett par i uppslagslistan
-igen (\cref{fig:recap-fil}).
-
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   \begin{example}[Kontona tillbaka ur filen]
     \label{ex:recap-fil}
-    Funktionen som läser:
-<<funktion som läser kontona ur en fil>>=
-def load(filename):
-    """Läser kontona ur filen filename"""
-    accounts = {}
-    try:
-        with open(filename) as file:
-            for line in file:
-                number, balance = line.strip().split(",")
-                accounts[number] = int(balance)
-    except FileNotFoundError:
-        print(f"Hittar inte {filename}.")
-    return accounts
-@
     Körningen av \texttt{fil1.py}:
     \runpython[showcommand, chdir]{examples/fil1.py}
   \end{example}
 \end{frame}
+
+Läget [[w]] öppnar filen för att skriva, och finns filen redan töms den
+först.  Den andra sparningen ersätter alltså den första, och [[load]]
+hittar bara det som den andra skrev.  Den som vill lägga till i slutet
+av en fil öppnar den i läget [[a]].  \Cref{fig:recap-fil} visar vägen
+från uppslagslistan till filen och tillbaka.
 
 \begin{figure}[htbp]
   \begin{sidecaption}{Programmet och filen i [[fil1.py]]: [[write]]
@@ -2652,11 +2804,14 @@ och JSON, och modulerna i standardbiblioteket som läser och skriver dem.
   \Cref{ovn:recap-fonster} prövar den kritiska aspekten i
   händelsestyrda program: vem som bestämmer ordningen.  Den som svarar
   \texttt{main} eller \texttt{\_\_init\_\_} letar efter anropet i
-  programtexten, där det inte finns.  \textbf{Kontrast}: samma uttag som
-  i \cref{ex:recap-konto-metoder}, men det är användaren som bestämmer
-  när det görs.  \textbf{Generalisering}: \cref{ex:recap-raknare}.
-  Fönstret kan inte köras av PythonTeX; därför provas uttaget utan
-  fönster, som hälsningen i föreläsningen.
+  programtexten, där det inte finns.  Hela programmet visas före frågan,
+  också fältet och funktionen \texttt{withdrawal}, så att studenten kan
+  se att ingen rad anropar fönstrets \texttt{withdraw}.
+  \textbf{Kontrast}: samma uttag som i \cref{ex:recap-konto-metoder}, men
+  det är användaren som bestämmer när det görs.
+  \textbf{Generalisering}: \cref{ex:recap-raknare}.  Fönstret kan inte
+  köras av PythonTeX; därför provas uttaget utan fönster, som hälsningen
+  i föreläsningen.
 }%
 Sist får bankomaten ett fönster: ett fält för beloppet, en knapp och en
 rad där det står hur det gick.  Klassen [[ATM]] i [[bankomat.py]] ärver
@@ -2693,6 +2848,27 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
+Själva uttaget ligger i en funktion utanför fönstret, [[withdrawal]], så
+att fönstret bara behöver visa det den lämnar tillbaka.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Uttaget utan fönster]
+    \label{ex:recap-uttag-utan-fonster}
+    Funktionen i \texttt{bankomat.py}:
+<<uttaget utan fönster>>=
+def withdrawal(account, text):
+    """Tar ut beloppet text och säger hur det gick"""
+    if not text.isdecimal():
+        return "Skriv beloppet med siffror."
+    try:
+        account.withdraw(int(text))
+    except ValueError as error:
+        return f"Det gick inte: {error}"
+    return f"Saldo: {account.get_balance()} kr"
+@
+  \end{example}
+\end{frame}
+
 \begin{frame}[fragile,shrink]
   \begin{exercise}
     \label{ovn:recap-fonster}
@@ -2701,7 +2877,11 @@ if __name__ == "__main__":
 def __init__(self, account):
     super().__init__()
     self.account = account
-    <<fältet för beloppet och raden för svaret>>
+    self.amount = tk.StringVar()
+    self.message = tk.StringVar()
+    tk.Label(self, text="Belopp:").grid(row=0, column=0)
+    tk.Entry(self, textvariable=self.amount).grid(row=0, column=1)
+    tk.Label(self, textvariable=self.message).grid(row=1, column=1)
     button = tk.Button(self, text="Ta ut", command=self.withdraw)
     button.grid(row=0, column=2)
 
@@ -2712,7 +2892,7 @@ def withdraw(self):
     \begin{pycode}
 print(fraga(
     mc,
-    "Var i programmet anropas metoden withdraw?",
+    "Var i programmet anropas fönstrets metod withdraw?",
     [
         "I main, efter mainloop",
         "I __init__, när fönstret skapas",
@@ -2736,44 +2916,9 @@ sträng som fönstret och programmet delar: det användaren skriver i
 fältet läser [[withdraw]] med [[get]], och det [[withdraw]] sätter med
 [[set]] visas på raden.
 
-\begin{frame}<article>[fragile]
-  \begin{example}[Fältet och svarsraden]
-    \label{ex:recap-falt}
-    Resten av [[__init__]]:
-<<fältet för beloppet och raden för svaret>>=
-self.amount = tk.StringVar()
-self.message = tk.StringVar()
-tk.Label(self, text="Belopp:").grid(row=0, column=0)
-tk.Entry(self, textvariable=self.amount).grid(row=0, column=1)
-tk.Label(self, textvariable=self.message).grid(row=1, column=1)
-@
-  \end{example}
-\end{frame}
-% A notes-only frame still advances beamer's frame counter.
-\mode<presentation>{\addtocounter{framenumber}{-1}}
-
-Själva uttaget ligger i en funktion utanför fönstret.  Den kan vi prova
-utan att öppna något fönster, och fönstret behöver bara visa det den
-lämnar tillbaka.  Programmet [[uttagsprov.py]] provar den med 200, 5000
-och [[tvåhundra]].
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Uttaget utan fönster]
-    \label{ex:recap-uttag-utan-fonster}
-    Funktionen i \texttt{bankomat.py}:
-<<uttaget utan fönster>>=
-def withdrawal(account, text):
-    """Tar ut beloppet text och säger hur det gick"""
-    if not text.isdecimal():
-        return "Skriv beloppet med siffror."
-    try:
-        account.withdraw(int(text))
-    except ValueError as error:
-        return f"Det gick inte: {error}"
-    return f"Saldo: {account.get_balance()} kr"
-@
-  \end{example}
-\end{frame}
+Funktionen [[withdrawal]] kan vi prova utan att öppna något fönster.
+Programmet [[uttagsprov.py]] provar den med 200, 5000 och
+[[tvåhundra]].
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Ett prov av uttaget]

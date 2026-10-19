@@ -80,6 +80,7 @@ EXAMPLES+=	examples/belopp1.py
 EXAMPLES+=	examples/belopp2.py
 EXAMPLES+=	examples/sparkonto.py
 EXAMPLES+=	examples/banken.py
+EXAMPLES+=	examples/inkopslista.py
 EXAMPLES+=	examples/fil1.py
 EXAMPLES+=	examples/fil2.py
 EXAMPLES+=	examples/bankomat.py
