@@ -54,6 +54,411 @@ från föreläsningen \emph{Behållare: Uppslagslistor}.  Ha Pythons
 dokumentation uppe medan du arbetar: att hitta svaret där är en av de
 färdigheter uppgifterna övar.
 
+\section[E-postadresser]{Giltiga e-postadresser}
+\label{sec:epost}
+
+Den första uppgiften handlar om en fråga som ser ut som en fråga om
+strängar, men som slutar i ett val av behållare.  Så här ska programmet
+bete sig när det är klart.
+
+% REVIEW(C15): körningen av lösningens program står före uppgiften, så
+% att målet blir konkret.  Den avslöjar inget uppgiften frågar efter:
+% vilken behållare som samlar domänerna syns inte i utskriften, och att
+% domänerna kommer i bokstavsordning står redan i uppgiftstexten.  Den
+% andra läsningen --- ingen körning före uppgiften --- är det som stod
+% förut.
+\begin{frame}[fragile,shrink]
+  \begin{example}[Så ska det bete sig]
+    \label{ex:epost-target}
+    Så här ska det se ut när du är klar --- vi skriver in sex adresser,
+    varav två inte duger:
+    \runpython[transcript, stdinfile={examples/epost.in}]%
+      {examples/epost.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}[epost.py]
+    \label{ovn:epost-domaner}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:epost-domaner}:
+      \cref{OvningContainersLOSet,OvningContainersLOChoose}.
+
+      \textbf{Variationsmönster}: kontrast.
+      \textbf{Vad som varierar}: vilken fråga som ställs om de insamlade
+      domänerna --- alla, eller vilka olika.
+      \textbf{Vad som hålls invariant}: inmatningen och kontrollen av
+      adresserna.
+
+      Kontrollen av adresserna övar bara strängar, alltså tidigare
+      material; frågan om \emph{vilka olika} domäner som förekom gör
+      uppgiften till en uppgift om behållare, eftersom det är precis den
+      fråga en mängd svarar på.  Strängkontrollen är det invarianta
+      bakgrundsljudet.
+
+      Formuleringen säger inte vilken behållare som ska användas, och ordet
+      \enquote{mängd} förekommer inte i uppgiften.  Den som samlar domänerna
+      i en lista och rensar dubbletter med en egen kontroll har byggt en
+      fungerande lösning, och den lösningen står skriven bredvid mängdens
+      sist i lösningsförslaget, så att de två kan jämföras samtidigt och
+      inte ur minnet \parencite[s.~45--47]{Marton2015}.  Att låta uppgiften
+      peka ut behållaren hade tagit bort just det som ska urskiljas
+      \parencite[s.~13 och 91]{Marton2015}.
+
+      Filen heter [[epost.py]] och inte något som säger vilken behållare
+      lösningen använder.  Domänerna är KTH:s riktiga: \texttt{kth.se} och
+      studenternas \texttt{ug.kth.se} har båda MX-poster (kontrollerat
+      i DNS); \texttt{student.kth.se} finns däremot inte.
+    }%
+    Skriv ett program som läser in e-postadresser, en per rad, och
+    avslutas med en blankrad.  För varje adress ska programmet svara om
+    den ser ut som en e-postadress eller inte.  När inmatningen är slut
+    ska programmet skriva ut vilka olika domäner som förekom bland de
+    godtagna adresserna, i bokstavsordning.
+
+    Vad har alla e-postadresser gemensamt, och vad kan du använda det
+    till?  Och vad kan du säga om ordningen mellan domänerna i
+    utskriften?
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+\leavevmode\ltnote{%
+  \textbf{Uppifrån och ner}, som i \emph{Övning: Funktioner och
+  variabler}: en hjälpfunktion, en klass eller en metod läggs till
+  först där resonemanget behöver den.
+}%
+Vi skriver programmet uppifrån och ner.  Först lägger vi upp filen:
+överst en \foreignlanguage{english}{docstring} som säger vad programmet
+är till för, sedan hjälpfunktionerna och till sist huvudprogrammet.
+Upplägget står i pseudokod, och sedan preciserar vi pseudokoden med
+pythonkod, en del i taget, när vi kommer till den.
+
+\begin{frame}[fragile]
+  \frametitle{Programmets upplägg}
+  \leavevmode\ltnote{%
+    Programmen följer funktionsregeln från föreläsningen
+    \emph{Funktioner}.  Att anropet står bakom
+    \mintinline{python}|if __name__ == "__main__":| är formen från
+    föreläsningen \emph{Moduler och paket}, och den behövs: flera av
+    filerna importeras av andra program i övningen, och ett huvudprogram
+    på högsta nivån skulle då köras vid importen.
+  }%
+  E-postprogrammets upplägg:
+<<[[epost.py]]>>=
+"""Läser in e-postadresser och samlar deras domäner"""
+
+<<e-postprogrammets hjälpfunktioner>>
+
+<<e-postprogrammets huvudprogram>>
+@
+\end{frame}
+
+Vi börjar med huvudprogrammet, eftersom det är det uppgiften beskriver.
+Adresserna kommer en per rad tills en blankrad, och de godtagna
+adressernas domäner ska samlas så att varje domän räknas en gång ---
+alltså i en mängd.  Om varje adress ställer programmet två frågor: ser
+den ut som en e-postadress, och vilken domän har den?  De är var sin
+sak, och de blir var sin hjälpfunktion, \mintinline{python}{is_email}
+och \mintinline{python}{domain_of}.  Varje funktion får ett ansvar: det
+är \emph{SRP}, principen om ett enda ansvar, från föreläsningen
+\emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
+\footnote{%
+  Det vetenskapliga underlaget för SRP --- både varifrån principen
+  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
+  ansvar} är en bedömningsfråga --- finns i föreläsningen
+  \emph{Funktioner}, bilaga B.%
+}
+Vi anropar dem redan här och skriver dem sedan.  Att de är egna
+funktioner gör också att kontrollen
+går att pröva utan att någon behöver mata in något.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Huvudprogrammet}
+  Mängden växer med en domän per godtagen adress:
+<<e-postprogrammets huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    domains = set()
+
+    while address := input("Ange en e-postadress: "):
+        if is_email(address):
+            print(f"{address} ser ut som en e-postadress.")
+            domains.add(domain_of(address))
+        else:
+            print(f"{address} ser inte ut som en e-postadress.")
+
+    print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Villkoret i \mintinline{python}{while}-satsen läser in adressen med
+tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
+\emph{Övning: Inmatning, felhantering och styrstrukturer}, i
+föreläsningen \emph{Upprepningar} och i föreläsningen \emph{Behållare:
+Uppslagslistor}: det ger \mintinline{python}{address} svaret och är
+självt ett uttryck med samma värde, som villkoret prövar.  En tom sträng
+är falsk, så slingan går tills användaren svarar med en blankrad.  Frågan
+står på ett ställe i stället för två --- före slingan och sist i den ---
+och det är vad principen \emph{DRY},
+\foreignlanguage{english}{Don't Repeat Yourself}, handlar
+om\autocite{HuntThomas1999}.%
+\footnote{%
+  Det vetenskapliga underlaget för DRY --- både varifrån principen
+  kommer och om den håller, med de förbehåll som hör till --- finns i
+  föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
+}
+
+Mängden gör två saker på en gång: den lägger till en domän som inte fanns
+och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
+fall det är.
+
+Och så uppgiftens andra fråga, om ordningen.  Vi prövar att skriva ut
+en mängd med inmatningens två domäner som den är, utan
+\mintinline{python}{sorted}, i ett litet program för sig.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Mängden utan ordning]
+    \label{ex:ordning}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ex:ordning}:
+      \cref{OvningContainersLOSet}.
+
+      \textbf{Vad som varierar}: bara körningen --- samma
+      \texttt{ordning.py} två gånger.  \textbf{Vad som hålls invariant}:
+      programmet, mängden och utskriftens form, som är
+      \texttt{epost.py}:s utan \mintinline{python}{sorted}.
+
+      Python väljer ett nytt slumpvärde för strängarnas hashning vid
+      varje start, så två körningar kan ge olika ordning.  För att
+      anteckningarna ska bli desamma vid varje kompilering körs de två
+      med var sitt fast värde (\texttt{PYTHONHASHSEED}), valda så att
+      ordningen skiljer sig; kommandoraden som visas är den studenten
+      skriver.
+    }%
+    Programmet skriver ut domänerna som mängden lämnar ut dem:
+<<[[ordning.py]]>>=
+"""Skriver ut domänerna i en mängd, utan att ordna dem"""
+
+def main():
+    """Huvudprogrammet"""
+    domains = {"kth.se", "ug.kth.se"}
+    print("Domänerna bland de godtagna:", ", ".join(domains))
+
+if __name__ == "__main__":
+    main()
+@
+    % On the slides the two one-line runs stay one under the other, where
+    % they line up; in the notes they stand side by side.
+    \only<presentation>{%
+      Vi kör det två gånger:
+      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+        deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+        deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
+    }%
+    \only<article>{%
+      Vi kör det två gånger, den första till vänster:
+      \runbyrun
+        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
+          deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
+          deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
+    }
+  \end{example}
+\end{frame}
+
+Samma program ger två olika ordningar, och det är svaret: en mängd har
+ingen ordning.  Den lägger sina element där de hör hemma utifrån värdet,
+inte efter varandra, och därför går det varken att fråga efter det första
+elementet eller att räkna med att två körningar skriver ut dem i samma
+ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
+välja den själva, och här väljer vi bokstavsordning med
+\mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
+dubbletter: två lika värden hör hemma på samma plats, så det andra
+försvinner in i det första.
+
+Kvar är de två hjälpfunktionerna.  Vad har då alla e-postadresser
+gemensamt?  De har ett
+\mintinline{python}|"@"| --- exakt ett --- med något före och något
+efter, och den del som står efter innehåller minst en punkt som varken
+är domänens första eller sista tecken.  Mellanslag får inte förekomma
+alls.  Det räcker för vår kontroll.
+
+\begin{frame}[fragile]
+  \frametitle{Kontrollen}
+  Villkoren, i den ordning de är billigast att pröva:
+<<e-postprogrammets hjälpfunktioner>>=
+def is_email(address):
+    """Returnerar True om address ser ut som en e-postadress."""
+    if address.count("@") != 1 or " " in address:
+        return False
+
+    local, domain = address.split("@")
+    if not local or not domain:
+        return False
+
+    return "." in domain[1:-1]
+@
+\end{frame}
+
+Strängmetoden \mintinline{python}{count} gör samma sak som listornas
+\mintinline{python}{count}, som du slog upp i föreläsningen
+\emph{Behållare: Listor}: den räknar hur många gånger argumentet
+förekommer, så \mintinline{python}|address.count("@")| är antalet
+snabel-a i adressen.  Den sista raden är värd att fundera på.  Skivan
+\mintinline{python}|domain[1:-1]| är domänen utan sitt första och sista
+tecken, så frågan \enquote{finns det en punkt som inte ligger i någon av
+ändarna?} blir en enda fråga om medlemskap i den skivan.  Skivningen är
+densamma som i föreläsningen \emph{Behållare: Listor}, nu tillämpad på en
+sträng.
+
+Att en adress \emph{ser} rätt ut är inte detsamma som att den finns.  Vad
+som verkligen får stå i en e-postadress bestäms av en standard, och den
+tillåter betydligt mer än kontrollen här --- bland annat citerade
+lokaldelar och adresser utan punkt i domänen.  Kontrollen är alltså
+avsiktligt strängare än standarden, vilket är ett vanligt och medvetet
+val i riktiga program.
+% TODO(claim-audit): att standarden för e-postadresser tillåter mer än
+% kontrollen här (citerade lokaldelar, domäner utan punkt).  Primärkällan
+% är RFC 5322, som inte är läst i fulltext härifrån.
+
+Den andra hjälpfunktionen plockar ut domänen, och den läggs till efter
+den första; som vanligt lägger +\(\equiv\) till en del under samma
+namn.
+
+\begin{frame}[fragile]
+  \frametitle{Domänen}
+  Domänen är det som står efter snabel-a, i gemener:
+<<e-postprogrammets hjälpfunktioner>>=
+def domain_of(address):
+    """Returnerar domänen i address, med gemener."""
+    return address.split("@")[1].casefold()
+@
+\end{frame}
+
+Funktionen gör om domänen till gemener, eftersom
+\mintinline{python}|"KTH.se"| och \mintinline{python}|"kth.se"| är samma
+domän och inte ska räknas som två.  Det är samma
+\mintinline{python}{casefold} som gjorde sökningen i föreläsningen
+\emph{Behållare: Listor} likgiltig för stora bokstäver.
+
+\begin{frame}<article>[fragile]
+  \leavevmode\ltnote{%
+    \textbf{Helheten efter delarna}, som i \emph{Övning: Funktioner och
+    variabler}.  Program som redan står hela i en enda del visas inte en gång
+    till.
+  }%
+  Sätter vi in varje del där dess namn står får vi hela programmet,
+  \texttt{epost.py}:
+  \inputminted{python}{examples/epost.py}
+\end{frame}
+
+Så här ser en körning ut när vi skriver adresserna för hand.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[En körning]
+    \label{ex:epost-run}
+    Sex adresser, varav två inte duger, och en blankrad som avslutar:
+    \runpython[transcript, stdinfile={examples/epost.in}]%
+      {examples/epost.py}
+  \end{example}
+\end{frame}
+
+Tre av adresserna delar domän, och domänen förekommer ändå bara en gång i
+utskriften.  Det är det mängden är till för.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ex:epost-run,ex:epost-fil}:
+  \cref{OvningContainersLOSet}.
+
+  Båda körningarna kommer ur samma tanglade inmatningsfil, så
+  utskriften i materialet är den programmet verkligen ger.  Ordningen
+  --- för hand, filen, omdirigeringen --- låter studenten känna igen
+  körningen innan formen ändras; att frågorna flyter ihop i den andra
+  körningen är då den enda skillnaden att se, och prosan förklarar den.
+}%
+Som i föreläsningen \emph{Behållare: Uppslagslistor} kan vi också mata
+programmet med en färdig inmatning i stället för att skriva den för hand.
+Inmatningen skriver vi i en fil, en adress per rad.
+
+\begin{frame}[fragile]
+  Filen \texttt{epost.in} --- samma sex adresser, och den tomma raden
+  sist avslutar:
+<<[[epost.in]]>>=
+ronja@kth.se
+pippi.langstrump@kth.se
+madicken@@kth.se
+birk
+annika@ug.kth.se
+lisabet@kth.se
+
+@
+\end{frame}
+
+I terminalen ger vi programmet filen med \texttt{<} framför filnamnet.
+Då läser \mintinline{python}{input} sina svar från filen i stället för
+från tangentbordet.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[En körning med inmatningen från filen]
+    \label{ex:epost-fil}
+    Samma körning, med adresserna ur \texttt{epost.in}:
+    \runshell[showcommand, cwd=examples,
+      deps={examples/epost.py,examples/epost.in}]%
+      {python3 epost.py < epost.in}
+  \end{example}
+\end{frame}
+
+Frågorna och svaren hamnar inte längre på var sin rad.  Inmatningen
+kommer från filen och skrivs aldrig ut i terminalen, så varken adresserna
+eller radbytet efter dem syns: nästa utskrift börjar direkt efter
+frågan.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ovn:epost-domaner}:
+  \cref{OvningContainersLOChoose}.
+
+  Stycket om listalternativet är uppgiftens egentliga poäng och står
+  därför som studenttext och inte som en anteckning: valet mellan
+  behållarna är lärandemålet, och ett lösningsförslag som bara visar den
+  rätta lösningen övar det inte.
+
+  Prestandapåståendet beläggs med Pythons egen sammanställning och inte
+  med en tidtagning; en mätning hade sagt något om den här datorn, inte
+  om datastrukturen.  Förbehållen (CPython, genomsnittsfall) står i
+  brödtexten, som i anteckningarna \emph{Behållare: Mängder, stackar och
+  köer}.  Sista meningen säger ut att skillnaden är betydelselös i just
+  det här programmet, så att påståendet inte blir större än det är.
+}%
+En lista hade också gått.  Vi ställer de två sätten bredvid varandra ---
+allt annat i programmet är sig likt, så det enda som skiljer är hur
+dubbletten hindras.
+
+% The two excerpts are tangled from testkorningar.nw, since \codebycode
+% reads its sides from files; they are shown nowhere else.
+\begin{frame}
+  \frametitle{Två sätt att samla domänerna}
+  Med en mängd, som i lösningen, till vänster, och med en lista och
+  kontrollen skriven för hand till höger:
+  \codebycode
+    [label={Med en mängd}]{python}{examples/domaner_mangd.py}
+    [label={Med en lista}]{python}{examples/domaner_lista.py}
+\end{frame}
+
+Listan ger samma utskrift, men den säger något annat om programmet:
+kontrollen ligger i vår kod i stället för i behållarens innebörd, och
+den måste söka igenom listan för varje ny adress.  Frågan
+\mintinline{python}{x in behållare} kostar arbete som växer med antalet
+element i en lista, men i genomsnitt lika mycket oavsett antalet i en
+mängd\autocite{PythonTimeComplexity} --- i CPython, och i
+genomsnittsfallet.  Med sex adresser spelar det ingen roll; med sex
+hundra tusen gör det det.
+
 \section{Banken}
 \label{sec:banken}
 
@@ -1919,411 +2324,6 @@ finns.  Då kastar uttaget sitt särfall mitt i ångrandet, och överföringen
 antingen läggs tillbaka vid ett misslyckande eller kontrollerar innan det
 börjar --- och det är ett problem av samma slag som banker i verkligheten
 löser med transaktioner.
-
-\section[E-postadresser]{Giltiga e-postadresser}
-\label{sec:epost}
-
-Den första uppgiften handlar om en fråga som ser ut som en fråga om
-strängar, men som slutar i ett val av behållare.  Så här ska programmet
-bete sig när det är klart.
-
-% REVIEW(C15): körningen av lösningens program står före uppgiften, så
-% att målet blir konkret.  Den avslöjar inget uppgiften frågar efter:
-% vilken behållare som samlar domänerna syns inte i utskriften, och att
-% domänerna kommer i bokstavsordning står redan i uppgiftstexten.  Den
-% andra läsningen --- ingen körning före uppgiften --- är det som stod
-% förut.
-\begin{frame}[fragile,shrink]
-  \begin{example}[Så ska det bete sig]
-    \label{ex:epost-target}
-    Så här ska det se ut när du är klar --- vi skriver in sex adresser,
-    varav två inte duger:
-    \runpython[transcript, stdinfile={examples/epost.in}]%
-      {examples/epost.py}
-  \end{example}
-\end{frame}
-
-\begin{frame}
-  \begin{exercise}[epost.py]
-    \label{ovn:epost-domaner}
-    \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ovn:epost-domaner}:
-      \cref{OvningContainersLOSet,OvningContainersLOChoose}.
-
-      \textbf{Variationsmönster}: kontrast.
-      \textbf{Vad som varierar}: vilken fråga som ställs om de insamlade
-      domänerna --- alla, eller vilka olika.
-      \textbf{Vad som hålls invariant}: inmatningen och kontrollen av
-      adresserna.
-
-      Kontrollen av adresserna övar bara strängar, alltså tidigare
-      material; frågan om \emph{vilka olika} domäner som förekom gör
-      uppgiften till en uppgift om behållare, eftersom det är precis den
-      fråga en mängd svarar på.  Strängkontrollen är det invarianta
-      bakgrundsljudet.
-
-      Formuleringen säger inte vilken behållare som ska användas, och ordet
-      \enquote{mängd} förekommer inte i uppgiften.  Den som samlar domänerna
-      i en lista och rensar dubbletter med en egen kontroll har byggt en
-      fungerande lösning, och den lösningen står skriven bredvid mängdens
-      sist i lösningsförslaget, så att de två kan jämföras samtidigt och
-      inte ur minnet \parencite[s.~45--47]{Marton2015}.  Att låta uppgiften
-      peka ut behållaren hade tagit bort just det som ska urskiljas
-      \parencite[s.~13 och 91]{Marton2015}.
-
-      Filen heter [[epost.py]] och inte något som säger vilken behållare
-      lösningen använder.  Domänerna är KTH:s riktiga: \texttt{kth.se} och
-      studenternas \texttt{ug.kth.se} har båda MX-poster (kontrollerat
-      i DNS); \texttt{student.kth.se} finns däremot inte.
-    }%
-    Skriv ett program som läser in e-postadresser, en per rad, och
-    avslutas med en blankrad.  För varje adress ska programmet svara om
-    den ser ut som en e-postadress eller inte.  När inmatningen är slut
-    ska programmet skriva ut vilka olika domäner som förekom bland de
-    godtagna adresserna, i bokstavsordning.
-
-    Vad har alla e-postadresser gemensamt, och vad kan du använda det
-    till?  Och vad kan du säga om ordningen mellan domänerna i
-    utskriften?
-  \end{exercise}
-\end{frame}
-
-\subsection{Lösningsförslag}
-
-\leavevmode\ltnote{%
-  \textbf{Uppifrån och ner}, som i \emph{Övning: Funktioner och
-  variabler}: en hjälpfunktion, en klass eller en metod läggs till
-  först där resonemanget behöver den.
-}%
-Vi skriver programmet uppifrån och ner.  Först lägger vi upp filen:
-överst en \foreignlanguage{english}{docstring} som säger vad programmet
-är till för, sedan hjälpfunktionerna och till sist huvudprogrammet.
-Upplägget står i pseudokod, och sedan preciserar vi pseudokoden med
-pythonkod, en del i taget, när vi kommer till den.
-
-\begin{frame}[fragile]
-  \frametitle{Programmets upplägg}
-  \leavevmode\ltnote{%
-    Programmen följer funktionsregeln från föreläsningen
-    \emph{Funktioner}.  Att anropet står bakom
-    \mintinline{python}|if __name__ == "__main__":| är formen från
-    föreläsningen \emph{Moduler och paket}, och den behövs: flera av
-    filerna importeras av andra program i övningen, och ett huvudprogram
-    på högsta nivån skulle då köras vid importen.
-  }%
-  E-postprogrammets upplägg:
-<<[[epost.py]]>>=
-"""Läser in e-postadresser och samlar deras domäner"""
-
-<<e-postprogrammets hjälpfunktioner>>
-
-<<e-postprogrammets huvudprogram>>
-@
-\end{frame}
-
-Vi börjar med huvudprogrammet, eftersom det är det uppgiften beskriver.
-Adresserna kommer en per rad tills en blankrad, och de godtagna
-adressernas domäner ska samlas så att varje domän räknas en gång ---
-alltså i en mängd.  Om varje adress ställer programmet två frågor: ser
-den ut som en e-postadress, och vilken domän har den?  De är var sin
-sak, och de blir var sin hjälpfunktion, \mintinline{python}{is_email}
-och \mintinline{python}{domain_of}.  Varje funktion får ett ansvar: det
-är \emph{SRP}, principen om ett enda ansvar, från föreläsningen
-\emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
-\footnote{%
-  Det vetenskapliga underlaget för SRP --- både varifrån principen
-  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
-  ansvar} är en bedömningsfråga --- finns i föreläsningen
-  \emph{Funktioner}, bilaga B.%
-}
-Vi anropar dem redan här och skriver dem sedan.  Att de är egna
-funktioner gör också att kontrollen
-går att pröva utan att någon behöver mata in något.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Huvudprogrammet}
-  Mängden växer med en domän per godtagen adress:
-<<e-postprogrammets huvudprogram>>=
-def main():
-    """Huvudprogrammet"""
-    domains = set()
-
-    while address := input("Ange en e-postadress: "):
-        if is_email(address):
-            print(f"{address} ser ut som en e-postadress.")
-            domains.add(domain_of(address))
-        else:
-            print(f"{address} ser inte ut som en e-postadress.")
-
-    print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-Villkoret i \mintinline{python}{while}-satsen läser in adressen med
-tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
-\emph{Övning: Inmatning, felhantering och styrstrukturer}, i
-föreläsningen \emph{Upprepningar} och i föreläsningen \emph{Behållare:
-Uppslagslistor}: det ger \mintinline{python}{address} svaret och är
-självt ett uttryck med samma värde, som villkoret prövar.  En tom sträng
-är falsk, så slingan går tills användaren svarar med en blankrad.  Frågan
-står på ett ställe i stället för två --- före slingan och sist i den ---
-och det är vad principen \emph{DRY},
-\foreignlanguage{english}{Don't Repeat Yourself}, handlar
-om\autocite{HuntThomas1999}.%
-\footnote{%
-  Det vetenskapliga underlaget för DRY --- både varifrån principen
-  kommer och om den håller, med de förbehåll som hör till --- finns i
-  föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
-}
-
-Mängden gör två saker på en gång: den lägger till en domän som inte fanns
-och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
-fall det är.
-
-Och så uppgiftens andra fråga, om ordningen.  Vi prövar att skriva ut
-en mängd med inmatningens två domäner som den är, utan
-\mintinline{python}{sorted}, i ett litet program för sig.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Mängden utan ordning]
-    \label{ex:ordning}
-    \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ex:ordning}:
-      \cref{OvningContainersLOSet}.
-
-      \textbf{Vad som varierar}: bara körningen --- samma
-      \texttt{ordning.py} två gånger.  \textbf{Vad som hålls invariant}:
-      programmet, mängden och utskriftens form, som är
-      \texttt{epost.py}:s utan \mintinline{python}{sorted}.
-
-      Python väljer ett nytt slumpvärde för strängarnas hashning vid
-      varje start, så två körningar kan ge olika ordning.  För att
-      anteckningarna ska bli desamma vid varje kompilering körs de två
-      med var sitt fast värde (\texttt{PYTHONHASHSEED}), valda så att
-      ordningen skiljer sig; kommandoraden som visas är den studenten
-      skriver.
-    }%
-    Programmet skriver ut domänerna som mängden lämnar ut dem:
-<<[[ordning.py]]>>=
-"""Skriver ut domänerna i en mängd, utan att ordna dem"""
-
-def main():
-    """Huvudprogrammet"""
-    domains = {"kth.se", "ug.kth.se"}
-    print("Domänerna bland de godtagna:", ", ".join(domains))
-
-if __name__ == "__main__":
-    main()
-@
-    % On the slides the two one-line runs stay one under the other, where
-    % they line up; in the notes they stand side by side.
-    \only<presentation>{%
-      Vi kör det två gånger:
-      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
-        deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
-      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
-        deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
-    }%
-    \only<article>{%
-      Vi kör det två gånger, den första till vänster:
-      \runbyrun
-        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
-          deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
-        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
-          deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
-    }
-  \end{example}
-\end{frame}
-
-Samma program ger två olika ordningar, och det är svaret: en mängd har
-ingen ordning.  Den lägger sina element där de hör hemma utifrån värdet,
-inte efter varandra, och därför går det varken att fråga efter det första
-elementet eller att räkna med att två körningar skriver ut dem i samma
-ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
-välja den själva, och här väljer vi bokstavsordning med
-\mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
-dubbletter: två lika värden hör hemma på samma plats, så det andra
-försvinner in i det första.
-
-Kvar är de två hjälpfunktionerna.  Vad har då alla e-postadresser
-gemensamt?  De har ett
-\mintinline{python}|"@"| --- exakt ett --- med något före och något
-efter, och den del som står efter innehåller minst en punkt som varken
-är domänens första eller sista tecken.  Mellanslag får inte förekomma
-alls.  Det räcker för vår kontroll.
-
-\begin{frame}[fragile]
-  \frametitle{Kontrollen}
-  Villkoren, i den ordning de är billigast att pröva:
-<<e-postprogrammets hjälpfunktioner>>=
-def is_email(address):
-    """Returnerar True om address ser ut som en e-postadress."""
-    if address.count("@") != 1 or " " in address:
-        return False
-
-    local, domain = address.split("@")
-    if not local or not domain:
-        return False
-
-    return "." in domain[1:-1]
-@
-\end{frame}
-
-Strängmetoden \mintinline{python}{count} gör samma sak som listornas
-\mintinline{python}{count}, som du slog upp i föreläsningen
-\emph{Behållare: Listor}: den räknar hur många gånger argumentet
-förekommer, så \mintinline{python}|address.count("@")| är antalet
-snabel-a i adressen.  Den sista raden är värd att fundera på.  Skivan
-\mintinline{python}|domain[1:-1]| är domänen utan sitt första och sista
-tecken, så frågan \enquote{finns det en punkt som inte ligger i någon av
-ändarna?} blir en enda fråga om medlemskap i den skivan.  Skivningen är
-densamma som i föreläsningen \emph{Behållare: Listor}, nu tillämpad på en
-sträng.
-
-Att en adress \emph{ser} rätt ut är inte detsamma som att den finns.  Vad
-som verkligen får stå i en e-postadress bestäms av en standard, och den
-tillåter betydligt mer än kontrollen här --- bland annat citerade
-lokaldelar och adresser utan punkt i domänen.  Kontrollen är alltså
-avsiktligt strängare än standarden, vilket är ett vanligt och medvetet
-val i riktiga program.
-% TODO(claim-audit): att standarden för e-postadresser tillåter mer än
-% kontrollen här (citerade lokaldelar, domäner utan punkt).  Primärkällan
-% är RFC 5322, som inte är läst i fulltext härifrån.
-
-Den andra hjälpfunktionen plockar ut domänen, och den läggs till efter
-den första; som vanligt lägger +\(\equiv\) till en del under samma
-namn.
-
-\begin{frame}[fragile]
-  \frametitle{Domänen}
-  Domänen är det som står efter snabel-a, i gemener:
-<<e-postprogrammets hjälpfunktioner>>=
-def domain_of(address):
-    """Returnerar domänen i address, med gemener."""
-    return address.split("@")[1].casefold()
-@
-\end{frame}
-
-Funktionen gör om domänen till gemener, eftersom
-\mintinline{python}|"KTH.se"| och \mintinline{python}|"kth.se"| är samma
-domän och inte ska räknas som två.  Det är samma
-\mintinline{python}{casefold} som gjorde sökningen i föreläsningen
-\emph{Behållare: Listor} likgiltig för stora bokstäver.
-
-\begin{frame}<article>[fragile]
-  \leavevmode\ltnote{%
-    \textbf{Helheten efter delarna}, som i \emph{Övning: Funktioner och
-    variabler}.  Program som redan står hela i en enda del visas inte en gång
-    till.
-  }%
-  Sätter vi in varje del där dess namn står får vi hela programmet,
-  \texttt{epost.py}:
-  \inputminted{python}{examples/epost.py}
-\end{frame}
-
-Så här ser en körning ut när vi skriver adresserna för hand.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[En körning]
-    \label{ex:epost-run}
-    Sex adresser, varav två inte duger, och en blankrad som avslutar:
-    \runpython[transcript, stdinfile={examples/epost.in}]%
-      {examples/epost.py}
-  \end{example}
-\end{frame}
-
-Tre av adresserna delar domän, och domänen förekommer ändå bara en gång i
-utskriften.  Det är det mängden är till för.
-
-\leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ex:epost-run,ex:epost-fil}:
-  \cref{OvningContainersLOSet}.
-
-  Båda körningarna kommer ur samma tanglade inmatningsfil, så
-  utskriften i materialet är den programmet verkligen ger.  Ordningen
-  --- för hand, filen, omdirigeringen --- låter studenten känna igen
-  körningen innan formen ändras; att frågorna flyter ihop i den andra
-  körningen är då den enda skillnaden att se, och prosan förklarar den.
-}%
-Som i föreläsningen \emph{Behållare: Uppslagslistor} kan vi också mata
-programmet med en färdig inmatning i stället för att skriva den för hand.
-Inmatningen skriver vi i en fil, en adress per rad.
-
-\begin{frame}[fragile]
-  Filen \texttt{epost.in} --- samma sex adresser, och den tomma raden
-  sist avslutar:
-<<[[epost.in]]>>=
-ronja@kth.se
-pippi.langstrump@kth.se
-madicken@@kth.se
-birk
-annika@ug.kth.se
-lisabet@kth.se
-
-@
-\end{frame}
-
-I terminalen ger vi programmet filen med \texttt{<} framför filnamnet.
-Då läser \mintinline{python}{input} sina svar från filen i stället för
-från tangentbordet.
-
-\begin{frame}[fragile,shrink=15]
-  \begin{example}[En körning med inmatningen från filen]
-    \label{ex:epost-fil}
-    Samma körning, med adresserna ur \texttt{epost.in}:
-    \runshell[showcommand, cwd=examples,
-      deps={examples/epost.py,examples/epost.in}]%
-      {python3 epost.py < epost.in}
-  \end{example}
-\end{frame}
-
-Frågorna och svaren hamnar inte längre på var sin rad.  Inmatningen
-kommer från filen och skrivs aldrig ut i terminalen, så varken adresserna
-eller radbytet efter dem syns: nästa utskrift börjar direkt efter
-frågan.
-
-\leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ovn:epost-domaner}:
-  \cref{OvningContainersLOChoose}.
-
-  Stycket om listalternativet är uppgiftens egentliga poäng och står
-  därför som studenttext och inte som en anteckning: valet mellan
-  behållarna är lärandemålet, och ett lösningsförslag som bara visar den
-  rätta lösningen övar det inte.
-
-  Prestandapåståendet beläggs med Pythons egen sammanställning och inte
-  med en tidtagning; en mätning hade sagt något om den här datorn, inte
-  om datastrukturen.  Förbehållen (CPython, genomsnittsfall) står i
-  brödtexten, som i anteckningarna \emph{Behållare: Mängder, stackar och
-  köer}.  Sista meningen säger ut att skillnaden är betydelselös i just
-  det här programmet, så att påståendet inte blir större än det är.
-}%
-En lista hade också gått.  Vi ställer de två sätten bredvid varandra ---
-allt annat i programmet är sig likt, så det enda som skiljer är hur
-dubbletten hindras.
-
-% The two excerpts are tangled from testkorningar.nw, since \codebycode
-% reads its sides from files; they are shown nowhere else.
-\begin{frame}
-  \frametitle{Två sätt att samla domänerna}
-  Med en mängd, som i lösningen, till vänster, och med en lista och
-  kontrollen skriven för hand till höger:
-  \codebycode
-    [label={Med en mängd}]{python}{examples/domaner_mangd.py}
-    [label={Med en lista}]{python}{examples/domaner_lista.py}
-\end{frame}
-
-Listan ger samma utskrift, men den säger något annat om programmet:
-kontrollen ligger i vår kod i stället för i behållarens innebörd, och
-den måste söka igenom listan för varje ny adress.  Frågan
-\mintinline{python}{x in behållare} kostar arbete som växer med antalet
-element i en lista, men i genomsnitt lika mycket oavsett antalet i en
-mängd\autocite{PythonTimeComplexity} --- i CPython, och i
-genomsnittsfallet.  Med sex adresser spelar det ingen roll; med sex
-hundra tusen gör det det.
 
 \section{Ett bättre cowsay}
 \label{sec:cowsay-ovning-behallare}
