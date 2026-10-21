@@ -40,8 +40,8 @@ SRC+=		ltnotes.bib
 # One line per tangled example program.  Recaps re-display these files
 # with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/epost.py
-# The class version imports the check from epost.py, and so do the two
-# programs that forget the check.
+# The two programs that forget the check import domain_of from epost.py
+# and the class Email from epost2.py.
 EXAMPLES+=	examples/url.py
 EXAMPLES+=	examples/epost2.py
 EXAMPLES+=	examples/glomt1.py
@@ -49,14 +49,6 @@ EXAMPLES+=	examples/glomt2.py
 EXAMPLES+=	examples/letters.py
 EXAMPLES+=	examples/counter.py
 EXAMPLES+=	examples/fraction.py
-# Each of fraction.py's test cases is shown beside its output: a small
-# program that imports the class and runs just that test case (the earlier
-# ones silently).  The programs are tangled from testkorningar.nw, which is
-# never woven, together with contents.nw, where the test cases are.
-TESTRUNS+=	examples/fraction_test_jamforelse.py
-TESTRUNS+=	examples/fraction_test_hashning.py
-TESTRUNS+=	examples/fraction_test_division.py
-EXAMPLES+=	${TESTRUNS}
 # The integer to the left of a fraction is not a test case but a program
 # of its own, since its run ends in a traceback.
 EXAMPLES+=	examples/heltal_forst.py
@@ -66,11 +58,6 @@ EXAMPLES+=	examples/likhet_typeerror.py
 EXAMPLES+=	examples/nyckel1.py
 EXAMPLES+=	examples/nyckel2.py
 EXAMPLES+=	examples/bank.py
-# bank.py's test cases are shown the same way as fraction.py's.
-BANKRUNS+=	examples/bank_test_konto.py
-BANKRUNS+=	examples/bank_test_banken.py
-BANKRUNS+=	examples/bank_test_angra.py
-EXAMPLES+=	${BANKRUNS}
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py
 # The starting point for the exercise Att ångra det senaste, which the
@@ -90,7 +77,7 @@ EXAMPLES+=	examples/minne.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/humor.py
 # The two ways of collecting the domains, shown only side by side: they
-# are excerpts, tangled from testkorningar.nw (\codebycode reads files).
+# are excerpts, tangled from utdrag.nw (\codebycode reads files).
 EXCERPTS+=	examples/domaner_mangd.py
 EXCERPTS+=	examples/domaner_lista.py
 EXAMPLES+=	${EXCERPTS}
@@ -107,7 +94,7 @@ EXAMPLES+=	examples/epost.in
 NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
 	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
-${TESTRUNS} ${BANKRUNS} ${EXCERPTS}: testkorningar.nw
+${EXCERPTS}: utdrag.nw
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.

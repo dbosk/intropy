@@ -98,21 +98,38 @@ class Person:
         return self.__name
 
 
-def tests():
-    """Provar bankens klasser"""
+def test_account():
+    """Provar en insättning och ett uttag"""
     account = Account("1001", Person("Ronja"), 500)
     account.deposit(100)
     account.withdraw(200)
     print(account)
 
+
+def test_bank():
+    """Provar en överföring mellan två konton"""
     bank = Bank()
     bank.open_account("1001", Person("Ronja"), 500)
     bank.open_account("1002", Person("Pippi"), 100)
     bank.transfer("1001", "1002", 200)
     print(bank)
 
+
+def test_undo():
+    """Provar att ångra en överföring"""
+    bank = Bank()
+    bank.open_account("1001", Person("Ronja"), 500)
+    bank.open_account("1002", Person("Pippi"), 100)
+    bank.transfer("1001", "1002", 200)
     bank.undo()
     print(bank)
+
+
+def tests():
+    """Provar bankens klasser"""
+    test_account()
+    test_bank()
+    test_undo()
 
 
 if __name__ == "__main__":

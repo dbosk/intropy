@@ -159,10 +159,10 @@ pythonkod, en del i taget, när vi kommer till den.
     \emph{Funktioner}.  Att anropet står bakom
     \mintinline{python}|if __name__ == "__main__":| är formen från
     föreläsningen \emph{Moduler och paket}, och den behövs: flera av
-    filerna importeras av andra program i övningen, \texttt{epost.py}
-    av \texttt{epost2.py} och \texttt{bank.py} av \texttt{banken.py} och
-    \texttt{angra.py}, och ett huvudprogram på högsta nivån skulle då
-    köras vid importen.
+    filerna importeras av andra program i övningen, \texttt{bank.py}
+    av \texttt{banken.py} och \texttt{angra.py} och båda
+    e-postprogrammen av programmen i \cref{ex:epost-glomt}, och ett
+    huvudprogram på högsta nivån skulle då köras vid importen.
   }%
   E-postprogrammets upplägg:
 <<[[epost.py]]>>=
@@ -436,9 +436,9 @@ igenom egenskaperna i avsnittet \emph{Attribut som egenskaper}.
       \textbf{Vad som varierar}: programmets struktur --- funktioner som
       tar emot en sträng, mot en klass vars objekt bara finns om
       adressen duger.
-      \textbf{Vad som hålls invariant}: uppgiften, kontrollen (samma
-      [[is_email]], importerad), listan som samlar domänerna och
-      körningen, som blir densamma tecken för tecken.
+      \textbf{Vad som hålls invariant}: uppgiften, kontrollens villkor
+      (samma rader som i [[is_email]], nu i en metod), listan som samlar
+      domänerna och körningen, som blir densamma tecken för tecken.
 
       Övningens tyngdpunkt är klasserna, och den öppnar med den kontrast
       som visar vad en klass gör med ett programs struktur.
@@ -457,14 +457,15 @@ igenom egenskaperna i avsnittet \emph{Attribut som egenskaper}.
       ett objekt ut, delarna lästa som attribut.
     }%
     Skriv programmet från \cref{ovn:epost-domaner} en gång till, nu med
-    en klass \mintinline{python}{Epost} för e-postadresserna.
-    \mintinline{python}|Epost("ronja@kth.se")| ska skapa en
+    en klass \mintinline{python}{Email} för e-postadresserna, där
+    funktionerna blir klassens metoder.
+    \mintinline{python}|email = Email("malvina@kth.se")| ska skapa en
     e-postadress, och kasta ett \mintinline{python}{ValueError} om
     strängen inte ser ut som en e-postadress.  Adressens två delar ska
-    gå att läsa som egenskaper: \mintinline{python}{local}, det som står
-    före snabel-a, och \mintinline{python}{domain}, det som står efter.
-    Skriver vi ut en adress ska vi få strängen den skapades av.
-    Programmet ska bete sig precis som förut.
+    gå att läsa som egenskaper: \mintinline{python}{email.local}, det
+    som står före snabel-a, och \mintinline{python}{email.domain}, det
+    som står efter.  Skriver vi ut en adress ska vi få strängen den
+    skapades av.  Programmet ska bete sig precis som förut.
 
     Ställ sedan ditt nya huvudprogram bredvid det gamla.  Vad skiljer
     dem åt?
@@ -473,11 +474,13 @@ igenom egenskaperna i avsnittet \emph{Attribut som egenskaper}.
 
 \mode<article>{\subsection{Lösningsförslag med en klass}}
 
-Kontrollen är densamma som förut, så vi skriver den inte en gång till
-utan importerar \mintinline{python}{is_email} från \texttt{epost.py}.
-Filen får samma upplägg som förut, med klassen där hjälpfunktionerna
-stod.  Klassen har ett namn, en \foreignlanguage{english}{docstring}
-och sedan sina metoder, som vi lägger till en i taget.
+Funktionerna från förut blir klassens metoder:
+\mintinline{python}{is_email} blir kontrollen som konstruktorn gör, och
+\mintinline{python}{domain_of} blir egenskapen
+\mintinline{python}{domain}.  Filen får samma upplägg som förut, med
+klassen där hjälpfunktionerna stod.  Klassen har ett namn, en
+\foreignlanguage{english}{docstring} och sedan sina metoder, som vi
+lägger till en i taget.
 
 \begin{frame}[fragile]
   \frametitle{Programmets upplägg}
@@ -485,9 +488,7 @@ och sedan sina metoder, som vi lägger till en i taget.
 <<[[epost2.py]]>>=
 """Läser in e-postadresser som objekt och samlar deras domäner"""
 
-from epost import is_email
-
-class Epost:
+class Email:
     """En e-postadress, med lokaldelen och domänen som egenskaper"""
 
     <<e-postklassens metoder>>
@@ -512,10 +513,10 @@ def main():
 
     while line := input("Ange en e-postadress: "):
         try:
-            address = Epost(line)
-            print(f"{address} ser ut som en e-postadress.")
-            if address.domain not in domains:
-                domains.append(address.domain)
+            email = Email(line)
+            print(f"{email} ser ut som en e-postadress.")
+            if email.domain not in domains:
+                domains.append(email.domain)
         except ValueError:
             print(f"{line} ser inte ut som en e-postadress.")
 
@@ -526,63 +527,81 @@ if __name__ == "__main__":
 @
 \end{frame}
 
-Raden heter nu \mintinline{python}{line}, eftersom
-\mintinline{python}{address} är objektet, e-postadressen.  Inget annat i
+Raden heter nu \mintinline{python}{line}, och
+\mintinline{python}{email} är objektet, e-postadressen.  Inget annat i
 \mintinline{python}{try}-satsen kan kasta ett
 \mintinline{python}{ValueError} än konstruktorn, så det är dess fel och
 inget annat som fångas.
 
-Konstruktorn är den första metoden.  Den frågar
-\mintinline{python}{is_email} och kastar ett särfall om svaret är nej,
-som i föreläsningen \emph{Inmatning och felhantering}.  Annars delar den
-adressen i sina två delar och sparar dem i privata attribut.
+Konstruktorn är den första metoden.  Den sparar adressen i ett privat
+attribut och frågar sedan kontrollen, och är svaret nej kastar den ett
+särfall, som i föreläsningen \emph{Inmatning och felhantering}.
 
-\begin{frame}[fragile,shrink]
+\begin{frame}[fragile]
   \frametitle{Konstruktorn}
-  Kontrollen först, delarna sedan:
+  Adressen sparas, och kontrolleras:
 <<e-postklassens metoder>>=
 def __init__(self, address):
     """Kastar ValueError om address inte är en e-postadress."""
-    if not is_email(address):
+    self.__address = address
+    if not self.__is_email():
         raise ValueError(f"{address} är ingen e-postadress")
-
-    self.__local, self.__domain = address.split("@")
 @
 \end{frame}
 
-Delningen ger en lista med två strängar, som tilldelningen packar upp
-i två attribut på en gång, precis som i \mintinline{python}{is_email}.
-Det går bara därför att
-kontrollen står först: \mintinline{python}{is_email} har redan sett till
-att det finns exakt ett snabel-a.
+Kontrollen är \mintinline{python}{is_email}, nu som metod.  Den tar
+adressen ur objektet i stället för som argument, och resten är rad för
+rad densamma.  Namnet börjar med två understreck, som de privata
+attributens: ett \mintinline{python}{Email}-objekt som finns har redan
+klarat kontrollen, så den är till för konstruktorn och inte för den som
+använder klassen.
 
-Attributen är privata, så delarna läses med egenskaper, och adressen
+\begin{frame}[fragile]
+  \frametitle{Kontrollen}
+  Samma villkor som i \texttt{is\_email}:
+<<e-postklassens metoder>>=
+def __is_email(self):
+    """Returnerar True om adressen ser ut som en e-postadress."""
+    address = self.__address
+    if address.count("@") != 1 or " " in address:
+        return False
+
+    local, domain = address.split("@")
+    if not local or not domain:
+        return False
+
+    return "." in domain[1:-1]
+@
+\end{frame}
+
+Attributet är privat, så delarna läses med egenskaper, och adressen
 skriver ut sig själv med \mintinline{python}{__str__}.
 
 \begin{frame}[fragile,shrink]
   \frametitle{Egenskaperna och utskriften}
-  Delarna läses som attribut, och utskriften sätter ihop dem igen:
+  Delarna läses som attribut, och utskriften är adressen:
 <<e-postklassens metoder>>=
 @property
 def local(self):
     """Lokaldelen, det som står före snabel-a"""
-    return self.__local
+    return self.__address.split("@")[0]
 
 @property
 def domain(self):
     """Domänen, det som står efter snabel-a, med gemener"""
-    return self.__domain.casefold()
+    return self.__address.split("@")[1].casefold()
 
 def __str__(self):
-    return f"{self.__local}@{self.__domain}"
+    return self.__address
 @
 \end{frame}
 
-Domänen görs om till gemener när den läses, som i
-\mintinline{python}{domain_of}, men utskriften använder den som den
-skrevs: en adress skriver ut sig som strängen den skapades av.  Någon
-metod som skriver i delarna finns inte, så en adress som en gång är
-godkänd förblir det.
+Egenskapen \mintinline{python}{domain} är
+\mintinline{python}{domain_of}, nu som metod, och
+\mintinline{python}{local} tar på samma sätt fram det som står före
+snabel-a.  Båda delar adressen utan att fråga om den går att dela: det
+har konstruktorn redan sett till.  Någon metod som skriver i adressen
+finns inte, så en adress som en gång är godkänd förblir det.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet,
@@ -597,8 +616,8 @@ adresser ger samma körning.
   \begin{example}[En körning med klassen]
     \label{ex:epost2-run}
     Samma sex adresser som förut\only<article>{, i \cref{ex:epost-run}}:
-    \runpython[transcript, stdinfile={examples/epost.in},
-      deps={examples/epost.py}]{examples/epost2.py}
+    \runpython[transcript, stdinfile={examples/epost.in}]%
+      {examples/epost2.py}
   \end{example}
 \end{frame}
 
@@ -632,7 +651,7 @@ ställer dem bredvid varandra.
 }%
 Raderna liknar varandra.  Där det första programmet anropar
 \mintinline{python}{domain_of(address)} läser det andra egenskapen
-\mintinline{python}{address.domain}, och
+\mintinline{python}{email.domain}, och
 \mintinline{python}{if} och \mintinline{python}{else} har blivit
 \mintinline{python}{try} och \mintinline{python}{except}.  Skillnaden
 ligger i vad
@@ -640,10 +659,11 @@ huvudprogrammet måste veta.  I \texttt{epost.py} är en adress en sträng,
 och huvudprogrammet måste komma ihåg att fråga
 \mintinline{python}{is_email} innan det ber
 \mintinline{python}{domain_of} om domänen: ingenting hindrar det från att
-göra tvärtom.  I \texttt{epost2.py} finns ett
-\mintinline{python}{Epost}-objekt bara om adressen dög, så den som har
-ett sådant objekt behöver aldrig fråga.  Kontrollen har flyttat från
-huvudprogrammet in i klassen, där den inte går att glömma.
+göra tvärtom.  I \texttt{epost2.py} har funktionerna blivit klassens
+metoder, och ett \mintinline{python}{Email}-objekt finns bara om
+adressen dög, så den som har ett sådant objekt behöver aldrig fråga.
+Kontrollen har flyttat från huvudprogrammet in i klassen, där den inte
+går att glömma.
 
 Vad händer då om kontrollen glöms?  Två små program provar, vart och ett
 med en sträng som inte är en e-postadress.
@@ -668,11 +688,11 @@ if __name__ == "__main__":
 <<[[glomt2.py]]>>=
 """Domänen i något som inte är en e-postadress, med klassen"""
 
-from epost2 import Epost
+from epost2 import Email
 
 def main():
     """Huvudprogrammet"""
-    print(Epost("birk").domain)
+    print(Email("birk").domain)
 
 if __name__ == "__main__":
     main()
@@ -687,7 +707,7 @@ if __name__ == "__main__":
       \runpython[showcommand, chdir, breaklines,
         deps={examples/epost.py}]{examples/glomt1.py}
       \runpython[showcommand, chdir, breaklines,
-        deps={examples/epost.py,examples/epost2.py}]{examples/glomt2.py}%
+        deps={examples/epost2.py}]{examples/glomt2.py}%
     }%
     \only<article>{%
       Kör vi de två programmen får vi, \texttt{glomt1.py} till vänster:
@@ -695,7 +715,7 @@ if __name__ == "__main__":
         [showcommand, chdir, breaklines,
           deps={examples/epost.py}]{examples/glomt1.py}
         [showcommand, chdir, breaklines,
-          deps={examples/epost.py,examples/epost2.py}]{examples/glomt2.py}%
+          deps={examples/epost2.py}]{examples/glomt2.py}%
     }
   \end{example}
 \end{frame}
@@ -729,7 +749,7 @@ med \mintinline{python}{in}.  Vi ställer de två sätten bredvid varandra
   köer}.  Sista meningen säger ut att skillnaden är betydelselös i just
   det här programmet, så att påståendet inte blir större än det är.
 }%
-% The two excerpts are tangled from testkorningar.nw, since \codebycode
+% The two excerpts are tangled from utdrag.nw, since \codebycode
 % reads its sides from files; they are shown nowhere else.
 \begin{frame}
   \frametitle{Två sätt att samla domänerna}
@@ -864,21 +884,27 @@ program.
 
 <<bankmodulens klasser>>
 
+<<testfunktioner för banken>>
+
 <<bankmodulens tester>>
 @
 \end{frame}
 
 \leavevmode\ltnote{%
   Testprogrammet växer med klasserna, som i föreläsningen \emph{Klasser
-  och objekt}.  Utskriften bredvid ett testfall kommer från en liten
-  testkörning i \texttt{testkorningar.nw}, som aldrig vävs: den
-  importerar klasserna, kör de tidigare testfallen tyst och sedan
-  testfallet självt.  Testfallens rader står alltså bara en gång.
+  och objekt}.  Utskriften bredvid en testfunktion kommer från en
+  körning av just den funktionen, med \texttt{python3 -c}, så testets
+  rader står bara en gång och det som visas är vad de verkligen skriver
+  ut.
 }%
 Filens program heter \mintinline{python}{tests}, som i föreläsningen
-\emph{Klasser och objekt}, och växer med klasserna: när en del går att
-prova lägger vi till ett testfall, och bredvid testfallet står vad just
-de raderna skriver ut.
+\emph{Klasser och objekt}, och växer med klasserna.  Varje test är en
+egen funktion, med ett namn som säger vad den provar, och
+\mintinline{python}{tests} anropar dem en i taget.  En testfunktion
+skapar sina egna objekt, så att den går att köra för sig och inte beror
+på vad ett annat test har gjort.  När en del går att prova lägger vi
+till en testfunktion och ett anrop av den, och bredvid testfunktionen
+står vad den skriver ut när den körs ensam.
 
 \begin{frame}[fragile]
   \frametitle{Testprogrammet}
@@ -886,7 +912,7 @@ de raderna skriver ut.
 <<bankmodulens tester>>=
 def tests():
     """Provar bankens klasser"""
-    <<tester för banken>>
+    <<kör tester för banken>>
 
 if __name__ == "__main__":
     tests()
@@ -1103,41 +1129,47 @@ class Person:
 \end{frame}
 
 De tre klasserna anropar varandra, så det är först nu, när alla tre
-finns, som de går att prova.  Det första testfallet provar kontot: en
+finns, som de går att prova.  Det första testet provar kontot: en
 insättning och ett uttag som saldot täcker.
 
 \begin{frame}[fragile]
   \frametitle{Prova kontot}
   Fem hundra kronor, hundra in och två hundra ut:
-<<prova kontot>>=
-account = Account("1001", Person("Ronja"), 500)
-account.deposit(100)
-account.withdraw(200)
-print(account)
-<<tester för banken>>=
-<<prova kontot>>
+<<testfunktioner för banken>>=
+def test_account():
+    """Provar en insättning och ett uttag"""
+    account = Account("1001", Person("Ronja"), 500)
+    account.deposit(100)
+    account.withdraw(200)
+    print(account)
+<<kör tester för banken>>=
+test_account()
 @
-  Testfallet skriver ut
-  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_konto.py}
+  Testet skriver ut
+  \runshell[cwd=examples, deps={examples/bank.py}]%
+    {python3 -c 'from bank import test_account; test_account()'}
 \end{frame}
 
-Det andra provar banken: två konton och en överföring mellan dem.
+Det andra testet provar banken: två konton och en överföring mellan
+dem.
 
 \begin{frame}[fragile]
   \frametitle{Prova banken}
   Två hundra kronor byter konto:
-<<prova banken>>=
-bank = Bank()
-bank.open_account("1001", Person("Ronja"), 500)
-bank.open_account("1002", Person("Pippi"), 100)
-bank.transfer("1001", "1002", 200)
-print(bank)
-<<tester för banken>>=
-
-<<prova banken>>
+<<testfunktioner för banken>>=
+def test_bank():
+    """Provar en överföring mellan två konton"""
+    bank = Bank()
+    bank.open_account("1001", Person("Ronja"), 500)
+    bank.open_account("1002", Person("Pippi"), 100)
+    bank.transfer("1001", "1002", 200)
+    print(bank)
+<<kör tester för banken>>=
+test_bank()
 @
-  Testfallet skriver ut
-  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_banken.py}
+  Testet skriver ut
+  \runshell[cwd=examples, deps={examples/bank.py}]%
+    {python3 -c 'from bank import test_bank; test_bank()'}
 \end{frame}
 
 Programmet som använder banken importerar klasserna ur modulen.
@@ -1380,6 +1412,8 @@ import math
 
 <<bråkfilens klasser>>
 
+<<testfunktioner för [[Fraction]]>>
+
 <<bråkfilens tester>>
 @
   Klassen, med metoderna som vi lägger till en i taget:
@@ -1392,8 +1426,9 @@ class Fraction:
 \end{frame}
 
 Testprogrammet heter \mintinline{python}{tests}, som bankmodulens, och
-växer på samma sätt med klassen: efter varje ny del lägger vi till ett
-testfall, och bredvid testfallet står vad just de raderna skriver ut.
+växer på samma sätt med klassen: efter varje ny del lägger vi till en
+testfunktion som skapar sina egna bråk, och ett anrop av den.  Bredvid
+testfunktionen står vad den skriver ut när den körs ensam.
 
 \begin{frame}[fragile]
   \frametitle{Testprogrammet}
@@ -1401,7 +1436,7 @@ testfall, och bredvid testfallet står vad just de raderna skriver ut.
 <<bråkfilens tester>>=
 def tests():
     """Provar jämförelserna och divisionen"""
-    <<tester för [[Fraction]]>>
+    <<kör tester för [[Fraction]]>>
 
 if __name__ == "__main__":
     tests()
@@ -1619,29 +1654,31 @@ sträng är ett programmeringsfel snarare än en fråga med svaret nej.
 \mintinline{python}{NotImplemented} är vad Pythons egna typer gör, och
 det är skälet att det står här.
 
-Nu kan jämförelserna provas.  Testfallet ställer uppgiftens två frågor
-och jämför dessutom med en sträng.
+Nu kan jämförelserna provas.  Testet ställer uppgiftens två frågor och
+jämför dessutom med en sträng.
 
 \begin{frame}[fragile,shrink]
   \frametitle{Prova jämförelserna}
   Uppgiftens två frågor, och likheten med en sträng:
-<<prova jämförelserna>>=
-third = Fraction(1, 3)
-two_sixths = Fraction(2, 6)
-print(f"1/3 == 2/6: {third == two_sixths}")
-print(f"1/3 < 1/2: {third < Fraction(1, 2)}")
-print(f"1/3 > 2/6: {third > two_sixths}")
+<<testfunktioner för [[Fraction]]>>=
+def test_comparisons():
+    """Provar likheten och olikheterna"""
+    third = Fraction(1, 3)
+    two_sixths = Fraction(2, 6)
+    print(f"1/3 == 2/6: {third == two_sixths}")
+    print(f"1/3 < 1/2: {third < Fraction(1, 2)}")
+    print(f"1/3 > 2/6: {third > two_sixths}")
 
-negative_denominator = Fraction(1, -2)
-negative_numerator = Fraction(-1, 2)
-print(f"1/-2 == -1/2: {negative_denominator == negative_numerator}")
-print(f"1/3 == '1/3': {third == '1/3'}")
-<<tester för [[Fraction]]>>=
-<<prova jämförelserna>>
+    negative_denominator = Fraction(1, -2)
+    negative_numerator = Fraction(-1, 2)
+    print(f"1/-2 == -1/2: {negative_denominator == negative_numerator}")
+    print(f"1/3 == '1/3': {third == '1/3'}")
+<<kör tester för [[Fraction]]>>=
+test_comparisons()
 @
-  Testfallet skriver ut
-  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
-    {examples/fraction_test_jamforelse.py}
+  Testet skriver ut
+  \runshell[cwd=examples, breaklines, deps={examples/fraction.py}]%
+    {python3 -c 'from fraction import test_comparisons; test_comparisons()'}
 \end{frame}
 
 Det finns en följd av \mintinline{python}{__eq__} som är lätt att missa,
@@ -1774,24 +1811,27 @@ lika bråk har samma par, alltså samma hashvärde.  Att en tupel går att
 hasha, men inte en lista, är samma krav som gjorde att en nyckel måste
 vara oföränderlig\autocite{PythonDataStructures}.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \frametitle{Hashning}
   Paret hashas, och två lika bråk ger samma värde:
 <<bråkets metoder>>=
 def __hash__(self):
     return hash(self.parts)
 @
-  Testfallet slår upp \(\frac{2}{6}\) bland bråken som nycklar:
-<<prova hashningen>>=
-parts = {Fraction(1, 2): "en halv", Fraction(1, 3): "en tredjedel"}
-print(f"parts[Fraction(2, 6)]: {parts[Fraction(2, 6)]}")
-<<tester för [[Fraction]]>>=
-
-<<prova hashningen>>
+  Testet slår upp \(\frac{2}{6}\) bland bråken som nycklar:
+<<testfunktioner för [[Fraction]]>>=
+def test_hashing():
+    """Provar bråk som nycklar i en uppslagslista"""
+    half = Fraction(1, 2)
+    third = Fraction(1, 3)
+    parts = {half: "en halv", third: "en tredjedel"}
+    print(f"parts[Fraction(2, 6)]: {parts[Fraction(2, 6)]}")
+<<kör tester för [[Fraction]]>>=
+test_hashing()
 @
   Det skriver ut
-  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
-    {examples/fraction_test_hashning.py}
+  \runshell[cwd=examples, breaklines, deps={examples/fraction.py}]%
+    {python3 -c 'from fraction import test_hashing; test_hashing()'}
 \end{frame}
 
 \leavevmode\ltnote{%
@@ -1847,24 +1887,25 @@ def __rtruediv__(self, other):
   \end{example}
 \end{frame}
 
-Testfallet för divisionen provar alla tre slagen: ett bråk delat med ett
+Testet för divisionen provar alla tre slagen: ett bråk delat med ett
 bråk, med ett heltal och ett heltal delat med ett bråk.
 
 \begin{frame}[fragile]
   \frametitle{Prova divisionen}
   Divisionen åt båda hållen:
-<<prova divisionen>>=
-half = Fraction(1, 2)
-print(f"1/2 / 2/3 = {half / Fraction(2, 3)}")
-print(f"1/2 / 2 = {half / 2}")
-print(f"1 / (1/2) = {1 / half}")
-<<tester för [[Fraction]]>>=
-
-<<prova divisionen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_division():
+    """Provar divisionen åt båda hållen"""
+    half = Fraction(1, 2)
+    print(f"1/2 / 2/3 = {half / Fraction(2, 3)}")
+    print(f"1/2 / 2 = {half / 2}")
+    print(f"1 / (1/2) = {1 / half}")
+<<kör tester för [[Fraction]]>>=
+test_division()
 @
-  Testfallet skriver ut
-  \runpython[chdir, breaklines, deps={examples/fraction.py}]%
-    {examples/fraction_test_division.py}
+  Testet skriver ut
+  \runshell[cwd=examples, breaklines, deps={examples/fraction.py}]%
+    {python3 -c 'from fraction import test_division; test_division()'}
 \end{frame}
 
 \begin{frame}<article>[fragile]
@@ -2105,24 +2146,36 @@ print_counts(counts)
 \end{frame}
 
 Tabellen är uppslagslistans nycklar i bokstavsordning, var och en med
-sitt antal.
+sitt antal.  Samma tabell går också att ordna efter antalen, med den
+vanligaste bokstaven först, och den ordningen får vi användning för när
+vi räknar med \mintinline{python}{Counter}
+(\cref{ex:count-letters-bredvid}).  Vilken ordning tabellen får väljer en
+parameter med ett standardvärde, som kontots saldo i
+\cref{sec:banken}: utan argument blir det bokstavsordning.
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,shrink]
   \frametitle{Tabellen}
-  Paren av nyckel och värde, i ordning:
+  Bokstäverna i ordning, var och en med sitt antal:
 <<bokstavsräknarens hjälpfunktioner>>=
-def print_counts(counts):
-    """Skriver ut bokstäverna i counts med sina antal, i ordning."""
-    for letter, count in sorted(counts.items()):
-        print(f"{letter}: {count}")
+def print_counts(counts, by_count=False):
+    """Skriver ut tabellen, i bokstavsordning eller efter antal."""
+    if by_count:
+        letters = sorted(counts, key=counts.get, reverse=True)
+    else:
+        letters = sorted(counts)
+
+    for letter in letters:
+        print(f"{letter}: {counts[letter]}")
 @
 \end{frame}
 
-Slingan går igenom paren av nyckel och värde och packar upp vart och
-ett i två namn, precis som med \mintinline{python}{phone.items()} i
-föreläsningen \emph{Behållare: Uppslagslistor}.  Att paren först går
-genom \mintinline{python}{sorted} ger dem i bokstavsordning, eftersom
-en tupel jämförs på sin första del.
+\mintinline{python}{sorted} över en uppslagslista ger nycklarna i
+ordning.  Med \mintinline{python}|key=counts.get| ordnas de i stället
+efter vad \mintinline{python}{counts.get} svarar för var och en, alltså
+efter antalet --- samma \mintinline{python}{key} som sorterade efter
+längd i föreläsningen \emph{Behållare: Listor}.  Argumentet
+\mintinline{python}|reverse=True| vänder ordningen, så att det största
+antalet kommer först; \texttt{pydoc3 sorted} beskriver båda.
 
 Nu till räkningen, som tabellen och den vanligaste bokstaven bygger på.
 
@@ -2168,11 +2221,9 @@ def most_common_letter(counts):
 @
 \end{frame}
 
-\mintinline{python}{max} med \mintinline{python}|key=counts.get|
-jämför bokstäverna efter sina antal i stället för efter sig själva ---
-samma \mintinline{python}{key} som sorterade efter längd i föreläsningen
-\emph{Behållare: Listor}.  Funktionen lämnar tillbaka två värden, som en
-tupel.
+\mintinline{python}{max} med samma \mintinline{python}|key=counts.get|
+som i tabellen jämför bokstäverna efter sina antal i stället för efter
+sig själva.  Funktionen lämnar tillbaka två värden, som en tupel.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet,
@@ -2270,7 +2321,8 @@ def main():
     print(f"Vanligast är {top_letter}, {top_count} gånger.")
 
     print(f"Antal q: {counts['q']}")
-    print(f"De två vanligaste: {counts.most_common(2)}")
+    print("De två vanligaste:")
+    print_counts(dict(counts.most_common(2)), by_count=True)
 
 if __name__ == "__main__":
     main()
@@ -2341,7 +2393,7 @@ tabell ut, och det enda som skiljer är hur räkningen görs.  Slingan med
 metoden \mintinline{python}{most_common} svarar direkt på den fråga vi
 skrev funktionen \mintinline{python}{most_common_letter} för.
 
-De två sista raderna visar vad en \mintinline{python}{Counter} kan som
+De sista raderna visar vad en \mintinline{python}{Counter} kan som
 en vanlig uppslagslista inte kan.  Ett uppslag på ett värde som aldrig
 förekommit ger \mintinline{python}{0} i stället för ett
 \mintinline{text}|KeyError| ---
@@ -2353,9 +2405,13 @@ behållaren\autocite{PythonCollections}.
 % värde som aldrig förekommit.  Källan PythonCollections är läst i
 % fulltext, men de citat som står i proveniensblocket täcker bara deque;
 % Counter-avsnittet behöver ett eget citat.
-Och \mintinline{python}{most_common(2)} visar \emph{båda} bokstäverna
+Och \mintinline{python}{most_common(2)} ger \emph{båda} bokstäverna
 som förekommer tre gånger, i stället för att välja en av dem åt oss ---
 vilket är precis den oavgjordhet \mintinline{python}{max} dolde.
+Svaret är en lista av par, som \mintinline{python}{dict} gör om till en
+uppslagslista, och den skriver tabellens
+\mintinline{python}{print_counts} ut, nu med
+\mintinline{python}|by_count=True| så att de vanligaste kommer först.
 
 Vilken av de två lösningarna är bäst?  Den med
 \mintinline{python}{Counter} är kortare och svarar bättre, och i ett
@@ -2473,21 +2529,28 @@ Uppackningen i tre namn är densamma som
 föreläsningen \emph{Behållare: Uppslagslistor}, och att metoden vägrar
 när stacken är tom är samma slags kontroll som kontots.
 
-Det sista testfallet ångrar överföringen från testfallet för banken, så
-att saldona blir de ursprungliga igen.
+Det sista testet gör samma överföring som testet för banken och ångrar
+den, så att saldona blir de ursprungliga igen.  Det skapar sin egen
+bank i stället för att bygga vidare på det testets.
 
 \begin{frame}[fragile]
   \frametitle{Prova ångrandet}
   Överföringen görs baklänges:
-<<prova ångrandet>>=
-bank.undo()
-print(bank)
-<<tester för banken>>=
-
-<<prova ångrandet>>
+<<testfunktioner för banken>>=
+def test_undo():
+    """Provar att ångra en överföring"""
+    bank = Bank()
+    bank.open_account("1001", Person("Ronja"), 500)
+    bank.open_account("1002", Person("Pippi"), 100)
+    bank.transfer("1001", "1002", 200)
+    bank.undo()
+    print(bank)
+<<kör tester för banken>>=
+test_undo()
 @
-  Testfallet skriver ut
-  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_angra.py}
+  Testet skriver ut
+  \runshell[cwd=examples, deps={examples/bank.py}]%
+    {python3 -c 'from bank import test_undo; test_undo()'}
 \end{frame}
 
 % Modulen visas hel först här och inte i uppgiften Banken: den
