@@ -1,15 +1,20 @@
-% Testkörningarna till bråkklassens testfall.  Filen vävs aldrig: den
-% tanglas bara, tillsammans med contents.nw, där testfallen står.
+% Testkörningarna till bråkklassens testfunktioner.  Filen vävs aldrig:
+% den tanglas bara, tillsammans med contents.nw, där testfunktionerna
+% står.
 
-Bredvid varje testfall i \texttt{fraction.py} visar anteckningarna vad
-just de raderna skriver ut när \texttt{tests()} körs.  Ett testfall
-använder ofta variabler som ett tidigare testfall skapat ([[frac]],
-[[frac_a]], [[frac_b]]), så varje testkörning importerar klassen, kör
-de tidigare testfallen tyst --- deras utskrift fångas med
-[[redirect_stdout]] och kastas --- och kör sedan testfallet självt.  Då
-är utskriften precis de rader [[tests()]] skriver för det testfallet,
-med samma tillstånd.  Testfallens rader står bara i \texttt{contents.nw};
-här refereras de.
+Bredvid varje testfunktion i \texttt{fraction.py} visar anteckningarna
+vad den skriver ut.  Testfunktionerna skapar sina egna bråk, så varje
+testkörning behöver bara importera testfunktionen och anropa den.  Att
+den ändå är en egen fil, och inte ett anrop direkt i
+[[\runpython]], beror på att körningen ska visa klassen som den står i
+texten där testfunktionen står, och den är ofta inte den tanglade
+[[fraction.py]]: före \emph{Förkortning} förkortar den inga bråk, före
+den omvända additionen och subtraktionen saknar den metoderna, och den
+första konverteringen till heltal är ett försök.  Testkörningen ändrar
+klassen så innan den anropar testfunktionen.  Med
+[[python3 -c]] hade ändringarna inte behövt en fil, men en körning som
+avbryts skriver ut kommandoradens kod i spårutskriften, och då hade
+ändringarna synts i anteckningarna.
 
 \section*{Klassen som den står i texten}
 
@@ -17,15 +22,17 @@ Fram till avsnittet \emph{Förkortning} är konstruktorns sista steg,
 [[<<förkorta bråket>>]], pseudokod: texten har ännu inte bestämt när
 bråket ska förkortas.  Den tanglade [[fraction.py]] är däremot den
 färdiga filen, där konstruktorn anropar [[__simplify]].  Kördes
-testfallen före \emph{Förkortning} mot den skulle subtraktionen skriva
-[[1/4]] och [[frac_a * 2]] skriva [[1/1]], fast texten nyss sagt att
-klassen inte förkortar och att \(\frac{1}{2} \cdot 2\) ger
+testfunktionerna före \emph{Förkortning} mot den skulle subtraktionen
+skriva [[1/4]] och [[frac_a * 2]] skriva [[1/1]], fast texten nyss sagt
+att klassen inte förkortar och att \(\frac{1}{2} \cdot 2\) ger
 \(\frac{2}{2}\).  Testkörningarna före \emph{Förkortning} byter därför
 ut den privata metoden mot en som inte gör något.  Det är samma sak som
 att lämna pseudokoden ogjord: allt annat i klassen är oförändrat, och
-utskriften blir klassens som den står i texten.  Förkortningens eget
-testfall får ingen testkörning: dess utskrift är svaret på övningen
-\enquote{Vad skriver testprogrammet ut?}, och den visas i hela
+utskriften blir klassens som den står i texten.  Alla testkörningar
+gör så, också de vars bråk redan är förkortade, så att ett ändrat
+testfall inte tyst börjar visa den färdiga klassen.  Förkortningens
+egen testfunktion får ingen testkörning: dess utskrift är svaret på
+övningen \enquote{Vad skriver testprogrammet ut?}, och den visas i hela
 programmets körning efter övningen.
 
 <<låt bli att förkorta, som klassen i texten>>=
@@ -34,10 +41,10 @@ Fraction._Fraction__simplify = lambda self: None
 @
 
 Testkörningarna före den omvända additionen och den omvända
-subtraktionen visar vad testfallet gör innan klassen har metoden:
+subtraktionen visar vad testfunktionen gör innan klassen har metoden:
 raden med heltalet till vänster avbryter med ett [[TypeError]].  Den
 tanglade klassen har metoderna, så de testkörningarna tar bort dem
-igen.  Spårutskriften pekar då ut testfallets egen rad.
+igen.  Spårutskriften pekar då ut testfunktionen och dess rad.
 
 <<låt bli att ha [[__radd__]], som klassen i texten>>=
 # Klassen i texten har ännu ingen __radd__.
@@ -49,7 +56,8 @@ del Fraction.__rsub__
 
 Testkörningen av det första försöket till [[__int__]] byter på samma
 sätt ut klassens metod mot försöket, som står i texten men inte i
-klassen.
+klassen.  [[\codebycode]] läser också försöket ur den här
+testkörningen.
 
 <<låt [[__int__]] vara det första försöket, som i texten>>=
 # Klassen i texten har här det första försöket till __int__.
@@ -57,204 +65,115 @@ klassen.
 Fraction.__int__ = __int__
 @
 
-Alla testkörningar börjar likadant.
-
-<<testkörningens importer>>=
-from contextlib import redirect_stdout
-from io import StringIO
-
-from fraction import Fraction
-@
-
 \section*{Testkörningarna}
 
-Konstruktorns testfall skriver inte ut något och har ingen egen
-testkörning.
+Konstruktorns testfunktion skriver inte ut något och har ingen egen
+testkörning.  Varje testkörning importerar klassen, för att kunna ändra
+den, och testfunktionen, ändrar klassen och anropar testfunktionen.
 
 <<[[fraction_test_konvertering.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_conversion
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-<<prova typkonverteringen>>
+test_conversion()
 @
 
 <<[[fraction_test_heltal_forsok.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_int
 
 <<låt bli att förkorta, som klassen i texten>>
 <<låt [[__int__]] vara det första försöket, som i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-<<prova konverteringen till heltal>>
+test_int()
 @
 
 <<[[fraction_test_heltal.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_int
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-<<prova konverteringen till heltal>>
+test_int()
 @
 
 <<[[fraction_test_addition.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_add
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-<<prova additionen>>
+test_add()
 @
 
 <<[[fraction_test_heltalsaddition.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_add_int
 
 <<låt bli att förkorta, som klassen i texten>>
 <<låt bli att ha [[__radd__]], som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-<<prova additionen med heltalet på båda sidor>>
+test_add_int()
 @
 
 <<[[fraction_test_radd.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_add_int
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-<<prova additionen med heltalet på båda sidor>>
+test_add_int()
 @
 
 <<[[fraction_test_negation.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_neg
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-<<prova negationen>>
+test_neg()
 @
 
 <<[[fraction_test_subtraktion.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_sub
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-    <<prova negationen>>
-<<prova subtraktionen>>
+test_sub()
 @
 
 <<[[fraction_test_heltalssubtraktion.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_sub_from_int
 
 <<låt bli att förkorta, som klassen i texten>>
 <<låt bli att ha [[__rsub__]], som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-    <<prova negationen>>
-    <<prova subtraktionen>>
-<<prova att subtrahera från ett heltal>>
+test_sub_from_int()
 @
 
 <<[[fraction_test_rsub.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_sub_from_int
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-    <<prova negationen>>
-    <<prova subtraktionen>>
-<<prova att subtrahera från ett heltal>>
+test_sub_from_int()
 @
 
 <<[[fraction_test_multiplikation.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_mul
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-    <<prova negationen>>
-    <<prova subtraktionen>>
-    <<prova att subtrahera från ett heltal>>
-<<prova multiplikationen>>
+test_mul()
 @
 
 <<[[fraction_test_heltalsmultiplikation.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_mul_int
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-    <<prova negationen>>
-    <<prova subtraktionen>>
-    <<prova att subtrahera från ett heltal>>
-    <<prova multiplikationen>>
-<<prova multiplikationen med ett heltal>>
+test_mul_int()
 @
 
 <<[[fraction_test_rmul.py]]>>=
-<<testkörningens importer>>
+from fraction import Fraction, test_int_mul
 
 <<låt bli att förkorta, som klassen i texten>>
 
-with redirect_stdout(StringIO()):
-    <<prova att skapa bråk>>
-    <<prova typkonverteringen>>
-    <<prova konverteringen till heltal>>
-    <<prova additionen>>
-    <<prova additionen med heltalet på båda sidor>>
-    <<prova negationen>>
-    <<prova subtraktionen>>
-    <<prova att subtrahera från ett heltal>>
-    <<prova multiplikationen>>
-    <<prova multiplikationen med ett heltal>>
-<<prova multiplikationen med heltalet till vänster>>
+test_int_mul()
 @
