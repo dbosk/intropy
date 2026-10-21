@@ -57,6 +57,24 @@ def fraga(helper, *args, **kwargs):
 % pilavsnittets steg, där också strängarna är objekt.
 \input{../gallery/pictures.tex}
 
+% Bildernas text sätts med dokumentet, i storlek med texten där bilden
+% står, och skalas aldrig om som en del av bilden (författaren,
+% 2026-10-21: "never scale as part of an image").  pythonfigs sätter
+% koden i \footnotesize, samma storlek som programmen i löptexten och på
+% bilderna.  En bild i marginalen får marginalens storlek, den som
+% notes.tex ger marginalanteckningarna (\foottextfont), också för typnamn
+% och etiketter som True och False: ett steg mindre blir oläsligt där.
+% En bild som inte ryms i sin spalt i den storleken flyttas eller ritas
+% om; den krymps inte.
+\newcommand{\recapFigFonts}[1]{%
+  \renewcommand{\pyfigfont}{#1\ttfamily}%
+  \renewcommand{\pyfigsmallfont}{#1\ttfamily}%
+  \renewcommand{\pyfigtextfont}{#1\normalfont}%
+}
+\ifdefined\setfloatadjustment
+  \csappto{marginfigureadjustment}{\recapFigFonts{\scriptsize}}
+\fi
+
 % Namnen i saldo.py efter var och en av de tre tilldelningarna, som
 % galleriets \figBoxSteps men med stegen under varandra, så att bilden ryms
 % i marginalen.
@@ -154,7 +172,7 @@ def fraga(helper, *args, **kwargs):
 % Två objekt av samma klass.
 \newcommand{\recapFigObjects}{%
   \begin{pyfig}
-    \pynames[row sep=17mm]{n}{ronja: \pyptr, copy: \pyptr}
+    \pynames[row sep=15mm]{n}{ronja: \pyptr, copy: \pyptr}
     \pyobject[right=9mm of n-ronja, yshift=4mm]{a}{Account}%
       {__number: "1001", __owner: "Ronja", __balance: 1000}
     \pyobject[right=9mm of n-copy, yshift=-4mm]{b}{Account}%
@@ -200,6 +218,31 @@ def fraga(helper, *args, **kwargs):
   \end{pyfig}%
 }
 
+% Tilldelningarna i saldo.py med pilar.  Som galleriets \figArrowSteps,
+% men med kortare pilar och stegen tätare, så att bilden ryms i
+% bildernas textbredd i kodens storlek.
+\newcommand{\recapFigArrowSteps}{%
+  \begin{pyfig}
+    \pynames[anchor=north west, at={(0,0)}]{a1}{balance: \pyptr}
+    \pyval[right=6mm of a1-balance]{a1v}{int}{1000}
+    \pyarrow{a1-balance}{a1v}
+    \pynames[anchor=north west, at={(36mm,0)}, row sep=6mm]{a2}%
+      {balance: \pyptr, old: \pyptr}
+    \pyval[right=6mm of a2-balance, yshift=-5mm]{a2v}{int}{1000}
+    \pyarrow{a2-balance}{a2v}
+    \pyarrow{a2-old}{a2v}
+    \pynames[anchor=north west, at={(72mm,0)}, row sep=6mm]{a3}%
+      {balance: \pyptr, old: \pyptr}
+    \pyval[right=6mm of a3-balance]{a3n}{int}{1500}
+    \pyval[right=6mm of a3-old]{a3v}{int}{1000}
+    \pyarrow{a3-balance}{a3n}
+    \pyarrow{a3-old}{a3v}
+    \foreach \s/\t in {a1/1, a2/2, a3/3}
+      \node[pyfig region title] at ([yshift=5mm]\s.north west)
+        {Efter tilldelning \t};
+  \end{pyfig}%
+}
+
 % Ändringarna inne i deposit i pilar.py: läget efter rad #1 (1, 2 eller 3).
 % Som galleriets \figRebind, men strängarna i uppslagslistorna är också
 % objekt med egna pilar, som talen: avsnittet om pilar tar bort lådorna
@@ -232,9 +275,12 @@ def fraga(helper, *args, **kwargs):
       \pydict[at={($(v1500.east |- dep-account)+(5mm,0)$)}, anchor=west]%
         {d2}{"owner": \pyptr, "balance": \pyptr}
       \pyval[below=6mm of d2-1, pyfig type at=left]{v0}{int}{0}
-      \pyval[right=8mm of d2-0]{sP}{str}{"Pippi"}
+      % Strängen över uppslagslistan, som "Ronja", inte till höger om
+      % den, så att bilden ryms på en presentationsbild utan att krympas.
+      \pyval[above=7mm of d2.north east, anchor=south east]{sP}%
+        {str}{"Pippi"}
       \pyarrow{d2-1}{v0}
-      \pyarrow{d2-0}{sP}
+      \pyarrow{d2-0}{d2-0.center |- sP.south}
       \pyarrow{dep-account}{d2.west |- dep-account}
     }{%
       \pyarrow{dep-account}{d1}
@@ -1090,13 +1136,6 @@ villkor är sant, eller [[else]] om inget är det.  Bankens uttag,
 [[withdraw]] i [[uttag2.py]], är en sådan kedja
 (\cref{fig:recap-villkor}).
 
-\begin{marginfigure}
-  \resizebox{\linewidth}{!}{\figIf}
-  \caption{Villkoren i [[withdraw]] som flödesschema: villkoren prövas
-    uppifrån, och det första som är sant (\texttt{True}) avgör vägen; är
-    inget sant (\texttt{False} hela vägen ner) är det [[else]]-grenen som
-    exekveras.}\label{fig:recap-villkor}
-\end{marginfigure}
 \begin{frame}<article>[fragile]
   \begin{example}[Uttaget som en kedja av villkor]
     \label{ex:recap-uttag2}
@@ -1128,6 +1167,17 @@ if __name__ == "__main__":
 % A notes-only frame still advances beamer's frame counter.
 \mode<presentation>{\addtocounter{framenumber}{-1}}
 
+% Flödesschemat är för brett för marginalen i marginalens storlek, så det
+% står i textspalten, direkt under programmet det ritar.
+\begin{figure}[htbp]
+  \begin{sidecaption}{Villkoren i [[withdraw]] som flödesschema:
+    villkoren prövas uppifrån, och det första som är sant
+    (\texttt{True}) avgör vägen; är inget sant (\texttt{False} hela vägen
+    ner) är det [[else]]-grenen som exekveras.}[fig:recap-villkor]
+    \figIf
+  \end{sidecaption}
+\end{figure}
+
 \Cref{ex:recap-uttag-par} ställer de två programmen bredvid varandra, med
 var sin körning.
 
@@ -1148,46 +1198,46 @@ andra går igenom.  Att [[withdraw]] skriver ut sitt nej i stället för att
 kasta ett särfall är ett val vi gör om när banken blir en klass, i
 \cref{sec:recap-klasser}.
 
-\begin{frame}<presentation>[fragile,shrink=8]
-  \begin{example}[Kedjan i \texttt{uttag2.py}]
-    \texttt{withdraw} och dess kedja som flödesschema:
-    \begin{columns}[c,onlytextwidth]
-      \begin{column}{0.47\linewidth}
-        \inputminted[fontsize=\scriptsize]{python}{examples/uttag2.py}
-      \end{column}
-      \begin{column}{0.51\linewidth}
-        \resizebox{\linewidth}{!}{\figIf}
-      \end{column}
-    \end{columns}
+% Flödesschemat i kodens storlek är för brett för att stå bredvid
+% programmet, så det står under kedjan det ritar; hela uttag2.py visade
+% bilden före.
+\begin{frame}<presentation>[fragile,shrink]
+  \begin{example}[Kedjan i \texttt{withdraw}]
+    \inputminted[fontsize=\scriptsize,firstline=3,lastline=8]%
+      {python}{examples/uttag2.py}
+    {\centering\recapFigFonts{\scriptsize}\figIf\par}
   \end{example}
 \end{frame}
 
-\begin{frame}[fragile,shrink=15]
-  \begin{columns}[T]
-    \begin{column}{0.48\textwidth}
-      \begin{syntax}[villkor]
-        \label{syn:recap-villkor}
-        Exakt en gren exekveras, den första vars villkor är sant:
-        \begin{minted}{python}
+\begin{frame}[fragile]
+  \begin{syntax}[villkor]
+    \label{syn:recap-villkor}
+    Exakt en gren exekveras, den första vars villkor är sant:
+    \begin{minted}{python}
 if villkor:
     gren
 elif villkor:
     gren
 else:
     gren
-        \end{minted}
-        Jämförelser: \mintinline{python}{==}, \mintinline{python}{!=},
-        \mintinline{python}{<}, \mintinline{python}{<=},
-        \mintinline{python}{>}, \mintinline{python}{>=}; sammansatta
-        villkor med \mintinline{python}{and}, \mintinline{python}{or} och
-        \mintinline{python}{not}.
-      \end{syntax}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \only<presentation>{\resizebox{0.9\linewidth}{!}{\recapFigKlader}\par}
-      \begin{example}[Vad ska jag ha på mig?]
-        \label{ex:recap-klader}
-        Samma kedja om väder:
+    \end{minted}
+    Jämförelser: \mintinline{python}{==}, \mintinline{python}{!=},
+    \mintinline{python}{<}, \mintinline{python}{<=},
+    \mintinline{python}{>}, \mintinline{python}{>=}; sammansatta
+    villkor med \mintinline{python}{and}, \mintinline{python}{or} och
+    \mintinline{python}{not}.
+  \end{syntax}
+\end{frame}
+
+% Syntaxrutan och exemplet stod på en gemensam bild, men flödesschemat
+% ryms inte där i kodens storlek: exemplet fick en egen bild, med
+% programmet och schemat i samma storlek bredvid varandra.
+\begin{frame}[fragile]
+  \begin{example}[Vad ska jag ha på mig?]
+    \label{ex:recap-klader}
+    Samma kedja om väder:
+    \begin{columns}[c,onlytextwidth]
+      \begin{column}{0.34\textwidth}
         \begin{minted}[fontsize=\scriptsize]{python}
 if celsius < 0:
     print("Vinterjacka")
@@ -1196,20 +1246,28 @@ elif celsius < 15:
 else:
     print("T-shirt")
         \end{minted}
-      \end{example}
-    \end{column}
-  \end{columns}
+      \end{column}
+      \begin{column}{0.66\textwidth}
+        \only<presentation>{%
+          \recapFigFonts{\scriptsize}\hfill\recapFigKlader}
+      \end{column}
+    \end{columns}
+  \end{example}
 \end{frame}
 
-\begin{marginfigure}
-  \resizebox{\linewidth}{!}{\recapFigKlader}
-  \caption{Kedjan i \cref{ex:recap-klader} som flödesschema: samma form
-    som i [[withdraw]], med andra villkor och andra
-    grenar.}\label{fig:recap-klader}
-\end{marginfigure}
 Kedjans form är densamma i helt andra program, som det som väljer kläder
 efter temperaturen i \cref{ex:recap-klader}: villkor efter villkor,
 uppifrån, och en gren för det som blir kvar (\cref{fig:recap-klader}).
+
+% Som flödesschemat för withdraw är det här för brett för marginalen i
+% marginalens storlek, så det står i textspalten.
+\begin{figure}[htbp]
+  \begin{sidecaption}{Kedjan i \cref{ex:recap-klader} som flödesschema:
+    samma form som i [[withdraw]], med andra villkor och andra
+    grenar.}[fig:recap-klader]
+    \recapFigKlader
+  \end{sidecaption}
+\end{figure}
 
 Villkor och förgreningar gick föreläsningen \emph{Villkor och
 styrstrukturer} igenom.
@@ -1290,8 +1348,8 @@ listan, och sedan skrivs saldot ut en gång.  \Cref{fig:recap-for} och
     \runpython[showcommand, chdir]{examples/summa.py}
     \only<presentation>{%
       \begin{columns}[c]
-        \begin{column}{0.5\textwidth}
-          \centering\scalebox{0.85}{\figFor}
+        \begin{column}{0.53\textwidth}
+          \centering\figFor
         \end{column}
         \begin{column}{0.45\textwidth}
           \footnotesize\tabFor
@@ -1856,23 +1914,22 @@ if __name__ == "__main__":
     main()
 @
     \begin{columns}[T]
-      \begin{column}{0.5\textwidth}
+      \begin{column}{0.43\textwidth}
         \runpython[showcommand, chdir]{examples/konton2.py}
       \end{column}
-      \begin{column}{0.45\textwidth}
+      \begin{column}{0.55\textwidth}
         \only<presentation>{\recapFigAccounts}
       \end{column}
     \end{columns}
   \end{example}
 \end{frame}
 
-\begin{figure}[htbp]
-  \begin{sidecaption}{Kontona i [[konton2.py]] efter de två ändringarna:
-    en rad per nyckel, kontonumret till vänster och saldot till
-    höger.}[fig:recap-konton]
-    \recapFigAccounts
-  \end{sidecaption}
-\end{figure}
+\begin{marginfigure}
+  \recapFigAccounts
+  \caption{Kontona i [[konton2.py]] efter de två ändringarna: en rad per
+    nyckel, kontonumret till vänster och saldot till
+    höger.}\label{fig:recap-konton}
+\end{marginfigure}
 
 \begin{frame}[fragile,shrink]
   \begin{syntax}[uppslagslista]
@@ -2053,13 +2110,12 @@ print(fraga(
   \begin{example}[Två objekt av samma klass]
     \label{ex:recap-objekt}
     Så här blir körningen:
-    \begin{columns}[T]
-      \begin{column}{0.45\textwidth}
+    \begin{columns}[T,onlytextwidth]
+      \begin{column}{0.38\textwidth}
         \runpython[showcommand, chdir]{examples/objekt.py}
       \end{column}
-      \begin{column}{0.5\textwidth}
-        \only<presentation>{%
-          \resizebox{!}{0.55\textheight}{\recapFigObjects}}
+      \begin{column}{0.6\textwidth}
+        \only<presentation>{\recapFigObjects}
       \end{column}
     \end{columns}
   \end{example}
@@ -2514,10 +2570,17 @@ if __name__ == "__main__":
       \end{column}
       \begin{column}{0.4\textwidth}
         \runpython[showcommand, chdir]{examples/banken.py}
-        \only<presentation>{%
-          \medskip\resizebox{\linewidth}{!}{\recapFigBank}}
       \end{column}
     \end{columns}
+  \end{example}
+\end{frame}
+
+% Bilden av banken ryms inte under körningen i kodens storlek, så den får
+% en egen bild, under de rader i banken.py som bygger upp det den visar.
+\begin{frame}<presentation>[fragile,shrink]
+  \begin{example}[Banken efter överföringen]
+    \inputminted[firstline=5,lastline=8]{python}{examples/banken.py}
+    {\centering\recapFigBank\par}
   \end{example}
 \end{frame}
 
@@ -3152,8 +3215,8 @@ pil flyttades.
 \begin{frame}<presentation>
   \begin{example}[\texttt{saldo.py} med pilar]
     Namnen efter var och en av de tre tilldelningarna:
-    \medskip\centering
-    \scalebox{0.85}{\figArrowSteps}
+    \par\medskip
+    {\centering\recapFigArrowSteps\par}
   \end{example}
 \end{frame}
 
@@ -3161,7 +3224,7 @@ pil flyttades.
   \begin{sidecaption}{Tilldelningarna i [[saldo.py]] med pilar, efter
     varje tilldelning: inget tal kopieras, den tredje tilldelningen
     flyttar en pil.}[fig:recap-pilsteg]
-    \figArrowSteps
+    \recapFigArrowSteps
   \end{sidecaption}
 \end{figure}
 
@@ -3175,7 +3238,7 @@ som argumenten.  Den första raden i [[deposit]] flyttar den lokala pilen
   \begin{example}[Efter den första raden]
     \mintinline{python}{amount = amount + 1} flyttar en lokal pil:
     \medskip\centering
-    \scalebox{0.85}{\recapFigRebind{1}}
+    \recapFigRebind{1}
   \end{example}
 \end{frame}
 
@@ -3199,7 +3262,7 @@ tal, 2001.  Båda namnen pekar kvar på samma uppslagslista, så det märker
   \begin{example}[Efter den andra raden]
     Raden ändrar den gemensamma uppslagslistan:
     \medskip\centering
-    \scalebox{0.85}{\recapFigRebind{2}}
+    \recapFigRebind{2}
   \end{example}
 \end{frame}
 
@@ -3221,7 +3284,7 @@ uppslagslista, och det märker [[main]] inte heller
   \begin{example}[Efter den tredje raden]
     En ny uppslagslista, och en lokal pil som flyttas dit:
     \medskip\centering
-    \scalebox{0.85}{\recapFigRebind{3}}
+    \recapFigRebind{3}
   \end{example}
 \end{frame}
 
