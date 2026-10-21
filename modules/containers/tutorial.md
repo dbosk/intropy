@@ -36,11 +36,12 @@ lösningen.
 
 1. **Uppgift 1 och 2: Giltiga e-postadresser.** Kontrollera inlästa
    e-postadresser och samla deras domäner, först med funktioner och
-   sedan med en egen klass, `Epost`, som vägrar skapa något som inte är
-   en e-postadress och vars delar läses som egenskaper, som delarna i
-   standardbibliotekets `urllib.parse.urlparse`. Samma program två
-   gånger, så att vi kan jämföra strukturen. Egenskaperna, `@property`,
-   går vi igenom ordentligt på onsdagen.
+   sedan med en egen klass, `Email`, där funktionerna blir metoder:
+   `Email("malvina@kth.se")` vägrar skapa något som inte är en
+   e-postadress, och delarna läses som egenskaper, `email.domain`, som
+   delarna i standardbibliotekets `urllib.parse.urlparse`. Samma program
+   två gånger, så att vi kan jämföra strukturen. Egenskaperna,
+   `@property`, går vi igenom ordentligt på onsdagen.
 2. **Uppgift 3: Banken.** Bygga en bank vars konton ligger i en behållare
    inuti klassen. Ska kontona ligga i en lista eller i en uppslagslista,
    och vad ska ett konto i så fall hittas med? Det är frågan om att välja
