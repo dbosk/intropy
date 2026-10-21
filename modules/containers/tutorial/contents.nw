@@ -54,786 +54,518 @@ från föreläsningen \emph{Behållare: Uppslagslistor}.  Ha Pythons
 dokumentation uppe medan du arbetar: att hitta svaret där är en av de
 färdigheter uppgifterna övar.
 
-\section[E-postadresser]{Giltiga e-postadresser}
-\label{sec:epost}
+\section{Banken}
+\label{sec:banken}
 
-Den första uppgiften handlar om en fråga som ser ut som en fråga om
-strängar, men som slutar i ett val av behållare.  Så här ska programmet
-bete sig när det är klart.
+Tillbaka till behållarna, men nu inuti en klass.  Uppgiften är övningens
+mest sammansatta: flera klasser, en behållare som ligger i en av dem, och
+ett val att motivera.  Så här ska programmet bete sig när det är klart.
 
 % REVIEW(C15): körningen av lösningens program står före uppgiften, så
-% att målet blir konkret.  Den avslöjar inget uppgiften frågar efter:
-% vilken behållare som samlar domänerna syns inte i utskriften, och att
-% domänerna kommer i bokstavsordning står redan i uppgiftstexten.  Den
+% att målet blir konkret --- en överföring och två avvisade fel, precis
+% det uppgiften ber om.  Den svarar inte på uppgiftens sista fråga, den
+% om lista eller uppslagslista, eftersom behållaren är inkapslad och
+% inte syns i utskriften.  Kommandoraden är dold: den hade avslöjat att
+% lösningen delar upp programmet i en modul och ett huvudprogram.  Den
 % andra läsningen --- ingen körning före uppgiften --- är det som stod
 % förut.
 \begin{frame}[fragile,shrink]
   \begin{example}[Så ska det bete sig]
-    \label{ex:epost-target}
-    Så här ska det se ut när du är klar --- vi skriver in sex adresser,
-    varav två inte duger:
-    \runpython[transcript, stdinfile={examples/epost.in}]%
-      {examples/epost.py}
+    \label{ex:banken-target}
+    Så här ska det se ut när du är klar --- tre konton, en överföring
+    och två fel som avvisas:
+    \runpython[chdir, deps={examples/bank.py}]{examples/banken.py}
   \end{example}
 \end{frame}
 
 \begin{frame}
-  \begin{exercise}[epost.py]
-    \label{ovn:epost-domaner}
+  \begin{exercise}[bank.py]
+    \label{ovn:bank}
     \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ovn:epost-domaner}:
-      \cref{OvningContainersLOSet,OvningContainersLOChoose}.
-
-      \textbf{Variationsmönster}: kontrast.
-      \textbf{Vad som varierar}: vilken fråga som ställs om de insamlade
-      domänerna --- alla, eller vilka olika.
-      \textbf{Vad som hålls invariant}: inmatningen och kontrollen av
-      adresserna.
-
-      Kontrollen av adresserna övar bara strängar, alltså tidigare
-      material; frågan om \emph{vilka olika} domäner som förekom gör
-      uppgiften till en uppgift om behållare, eftersom det är precis den
-      fråga en mängd svarar på.  Strängkontrollen är det invarianta
-      bakgrundsljudet.
-
-      Formuleringen säger inte vilken behållare som ska användas, och ordet
-      \enquote{mängd} förekommer inte i uppgiften.  Den som samlar domänerna
-      i en lista och rensar dubbletter med en egen kontroll har byggt en
-      fungerande lösning, och den lösningen står skriven bredvid mängdens
-      sist i lösningsförslaget, så att de två kan jämföras samtidigt och
-      inte ur minnet \parencite[s.~45--47]{Marton2015}.  Att låta uppgiften
-      peka ut behållaren hade tagit bort just det som ska urskiljas
-      \parencite[s.~13 och 91]{Marton2015}.
-
-      Filen heter [[epost.py]] och inte något som säger vilken behållare
-      lösningen använder.  Domänerna är KTH:s riktiga: \texttt{kth.se} och
-      studenternas \texttt{ug.kth.se} har båda MX-poster (kontrollerat
-      i DNS); \texttt{student.kth.se} finns däremot inte.
-    }%
-    Skriv ett program som läser in e-postadresser, en per rad, och
-    avslutas med en blankrad.  För varje adress ska programmet svara om
-    den ser ut som en e-postadress eller inte.  När inmatningen är slut
-    ska programmet skriva ut vilka olika domäner som förekom bland de
-    godtagna adresserna, i bokstavsordning.
-
-    Vad har alla e-postadresser gemensamt, och vad kan du använda det
-    till?  Och vad kan du säga om ordningen mellan domänerna i
-    utskriften?
-  \end{exercise}
-\end{frame}
-
-\subsection{Lösningsförslag}
-
-\leavevmode\ltnote{%
-  \textbf{Uppifrån och ner}, som i \emph{Övning: Funktioner och
-  variabler}: en hjälpfunktion, en klass eller en metod läggs till
-  först där resonemanget behöver den.
-}%
-Vi skriver programmet uppifrån och ner.  Först lägger vi upp filen:
-överst en \foreignlanguage{english}{docstring} som säger vad programmet
-är till för, sedan hjälpfunktionerna och till sist huvudprogrammet.
-Upplägget står i pseudokod, och sedan preciserar vi pseudokoden med
-pythonkod, en del i taget, när vi kommer till den.
-
-\begin{frame}[fragile]
-  \frametitle{Programmets upplägg}
-  \leavevmode\ltnote{%
-    Programmen följer funktionsregeln från föreläsningen
-    \emph{Funktioner}.  Att anropet står bakom
-    \mintinline{python}|if __name__ == "__main__":| är formen från
-    föreläsningen \emph{Moduler och paket}, och den behövs: flera av
-    filerna importeras av andra program i övningen, och ett huvudprogram
-    på högsta nivån skulle då köras vid importen.
-  }%
-  E-postprogrammets upplägg:
-<<[[epost.py]]>>=
-"""Läser in e-postadresser och samlar deras domäner"""
-
-<<e-postprogrammets hjälpfunktioner>>
-
-<<e-postprogrammets huvudprogram>>
-@
-\end{frame}
-
-Vi börjar med huvudprogrammet, eftersom det är det uppgiften beskriver.
-Adresserna kommer en per rad tills en blankrad, och de godtagna
-adressernas domäner ska samlas så att varje domän räknas en gång ---
-alltså i en mängd.  Om varje adress ställer programmet två frågor: ser
-den ut som en e-postadress, och vilken domän har den?  De är var sin
-sak, och de blir var sin hjälpfunktion, \mintinline{python}{is_email}
-och \mintinline{python}{domain_of}.  Varje funktion får ett ansvar: det
-är \emph{SRP}, principen om ett enda ansvar, från föreläsningen
-\emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
-\footnote{%
-  Det vetenskapliga underlaget för SRP --- både varifrån principen
-  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
-  ansvar} är en bedömningsfråga --- finns i föreläsningen
-  \emph{Funktioner}, bilaga B.%
-}
-Vi anropar dem redan här och skriver dem sedan.  Att de är egna
-funktioner gör också att kontrollen
-går att pröva utan att någon behöver mata in något.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Huvudprogrammet}
-  Mängden växer med en domän per godtagen adress:
-<<e-postprogrammets huvudprogram>>=
-def main():
-    """Huvudprogrammet"""
-    domains = set()
-
-    while address := input("Ange en e-postadress: "):
-        if is_email(address):
-            print(f"{address} ser ut som en e-postadress.")
-            domains.add(domain_of(address))
-        else:
-            print(f"{address} ser inte ut som en e-postadress.")
-
-    print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
-
-if __name__ == "__main__":
-    main()
-@
-\end{frame}
-
-Villkoret i \mintinline{python}{while}-satsen läser in adressen med
-tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
-\emph{Övning: Inmatning, felhantering och styrstrukturer}, i
-föreläsningen \emph{Upprepningar} och i föreläsningen \emph{Behållare:
-Uppslagslistor}: det ger \mintinline{python}{address} svaret och är
-självt ett uttryck med samma värde, som villkoret prövar.  En tom sträng
-är falsk, så slingan går tills användaren svarar med en blankrad.  Frågan
-står på ett ställe i stället för två --- före slingan och sist i den ---
-och det är vad principen \emph{DRY},
-\foreignlanguage{english}{Don't Repeat Yourself}, handlar
-om\autocite{HuntThomas1999}.%
-\footnote{%
-  Det vetenskapliga underlaget för DRY --- både varifrån principen
-  kommer och om den håller, med de förbehåll som hör till --- finns i
-  föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
-}
-
-Mängden gör två saker på en gång: den lägger till en domän som inte fanns
-och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
-fall det är.
-
-Och så uppgiftens andra fråga, om ordningen.  Vi prövar att skriva ut
-en mängd med inmatningens två domäner som den är, utan
-\mintinline{python}{sorted}, i ett litet program för sig.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[Mängden utan ordning]
-    \label{ex:ordning}
-    \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ex:ordning}:
-      \cref{OvningContainersLOSet}.
-
-      \textbf{Vad som varierar}: bara körningen --- samma
-      \texttt{ordning.py} två gånger.  \textbf{Vad som hålls invariant}:
-      programmet, mängden och utskriftens form, som är
-      \texttt{epost.py}:s utan \mintinline{python}{sorted}.
-
-      Python väljer ett nytt slumpvärde för strängarnas hashning vid
-      varje start, så två körningar kan ge olika ordning.  För att
-      anteckningarna ska bli desamma vid varje kompilering körs de två
-      med var sitt fast värde (\texttt{PYTHONHASHSEED}), valda så att
-      ordningen skiljer sig; kommandoraden som visas är den studenten
-      skriver.
-    }%
-    Programmet skriver ut domänerna som mängden lämnar ut dem:
-<<[[ordning.py]]>>=
-"""Skriver ut domänerna i en mängd, utan att ordna dem"""
-
-def main():
-    """Huvudprogrammet"""
-    domains = {"kth.se", "ug.kth.se"}
-    print("Domänerna bland de godtagna:", ", ".join(domains))
-
-if __name__ == "__main__":
-    main()
-@
-    % On the slides the two one-line runs stay one under the other, where
-    % they line up; in the notes they stand side by side.
-    \only<presentation>{%
-      Vi kör det två gånger:
-      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
-        deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
-      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
-        deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
-    }%
-    \only<article>{%
-      Vi kör det två gånger, den första till vänster:
-      \runbyrun
-        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
-          deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
-        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
-          deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
-    }
-  \end{example}
-\end{frame}
-
-Samma program ger två olika ordningar, och det är svaret: en mängd har
-ingen ordning.  Den lägger sina element där de hör hemma utifrån värdet,
-inte efter varandra, och därför går det varken att fråga efter det första
-elementet eller att räkna med att två körningar skriver ut dem i samma
-ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
-välja den själva, och här väljer vi bokstavsordning med
-\mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
-dubbletter: två lika värden hör hemma på samma plats, så det andra
-försvinner in i det första.
-
-Kvar är de två hjälpfunktionerna.  Vad har då alla e-postadresser
-gemensamt?  De har ett
-\mintinline{python}|"@"| --- exakt ett --- med något före och något
-efter, och den del som står efter innehåller minst en punkt som varken
-är domänens första eller sista tecken.  Mellanslag får inte förekomma
-alls.  Det räcker för vår kontroll.
-
-\begin{frame}[fragile]
-  \frametitle{Kontrollen}
-  Villkoren, i den ordning de är billigast att pröva:
-<<e-postprogrammets hjälpfunktioner>>=
-def is_email(address):
-    """Returnerar True om address ser ut som en e-postadress."""
-    if address.count("@") != 1 or " " in address:
-        return False
-
-    local, domain = address.split("@")
-    if not local or not domain:
-        return False
-
-    return "." in domain[1:-1]
-@
-\end{frame}
-
-Strängmetoden \mintinline{python}{count} gör samma sak som listornas
-\mintinline{python}{count}, som du slog upp i föreläsningen
-\emph{Behållare: Listor}: den räknar hur många gånger argumentet
-förekommer, så \mintinline{python}|address.count("@")| är antalet
-snabel-a i adressen.  Den sista raden är värd att fundera på.  Skivan
-\mintinline{python}|domain[1:-1]| är domänen utan sitt första och sista
-tecken, så frågan \enquote{finns det en punkt som inte ligger i någon av
-ändarna?} blir en enda fråga om medlemskap i den skivan.  Skivningen är
-densamma som i föreläsningen \emph{Behållare: Listor}, nu tillämpad på en
-sträng.
-
-Att en adress \emph{ser} rätt ut är inte detsamma som att den finns.  Vad
-som verkligen får stå i en e-postadress bestäms av en standard, och den
-tillåter betydligt mer än kontrollen här --- bland annat citerade
-lokaldelar och adresser utan punkt i domänen.  Kontrollen är alltså
-avsiktligt strängare än standarden, vilket är ett vanligt och medvetet
-val i riktiga program.
-% TODO(claim-audit): att standarden för e-postadresser tillåter mer än
-% kontrollen här (citerade lokaldelar, domäner utan punkt).  Primärkällan
-% är RFC 5322, som inte är läst i fulltext härifrån.
-
-Den andra hjälpfunktionen plockar ut domänen, och den läggs till efter
-den första; som vanligt lägger +\(\equiv\) till en del under samma
-namn.
-
-\begin{frame}[fragile]
-  \frametitle{Domänen}
-  Domänen är det som står efter snabel-a, i gemener:
-<<e-postprogrammets hjälpfunktioner>>=
-def domain_of(address):
-    """Returnerar domänen i address, med gemener."""
-    return address.split("@")[1].casefold()
-@
-\end{frame}
-
-Funktionen gör om domänen till gemener, eftersom
-\mintinline{python}|"KTH.se"| och \mintinline{python}|"kth.se"| är samma
-domän och inte ska räknas som två.  Det är samma
-\mintinline{python}{casefold} som gjorde sökningen i föreläsningen
-\emph{Behållare: Listor} likgiltig för stora bokstäver.
-
-\begin{frame}<article>[fragile]
-  \leavevmode\ltnote{%
-    \textbf{Helheten efter delarna}, som i \emph{Övning: Funktioner och
-    variabler}.  Program som redan står hela i en enda del visas inte en gång
-    till.
-  }%
-  Sätter vi in varje del där dess namn står får vi hela programmet,
-  \texttt{epost.py}:
-  \inputminted{python}{examples/epost.py}
-\end{frame}
-
-Så här ser en körning ut när vi skriver adresserna för hand.
-
-\begin{frame}[fragile,shrink]
-  \begin{example}[En körning]
-    \label{ex:epost-run}
-    Sex adresser, varav två inte duger, och en blankrad som avslutar:
-    \runpython[transcript, stdinfile={examples/epost.in}]%
-      {examples/epost.py}
-  \end{example}
-\end{frame}
-
-Tre av adresserna delar domän, och domänen förekommer ändå bara en gång i
-utskriften.  Det är det mängden är till för.
-
-\leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ex:epost-run,ex:epost-fil}:
-  \cref{OvningContainersLOSet}.
-
-  Båda körningarna kommer ur samma tanglade inmatningsfil, så
-  utskriften i materialet är den programmet verkligen ger.  Ordningen
-  --- för hand, filen, omdirigeringen --- låter studenten känna igen
-  körningen innan formen ändras; att frågorna flyter ihop i den andra
-  körningen är då den enda skillnaden att se, och prosan förklarar den.
-}%
-Som i föreläsningen \emph{Behållare: Uppslagslistor} kan vi också mata
-programmet med en färdig inmatning i stället för att skriva den för hand.
-Inmatningen skriver vi i en fil, en adress per rad.
-
-\begin{frame}[fragile]
-  Filen \texttt{epost.in} --- samma sex adresser, och den tomma raden
-  sist avslutar:
-<<[[epost.in]]>>=
-ronja@kth.se
-pippi.langstrump@kth.se
-madicken@@kth.se
-birk
-annika@ug.kth.se
-lisabet@kth.se
-
-@
-\end{frame}
-
-I terminalen ger vi programmet filen med \texttt{<} framför filnamnet.
-Då läser \mintinline{python}{input} sina svar från filen i stället för
-från tangentbordet.
-
-\begin{frame}[fragile,shrink=15]
-  \begin{example}[En körning med inmatningen från filen]
-    \label{ex:epost-fil}
-    Samma körning, med adresserna ur \texttt{epost.in}:
-    \runshell[showcommand, cwd=examples,
-      deps={examples/epost.py,examples/epost.in}]%
-      {python3 epost.py < epost.in}
-  \end{example}
-\end{frame}
-
-Frågorna och svaren hamnar inte längre på var sin rad.  Inmatningen
-kommer från filen och skrivs aldrig ut i terminalen, så varken adresserna
-eller radbytet efter dem syns: nästa utskrift börjar direkt efter
-frågan.
-
-\leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ovn:epost-domaner}:
-  \cref{OvningContainersLOChoose}.
-
-  Stycket om listalternativet är uppgiftens egentliga poäng och står
-  därför som studenttext och inte som en anteckning: valet mellan
-  behållarna är lärandemålet, och ett lösningsförslag som bara visar den
-  rätta lösningen övar det inte.
-
-  Prestandapåståendet beläggs med Pythons egen sammanställning och inte
-  med en tidtagning; en mätning hade sagt något om den här datorn, inte
-  om datastrukturen.  Förbehållen (CPython, genomsnittsfall) står i
-  brödtexten, som i anteckningarna \emph{Behållare: Mängder, stackar och
-  köer}.  Sista meningen säger ut att skillnaden är betydelselös i just
-  det här programmet, så att påståendet inte blir större än det är.
-}%
-En lista hade också gått.  Vi ställer de två sätten bredvid varandra ---
-allt annat i programmet är sig likt, så det enda som skiljer är hur
-dubbletten hindras.
-
-% The two excerpts are tangled from testkorningar.nw, since \codebycode
-% reads its sides from files; they are shown nowhere else.
-\begin{frame}
-  \frametitle{Två sätt att samla domänerna}
-  Med en mängd, som i lösningen, till vänster, och med en lista och
-  kontrollen skriven för hand till höger:
-  \codebycode
-    [label={Med en mängd}]{python}{examples/domaner_mangd.py}
-    [label={Med en lista}]{python}{examples/domaner_lista.py}
-\end{frame}
-
-Listan ger samma utskrift, men den säger något annat om programmet:
-kontrollen ligger i vår kod i stället för i behållarens innebörd, och
-den måste söka igenom listan för varje ny adress.  Frågan
-\mintinline{python}{x in behållare} kostar arbete som växer med antalet
-element i en lista, men i genomsnitt lika mycket oavsett antalet i en
-mängd\autocite{PythonTimeComplexity} --- i CPython, och i
-genomsnittsfallet.  Med sex adresser spelar det ingen roll; med sex
-hundra tusen gör det det.
-
-\section{Bokstavsräknaren}
-\label{sec:bokstaver}
-
-Samma slags data --- text --- men en annan fråga om den.  Så här ska
-programmet bete sig när det är klart.
-
-% REVIEW(C15): körningen av lösningens program står före uppgiften, så
-% att målet blir konkret.  Utskriftens form är den uppgiftstexten redan
-% beskriver, och vilken behållare som räknar syns inte i den.  Den andra
-% läsningen --- ingen körning före uppgiften --- är det som stod förut.
-\begin{frame}[fragile,shrink]
-  \begin{example}[Så ska det bete sig]
-    \label{ex:letters-target}
-    Så här ska det se ut när du är klar --- programmet matas med
-    texten \enquote{Ronja, Pippi och Madicken}:
-    \runpython[transcript, stdin={Ronja, Pippi och Madicken}]%
-      {examples/letters.py}
-  \end{example}
-\end{frame}
-
-\begin{frame}
-  \begin{exercise}[letters.py]
-    \label{ovn:letters}
-    \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ovn:letters}:
-      \cref{OvningContainersLODict,OvningContainersLODocs}.
+      Relevanta lärandemål för \cref{ovn:bank}:
+      \cref{OvningContainersLOContainer,OvningContainersLOChoose,%
+      OvningContainersLODict}.
 
       \textbf{Variationsmönster}: generalisering.
-      \textbf{Vad som hålls invariant}: den kritiska aspekten, att en nyckel
-      är ett namn på ett värde och inte en plats.
-      \textbf{Vad som varierar}: vad värdet är och var det kommer ifrån ---
-      ett telefonnummer som matas in i föreläsningen \emph{Behållare:
-      Uppslagslistor}, ett antal som programmet självt räknar fram här.
+      \textbf{Vad som hålls invariant}: kriteriet --- behållaren väljs efter
+      vilka operationer klassen behöver --- och formen: en klass som har en
+      behållare av andra objekt och metoder som söker i och uppdaterar den.
+      \textbf{Vad som varierar}: vilken behållare det är och vad elementen
+      nås med.  Anteckningarna \emph{Praktiska tillämpningar av klasser} har
+      en \mintinline{python}{ShoppingList} med en \emph{lista} av varor som
+      nås på sin \emph{plats} (\mintinline{python}|check_item(self, index)|);
+      banken har en \emph{uppslagslista} av konton som nås på sin
+      \emph{nyckel}.
 
-      Övningen bygger mer på uppslagslistor än på någon annan behållare,
-      och här byggs en upp för sig, innan den används inuti en klass.
-      Räkningen är vald därför att den
-      kräver alla tre delarna av målet i ett litet program: att bygga upp
-      uppslagslistan medan programmet körs, att hantera en nyckel som ännu
-      inte finns, och att gå igenom nycklarna i ordning.
+      Kompositionen och den saknade nyckeln varierar däremot \emph{inte}:
+      båda är genomgångna, den första i samma anteckningar (adress i person,
+      person i konto) och den andra i \emph{Behållare: Uppslagslistor}.  De
+      står med för att uppgiften ska vara ett helt program, inte för att
+      något ska urskiljas i dem.
 
-      Uppgiften nämner varken uppslagslista eller
-      \mintinline{python}{collections}: vad \enquote{hur många gånger varje}
-      betyder är just den urskiljning studenten ska göra
-      \parencite[91]{Marton2015}.  Att texten läses in med
-      \mintinline{python}{input} i stället för att stå i koden gör att
-      körningen i anteckningarna kan matas med en bestämd text, och att
-      studenten kan prova sin egen.
+      Den enda verkligt nya aspekten är att behållaren är \emph{inkapslad}:
+      [[__accounts]] är privat, och den som anropar banken får aldrig veta
+      att kontona ligger i en uppslagslista --- [[account]] byter ut
+      \mintinline{python}{KeyError} mot \mintinline{python}{ValueError}
+      innan felet når anroparen.
+
+      Själva kontoklassen med ägare, saldo, insättning och uttag byggs i
+      anteckningarna \emph{Praktiska tillämpningar av klasser}.  Det som
+      inte byggs där är banken --- klassen som \emph{har} kontona --- och
+      det är precis lärandemålet om en klass med en behållare av andra
+      objekt, \cref{OvningContainersLOContainer}.  Därför är uppgiften
+      formulerad kring banken, med behållarfrågan i centrum.
+
+      Personklassen står i uppgiften, så att uppgiften inte hänvisar till
+      en uppgift i en annan övning.
+
+      Anteckningarnas banksystem har publika attribut och säger själv att det
+      är ett medvetet avsteg för att fem klasser ska rymmas på bilderna.
+      Lösningsförslaget här har privata attribut, alltså den form
+      anteckningarna säger gäller när studenten skriver egna klasser, men
+      läser dem med läsmetoder som \mintinline{python}{get_balance}, som i
+      föreläsningen \emph{Klasser och objekt}, och inte med egenskaper som
+      anteckningarnas \mintinline{python}{Item}.  Egenskaperna,
+      \mintinline{python}{@property}, lärs ut i anteckningarna
+      \emph{Operatoröverlagring}, och Banken görs på övningen före den
+      genomgången (författaren, 2026-10-11).
+      Skillnaden är avsiktlig och värd att peka på om någon frågar.
     }%
-    Skriv ett program som läser in en rad text och sedan berättar hur
-    många gånger varje bokstav förekommer i den, i bokstavsordning, samt
-    vilken bokstav som förekommer flest gånger.  Skillnad på stora och
-    små bokstäver ska inte göras, och tecken som inte är bokstäver ska
-    hoppas över.
+    Skriv ett program som håller reda på en banks konton.  Varje konto
+    har ett kontonummer, en ägare och ett saldo.  Det ska gå att sätta in
+    pengar, att ta ut pengar --- men bara om de finns --- och att föra
+    över pengar mellan två konton.  Banken ska kunna öppna nya konton och
+    hitta ett konto utifrån dess kontonummer.  Ägaren är en person, så
+    hen förtjänar en egen klass.
 
-    Vad behöver programmet hålla reda på medan det läser texten, och
-    vilken behållare gör det åt dig?
+    Låt programmet visa en överföring och två fel som avvisas.
+
+    Prova att lagra kontona både i en lista och i en uppslagslista.
+    Vilket fungerar bäst här, och varför?
   \end{exercise}
 \end{frame}
 
 \subsection{Lösningsförslag}
 
-Att räkna är att hålla ett tal per bokstav, och det är precis vad en
-uppslagslista gör: bokstaven blir nyckeln och antalet värdet.
-
-Programmet läggs upp som e-postprogrammet.
+Tre klasser, var och en med ett ansvar, som \emph{SRP} i
+\cref{sec:epost} säger: banken vet vilka konton som finns, kontot vet
+vad det innehåller och vaktar sitt saldo, och personen
+vet vad hen heter.  Klasserna ligger i en modul, och ett eget program
+använder dem --- så att modulen går att importera från flera program.
+Modulen har klasserna och, som bråkfilen i
+\cref{sec:brak-ovning-behallare}, ett testprogram som provar dem när
+filen körs som program.
 
 \begin{frame}[fragile]
-  \frametitle{Programmets upplägg}
-  Bokstavsräknarens upplägg:
-<<[[letters.py]]>>=
-"""Räknar hur många gånger varje bokstav förekommer i en text"""
+  \frametitle{Modulens upplägg}
+  Bankmodulens upplägg:
+<<[[bank.py]]>>=
+"""Klasser för en bank med konton"""
 
-<<bokstavsräknarens hjälpfunktioner>>
+<<bankmodulens klasser>>
 
-<<bokstavsräknarens huvudprogram>>
+<<bankmodulens tester>>
 @
 \end{frame}
 
-Huvudprogrammet läser, anropar och skriver ut; det räknar ingenting
-själv.  Det läser en text, låter en funktion räkna bokstäverna och
-skriver ut en tabell, och det frågar en funktion till vilken bokstav som
-är vanligast.  Inläsningen, räkningen och tabellen skriver vi först som
-pseudokod, och senare preciserar vi pseudokoden med pythonkod.
+Testprogrammet heter \mintinline{python}{tests}, som bråkfilens, och
+växer med klasserna: när en del går att prova lägger vi till ett
+testfall, och bredvid testfallet står vad just de raderna skriver ut.
 
 \begin{frame}[fragile]
-  \frametitle{Huvudprogrammet}
-  Tabellen först, och sedan den vanligaste:
-<<bokstavsräknarens huvudprogram>>=
+  \frametitle{Testprogrammet}
+  Testfallen läggs till ett i taget:
+<<bankmodulens tester>>=
+def tests():
+    """Provar bankens klasser"""
+    <<tester för banken>>
+
+if __name__ == "__main__":
+    tests()
+@
+\end{frame}
+
+Vi börjar uppifrån, med banken, som är det uppgiften handlar om.  Banken
+ska hitta ett konto utifrån dess nummer, och det är en uppslagning på ett
+namn --- alltså en uppslagslista, med kontonumret som nyckel och kontot
+som värde.  Klassen har ett namn och en
+\foreignlanguage{english}{docstring}, och sedan sina metoder, som vi
+lägger till en i taget; den första är konstruktorn, som skapar
+uppslagslistan.
+
+\begin{frame}[fragile]
+  \frametitle{Banken}
+  Kontona i en uppslagslista, och ett steg vi lämnar tomt tills vidare:
+<<bankmodulens klasser>>=
+class Bank:
+    """En bank med sina konton"""
+
+    <<bankens metoder>>
+<<bankens metoder>>=
+def __init__(self):
+    self.__accounts = {}
+    <<skapa bankens minne av överföringar>>
+@
+\end{frame}
+
+Det tomma steget är bankens minne av vad den har gjort, och vi kommer
+tillbaka till det i uppgiften \emph{Att ångra det senaste}.  Först de tre
+metoder uppgiften ber om.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Att öppna och att hitta ett konto}
+  Nyckeln får inte finnas förut, och måste finnas efteråt:
+<<bankens metoder>>=
+def open_account(self, number, owner, balance=0):
+    """Öppnar ett konto och lämnar tillbaka det."""
+    if number in self.__accounts:
+        raise ValueError(f"kontot {number} finns redan")
+
+    self.__accounts[number] = Account(number, owner, balance)
+    return self.__accounts[number]
+
+def account(self, number):
+    """Lämnar tillbaka kontot med numret number."""
+    if number not in self.__accounts:
+        raise ValueError(f"det finns inget konto {number}")
+
+    return self.__accounts[number]
+@
+\end{frame}
+
+De två \mintinline{python}{in}-kontrollerna är inte samma sak.  Den i
+\mintinline{python}{open_account} finns därför att en tilldelning till en
+nyckel som redan finns \emph{byter ut} värdet, tyst: utan kontrollen
+skulle ett nytt konto med samma nummer radera det gamla, och pengarna med
+det.  Den i \mintinline{python}{account} finns därför att ett uppslag på
+en nyckel som saknas ger ett \mintinline{text}|KeyError|, och den som
+anropar banken ska inte behöva veta att kontona ligger i en
+uppslagslista --- den får ett \mintinline{python}{ValueError} som talar
+om vad som var fel i stället.
+
+Kontot som \mintinline{python}{open_account} skapar är ett objekt av
+klassen \mintinline{python}{Account}, som vi skriver när banken är klar.
+
+\begin{frame}[fragile]
+  \frametitle{Överföringen}
+  Ett uttag och en insättning, och en anteckning:
+<<bankens metoder>>=
+def transfer(self, source, target, amount):
+    """För över amount kronor från kontot source till target."""
+    self.account(source).withdraw(amount)
+    self.account(target).deposit(amount)
+    <<anteckna överföringen i bankens minne>>
+@
+\end{frame}
+
+Överföringen skriver inte i saldona själv: den ber kontona om ett uttag
+och en insättning.  Kontrollen att pengarna finns hör alltså till kontot,
+och den skriver vi när vi kommer dit.
+
+Till sist en utskrift av hela banken, i nummerordning.
+
+\begin{frame}[fragile]
+  \frametitle{Bankens utskrift}
+  Nycklarna sorteras, och varje konto skriver ut sig självt:
+<<bankens metoder>>=
+def __str__(self):
+    numbers = sorted(self.__accounts)
+    rows = [str(self.account(number)) for number in numbers]
+    return "\n".join(rows)
+@
+\end{frame}
+
+Här syns uppslagslistan igen: \mintinline{python}{sorted} över den ger
+nycklarna i ordning, och listbyggaren gör en rad per konto.  Utan
+sorteringen hade ordningen varit den kontona öppnades i, vilket inte är
+den ordning någon vill läsa en kontolista i.
+
+Så till kontot, som banken har anropat hela tiden.  Det har tre saker:
+ett nummer, en ägare och ett saldo.  Ägaren är ett
+\mintinline{python}{Person}-objekt --- kontot \emph{har} en person ---
+och det är komposition, som i anteckningarna \emph{Praktiska tillämpningar
+av klasser}.  Alla tre attributen är privata, och det är själva poängen
+med kontot: ett saldo som går att skriva till utifrån är inget saldo, för
+då kan någon ändra det utan att pengarna kommer någonstans ifrån.
+
+\begin{frame}[fragile]
+  \frametitle{Kontot}
+  Konstruktorn tar emot de tre attributen:
+<<bankmodulens klasser>>=
+class Account:
+    """Ett bankkonto med nummer, ägare och saldo"""
+
+    <<kontots metoder>>
+<<kontots metoder>>=
+def __init__(self, number, owner, balance=0):
+    self.__number = number
+    self.__owner = owner
+    self.__balance = balance
+@
+\end{frame}
+
+Att attributen är privata betyder inte att de är hemliga: den som har
+ett konto ska kunna få veta dess nummer, ägare och saldo, bara inte
+ändra dem.  Vi läser dem som i föreläsningen \emph{Klasser och objekt},
+med en läsmetod per attribut som lämnar tillbaka värdet.  Någon metod som
+skriver i attributen finns inte, så numret och ägaren ändras aldrig efter
+konstruktorn, och saldot bara på de sätt kontot självt tillåter.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Kontots läsmetoder}
+  Nummer, ägare och saldo, alla läsbara men inte skrivbara:
+<<kontots metoder>>=
+def get_number(self):
+    """Returnerar kontonumret"""
+    return self.__number
+
+def get_owner(self):
+    """Returnerar kontots ägare"""
+    return self.__owner
+
+def get_balance(self):
+    """Returnerar saldot"""
+    return self.__balance
+@
+\end{frame}
+
+Saldot ändras bara genom två metoder, och båda kontrollerar först.
+Insättningen vägrar ett belopp som inte är positivt, uttaget vägrar
+dessutom ett belopp som är större än saldot.  Att de kastar ett särfall
+i stället för att lämna tillbaka \mintinline{python}{False} är ett val:
+ett sanningsvärde går att glömma att titta på, medan ett särfall måste
+tas om hand.  Anteckningarna \emph{Praktiska tillämpningar av klasser}
+gör det omvända valet och nämner det här som ett alternativ; båda
+fungerar, och skillnaden är vad som händer när den som anropar
+struntar i svaret.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Insättning och uttag}
+  Kontrollerna först, ändringen sedan:
+<<kontots metoder>>=
+def deposit(self, amount):
+    """Sätter in amount kronor på kontot."""
+    if amount <= 0:
+        raise ValueError("beloppet måste vara positivt")
+
+    self.__balance += amount
+
+def withdraw(self, amount):
+    """Tar ut amount kronor, om de finns på kontot."""
+    if amount <= 0:
+        raise ValueError("beloppet måste vara positivt")
+    if amount > self.__balance:
+        raise ValueError(f"{self.__number} har inte {amount} kr")
+
+    self.__balance -= amount
+
+def __str__(self):
+    return f"{self.__number}: {self.__owner}, {self.__balance} kr"
+@
+\end{frame}
+
+Nu gäller kontrollerna också för bankens överföring, utan att den
+behöver kontrollera något själv.  Räcker inte pengarna kastar uttaget
+sitt särfall innan insättningen har hunnit göras, så pengar kan inte
+uppstå ur ingenting.
+
+Kvar är ägaren, den minsta av klasserna.  Namnet är privat och läses med
+en läsmetod, och \mintinline{python}{__str__} gör att en person kan
+skrivas ut utan att den som skriver ut --- här kontots
+\mintinline{python}{__str__} --- behöver veta hur personobjektet är
+byggt.
+
+\begin{frame}[fragile]
+  \frametitle{Personen}
+  Ett namn, en läsmetod och en utskrift:
+<<bankmodulens klasser>>=
+class Person:
+    """En person som kan äga ett konto"""
+
+    def __init__(self, name):
+        self.__name = name
+
+    def get_name(self):
+        """Returnerar namnet"""
+        return self.__name
+
+    def __str__(self):
+        return self.__name
+@
+\end{frame}
+
+De tre klasserna anropar varandra, så det är först nu, när alla tre
+finns, som de går att prova.  Det första testfallet provar kontot: en
+insättning och ett uttag som saldot täcker.
+
+\begin{frame}[fragile]
+  \frametitle{Prova kontot}
+  Fem hundra kronor, hundra in och två hundra ut:
+<<prova kontot>>=
+account = Account("1001", Person("Ronja"), 500)
+account.deposit(100)
+account.withdraw(200)
+print(account)
+<<tester för banken>>=
+<<prova kontot>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_konto.py}
+\end{frame}
+
+Det andra provar banken: två konton och en överföring mellan dem.
+
+\begin{frame}[fragile]
+  \frametitle{Prova banken}
+  Två hundra kronor byter konto:
+<<prova banken>>=
+bank = Bank()
+bank.open_account("1001", Person("Ronja"), 500)
+bank.open_account("1002", Person("Pippi"), 100)
+bank.transfer("1001", "1002", 200)
+print(bank)
+<<tester för banken>>=
+
+<<prova banken>>
+@
+  Testfallet skriver ut
+  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_banken.py}
+\end{frame}
+
+Programmet som använder banken importerar klasserna ur modulen.
+Modulen \mintinline{python}{bank} är filen \texttt{bank.py}, vars delar
+vi har skrivit i \cref{sec:banken}\only<article>{; hel står den, med det
+som läggs till i \cref{sec:angra}, i \cref{ex:bank-ovning-behallare}}.
+
+\begin{frame}[fragile]
+  \frametitle{Ett program som använder modulen}
+  Tre konton, en överföring, och två fel:
+<<[[banken.py]]>>=
+"""Ett program som öppnar konton och för över pengar"""
+
+from bank import Bank, Person
+
 def main():
     """Huvudprogrammet"""
-    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
+    <<öppna tre konton och för över pengar mellan två>>
 
-    top_letter, top_count = most_common_letter(counts)
-    print(f"Vanligast är {top_letter}, {top_count} gånger.")
+    <<försök med ett för stort uttag och ett okänt konto>>
 
 if __name__ == "__main__":
     main()
 @
 \end{frame}
 
-Räkningen blir en egen funktion, \mintinline{python}{count_letters}, som
-tar en text och lämnar tillbaka uppslagslistan, så att den går att
-använda på vilken text som helst.  Tabellen blir också en funktion,
-\mintinline{python}{print_counts}, som tar emot uppslagslistan.
-
-\begin{frame}[fragile]
-  \frametitle{Inläsningen och tabellen}
-  Texten in, uppslagslistan tillbaka, och tabellen ut:
-<<läs in en text, räkna bokstäverna och skriv ut tabellen>>=
-counts = count_letters(input("Ange en text: "))
-print_counts(counts)
-@
-\end{frame}
-
-Tabellen är uppslagslistans nycklar i bokstavsordning, var och en med
-sitt antal.
-
-\begin{frame}[fragile]
-  \frametitle{Tabellen}
-  Paren av nyckel och värde, i ordning:
-<<bokstavsräknarens hjälpfunktioner>>=
-def print_counts(counts):
-    """Skriver ut bokstäverna i counts med sina antal, i ordning."""
-    for letter, count in sorted(counts.items()):
-        print(f"{letter}: {count}")
-@
-\end{frame}
-
-Slingan går igenom paren av nyckel och värde och packar upp vart och
-ett i två namn, precis som med \mintinline{python}{phone.items()} i
-föreläsningen \emph{Behållare: Uppslagslistor}.  Att paren först går
-genom \mintinline{python}{sorted} ger dem i bokstavsordning, eftersom
-en tupel jämförs på sin första del.
-
-Nu till räkningen, som tabellen och den vanligaste bokstaven bygger på.
-
-\begin{frame}[fragile]
-  \frametitle{Räkningen}
-  Ett tal per bokstav, byggt upp ett tecken i taget:
-<<bokstavsräknarens hjälpfunktioner>>=
-def count_letters(text):
-    """Returnerar en uppslagslista från bokstav till antal."""
-    counts = {}
-
-    for character in text.casefold():
-        if character.isalpha():
-            counts[character] = counts.get(character, 0) + 1
-
-    return counts
-@
-\end{frame}
-
-Strängmetoden \mintinline{python}{isalpha} svarar
-\mintinline{python}{True} när tecknet är en bokstav --- också å, ä och
-ö --- så att blanksteg, siffror och skiljetecken hoppas över.  Raden i
-mitten är den som gör arbetet.  Första gången en bokstav dyker
-upp finns den inte som nyckel, och ett uppslag hade då gett ett
-\mintinline{text}|KeyError|; \mintinline{python}{get}, som vi mötte i
-föreläsningen \emph{Behållare: Uppslagslistor}, lämnar i stället
-tillbaka reservvärdet \mintinline{python}{0}, som vi lägger
-\mintinline{python}{1} till.  Samma rad täcker
-alltså både fallet \enquote{ny bokstav} och fallet \enquote{sedd förut},
-och en tilldelning till en nyckel som inte finns lägger till posten.
-
-Att ta fram den vanligaste bokstaven är en uträkning till, och den får
-också en egen funktion bland hjälpfunktionerna.
-
-\begin{frame}[fragile]
-  \frametitle{Den vanligaste}
-  Bokstaven med störst antal, och antalet:
-<<bokstavsräknarens hjälpfunktioner>>=
-def most_common_letter(counts):
-    """Returnerar den vanligaste bokstaven och dess antal."""
-    top_letter = max(counts, key=counts.get)
-    return top_letter, counts[top_letter]
-@
-\end{frame}
-
-\mintinline{python}{max} med \mintinline{python}|key=counts.get|
-jämför bokstäverna efter sina antal i stället för efter sig själva ---
-samma \mintinline{python}{key} som sorterade efter längd i föreläsningen
-\emph{Behållare: Listor}.  Funktionen lämnar tillbaka två värden, som en
-tupel.
-
-\begin{frame}<article>[fragile]
-  Sätter vi in varje del där dess namn står får vi hela programmet,
-  \texttt{letters.py}:
-  \inputminted{python}{examples/letters.py}
-\end{frame}
+Huvudprogrammet står i pseudokod, i två delar, och delarna preciserar
+vi med pythonkod en i taget.  Banken skrivs ut både före och efter
+överföringen, eftersom en överföring inte syns i något annat än
+skillnaden mellan två utskrifter.
 
 \begin{frame}[fragile,shrink]
-  \begin{example}[En körning]
-    \label{ex:letters-run}
-    Vi kör programmet och matar in \enquote{Ronja, Pippi och Madicken}:
-    \runpython[transcript, stdin={Ronja, Pippi och Madicken}]%
-      {examples/letters.py}
-  \end{example}
-\end{frame}
+  \frametitle{Kontona och överföringen}
+  Två hundra kronor byter konto:
+<<öppna tre konton och för över pengar mellan två>>=
+bank = Bank()
+bank.open_account("1001", Person("Ronja"), 500)
+bank.open_account("1002", Person("Pippi"), 100)
+bank.open_account("1003", Person("Madicken"))
 
-\leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ex:letters-run}:
-  \cref{OvningContainersLODict}.
+print("Bankens konton:")
+print(bank)
 
-  Att den inmatade texten ger en oavgjord vanligaste bokstav är inte en
-  slump utan valt: en text med ett entydigt maximum hade låtit
-  \mintinline{python}{max} se ut som en funktion som svarar på frågan,
-  och det gör den inte.  Namnen är kursens egna (Ronja, Pippi,
-  Madicken), vilket också är skälet att just de bokstäverna hamnar
-  jämnt.
-}%
-Utskriften avslöjar något uppgiften inte hade tänkt på: två bokstäver
-förekommer tre gånger vardera, och \mintinline{python}{max} lämnar
-tillbaka den första av dem den råkar möta.  Frågan \enquote{vilken
-bokstav är vanligast?} har alltså inte ett entydigt svar för den här
-texten, och ett program som svarar som om den hade det säger mer än det
-vet.
-
-\leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ovn:letters}:
-  \cref{OvningContainersLODocs,OvningContainersLOChoose}.
-
-  Ordningen är avsiktlig: den egna slingan först, den färdiga behållaren
-  efteråt.  Tvärtom hade [[Counter]] blivit ett verktyg utan problem, och
-  den som aldrig skrivit räkningen själv kan inte se vad den gör.  Att
-  det sista stycket säger rakt ut att [[Counter]] är det rätta valet i
-  ett riktigt program är också avsiktligt: ett lösningsförslag som låter
-  den handskrivna varianten framstå som den bästa lär ut något falskt.
-
-  Inläsningen och tabellen är ett och samma namngivna stycke i båda
-  programmen, \texttt{letters.py} och \texttt{counter.py}, och
-  tabellens funktion hämtar \texttt{counter.py} med import, så att det
-  invarianta står en gång och det som varierar --- räkningen och frågan
-  om den vanligaste --- syns utan att två kopior behöver jämföras rad för
-  rad.  Räkningen står dessutom i båda versionerna bredvid varandra
-  (\cref{ex:count-letters-bredvid}), och körningarna likaså.
-
-  [[Counter]] är den behållare dokumentationsuppgiften i anteckningarna
-  \emph{Behållare: Mängder, stackar och köer} bad studenterna slå upp.
-  Att den dyker upp här, i ett program, är uppföljningen av den
-  uppgiften: den har en följd i materialet och är inte en artighetsfras.
-}%
-Uppgiften i anteckningarna \emph{Behållare: Mängder, stackar och köer}
-bad dig slå upp \mintinline{python}{Counter} i dokumentationen för
-modulen \mintinline{python}{collections}.  Det är den som gör samma
-räkning åt oss.  Programmet med den får bokstavsräknarens upplägg, med
-två importer överst: modulen \mintinline{python}{collections}, och
-tabellens \mintinline{python}{print_counts}, som programmet hämtar i
-stället för att skriva den en gång till.  Modulen
-\mintinline{python}{letters} är filen \texttt{letters.py}, som vi
-skrev i \cref{sec:bokstaver}.
-
-\begin{frame}[fragile]
-  \frametitle{Samma upplägg med \texttt{Counter}}
-  Upplägget, med två importer:
-<<[[counter.py]]>>=
-"""Samma räkning, med collections.Counter"""
-
-import collections
-
-from letters import print_counts
-
-<<[[Counter]]-räknarens hjälpfunktioner>>
-
-<<[[Counter]]-räknarens huvudprogram>>
+bank.transfer("1001", "1003", 200)
+print()
+print("Efter överföringen:")
+print(bank)
 @
 \end{frame}
+
+Banken avvisar ett fel med ett särfall, men vad användaren ska få veta
+är programmets sak.  Programmet vet hur det ska svara på ett
+\mintinline{python}{ValueError} från banken --- tala om vad som gick
+fel --- så det fångar just det felet i stället för att avslutas med en
+spårutskrift.  Det är att fånga det man vet hur man ska svara på, som i
+föreläsningen \emph{Inmatning och felhantering}.%
+\footnote{%
+  Det vetenskapliga underlaget finns i föreläsningen \emph{Inmatning
+  och felhantering}, bilaga D: att fånga alla fel är en känd ovana,
+  men de faktiska felen är ovanligare än vanan.%
+}
 
 \begin{frame}[fragile,shrink]
-  \frametitle{Utskriften, och två frågor till}
-  Samma stycke som förut läser texten och skriver ut tabellen; den
-  vanligaste tas fram på ett nytt sätt, och två rader är tillagda:
-<<[[Counter]]-räknarens huvudprogram>>=
-def main():
-    """Huvudprogrammet"""
-    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
+  \frametitle{De två felen}
+  Ett uttag som saldot inte täcker, och ett konto som inte finns:
+<<försök med ett för stort uttag och ett okänt konto>>=
+try:
+    bank.transfer("1002", "1001", 1000)
+except ValueError as error:
+    print()
+    print(f"Överföringen gick inte: {error}")
 
-    top_letter, top_count = counts.most_common(1)[0]
-    print(f"Vanligast är {top_letter}, {top_count} gånger.")
-
-    print(f"Antal q: {counts['q']}")
-    print(f"De två vanligaste: {counts.most_common(2)}")
-
-if __name__ == "__main__":
-    main()
+try:
+    bank.account("2001")
+except ValueError as error:
+    print(f"Uppslagningen gick inte: {error}")
 @
-\end{frame}
-
-Stycket som läser texten och skriver ut tabellen anropar
-\mintinline{python}{count_letters} och \mintinline{python}{print_counts}.
-Den andra hämtar programmet ur \mintinline{python}{letters}, och den
-första är programmets enda egna hjälpfunktion.
-
-\begin{frame}[fragile]
-  \frametitle{Samma räkning med \texttt{Counter}}
-  Räkningen blir ett anrop i stället för en slinga:
-<<[[Counter]]-räknarens hjälpfunktioner>>=
-def count_letters(text):
-    """Returnerar en uppslagslista från bokstav till antal."""
-    letters = [c for c in text.casefold() if c.isalpha()]
-    return collections.Counter(letters)
-@
-\end{frame}
-
-Funktionen behåller sitt namn och sitt löfte --- en text in, en
-uppslagslista från bokstav till antal ut --- så att det enda som skiljer
-den från förut är räkningen inuti den.
-
-% The docstrings are left out: they are the same in both, and the pair
-% is wider than the page with them.  breaklines wraps only on the slides.
-\begin{frame}
-  \begin{example}[Två sätt att räkna]
-    \label{ex:count-letters-bredvid}
-    Räkningen i \texttt{letters.py} till vänster och i
-    \texttt{counter.py} till höger:
-    \codebycode
-      [name=count_letters, nodocstring,
-        label={\texttt{letters.py}}]{python}{examples/letters.py}
-      [name=count_letters, nodocstring, breaklines,
-        label={\texttt{counter.py}}]{python}{examples/counter.py}
-  \end{example}
 \end{frame}
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet,
-  \texttt{counter.py}:
-  \inputminted{python}{examples/counter.py}
+  \texttt{banken.py}:
+  \inputminted{python}{examples/banken.py}
 \end{frame}
 
-% The run of letters.py is repeated beside the new one, so that the
-% shared lines can be seen to be the same instead of remembered.
-\begin{frame}[shrink]
-  \only<presentation>{\setminted{fontsize=\tiny}}%
+\begin{frame}[fragile,shrink]
   \begin{example}[En körning]
-    Vi matar in samma text som förut, med körningen av
-    \texttt{letters.py} till vänster:
-    \runbyrun
-      [transcript, stdin={Ronja, Pippi och Madicken}]%
-      {examples/letters.py}
-      [transcript, stdin={Ronja, Pippi och Madicken},
-        deps={examples/letters.py}]%
-      {examples/counter.py}
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir, deps={examples/bank.py}]%
+      {examples/banken.py}
   \end{example}
 \end{frame}
 
-De 14 första raderna i utskriften är tecken för tecken desamma som
-förut, och det är det som gör jämförelsen läsbar: samma text in, samma
-tabell ut, och det enda som skiljer är hur räkningen görs.  Slingan med
-\mintinline{python}{get} är utbytt mot ett anrop, och
-metoden \mintinline{python}{most_common} svarar direkt på den fråga vi
-skrev funktionen \mintinline{python}{most_common_letter} för.
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ovn:bank}:
+  \cref{OvningContainersLOChoose,OvningContainersLOContainer}.
 
-De två sista raderna visar vad en \mintinline{python}{Counter} kan som
-en vanlig uppslagslista inte kan.  Ett uppslag på ett värde som aldrig
-förekommit ger \mintinline{python}{0} i stället för ett
-\mintinline{text}|KeyError| ---
-samma val som mellan \mintinline{python}|phone[name]| och
-\mintinline{python}|phone.get(name)| i föreläsningen \emph{Behållare:
-Uppslagslistor}, nu inbyggt i
-behållaren\autocite{PythonCollections}.
-% TODO(claim-audit): att Counter räknar förekomster och svarar 0 på ett
-% värde som aldrig förekommit.  Källan PythonCollections är läst i
-% fulltext, men de citat som står i proveniensblocket täcker bara deque;
-% Counter-avsnittet behöver ett eget citat.
-Och \mintinline{python}{most_common(2)} visar \emph{båda} bokstäverna
-som förekommer tre gånger, i stället för att välja en av dem åt oss ---
-vilket är precis den oavgjordhet \mintinline{python}{max} dolde.
+  De två sista styckena är uppgiftens svar och står som studenttext.
+  Ordningen i dem är vald: det starkaste skälet för uppslagslistan är
+  \emph{inte} hastigheten utan att nyckeln är unik, och om hastigheten
+  nämns först blir det det studenterna tar med sig.  Att listans övertag
+  också nämns hindrar slutsatsen \enquote{uppslagslistan är alltid
+  bättre}, som är den missuppfattning en oemotsagd jämförelse lämnar
+  efter sig.
+}%
+Och så uppgiftens fråga: lista eller uppslagslista?  Med en lista av
+konton måste banken gå igenom listan och jämföra
+\mintinline{python}{konto.get_number()} med det sökta numret varje gång
+ett konto ska hittas --- en slinga i varje metod, och arbete som växer med
+antalet konton.  Med uppslagslistan är numret nyckeln: uppslagningen är
+en operation, den kostar i genomsnitt lika mycket oavsett hur många
+konton banken
+har\autocite{PythonTimeComplexity}, och två konton kan inte få samma
+nummer eftersom en nyckel bara finns en gång.  Det sista är det starkaste
+skälet, och det handlar inte om hastighet: uppslagslistan gör ett fel
+\emph{omöjligt} som listan bara gör osannolikt.
 
-Vilken av de två lösningarna är bäst?  Den med
-\mintinline{python}{Counter} är kortare och svarar bättre, och i ett
-riktigt program är den rätt.  Den egna slingan är ändå värd att ha
-skrivit en gång: den visar vad \mintinline{python}{Counter} gör, och
-samma slinga behövs så snart det som ska räknas inte är ett tal --- till
-exempel om du vill spara den \emph{första} plats där varje bokstav
-förekom.
+Uppslagslistan är dessutom den enklare lösningen: en uppslagning där
+listan behöver en slinga i varje metod.  Att välja den enklaste lösning
+som klarar uppgiften är principen \emph{KISS}, som vi mötte i
+föreläsningen \emph{Funktioner}.%
+\footnote{%
+  Det vetenskapliga underlaget för KISS finns i föreläsningen
+  \emph{Funktioner}, bilaga C: enkelhet som designvärde är väl etablerat,
+  medan det inte går att bekräfta att uttrycket kommer från Kelly
+  Johnson, som det brukar tillskrivas.%
+}
+
+Listan hade ett övertag: den minns i vilken ordning kontona öppnades.
+Behöver banken det --- till exempel för att kunna visa det senast
+öppnade kontot --- måste ordningen sparas någon annanstans, och då är
+frågan inte längre vilken behållare som är bäst utan om det behövs två.
+
+% Här slutar uppgiften Banken.  Makefile tanglar examples/start/bank.py,
+% banken utan minne och ångrande, ur allt ovanför den här raden: den är
+% utgångsläget för uppgiften nedan, för den som inte löst Banken själv.
 
 \section[Bråk]{Bråk som går att jämföra}
 \label{sec:brak-ovning-behallare}
@@ -1555,518 +1287,382 @@ lika för lika bråk, och utskriften blir begriplig --- ingen vill läsa
 att den som skickar in en negativ nämnare får tillbaka något som ser
 annorlunda ut än vad hen skrev.
 
-\section{Banken}
-\label{sec:banken}
+\section{Bokstavsräknaren}
+\label{sec:bokstaver}
 
-Tillbaka till behållarna, men nu inuti en klass.  Uppgiften är övningens
-mest sammansatta: flera klasser, en behållare som ligger i en av dem, och
-ett val att motivera.  Så här ska programmet bete sig när det är klart.
+Samma slags data --- text --- men en annan fråga om den.  Så här ska
+programmet bete sig när det är klart.
 
 % REVIEW(C15): körningen av lösningens program står före uppgiften, så
-% att målet blir konkret --- en överföring och två avvisade fel, precis
-% det uppgiften ber om.  Den svarar inte på uppgiftens sista fråga, den
-% om lista eller uppslagslista, eftersom behållaren är inkapslad och
-% inte syns i utskriften.  Kommandoraden är dold: den hade avslöjat att
-% lösningen delar upp programmet i en modul och ett huvudprogram.  Den
-% andra läsningen --- ingen körning före uppgiften --- är det som stod
-% förut.
+% att målet blir konkret.  Utskriftens form är den uppgiftstexten redan
+% beskriver, och vilken behållare som räknar syns inte i den.  Den andra
+% läsningen --- ingen körning före uppgiften --- är det som stod förut.
 \begin{frame}[fragile,shrink]
   \begin{example}[Så ska det bete sig]
-    \label{ex:banken-target}
-    Så här ska det se ut när du är klar --- tre konton, en överföring
-    och två fel som avvisas:
-    \runpython[chdir, deps={examples/bank.py}]{examples/banken.py}
+    \label{ex:letters-target}
+    Så här ska det se ut när du är klar --- programmet matas med
+    texten \enquote{Ronja, Pippi och Madicken}:
+    \runpython[transcript, stdin={Ronja, Pippi och Madicken}]%
+      {examples/letters.py}
   \end{example}
 \end{frame}
 
 \begin{frame}
-  \begin{exercise}[bank.py]
-    \label{ovn:bank}
+  \begin{exercise}[letters.py]
+    \label{ovn:letters}
     \leavevmode\ltnote{%
-      Relevanta lärandemål för \cref{ovn:bank}:
-      \cref{OvningContainersLOContainer,OvningContainersLOChoose,%
-      OvningContainersLODict}.
+      Relevanta lärandemål för \cref{ovn:letters}:
+      \cref{OvningContainersLODict,OvningContainersLODocs}.
 
       \textbf{Variationsmönster}: generalisering.
-      \textbf{Vad som hålls invariant}: kriteriet --- behållaren väljs efter
-      vilka operationer klassen behöver --- och formen: en klass som har en
-      behållare av andra objekt och metoder som söker i och uppdaterar den.
-      \textbf{Vad som varierar}: vilken behållare det är och vad elementen
-      nås med.  Anteckningarna \emph{Praktiska tillämpningar av klasser} har
-      en \mintinline{python}{ShoppingList} med en \emph{lista} av varor som
-      nås på sin \emph{plats} (\mintinline{python}|check_item(self, index)|);
-      banken har en \emph{uppslagslista} av konton som nås på sin
-      \emph{nyckel}.
+      \textbf{Vad som hålls invariant}: den kritiska aspekten, att en nyckel
+      är ett namn på ett värde och inte en plats.
+      \textbf{Vad som varierar}: vad värdet är och var det kommer ifrån ---
+      ett telefonnummer som matas in i föreläsningen \emph{Behållare:
+      Uppslagslistor}, ett antal som programmet självt räknar fram här.
 
-      Kompositionen och den saknade nyckeln varierar däremot \emph{inte}:
-      båda är genomgångna, den första i samma anteckningar (adress i person,
-      person i konto) och den andra i \emph{Behållare: Uppslagslistor}.  De
-      står med för att uppgiften ska vara ett helt program, inte för att
-      något ska urskiljas i dem.
+      Övningen bygger mer på uppslagslistor än på någon annan behållare,
+      och här byggs en upp för sig, innan den används inuti en klass.
+      Räkningen är vald därför att den
+      kräver alla tre delarna av målet i ett litet program: att bygga upp
+      uppslagslistan medan programmet körs, att hantera en nyckel som ännu
+      inte finns, och att gå igenom nycklarna i ordning.
 
-      Den enda verkligt nya aspekten är att behållaren är \emph{inkapslad}:
-      [[__accounts]] är privat, och den som anropar banken får aldrig veta
-      att kontona ligger i en uppslagslista --- [[account]] byter ut
-      \mintinline{python}{KeyError} mot \mintinline{python}{ValueError}
-      innan felet når anroparen.
-
-      Själva kontoklassen med ägare, saldo, insättning och uttag byggs i
-      anteckningarna \emph{Praktiska tillämpningar av klasser}.  Det som
-      inte byggs där är banken --- klassen som \emph{har} kontona --- och
-      det är precis lärandemålet om en klass med en behållare av andra
-      objekt, \cref{OvningContainersLOContainer}.  Därför är uppgiften
-      formulerad kring banken, med behållarfrågan i centrum.
-
-      Personklassen står i uppgiften, så att uppgiften inte hänvisar till
-      en uppgift i en annan övning.
-
-      Anteckningarnas banksystem har publika attribut och säger själv att det
-      är ett medvetet avsteg för att fem klasser ska rymmas på bilderna.
-      Lösningsförslaget här har privata attribut, alltså den form
-      anteckningarna säger gäller när studenten skriver egna klasser, men
-      läser dem med läsmetoder som \mintinline{python}{get_balance}, som i
-      föreläsningen \emph{Klasser och objekt}, och inte med egenskaper som
-      anteckningarnas \mintinline{python}{Item}.  Egenskaperna,
-      \mintinline{python}{@property}, lärs ut i anteckningarna
-      \emph{Operatoröverlagring}, och Banken görs på övningen före den
-      genomgången (författaren, 2026-10-11).
-      Skillnaden är avsiktlig och värd att peka på om någon frågar.
+      Uppgiften nämner varken uppslagslista eller
+      \mintinline{python}{collections}: vad \enquote{hur många gånger varje}
+      betyder är just den urskiljning studenten ska göra
+      \parencite[91]{Marton2015}.  Att texten läses in med
+      \mintinline{python}{input} i stället för att stå i koden gör att
+      körningen i anteckningarna kan matas med en bestämd text, och att
+      studenten kan prova sin egen.
     }%
-    Skriv ett program som håller reda på en banks konton.  Varje konto
-    har ett kontonummer, en ägare och ett saldo.  Det ska gå att sätta in
-    pengar, att ta ut pengar --- men bara om de finns --- och att föra
-    över pengar mellan två konton.  Banken ska kunna öppna nya konton och
-    hitta ett konto utifrån dess kontonummer.  Ägaren är en person, så
-    hen förtjänar en egen klass.
+    Skriv ett program som läser in en rad text och sedan berättar hur
+    många gånger varje bokstav förekommer i den, i bokstavsordning, samt
+    vilken bokstav som förekommer flest gånger.  Skillnad på stora och
+    små bokstäver ska inte göras, och tecken som inte är bokstäver ska
+    hoppas över.
 
-    Låt programmet visa en överföring och två fel som avvisas.
-
-    Prova att lagra kontona både i en lista och i en uppslagslista.
-    Vilket fungerar bäst här, och varför?
+    Vad behöver programmet hålla reda på medan det läser texten, och
+    vilken behållare gör det åt dig?
   \end{exercise}
 \end{frame}
 
 \subsection{Lösningsförslag}
 
-Tre klasser, var och en med ett ansvar, som \emph{SRP} i
-\cref{sec:epost} säger: banken vet vilka konton som finns, kontot vet
-vad det innehåller och vaktar sitt saldo, och personen
-vet vad hen heter.  Klasserna ligger i en modul, och ett eget program
-använder dem --- så att modulen går att importera från flera program.
-Modulen har klasserna och, som bråkfilen i
-\cref{sec:brak-ovning-behallare}, ett testprogram som provar dem när
-filen körs som program.
+Att räkna är att hålla ett tal per bokstav, och det är precis vad en
+uppslagslista gör: bokstaven blir nyckeln och antalet värdet.
+
+Programmet läggs upp som e-postprogrammet.
 
 \begin{frame}[fragile]
-  \frametitle{Modulens upplägg}
-  Bankmodulens upplägg:
-<<[[bank.py]]>>=
-"""Klasser för en bank med konton"""
+  \frametitle{Programmets upplägg}
+  Bokstavsräknarens upplägg:
+<<[[letters.py]]>>=
+"""Räknar hur många gånger varje bokstav förekommer i en text"""
 
-<<bankmodulens klasser>>
+<<bokstavsräknarens hjälpfunktioner>>
 
-<<bankmodulens tester>>
+<<bokstavsräknarens huvudprogram>>
 @
 \end{frame}
 
-Testprogrammet heter \mintinline{python}{tests}, som bråkfilens, och
-växer med klasserna: när en del går att prova lägger vi till ett
-testfall, och bredvid testfallet står vad just de raderna skriver ut.
+Huvudprogrammet läser, anropar och skriver ut; det räknar ingenting
+själv.  Det läser en text, låter en funktion räkna bokstäverna och
+skriver ut en tabell, och det frågar en funktion till vilken bokstav som
+är vanligast.  Inläsningen, räkningen och tabellen skriver vi först som
+pseudokod, och senare preciserar vi pseudokoden med pythonkod.
 
 \begin{frame}[fragile]
-  \frametitle{Testprogrammet}
-  Testfallen läggs till ett i taget:
-<<bankmodulens tester>>=
-def tests():
-    """Provar bankens klasser"""
-    <<tester för banken>>
-
-if __name__ == "__main__":
-    tests()
-@
-\end{frame}
-
-Vi börjar uppifrån, med banken, som är det uppgiften handlar om.  Banken
-ska hitta ett konto utifrån dess nummer, och det är en uppslagning på ett
-namn --- alltså en uppslagslista, med kontonumret som nyckel och kontot
-som värde.  Klassen har ett namn och en
-\foreignlanguage{english}{docstring}, och sedan sina metoder, som vi
-lägger till en i taget; den första är konstruktorn, som skapar
-uppslagslistan.
-
-\begin{frame}[fragile]
-  \frametitle{Banken}
-  Kontona i en uppslagslista, och ett steg vi lämnar tomt tills vidare:
-<<bankmodulens klasser>>=
-class Bank:
-    """En bank med sina konton"""
-
-    <<bankens metoder>>
-<<bankens metoder>>=
-def __init__(self):
-    self.__accounts = {}
-    <<skapa bankens minne av överföringar>>
-@
-\end{frame}
-
-Det tomma steget är bankens minne av vad den har gjort, och vi kommer
-tillbaka till det i uppgiften \emph{Att ångra det senaste}.  Först de tre
-metoder uppgiften ber om.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Att öppna och att hitta ett konto}
-  Nyckeln får inte finnas förut, och måste finnas efteråt:
-<<bankens metoder>>=
-def open_account(self, number, owner, balance=0):
-    """Öppnar ett konto och lämnar tillbaka det."""
-    if number in self.__accounts:
-        raise ValueError(f"kontot {number} finns redan")
-
-    self.__accounts[number] = Account(number, owner, balance)
-    return self.__accounts[number]
-
-def account(self, number):
-    """Lämnar tillbaka kontot med numret number."""
-    if number not in self.__accounts:
-        raise ValueError(f"det finns inget konto {number}")
-
-    return self.__accounts[number]
-@
-\end{frame}
-
-De två \mintinline{python}{in}-kontrollerna är inte samma sak.  Den i
-\mintinline{python}{open_account} finns därför att en tilldelning till en
-nyckel som redan finns \emph{byter ut} värdet, tyst: utan kontrollen
-skulle ett nytt konto med samma nummer radera det gamla, och pengarna med
-det.  Den i \mintinline{python}{account} finns därför att ett uppslag på
-en nyckel som saknas ger ett \mintinline{text}|KeyError|, och den som
-anropar banken ska inte behöva veta att kontona ligger i en
-uppslagslista --- den får ett \mintinline{python}{ValueError} som talar
-om vad som var fel i stället.
-
-Kontot som \mintinline{python}{open_account} skapar är ett objekt av
-klassen \mintinline{python}{Account}, som vi skriver när banken är klar.
-
-\begin{frame}[fragile]
-  \frametitle{Överföringen}
-  Ett uttag och en insättning, och en anteckning:
-<<bankens metoder>>=
-def transfer(self, source, target, amount):
-    """För över amount kronor från kontot source till target."""
-    self.account(source).withdraw(amount)
-    self.account(target).deposit(amount)
-    <<anteckna överföringen i bankens minne>>
-@
-\end{frame}
-
-Överföringen skriver inte i saldona själv: den ber kontona om ett uttag
-och en insättning.  Kontrollen att pengarna finns hör alltså till kontot,
-och den skriver vi när vi kommer dit.
-
-Till sist en utskrift av hela banken, i nummerordning.
-
-\begin{frame}[fragile]
-  \frametitle{Bankens utskrift}
-  Nycklarna sorteras, och varje konto skriver ut sig självt:
-<<bankens metoder>>=
-def __str__(self):
-    numbers = sorted(self.__accounts)
-    rows = [str(self.account(number)) for number in numbers]
-    return "\n".join(rows)
-@
-\end{frame}
-
-Här syns uppslagslistan igen: \mintinline{python}{sorted} över den ger
-nycklarna i ordning, och listbyggaren gör en rad per konto.  Utan
-sorteringen hade ordningen varit den kontona öppnades i, vilket inte är
-den ordning någon vill läsa en kontolista i.
-
-Så till kontot, som banken har anropat hela tiden.  Det har tre saker:
-ett nummer, en ägare och ett saldo.  Ägaren är ett
-\mintinline{python}{Person}-objekt --- kontot \emph{har} en person ---
-och det är komposition, som i anteckningarna \emph{Praktiska tillämpningar
-av klasser}.  Alla tre attributen är privata, och det är själva poängen
-med kontot: ett saldo som går att skriva till utifrån är inget saldo, för
-då kan någon ändra det utan att pengarna kommer någonstans ifrån.
-
-\begin{frame}[fragile]
-  \frametitle{Kontot}
-  Konstruktorn tar emot de tre attributen:
-<<bankmodulens klasser>>=
-class Account:
-    """Ett bankkonto med nummer, ägare och saldo"""
-
-    <<kontots metoder>>
-<<kontots metoder>>=
-def __init__(self, number, owner, balance=0):
-    self.__number = number
-    self.__owner = owner
-    self.__balance = balance
-@
-\end{frame}
-
-Att attributen är privata betyder inte att de är hemliga: den som har
-ett konto ska kunna få veta dess nummer, ägare och saldo, bara inte
-ändra dem.  Vi läser dem som i föreläsningen \emph{Klasser och objekt},
-med en läsmetod per attribut som lämnar tillbaka värdet.  Någon metod som
-skriver i attributen finns inte, så numret och ägaren ändras aldrig efter
-konstruktorn, och saldot bara på de sätt kontot självt tillåter.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Kontots läsmetoder}
-  Nummer, ägare och saldo, alla läsbara men inte skrivbara:
-<<kontots metoder>>=
-def get_number(self):
-    """Returnerar kontonumret"""
-    return self.__number
-
-def get_owner(self):
-    """Returnerar kontots ägare"""
-    return self.__owner
-
-def get_balance(self):
-    """Returnerar saldot"""
-    return self.__balance
-@
-\end{frame}
-
-Saldot ändras bara genom två metoder, och båda kontrollerar först.
-Insättningen vägrar ett belopp som inte är positivt, uttaget vägrar
-dessutom ett belopp som är större än saldot.  Att de kastar ett särfall
-i stället för att lämna tillbaka \mintinline{python}{False} är ett val:
-ett sanningsvärde går att glömma att titta på, medan ett särfall måste
-tas om hand.  Anteckningarna \emph{Praktiska tillämpningar av klasser}
-gör det omvända valet och nämner det här som ett alternativ; båda
-fungerar, och skillnaden är vad som händer när den som anropar
-struntar i svaret.
-
-\begin{frame}[fragile,shrink]
-  \frametitle{Insättning och uttag}
-  Kontrollerna först, ändringen sedan:
-<<kontots metoder>>=
-def deposit(self, amount):
-    """Sätter in amount kronor på kontot."""
-    if amount <= 0:
-        raise ValueError("beloppet måste vara positivt")
-
-    self.__balance += amount
-
-def withdraw(self, amount):
-    """Tar ut amount kronor, om de finns på kontot."""
-    if amount <= 0:
-        raise ValueError("beloppet måste vara positivt")
-    if amount > self.__balance:
-        raise ValueError(f"{self.__number} har inte {amount} kr")
-
-    self.__balance -= amount
-
-def __str__(self):
-    return f"{self.__number}: {self.__owner}, {self.__balance} kr"
-@
-\end{frame}
-
-Nu gäller kontrollerna också för bankens överföring, utan att den
-behöver kontrollera något själv.  Räcker inte pengarna kastar uttaget
-sitt särfall innan insättningen har hunnit göras, så pengar kan inte
-uppstå ur ingenting.
-
-Kvar är ägaren, den minsta av klasserna.  Namnet är privat och läses med
-en läsmetod, och \mintinline{python}{__str__} gör att en person kan
-skrivas ut utan att den som skriver ut --- här kontots
-\mintinline{python}{__str__} --- behöver veta hur personobjektet är
-byggt.
-
-\begin{frame}[fragile]
-  \frametitle{Personen}
-  Ett namn, en läsmetod och en utskrift:
-<<bankmodulens klasser>>=
-class Person:
-    """En person som kan äga ett konto"""
-
-    def __init__(self, name):
-        self.__name = name
-
-    def get_name(self):
-        """Returnerar namnet"""
-        return self.__name
-
-    def __str__(self):
-        return self.__name
-@
-\end{frame}
-
-De tre klasserna anropar varandra, så det är först nu, när alla tre
-finns, som de går att prova.  Det första testfallet provar kontot: en
-insättning och ett uttag som saldot täcker.
-
-\begin{frame}[fragile]
-  \frametitle{Prova kontot}
-  Fem hundra kronor, hundra in och två hundra ut:
-<<prova kontot>>=
-account = Account("1001", Person("Ronja"), 500)
-account.deposit(100)
-account.withdraw(200)
-print(account)
-<<tester för banken>>=
-<<prova kontot>>
-@
-  Testfallet skriver ut
-  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_konto.py}
-\end{frame}
-
-Det andra provar banken: två konton och en överföring mellan dem.
-
-\begin{frame}[fragile]
-  \frametitle{Prova banken}
-  Två hundra kronor byter konto:
-<<prova banken>>=
-bank = Bank()
-bank.open_account("1001", Person("Ronja"), 500)
-bank.open_account("1002", Person("Pippi"), 100)
-bank.transfer("1001", "1002", 200)
-print(bank)
-<<tester för banken>>=
-
-<<prova banken>>
-@
-  Testfallet skriver ut
-  \runpython[chdir, deps={examples/bank.py}]{examples/bank_test_banken.py}
-\end{frame}
-
-Programmet som använder banken importerar klasserna ur modulen.
-Modulen \mintinline{python}{bank} är filen \texttt{bank.py}, vars delar
-vi har skrivit i \cref{sec:banken}\only<article>{; hel står den, med det
-som läggs till i \cref{sec:angra}, i \cref{ex:bank-ovning-behallare}}.
-
-\begin{frame}[fragile]
-  \frametitle{Ett program som använder modulen}
-  Tre konton, en överföring, och två fel:
-<<[[banken.py]]>>=
-"""Ett program som öppnar konton och för över pengar"""
-
-from bank import Bank, Person
-
+  \frametitle{Huvudprogrammet}
+  Tabellen först, och sedan den vanligaste:
+<<bokstavsräknarens huvudprogram>>=
 def main():
     """Huvudprogrammet"""
-    <<öppna tre konton och för över pengar mellan två>>
+    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
 
-    <<försök med ett för stort uttag och ett okänt konto>>
+    top_letter, top_count = most_common_letter(counts)
+    print(f"Vanligast är {top_letter}, {top_count} gånger.")
 
 if __name__ == "__main__":
     main()
 @
 \end{frame}
 
-Huvudprogrammet står i pseudokod, i två delar, och delarna preciserar
-vi med pythonkod en i taget.  Banken skrivs ut både före och efter
-överföringen, eftersom en överföring inte syns i något annat än
-skillnaden mellan två utskrifter.
+Räkningen blir en egen funktion, \mintinline{python}{count_letters}, som
+tar en text och lämnar tillbaka uppslagslistan, så att den går att
+använda på vilken text som helst.  Tabellen blir också en funktion,
+\mintinline{python}{print_counts}, som tar emot uppslagslistan.
 
-\begin{frame}[fragile,shrink]
-  \frametitle{Kontona och överföringen}
-  Två hundra kronor byter konto:
-<<öppna tre konton och för över pengar mellan två>>=
-bank = Bank()
-bank.open_account("1001", Person("Ronja"), 500)
-bank.open_account("1002", Person("Pippi"), 100)
-bank.open_account("1003", Person("Madicken"))
-
-print("Bankens konton:")
-print(bank)
-
-bank.transfer("1001", "1003", 200)
-print()
-print("Efter överföringen:")
-print(bank)
+\begin{frame}[fragile]
+  \frametitle{Inläsningen och tabellen}
+  Texten in, uppslagslistan tillbaka, och tabellen ut:
+<<läs in en text, räkna bokstäverna och skriv ut tabellen>>=
+counts = count_letters(input("Ange en text: "))
+print_counts(counts)
 @
 \end{frame}
 
-Banken avvisar ett fel med ett särfall, men vad användaren ska få veta
-är programmets sak.  Programmet vet hur det ska svara på ett
-\mintinline{python}{ValueError} från banken --- tala om vad som gick
-fel --- så det fångar just det felet i stället för att avslutas med en
-spårutskrift.  Det är att fånga det man vet hur man ska svara på, som i
-föreläsningen \emph{Inmatning och felhantering}.%
-\footnote{%
-  Det vetenskapliga underlaget finns i föreläsningen \emph{Inmatning
-  och felhantering}, bilaga D: att fånga alla fel är en känd ovana,
-  men de faktiska felen är ovanligare än vanan.%
-}
+Tabellen är uppslagslistans nycklar i bokstavsordning, var och en med
+sitt antal.
 
-\begin{frame}[fragile,shrink]
-  \frametitle{De två felen}
-  Ett uttag som saldot inte täcker, och ett konto som inte finns:
-<<försök med ett för stort uttag och ett okänt konto>>=
-try:
-    bank.transfer("1002", "1001", 1000)
-except ValueError as error:
-    print()
-    print(f"Överföringen gick inte: {error}")
-
-try:
-    bank.account("2001")
-except ValueError as error:
-    print(f"Uppslagningen gick inte: {error}")
+\begin{frame}[fragile]
+  \frametitle{Tabellen}
+  Paren av nyckel och värde, i ordning:
+<<bokstavsräknarens hjälpfunktioner>>=
+def print_counts(counts):
+    """Skriver ut bokstäverna i counts med sina antal, i ordning."""
+    for letter, count in sorted(counts.items()):
+        print(f"{letter}: {count}")
 @
 \end{frame}
+
+Slingan går igenom paren av nyckel och värde och packar upp vart och
+ett i två namn, precis som med \mintinline{python}{phone.items()} i
+föreläsningen \emph{Behållare: Uppslagslistor}.  Att paren först går
+genom \mintinline{python}{sorted} ger dem i bokstavsordning, eftersom
+en tupel jämförs på sin första del.
+
+Nu till räkningen, som tabellen och den vanligaste bokstaven bygger på.
+
+\begin{frame}[fragile]
+  \frametitle{Räkningen}
+  Ett tal per bokstav, byggt upp ett tecken i taget:
+<<bokstavsräknarens hjälpfunktioner>>=
+def count_letters(text):
+    """Returnerar en uppslagslista från bokstav till antal."""
+    counts = {}
+
+    for character in text.casefold():
+        if character.isalpha():
+            counts[character] = counts.get(character, 0) + 1
+
+    return counts
+@
+\end{frame}
+
+Strängmetoden \mintinline{python}{isalpha} svarar
+\mintinline{python}{True} när tecknet är en bokstav --- också å, ä och
+ö --- så att blanksteg, siffror och skiljetecken hoppas över.  Raden i
+mitten är den som gör arbetet.  Första gången en bokstav dyker
+upp finns den inte som nyckel, och ett uppslag hade då gett ett
+\mintinline{text}|KeyError|; \mintinline{python}{get}, som vi mötte i
+föreläsningen \emph{Behållare: Uppslagslistor}, lämnar i stället
+tillbaka reservvärdet \mintinline{python}{0}, som vi lägger
+\mintinline{python}{1} till.  Samma rad täcker
+alltså både fallet \enquote{ny bokstav} och fallet \enquote{sedd förut},
+och en tilldelning till en nyckel som inte finns lägger till posten.
+
+Att ta fram den vanligaste bokstaven är en uträkning till, och den får
+också en egen funktion bland hjälpfunktionerna.
+
+\begin{frame}[fragile]
+  \frametitle{Den vanligaste}
+  Bokstaven med störst antal, och antalet:
+<<bokstavsräknarens hjälpfunktioner>>=
+def most_common_letter(counts):
+    """Returnerar den vanligaste bokstaven och dess antal."""
+    top_letter = max(counts, key=counts.get)
+    return top_letter, counts[top_letter]
+@
+\end{frame}
+
+\mintinline{python}{max} med \mintinline{python}|key=counts.get|
+jämför bokstäverna efter sina antal i stället för efter sig själva ---
+samma \mintinline{python}{key} som sorterade efter längd i föreläsningen
+\emph{Behållare: Listor}.  Funktionen lämnar tillbaka två värden, som en
+tupel.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet,
-  \texttt{banken.py}:
-  \inputminted{python}{examples/banken.py}
+  \texttt{letters.py}:
+  \inputminted{python}{examples/letters.py}
 \end{frame}
 
 \begin{frame}[fragile,shrink]
   \begin{example}[En körning]
-    Kör vi programmet får vi:
-    \runpython[showcommand, chdir, deps={examples/bank.py}]%
-      {examples/banken.py}
+    \label{ex:letters-run}
+    Vi kör programmet och matar in \enquote{Ronja, Pippi och Madicken}:
+    \runpython[transcript, stdin={Ronja, Pippi och Madicken}]%
+      {examples/letters.py}
   \end{example}
 \end{frame}
 
 \leavevmode\ltnote{%
-  Relevanta lärandemål för \cref{ovn:bank}:
-  \cref{OvningContainersLOChoose,OvningContainersLOContainer}.
+  Relevanta lärandemål för \cref{ex:letters-run}:
+  \cref{OvningContainersLODict}.
 
-  De två sista styckena är uppgiftens svar och står som studenttext.
-  Ordningen i dem är vald: det starkaste skälet för uppslagslistan är
-  \emph{inte} hastigheten utan att nyckeln är unik, och om hastigheten
-  nämns först blir det det studenterna tar med sig.  Att listans övertag
-  också nämns hindrar slutsatsen \enquote{uppslagslistan är alltid
-  bättre}, som är den missuppfattning en oemotsagd jämförelse lämnar
-  efter sig.
+  Att den inmatade texten ger en oavgjord vanligaste bokstav är inte en
+  slump utan valt: en text med ett entydigt maximum hade låtit
+  \mintinline{python}{max} se ut som en funktion som svarar på frågan,
+  och det gör den inte.  Namnen är kursens egna (Ronja, Pippi,
+  Madicken), vilket också är skälet att just de bokstäverna hamnar
+  jämnt.
 }%
-Och så uppgiftens fråga: lista eller uppslagslista?  Med en lista av
-konton måste banken gå igenom listan och jämföra
-\mintinline{python}{konto.get_number()} med det sökta numret varje gång
-ett konto ska hittas --- en slinga i varje metod, och arbete som växer med
-antalet konton.  Med uppslagslistan är numret nyckeln: uppslagningen är
-en operation, den kostar i genomsnitt lika mycket oavsett hur många
-konton banken
-har\autocite{PythonTimeComplexity}, och två konton kan inte få samma
-nummer eftersom en nyckel bara finns en gång.  Det sista är det starkaste
-skälet, och det handlar inte om hastighet: uppslagslistan gör ett fel
-\emph{omöjligt} som listan bara gör osannolikt.
+Utskriften avslöjar något uppgiften inte hade tänkt på: två bokstäver
+förekommer tre gånger vardera, och \mintinline{python}{max} lämnar
+tillbaka den första av dem den råkar möta.  Frågan \enquote{vilken
+bokstav är vanligast?} har alltså inte ett entydigt svar för den här
+texten, och ett program som svarar som om den hade det säger mer än det
+vet.
 
-Uppslagslistan är dessutom den enklare lösningen: en uppslagning där
-listan behöver en slinga i varje metod.  Att välja den enklaste lösning
-som klarar uppgiften är principen \emph{KISS}, som vi mötte i
-föreläsningen \emph{Funktioner}.%
-\footnote{%
-  Det vetenskapliga underlaget för KISS finns i föreläsningen
-  \emph{Funktioner}, bilaga C: enkelhet som designvärde är väl etablerat,
-  medan det inte går att bekräfta att uttrycket kommer från Kelly
-  Johnson, som det brukar tillskrivas.%
-}
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ovn:letters}:
+  \cref{OvningContainersLODocs,OvningContainersLOChoose}.
 
-Listan hade ett övertag: den minns i vilken ordning kontona öppnades.
-Behöver banken det --- till exempel för att kunna visa det senast
-öppnade kontot --- måste ordningen sparas någon annanstans, och då är
-frågan inte längre vilken behållare som är bäst utan om det behövs två.
+  Ordningen är avsiktlig: den egna slingan först, den färdiga behållaren
+  efteråt.  Tvärtom hade [[Counter]] blivit ett verktyg utan problem, och
+  den som aldrig skrivit räkningen själv kan inte se vad den gör.  Att
+  det sista stycket säger rakt ut att [[Counter]] är det rätta valet i
+  ett riktigt program är också avsiktligt: ett lösningsförslag som låter
+  den handskrivna varianten framstå som den bästa lär ut något falskt.
 
-% Här slutar uppgiften Banken.  Makefile tanglar examples/start/bank.py,
-% banken utan minne och ångrande, ur allt ovanför den här raden: den är
-% utgångsläget för uppgiften nedan, för den som inte löst Banken själv.
+  Inläsningen och tabellen är ett och samma namngivna stycke i båda
+  programmen, \texttt{letters.py} och \texttt{counter.py}, och
+  tabellens funktion hämtar \texttt{counter.py} med import, så att det
+  invarianta står en gång och det som varierar --- räkningen och frågan
+  om den vanligaste --- syns utan att två kopior behöver jämföras rad för
+  rad.  Räkningen står dessutom i båda versionerna bredvid varandra
+  (\cref{ex:count-letters-bredvid}), och körningarna likaså.
+
+  [[Counter]] är den behållare dokumentationsuppgiften i anteckningarna
+  \emph{Behållare: Mängder, stackar och köer} bad studenterna slå upp.
+  Att den dyker upp här, i ett program, är uppföljningen av den
+  uppgiften: den har en följd i materialet och är inte en artighetsfras.
+}%
+Uppgiften i anteckningarna \emph{Behållare: Mängder, stackar och köer}
+bad dig slå upp \mintinline{python}{Counter} i dokumentationen för
+modulen \mintinline{python}{collections}.  Det är den som gör samma
+räkning åt oss.  Programmet med den får bokstavsräknarens upplägg, med
+två importer överst: modulen \mintinline{python}{collections}, och
+tabellens \mintinline{python}{print_counts}, som programmet hämtar i
+stället för att skriva den en gång till.  Modulen
+\mintinline{python}{letters} är filen \texttt{letters.py}, som vi
+skrev i \cref{sec:bokstaver}.
+
+\begin{frame}[fragile]
+  \frametitle{Samma upplägg med \texttt{Counter}}
+  Upplägget, med två importer:
+<<[[counter.py]]>>=
+"""Samma räkning, med collections.Counter"""
+
+import collections
+
+from letters import print_counts
+
+<<[[Counter]]-räknarens hjälpfunktioner>>
+
+<<[[Counter]]-räknarens huvudprogram>>
+@
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Utskriften, och två frågor till}
+  Samma stycke som förut läser texten och skriver ut tabellen; den
+  vanligaste tas fram på ett nytt sätt, och två rader är tillagda:
+<<[[Counter]]-räknarens huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    <<läs in en text, räkna bokstäverna och skriv ut tabellen>>
+
+    top_letter, top_count = counts.most_common(1)[0]
+    print(f"Vanligast är {top_letter}, {top_count} gånger.")
+
+    print(f"Antal q: {counts['q']}")
+    print(f"De två vanligaste: {counts.most_common(2)}")
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Stycket som läser texten och skriver ut tabellen anropar
+\mintinline{python}{count_letters} och \mintinline{python}{print_counts}.
+Den andra hämtar programmet ur \mintinline{python}{letters}, och den
+första är programmets enda egna hjälpfunktion.
+
+\begin{frame}[fragile]
+  \frametitle{Samma räkning med \texttt{Counter}}
+  Räkningen blir ett anrop i stället för en slinga:
+<<[[Counter]]-räknarens hjälpfunktioner>>=
+def count_letters(text):
+    """Returnerar en uppslagslista från bokstav till antal."""
+    letters = [c for c in text.casefold() if c.isalpha()]
+    return collections.Counter(letters)
+@
+\end{frame}
+
+Funktionen behåller sitt namn och sitt löfte --- en text in, en
+uppslagslista från bokstav till antal ut --- så att det enda som skiljer
+den från förut är räkningen inuti den.
+
+% The docstrings are left out: they are the same in both, and the pair
+% is wider than the page with them.  breaklines wraps only on the slides.
+\begin{frame}
+  \begin{example}[Två sätt att räkna]
+    \label{ex:count-letters-bredvid}
+    Räkningen i \texttt{letters.py} till vänster och i
+    \texttt{counter.py} till höger:
+    \codebycode
+      [name=count_letters, nodocstring,
+        label={\texttt{letters.py}}]{python}{examples/letters.py}
+      [name=count_letters, nodocstring, breaklines,
+        label={\texttt{counter.py}}]{python}{examples/counter.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  Sätter vi in varje del där dess namn står får vi hela programmet,
+  \texttt{counter.py}:
+  \inputminted{python}{examples/counter.py}
+\end{frame}
+
+% The run of letters.py is repeated beside the new one, so that the
+% shared lines can be seen to be the same instead of remembered.
+\begin{frame}[shrink]
+  \only<presentation>{\setminted{fontsize=\tiny}}%
+  \begin{example}[En körning]
+    Vi matar in samma text som förut, med körningen av
+    \texttt{letters.py} till vänster:
+    \runbyrun
+      [transcript, stdin={Ronja, Pippi och Madicken}]%
+      {examples/letters.py}
+      [transcript, stdin={Ronja, Pippi och Madicken},
+        deps={examples/letters.py}]%
+      {examples/counter.py}
+  \end{example}
+\end{frame}
+
+De 14 första raderna i utskriften är tecken för tecken desamma som
+förut, och det är det som gör jämförelsen läsbar: samma text in, samma
+tabell ut, och det enda som skiljer är hur räkningen görs.  Slingan med
+\mintinline{python}{get} är utbytt mot ett anrop, och
+metoden \mintinline{python}{most_common} svarar direkt på den fråga vi
+skrev funktionen \mintinline{python}{most_common_letter} för.
+
+De två sista raderna visar vad en \mintinline{python}{Counter} kan som
+en vanlig uppslagslista inte kan.  Ett uppslag på ett värde som aldrig
+förekommit ger \mintinline{python}{0} i stället för ett
+\mintinline{text}|KeyError| ---
+samma val som mellan \mintinline{python}|phone[name]| och
+\mintinline{python}|phone.get(name)| i föreläsningen \emph{Behållare:
+Uppslagslistor}, nu inbyggt i
+behållaren\autocite{PythonCollections}.
+% TODO(claim-audit): att Counter räknar förekomster och svarar 0 på ett
+% värde som aldrig förekommit.  Källan PythonCollections är läst i
+% fulltext, men de citat som står i proveniensblocket täcker bara deque;
+% Counter-avsnittet behöver ett eget citat.
+Och \mintinline{python}{most_common(2)} visar \emph{båda} bokstäverna
+som förekommer tre gånger, i stället för att välja en av dem åt oss ---
+vilket är precis den oavgjordhet \mintinline{python}{max} dolde.
+
+Vilken av de två lösningarna är bäst?  Den med
+\mintinline{python}{Counter} är kortare och svarar bättre, och i ett
+riktigt program är den rätt.  Den egna slingan är ändå värd att ha
+skrivit en gång: den visar vad \mintinline{python}{Counter} gör, och
+samma slinga behövs så snart det som ska räknas inte är ett tal --- till
+exempel om du vill spara den \emph{första} plats där varje bokstav
+förekom.
+
 \section[Ångra]{Att ångra det senaste}
 \label{sec:angra}
 
@@ -2323,6 +1919,411 @@ finns.  Då kastar uttaget sitt särfall mitt i ångrandet, och överföringen
 antingen läggs tillbaka vid ett misslyckande eller kontrollerar innan det
 börjar --- och det är ett problem av samma slag som banker i verkligheten
 löser med transaktioner.
+
+\section[E-postadresser]{Giltiga e-postadresser}
+\label{sec:epost}
+
+Den första uppgiften handlar om en fråga som ser ut som en fråga om
+strängar, men som slutar i ett val av behållare.  Så här ska programmet
+bete sig när det är klart.
+
+% REVIEW(C15): körningen av lösningens program står före uppgiften, så
+% att målet blir konkret.  Den avslöjar inget uppgiften frågar efter:
+% vilken behållare som samlar domänerna syns inte i utskriften, och att
+% domänerna kommer i bokstavsordning står redan i uppgiftstexten.  Den
+% andra läsningen --- ingen körning före uppgiften --- är det som stod
+% förut.
+\begin{frame}[fragile,shrink]
+  \begin{example}[Så ska det bete sig]
+    \label{ex:epost-target}
+    Så här ska det se ut när du är klar --- vi skriver in sex adresser,
+    varav två inte duger:
+    \runpython[transcript, stdinfile={examples/epost.in}]%
+      {examples/epost.py}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{exercise}[epost.py]
+    \label{ovn:epost-domaner}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ovn:epost-domaner}:
+      \cref{OvningContainersLOSet,OvningContainersLOChoose}.
+
+      \textbf{Variationsmönster}: kontrast.
+      \textbf{Vad som varierar}: vilken fråga som ställs om de insamlade
+      domänerna --- alla, eller vilka olika.
+      \textbf{Vad som hålls invariant}: inmatningen och kontrollen av
+      adresserna.
+
+      Kontrollen av adresserna övar bara strängar, alltså tidigare
+      material; frågan om \emph{vilka olika} domäner som förekom gör
+      uppgiften till en uppgift om behållare, eftersom det är precis den
+      fråga en mängd svarar på.  Strängkontrollen är det invarianta
+      bakgrundsljudet.
+
+      Formuleringen säger inte vilken behållare som ska användas, och ordet
+      \enquote{mängd} förekommer inte i uppgiften.  Den som samlar domänerna
+      i en lista och rensar dubbletter med en egen kontroll har byggt en
+      fungerande lösning, och den lösningen står skriven bredvid mängdens
+      sist i lösningsförslaget, så att de två kan jämföras samtidigt och
+      inte ur minnet \parencite[s.~45--47]{Marton2015}.  Att låta uppgiften
+      peka ut behållaren hade tagit bort just det som ska urskiljas
+      \parencite[s.~13 och 91]{Marton2015}.
+
+      Filen heter [[epost.py]] och inte något som säger vilken behållare
+      lösningen använder.  Domänerna är KTH:s riktiga: \texttt{kth.se} och
+      studenternas \texttt{ug.kth.se} har båda MX-poster (kontrollerat
+      i DNS); \texttt{student.kth.se} finns däremot inte.
+    }%
+    Skriv ett program som läser in e-postadresser, en per rad, och
+    avslutas med en blankrad.  För varje adress ska programmet svara om
+    den ser ut som en e-postadress eller inte.  När inmatningen är slut
+    ska programmet skriva ut vilka olika domäner som förekom bland de
+    godtagna adresserna, i bokstavsordning.
+
+    Vad har alla e-postadresser gemensamt, och vad kan du använda det
+    till?  Och vad kan du säga om ordningen mellan domänerna i
+    utskriften?
+  \end{exercise}
+\end{frame}
+
+\subsection{Lösningsförslag}
+
+\leavevmode\ltnote{%
+  \textbf{Uppifrån och ner}, som i \emph{Övning: Funktioner och
+  variabler}: en hjälpfunktion, en klass eller en metod läggs till
+  först där resonemanget behöver den.
+}%
+Vi skriver programmet uppifrån och ner.  Först lägger vi upp filen:
+överst en \foreignlanguage{english}{docstring} som säger vad programmet
+är till för, sedan hjälpfunktionerna och till sist huvudprogrammet.
+Upplägget står i pseudokod, och sedan preciserar vi pseudokoden med
+pythonkod, en del i taget, när vi kommer till den.
+
+\begin{frame}[fragile]
+  \frametitle{Programmets upplägg}
+  \leavevmode\ltnote{%
+    Programmen följer funktionsregeln från föreläsningen
+    \emph{Funktioner}.  Att anropet står bakom
+    \mintinline{python}|if __name__ == "__main__":| är formen från
+    föreläsningen \emph{Moduler och paket}, och den behövs: flera av
+    filerna importeras av andra program i övningen, och ett huvudprogram
+    på högsta nivån skulle då köras vid importen.
+  }%
+  E-postprogrammets upplägg:
+<<[[epost.py]]>>=
+"""Läser in e-postadresser och samlar deras domäner"""
+
+<<e-postprogrammets hjälpfunktioner>>
+
+<<e-postprogrammets huvudprogram>>
+@
+\end{frame}
+
+Vi börjar med huvudprogrammet, eftersom det är det uppgiften beskriver.
+Adresserna kommer en per rad tills en blankrad, och de godtagna
+adressernas domäner ska samlas så att varje domän räknas en gång ---
+alltså i en mängd.  Om varje adress ställer programmet två frågor: ser
+den ut som en e-postadress, och vilken domän har den?  De är var sin
+sak, och de blir var sin hjälpfunktion, \mintinline{python}{is_email}
+och \mintinline{python}{domain_of}.  Varje funktion får ett ansvar: det
+är \emph{SRP}, principen om ett enda ansvar, från föreläsningen
+\emph{Funktioner}\autocite[ch.~8]{Martin2003Agile}.%
+\footnote{%
+  Det vetenskapliga underlaget för SRP --- både varifrån principen
+  kommer och att den är etablerad, med förbehållet att \enquote{ett enda
+  ansvar} är en bedömningsfråga --- finns i föreläsningen
+  \emph{Funktioner}, bilaga B.%
+}
+Vi anropar dem redan här och skriver dem sedan.  Att de är egna
+funktioner gör också att kontrollen
+går att pröva utan att någon behöver mata in något.
+
+\begin{frame}[fragile,shrink]
+  \frametitle{Huvudprogrammet}
+  Mängden växer med en domän per godtagen adress:
+<<e-postprogrammets huvudprogram>>=
+def main():
+    """Huvudprogrammet"""
+    domains = set()
+
+    while address := input("Ange en e-postadress: "):
+        if is_email(address):
+            print(f"{address} ser ut som en e-postadress.")
+            domains.add(domain_of(address))
+        else:
+            print(f"{address} ser inte ut som en e-postadress.")
+
+    print("Domänerna bland de godtagna:", ", ".join(sorted(domains)))
+
+if __name__ == "__main__":
+    main()
+@
+\end{frame}
+
+Villkoret i \mintinline{python}{while}-satsen läser in adressen med
+tilldelningsuttrycket \mintinline{python}{:=}, valrossen, som vi mötte i
+\emph{Övning: Inmatning, felhantering och styrstrukturer}, i
+föreläsningen \emph{Upprepningar} och i föreläsningen \emph{Behållare:
+Uppslagslistor}: det ger \mintinline{python}{address} svaret och är
+självt ett uttryck med samma värde, som villkoret prövar.  En tom sträng
+är falsk, så slingan går tills användaren svarar med en blankrad.  Frågan
+står på ett ställe i stället för två --- före slingan och sist i den ---
+och det är vad principen \emph{DRY},
+\foreignlanguage{english}{Don't Repeat Yourself}, handlar
+om\autocite{HuntThomas1999}.%
+\footnote{%
+  Det vetenskapliga underlaget för DRY --- både varifrån principen
+  kommer och om den håller, med de förbehåll som hör till --- finns i
+  föreläsningen \emph{Algoritmiskt tänkande}, bilaga E.%
+}
+
+Mängden gör två saker på en gång: den lägger till en domän som inte fanns
+och låter en domän som redan fanns vara, utan att vi behöver fråga vilket
+fall det är.
+
+Och så uppgiftens andra fråga, om ordningen.  Vi prövar att skriva ut
+en mängd med inmatningens två domäner som den är, utan
+\mintinline{python}{sorted}, i ett litet program för sig.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Mängden utan ordning]
+    \label{ex:ordning}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål för \cref{ex:ordning}:
+      \cref{OvningContainersLOSet}.
+
+      \textbf{Vad som varierar}: bara körningen --- samma
+      \texttt{ordning.py} två gånger.  \textbf{Vad som hålls invariant}:
+      programmet, mängden och utskriftens form, som är
+      \texttt{epost.py}:s utan \mintinline{python}{sorted}.
+
+      Python väljer ett nytt slumpvärde för strängarnas hashning vid
+      varje start, så två körningar kan ge olika ordning.  För att
+      anteckningarna ska bli desamma vid varje kompilering körs de två
+      med var sitt fast värde (\texttt{PYTHONHASHSEED}), valda så att
+      ordningen skiljer sig; kommandoraden som visas är den studenten
+      skriver.
+    }%
+    Programmet skriver ut domänerna som mängden lämnar ut dem:
+<<[[ordning.py]]>>=
+"""Skriver ut domänerna i en mängd, utan att ordna dem"""
+
+def main():
+    """Huvudprogrammet"""
+    domains = {"kth.se", "ug.kth.se"}
+    print("Domänerna bland de godtagna:", ", ".join(domains))
+
+if __name__ == "__main__":
+    main()
+@
+    % On the slides the two one-line runs stay one under the other, where
+    % they line up; in the notes they stand side by side.
+    \only<presentation>{%
+      Vi kör det två gånger:
+      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+        deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+      \runshell[showcommand, cwd=examples, commandtext={python3 ordning.py},
+        deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
+    }%
+    \only<article>{%
+      Vi kör det två gånger, den första till vänster:
+      \runbyrun
+        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
+          deps={examples/ordning.py}]{PYTHONHASHSEED=1 python3 ordning.py}
+        [shell, showcommand, cwd=examples, commandtext={python3 ordning.py},
+          deps={examples/ordning.py}]{PYTHONHASHSEED=2 python3 ordning.py}%
+    }
+  \end{example}
+\end{frame}
+
+Samma program ger två olika ordningar, och det är svaret: en mängd har
+ingen ordning.  Den lägger sina element där de hör hemma utifrån värdet,
+inte efter varandra, och därför går det varken att fråga efter det första
+elementet eller att räkna med att två körningar skriver ut dem i samma
+ordning\autocite{PythonDataStructures}.  Vill vi ha en ordning får vi
+välja den själva, och här väljer vi bokstavsordning med
+\mintinline{python}{sorted}.  Samma sak gör att en mängd inte kan ha
+dubbletter: två lika värden hör hemma på samma plats, så det andra
+försvinner in i det första.
+
+Kvar är de två hjälpfunktionerna.  Vad har då alla e-postadresser
+gemensamt?  De har ett
+\mintinline{python}|"@"| --- exakt ett --- med något före och något
+efter, och den del som står efter innehåller minst en punkt som varken
+är domänens första eller sista tecken.  Mellanslag får inte förekomma
+alls.  Det räcker för vår kontroll.
+
+\begin{frame}[fragile]
+  \frametitle{Kontrollen}
+  Villkoren, i den ordning de är billigast att pröva:
+<<e-postprogrammets hjälpfunktioner>>=
+def is_email(address):
+    """Returnerar True om address ser ut som en e-postadress."""
+    if address.count("@") != 1 or " " in address:
+        return False
+
+    local, domain = address.split("@")
+    if not local or not domain:
+        return False
+
+    return "." in domain[1:-1]
+@
+\end{frame}
+
+Strängmetoden \mintinline{python}{count} gör samma sak som listornas
+\mintinline{python}{count}, som du slog upp i föreläsningen
+\emph{Behållare: Listor}: den räknar hur många gånger argumentet
+förekommer, så \mintinline{python}|address.count("@")| är antalet
+snabel-a i adressen.  Den sista raden är värd att fundera på.  Skivan
+\mintinline{python}|domain[1:-1]| är domänen utan sitt första och sista
+tecken, så frågan \enquote{finns det en punkt som inte ligger i någon av
+ändarna?} blir en enda fråga om medlemskap i den skivan.  Skivningen är
+densamma som i föreläsningen \emph{Behållare: Listor}, nu tillämpad på en
+sträng.
+
+Att en adress \emph{ser} rätt ut är inte detsamma som att den finns.  Vad
+som verkligen får stå i en e-postadress bestäms av en standard, och den
+tillåter betydligt mer än kontrollen här --- bland annat citerade
+lokaldelar och adresser utan punkt i domänen.  Kontrollen är alltså
+avsiktligt strängare än standarden, vilket är ett vanligt och medvetet
+val i riktiga program.
+% TODO(claim-audit): att standarden för e-postadresser tillåter mer än
+% kontrollen här (citerade lokaldelar, domäner utan punkt).  Primärkällan
+% är RFC 5322, som inte är läst i fulltext härifrån.
+
+Den andra hjälpfunktionen plockar ut domänen, och den läggs till efter
+den första; som vanligt lägger +\(\equiv\) till en del under samma
+namn.
+
+\begin{frame}[fragile]
+  \frametitle{Domänen}
+  Domänen är det som står efter snabel-a, i gemener:
+<<e-postprogrammets hjälpfunktioner>>=
+def domain_of(address):
+    """Returnerar domänen i address, med gemener."""
+    return address.split("@")[1].casefold()
+@
+\end{frame}
+
+Funktionen gör om domänen till gemener, eftersom
+\mintinline{python}|"KTH.se"| och \mintinline{python}|"kth.se"| är samma
+domän och inte ska räknas som två.  Det är samma
+\mintinline{python}{casefold} som gjorde sökningen i föreläsningen
+\emph{Behållare: Listor} likgiltig för stora bokstäver.
+
+\begin{frame}<article>[fragile]
+  \leavevmode\ltnote{%
+    \textbf{Helheten efter delarna}, som i \emph{Övning: Funktioner och
+    variabler}.  Program som redan står hela i en enda del visas inte en gång
+    till.
+  }%
+  Sätter vi in varje del där dess namn står får vi hela programmet,
+  \texttt{epost.py}:
+  \inputminted{python}{examples/epost.py}
+\end{frame}
+
+Så här ser en körning ut när vi skriver adresserna för hand.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[En körning]
+    \label{ex:epost-run}
+    Sex adresser, varav två inte duger, och en blankrad som avslutar:
+    \runpython[transcript, stdinfile={examples/epost.in}]%
+      {examples/epost.py}
+  \end{example}
+\end{frame}
+
+Tre av adresserna delar domän, och domänen förekommer ändå bara en gång i
+utskriften.  Det är det mängden är till för.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ex:epost-run,ex:epost-fil}:
+  \cref{OvningContainersLOSet}.
+
+  Båda körningarna kommer ur samma tanglade inmatningsfil, så
+  utskriften i materialet är den programmet verkligen ger.  Ordningen
+  --- för hand, filen, omdirigeringen --- låter studenten känna igen
+  körningen innan formen ändras; att frågorna flyter ihop i den andra
+  körningen är då den enda skillnaden att se, och prosan förklarar den.
+}%
+Som i föreläsningen \emph{Behållare: Uppslagslistor} kan vi också mata
+programmet med en färdig inmatning i stället för att skriva den för hand.
+Inmatningen skriver vi i en fil, en adress per rad.
+
+\begin{frame}[fragile]
+  Filen \texttt{epost.in} --- samma sex adresser, och den tomma raden
+  sist avslutar:
+<<[[epost.in]]>>=
+ronja@kth.se
+pippi.langstrump@kth.se
+madicken@@kth.se
+birk
+annika@ug.kth.se
+lisabet@kth.se
+
+@
+\end{frame}
+
+I terminalen ger vi programmet filen med \texttt{<} framför filnamnet.
+Då läser \mintinline{python}{input} sina svar från filen i stället för
+från tangentbordet.
+
+\begin{frame}[fragile,shrink=15]
+  \begin{example}[En körning med inmatningen från filen]
+    \label{ex:epost-fil}
+    Samma körning, med adresserna ur \texttt{epost.in}:
+    \runshell[showcommand, cwd=examples,
+      deps={examples/epost.py,examples/epost.in}]%
+      {python3 epost.py < epost.in}
+  \end{example}
+\end{frame}
+
+Frågorna och svaren hamnar inte längre på var sin rad.  Inmatningen
+kommer från filen och skrivs aldrig ut i terminalen, så varken adresserna
+eller radbytet efter dem syns: nästa utskrift börjar direkt efter
+frågan.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål för \cref{ovn:epost-domaner}:
+  \cref{OvningContainersLOChoose}.
+
+  Stycket om listalternativet är uppgiftens egentliga poäng och står
+  därför som studenttext och inte som en anteckning: valet mellan
+  behållarna är lärandemålet, och ett lösningsförslag som bara visar den
+  rätta lösningen övar det inte.
+
+  Prestandapåståendet beläggs med Pythons egen sammanställning och inte
+  med en tidtagning; en mätning hade sagt något om den här datorn, inte
+  om datastrukturen.  Förbehållen (CPython, genomsnittsfall) står i
+  brödtexten, som i anteckningarna \emph{Behållare: Mängder, stackar och
+  köer}.  Sista meningen säger ut att skillnaden är betydelselös i just
+  det här programmet, så att påståendet inte blir större än det är.
+}%
+En lista hade också gått.  Vi ställer de två sätten bredvid varandra ---
+allt annat i programmet är sig likt, så det enda som skiljer är hur
+dubbletten hindras.
+
+% The two excerpts are tangled from testkorningar.nw, since \codebycode
+% reads its sides from files; they are shown nowhere else.
+\begin{frame}
+  \frametitle{Två sätt att samla domänerna}
+  Med en mängd, som i lösningen, till vänster, och med en lista och
+  kontrollen skriven för hand till höger:
+  \codebycode
+    [label={Med en mängd}]{python}{examples/domaner_mangd.py}
+    [label={Med en lista}]{python}{examples/domaner_lista.py}
+\end{frame}
+
+Listan ger samma utskrift, men den säger något annat om programmet:
+kontrollen ligger i vår kod i stället för i behållarens innebörd, och
+den måste söka igenom listan för varje ny adress.  Frågan
+\mintinline{python}{x in behållare} kostar arbete som växer med antalet
+element i en lista, men i genomsnitt lika mycket oavsett antalet i en
+mängd\autocite{PythonTimeComplexity} --- i CPython, och i
+genomsnittsfallet.  Med sex adresser spelar det ingen roll; med sex
+hundra tusen gör det det.
 
 \section{Ett bättre cowsay}
 \label{sec:cowsay-ovning-behallare}
