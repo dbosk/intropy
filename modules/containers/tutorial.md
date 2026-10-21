@@ -83,11 +83,10 @@ dokumentet låter dig kontrollera dina egna svar.
    förekommer i en text, med en uppslagslista som byggs upp medan
    programmet läser.
 3. **Uppgift 6: Att ångra det senaste.** Bygga ut banken från Uppgift 3
-   så att den minns överföringarna och kan ångra dem. Hör till den valfria
-   delen *Behållare: Mängder, stackar och köer*. Har du inte löst Banken
-   själv kan du utgå från [bankmodulen som Uppgift 3 lämnar den][bank-start];
-   hela lösningen, [bank.py med ångrandet][bank], tittar du på när du har
-   försökt.
+   så att den minns överföringarna och kan ångra dem. Har du inte löst
+   Banken själv kan du utgå från
+   [bankmodulen som Uppgift 3 lämnar den][bank-start]; hela lösningen,
+   [bank.py med ångrandet][bank], tittar du på när du har försökt.
 
 Om du har tid, valfritt: de andra behållarna, som hör till den valfria
 delen *Behållare: Mängder, stackar och köer*.

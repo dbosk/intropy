@@ -107,9 +107,9 @@ du ska kunna efteråt.
   objekt. I övrigt resten, utom *Arv: medborgare med personnummer* och
   *Komposition eller arv*, som vi går igenom på onsdagens övning.
 - *Behållare: Mängder, stackar och köer*: valfritt, hela. Till den hör
-  övningens Uppgift 6 (att ångra det senaste) och det valfria avsnittet
-  om mängden i Uppgift 1 och 2 (e-postadresser).
-- Övningens Uppgift 4, 5, 7 och 8, på egen hand.
+  det valfria avsnittet om mängden i Uppgift 1 och 2 (e-postadresser).
+- Övningens Uppgift 4, 5 och 6 på egen hand, och fördjupningsuppgifterna
+  7 och 8 om du har tid.
 
 ## Schema
 
