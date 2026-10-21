@@ -40,7 +40,12 @@ SRC+=		ltnotes.bib
 # One line per tangled example program.  Recaps re-display these files
 # with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/epost.py
-EXAMPLES+=	examples/ordning.py
+# The class version imports the check from epost.py, and so do the two
+# programs that forget the check.
+EXAMPLES+=	examples/url.py
+EXAMPLES+=	examples/epost2.py
+EXAMPLES+=	examples/glomt1.py
+EXAMPLES+=	examples/glomt2.py
 EXAMPLES+=	examples/letters.py
 EXAMPLES+=	examples/counter.py
 EXAMPLES+=	examples/fraction.py
@@ -72,8 +77,9 @@ EXAMPLES+=	examples/angra.py
 # tutorial's Canvas page links: bank.py as the exercise Banken leaves it.
 # bank.py itself already holds the answer (the memory and the undo fill
 # the two steps Banken leaves empty), so this one is tangled from the part
-# of contents.nw above the marker line before that exercise, with the two
-# steps defined empty.  Both files are committed (see .gitignore).
+# of contents.nw above the marker line that ends the exercise Banken
+# (Att ångra det senaste comes later), with the two steps defined
+# empty.  Both files are committed (see .gitignore).
 EXAMPLES+=	examples/start/bank.py
 # cowsay.py is written in the tutorial Övning: Upprepningar, listor och
 # moduler (../../iterations/tutorial); cowsay2.py imports the bubble and the
