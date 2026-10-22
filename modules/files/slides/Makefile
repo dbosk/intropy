@@ -34,14 +34,16 @@ EXAMPLES+=	examples/close1.py
 EXAMPLES+=	examples/close2.py
 EXAMPLES+=	examples/write_text.py
 EXAMPLES+=	examples/read_all.py
+EXAMPLES+=	examples/write_read.py
 EXAMPLES+=	examples/read_lines1.py
 EXAMPLES+=	examples/read_lines.py
 EXAMPLES+=	examples/write_append.py
 EXAMPLES+=	examples/bytes_as_text.py
-EXAMPLES+=	examples/value1.py
-EXAMPLES+=	examples/value2.py
+EXAMPLES+=	examples/value.py
 EXAMPLES+=	examples/xy.py
 EXAMPLES+=	examples/xy_csv.py
+EXAMPLES+=	examples/name_search.py
+EXAMPLES+=	examples/contacts_csv.py
 EXAMPLES+=	examples/contacts_json.py
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
