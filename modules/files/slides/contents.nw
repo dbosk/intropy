@@ -3,30 +3,30 @@
 \section{Vad är en fil?}
 \label{sec:vad-ar-en-fil}
 
-\ltnote{%
-  \Cref{def:primarminne,def:sekundarminne} ställs sida vid sida, på bilden
-  och i texten, så att kontrasten mellan minnestyperna upplevs samtidigt
-  och inte återskapas ur minnet \parencite[45--47]{Marton2015}.
-  Relevanta lärandemål: \cref{FilesLOPersistence}.
-
-  \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}: typ
-  av minne och dess egenskaper (flyktigt eller oflyktigt, snabbt eller
-  långsamt).  \textbf{Vad som hålls invariant}: behovet att lagra data.
-
-  \textbf{Kritiska aspekter}: att primärminnet töms när programmet
-  avslutas eller datorn stängs av medan sekundärminnet består, så att
-  filer löser persistensproblemet; och avvägningen mellan snabbt men
-  tillfälligt och långsammare men beständigt.  Därefter kopplas
-  kontrasten till erfarenhet (program och bilder är filer) innan
-  varför-frågan, \cref{ovn:varfor-filer}.
-}
-
 \subsection{Primärminne och sekundärminne}
 
 \begin{frame}
   \begin{exercise}
     \label{ovn:bevara}
     \leavevmode\ltnote{%
+      \Cref{def:primarminne,def:sekundarminne} ställs sida vid sida, på
+      bilden och i texten, så att kontrasten mellan minnestyperna upplevs
+      samtidigt och inte återskapas ur minnet
+      \parencite[45--47]{Marton2015}.
+      Relevanta lärandemål: \cref{FilesLOPersistence}.
+
+      \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}: typ
+      av minne och dess egenskaper (flyktigt eller oflyktigt, snabbt eller
+      långsamt).  \textbf{Vad som hålls invariant}: behovet att lagra data.
+
+      \textbf{Kritiska aspekter}: att primärminnet töms när programmet
+      avslutas eller datorn stängs av medan sekundärminnet består, så att
+      filer löser persistensproblemet; och avvägningen mellan snabbt men
+      tillfälligt och långsammare men beständigt.  Därefter kopplas
+      kontrasten till erfarenhet (program och bilder är filer) innan
+      varför-frågan, \cref{ovn:varfor-filer}.
+    }%
+    \ltnote{%
       \textbf{\foreignlanguage{english}{Try-first}}: \Cref{ovn:bevara}
       aktiverar
       studenters förförståelse och skapar en diagnostisk möjlighet.
@@ -735,12 +735,9 @@ med [[try]] och [[except]], och lägger frågan i en [[while]]-slinga som
 snurrar tills läsningen lyckas.  Det enda nya är vilken sorts fel vi fångar.
 
 \leavevmode\ltnote{%
-  Läsningen importeras i stället för att skrivas en gång till: sedan
-  föreläsningen \emph{Moduler och paket} återanvänder ett program en
-  funktion som en tidigare fil redan har genom att importera den, och
-  talläsarens huvudprogram står under
-  \mintinline{python}|if __name__ == "__main__":|, så importen kör det
-  inte.
+  Det är [[read_number]], [[with]]-versionen, som importeras och inte
+  [[read_number_by_hand]]: det nya programmet använder det sätt som
+  \cref{sec:oppna} just har visat är säkrare.
 }%
 I det nya programmet, den omfrågande talläsaren, behöver vi inte skriva
 läsningen av talet en gång till: funktionen [[read_number]] finns redan
@@ -1541,16 +1538,15 @@ funktionen \(f\) ut, och båda blir hjälpfunktioner.
   \begin{example}[Skriva talpar i eget format]
     Vi sparar paren \(x, f(x)\) för \(f(x) = 2x + 3\):
 <<talparsprogrammets hjälpfunktioner>>=
-<<funktion [[f]] vars värden vi sparar>>
+def f(x):
+    """The function whose values we save"""
+    return 2 * x + 3
+
 def write_pairs(filename):
     """Writes the pairs x, f(x) to the file, one pair per line"""
     with open(filename, "w") as file:
         for x in range(10):
             file.write(f"{x},{f(x)}\n")
-<<funktion [[f]] vars värden vi sparar>>=
-def f(x):
-    """The function whose values we save"""
-    return 2 * x + 3
 @
   \end{example}
 \end{frame}
@@ -1892,8 +1888,8 @@ Låt oss skriva samma talpar med CSV-formatet, i programmet
 Funktionen \(f\) och funktionen för jämförelsen, [[wrong_pairs]],
 importerar vi från talparsprogrammet: modulen [[xy]] är filen från
 \cref{ex:xy-korning}.
-Huvudprogrammet är detsamma; det nya är filnamnet och de två funktioner
-som skriver och läser filen.
+Huvudprogrammet är detsamma; det nya är filnamnet, som får ändelsen för
+CSV, och de två funktioner som skriver och läser filen.
 
 \mode<article>{\needspace{16\baselineskip}}
 
@@ -1906,15 +1902,11 @@ import csv
 
 from xy import f, wrong_pairs
 
-<<CSV-talparsprogrammets konstanter>>
+FILENAME = "xy.csv"
 
 <<CSV-talparsprogrammets hjälpfunktioner>>
 
 <<talparsprogrammets huvudprogram>>
-@
-  Filen får ändelsen för CSV:
-<<CSV-talparsprogrammets konstanter>>=
-FILENAME = "xy.csv"
 @
 \end{frame}
 
@@ -2062,7 +2054,16 @@ märke till att [[int()]] är kvar: modulen delar upp raden, men fälten
 
   \textbf{Vad som hålls invariant}: Uppgiften (spara telefonboken och
   läs den tillbaka) och mönstret öppna--operera--stäng med [[with]].
+}%
+Telefonboken från föreläsningen \emph{Behållare: Uppslagslistor} är en
+uppslagslista, och i CSV-filen blir den en tabell med två kolumner som
+vi själva måste bygga upp igen rad för rad när vi läser.  Det går, men
+CSV är gjort för tabeller.  Har en person två telefonnummer, eller både
+adress och nummer, får tabellen inte längre plats för strukturen.  Finns
+det ett format som kan spara uppslagslistan som den är --- med listor
+inuti?
 
+\leavevmode\ltnote{%
   JSON läggs sist och kort: målet är att kunna läsa och skriva formatet
   med standardbiblioteket, inte att kunna dess grammatik.  Frågan
   \enquote{finns det ett format som kan spara uppslagslistan som den
@@ -2075,14 +2076,6 @@ märke till att [[int()]] är kvar: modulen delar upp raden, men fälten
   \emph{Moduler och paket}.  Den föreläsningen nämner inte [[csv]] och
   [[json]], så prosan pekar på metoden och inte på modulerna.
 }%
-Telefonboken från föreläsningen \emph{Behållare: Uppslagslistor} är en
-uppslagslista, och i CSV-filen blir den en tabell med två kolumner som
-vi själva måste bygga upp igen rad för rad när vi läser.  Det går, men
-CSV är gjort för tabeller.  Har en person två telefonnummer, eller både
-adress och nummer, får tabellen inte längre plats för strukturen.  Finns
-det ett format som kan spara uppslagslistan som den är --- med listor
-inuti?
-
 Det finns det: JSON (\foreignlanguage{english}{JavaScript Object
 Notation}), ett \enquote{\foreignlanguage{english}{lightweight,
 text-based, language-independent data interchange format}} som kan
