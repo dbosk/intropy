@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Klasser och objekt$'
-    position: 5
+    position: 8
 ---
 Övningen är frivillig och ges för hela klassen, i D37 och på
 [Zoom][zoom-room]; tider och plats står i veckoöversikten överst i

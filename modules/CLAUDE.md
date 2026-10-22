@@ -19,9 +19,9 @@ is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
 excludes functions, scipy and debug from the course-wide build (and
 `recap/gallery`, the picture gallery, which `recap/Makefile` leaves out).
-Six decks still lack a backed-claim chapter: `classes/slides-more`
-(Operatoröverlagring) and the five `containers/slides-*` decks — run the
-claim audit there in their next rounds.
+Three decks still lack a backed-claim chapter: `containers/slides-lists`,
+`slides-tuples` and `slides-dicts` — run the claim audit there in their
+next rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
@@ -234,8 +234,39 @@ Backed so far (question → answer):
   correction, shrinks when the lecture is active (from the Delutvärdering
   prgi26 report).  Not audited: är-en/har-en, queue as deque, "ett
   särfall kan inte glömmas bort".
-- No backed-claim chapters yet: *Operatoröverlagring*, the five
-  *Behållare* decks (method chapter only) — run the claim audit there.
+- *Operatoröverlagring* B: properties ↔ uniform access → Meyer's
+  principle, the benefit is changeability, readability unmeasured;
+  C: overloading readability → unmeasured, designer consensus "for
+  number-like types, when the meaning is obvious"; D: canonical form →
+  equality and hashing easier, debugging unbacked (only the deck's own
+  run); the sign in the numerator is the convention of libraries and
+  language standards (no mathematical source read).
+- *Praktiska tillämpningar av klasser* B: classes give better structure
+  and maintainability → partly: early experiments and field studies yes,
+  the most cited comparison no general advantage, novices both ways,
+  "especially as the program grows" untested; C: the rule of thumb
+  dictionary → class → Fowler's data clumps, a practitioner heuristic,
+  not tested; D: reuse → yes with reservations, mostly when a class is
+  used as is, it does not come by itself; E: abstraction → established,
+  the benefit supported but thinly.
+- *Behållare: Mängder, stackar och köer* B: choose the container by the
+  operations the program needs, not by what the data is about → yes:
+  the textbook procedure (Shaffer) with roots in ADTs, and the choice
+  measurably matters (Java energy and performance studies, mostly read
+  in abstract), but swapping implementations of one abstraction gains
+  little in the median, the right choice is hard to predict, no study
+  concerns Python, and how novices choose is barely studied (one
+  interview study with six students).  To move to *Behållare:
+  Uppslagslistor* (`sec:valja-uppslag`), which makes the claim first,
+  when that deck is audited (nytid #511, prgi27).
+- *Behållare: Ett gissningsspel*: audited 2026-10-12, no chapter of its
+  own: its advice is reused (container choice → Mängder B; named
+  constants in one place → DRY, *Algoritmiskt tänkande* E, as in
+  *Upprepningar*; SRP → *Funktioner* B), the rest is Python's docs or
+  shown by running the program.
+- No backed-claim chapters yet: *Behållare: Listor*, *Behållare: Tupler*
+  and *Behållare: Uppslagslistor* (method chapter only) — run the claim
+  audit there.
 
 ## Build environment
 
