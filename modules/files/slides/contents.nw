@@ -314,9 +314,10 @@ alltid handlar om en fil vi redan har öppnat.
 
 \leavevmode\ltnote{%
   \Cref{ex:for-hand} ställs mot \cref{ex:med-with}, och körningen av
-  [[close1.py]] i lösningsförslaget till \cref{ovn:sarfall} mot
-  körningen av [[close2.py]] i lösningsförslaget till
-  \cref{ovn:garantera}.
+  [[close1.py]] i \hyperref[sol:sarfall]{lösningsförslaget} till
+  \cref{ovn:sarfall} mot körningen av [[close2.py]] i
+  \hyperref[sol:garantera]{lösningsförslaget} till \cref{ovn:garantera};
+  paret står till sist bredvid varandra i \cref{ex:close-bredvid}.
 
   \textbf{Variationsmönster}: Kontrast
 
@@ -439,6 +440,7 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{solution}[\texttt{close1.py}]
+    \label{sol:sarfall}
     Programmet skriver ut
     \runpython[transcript]{examples/close1.py}
   \end{solution}
@@ -498,8 +500,8 @@ def read_number(filename):
 
 \begin{frame}[fragile,shrink=10]
   \begin{solution}[\texttt{close2.py}]
-    Programmet [[close2.py]] är [[close1.py]] med en [[with]]-sats i
-    stället för [[open()]] och [[close()]].  Vi kör det på samma fil:
+    \label{sol:garantera}
+    Programmet [[close2.py]] är [[close1.py]] med [[with]]:
 <<[[close2.py]]>>=
 """Reading a number from a file, letting with close it"""
 
@@ -515,9 +517,29 @@ def main():
 if __name__ == "__main__":
     main()
 @
-    Det skriver ut
-    \runpython[transcript]{examples/close2.py}
   \end{solution}
+\end{frame}
+
+% close2.py's run is shown here, beside close1.py's, which is pages back
+% by now; so are the two main functions (\codebycode and \runbyrun read
+% and run the tangled files, so the pair cannot drift from the chunks).
+% The module docstrings and the guard are the same in both and are left
+% out.  The runs are set small on the slides, as the code beside them.
+\mode<article>{\needspace{20\baselineskip}}
+\begin{frame}
+  \mode<presentation>{\setminted{fontsize=\tiny}}%
+  \begin{example}[\texttt{close1.py} och \texttt{close2.py}]
+    \label{ex:close-bredvid}
+    Programmen körda på samma fil, [[close1.py]] till vänster:
+    \codebycode
+      [name=main, nodocstring,
+        label={\texttt{close1.py}}]{python}{examples/close1.py}
+      [name=main, nodocstring,
+        label={\texttt{close2.py}}]{python}{examples/close2.py}
+    \runbyrun
+      [transcript]{examples/close1.py}
+      [transcript]{examples/close2.py}
+  \end{example}
 \end{frame}
 
 Nu svarar programmet \mintinline{python}{True}: [[with]] stängde filen
@@ -653,10 +675,13 @@ if __name__ == "__main__":
 \label{sec:saknas}
 
 \leavevmode\ltnote{%
-  \Cref{ovn:saknas} och dess lösningsförslag ställs mot
-  \cref{ex:ett-forsok-till}: samma inmatning, ett filnamn som inte
-  finns, ger en krasch i [[open_close.py]] och en ny fråga i
-  [[ask_for_file.py]].  Relevanta lärandemål: \cref{FilesLOMissing}.
+  \Cref{ovn:saknas} och \hyperref[sol:saknas]{dess lösningsförslag}
+  ställs mot \cref{ex:ett-forsok-till}, där de två körningarna står
+  bredvid varandra: samma inmatning, ett filnamn som inte finns, ger en
+  krasch i [[open_close.py]] och en ny fråga i [[ask_for_file.py]].
+  Paret visas före koden till [[ask_for_file.py]]: avsnittet handlar om
+  vad användaren ser, så dialogen bedöms först.  Relevanta lärandemål:
+  \cref{FilesLOMissing}.
 
   \textbf{Variationsmönster}: Kontrast, sedan fusion.
 
@@ -699,6 +724,7 @@ sparades --- ber programmet öppna en fil som inte finns.
 
 \begin{frame}[fragile]
   \begin{solution}[En fil som inte finns]
+    \label{sol:saknas}
     Användaren svarar [[finns-inte.txt]], och körningen avbryts med en
     spårutskrift:
     \runpython[transcript, breaklines,
@@ -726,7 +752,34 @@ skriva rätt.
 Svaret är detsamma som när användaren svarade fel på en fråga i
 föreläsningen \emph{Villkor och styrstrukturer}: vi fångar särfallet
 med [[try]] och [[except]], och lägger frågan i en [[while]]-slinga som
-snurrar tills läsningen lyckas.  Det enda nya är vilken sorts fel vi fångar.
+snurrar tills läsningen lyckas.  Det enda nya är vilken sorts fel vi
+fångar.  Innan vi skriver programmet, den omfrågande talläsaren
+[[ask_for_file.py]], ser vi hur det ska te sig för användaren, bredvid
+kraschen.
+
+% The crash and the new question side by side, before the code: the
+% section is about what the user sees.  The left run is the one in
+% sol:saknas, repeated beside the right one; both only read tal.txt.
+\begin{frame}
+  \mode<presentation>{\setminted{fontsize=\tiny}}%
+  \begin{example}[Ett försök till]
+    \label{ex:ett-forsok-till}
+    Användaren svarar först med ett namn som inte finns: till vänster
+    talläsaren, till höger den omfrågande talläsaren.
+    \begin{didacticpair}[runs]{2}
+      \didacticpairlabel{\texttt{open\_close.py}}
+      & \didacticpairlabel{\texttt{ask\_for\_file.py}} \\
+      \runpython[transcript, breaklines,
+        stdin={finns-inte.txt}]{examples/open_close.py}
+      &
+      \runpython[transcript, breaklines, stdin={finns-inte.txt},
+        stdin={tal.txt}]{examples/ask_for_file.py}
+    \end{didacticpair}
+  \end{example}
+\end{frame}
+
+Till höger får användaren en ny fråga i stället för en spårutskrift, och
+när namnet är rätt kommer talet.
 
 \leavevmode\ltnote{%
   Det är [[read_number]], [[with]]-versionen, som importeras och inte
@@ -783,15 +836,6 @@ if __name__ == "__main__":
   \inputminted{python}{examples/ask_for_file.py}
 \end{frame}
 
-\begin{frame}[fragile]
-  \begin{example}[Ett försök till]
-    \label{ex:ett-forsok-till}
-    Användaren skriver först fel namn, sedan rätt:
-    \runpython[transcript, stdin={finns-inte.txt},
-      stdin={tal.txt}]{examples/ask_for_file.py}
-  \end{example}
-\end{frame}
-
 Lägg märke till att felet fångas i [[main]], inte i [[read_number]]. Funktionen
 som läser vet inte vad som är rätt att göra när filen saknas --- fråga igen, ge
 upp, använda en annan fil --- så den låter särfallet gå vidare till den som
@@ -808,9 +852,9 @@ och en gren till i [[except]] tar hand om det.
   läser; läsmetoderna ställs mot varandra i \cref{ovn:lasmetod}.
   Relevanta lärandemål: \cref{FilesLORead}, \cref{FilesLOWrite}.
 
-  \textbf{Variationsmönster}: Separation + Generalisering
+  \textbf{Variationsmönster}: Kontrast + Generalisering
 
-  \textbf{Separation av operationsriktning}: Varierar operation
+  \textbf{Kontrast i operationsriktning}: Varierar operation
   ([[read]] vs [[write]]) och filläge (\mintinline{python}{"r"} vs
   \mintinline{python}{"w"}).  Invariant: Filhanteringsmönster
   (öppna--operera--stäng).  Studenten måste urskilja att läsning och
@@ -821,7 +865,7 @@ och en gren till i [[except]] tar hand om det.
   [[input()]], [[file.write()]] motsvarar [[print()]].  Samma princip,
   olika destination.
 
-  \textbf{Separation av granularitet}: Flera läsmetoder för
+  \textbf{Kontrast i granularitet}: Flera läsmetoder för
   \cref{FilesLORead}: [[file.read()]] (hela filen), [[for line in file]]
   (rad för rad).  Olika granularitet, samma underliggande operation.
   Studenten väljer metod baserat på datastruktur och
@@ -955,13 +999,13 @@ vill ha radbrytningar måste vi själva lägga till
   \foreignlanguage{english}{Try-first}: studenterna skriver slingan själva,
   i \cref{ovn:slinga}, innan den visas.  Den som skriver [[print(line)]] utan
   \mintinline{python}{end=""} har
-  inte urskilt att raden bär sin egen radbrytning.  Lösningsförslaget är
-  just den slingan, [[read_lines1.py]], och dess körning visar de tomma
-  raderna; [[read_lines.py]] varierar sedan bara
-  \mintinline{python}{end=""}, så att det är radbrytningen och ingenting
-  annat som skiljer de två körningarna åt.  Frågan avslöjar inte aspekten
-  (\enquote{tänk på radbrytningen}); den ställs som en ren
-  konstruktionsuppgift.
+  inte urskilt att raden bär sin egen radbrytning.
+  \hyperref[sol:slinga]{Lösningsförslaget} är just den slingan,
+  [[read_lines1.py]], och dess körning visar de tomma raderna;
+  [[read_lines.py]] varierar sedan bara \mintinline{python}{end=""}, så
+  att det är radbrytningen och ingenting annat som skiljer de två
+  körningarna åt.  Frågan avslöjar inte aspekten (\enquote{tänk på
+  radbrytningen}); den ställs som en ren konstruktionsuppgift.
 
   Båda programmen skriver raden [[(slut)]] sist.  Utan den ser de två
   körningarna likadana ut: den tomma rad som [[read_all.py]] skriver
@@ -988,6 +1032,7 @@ du själv skriva det?
 
 \begin{frame}[fragile,shrink=15]
   \begin{solution}[Läsa rad för rad]
+    \label{sol:slinga}
     Programmet [[read_lines1.py]] går igenom filen med en [[for]]-slinga
     och skriver ut varje rad:
 <<[[read_lines1.py]]>>=
@@ -1048,17 +1093,16 @@ if __name__ == "__main__":
 % out.  The runs only read test1.txt, so running them again here shows
 % what they showed before.
 \mode<article>{\needspace{18\baselineskip}}
-\begin{frame}[shrink=15]
+\begin{frame}
+  \mode<presentation>{\setminted{fontsize=\tiny}}%
   \begin{example}[\texttt{read\_lines1.py} och \texttt{read\_lines.py}]
     \label{ex:radbrytning-bredvid}
-    Programmet [[read_lines1.py]] till vänster och [[read_lines.py]] till
-    höger:
+    Programmen och deras körningar, [[read_lines1.py]] till vänster:
     \codebycode
       [name=main, nodocstring,
         label={\texttt{read\_lines1.py}}]{python}{examples/read_lines1.py}
       [name=main, nodocstring,
         label={\texttt{read\_lines.py}}]{python}{examples/read_lines.py}
-    De skriver ut
     \runbyrun
       [transcript]{examples/read_lines1.py}
       [transcript]{examples/read_lines.py}
@@ -1249,7 +1293,8 @@ filen.
 \label{sec:typer}
 
 \leavevmode\ltnote{%
-  \Cref{ovn:jpg} och dess lösningsförslag skriver fyra byte i binärläge
+  \Cref{ovn:jpg} och \hyperref[sol:jpg]{dess lösningsförslag} skriver
+  fyra byte i binärläge
   och läser samma fyra byte i textläge.  En läsning i binärläge körs
   inte; att den ger [[bytes]] utan avkodning säger prosan efter
   lösningsförslaget.  Relevanta lärandemål:
@@ -1342,6 +1387,7 @@ if __name__ == "__main__":
 
 \begin{frame}[fragile]
   \begin{solution}[En \texttt{.jpg} läst som text]
+    \label{sol:jpg}
     Läsningen avbryts med en spårutskrift:
     \runpython[transcript, breaklines]{examples/bytes_as_text.py}
   \end{solution}
@@ -1653,6 +1699,7 @@ def read_pairs(filename):
 
 \begin{frame}[fragile]
   \begin{solution}[Tolkningen av en rad]
+    \label{sol:tolka-rad}
     Tolkningen blir en hjälpfunktion till:
 <<talparsprogrammets hjälpfunktioner>>=
 def parse_pair(line):
@@ -1886,7 +1933,8 @@ ställe\autocite{HuntThomas1999}, här tillämpat över programgränsen.\footnot
 \leavevmode\ltnote{%
   \Cref{ex:xy-korning} ställs mot \cref{ex:xy-csv-korning}, och de två
   programmens skrivning och läsning står bredvid varandra i
-  \cref{ex:xy-bredvid}.  Relevanta lärandemål: \cref{FilesLOFormats}.
+  \cref{ex:xy-bredvid,ex:xy-bredvid-las}.  Relevanta lärandemål:
+  \cref{FilesLOFormats}.
 
   \textbf{Variationsmönster}: Kontrast
 
@@ -1981,14 +2029,14 @@ med [[split(",")]], och [[parse_pair]] behövs inte längre.  Men lägg
 märke till att [[int()]] är kvar: modulen delar upp raden, men fälten
 är fortfarande strängar --- vad de betyder vet bara vi.
 
-% Notes only: the two programs' writing and reading side by side, our
-% own format left and CSV right.  The rest of the programs is the same
-% (xy_csv.py imports f and wrong_pairs and reuses the main program), so
-% only the two functions vary.  The docstrings are left out to fit the
-% full width.
+% The two programs' writing and reading side by side, our own format
+% left and CSV right.  The rest of the programs is the same (xy_csv.py
+% imports f and wrong_pairs and reuses the main program), so only the two
+% functions vary.  The docstrings are left out to fit.  Two frames, as
+% the slides do not hold both pairs.
 \mode<article>{\needspace{22\baselineskip}}
-\begin{frame}<article>
-  \begin{example}[Eget format och CSV]
+\begin{frame}
+  \begin{example}[Skriva i eget format och som CSV]
     \label{ex:xy-bredvid}
     Skrivningen i [[xy.py]] till vänster och i [[xy_csv.py]] till höger:
     \codebycode
@@ -1996,7 +2044,13 @@ märke till att [[int()]] är kvar: modulen delar upp raden, men fälten
         label={\texttt{xy.py}}]{python}{examples/xy.py}
       [name=write_pairs, nodocstring,
         label={\texttt{xy\_csv.py}}]{python}{examples/xy_csv.py}
-    och läsningen:
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \begin{example}[Läsa eget format och CSV]
+    \label{ex:xy-bredvid-las}
+    Läsningen i [[xy.py]] till vänster och i [[xy_csv.py]] till höger:
     \codebycode
       [name=read_pairs, nodocstring,
         label={\texttt{xy.py}}]{python}{examples/xy.py}
