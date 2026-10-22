@@ -11,9 +11,10 @@ modules:
 Den här veckan går vi igenom det nya innehållet på övningarna, eftersom
 föreläsningen är en repetition av hela kursen. Övningarna är frivilliga
 och ges för hela klassen, i D37 och på [Zoom][zoom-room]; tider och plats
-står i veckoöversikten överst i modulen. På tisdagen tar vi allt du
-behöver till *Laboration (5) behållare och klasser (kamratgranskning)*,
-och på onsdagen operatoröverlagring och arv. Onsdagens övning bygger inte
+står i veckoöversikten överst i modulen. Veckans övningar handlar om
+klasser. På tisdagen ser vi vad en egen klass gör med ett programs
+struktur, och tar allt du behöver till *Laboration (5) behållare och
+klasser (kamratgranskning)*; på onsdagen operatoröverlagring och arv. Onsdagens övning bygger inte
 på tisdagens, så du kan komma på den ena utan den andra. Samtidigt med
 onsdagens övning leder en assistent, oftast Emelie, en repetition i ett
 eget grupprum på Zoom, så långt tillbaka i kursen som behövs.
@@ -31,9 +32,17 @@ lösningen.
 
 ## Vad vi går igenom på övningarna
 
-### Tisdag: det laborationen behöver
+### Tisdag: klasser, och det laborationen behöver
 
-1. **Uppgift 4: Banken.** Bygga en bank vars konton ligger i en behållare
+1. **Uppgift 1 och 2: Giltiga e-postadresser.** Kontrollera inlästa
+   e-postadresser och samla deras domäner, först med funktioner och
+   sedan med en egen klass, `Email`, där funktionerna blir metoder:
+   `Email("malvina@kth.se")` vägrar skapa något som inte är en
+   e-postadress, och delarna läses som egenskaper, `email.domain`, som
+   delarna i standardbibliotekets `urllib.parse.urlparse`. Samma program
+   två gånger, så att vi kan jämföra strukturen. Egenskaperna,
+   `@property`, går vi igenom ordentligt på onsdagen.
+2. **Uppgift 3: Banken.** Bygga en bank vars konton ligger i en behållare
    inuti klassen. Ska kontona ligga i en lista eller i en uppslagslista,
    och vad ska ett konto i så fall hittas med? Det är frågan om att välja
    behållare, samma fråga som laborationen ställer. På vägen: ett konto som
@@ -41,7 +50,7 @@ lösningen.
    särfall eller lämna tillbaka `False`.
    Banken har samma form som laborationen: en klass som har en behållare
    av andra objekt.
-2. **Om vi hinner: uppslagslista eller klass?** Avsnittet *Att
+3. **Om vi hinner: uppslagslista eller klass?** Avsnittet *Att
    representera varor: uppslagslistor eller klass?* i anteckningarna
    *Praktiska tillämpningar av klasser*: varor som uppslagslistor i ett
    litet program, `items1.py`, och vad en egen klass för varorna ändrar.
@@ -67,24 +76,26 @@ lösningen.
 Resten av övningens uppgifter gör du på egen tid; lösningsförslagen i
 dokumentet låter dig kontrollera dina egna svar.
 
-1. **Uppgift 1: Giltiga e-postadresser.** Kontrollera inlästa
-   e-postadresser och samla de unika domänerna i en mängd. Hör till den
-   valfria delen *Behållare: Mängder, stackar och köer*.
-2. **Uppgift 2: Bokstavsräknaren.** Räkna hur ofta varje bokstav
-   förekommer i en text, med en uppslagslista som byggs upp medan
-   programmet läser.
-3. **Uppgift 3: Bråk som går att jämföra.** Bygga ut bråkklassen med
+1. **Uppgift 4: Bråk som går att jämföra.** Bygga ut bråkklassen med
    jämförelse, division och en dundermetod som gör bråk dugliga som
    nyckel i en uppslagslista.
-4. **Uppgift 5: Att ångra det senaste.** Bygga ut banken från Uppgift 4
-   så att den minns överföringarna och kan ångra dem. Hör till den valfria
-   delen *Behållare: Mängder, stackar och köer*. Har du inte löst Banken
-   själv kan du utgå från [bankmodulen som Uppgift 4 lämnar den][bank-start];
-   hela lösningen, [bank.py med ångrandet][bank], tittar du på när du har
-   försökt.
-5. **Fördjupning: Uppgift 6: Ett bättre cowsay.** Radbryta text i en
+2. **Uppgift 5: Bokstavsräknaren.** Räkna hur ofta varje bokstav
+   förekommer i en text, med en uppslagslista som byggs upp medan
+   programmet läser.
+3. **Uppgift 6: Att ångra det senaste.** Bygga ut banken från Uppgift 3
+   så att den minns överföringarna och kan ångra dem. Har du inte löst
+   Banken själv kan du utgå från
+   [bankmodulen som Uppgift 3 lämnar den][bank-start]; hela lösningen,
+   [bank.py med ångrandet][bank], tittar du på när du har försökt.
+
+Om du har tid, valfritt: de andra behållarna, som hör till den valfria
+delen *Behållare: Mängder, stackar och köer*.
+
+1. **Med en mängd.** Det valfria avsnittet sist i Uppgift 1 och 2:
+   domänerna samlade i en mängd i stället för en lista.
+2. **Fördjupning: Uppgift 7: Ett bättre cowsay.** Radbryta text i en
    pratbubbla, med en `deque` som håller reda på orden som återstår.
-6. **Fördjupning: Uppgift 7: Lyckokakor och kon.** Sätta samman en
+3. **Fördjupning: Uppgift 8: Lyckokakor och kon.** Sätta samman en
    lyckokaksmodul och kon-modulen i ett eget program med reproducerbar
    slump.
 
@@ -94,45 +105,14 @@ dokumentet låter dig kontrollera dina egna svar.
 ## Veckans fyra delar
 
 Anteckningarna till var och en av delarna finns som ett interaktivt
-dokument (FeedbackFruits) här i modulen, *Behållare: Mängder, stackar och
-köer (föreläsningsanteckningar)* och så vidare; läs dem och svara på
+dokument (FeedbackFruits) här i modulen, *Operatoröverlagring
+(föreläsningsanteckningar)* och så vidare; läs dem och svara på
 frågorna i dokumenten. *Behållare: Ett gissningsspel* och
 *Operatoröverlagring* finns också som videoföreläsningar, *Behållare: Ett
 gissningsspel (videoföreläsning)* och *Operatoröverlagring
 (videoföreläsning)*.
 
 <!-- TODO: FBF-dokumenten skapas av författaren -->
-
-### Behållare: Mängder, stackar och köer (valfritt)
-
-Listan, tupeln och uppslagslistan täcker det mesta, men inte allt. Den
-här delen inför tre behållare till, som var och en svarar på sin egen
-fråga. Mängden svarar på vilka olika värden som finns: den har inga
-dubbletter och ingen ordning, och kan jämföras med andra mängder med
-union, snitt och differens. Stacken och kön svarar på vilket element som
-ska tas härnäst, och de svarar olika: stacken lämnar ut det som lades in
-sist, kön det som lades in först. Vi bygger stacken av en lista och kön
-av `collections.deque`, och ser i Pythons dokumentation varför det inte
-blir tvärtom. Delen avslutas med att sätta alla behållarna bredvid
-varandra: valet styrs av vilka operationer programmet behöver.
-
-**Att läsa:** hela delen är valfri fördjupning.
-
-Efter den här delen ska du kunna
-
-- skapa och använda en mängd — unika element, medlemskap, samt union,
-  snitt och differens — och förklara varför en mängd varken har ordning
-  eller dubbletter,
-- använda en lista som stack, med `append` och `pop`, och förklara
-  sist-in-först-ut,
-- använda `collections.deque` som kö, med `append` och `popleft`,
-  förklara först-in-först-ut, och motivera varför en lista är ett sämre
-  val för en kö,
-- välja behållare — lista, tupel, mängd, uppslagslista, stack eller kö
-  — utifrån vilka operationer programmet behöver, och motivera valet,
-- hitta och läsa dokumentationen för Pythons behållare och därifrån
-  använda en behållare eller metod som inte gåtts igenom i
-  anteckningarna.
 
 ### Behållare: Ett gissningsspel
 
@@ -224,6 +204,37 @@ Efter den här delen ska du kunna
 - avgöra när komposition respektive arv passar bäst, och känna igen
   designprinciperna bakom valet i egen och andras kod.
 
+### Behållare: Mängder, stackar och köer (valfritt)
+
+Listan, tupeln och uppslagslistan täcker det mesta, men inte allt. Den
+här delen inför tre behållare till, som var och en svarar på sin egen
+fråga. Mängden svarar på vilka olika värden som finns: den har inga
+dubbletter och ingen ordning, och kan jämföras med andra mängder med
+union, snitt och differens. Stacken och kön svarar på vilket element som
+ska tas härnäst, och de svarar olika: stacken lämnar ut det som lades in
+sist, kön det som lades in först. Vi bygger stacken av en lista och kön
+av `collections.deque`, och ser i Pythons dokumentation varför det inte
+blir tvärtom. Delen avslutas med att sätta alla behållarna bredvid
+varandra: valet styrs av vilka operationer programmet behöver.
+
+**Att läsa:** hela delen är valfri fördjupning.
+
+Efter den här delen ska du kunna
+
+- skapa och använda en mängd — unika element, medlemskap, samt union,
+  snitt och differens — och förklara varför en mängd varken har ordning
+  eller dubbletter,
+- använda en lista som stack, med `append` och `pop`, och förklara
+  sist-in-först-ut,
+- använda `collections.deque` som kö, med `append` och `popleft`,
+  förklara först-in-först-ut, och motivera varför en lista är ett sämre
+  val för en kö,
+- välja behållare — lista, tupel, mängd, uppslagslista, stack eller kö
+  — utifrån vilka operationer programmet behöver, och motivera valet,
+- hitta och läsa dokumentationen för Pythons behållare och därifrån
+  använda en behållare eller metod som inte gåtts igenom i
+  anteckningarna.
+
 ## Förkunskaper
 
 Veckans delar bygger på föreläsningarna *Funktioner*, *Inmatning och
@@ -244,8 +255,8 @@ Till övningarna behöver du inget utöver förkunskaperna ovan. Ha
 dokumentationen för Pythons behållare uppe, kapitlet [Data
 Structures][datastructures] i Pythons handledning: att hitta och läsa i
 den är en stor del av veckans mål. Till onsdagens övning behöver du inget
-från tisdagens. Vill du göra Uppgift 5 utan att ha löst Banken, utgå från
-[bankmodulen som Uppgift 4 lämnar den][bank-start].
+från tisdagens. Vill du göra Uppgift 6 utan att ha löst Banken, utgå från
+[bankmodulen som Uppgift 3 lämnar den][bank-start].
 
 [datastructures]: https://docs.python.org/3/tutorial/datastructures.html
 
@@ -253,9 +264,9 @@ från tisdagens. Vill du göra Uppgift 5 utan att ha löst Banken, utgå från
 
 Fortsätt enligt veckoöversikten: arbeta i par med *Laboration (5)
 behållare och klasser (kamratgranskning)*. Före labben behöver du
-Banken från tisdagens övning och, i anteckningarna, avsnittet *Att läsa
-in en gissning* i *Behållare: Ett gissningsspel* och avsnittet
-*Inköpslistor med klasser* i *Praktiska tillämpningar av klasser*.
+Banken från tisdagens övning och, i anteckningarna, avsnittet
+*Inköpslistor med klasser* i *Praktiska tillämpningar av klasser* och
+avsnittet *Att läsa in en gissning* i *Behållare: Ett gissningsspel*.
 Labbens frivilliga extrauppgift bygger på arv, som vi går igenom på
 onsdagens övning.
 
