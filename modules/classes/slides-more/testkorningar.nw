@@ -1,0 +1,184 @@
+% Testkörningarna till bråkklassens testfunktioner.  Filen vävs aldrig:
+% den tanglas bara, tillsammans med contents.nw, där testfunktionerna
+% står.  Varje testkörning är import, ändringar av klassen och ett anrop.
+% Ändringarna finns för att texten visar klassen i ett tidigare skede än
+% den tanglade fraction.py: före Förkortning förkortar den inte, före den
+% omvända additionen och subtraktionen saknar den __radd__ och __rsub__,
+% och den första konverteringen till heltal är ett försök.  Utskriften
+% bredvid ett testfall ska vara den klassens, inte den färdiga klassens.
+
+Bredvid varje testfunktion i \texttt{fraction.py} visar anteckningarna
+vad den skriver ut.  Testfunktionerna skapar sina egna bråk, så varje
+testkörning behöver bara importera testfunktionen och anropa den.  Att
+den ändå är en egen fil, och inte ett anrop direkt i
+[[\runpython]], beror på att körningen ska visa klassen som den står i
+texten där testfunktionen står, och den är ofta inte den tanglade
+[[fraction.py]]: före \emph{Förkortning} förkortar den inga bråk, före
+den omvända additionen och subtraktionen saknar den metoderna, och den
+första konverteringen till heltal är ett försök.  Testkörningen ändrar
+klassen så innan den anropar testfunktionen.  Med
+[[python3 -c]] hade ändringarna inte behövt en fil, men en körning som
+avbryts skriver ut kommandoradens kod i spårutskriften, och då hade
+ändringarna synts i anteckningarna.
+
+\section*{Klassen som den står i texten}
+
+Fram till avsnittet \emph{Förkortning} är konstruktorns sista steg,
+[[<<förkorta bråket>>]], pseudokod: texten har ännu inte bestämt när
+bråket ska förkortas.  Den tanglade [[fraction.py]] är däremot den
+färdiga filen, där konstruktorn anropar [[__simplify]].  Kördes
+testfunktionerna före \emph{Förkortning} mot den skulle subtraktionen
+skriva [[1/4]] och [[frac_a * 2]] skriva [[1/1]], fast texten nyss sagt
+att klassen inte förkortar och att \(\frac{1}{2} \cdot 2\) ger
+\(\frac{2}{2}\).  Testkörningarna före \emph{Förkortning} byter därför
+ut den privata metoden mot en som inte gör något.  Det är samma sak som
+att lämna pseudokoden ogjord: allt annat i klassen är oförändrat, och
+utskriften blir klassens som den står i texten.  Alla testkörningar
+gör så, också de vars bråk redan är förkortade, så att ett ändrat
+testfall inte tyst börjar visa den färdiga klassen.  Förkortningens
+egen testfunktion får ingen testkörning: dess utskrift är svaret på
+övningen \enquote{Vad skriver testprogrammet ut?}, och den visas i hela
+programmets körning efter övningen.
+
+<<låt bli att förkorta, som klassen i texten>>=
+# Konstruktorns förkortning är ännu pseudokod i texten.
+Fraction._Fraction__simplify = lambda self: None
+@
+
+Testkörningarna före den omvända additionen och den omvända
+subtraktionen visar vad testfunktionen gör innan klassen har metoden:
+raden med heltalet till vänster avbryter med ett [[TypeError]].  Den
+tanglade klassen har metoderna, så de testkörningarna tar bort dem
+igen.  Spårutskriften pekar då ut testfunktionen och dess rad.
+
+<<låt bli att ha [[__radd__]], som klassen i texten>>=
+# Klassen i texten har ännu ingen __radd__.
+del Fraction.__radd__
+<<låt bli att ha [[__rsub__]], som klassen i texten>>=
+# Klassen i texten har ännu ingen __rsub__.
+del Fraction.__rsub__
+@
+
+Testkörningen av det första försöket till [[__int__]] byter på samma
+sätt ut klassens metod mot försöket, som står i texten men inte i
+klassen.  [[\codebycode]] läser också försöket ur den här
+testkörningen.
+
+<<låt [[__int__]] vara det första försöket, som i texten>>=
+# Klassen i texten har här det första försöket till __int__.
+<<ett första försök till [[__int__]]>>
+Fraction.__int__ = __int__
+@
+
+\section*{Testkörningarna}
+
+Konstruktorns testfunktion skriver inte ut något och har ingen egen
+testkörning.  Varje testkörning importerar klassen, för att kunna ändra
+den, och testfunktionen, ändrar klassen och anropar testfunktionen.
+
+<<[[fraction_test_konvertering.py]]>>=
+from fraction import Fraction, test_conversion
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_conversion()
+@
+
+<<[[fraction_test_heltal_forsok.py]]>>=
+from fraction import Fraction, test_int
+
+<<låt bli att förkorta, som klassen i texten>>
+<<låt [[__int__]] vara det första försöket, som i texten>>
+
+test_int()
+@
+
+<<[[fraction_test_heltal.py]]>>=
+from fraction import Fraction, test_int
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_int()
+@
+
+<<[[fraction_test_addition.py]]>>=
+from fraction import Fraction, test_add
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_add()
+@
+
+<<[[fraction_test_heltalsaddition.py]]>>=
+from fraction import Fraction, test_add_int
+
+<<låt bli att förkorta, som klassen i texten>>
+<<låt bli att ha [[__radd__]], som klassen i texten>>
+
+test_add_int()
+@
+
+<<[[fraction_test_radd.py]]>>=
+from fraction import Fraction, test_add_int
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_add_int()
+@
+
+<<[[fraction_test_negation.py]]>>=
+from fraction import Fraction, test_neg
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_neg()
+@
+
+<<[[fraction_test_subtraktion.py]]>>=
+from fraction import Fraction, test_sub
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_sub()
+@
+
+<<[[fraction_test_heltalssubtraktion.py]]>>=
+from fraction import Fraction, test_sub_from_int
+
+<<låt bli att förkorta, som klassen i texten>>
+<<låt bli att ha [[__rsub__]], som klassen i texten>>
+
+test_sub_from_int()
+@
+
+<<[[fraction_test_rsub.py]]>>=
+from fraction import Fraction, test_sub_from_int
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_sub_from_int()
+@
+
+<<[[fraction_test_multiplikation.py]]>>=
+from fraction import Fraction, test_mul
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_mul()
+@
+
+<<[[fraction_test_heltalsmultiplikation.py]]>>=
+from fraction import Fraction, test_mul_int
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_mul_int()
+@
+
+<<[[fraction_test_rmul.py]]>>=
+from fraction import Fraction, test_int_mul
+
+<<låt bli att förkorta, som klassen i texten>>
+
+test_int_mul()
+@

@@ -40,28 +40,91 @@ SRC+=		ltnotes.bib
 # One line per tangled example program.  Recaps re-display these files
 # with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/epost.py
+# The two programs that forget the check import domain_of from epost.py
+# and the class Email from epost2.py.
+EXAMPLES+=	examples/url.py
+EXAMPLES+=	examples/epost2.py
+EXAMPLES+=	examples/glomt1.py
+EXAMPLES+=	examples/glomt2.py
 EXAMPLES+=	examples/letters.py
 EXAMPLES+=	examples/counter.py
 EXAMPLES+=	examples/fraction.py
-EXAMPLES+=	examples/nyckel.py
+# The integer to the left of a fraction is not a test case but a program
+# of its own, since its run ends in a traceback.
+EXAMPLES+=	examples/heltal_forst.py
+# The equality written like the arithmetic operators, which the notes
+# show alone and then beside the one with NotImplemented.
+EXAMPLES+=	examples/likhet_typeerror.py
+EXAMPLES+=	examples/nyckel1.py
+EXAMPLES+=	examples/nyckel2.py
 EXAMPLES+=	examples/bank.py
 EXAMPLES+=	examples/banken.py
 EXAMPLES+=	examples/angra.py
-EXAMPLES+=	examples/ko_utan_r.py
+# The starting point for the exercise Att ångra det senaste, which the
+# tutorial's Canvas page links: bank.py as the exercise Banken leaves it.
+# bank.py itself already holds the answer (the memory and the undo fill
+# the two steps Banken leaves empty), so this one is tangled from the part
+# of contents.nw above the marker line that ends the exercise Banken
+# (Att ångra det senaste comes later), with the two steps defined
+# empty.  Both files are committed (see .gitignore).
+EXAMPLES+=	examples/start/bank.py
+# cowsay.py is written in the tutorial Övning: Upprepningar, listor och
+# moduler (../../iterations/tutorial); cowsay2.py imports the bubble and the
+# cow from it.  Build it there and copy it here (generated, not committed).
 EXAMPLES+=	examples/cowsay.py
+EXAMPLES+=	examples/cowsay2.py
+EXAMPLES+=	examples/minne.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/humor.py
-# The transcript of epost.py is produced by feeding it this file, so the
-# run in the notes is exactly the run the reader can reproduce.
+# The two ways of collecting the domains, shown only side by side: they
+# are excerpts, tangled from utdrag.nw (\codebycode reads files).
+EXCERPTS+=	examples/domaner_mangd.py
+EXCERPTS+=	examples/domaner_lista.py
+EXAMPLES+=	${EXCERPTS}
+# Both runs of epost.py, the one typed by hand and the one piped with <,
+# are fed this file, so the runs in the notes are exactly the runs the
+# reader can reproduce.
 EXAMPLES+=	examples/epost.in
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
+${EXCERPTS}: utdrag.nw
 
 # The generic %.py: %.nw pattern does not match across the examples/
 # directory boundary, so spell out one rule per suffix.
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+BANKEN_SLUT=	^% Här slutar uppgiften Banken\.
+examples/start/bank.py: contents.nw
+	@mkdir -p ${@D}
+	grep -q '${BANKEN_SLUT}' $<
+	{ sed '/${BANKEN_SLUT}/,$$d' $<; \
+	  printf '%s\n' '<<skapa bankens minne av överföringar>>=' '@' \
+	    '<<anteckna överföringen i bankens minne>>=' '@'; } | \
+	  notangle -R'[[bank.py]]' - > $@
+	${NOWEB_PYCODEFMT}
+# If the marker line is moved below the exercise Att ångra det senaste,
+# the cut keeps that exercise's answer and the linked starting point
+# silently holds the solution.  Fail on the names the answer adds, and
+# delete the file, or the next make would find it up to date.
+	@if grep -q -E 'undo|__transfers' $@; then \
+	  echo "$@ holds the answer to Att ångra det senaste" \
+	    "(undo, __transfers): is the line" \
+	    "'% Här slutar uppgiften Banken.' above that exercise?" >&2; \
+	  ${RM} $@; exit 1; fi
+
+examples/cowsay.py: ../../iterations/tutorial/contents.nw
+	$(MAKE) -C $(<D) examples/cowsay.py
+	@mkdir -p ${@D}
+	cp $(<D)/examples/cowsay.py $@
 
 # .in is not one of noweb.mk's suffixes, and the file must not be piped
 # through black.

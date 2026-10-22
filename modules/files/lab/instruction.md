@@ -5,8 +5,9 @@ authors:
   - Daniel Bosk <dbosk@kth.se>
 # Canvas (canvaslms assignments edit): the assignment is matched by its
 # Canvas id so the name can change freely; make push-labs pushes it.
-name: 'Laboration (6) filhantering'
+name: 'Laboration (6) filhantering (obligatorisk)'
 regex: '^390265$'
+due_at: '2026-11-06 19:00'
 ---
 **Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 

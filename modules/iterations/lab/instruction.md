@@ -5,8 +5,9 @@ authors:
   - Celina Soori <celinah@kth.se>
 # Canvas (canvaslms assignments edit): the assignment is matched by its
 # Canvas id so the name can change freely; make push-labs pushes it.
-name: 'Laboration (3) upprepningar, listor och moduler'
+name: 'Laboration (3) upprepningar, listor och moduler (obligatorisk)'
 regex: '^390262$'
+due_at: '2026-10-02 19:00'
 ---
 **Var och en lämnar in sin egen lösning i Canvas, även den som har arbetat i par.**
 

@@ -17,21 +17,28 @@ Each module has one or more deck directories (`slides*/`) building
 `computational-thinking/slides` (tracking issue #269); `helloworld/slides`
 is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
-excludes functions, recap, scipy and debug from the course-wide build.
-Six decks still lack a backed-claim chapter: `classes/slides-more`
-(Operatoröverlagring) and the five `containers/slides-*` decks — run the
-claim audit there in their next rounds.
+excludes functions, scipy and debug from the course-wide build (and
+`recap/gallery`, the picture gallery, which `recap/Makefile` leaves out).
+Three decks still lack a backed-claim chapter: `containers/slides-lists`,
+`slides-tuples` and `slides-dicts` — run the claim audit there in their
+next rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
-bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
+bilaga B" and say what that appendix answers; the four week-44 decks
+that are no longer lectured --- *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
+tillämpningar av klasser* --- are "anteckningarna \emph{X}" instead,
+author 2026-10-10: "Yes, please say anteckningarna"): *Algoritmiskt
+tänkande*;
 *Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
 felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Behållare:
 Listor*, *Behållare: Tupler*; *Moduler och paket*; *Behållare:
 Uppslagslistor*; *Klasser och objekt*; *Behållare: Mängder, stackar och
 köer*, *Behållare: Ett gissningsspel*; *Operatoröverlagring*; *Praktiska
 tillämpningar av klasser*; *Arbeta med filer*; *Grafiska
-användargränssnitt*. The tutorial decks
+användargränssnitt*; *Repetition: kursens grunder* (`recap/slides`, the
+whole course with one running example, a bank). The tutorial decks
 (`modules/<module>/tutorial/`, one per week, one chapter, one exercise per
 section followed by a literate solution) are titled *Övning: Funktioner och
 variabler*; *Övning: Inmatning, felhantering och styrstrukturer*; *Övning:
@@ -49,7 +56,9 @@ och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
 Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
 *Behållare: Uppslagslistor*, *Klasser och objekt*, its Övning (moved
 from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
-dictionaries). Week 44: *Behållare: Mängder, stackar och köer*,
+dictionaries). Week 44: *Repetition: kursens grunder* (the whole
+lecture, before the week's other decks; in the book it is the last
+chapter, after week 46), *Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
 tillämpningar av klasser*, its Övning.
 Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
@@ -215,8 +224,49 @@ Backed so far (question → answer):
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
-- No backed-claim chapters yet: *Operatoröverlagring*, the five
-  *Behållare* decks (method chapter only) — run the claim audit there.
+- *Repetition: kursens grunder* B: retrieval practice → backed in
+  classrooms (g ≈ 0.5, more with feedback), mostly for what was asked,
+  untested in programming; C: spacing → moderate (d = 0.54), varies
+  between courses; D: prequestions (preview) → only for the concept
+  asked, ≈ 5 points in 30 real classes, fades in 1–2 weeks; E: response
+  systems → small, contested; the gain is retrieval plus the explanation
+  after the vote; F: flipped vs lecture → ≈ 0.2 SD after bias
+  correction, shrinks when the lecture is active (from the Delutvärdering
+  prgi26 report).  Not audited: är-en/har-en, queue as deque, "ett
+  särfall kan inte glömmas bort".
+- *Operatoröverlagring* B: properties ↔ uniform access → Meyer's
+  principle, the benefit is changeability, readability unmeasured;
+  C: overloading readability → unmeasured, designer consensus "for
+  number-like types, when the meaning is obvious"; D: canonical form →
+  equality and hashing easier, debugging unbacked (only the deck's own
+  run); the sign in the numerator is the convention of libraries and
+  language standards (no mathematical source read).
+- *Praktiska tillämpningar av klasser* B: classes give better structure
+  and maintainability → partly: early experiments and field studies yes,
+  the most cited comparison no general advantage, novices both ways,
+  "especially as the program grows" untested; C: the rule of thumb
+  dictionary → class → Fowler's data clumps, a practitioner heuristic,
+  not tested; D: reuse → yes with reservations, mostly when a class is
+  used as is, it does not come by itself; E: abstraction → established,
+  the benefit supported but thinly.
+- *Behållare: Mängder, stackar och köer* B: choose the container by the
+  operations the program needs, not by what the data is about → yes:
+  the textbook procedure (Shaffer) with roots in ADTs, and the choice
+  measurably matters (Java energy and performance studies, mostly read
+  in abstract), but swapping implementations of one abstraction gains
+  little in the median, the right choice is hard to predict, no study
+  concerns Python, and how novices choose is barely studied (one
+  interview study with six students).  To move to *Behållare:
+  Uppslagslistor* (`sec:valja-uppslag`), which makes the claim first,
+  when that deck is audited (nytid #511, prgi27).
+- *Behållare: Ett gissningsspel*: audited 2026-10-12, no chapter of its
+  own: its advice is reused (container choice → Mängder B; named
+  constants in one place → DRY, *Algoritmiskt tänkande* E, as in
+  *Upprepningar*; SRP → *Funktioner* B), the rest is Python's docs or
+  shown by running the program.
+- No backed-claim chapters yet: *Behållare: Listor*, *Behållare: Tupler*
+  and *Behållare: Uppslagslistor* (method chapter only) — run the claim
+  audit there.
 
 ## Build environment
 

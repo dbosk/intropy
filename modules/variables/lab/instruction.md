@@ -5,8 +5,9 @@ authors:
   - Celina Soori <celinah@kth.se>
 # Canvas (canvaslms assignments edit): the assignment is matched by its
 # Canvas id so the name can change freely; make push-labs pushes it.
-name: 'Laboration (1) funktioner, variabler och utskrifter (kamratgranskning)'
+name: 'Laboration (1) funktioner, variabler och utskrifter (kamratgranskning) (obligatorisk)'
 regex: '^395796$'
+due_at: '2026-09-18 19:00'
 ---
 Vi ska nu börja med att använda datorn som den räknemaskin den är. Vi ska 
 arbeta med [aritmetiska][aritmetiska] och [geometriska][geometriska] följder. 

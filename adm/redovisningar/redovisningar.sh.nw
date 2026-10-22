@@ -21,8 +21,8 @@
 The students present their labs (\enquote{redovisning}) online, to the TAs who
 have booked the presentation sessions in nytid.
 In Canvas the students book a time for this in an appointment group: the
-session is cut into 15-minute slots and each slot takes a fixed number of
-students.
+session is cut into slots, 15 minutes for a lab and 30 for the P-uppgift, and
+each slot takes a fixed number of students.
 For the session on 5 October, 13:00--15:00, we want
 \begin{minted}{bash}
 canvaslms calendar create -c prgi26 "Redovisning" \
@@ -40,17 +40,59 @@ Creating an appointment group is not idempotent---running the same command
 twice gives the students two groups to book in---so the script must never be
 the one that sends them to Canvas.
 
-We only create the slots one week in advance.
-Before that, TAs still book and unbook sessions, so the number of students per
-slot would be based on a staffing that has not yet stabilized.
+We publish the slots of a session at least a week before it, but not much
+earlier: further ahead, TAs still book and unbook sessions, so the number of
+students per slot would be based on a staffing that has not yet stabilized.
+
+\subsection{Running it weekly from cron}
+
+That makes the script a good fit for a weekly cron job, for instance on
+Monday mornings:
+\begin{minted}{text}
+0 8 * * 1 cd ~/devel/edu/intropy/adm/redovisningar && ./redovisningar.sh prgi26
+\end{minted}
+Cron mails me the output.
+It starts with what Canvas already holds for those days, see
+\cref{sec:canvas}, followed by the commands, and it ends with a command that
+reads Canvas back.
+I open the mail in Vim and check each command against the overview.
+If all are wanted, I select from the first command to the end and run it
+with [[:'<,'>w !bash]], which writes the selected lines to [[bash]] and
+leaves the mail as it is; the groups are created and then read back.
+Otherwise I delete the unwanted ones first.
+The script still only prints; running a command remains my decision.
+
+Each run covers the seven days that start a week after the day it runs, see
+\cref{sec:schedule}: the run on Monday 12 October covers 19--25 October.
+So every session is published 7 to 13 days before it takes place, and
+consecutive weekly runs cover consecutive weeks, with neither overlap nor
+gap.
+No session is printed twice, so running the commands of every mail never
+gives a session two appointment groups, and none is missed.
+The defaults are chosen for this use: the window is the week that starts a week from
+today, and
+each session's title, and with it the slot length, follows from its event in
+nytid.
+A week of P-uppgift presentations thus gets 30-minute slots without a change
+to the cron line, which needs no more than the course.
 
 \subsection{The script}
 
 The structure follows [[missing.sh]]: constants, functions and a [[main]]
 that runs only when the script is executed, not when it is sourced for
 debugging.
-The first argument is the course, for both nytid and canvaslms; the remaining
-arguments go to [[nytid schedule show]], see \cref{sec:schedule}.
+The script is run as
+\begin{minted}{text}
+redovisningar.sh [-d minutes] course [title] [nytid schedule show options]
+\end{minted}
+The course is used for both nytid and canvaslms.
+The title is the name of the appointment group in Canvas.
+By default each session gets its title from its event in nytid; a title given
+here replaces it for every session of the run.
+The title decides the slot length, which [[-d]] overrides, see
+\cref{sec:title}.
+The remaining arguments go to [[nytid schedule show]], see
+\cref{sec:schedule}.
 <<[[redovisningar.sh]]>>=
 #!/bin/bash
 
@@ -63,21 +105,39 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
 fi
 @
 
-A typical run is
+A typical run by hand is
 \begin{minted}{bash}
 ./redovisningar.sh prgi26 > redovisningar-v41.sh
 \end{minted}
 followed by editing the output and running it with [[bash]].
+To tell the students which lab they present, and to give the slots another
+length than the title gives, say 20 minutes, we run
+\begin{minted}{bash}
+./redovisningar.sh -d 20 prgi26 "Redovisning lab 3"
+\end{minted}
 
 
 \section{The presentation sessions}\label{sec:schedule}
 
 [[nytid schedule show]] shows the events from today until a week from today
 by default.
-That is exactly the window we want, so the script uses nytid's window rather
-than computing its own.
-Extra arguments, such as [[--start 2026-10-12 --end 2026-10-19]], are passed
-on to nytid to override it.
+That is not the window we want: we publish a week ahead, so the window starts
+[[LEAD_DAYS]] days from today and lasts [[WINDOW_DAYS]] days.
+nytid includes the events of both dates, so the end date is
+[[WINDOW_DAYS - 1]] days after the start.
+Had we used the start plus a week as the end, as nytid's own default does,
+the window would be eight days, and the weekly cron job would print the
+sessions of that eighth day twice: as the last day of one run and the first
+of the next.
+
+We put our [[--start]] and [[--end]] before the user's arguments: nytid, like
+any Click-based program, takes the last value of an option given twice, so
+the same options among the extra arguments override ours.
+Extra arguments, such as [[--start 2026-10-12 --end 2026-10-18]], are passed
+on to nytid that way.
+When moving the window, give both dates: with only [[--start]], our end date
+could fall before the start, and nytid then replaces it with the start plus a
+week, which is eight days again.
 
 We ask for [[--user ""]] to get all sessions and every TA booked on them, not
 only my own bookings.
@@ -89,12 +149,16 @@ configuration, and a changed default would shift the columns that we read
 below.
 <<constants>>=
 TIME_FORMAT="%Y-%m-%d %H:%M"
+LEAD_DAYS=7
+WINDOW_DAYS=7
 <<functions>>=
 sessions() {
   nytid schedule show "$course" --user "" \
     --format csv --delimiter $'\t' \
     --no-week --no-location --no-todo \
     --end-time --time-format "$TIME_FORMAT" \
+    --start "$(date -d "+$LEAD_DAYS days" +%F)" \
+    --end "$(date -d "+$((LEAD_DAYS + WINDOW_DAYS - 1)) days" +%F)" \
     "$@" \
   | tr -d '\r' \
   | awk -F'\t' -v pattern="$SESSION_PATTERN" \
@@ -107,13 +171,19 @@ otherwise the last field, and with it the last TA's username, would end in
 a carriage return.
 
 The rows then have the columns start, end, event and description.
-The course has both lab sessions and presentation sessions; the presentation
-sessions are the ones with \enquote{redovisning} in the event name, for
-example \enquote{Datorlaboration redovisning online}.
+The calendar holds more than the TA sign-up sheet: meetings and lectures,
+some of them about the presentations, such as \enquote{Möte inför
+redovisningarna}.
+Matching \enquote{redovisning} anywhere in the event name would turn such a
+meeting into an appointment group.
+The sessions of the sign-up sheet are instead the events whose name starts
+with \enquote{Datorlaboration}, so we keep only those; which of them are
+presentations, and of what, the rest of the name tells, see
+\cref{sec:title}.
 We match on the event column only, since the description could mention a
-presentation without being one.
+lab without being one.
 <<constants>>=
-SESSION_PATTERN="redovisning"
+SESSION_PATTERN="^datorlaboration"
 @
 
 
@@ -178,46 +248,248 @@ comment instead of a command for such a session; being a comment, it does no
 harm when the output is run.
 
 
+\section{The title and the slot length}\label{sec:title}
+
+We book several kinds of presentations: the labs and the stages of the
+P-uppgift.
+The title of the appointment group tells the students which one they book,
+for example \enquote{Redovisning} or \enquote{Redovisning P-uppgift}.
+
+The event names in nytid already say which kind a session is.
+After \enquote{Datorlaboration} comes the kind, and possibly
+\enquote{online}:
+\enquote{Datorlaboration redovisning online} is a lab presentation, and
+\enquote{Datorlaboration redovisning p-uppgift} would be a P-uppgift one.
+So we take the title from what follows \enquote{Datorlaboration}.
+We drop \enquote{online}: it says where the session is, which the location
+already tells the students, not what they present.
+A kind that does not start with \enquote{redovisning}, such as the empty one
+of \enquote{Datorlaboration}, \enquote{online} or \enquote{Excel}, is an
+ordinary lab session, not a presentation, and gives no title.
+We capitalize the first letter, since the kind starts a title in Canvas.
+<<functions>>=
+session_title() {
+  local event="$1" kind
+  kind=$(sed -E 's/^datorlaboration *//I; s/ *online$//I' <<< "$event")
+  if [[ ${kind,,} == redovisning* ]]; then
+    echo "${kind^}"
+  fi
+}
+@
+
+A filter, [[presentations]], drops the sessions without a title and passes
+the other rows through unchanged.
+They must go before [[main]] looks at the rows at all: a week of only
+ordinary lab sessions should give no output, so that cron sends no mail,
+see \cref{sec:canvas}.
+<<functions>>=
+presentations() {
+  local start end event description
+  while IFS=$'\t' read -r start end event description; do
+    if [ -n "$(session_title "$event")" ]; then
+      printf '%s\t%s\t%s\t%s\n' "$start" "$end" "$event" "$description"
+    fi
+  done
+}
+@
+
+A title given on the command line replaces the derived one for all
+presentation sessions of the run, for instance to name the lab, as in
+\enquote{Redovisning lab 3}.
+It does not make an ordinary lab session a presentation: the event still
+decides which sessions get an appointment group.
+
+The kind of presentation also decides how long a slot should be.
+A lab and the review stage of the P-uppgift (\enquote{granskning}) take
+15 minutes.
+The specification of the P-uppgift (\enquote{spec}) and presenting the
+P-uppgift itself, a whole program, take 30.
+We derive the slot length from the title, so that the event in nytid, or
+the title we give, is all it takes in the usual cases:
+\begin{center}
+\begin{tabular}{lr}
+  Title & Minutes \\
+  \hline
+  Redovisning & 15 \\
+  Redovisning lab 3 & 15 \\
+  Redovisning granskning & 15 \\
+  Redovisning spec & 30 \\
+  Redovisning P-uppgift & 30 \\
+  Redovisning p-uppgift del 2 & 30 \\
+  anything else & 15 \\
+\end{tabular}
+\end{center}
+The 15-minute rule gives the same as the default, but stating it records
+which titles we know about.
+A title outside both rules gets the default rather than an error, since the
+commands are reviewed before they are run.
+
+The regular expressions need care with anchoring.
+The one for the 15-minute titles is anchored at the end: otherwise its
+optional group would let it match every title that starts with
+\enquote{Redovisning}, the 30-minute ones included.
+The one for the 30-minute titles is anchored only at the start, so that a
+title with more after it, such as a part number, still gets 30 minutes.
+Its first letter may be either case in both alternatives, since a title
+taken from the event keeps the case the sign-up sheet uses.
+<<constants>>=
+LAB_TITLES='^Redovisning ?(lab.*|granskning)?$'
+LAB_SLOT_DURATION=15
+PROJECT_TITLES='^Redovisning ([Pp]-uppgift|[Ss]pec)'
+PROJECT_SLOT_DURATION=30
+DEFAULT_SLOT_DURATION=15
+@
+
+The expressions are kept in variables and used unquoted after [[=~]]: a
+quoted right-hand side would be matched as a literal string, and writing the
+expression inline would force us to escape its spaces.
+<<functions>>=
+slot_duration_for() {
+  local title="$1"
+  if [[ $title =~ $PROJECT_TITLES ]]; then
+    echo "$PROJECT_SLOT_DURATION"
+  elif [[ $title =~ $LAB_TITLES ]]; then
+    echo "$LAB_SLOT_DURATION"
+  else
+    echo "$DEFAULT_SLOT_DURATION"
+  fi
+}
+@
+
+
 \section{The canvaslms command}
 
-The title, the location and the slot length are the same for every session.
-The location is the queue system, where the students queue to the TA once
-their slot starts.
+The location is the same for every session.
+It is the queue system, where the students queue to the TA once their slot
+starts.
 <<constants>>=
-TITLE="Redovisning"
 LOCATION="https://queue.eecs.kth.se/queue/Prgi"
-SLOT_DURATION=15
 @
 
 We print the command in the same layout as in the introduction, one option
 group per line, so that it is easy to edit before running it.
 The TAs go in the description; that way the students see who is working the
 session.
+The course is the same for all sessions of a run, so [[print_command]]
+reads it as [[main]] set it; the title and the slot length can differ between
+sessions and are passed along with the rest.
 <<functions>>=
 print_command() {
-  local start="$1" end="$2" max="$3" tas="$4"
-  printf 'canvaslms calendar create -c %s "%s" \\\n' "$course" "$TITLE"
+  local start="$1" end="$2" title="$3" duration="$4" max="$5" tas="$6"
+  printf 'canvaslms calendar create -c %s "%s" \\\n' "$course" "$title"
   printf '    --start-time "%s" --end-time "%s" \\\n' "$start" "$end"
   printf '    --location "%s" \\\n' "$LOCATION"
   printf '    --event-type appointment_group \\\n'
   printf '    --time-slot-duration %s --max-appointments %s \\\n' \
-    "$SLOT_DURATION" "$max"
+    "$duration" "$max"
   printf '    --description "%s"\n' "$tas"
+}
+@
+
+
+\section{What is already in Canvas}\label{sec:canvas}
+
+Before I run a command, I want to see whether the session already has an
+appointment group, made by hand or by an earlier run with another window.
+Running the command anyway would give the students two groups to book in.
+So the output starts with what Canvas already holds over the days of the
+sessions, followed by the commands.
+The overview lines are comments, like the skipped sessions, so they do no
+harm if the whole output is run.
+
+[[canvaslms calendar list]] prints one row per slot, with the columns title,
+start, end and booked/capacity:
+\begin{minted}{text}
+Redovisning  2026-10-05 13:15  2026-10-05 13:30  4/4
+Redovisning  2026-10-05 13:30  2026-10-05 13:45  4/4
+\end{minted}
+A two-hour session is eight such rows, so we fold the slots of one
+appointment group into one line:
+\begin{minted}{text}
+#   Redovisning  2026-10-05 13:15-15:00  7 slots  28/28 booked
+\end{minted}
+Canvas does not tell us which group a slot belongs to, so we take a run of
+slots with the same title and capacity, each starting where the previous one
+ended, to be one group.
+Two groups of the same title and capacity that follow each other without a
+pause are thus shown as one line; that does not hide whether the time is
+covered, which is what the overview is for.
+Two groups over the same time, on the other hand, interleave their slots and
+break the runs, so they show up as a stretch of one-slot lines, which is hard
+to miss.
+We ask for [[--type event]] so that assignment deadlines stay out.
+<<functions>>=
+canvas_overview() {
+  local from="$1" to="$2"
+  echo "# Already in Canvas, $from to $to:"
+  canvaslms calendar list -c "$course" --type event \
+    --start-time "$from" --end-time "$to 23:59" \
+  | awk -F'\t' '
+      function flush() {
+        if (n)
+          printf "#   %s  %s-%s  %d slots  %d/%d booked\n",
+            title, first, substr(last, 12), n, booked, capacity
+      }
+      {
+        split($4, count, "/")
+        if (n && $1 == title && $2 == last && count[2] == size) {
+          last = $3; n++
+        } else {
+          flush()
+          title = $1; first = $2; last = $3; size = count[2]; n = 1
+          booked = capacity = 0
+        }
+        booked += count[1]; capacity += count[2]
+      }
+      END { if (n) flush(); else print "#   nothing" }'
+}
+@
+
+After the create commands, the output ends with the same listing as a
+command, not a comment.
+When I run the create commands together with it, Canvas is read back right
+after them, and I see the new groups, slot by slot, next to the old ones.
+It is printed raw rather than folded: the folding lives in this script, and
+the command in the mail should run anywhere, without it.
+The query is the same as in [[canvas_overview]], so the read-back covers
+exactly the days of the overview.
+<<functions>>=
+print_list_command() {
+  local from="$1" to="$2"
+  printf 'canvaslms calendar list -c %s --type event \\\n' "$course"
+  printf '    --start-time "%s" --end-time "%s 23:59"\n' "$from" "$to"
 }
 @
 
 
 \section{The main function}
 
-[[main]] reads the course, fetches the sessions and prints one command per
-session, with a blank line between them.
+[[main]] reads the arguments, fetches the sessions, shows what Canvas already
+holds over their days, prints one command per presentation session, with a
+blank line between them, and ends with the command that reads Canvas back.
+nytid returns the sessions in time order, so the first row's start and the
+last row's end give the days for the Canvas overview and the read-back.
+With no presentation sessions, nothing is printed at all, and cron sends no
+mail.
+For each session, [[main]] first settles the title and the slot length, from
+the event unless the command line overrides them, see \cref{sec:title}.
 <<functions>>=
 main() {
-  course="$1"
-  shift
-  local start end event description tas n max
-  sessions "$@" \
+  <<read the arguments>>
+  local rows from to start end event description kind title duration tas n max
+  rows=$(sessions "$@" | presentations)
+  [ -n "$rows" ] || return 0
+  from=$(head -n 1 <<< "$rows" | cut -f1 | cut -d' ' -f1)
+  to=$(tail -n 1 <<< "$rows" | cut -f2 | cut -d' ' -f1)
+  canvas_overview "$from" "$to"
+  echo
+  echo "# To create:"
+  echo
+  echo "$rows" \
   | while IFS=$'\t' read -r start end event description; do
+      kind=$(session_title "$event")
+      title="${title_override:-$kind}"
+      duration="${duration_override:-$(slot_duration_for "$title")}"
       tas=$(booked_tas "$description" | tr '\n' ' ')
       tas="${tas% }"
       n=$(wc -w <<< "$tas")
@@ -225,10 +497,70 @@ main() {
       if [ "$max" -lt 1 ]; then
         echo "# $start to $end $event: no TA but $TEACHER, skipping"
       else
-        print_command "$start" "$end" "$max" "$tas"
+        print_command "$start" "$end" "$title" "$duration" "$max" "$tas"
       fi
       echo
     done
+  echo "# Read back what is in Canvas:"
+  echo
+  print_list_command "$from" "$to"
+}
+@
+
+\subsection{Reading the arguments}\label{sec:arguments}
+
+[[-d]] must come before the course.
+Everything after the title goes to nytid unchanged, so an option there is
+nytid's; [[getopts]] stops at the first argument that is not an option
+anyway.
+[[OPTIND]] is local so that [[main]] can be called more than once when the
+script is sourced for debugging.
+We accept only a positive whole number of minutes, since a slot of zero
+minutes, or of a fraction of one, means nothing to canvaslms.
+<<read the arguments>>=
+local opt OPTIND duration_override=""
+while getopts d: opt; do
+  case "$opt" in
+    d) duration_override="$OPTARG" ;;
+    *) usage; return 1 ;;
+  esac
+done
+shift $((OPTIND - 1))
+if [[ -n $duration_override && ! $duration_override =~ ^[1-9][0-9]*$ ]]
+then
+  usage
+  return 1
+fi
+@
+
+The course is required.
+The title is optional, yet it comes before the options to nytid.
+We tell the two apart by the leading dash: everything we give nytid is an
+option, such as [[--start]], and no title starts with a dash.
+That keeps the cron line short, and a run by hand can still move the window
+without naming the title.
+<<read the arguments>>=
+if [ $# -lt 1 ]; then
+  usage
+  return 1
+fi
+course="$1"
+shift
+local title_override=""
+if [[ -n $1 && $1 != -* ]]; then
+  title_override="$1"
+  shift
+fi
+@
+
+The usage message goes to standard error, so that it never ends up among the
+commands when the output is redirected to a file or mailed by cron.
+[[main]] returns after it rather than exits, which keeps a shell that sourced
+the script alive.
+<<functions>>=
+usage() {
+  echo "usage: ${0##*/} [-d minutes] course [title]" \
+    "[nytid schedule show options]" >&2
 }
 @
 
