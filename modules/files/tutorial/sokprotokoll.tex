@@ -1,12 +1,14 @@
-% The only appendix of this deck: the method chapter, written for the
-% students.  This round made no new literature searches, so there is no
+% The only appendix of this deck: the summary of the claims, with one
+% paragraph pointing to the method in Algoritmiskt tänkande, bilaga A
+% (the author's decision, 2026-09-28, to write the generic method out
+% only there).  This round made no new literature searches, so there is no
 % backed-claim chapter -- and therefore no \chapterprecis, which belongs
 % to backed-claim chapters only.  The claims that still need a search are
 % listed in "Fortsatt arbete" and carry a % TODO(claim-audit) comment
 % beside them in contents.nw.
 
 \chapter{Att kontrollera ett påstående}
-\label{app:verifiera}
+\label{app:verifiera-ovning-filer}
 
 Den här övningen gör, som allt undervisningsmaterial, en rad påståenden.
 De flesta går att pröva vid datorn: att filen ligger kvar när
@@ -26,21 +28,22 @@ körning avgöra:
   \item att nybörjare tar det som läses ur en fil för tal fastän det är
     strängar (\cref{sec:rakna});
   \item att DRY och SRP är etablerade principer med de upphov materialet
-    anger (\cref{sec:filnamnet});
+    anger (\cref{sec:filnamnet}), och att KISS är ett etablerat
+    designvärde (\cref{sec:rovarspraket});
   \item att en JPEG-fil alltid inleds med byten \texttt{FF D8 FF}
     (\cref{sec:bild}), och att rövarspråket kommer ur Astrid Lindgrens
     \emph{Mästerdetektiven Blomkvist} (\cref{sec:rovarspraket});
-  \item att det säkraste sättet att pröva ett filformat är att skriva
-    och läsa tillbaka (\cref{sec:rakna}).
+  \item att det enklaste sättet att pröva ett filformat är att skriva
+    och läsa tillbaka (\cref{sec:rakna});
+  \item att \mintinline{python}{os.replace} byter in en fil i ett enda
+    steg när bytet lyckas, och kan misslyckas mellan olika filsystem
+    (\cref{sec:losning-rovare}).
 \end{enumerate}
 Hur vet man om sådant stämmer?  Samma fråga möter dig varje gång du
 läser en lärobok, en webbsida eller ett svar från en språkmodell --- och
-varje gång du själv ska skriva en rapport.  Den här bilagan sammanfattar
-arbetsgången; \cref{tab:paastaaenden-ovning-files} visar var svaren
-redan står, och \cref{sec:ovning-files-fortsatt} vad som återstår.
-Arbetsgången beskrivs utförligare i bilagan med samma namn i föreläsningen
-\emph{Algoritmiskt tänkande}, och de kontroller den här övningen lutar
-sig mot är gjorda i tidigare bilagor.
+varje gång du själv ska skriva en rapport.
+\Cref{tab:paastaaenden-ovning-files} visar var svaren redan står, och
+\cref{sec:ovning-files-fortsatt} vad som återstår.
 
 \begin{table}[!htb]
   \centering
@@ -66,90 +69,44 @@ sig mot är gjorda i tidigare bilagor.
     Kommer \foreignlanguage{english}{single responsibility} från Robert
       C.\ Martin, och är principen etablerad? & \emph{Funktioner},
       bilaga B \\
+    Är enkelhet, KISS, ett etablerat designvärde, och var kommer
+      uttrycket ifrån? & \emph{Funktioner}, bilaga C \\
     Inleds en JPEG-fil alltid med \texttt{FF D8 FF}? &
       \Cref{sec:ovning-files-fortsatt} \\
     Kommer rövarspråket ur \emph{Mästerdetektiven Blomkvist}? &
       \Cref{sec:ovning-files-fortsatt} \\
-    Är att skriva och läsa tillbaka det säkraste sättet att pröva ett
+    Är att skriva och läsa tillbaka det enklaste sättet att pröva ett
       filformat? & \Cref{sec:ovning-files-fortsatt} \\
+    Byter \mintinline{python}{os.replace} in filen i ett enda steg? &
+      Pythons dokumentation, citerad i \cref{sec:losning-rovare} \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\section{Gör påståendet till en fråga}
+Arbetsgången är densamma i alla kursens föreläsningar och övningar och
+beskrivs i föreläsningen \emph{Algoritmiskt tänkande}, bilaga~A: hur ett
+påstående görs till en fråga som kan besvaras, hur källan väljs efter
+frågan och söks fram ämnesdrivet och tvåsidigt, med en motsökning efter
+invändningar, hur fulltexten läses och spåret skrivs ner, och hur
+slutsatsen dras med sina förbehåll.  Ingen av källorna i den här
+övningen söktes upp här.  Dokumentationen för
+\mintinline{python}{os.replace} slogs upp direkt, som ett känt dokument,
+och de övriga är återanvända ur tidigare bilagor; varje post i
+litteraturlistans källfil, \texttt{ltnotes.bib}, säger hur den
+kontrollerats och, för de återanvända, vilken bilaga som besvarar
+frågan.
 
-Ett påstående går att kontrollera först när det är tydligt vad som
-skulle kunna visa att det är \emph{fel}.  Formulera det därför som en
-fråga med ett svar.  \enquote{Sätter modulen
-\mintinline{python}{csv} citattecken runt ett fält som innehåller
-avgränsaren?} kan besvaras med ja eller nej; \enquote{filhantering är
-viktigt} kan det inte, eftersom \enquote{viktigt} är ett omdöme och inte
-ett faktum.  Ofta döljer sig flera påståenden i ett: \enquote{det är
-bättre att lösa uppgiften själv först} är två frågor --- \emph{är} det
-bättre, och \emph{vad} i det är det som hjälper --- och de har olika
-svar.
-
-\section{Välj rätt sorts källa}
-
-Olika frågor besvaras av olika källor.
-\begin{description}
-  \item[Dokumentationen] för vad ett verktyg \emph{gör}.  Vad
-    \mintinline{python}{csv.writer} gör med ett fält som innehåller ett
-    kommatecken avgörs av Pythons egen dokumentation, inte av en
-    lärobok som återger den.
-  \item[Standarden] för vad ett format \emph{är}.  För CSV och JSON är
-    det de dokument (RFC:er) som beskriver formaten; för en JPEG-fils
-    inledande byte är det formatspecifikationen.
-  \item[Primärkällan] för var en idé \emph{kommer ifrån}, och för ett
-    specifikt resultat.  Att rövarspråket kommer ur en bestämd bok
-    avgörs av boken.
-  \item[Översikter] (\foreignlanguage{english}{reviews}) för om något är
-    \emph{etablerat}, eller för vad forskningen \emph{sammantaget}
-    säger.  Frågan om det hjälper att lösa problemet först är en sådan
-    fråga, och svaret i \emph{Övning: Funktioner och variabler},
-    bilaga B, vilar på en
-    översikt av flera experiment.
-\end{description}
-Var man hittar dem: dokumentationen på \url{docs.python.org}, RFC:erna
-hos \url{rfc-editor.org}, och för forskningen universitetsbibliotekets
-söktjänst och databaser som Scopus, Web of Science, IEEE Xplore, DBLP
-(datalogi) och OpenAlex (öppen).
-
-\section{Sök så att du kan ha fel}
-
-Den som söker på namn hon redan känner till hittar det hon väntar sig.
-Sök därför \emph{ämnesdrivet} --- på begrepp, inte författare --- och sök
-också efter \emph{invändningar}.  Hur mycket det kan betyda syns i den
-här övningens inledning: den första källan säger att det hjälper att
-lösa problemet före genomgången, och motsökningen gav den andra, som
+Hur mycket motsökningen kan betyda syns i den här övningens inledning.
+Svaret i \emph{Övning: Funktioner och variabler}, bilaga~B, vilar på en
+översikt av flera experiment: den första källan säger att det hjälper
+att lösa problemet före genomgången, och motsökningen gav den andra, som
 visar att det inte är dröjsmålet som hjälper utan jämförelsen.  Utan
 motsökningen hade materialet uppmanat dig att vänta med
-lösningsförslaget, i stället för att jämföra ditt försök med det.
-
-\section{Läs i fulltext, och skriv ner hur}
-
-En träff är inte ett belägg.  Läs källan, citera med sidnummer, och skriv
-ner hur du hittade den, varför du valde just den, vad den säger
-ordagrant, och vad motsökningen gav.  I det här materialet står det i
-filen \texttt{ltnotes.bib}, ett stycke per källa, och den som vill
-kontrollera ett påstående kan följa spåret därifrån.  Ingen av källorna i
-den här övningen söktes upp här: alla är återanvända ur tidigare
-bilagor, och varje post säger vilken bilaga som besvarar frågan.
-
-\section{Dra slutsatsen --- med förbehåll}
-
-Skriv påståendet så starkt som källorna bär, och inte starkare.  Därför
+lösningsförslaget, i stället för att jämföra ditt försök med det.  Och
+påståendet står så starkt som källorna bär, och inte starkare: därför
 står det i inledningen att det hjälper \emph{måttligt} att lösa
 problemet först, och att det är jämförelsen som verkar --- inte att
 metoden alltid är bäst.
-
-\section{En anmärkning om språkmodeller}
-
-En språkmodell kan hjälpa dig att formulera frågan och att hitta
-sökord, men den är ingen källa.  Den kan ange en bok, ett sidnummer och
-ett citat som inte finns, och den gör det med samma säkra ton som när
-den har rätt.  Kontrollera alltid i originalet --- och skriv ner att du
-gjort det.
 
 \section{Fortsatt arbete}
 \label{sec:ovning-files-fortsatt}
@@ -172,9 +129,9 @@ barnkammarkod kan ha funnits före den bok som gjorde den känd; en
 sekundärkälla som säger \enquote{Astrid Lindgren populariserade} svarar
 alltså på en annan fråga än \enquote{Astrid Lindgren uppfann}.
 
-Det tredje är svagare men hör hit: att det säkraste sättet att pröva ett
+Det tredje är svagare men hör hit: att det enklaste sättet att pröva ett
 filformat är att skriva och läsa tillbaka (\cref{sec:rakna}).  Det är
 ärvt från föreläsningen \emph{Arbeta med filer}, där det också står utan
-källa, och det bör kontrolleras där --- frågan är vad \enquote{säkraste}
-betyder, och om en jämförelse med det skrivna verkligen fångar de fel
+källa, och det bör kontrolleras där --- frågan är vad \enquote{enklaste}
+jämförs med, och om en jämförelse med det skrivna verkligen fångar de fel
 ett format kan ha.
