@@ -17,21 +17,28 @@ Each module has one or more deck directories (`slides*/`) building
 `computational-thinking/slides` (tracking issue #269); `helloworld/slides`
 is the build template the skill's `assets/deck-template/` was copied from
 (re-sync the template when its wiring changes). `modules/Makefile`
-excludes functions, recap, scipy and debug from the course-wide build.
+excludes functions, scipy and debug from the course-wide build (and
+`recap/gallery`, the picture gallery, which `recap/Makefile` leaves out).
 Three decks still lack a backed-claim chapter: `containers/slides-lists`,
 `slides-tuples` and `slides-dicts` — run the claim audit there in their
 next rounds.
 
 Canonical deck titles, used when one deck points at another in prose
 (`\cref` cannot cross documents; write "föreläsningen \emph{Funktioner},
-bilaga B" and say what that appendix answers): *Algoritmiskt tänkande*;
+bilaga B" and say what that appendix answers; the four week-44 decks
+that are no longer lectured --- *Behållare: Mängder, stackar och köer*,
+*Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
+tillämpningar av klasser* --- are "anteckningarna \emph{X}" instead,
+author 2026-10-10: "Yes, please say anteckningarna"): *Algoritmiskt
+tänkande*;
 *Hello, World!*; *Variabler och utskrifter*; *Funktioner*; *Inmatning och
 felhantering*; *Villkor och styrstrukturer*; *Upprepningar*; *Behållare:
 Listor*, *Behållare: Tupler*; *Moduler och paket*; *Behållare:
 Uppslagslistor*; *Klasser och objekt*; *Behållare: Mängder, stackar och
 köer*, *Behållare: Ett gissningsspel*; *Operatoröverlagring*; *Praktiska
 tillämpningar av klasser*; *Arbeta med filer*; *Grafiska
-användargränssnitt*. The tutorial decks
+användargränssnitt*; *Repetition: kursens grunder* (`recap/slides`, the
+whole course with one running example, a bank). The tutorial decks
 (`modules/<module>/tutorial/`, one per week, one chapter, one exercise per
 section followed by a literate solution) are titled *Övning: Funktioner och
 variabler*; *Övning: Inmatning, felhantering och styrstrukturer*; *Övning:
@@ -49,7 +56,9 @@ och styrstrukturer*, its Övning. Week 40: *Upprepningar*, *Behållare:
 Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
 *Behållare: Uppslagslistor*, *Klasser och objekt*, its Övning (moved
 from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
-dictionaries). Week 44: *Behållare: Mängder, stackar och köer*,
+dictionaries). Week 44: *Repetition: kursens grunder* (the whole
+lecture, before the week's other decks; in the book it is the last
+chapter, after week 46), *Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
 tillämpningar av klasser*, its Övning.
 Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
@@ -215,6 +224,16 @@ Backed so far (question → answer):
 - *Variabler och utskrifter* B: PEP 8 helps the reader → partly and
   weaker than assumed: names, short lines, indentation supported; the
   guide as a whole and several rules (four spaces) not.
+- *Repetition: kursens grunder* B: retrieval practice → backed in
+  classrooms (g ≈ 0.5, more with feedback), mostly for what was asked,
+  untested in programming; C: spacing → moderate (d = 0.54), varies
+  between courses; D: prequestions (preview) → only for the concept
+  asked, ≈ 5 points in 30 real classes, fades in 1–2 weeks; E: response
+  systems → small, contested; the gain is retrieval plus the explanation
+  after the vote; F: flipped vs lecture → ≈ 0.2 SD after bias
+  correction, shrinks when the lecture is active (from the Delutvärdering
+  prgi26 report).  Not audited: är-en/har-en, queue as deque, "ett
+  särfall kan inte glömmas bort".
 - *Operatoröverlagring* B: properties ↔ uniform access → Meyer's
   principle, the benefit is changeability, readability unmeasured;
   C: overloading readability → unmeasured, designer consensus "for
