@@ -85,6 +85,9 @@ examples: ${EXAMPLES}
 # as the tangle rule does, and compares it with the committed copy, so a
 # copy left stale by a change to contents.nw is caught.
 COMMITTED+=	examples/filer.py
+COMMITTED+=	examples/skrivning.py
+COMMITTED+=	examples/wc.py
+COMMITTED+=	examples/rövare.py
 
 .PHONY: check-committed
 check-committed:
