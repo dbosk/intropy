@@ -53,11 +53,12 @@ programmet måste hantera.
    urval av problemen; uppgifterna och lösningarna till alla finns i det
    interaktiva dokumentet (FeedbackFruits) så att du kan fortsätta på egen
    hand.
-3. **Arbeta med** *Laboration (6) filhantering* i par. Det här är den sista
-   obligatoriska laborationen före datorprovet. På labbpassen finns lärare
-   och assistenter för att hjälpa er när ni fastnar; det mesta av arbetet gör
-   ni på egen tid.
-4. **Vill du fördjupa dig?** Gör *Fördjupande övning filer och filhantering*.
+3. **Arbeta med** *Laboration (6) filhantering (obligatorisk)* i par. Det
+   här är den sista obligatoriska laborationen före datorprovet. På
+   labbpassen finns lärare och assistenter för att hjälpa er när ni
+   fastnar; det mesta av arbetet gör ni på egen tid.
+4. **Vill du fördjupa dig?** Gör övningens fördjupningsuppgifter, Uppgift
+   6, 7 och 8.
 
 [zoom-room]: https://kth-se.zoom.us/j/61952197407
 

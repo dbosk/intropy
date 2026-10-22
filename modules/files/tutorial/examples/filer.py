@@ -46,20 +46,40 @@ def skriv_fil(filnamn, text):
         fil.write(text)
 
 
-def tests():
-    """Provkör filmodulens funktioner"""
+def test_fil_finns():
+    """Frågar om en fil som finns och en som inte gör det"""
     print("madicken.txt finns:", fil_finns("madicken.txt"))
     print("finns-inte.txt finns:", fil_finns("finns-inte.txt"))
+
+
+def test_fragorna():
+    """Frågar efter en fil att läsa och en att skriva till"""
     infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
     utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
     print(f"Läser {infilnamn} och skriver {utfilnamn}.")
+
+
+def test_alternativ():
+    """Låter användaren välja mellan ord och bokstäver"""
     vad = läs_alternativ(
         "Vill du räkna ord eller bokstäver?",
         ["ord", "bokstäver"],
     )
     print(f"Valet blev {vad}.")
+
+
+def test_fil():
+    """Skriver en fil med två rader och läser tillbaka den"""
     skriv_fil("filprov.txt", "Ronja\nPippi\n")
     print(läs_fil("filprov.txt"), end="")
+
+
+def tests():
+    """Provkör filmodulens funktioner"""
+    test_fil_finns()
+    test_fragorna()
+    test_alternativ()
+    test_fil()
 
 
 if __name__ == "__main__":

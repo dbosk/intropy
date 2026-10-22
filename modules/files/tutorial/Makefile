@@ -26,15 +26,6 @@ SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/skrivning.py
 EXAMPLES+=	examples/filer.py
-# filer.py's test program grows one test case at a time, and the deck
-# shows each case's output beside it.  Each of these programs runs one
-# case; they reference the test chunks in contents.nw from
-# testkorningar.nw, which is never woven.
-TESTRUNS+=	examples/filer_test_finns.py
-TESTRUNS+=	examples/filer_test_fragorna.py
-TESTRUNS+=	examples/filer_test_alternativ.py
-TESTRUNS+=	examples/filer_test_fil.py
-EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/bildkoll.py
 EXAMPLES+=	examples/wc.py
 EXAMPLES+=	examples/wcprov.py
@@ -68,8 +59,6 @@ examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
 
-${TESTRUNS}: testkorningar.nw
-
 # The three fortune databases are part of the solutions, so they are
 # tangled from the same source as the programs that read them.
 examples/fortunes.txt: contents.nw
@@ -96,6 +85,9 @@ examples: ${EXAMPLES}
 # as the tangle rule does, and compares it with the committed copy, so a
 # copy left stale by a change to contents.nw is caught.
 COMMITTED+=	examples/filer.py
+COMMITTED+=	examples/skrivning.py
+COMMITTED+=	examples/wc.py
+COMMITTED+=	examples/rövare.py
 
 .PHONY: check-committed
 check-committed:
