@@ -186,19 +186,6 @@ Vi skriver modulen som vanligt uppifrån och ner: överst en
 \foreignlanguage{english}{docstring} som säger vad modulen är till för,
 sedan funktionerna och till sist testprogrammet.
 
-\begin{frame}[fragile]
-  \begin{solution}[Upplägget]
-    Filmodulens upplägg:
-<<[[filer.py]]>>=
-"""Funktioner som svarar på programmens frågor om filer"""
-
-<<filmodulens funktioner>>
-
-<<filmodulens testprogram>>
-@
-  \end{solution}
-\end{frame}
-
 \leavevmode\ltnote{%
   Bara modulen har sina tester i [[tests]].  De senare lösningarna
   (\texttt{wc.py}, \texttt{rövare.py}, \texttt{fortune.py}) är program
@@ -209,17 +196,26 @@ En modul har inget huvudprogram, men den ska gå att pröva.  Därför får
 den ett testprogram, [[tests]], som telefonboksmodulen i föreläsningen
 \emph{Behållare: Uppslagslistor}: det provar funktionerna när filen körs
 som program, och när filen importeras är villkoret falskt och den som
-importerar får bara funktionerna.  Vi skriver inte testprogrammet sist,
-utan samlar testfallen under ett namn och lägger till ett testfall så
-snart det finns något nytt att pröva.
+importerar får bara funktionerna.  Varje testfall är en egen funktion,
+med ett namn som säger vad den provar, och [[tests]] anropar dem en i
+taget.  En testfunktion beror inte på vad en annan har gjort, så den
+går att köra för sig.  Vi skriver inte testprogrammet sist, utan lägger
+till en testfunktion och ett anrop av den så snart det finns något nytt
+att pröva.
 
 \begin{frame}[fragile]
-  \begin{solution}[Testprogrammet]
-    Testfallen samlas under ett namn:
-<<filmodulens testprogram>>=
+  \begin{solution}[Upplägget]
+    Filmodulens upplägg:
+<<[[filer.py]]>>=
+"""Funktioner som svarar på programmens frågor om filer"""
+
+<<filmodulens funktioner>>
+
+<<testfunktioner för [[filer.py]]>>
+
 def tests():
     """Provkör filmodulens funktioner"""
-    <<filmodulens testfall>>
+    <<kör tester för [[filer.py]]>>
 
 if __name__ == "__main__":
     tests()
@@ -295,24 +291,26 @@ använda \mintinline{python}{with} också här är billigt och håller
 löftet från föreläsningen \emph{Arbeta med filer}: den som öppnar en fil
 stänger den.
 
-Nu finns det något att pröva.  Det första testfallet frågar efter en fil
-som finns och en som inte gör det.
+Nu finns det något att pröva.  Den första testfunktionen frågar efter
+en fil som finns och en som inte gör det.
 
-% Each test case's output below is a run of a small program tangled from
-% testkorningar.nw: it imports the functions and runs this one case, so
-% the output is exactly what tests() prints for these lines.
+% Each test's output below is a run of just that test function, straight
+% from the command line, so the output is exactly what the function
+% prints when tests() calls it.
 \begin{frame}[fragile]
   \begin{solution}[Två filer]
     En fil som finns och en som inte gör det:
-<<filmodulens testfall>>=
-<<pröva om två filer finns>>
-<<pröva om två filer finns>>=
-print("madicken.txt finns:", fil_finns("madicken.txt"))
-print("finns-inte.txt finns:", fil_finns("finns-inte.txt"))
+<<testfunktioner för [[filer.py]]>>=
+def test_fil_finns():
+    """Frågar om en fil som finns och en som inte gör det"""
+    print("madicken.txt finns:", fil_finns("madicken.txt"))
+    print("finns-inte.txt finns:", fil_finns("finns-inte.txt"))
+<<kör tester för [[filer.py]]>>=
+test_fil_finns()
 @
-    Testfallet skriver ut
-    \runpython[chdir, deps={examples/filer.py}]%
-      {examples/filer_test_finns.py}
+    Testfunktionen skriver ut
+    \runshell[cwd=examples, deps={examples/filer.py}]%
+      {python3 -c 'from filer import test_fil_finns; test_fil_finns()'}
   \end{solution}
 \end{frame}
 
@@ -323,19 +321,20 @@ sedan ett som finns fast det inte fick.
 \begin{frame}[fragile]
   \begin{solution}[De två frågorna]
     En fil att läsa och en att skriva till:
-<<filmodulens testfall>>=
-<<fråga efter en fil att läsa och en att skriva till>>
-<<fråga efter en fil att läsa och en att skriva till>>=
-infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
-utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
-print(f"Läser {infilnamn} och skriver {utfilnamn}.")
+<<testfunktioner för [[filer.py]]>>=
+def test_fragorna():
+    """Frågar efter en fil att läsa och en att skriva till"""
+    infilnamn = läs_infilnamn("Vilken fil ska vi läsa? ")
+    utfilnamn = läs_utfilnamn("Vilken fil ska vi skriva till? ")
+    print(f"Läser {infilnamn} och skriver {utfilnamn}.")
+<<kör tester för [[filer.py]]>>=
+test_fragorna()
 @
-    Med de svaren ser testfallet ut så här:
-    \runpython[transcript, showcommand=false, chdir,
-      deps={examples/filer.py},
+    Med de svaren ser testfunktionens körning ut så här:
+    \runshell[cwd=examples, tty, deps={examples/filer.py},
       stdin={finns-inte.txt}, stdin={madicken.txt},
-      stdin={madicken.txt},
-      stdin={resultat.csv}]{examples/filer_test_fragorna.py}
+      stdin={madicken.txt}, stdin={resultat.csv}]%
+      {python3 -c 'from filer import test_fragorna; test_fragorna()'}
   \end{solution}
 \end{frame}
 
@@ -364,25 +363,27 @@ Valrossen står här inom parentes, eftersom det är svaret och inte
 prövningen [[valet not in alternativ]] som ska få namnet [[valet]].
 Frågan skrivs ut i två delar: själva frågan på en rad, och uppmaningen
 med alternativen på nästa, eftersom listan med alternativ gör raden
-lång.  Testfallet svarar först med något som inte står bland
+lång.  I testet svarar användaren först med något som inte står bland
 alternativen.
 
 \begin{frame}[fragile]
   \begin{solution}[Ord eller bokstäver]
     Två alternativ, och ett svar som inte är något av dem:
-<<filmodulens testfall>>=
-<<låt användaren välja ord eller bokstäver>>
-<<låt användaren välja ord eller bokstäver>>=
-vad = läs_alternativ(
-    "Vill du räkna ord eller bokstäver?",
-    ["ord", "bokstäver"],
-)
-print(f"Valet blev {vad}.")
+<<testfunktioner för [[filer.py]]>>=
+def test_alternativ():
+    """Låter användaren välja mellan ord och bokstäver"""
+    vad = läs_alternativ(
+        "Vill du räkna ord eller bokstäver?",
+        ["ord", "bokstäver"],
+    )
+    print(f"Valet blev {vad}.")
+<<kör tester för [[filer.py]]>>=
+test_alternativ()
 @
     Med svaren \mintinline{text}|meningar| och \mintinline{text}|ord|:
-    \runpython[transcript, showcommand=false, chdir,
-      deps={examples/filer.py},
-      stdin={meningar}, stdin={ord}]{examples/filer_test_alternativ.py}
+    \runshell[cwd=examples, tty, deps={examples/filer.py},
+      stdin={meningar}, stdin={ord}]%
+      {python3 -c 'from filer import test_alternativ; test_alternativ()'}
   \end{solution}
 \end{frame}
 
@@ -413,21 +414,23 @@ def skriv_fil(filnamn, text):
 Lägg märke till att \texttt{läs\_fil} returnerar \emph{inifrån}
 \mintinline{python}{with}-blocket.  Filen stängs ändå: blocket lämnas
 när funktionen returnerar, och \mintinline{python}{with} stänger filen
-när blocket lämnas --- oavsett hur det lämnas.  Det sista testfallet
+när blocket lämnas --- oavsett hur det lämnas.  Den sista testfunktionen
 skriver en fil med två rader och läser tillbaka den.
 
 \begin{frame}[fragile]
   \begin{solution}[Fram och tillbaka]
     Det som skrivs ska komma tillbaka:
-<<filmodulens testfall>>=
-<<skriv en fil och läs tillbaka den>>
-<<skriv en fil och läs tillbaka den>>=
-skriv_fil("filprov.txt", "Ronja\nPippi\n")
-print(läs_fil("filprov.txt"), end="")
+<<testfunktioner för [[filer.py]]>>=
+def test_fil():
+    """Skriver en fil med två rader och läser tillbaka den"""
+    skriv_fil("filprov.txt", "Ronja\nPippi\n")
+    print(läs_fil("filprov.txt"), end="")
+<<kör tester för [[filer.py]]>>=
+test_fil()
 @
-    Testfallet skriver ut
-    \runpython[chdir, deps={examples/filer.py}]%
-      {examples/filer_test_fil.py}
+    Testfunktionen skriver ut
+    \runshell[cwd=examples, deps={examples/filer.py}]%
+      {python3 -c 'from filer import test_fil; test_fil()'}
   \end{solution}
 \end{frame}
 
