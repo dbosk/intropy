@@ -27,10 +27,12 @@ SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 
 EXAMPLES+=	examples/fraction.py
-# Each of fraction.py's test cases is shown beside its output: a small
-# program that imports the class and runs just that test case (the earlier
-# ones silently).  The programs are tangled from testkorningar.nw, which is
-# never woven, together with contents.nw, where the test cases are.
+# Each of fraction.py's test functions is shown beside its output: a
+# small program that imports the class and the test function, changes the
+# class to what the text has at that point (no simplification yet, no
+# reflected method yet, the first __int__ attempt) and calls just that
+# test function.  The programs are tangled from testkorningar.nw, which
+# is never woven, together with contents.nw, where the tests are.
 TESTRUNS+=	examples/fraction_test_konvertering.py
 TESTRUNS+=	examples/fraction_test_heltal_forsok.py
 TESTRUNS+=	examples/fraction_test_heltal.py
