@@ -197,7 +197,22 @@ Backed so far (question → answer):
 - *Arbeta med filer* B: misconception backed (one source no longer open);
   C: memory hierarchy orders of magnitude → textbook values; D: Python's
   file functions → as stated, default encoding platform-dependent; E:
-  CSV is not a standard (informational RFC), JSON is.
+  CSV is not a standard (informational RFC), JSON is; F: JPEG's leading
+  bytes → FF D8 FF always (T.81), the fourth depends on the file format
+  (JFIF E0, Exif E1), and the bytes do not prove a file is an image;
+  G: write-and-read-back → a simple and common test (property-based
+  testing practice studies), NOT backed as "the simplest", and it only
+  shows writer and reader agree; H: established format + ready module
+  instead of own parsing → partly: ad hoc parsing is a known bug source
+  and reused code mostly has fewer defects (sparse, industrial), but CSV
+  files often deviate from RFC 4180, JSON parsers disagree, and the
+  modules do not stop formula injection; no study of novices (added
+  2026-10-23).
+- *Övning: Filhantering* B: rövarspråket → NOT verified against the
+  books (nytid #549); tertiary sources point to the 1951 sequel and an
+  older origin, so the deck says only that the children in the Blomkvist
+  books speak it; C: EAFP → the Python glossary calls it common, nobody
+  has measured it.
 - *Moduler och paket* B: modules/import as a novice difficulty → NOT
   backed (no direct study).
 - *Klasser och objekt* B: class/object misconceptions → three backed
