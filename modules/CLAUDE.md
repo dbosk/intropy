@@ -58,7 +58,8 @@ Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
 from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
 dictionaries). Week 44: *Repetition: kursens grunder* (the whole
 lecture, before the week's other decks; in the book it is the last
-chapter, after week 46), *Behållare: Mängder, stackar och köer*,
+chapter, after week 46, in a part of its own, author, 2026-10-22),
+*Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
 tillämpningar av klasser*, its Övning.
 Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
