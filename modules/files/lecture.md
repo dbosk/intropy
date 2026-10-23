@@ -1,7 +1,7 @@
 ---
 title: 'Föreläsning: Filhantering'
 regex: '^Föreläsning: Filhantering$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:
@@ -73,8 +73,7 @@ hantera.
 
 ## Efter föreläsningen
 
-Fortsätt enligt veckoöversikten: gå på *Övning filer och filhantering*
-för din grupp, och arbeta i par med *Laboration (6) filhantering* — den
-sista obligatoriska laborationen före datorprovet. Vill du fördjupa dig,
-gör *Fördjupande övning filer och filhantering*<!-- Canvas-namnet har
-två mellanslag: "Fördjupande övning  filer och filhantering". -->.
+Fortsätt enligt veckoöversikten: gå gärna på övningarna och arbeta i
+par med *Laboration (6) filhantering (obligatorisk)* — den sista
+obligatoriska laborationen före datorprovet. Vill du fördjupa dig, gör
+övningens fördjupningsuppgifter, Uppgift 6, 7 och 8.

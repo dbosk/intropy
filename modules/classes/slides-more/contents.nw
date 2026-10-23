@@ -70,8 +70,6 @@ delarna, var och en när vi kommer till den.
 Filen har en enda klass, bråkklassen, och också den börjar vi med som
 helhet: konstruktorn, som skapar bråket, och sedan metoderna.
 
-% The \needspace keeps the class's layout on one page in the notes.
-\mode<article>{\needspace{9\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Bråkklassens upplägg]
     \label{ex:fraction}
@@ -89,34 +87,43 @@ class Fraction:
 
 \leavevmode\ltnote{%
   Testprogrammet i \cref{ex:fraction-main} växer med klassen, som i
-  föreläsningen \emph{Klasser och objekt}.  Utskriften bredvid ett
-  testfall kommer från en liten
-  testkörning i \texttt{testkorningar.nw}, som aldrig vävs: den
-  importerar klassen, kör de tidigare testfallen tyst och sedan
-  testfallet självt, så att testfallens rader står en enda gång.  Före
-  \cref{sec:forkortning} är konstruktorns steg att förkorta pseudokod,
-  och testkörningarna där stänger av förkortningen, så att utskriften
-  är klassens som den står i texten (\mintinline{text}|2/8| och
-  \mintinline{text}|2/2|, inte \mintinline{text}|1/4| och
-  \mintinline{text}|1/1|).  På samma sätt tar
+  föreläsningen \emph{Klasser och objekt}, men varje testfall är här en
+  egen funktion som skapar sina egna bråk.  Testfunktionen läggs
+  direkt till testfunktionerna, utan ett namngivet kodstycke emellan
+  som bara skickar vidare, och utskriften
+  bredvid den kommer från en liten testkörning i
+  \texttt{testkorningar.nw}, som aldrig vävs: den importerar klassen och
+  anropar just den testfunktionen.  Före \cref{sec:forkortning} är
+  konstruktorns steg att förkorta pseudokod, och testkörningarna där
+  stänger av förkortningen, så att utskriften är klassens som den står i
+  texten (\mintinline{text}|2/8| och \mintinline{text}|2/2|, inte
+  \mintinline{text}|1/4| och \mintinline{text}|1/1|).  På samma sätt tar
   \cref{ex:fraction-add-int,ex:fraction-sub-int} bort den omvända
   metoden, som texten ännu inte skrivit.  Förkortningens eget testfall
-  får ingen
-  körning bredvid sig: dess utskrift är svaret på \cref{ovn:utmatning}.
+  får ingen körning bredvid sig: dess utskrift är svaret på
+  \cref{ovn:utmatning}.
 }%
 Testprogrammet heter \mintinline{python}{tests}, som i föreläsningen
 \emph{Klasser och objekt}, och växer med klassen: efter varje del
-lägger vi till ett testfall, och bredvid testfallet står vad just de
-raderna skriver ut, med klassen som den ser ut i det läget.
+lägger vi till ett testfall.  Varje testfall är en egen funktion, vars
+namn säger vilket beteende den provar, och den skapar själv de bråk den
+behöver.  Därför beror ingen testfunktion på vad en annan har gjort:
+var och en kan köras för sig, och ändrar vi ett testfall påverkar det
+inte de andra.  Bredvid testfunktionen står vad den skriver ut när den
+körs ensam, med klassen som den ser ut i det läget.
+\mintinline{python}{tests} anropar testfunktionerna i tur och ordning.
 
 \begin{frame}[fragile]
   \begin{example}[Testprogrammet]
     \label{ex:fraction-main}
-    Testfallen läggs till ett i taget:
+    Testfunktionerna först, sedan \mintinline{python}{tests}, som anropar
+    dem:
 <<bråkbibliotekets tester>>=
+<<testfunktioner för [[Fraction]]>>
+
 def tests():
     """Test program"""
-    <<tester för [[Fraction]]>>
+    <<kör tester för [[Fraction]]>>
 
 if __name__ == "__main__":
     tests()
@@ -183,9 +190,6 @@ olika sätt att skapa bråk:
   \end{exercise}
 \end{frame}
 
-% The \needspace keeps the constructor, lead-in and chunk, on one page in
-% the notes.
-\mode<article>{\needspace{16\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Konstruktorn]
     \label{ex:fraction-init}
@@ -235,13 +239,15 @@ def __init__(self, numerator, denominator=1):
   \begin{example}[Några sätt att skapa bråk]
     \label{ex:fraction-create}
     Testfallet skapar bråk på alla fyra sätten:
-<<prova att skapa bråk>>=
-frac = Fraction(1, 2)
-int_as_frac = Fraction(2)
-frac_from_frac = Fraction(Fraction(1, 2))
-half_frac = Fraction(Fraction(1, 2), 2)
-<<tester för [[Fraction]]>>=
-<<prova att skapa bråk>>
+<<testfunktioner för [[Fraction]]>>=
+def test_create():
+    """Create fractions in all four ways"""
+    frac = Fraction(1, 2)
+    int_as_frac = Fraction(2)
+    frac_from_frac = Fraction(Fraction(1, 2))
+    half_frac = Fraction(Fraction(1, 2), 2)
+<<kör tester för [[Fraction]]>>=
+test_create()
 @
   \end{example}
 \end{frame}
@@ -251,7 +257,9 @@ kontrollera typen på argumentet.  Det är ett exempel på
 \emph{polymorfism}: samma metod kan hantera olika typer av indata.  Får
 den något annat än ett heltal eller ett bråk kastar den ett särfall,
 \mintinline{python}{TypeError}, på det sätt föreläsningen
-\emph{Inmatning och felhantering} beskriver.
+\emph{Inmatning och felhantering} beskriver.  Konstruktorns testfall
+skriver inget ut: det provar att inget av de fyra sätten kastar ett
+särfall.
 
 
 \subsection{Attribut som egenskaper}
@@ -376,9 +384,6 @@ beräkningar när värden läses eller skrivs.
 }%
 Låt oss jämföra två sätt att arbeta med attribut.
 
-% The \needspace keeps the example's title with its two listings in the
-% notes.
-\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Egenskap eller läs- och skrivmetoder]
     \label{ex:property-vs-getter}
@@ -481,16 +486,15 @@ utan dundermetoder i \emph{Övning: Klasser och objekt}.
 
 Vi behöver implementera dundermetoder för att konvertera vårt bråk till
 olika representationer.  De läggs till bland bråkklassens metoder, efter
-egenskaperna, och testfallet för dem bland testerna; som vanligt
-lägger +\(\equiv\) till en del under samma namn.
+egenskaperna, och testfunktionen för dem bland testfunktionerna, med
+ett anrop i \mintinline{python}{tests}; som vanligt lägger +\(\equiv\)
+till en del under samma namn.
 
 Utskriften bredvid ett testfall kommer från klassen som den står i
 texten.  Konstruktorns steg att förkorta bråket är fortfarande
 pseudokod, så fram till \cref{sec:forkortning} förkortar klassen inga
 bråk, och utskrifterna visar bråken oförkortade.
 
-% The \needspace keeps the two methods' chunk on one page in the notes.
-\mode<article>{\needspace{10\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Typkonvertering]
     \label{ex:fraction-conversion}
@@ -508,14 +512,16 @@ def __float__(self):
 \begin{frame}[fragile]
   \begin{example}[Prova typkonverteringen]
     \label{ex:fraction-conversion-test}
-    Nu kan vi skriva ut de fyra bråken från konstruktorns testfall, och
+    Nu kan vi skriva ut bråk skapade på konstruktorns fyra sätt, och
     typkonvertera:
-<<prova typkonverteringen>>=
-print(frac, int_as_frac, frac_from_frac, half_frac)
-print(frac)
-print(float(frac))
-<<tester för [[Fraction]]>>=
-<<prova typkonverteringen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_conversion():
+    """Convert fractions to str and float"""
+    frac = Fraction(1, 2)
+    print(frac, Fraction(2), Fraction(frac), Fraction(frac, 2))
+    print(float(frac))
+<<kör tester för [[Fraction]]>>=
+test_conversion()
 @
     Testfallet skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
@@ -580,11 +586,13 @@ def __int__(self):
     return self.numerator // self.denominator
 @
     Testfallet provar ett positivt och ett negativt bråk:
-<<prova konverteringen till heltal>>=
-print(int(Fraction(7, 2)))
-print(int(Fraction(-7, 2)))
-<<tester för [[Fraction]]>>=
-<<prova konverteringen till heltal>>
+<<testfunktioner för [[Fraction]]>>=
+def test_int():
+    """Convert a positive and a negative fraction to int"""
+    print(int(Fraction(7, 2)))
+    print(int(Fraction(-7, 2)))
+<<kör tester för [[Fraction]]>>=
+test_int()
 @
     Vad skriver det ut med försöket?  Jämför med
     \mintinline{python}{int(-3.5)}, som ger \mintinline{python}{-3}.
@@ -789,12 +797,14 @@ def __add__(self, other):
   \begin{example}[Prova addition]
     \label{ex:fraction-add-test}
     Vi adderar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prova additionen>>=
-frac_a = Fraction(1, 2)
-frac_b = Fraction(1, 3)
-print(frac_a + frac_b)
-<<tester för [[Fraction]]>>=
-<<prova additionen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_add():
+    """Add two fractions"""
+    frac_a = Fraction(1, 2)
+    frac_b = Fraction(1, 3)
+    print(frac_a + frac_b)
+<<kör tester för [[Fraction]]>>=
+test_add()
 @
     Testfallet skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
@@ -829,11 +839,14 @@ termen är ett heltal?
     }%
     Nästa testfall adderar \(\frac{1}{2}\) och heltalet \(1\).  Vad
     skriver de två raderna ut med klassen som den ser ut nu?
-<<prova additionen med heltalet på båda sidor>>=
-print(frac_a + 1)
-print(1 + frac_a)
-<<tester för [[Fraction]]>>=
-<<prova additionen med heltalet på båda sidor>>
+<<testfunktioner för [[Fraction]]>>=
+def test_add_int():
+    """Add a fraction and an int"""
+    frac_a = Fraction(1, 2)
+    print(frac_a + 1)
+    print(1 + frac_a)
+<<kör tester för [[Fraction]]>>=
+test_add_int()
 @
   \end{exercise}
 \end{frame}
@@ -945,10 +958,13 @@ def __neg__(self):
     return Fraction(-self.numerator, self.denominator)
 @
     Vi negerar \(\frac{1}{2}\):
-<<prova negationen>>=
-print(-frac_a)
-<<tester för [[Fraction]]>>=
-<<prova negationen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_neg():
+    """Negate a fraction"""
+    frac_a = Fraction(1, 2)
+    print(-frac_a)
+<<kör tester för [[Fraction]]>>=
+test_neg()
 @
     Testfallet skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
@@ -1004,15 +1020,17 @@ def __sub__(self, other):
     return self + (-other)
 @
     Vi subtraherar \(\frac{1}{4}\) från \(\frac{1}{2}\):
-<<prova subtraktionen>>=
-print(frac_a - Fraction(1, 4))
-<<tester för [[Fraction]]>>=
-<<prova subtraktionen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_sub():
+    """Subtract a fraction from a fraction"""
+    frac_a = Fraction(1, 2)
+    print(frac_a - Fraction(1, 4))
+<<kör tester för [[Fraction]]>>=
+test_sub()
 @
-    Testfallet skriver ut
+    Klassen förkortar inte än, så testfallet skriver ut \(\frac{2}{8}\):
     \runpython[chdir, deps={examples/fraction.py}]%
       {examples/fraction_test_subtraktion.py}
-    Klassen förkortar inte än, så \(\frac{2}{8}\) står kvar.
   \end{example}
 \end{frame}
 
@@ -1022,10 +1040,13 @@ print(frac_a - Fraction(1, 4))
     Behöver vi göra något för att subtrahera ett bråk från ett heltal?
     Nästa testfall subtraherar \(\frac{1}{2}\) från heltalet \(1\).
     Vad skriver det ut med klassen som den ser ut nu?
-<<prova att subtrahera från ett heltal>>=
-print(1 - frac_a)
-<<tester för [[Fraction]]>>=
-<<prova att subtrahera från ett heltal>>
+<<testfunktioner för [[Fraction]]>>=
+def test_sub_from_int():
+    """Subtract a fraction from an int"""
+    frac_a = Fraction(1, 2)
+    print(1 - frac_a)
+<<kör tester för [[Fraction]]>>=
+test_sub_from_int()
 @
   \end{exercise}
 \end{frame}
@@ -1182,10 +1203,14 @@ def __mul__(self, other):
   \begin{example}[Prova multiplikation]
     \label{ex:fraction-mul-test}
     Vi multiplicerar \(\frac{1}{2}\) och \(\frac{1}{3}\):
-<<prova multiplikationen>>=
-print(frac_a * frac_b)
-<<tester för [[Fraction]]>>=
-<<prova multiplikationen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_mul():
+    """Multiply two fractions"""
+    frac_a = Fraction(1, 2)
+    frac_b = Fraction(1, 3)
+    print(frac_a * frac_b)
+<<kör tester för [[Fraction]]>>=
+test_mul()
 @
     Testfallet skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
@@ -1209,10 +1234,13 @@ skapa ett \mintinline{python}{Fraction}-objekt av heltalet först.
   \begin{example}[Multiplicera med ett heltal]
     \label{ex:fraction-mul-int}
     Testfallet multiplicerar \(\frac{1}{2}\) med \(2\):
-<<prova multiplikationen med ett heltal>>=
-print(frac_a * 2)
-<<tester för [[Fraction]]>>=
-<<prova multiplikationen med ett heltal>>
+<<testfunktioner för [[Fraction]]>>=
+def test_mul_int():
+    """Multiply a fraction by an int"""
+    frac_a = Fraction(1, 2)
+    print(frac_a * 2)
+<<kör tester för [[Fraction]]>>=
+test_mul_int()
 @
     Det skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
@@ -1229,9 +1257,6 @@ Precis som med addition och subtraktion behöver vi
 Multiplikation är kommutativ, så den kan, liksom
 \mintinline{python}{__radd__()}, återanvända den vanliga metoden (DRY).
 
-% The \needspace keeps the method, the test case and its output together
-% in the notes.
-\mode<article>{\needspace{22\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Omvänd multiplikation]
     \label{ex:fraction-rmul}
@@ -1242,10 +1267,13 @@ def __rmul__(self, other):
     return self * other
 @
     Vi multiplicerar åt andra hållet, \(2 \cdot \frac{1}{2}\):
-<<prova multiplikationen med heltalet till vänster>>=
-print(2 * frac_a)
-<<tester för [[Fraction]]>>=
-<<prova multiplikationen med heltalet till vänster>>
+<<testfunktioner för [[Fraction]]>>=
+def test_int_mul():
+    """Multiply an int by a fraction"""
+    frac_a = Fraction(1, 2)
+    print(2 * frac_a)
+<<kör tester för [[Fraction]]>>=
+test_int_mul()
 @
     Testfallet skriver ut
     \runpython[chdir, deps={examples/fraction.py}]%
@@ -1398,9 +1426,6 @@ till en (privat) metod \mintinline{python}{__simplify()}, som gör själva
 förkortningen, bland bråkklassens metoder.  Och till sist preciserar vi
 pseudokoden i konstruktorn med pythonkod: den anropar metoden.
 
-% The \needspace keeps the import, the method and the call on one page in
-% the notes.
-\mode<article>{\needspace{17\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Förkortning]
     \label{ex:fraction-simplify}
@@ -1463,25 +1488,25 @@ Testprogrammets sista testfall provar förkortningen, både direkt i
 konstruktorn och efter operationer.  Vad det skriver ut visar vi inte
 här: det är en del av svaret på nästa övning.
 
-% The \needspace keeps the test case on one page in the notes.
-\mode<article>{\needspace{18\baselineskip}}
 \begin{frame}[fragile]
   \begin{example}[Prova förkortningen]
     \label{ex:fraction-test-simplify}
     Bråk som ska förkortas vid skapandet och efter räkning:
-<<prova förkortningen>>=
-frac1 = Fraction(6, 12)
-print(f"Fraction(6, 12) = {frac1}")
-frac2 = Fraction(2, 6)
-print(f"Fraction(2, 6) = {frac2}")
-frac3 = Fraction(1, 2) + Fraction(1, 4)
-print(f"1/2 + 1/4 = {frac3}")
-frac4 = Fraction(1, 2) * Fraction(2, 3)
-print(f"1/2 * 2/3 = {frac4}")
-frac5 = Fraction(2, 3) - Fraction(1, 6)
-print(f"2/3 - 1/6 = {frac5}")
-<<tester för [[Fraction]]>>=
-<<prova förkortningen>>
+<<testfunktioner för [[Fraction]]>>=
+def test_simplify():
+    """Simplify when creating and after arithmetic"""
+    frac1 = Fraction(6, 12)
+    print(f"Fraction(6, 12) = {frac1}")
+    frac2 = Fraction(2, 6)
+    print(f"Fraction(2, 6) = {frac2}")
+    frac3 = Fraction(1, 2) + Fraction(1, 4)
+    print(f"1/2 + 1/4 = {frac3}")
+    frac4 = Fraction(1, 2) * Fraction(2, 3)
+    print(f"1/2 * 2/3 = {frac4}")
+    frac5 = Fraction(2, 3) - Fraction(1, 6)
+    print(f"2/3 - 1/6 = {frac5}")
+<<kör tester för [[Fraction]]>>=
+test_simplify()
 @
   \end{example}
 \end{frame}
@@ -1499,17 +1524,15 @@ Därmed är all pseudokod preciserad med pythonkod.
 
 }
 
-\mode<article>{\needspace{4\baselineskip}}
 \begin{frame}
   \begin{exercise}
     \label{ovn:utmatning}
     Vad skriver testprogrammet ut, rad för rad?  Gå igenom
-    proven\only<article>{ i \cref{ex:fraction-all}} i ordning.
+    testfunktionerna\only<article>{ i \cref{ex:fraction-all}} i den
+    ordning \mintinline{python}{tests} anropar dem.
   \end{exercise}
 \end{frame}
 
-% The \needspace keeps the run on one page in the notes.
-\mode<article>{\needspace{26\baselineskip}}
 \begin{frame}[fragile,shrink]
   \begin{example}[Utmatning]
     \label{ex:fraction-run}
@@ -1723,9 +1746,7 @@ precis som Pythons egen \mintinline{python}{fractions.Fraction}
 (\cref{fn:fractions}).
 
 % Not a chunk: this code is a suggestion for the reader, not part of the
-% tangled fraction.py, and the example environment says so.  The
-% \needspace keeps the three lines with their lead-in.
-\mode<article>{\needspace{12\baselineskip}}
+% tangled fraction.py, and the example environment says so.
 \begin{frame}[fragile]
   \begin{example}[Tecknet till täljaren]
     \label{ex:fraction-sign}
