@@ -152,13 +152,13 @@ Vecka för vecka är målen följande.
 
 **Vecka 44, Fler behållare och mer om klasser:**
 
-- välja lämplig behållare (lista, tupel eller uppslagslista) för ett
-  givet problem och motivera valet utifrån vilka operationer som behövs,
+- konstruera program där en klass har en behållare av andra objekt som
+  attribut och där metoderna söker i och uppdaterar behållaren,
 - implementera operatoröverlagring med dundermetoder som `__add__`,
   `__eq__` och `__lt__` samt typkonvertering med `__str__`, `__float__`
   och `__int__`,
-- konstruera program där en klass har en behållare av andra objekt som
-  attribut och där metoderna söker i och uppdaterar behållaren,
+- välja lämplig behållare (lista, tupel eller uppslagslista) för ett
+  givet problem och motivera valet utifrån vilka operationer som behövs,
 - hitta och läsa dokumentationen för Pythons behållare och använda den för
   att lösa problem du inte sett förut.
 

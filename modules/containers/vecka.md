@@ -11,15 +11,15 @@ modules:
 ---
 Välkommen tillbaka efter tentaperioden! Efter två veckor utan Python
 börjar vi med att repetera kursens grunder, och bygger sedan vidare på
-uppslagslistorna och klasserna åt två håll. Dels *fler behållare*: att
-välja behållare efter vilka operationer programmet behöver, och ett helt
-program, ett gissningsspel, som sätter ihop det vi har lärt oss. Dels *mer
-om klasser*: hur egna klasser kan bete sig som Pythons inbyggda typer
-genom operatoröverlagring (`+`, `==`, `<` och så vidare), så att till
-exempel ett bråk kan adderas med `a + b`, och hur en klass kan ha en
-behållare av andra objekt som attribut, vilket är hur de flesta riktiga
-program är uppbyggda. Mängder, stackar och köer finns som fördjupning för
-den som vill.
+klasserna och uppslagslistorna åt två håll. Dels *mer om klasser*: hur en
+klass kan ha en behållare av andra objekt som attribut, vilket är hur de
+flesta riktiga program är uppbyggda, och hur egna klasser kan bete sig
+som Pythons inbyggda typer genom operatoröverlagring (`+`, `==`, `<` och
+så vidare), så att till exempel ett bråk kan adderas med `a + b`. Dels
+*fler behållare*: att välja mellan lista och uppslagslista efter vilka
+operationer programmet behöver, och ett helt program, ett gissningsspel,
+som sätter ihop det vi har lärt oss. Mängder, stackar och köer finns som
+fördjupning för den som vill.
 
 Innan du börjar bör du kunna skriva en egen klass med `__init__` och
 `__str__`, arbeta med listor, uppslagslistor och for-slingor samt läsa in
@@ -27,13 +27,13 @@ och kontrollera inmatning från användaren.
 
 ## Efter veckan ska du kunna
 
-- välja lämplig behållare (lista, tupel eller uppslagslista) för ett
-  givet problem och motivera valet utifrån vilka operationer som behövs,
+- konstruera program där en klass har en behållare av andra objekt som
+  attribut och där metoderna söker i och uppdaterar behållaren,
 - implementera operatoröverlagring med dundermetoder som `__add__`,
   `__eq__` och `__lt__` samt typkonvertering med `__str__`, `__float__`
   och `__int__`,
-- konstruera program där en klass har en behållare av andra objekt som
-  attribut och där metoderna söker i och uppdaterar behållaren,
+- välja lämplig behållare (lista, tupel eller uppslagslista) för ett
+  givet problem och motivera valet utifrån vilka operationer som behövs,
 - hitta och läsa dokumentationen för Pythons behållare och använda den för
   att lösa problem du inte sett förut.
 
@@ -53,11 +53,14 @@ och kontrollera inmatning från användaren.
    inspelningen där.
 2. **Gå gärna på övningarna (tisdag och onsdag).** Veckans nya innehåll
    går vi igenom på övningarna; se sidan *Övning: Fler behållare och mer om
-   klasser* här i modulen. På tisdagen tar vi allt du behöver till
-   laborationen: uppgiften *Banken*, en klass som har en behållare av andra
-   objekt, där valet mellan lista och uppslagslista är själva frågan. På
-   onsdagen tar vi operatoröverlagring (konstruktorn, egenskaper med
-   `@property`, addition och subtraktion) och arv. Onsdagens övning bygger
+   klasser* här i modulen. På tisdagen börjar vi med ett program om
+   e-postadresser som vi skriver två gånger, med funktioner och med en
+   egen klass, så att vi ser vad klassen gör med programmets struktur.
+   Sedan tar vi allt du behöver till laborationen: uppgiften *Banken*, en
+   klass som har en behållare av andra objekt, där valet mellan lista och
+   uppslagslista är själva frågan. På onsdagen tar vi
+   operatoröverlagring (konstruktorn, egenskaper med `@property`,
+   addition och subtraktion) och arv. Onsdagens övning bygger
    inte på tisdagens. Övningarna är frivilliga och ges för hela klassen, i
    D37 och på [Zoom][zoom-room]. Samtidigt med onsdagens övning leder en
    assistent, oftast Emelie, en repetition i ett eget grupprum på Zoom; den
@@ -78,7 +81,7 @@ och kontrollera inmatning från användaren.
    par. På labbpassen finns lärare och assistenter för att hjälpa er när ni
    fastnar; det mesta av arbetet gör ni på egen tid.
 6. **Vill du fördjupa dig?** Gör övningens fördjupningsuppgifter, Uppgift
-   6 och 7, och läs den valfria delen *Behållare: Mängder, stackar och
+   7 och 8, och läs den valfria delen *Behållare: Mängder, stackar och
    köer*.
 
 [zoom-room]: https://kth-se.zoom.us/j/61952197407
@@ -93,9 +96,6 @@ också som videoföreläsning, *Behållare: Ett gissningsspel
 *Övning: Fler behållare och mer om klasser* beskriver varje del och vad
 du ska kunna efteråt.
 
-- *Behållare: Mängder, stackar och köer*: valfritt, hela. Till den hör
-  övningens Uppgift 1 (e-postadresser) och Uppgift 5 (att ångra det
-  senaste).
 - *Behållare: Ett gissningsspel*: hela. **Före labben:** avsnittet *Att
   läsa in en gissning*, en återanvändbar funktion som läser in och
   kontrollerar inmatning.
@@ -106,7 +106,10 @@ du ska kunna efteråt.
   *Inköpslistor med klasser*, en klass som har en behållare av andra
   objekt. I övrigt resten, utom *Arv: medborgare med personnummer* och
   *Komposition eller arv*, som vi går igenom på onsdagens övning.
-- Övningens Uppgift 2, 3, 6 och 7, på egen hand.
+- *Behållare: Mängder, stackar och köer*: valfritt, hela. Till den hör
+  det valfria avsnittet om mängden i Uppgift 1 och 2 (e-postadresser).
+- Övningens Uppgift 4, 5 och 6 på egen hand, och fördjupningsuppgifterna
+  7 och 8 om du har tid.
 
 ## Schema
 

@@ -12,8 +12,11 @@ några påståenden går inte att pröva på det sättet:
   \item att en \mintinline{python}{deque} är ett bättre val än en lista
     för en kö, därför att listan måste flytta alla element när det
     första tas bort (\cref{sec:stackar});
-  \item att en mängd varken har dubbletter eller ordning
-    (\cref{sec:mangder});
+  \item att en mängd varken har dubbletter eller ordning, och att två
+    körningar av samma program därför kan skriva ut en mängd i olika
+    ordning (\cref{sec:mangder});
+  \item att en behållare ska väljas efter de operationer programmet
+    behöver, inte efter vad datan handlar om (\cref{sec:valja-mangder});
   \item att lösningen ska hållas enkel --- principen
     \foreignlanguage{english}{KISS} (\cref{sec:valja-mangder})%
   % Claims made only in the instructor notes print only in the teacher
@@ -28,7 +31,10 @@ gång du själv ska skriva en rapport.
 \Cref{tab:mangder-pastaenden} visar var vart och ett av materialets
 påståenden är belagt.  Lägg särskilt märke till de två första: en siffra
 om hur snabb en operation är ser exakt ut som ett faktum, men gäller bara
-under förutsättningar som måste anges.
+under förutsättningar som måste anges.  Och lägg märke till det fjärde:
+det är ett råd, och ett råd påstår att det lönar sig att följa det.  Den
+nyttan går inte att slå upp i Pythons dokumentation; den prövas i
+\cref{app:valja-behallare}.
 
 \begin{table}[!htb]
   \centering
@@ -50,6 +56,14 @@ under förutsättningar som måste anges.
     Saknar en mängd dubbletter och ordning?
       & Primärkälla: Pythons egen dokumentation, läst i fulltext
         2026-09-03; dessutom visar programmet i \cref{sec:mangder} det. \\
+    Kan två körningar skriva ut samma mängd i olika ordning?
+      & Primärkälla: Pythons språkreferens, läst i fulltext 2026-10-12.
+        Ja, för strängar: deras hashvärden slumpas om vid varje körning. \\
+    Ska behållaren väljas efter de operationer programmet behöver?
+      & Ja, som lärobokens etablerade arbetsgång, och att valet spelar
+        roll är mätt; men mätningarna gäller Java och yrkesprogram, och
+        hur nybörjare väljer är nästan inte studerat
+        (\cref{app:valja-behallare}). \\
     Ska lösningen hållas enkel (\foreignlanguage{english}{KISS})?
       & Redan belagt i föreläsningen \emph{Funktioner}, bilaga~C: att
         enkelhet är ett etablerat designvärde, medan den vanliga
@@ -77,12 +91,12 @@ säger var den här föreläsningens påståenden är belagda.
 \section{Materialets påståenden och var de är belagda}
 \label{sec:mangder-pastaenden}
 
-Inget av den här modulens påståenden krävde en egen litteratursökning.
 Frågor om vad Python gör besvaras av Pythons egen dokumentation, som är
 primärkällan: vad en mängd är och att den saknar
-dubbletter\autocite{PythonDataStructures}, hur mycket varje operation
-kostar\autocite{PythonTimeComplexity}, och varför
-\mintinline{python}{collections.deque} finns\autocite{PythonCollections}.
+dubbletter\autocite{PythonDataStructures}, att ordningen när en mängd
+av strängar skrivs ut kan skifta mellan körningar\autocite{PythonDataModel},
+hur mycket varje operation kostar\autocite{PythonTimeComplexity}, och
+varför \mintinline{python}{collections.deque} finns\autocite{PythonCollections}.
 Dokumentationen för \mintinline{python}{collections} säger det rakt
 ut: listor \enquote{are optimized for fast
 fixed-length operations and incur \(O(n)\) memory movement costs for
@@ -91,6 +105,12 @@ operationerna --- hade mätt den här datorn och inte datastrukturen.
 Komplexitetssidan säger själv att den beskriver \enquote{current
 CPython} och att siffrorna är genomsnitt, och det förbehållet står
 därför också i brödtexten.
+
+Rådet att välja behållare efter operationerna kan dokumentationen
+däremot inte belägga.  Dokumentationen säger vad varje operation
+kostar, inte att det lönar sig att låta kostnaderna styra valet, och
+inte om det är så fältet väljer.  Det är en fråga för forskningen och
+prövas i \cref{app:valja-behallare}.
 
 Principen att välja den enklaste behållare som klarar de operationer man
 behöver (\foreignlanguage{english}{KISS}) namnges i
@@ -103,3 +123,434 @@ Att kontrast måste upplevas samtidigt för
 att en aspekt ska kunna urskiljas är hämtat från Martons
 \emph{Necessary Conditions of Learning}\autocite[45--47]{Marton2015}.
 }{}
+
+% The backing chapter cites a source in nearly every sentence, more than
+% the margin beside the text holds.  Let the citation notes use the
+% margin beside the query table and the empty bottom margin (the page
+% number is in the running head), and set them one size smaller, as the
+% course book does throughout.  The group keeps the font and the margin
+% height local; the beside-floats mode is global and is reset at the end
+% of the file, since the book reads on.
+\begingroup
+\ifdefined\marginnotebesidefloats\marginnotebesidefloats{use}\fi
+\marginheightadjustment=48pt
+\renewcommand{\foottextfont}{\scriptsize\mpjustification}
+\chapter{Ska behållaren väljas efter operationerna?}
+\label{app:valja-behallare}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:valja-mangder} väljer materialet behållare efter vilka
+operationer programmet behöver göra --- fråga om något finns, slå upp
+på ett namn, ta ut det som lades in sist eller först --- och inte efter
+vad datan handlar om.  Klarar flera behållare operationerna tar vi den
+enklaste; den delen är principen KISS, som redan är prövad i
+föreläsningen \emph{Funktioner}, bilaga~C.  Rådet ser självklart ut,
+men det är ett råd, och bakom det står ett påstående om nytta: att ett
+program där behållaren matchar operationerna blir bättre --- snabbare,
+enklare --- än ett där den inte gör det.  Frågan har tre delar:
+\emph{är rådet fältets etablerade arbetsgång, och varifrån kommer
+det?}, \emph{finns det belägg för att valet av behållare spelar roll?}
+och \emph{finns det invändningar --- att valet sällan spelar roll, att
+något annat än operationerna avgör, eller att det är svårt att välja
+rätt?}  Det som prövas är en tumregel, inte att varje annat val är fel.
+\Cref{sec:vb-metod} beskriver sökningen, \cref{sec:vb-resultat} vad den
+fann, \cref{sec:vb-diskussion} vad som begränsar svaret,
+\cref{sec:vb-slutsats} ger svaret och \cref{sec:vb-fortsatt} säger vad
+som återstår; \cref{tab:sok-valja} sist i kapitlet listar de träffar som
+rör påståendet.
+
+Vad varje operation kostar i Pythons behållare prövas inte här: det
+säger Pythons egen dokumentation, som \cref{app:verifiera-mangder}
+redovisar.
+
+\section{Metod}
+\label{sec:vb-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 12 oktober 2026 med
+verktyget \texttt{scholar}, mot OpenAlex, Web of Science, Scopus och
+arXiv.  Tre databaser kunde inte genomsökas den dagen: DBLP svarade på
+maskinella frågor med en sida som stoppar automatiserade klienter,
+Semantic Scholar avvisade sin nyckel, och IEEE Xplore hade förbrukat
+sin dagliga kvot.  Frågorna byggdes av grupper av nyckelord, var och en
+en OR-lista:
+\begin{description}
+  \item[Val] \enquote{data structure selection}, \enquote{collection
+    selection}, \enquote{container selection}, \enquote{choice of data
+    structure}, \enquote{choice of data structures}, \enquote{choosing
+    data structures}, \enquote{data structure choice};
+  \item[Behållare] \enquote{data structure}, \enquote{data structures},
+    collection, collections, container, containers;
+  \item[Välja] selection, choice, choosing, select;
+  \item[ADT] \enquote{abstract data type}, \enquote{abstract data
+    types}, \enquote{data abstraction};
+  \item[Nybörjare] students, novices, novice, \enquote{introductory
+    programming}, CS1, CS2;
+  \item[Bibliotek] \enquote{Java collections}, \enquote{collection
+    classes}, \enquote{collections framework}, \enquote{container
+    classes}, \enquote{C++ containers}, \enquote{Python collections},
+    \enquote{Python data structures};
+  \item[Automatiskt] (\enquote{data structure}, \enquote{data
+    structures}, collections eller \enquote{collection classes}) och
+    (adaptive, automatic, automated eller recommendation) och
+    (selection, replacement eller choice);
+  \item[Invändning] negligible, \enquote{little impact}, \enquote{no
+    significant}, \enquote{premature optimization}, overrated,
+    \enquote{rarely matters}, limitations, criticism.
+\end{description}
+Stödfrågorna söker valet av datastruktur som begrepp, valet med dess
+följder för prestanda och energi, abstrakta datatyper och valet av
+representation, nybörjares val, och hur programmerare använder
+samlingsbiblioteken.  Motfrågorna använder samma grupper och lägger till
+invändningar, svårigheter och missuppfattningar.
+\Cref{tab:sok-queries-valja} visar frågorna och antalet träffar per
+databas.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.  The query table is
+% transcribed from the per-provider hit counts recorded when the session
+% was run (scholar sessions show w44-valja-behallare).
+\begin{table}[!b]
+  \caption{Sökfrågor och antal träffar per databas, val av behållare,
+    12 oktober 2026, verktyget \texttt{scholar}.  S = stödfråga, M =
+    motfråga; nyckelordsgrupperna står i \cref{sec:vb-metod}.  Databaser:
+    OpenAlex (OA; inte \foreignlanguage{english}{open access}), Web of
+    Science (WoS), Scopus och arXiv.  Högst 40 träffar hämtades per
+    databas och fråga, så 40 betyder \enquote{minst 40}.  Web of Science
+    fick frågan som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}, OpenAlex och arXiv som boolesk
+    fritext.  DBLP, Semantic Scholar och IEEE Xplore kunde inte
+    genomsökas och saknas.}
+  \label{tab:sok-queries-valja}
+  \centering\footnotesize
+  \begin{tabular}{@{}lp{0.52\linewidth}rrrr@{}}
+    \toprule
+    & Nyckelord & OA & WoS & Scopus & arXiv \\
+    \midrule
+    S1 & Val & 40 & 40 & 40 & 40 \\
+    S2 & Val \textsc{and} (performance \textsc{or} efficiency
+         \textsc{or} \enquote{energy consumption} \textsc{or} runtime)
+       & 40 & 40 & 40 & 27 \\
+    S3 & ADT \textsc{and} operations \textsc{and} (representation
+         \textsc{or} implementation) \textsc{and} Välja
+       & 40 & 11 & 15 & 2 \\
+    S4 & Behållare \textsc{and} Välja \textsc{and} Nybörjare
+         \textsc{and} (programming \textsc{or} \enquote{computer
+         science})
+       & 40 & 40 & 40 & 40 \\
+    S5 & Bibliotek \textsc{and} (usage \textsc{or} \enquote{empirical
+         study} \textsc{or} inefficient \textsc{or} misuse \textsc{or}
+         \enquote{performance bugs})
+       & 40 & 13 & 40 & 9 \\
+    S6 & Automatiskt \textsc{and} (performance \textsc{or} efficiency
+         \textsc{or} energy \textsc{or} \enquote{memory footprint})
+       & 40 & 40 & 40 & 40 \\
+    \midrule
+    M1 & Val \textsc{and} Invändning & 40 & 12 & 25 & 19 \\
+    M2 & Behållare \textsc{and} Välja \textsc{and} Nybörjare
+         \textsc{and} (misconception \textsc{or} misconceptions
+         \textsc{or} difficulties \textsc{or} difficulty \textsc{or}
+         errors \textsc{or} mistakes)
+       & 40 & 40 & 40 & 40 \\
+    M3 & ADT \textsc{and} operations \textsc{and} (representation
+         \textsc{or} implementation) \textsc{and} (criticism \textsc{or}
+         critique \textsc{or} limitations \textsc{or} \enquote{leaky
+         abstraction} \textsc{or} overhead \textsc{or}
+         \enquote{performance cost})
+       & 40 & 9 & 10 & 8 \\
+    M4 & Bibliotek \textsc{and} Invändning & 40 & 9 & 40 & 40 \\
+    M5 & Automatiskt \textsc{and} Invändning & 40 & 40 & 40 & 40 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Sammanlagt lämnade databaserna 1\,409 poster, vilket efter
+sammanslagning av dubbletter blir 998 arbeten.  Alla klassades först
+med en språkmodell mot en beskrivning av frågan och fyra kategorier ---
+stödjer påståendet, kvalificerar det (motsäger, begränsar eller snävar
+in det), angränsande ämne, felträff --- och sedan för hand för varje
+post som modellen satte i en av de två första kategorierna och varje
+post med konfidens under 0,7.  Modellen räknade många arbeten om
+datastrukturer i allmänhet, om abstrakta datatypers teori och om
+verktyg som väljer datastruktur automatiskt som stöd; vid
+handgranskningen räknades de som angränsande, utom där sammanfattningen
+själv säger något om valet och dess följder.  Orden \emph{collection} och
+\emph{container} betyder annat i nästan alla fält --- datainsamling,
+bibliotekssamlingar, fraktcontainrar, molnets containrar --- så de
+flesta poster är felträffar.  Shaffers lärobok i datastrukturer kom med
+i sökningen i sin första upplaga från 1996 (fråga S1); den upplaga som
+lästes är den som författaren själv lägger ut fritt på
+nätet\autocite{Shaffer2013DSA}.  Basios med flera och Makor med flera lästes
+i fulltext, i författarnas egna versioner på
+arXiv\autocite{Basios2018Darwinian,Makor2025Profile}.  De flesta övriga
+artiklar som citeras nedan är utgivna av ACM, vars bibliotek inte
+lämnade ut fulltexterna till ett automatiserat verktyg, och de övriga
+fanns inte öppet; de lästes i sammanfattning, och det sägs vid var och
+en.
+
+\section{Resultat}
+\label{sec:vb-resultat}
+
+\paragraph{Rådet och dess ursprung.}  Läroböckerna i datastrukturer
+formulerar rådet som en arbetsgång.  Shaffer skriver:
+\textcquote[5]{Shaffer2013DSA}{When selecting a data structure to solve
+a problem, you should follow these steps. 1. Analyze your problem to
+determine the basic operations that must be supported. [\dots] 2.
+Quantify the resource constraints for each operation. 3. Select the data
+structure that best meets these requirements.}  Han säger också vad som
+händer annars, och varför den enklaste behållaren ska väljas när den
+räcker: \textcquote[5]{Shaffer2013DSA}{Poor program designers ignore
+this analysis step and apply a data structure that they are familiar
+with but which is inappropriate to the problem. The result is typically
+a slow program. Conversely, there is no sense in adopting a complex
+representation to \enquote{improve} a program that can meet its
+performance goals when implemented using a simpler design.}  I hans
+definition är det operationerna som utgör datatypen:
+\textcquote[9]{Shaffer2013DSA}{The interface of the ADT is defined in
+terms of a type and a set of operations on that type}, och
+datastrukturen är en implementation av den.
+
+Arbetsgången är äldre än läroboken.  Redan 1967 beskrev Balzer hur en
+programmerare brukade gå till väga: definiera problemet, och sedan
+\textcquote{Balzer1967Dataless}{analyzing the processing requirements,
+and (3) on the basis of these requirements, choosing a data
+representation}.  Han tillade svårigheten med det: bearbetning som inte
+förutsågs gör ofta den valda representationen olämplig, och då är den
+dyr att byta.  Svaret blev de abstrakta datatyperna, som Liskov och
+Zilles förde in i programmeringen\autocite{LiskovZilles1974}: koden
+skrivs mot operationerna, så att representationen kan väljas och bytas
+för sig.  Guttag visade hur datastrukturer kan utvecklas uppifrån och
+ner ur sådana datatyper, med målet att programmen ska bli
+\textcquote{Guttag1977ADT}{reliable, efficient, and flexible}, och i
+språket SETL, byggt på mängder och avbildningar, valde optimeraren
+representationen automatiskt efter hur programmet använde
+dem\autocite{Schwartz1975SETL}.  Rådet finns också i
+undervisningslitteraturen: Augenstein och Tenenbaum visade för lärare
+hur ett och samma problem kan lösas med flera datastrukturer och skrev
+att \textcquote{AugensteinTenenbaum1977}{[s]electing a proper data
+structure can have a remarkable effect on the efficiency of the final
+program}, och Hartman och Chrisman föreslog övningar där studenterna
+jämför och väljer, så att de lär sig
+\textcquote{HartmanChrisman1987}{when to use each particular data
+structure}; ingen av de två utvärderar något.  Alla sex artiklarna i
+det här stycket lästes i sammanfattning.
+
+\paragraph{Spelar valet någon roll?}  Ja, och det är mätt, men i
+yrkesprogram och mest i Java.  Hasan med flera mätte energin för vanliga
+operationer på Javas listor, avbildningar och mängder och fann att
+alternativen \textcquote{Hasan2016Energy}{differ significantly in terms
+of energy consumption depending on the operations}; när de bytte
+samlingar i sex program kunde fel val
+\textcquote{Hasan2016Energy}{cost even 300\% more energy than the most
+efficient choice}.  Costa med flera skriver att samlingarna
+\textcquote{Costa2017Collections}{have a major impact on the
+performance of applications}, och att utvecklaren därför måste välja
+bland både abstraktioner --- lista, avbildning, mängd, kö --- och
+implementationer; Costa och Andrzejak anger ineffektiv användning av
+samlingar som \textcquote{CostaAndrzejak2018CollectionSwitch}{a major
+cause of performance bloat}.  Wang med flera byggde ett verktyg som
+byter behållare där en metod med lägre tidskomplexitet finns, utifrån
+hur behållaren används, och skriver att
+\textcquote{Wang2022Cres}{improper choice of container types may lead
+to significant performance issues}.  Samma premiss bär verktygen för att
+välja samling automatiskt: att använda en samling på ett sätt som inte
+stämmer med dess implementation kan ge
+\textcquote{Shacham2009Chameleon}{significant performance degradation},
+och valet av datastruktur kallas \textcquote{Jung2011Brainy}{one of the
+most critical aspects of developing effective applications}.  En färsk
+systematisk översikt över programmeringsvanor som påverkar
+energiförbrukningen fann att forskningen till stor del handlar om
+\textcquote{Fleischle2026Energy}{data structure selection}.  Alla dessa
+lästes i sammanfattning.  Ingen av de enskilda studierna gäller Python.
+
+\paragraph{Förbehållen.}  Motsökningen fann ingen som hävdar att
+behållaren ska väljas på något annat sätt, men den fann tre förbehåll.
+Det första gäller hur stor vinsten är.  Basios med flera lät ett verktyg
+byta mellan implementationer av samma gränssnitt i 43 Javaprojekt och
+skriver att valet \textcquote{Basios2018Darwinian}{can vastly improve an
+application's performance and memory footprint}, men
+medianförbättringen för de bästa lösningarna var
+\textcquote{Basios2018Darwinian}{4.8\%, 10.1\%, 5.1\% for runtime,
+memory and CPU usage}.  Wang med flera fick i genomsnitt 8,1
+procent\autocite{Wang2022Cres}, och Makor med flera, som också lät ett
+verktyg byta datastrukturer i Javaprogram, minskade minnesåtgången med
+upp till 14 procent där programmen använde datastrukturer flitigt, men i
+genomsnitt med 1,6 respektive 2,9 procent\autocite{Makor2025Profile}.
+En jämförelse av Javabibliotek fann standardbibliotekets samlingar
+\textcquote{Perhac2020Libraries}{suitable for most use cases}
+(sammanfattning).  De måttliga siffrorna gäller byten som verktygen kan
+göra utan att programmet ändras, oftast inom en och samma abstraktion,
+som en lista mot en annan lista.  Ett byte mellan abstraktioner, som en
+lista mot en mängd när programmet frågar om något finns, ändrar hur
+kostnaden växer med antalet element, som Pythons dokumentation
+anger\autocite{PythonTimeComplexity}; det har ingen av studierna mätt
+i genomsnitt över många program.
+
+Det andra förbehållet är att valet inte är lätt ens för yrkesfolk.
+Basios med flera fann att utvecklare
+\textcquote{Basios2018Darwinian}{tend to rely on defaults and neglect
+potential optimisations}, Couderc med flera skriver att
+\textcquote{Couderc2023Classification}{the performance impact of a
+certain collection selection can be hard to estimate}
+(sammanfattning), och Makor med flera att rätt val
+\textcquote{Makor2025Profile}{typically requires in-depth knowledge
+about the program and, in particular, about the usage of the data
+structure in question}.  Krajča och Škrabal lägger till att valet beror
+\textcquote{Krajca2023Decoupling}{not only on the algorithm but also on
+the input data itself} (sammanfattning) --- på datans egenskaper, som
+hur mycket den är, vilket är något annat än vad den handlar om.
+
+Det tredje gäller nyttan: optimering är enligt Basios med flera
+\textcquote{Basios2018Darwinian}{expensive and its benefits unclear for
+many projects} --- samma sak som Shaffers förbehåll att en enklare
+lösning räcker när den når målen.
+
+\paragraph{Studenters val.}  Motfrågorna om nybörjare (M2) gav
+kataloger över missuppfattningar om datastrukturer och en enda studie
+där studenter fick välja datastruktur för en uppgift: i intervjuer med
+sex studenter som läst en kurs i datastrukturer fann Chung med flera en
+missuppfattning om vilka värden en datastruktur kan lagra, och de antar
+att den \textcquote{Chung2017Misconceptions}{limits a student's
+understanding of how to apply data structures in different situations}
+(sammanfattning).  Hur nybörjare väljer behållare, och om de väljer
+efter operationerna, är alltså nästan inte studerat.
+
+\section{Diskussion och begränsningar}
+\label{sec:vb-diskussion}
+
+Svaret vilar på två slags källor: en lärobok, läst i fulltext, som
+formulerar rådet, och mätningar av prestanda och energi i
+Javaprogram, av vilka två lästes i fulltext.  Övriga är lästa i
+sammanfattning, de flesta eftersom ACM:s bibliotek inte lämnade ut dem
+till ett automatiserat verktyg, och siffrorna ur dem är alltså tagna ur
+sammanfattningarna.  Mätningarna
+gäller erfarna utvecklares program, inte nybörjares, och Java, inte
+Python; att resultaten överförs till Python är rimligt men inte prövat.
+Den enda studien av studenters val är liten och utforskande.
+Att lärobokens arbetsgång är \emph{etablerad} bygger på att den står i
+en spridd lärobok och i undervisningslitteraturen sedan 1970-talet, inte
+på en studie av hur läroböcker formulerar valet.  Sökningen hade
+luckor: DBLP, Semantic Scholar och IEEE Xplore saknades, de fyrtio
+träffar som hämtades per fråga och databas är ett urval, och orden för
+begreppet är så vanliga i andra fält att en relevant studie kan ha
+hamnat långt ner i rangordningen.  Klassningen är modellstödd, med
+handgranskning av de stödjande och kvalificerande posterna och av dem
+med låg konfidens.
+
+\section{Slutsats}
+\label{sec:vb-slutsats}
+
+Ja, som fältets etablerade arbetsgång och med mätt nytta, men med
+förbehåll.  Att välja datastruktur efter de operationer programmet
+behöver är lärobokens uttryckliga råd\autocite{Shaffer2013DSA}, med
+rötter i de abstrakta datatyperna\autocite{LiskovZilles1974}, och att
+valet spelar roll är mätt: fel samling kan kosta mångdubbelt i energi,
+beroende på vilka operationer programmet
+gör\autocite{Hasan2016Energy}.  Förbehållen är tre.  Vinsten av att byta
+mellan implementationer av samma behållare är i median
+måttlig\autocite{Basios2018Darwinian,Wang2022Cres,Makor2025Profile};
+de stora skillnaderna väntas när abstraktionen inte passar
+operationerna, som när en lista får svara på \mintinline{python}{in}
+gång på gång, men det är dokumentationens kostnader och inte
+studierna som visar det.  Rätt val
+är svårt att förutse även för yrkesfolk\autocite{Couderc2023Classification}.
+Och alla mätningar gäller Java och yrkesprogram; hur nybörjare väljer
+är nästan inte studerat, och om de väljer bättre av att lära sig rådet
+har ingen prövat.  Därför
+säger materialet det som kan beläggas: att behållaren väljs efter
+operationerna, och att den enklaste som klarar dem räcker, och det
+beläggs vad operationerna kostar i Python med Pythons egen
+dokumentation, inte med mätningarna i Java.
+
+\section{Fortsatt arbete}
+\label{sec:vb-fortsatt}
+
+Sökningen lämnade tre saker ogjorda.  DBLP, Semantic Scholar och IEEE
+Xplore saknades; IEEE Xplore indexerar en stor del av konferenserna om
+programvaruteknik där mätningarna publiceras, och en ny körning med
+dem skulle visa om det finns studier i Python.  De artiklar som bara
+lästes i sammanfattning bör läsas i fulltext, främst Hasan med flera och
+Wang med flera, vars siffror citeras, och Chung med flera, den enda
+studien av studenters val.  Tilanterä
+och Korhonens systematiska översikt över missuppfattningar om
+datastrukturer\autocite{Tilantera2026Misconceptions} lästes bara i
+sammanfattning; fulltexten skulle visa om någon av de 92
+missuppfattningar den katalogiserar gäller valet av datastruktur.  Och
+Bastani och Iyengars experiment om hur svårt ett program är att förstå
+när datastrukturen ligger långt från den abstrakta datatyp den
+förverkligar\autocite{Bastani1987Logical} redovisar sitt resultat först
+i fulltexten, som inte gick att hämta.
+
+För ett säkrare svar saknas två slags studier.  Den ena är en mätning i
+Python av hur ofta program skrivna av studenter använder en lista där
+programmet behöver en mängd eller en uppslagslista, och vad det kostar.
+Den andra är ett försök med nybörjare: får de som lärt sig att välja
+efter operationerna oftare rätt behållare, och skriver de enklare
+program?  Visar försöket att de gör det kan materialet säga att rådet
+hjälper nybörjare; visar det ingen skillnad bör texten stanna vid att
+det är fältets arbetsgång och att valet syns i vad programmet kostar.
+
+\section{Träffar som rör påståendet}
+\label{sec:vb-traffar}
+
+\Cref{tab:sok-valja} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje
+beslut; de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-valja}.
+% Author's note (verification and reproduction):
+%   scholar session : w44-valja-behallare
+%   exports         : litteratursokning/valja-behallare.csv,
+%                     litteratursokning/valja-behallare-full.tex
+%   searched        : 2026-10-12; providers openalex wos scopus arxiv
+%                     (dblp: anti-bot page, non-JSON reply; s2: key
+%                     rejected HTTP 403; ieee: daily quota exhausted --
+%                     every ieee cell failed, so IEEE is not named);
+%                     limit 40 per provider and query; wos got
+%                     TS=(<query>), scopus TITLE-ABS-KEY(<query>),
+%                     openalex and arxiv the boolean string; groups as in
+%                     sec:vb-metod; per-cell counts as
+%                     recorded by scholar (scholar sessions show
+%                     w44-valja-behallare), transcribed into
+%                     tab:sok-queries-valja
+%   known items     : Shaffer2013DSA (edition 3.2 from the author's site;
+%                     the 1996 edition is the S1 hit); Python docs as in
+%                     bilaga A
+%   classification  : scholar llm context + scholar llm classify
+%                     --no-examples -n 50 (model openai-codex/gpt-5.6-sol),
+%                     then human review of every kept row (205) and every
+%                     row with confidence < 0.7 (16) via scholar sessions
+%                     decide; 179 LLM keeps discarded as adjacent
+%                     (motivation tags automatic-selection-or-
+%                     optimisation-tool-premise-only and data-structure-or-
+%                     adt-topic-not-the-choice); the superseded category
+%                     tags were removed from those rows by editing the
+%                     session file (backup session-before-tagfix.json)
+%   theme tags      : vb-rule vb-origin vb-teaching vb-measured vb-limits
+%                     vb-novices vb-future
+%   hit-list table  : scholar sessions export w44-valja-behallare -f table
+%                     --bearing-only --lang sv --label sok-valja
+%                     --track "Val av behållare efter operationerna"
+%                     --theme vb-rule="lärobokens arbetsgång"
+%                     --theme vb-origin="idéns ursprung: abstrakta
+%                     datatyper och val av representation"
+%                     --theme vb-teaching="rådet i undervisningen"
+%                     --theme vb-measured="valet spelar roll, mätt"
+%                     --theme vb-limits="förbehåll: vinstens storlek,
+%                     svårt att välja" --theme vb-novices="studenters val"
+%                     --theme vb-future="fortsatt arbete: inte läst i
+%                     fulltext" -o litteratursokning/valja-behallare-full
+%   provenance      : ltnotes.bib, keys Shaffer2013DSA LiskovZilles1974
+%                     Balzer1967Dataless Guttag1977ADT Schwartz1975SETL
+%                     AugensteinTenenbaum1977 HartmanChrisman1987
+%                     Hasan2016Energy Costa2017Collections
+%                     CostaAndrzejak2018CollectionSwitch Wang2022Cres
+%                     Shacham2009Chameleon Jung2011Brainy
+%                     Fleischle2026Energy Basios2018Darwinian
+%                     Makor2025Profile Couderc2023Classification
+%                     Krajca2023Decoupling Perhac2020Libraries
+%                     Chung2017Misconceptions Tilantera2026Misconceptions
+%                     Bastani1987Logical
+\input{litteratursokning/valja-behallare-full}
+\endgroup
+\ifdefined\marginnotebesidefloats\marginnotebesidefloats{reserve}\fi
