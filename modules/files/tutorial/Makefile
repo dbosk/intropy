@@ -24,27 +24,42 @@ SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
 SRC+=		ltnotes.bib
 
+EXAMPLES+=	examples/skrivning.py
 EXAMPLES+=	examples/filer.py
 EXAMPLES+=	examples/bildkoll.py
 EXAMPLES+=	examples/wc.py
 EXAMPLES+=	examples/wcprov.py
 EXAMPLES+=	examples/rövare.py
 EXAMPLES+=	examples/rövarprov.py
+EXAMPLES+=	examples/rövare2.py
+EXAMPLES+=	examples/rövare2prov.py
 EXAMPLES+=	examples/fortune.py
 EXAMPLES+=	examples/fortuneprov.py
 EXAMPLES+=	examples/fortune2.py
 EXAMPLES+=	examples/fortune2prov.py
+EXAMPLES+=	examples/skiljeradsprov.py
 EXAMPLES+=	examples/analys.py
 EXAMPLES+=	examples/fortunes.txt
 EXAMPLES+=	examples/fortunes2.txt
+EXAMPLES+=	examples/fortunes3.txt
+# rövare.py writes over the file it is given, so its runs read a copy of
+# the committed madicken.txt, never the original.
+EXAMPLES+=	examples/madicken-kopia.txt
 
+# noweb names every chunk label after the woven file (NW<hash of name>-...),
+# and every deck's source is called contents.nw, so in the course book
+# (book/), which binds the decks into one document, all decks would get
+# the same labels.  Weave the file under its path from modules/ instead:
+# it is the same file, but the name, and so the labels, are the deck's own.
+NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
+	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
 
-# The two fortune databases are part of the solutions, so they are
+# The three fortune databases are part of the solutions, so they are
 # tangled from the same source as the programs that read them.
 examples/fortunes.txt: contents.nw
 	@mkdir -p ${@D}
@@ -54,8 +69,33 @@ examples/fortunes2.txt: contents.nw
 	@mkdir -p ${@D}
 	notangle -R'[[fortunes2.txt]]' $< > $@
 
+examples/fortunes3.txt: contents.nw
+	@mkdir -p ${@D}
+	notangle -R'[[fortunes3.txt]]' $< > $@
+
+examples/madicken-kopia.txt: examples/madicken.txt
+	cp $< $@
+
 .PHONY: examples
 examples: ${EXAMPLES}
+
+# The programs a task hands the student to run, read or build on are
+# committed, because the tutorial's Canvas page (../tutorial.md) links
+# them for download.  check-committed tangles each one afresh, formats it
+# as the tangle rule does, and compares it with the committed copy, so a
+# copy left stale by a change to contents.nw is caught.
+COMMITTED+=	examples/filer.py
+COMMITTED+=	examples/skrivning.py
+COMMITTED+=	examples/wc.py
+COMMITTED+=	examples/rövare.py
+
+.PHONY: check-committed
+check-committed:
+	@status=0; for f in ${COMMITTED}; do \
+	  notangle -R"[[$$(basename $$f)]]" contents.nw | \
+	    black -q --stdin-filename $$f - | \
+	    diff -u $$f - || { echo "$$f: stale" >&2; status=1; }; \
+	done; exit $$status
 
 notes.pdf: notes.tex
 slides.pdf: slides.tex
@@ -67,7 +107,7 @@ notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
 clean:
 	${RM} notes.pdf slides.pdf
 	${RM} contents.tex
-	${RM} ${EXAMPLES}
+	${RM} $(filter-out ${COMMITTED},${EXAMPLES})
 	${MAKE} -C examples clean
 
 
