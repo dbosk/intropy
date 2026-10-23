@@ -1324,13 +1324,16 @@ Vad händer om vi försöker läsa en \texttt{.jpg}-fil som text?
       innehåll hålls invariant, så det är avkodningen och ingenting annat
       som skiljer de två öppningarna åt.
 
-      De fyra byten är de som en JPEG-fil börjar med, därav namnet
-      \texttt{bild.jpg}.  Programmet anger ingen teckenkodning
-      (\cref{app:dokumentation}), så körningen visar en dator vars
-      standardkodning inte tar emot bytesekvensen.
+      De fyra byten är de som en JPEG-fil i formatet JFIF börjar med,
+      därav namnet \texttt{bild.jpg}; en bild från en kamera, i formatet
+      Exif, börjar i stället med \texttt{FF D8 FF E1}.  Bara de tre
+      första byten är desamma i alla JPEG-filer (\cref{app:jpeg}).
+      Programmet anger ingen
+      teckenkodning (\cref{app:dokumentation}), så körningen visar en
+      dator vars standardkodning inte tar emot bytesekvensen.
     }%
-    Programmet [[bytes_as_text.py]] skriver de fyra byte en JPEG-fil
-    börjar med och läser dem som text.  Skrivsättet
+    Programmet [[bytes_as_text.py]] skriver fyra byte som en JPEG-fil
+    kan börja med och läser dem som text.  Skrivsättet
     \mintinline{python}|b"..."| ger en [[bytes]], en följd av byte;
     \mintinline{python}|\xff| är byten med värdet 255:
 <<[[bytes_as_text.py]]>>=
@@ -1362,7 +1365,12 @@ bytes i textläge enligt en teckenkodning för att bygga upp en sträng:
 innehållet
 \enquote{\foreignlanguage{english}{returned as str, the bytes having been
 first decoded}}\autocite{PythonOpen}.  Bytesekvensen i en \texttt{.jpg}
-följer ingen teckenkodning, så avkodningen misslyckas --- eller, med en
+följer ingen teckenkodning\footnote{%
+  Vilka byte en JPEG-fil börjar med --- de tre första alltid desamma,
+  den fjärde beroende på filformatet --- och att byten inte räcker för
+  att avgöra att en fil är en bild står i formatets specifikationer;
+  kontrollen finns i \cref{app:jpeg}.%
+}, så avkodningen misslyckas --- eller, med en
 kodning som tar emot vilka byte som helst, lyckas och ger tyst korrupta
 data i stället.  Det är svaret på \cref{ovn:varfor-binar}: vi måste tala
 om för Python huruvida en fil ska hanteras som text eller som rå
@@ -1544,9 +1552,15 @@ Programmet som gör det kallar vi talparsprogrammet.
 @
 \end{frame}
 
-Att skriva och sedan läsa tillbaka är det enklaste sättet att pröva ett
-format: kommer samma data tillbaka har skrivaren och läsaren förstått
-kontraktet lika.  Huvudprogrammet gör just det: det skriver paren och
+Att skriva och sedan läsa tillbaka är ett enkelt och vanligt sätt att
+pröva ett format\autocite[6]{Goldstein2024PBT}: kommer samma data
+tillbaka har skrivaren och läsaren förstått kontraktet lika, åtminstone
+för de data vi prövat med.\footnote{%
+  Det vetenskapliga underlaget --- att provet är enkelt och vanligt men
+  inte belagt som det enklaste, och att det bara visar att skrivaren och
+  läsaren är överens med varandra, inte att andra program läser filen
+  likadant --- finns i \cref{app:rundgang}.%
+}  Huvudprogrammet gör just det: det skriver paren och
 läser tillbaka dem.  Skrivningen, läsningen och jämförelsen anropar vi
 redan här, och dem skriver vi när vi kommer till dem.
 
@@ -1831,9 +1845,15 @@ otillräckligt så snart data ser ut som verkliga data.
 \subsection{Formatet CSV}
 \label{sec:csv}
 
-I stället för att uppfinna egna format för vanliga behov är det mycket
-bättre att använda ett format som \emph{redan finns} --- välkänt, väl
-testat och förstått av många program.  Det vanligaste för tabelldata är
+I stället för att uppfinna egna format för vanliga behov är det oftast
+bättre att använda ett format som \emph{redan finns} --- ett som många
+program redan kan läsa och skriva, och som det finns färdiga moduler
+för.\footnote{%
+  Det vetenskapliga underlaget --- att egen tolkning är en känd
+  felkälla och att färdig, återanvänd kod oftast har färre fel, men att
+  verkliga CSV-filer ofta avviker från beskrivningen och att olika
+  program läser samma fil olika --- finns i \cref{app:standardformat}.%
+}  Det vanligaste för tabelldata är
 CSV (\foreignlanguage{english}{Comma-Separated Values}):
 Pythons dokumentation kallar det \enquote{\foreignlanguage{english}{the
 most common import and export format for spreadsheets and
@@ -1975,8 +1995,10 @@ def read_pairs(filename):
 
 På samma sätt använder vi [[csv.reader()]] för att läsa CSV-filer.
 Modulen tar hand om uppdelningen och ger oss en lista av fält för varje
-rad.  Detta är mycket säkrare och mer robust än vår egen implementation
-med [[split(",")]], och [[parse_pair]] behövs inte längre.  Men lägg
+rad.  Modulen hanterar de specialfall som vår egen tolkning med
+[[split(",")]] missar --- till exempel ett kommatecken inuti ett citerat
+fält, som i \enquote{Långstrump, Pippi} --- och [[parse_pair]] behövs
+inte längre.  Men lägg
 märke till att [[int()]] är kvar: modulen delar upp raden, men fälten
 är fortfarande strängar --- vad de betyder vet bara vi.
 
@@ -2401,16 +2423,25 @@ dokumentation, och [[help()]] i terminalen.
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{FilesLOFormats}.
   Avslutande generalisering: efter variationen (eget format \(\to\) CSV
-  \(\to\) JSON) artikuleras principen att \emph{standardformat är mer
-  robusta än egna format} --- formatet är en konvention mellan skrivare
-  och läsare, och standardmoduler hanterar de specialfall egen tolkning
-  missar.  Att CSV är vanligt och att JSON är en standard är
-  faktapåståenden med källor; vad som kontrollerats står i
-  \cref{app:format}.
+  \(\to\) JSON) artikuleras principen att \emph{etablerade format med
+  färdiga moduler oftast är säkrare än egna format} --- formatet är en
+  konvention mellan skrivare och läsare, och standardmoduler hanterar de
+  specialfall egen tolkning missar.  Att CSV är vanligt och att JSON är
+  en standard är faktapåståenden med källor (\cref{app:format}); att
+  etablerade format är säkrare än egna är ett råd, prövat i
+  \cref{app:standardformat}.
 }%
 Den viktigaste lärdomen här är att \emph{formatering och struktur är lika
 viktigt för filer som för terminalutskrift}.  Precis som vi måste tänka
 på hur vi formaterar utmatningen med [[print()]], måste vi tänka på hur
 vi strukturerar data i filer.  Skillnaden är att för filer finns det ofta
-etablerade standarder vi kan använda, vilket gör våra program mer
-kompatibla och robusta.
+etablerade format, och moduler som redan hanterar formatens
+specialfall, så att vi slipper skriva tolkningen själva --- men ett
+etablerat format garanterar inte att alla program läser filen
+likadant.\footnote{%
+  Det vetenskapliga underlaget --- att egen, utspridd tolkning är en
+  känd felkälla och att färdig kod i industriella studier oftast har
+  färre fel, men att verkliga CSV-filer ofta avviker från RFC:n, att
+  olika tolkare av JSON läser samma fil olika och att modulerna inte
+  skyddar mot formler i CSV-filer --- finns i \cref{app:standardformat}.%
+}

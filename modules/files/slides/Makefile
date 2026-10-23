@@ -23,6 +23,7 @@ PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 SRC+=		preamble.tex
 SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
+SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
 SRC+=		$(wildcard figs/*.png)
 

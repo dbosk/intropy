@@ -581,9 +581,9 @@ format inleds i stället med några bestämda byte som talar om vad filen
     \label{ovn:bildkoll}
     En JPEG-fil inleds alltid med de tre byten \texttt{FF D8 FF}.  Skriv
     ett program [[bildkoll.py]] som frågar efter ett filnamn --- använd
-    modulen [[filer.py]] --- och svarar om filen är en JPEG-bild eller
-    inte.  Pythons dokumentation för [[read]] berättar hur du läser ett
-    bestämt antal byte och inte hela filen.  En bild att pröva på,
+    modulen [[filer.py]] --- och svarar om filen inleds som en JPEG-bild
+    eller inte.  Pythons dokumentation för [[read]] berättar hur du läser
+    ett bestämt antal byte och inte hela filen.  En bild att pröva på,
     [[bild.jpg]], finns på övningens sida i Canvas, och där finns också
     lösningsförslagets [[filer.py]] om du inte har en egen modul.
   \end{exercise}
@@ -634,15 +634,15 @@ if __name__ == "__main__":
   \end{solution}
 \end{frame}
 
-Funktionen jämför filens första byte med de tre som en JPEG-fil inleds
-med.  De tre byten är ett bestämt värde som programmet jämför mot, så de
+Funktionen jämför filens första byte med de tre som varje JPEG-fil
+inleds med enligt standarden\autocite[31, 34]{ITUT81}.\footnote{%
+  Att de tre byten alltid är desamma men den fjärde beror på
+  filformatet, och att byten inte räcker för att avgöra att filen är en
+  bild, visas i föreläsningen \emph{Arbeta med filer}, bilaga~F.%
+}  De tre byten är ett bestämt värde som programmet jämför mot, så de
 hör hemma i en konstant.  Skrivsättet \mintinline{python}{b"..."} ger en
 [[bytes]] i stället för en [[str]], och \mintinline{python}{b"\xff"} är
 byten med värdet \texttt{FF}.
-
-% TODO(claim-audit): att en JPEG-fil alltid inleds med byten FF D8 FF
-% (påståendet behöver formatspecifikationen, ITU-T T.81 eller JFIF, som
-% källa; ingen sökning gjord den här omgången).
 
 \begin{frame}[fragile]
   \begin{solution}[Att känna igen inledningen]
@@ -977,16 +977,18 @@ Huvudprogrammet frågar, läser, räknar och skriver, och inget mer.
   \end{example}
 \end{frame}
 
-Ett format prövas enklast genom att skriva och läsa tillbaka, som
-föreläsningen \emph{Arbeta med filer} gör med sina talpar.  Vi skriver
+Ett enkelt och vanligt sätt att pröva ett format är att skriva och
+läsa tillbaka\autocite[6]{Goldstein2024PBT}, som föreläsningen
+\emph{Arbeta med filer} gör med sina talpar.\footnote{%
+  Det vetenskapliga underlaget --- att provet är enkelt och vanligt men
+  inte belagt som det enklaste, och att det bara visar att skrivaren och
+  läsaren är överens med varandra --- finns i föreläsningen
+  \emph{Arbeta med filer}, bilaga~G.%
+}  Vi skriver
 ett kort provprogram som räknar orden i [[madicken.txt]], skriver
 tabellen och läser den tillbaka som text.  Det importerar modulen
 [[filer]], filen från \cref{ex:filer}, och räkneprogrammet
 [[wc]], filen från \cref{ex:wc}.
-
-% TODO(claim-audit): att skriva och läsa tillbaka är det enklaste
-% sättet att pröva ett filformat (påståendet ärvt från föreläsningen
-% Arbeta med filer, där det står utan källa).
 
 \begin{frame}[fragile]
   \begin{solution}[Provprogrammets upplägg]
@@ -1123,8 +1125,12 @@ nybörjare.\footnote{%
 
 Räkningen kunde skrivits på ett annat sätt.  I stället för att fråga om
 nyckeln finns kan man försöka öka den och fånga
-\mintinline{python}{KeyError} när den inte finns --- ett vanligt
-pythonskt mönster.  Här är villkoret valt därför att räkningen finns på
+\mintinline{python}{KeyError} när den inte finns --- ett skrivsätt
+som Pythons ordlista kallar EAFP och beskriver som vanligt i
+Python\autocite{PythonGlossary}.\footnote{%
+  Hur vanligt skrivsättet faktiskt är har ingen mätt, så långt
+  sökningen i \cref{app:eafp} nådde.%
+}  Här är villkoret valt därför att räkningen finns på
 ett enda ställe: två räknefunktioner, en med villkoret och en med
 särfallet, hade fått skillnaden mellan dem att se ut som om den betydde
 något.  En annan och nyttigare ändring är att rensa bort
@@ -1134,22 +1140,32 @@ CSV-filen försvinner, och med dem det tydligaste skälet att använda
 modulen.
 
 Och kalkylprogrammet?  Det behöver veta vilket tecken som skiljer
-fälten åt, och det kan fråga: LibreOffice Calc visar en dialogruta för
-textimport när en CSV-fil öppnas.  Svarar du kommatecken hamnar de
-citerade fälten i \emph{en} cell var, kommatecknet och allt, och antalen
-i kolumnen bredvid --- vilket är hela poängen med att ett etablerat
-format har en läsare i varje program.
+fälten åt, och LibreOffice Calc frågar: det visar en dialogruta för
+textimport när en CSV-fil öppnas\autocite{LibreOfficeTextImport}.
+Svarar du kommatecken hamnar de citerade fälten i \emph{en} cell var,
+kommatecknet och allt, och antalen i kolumnen bredvid.  Microsoft Excel
+frågar däremot inte, utan öppnar filen direkt med datorns
+inställningar\autocite{MicrosoftCSV}, och de behöver inte säga
+kommatecken.  Ett etablerat format gör att andra program kan läsa
+filen, men inte att alla läser den likadant.\footnote{%
+  Det vetenskapliga underlaget --- att ett etablerat format med en
+  färdig modul har stöd för att ge färre fel, men att verkliga CSV-filer
+  ofta avviker från beskrivningen och att olika program läser samma fil
+  olika --- finns i föreläsningen \emph{Arbeta med filer}, bilaga~H.%
+}
 % H5 (2026-09-23): tidigare stod här att kalkylprogrammet öppnar filen
 % "utan att fråga något", vilket inte stämmer för LibreOffice Calc.
-% Ej kontrollerat här: Excel med svenska språkinställningar väntar sig
-% semikolon som avgränsare och lägger då varje rad i en enda cell.
+% Excel och svenska inställningar: MicrosoftCSV säger att avgränsaren
+% följer Windows regioninställningar; vilken avgränsare svenska
+% inställningar ger vid läsning är inte kontrollerat (bilaga A,
+% Fortsatt arbete).
 
 \section{Rövarspråket}
 \label{sec:rovarspraket}
 
-% TODO(claim-audit): att rövarspråket kommer ur Astrid Lindgrens
-% Mästerdetektiven Blomkvist (påståendet behöver primärkällan; ingen
-% sökning gjord den här omgången).
+% TODO(claim-audit): kontrollera mot böckerna (nytid #549) att barnen i
+% böckerna om Kalle Blomkvist talar rövarspråket, och i vilken bok det
+% först förekommer; vad som är känt står i bilaga B (app:rovarspraket).
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{OvningFilesLOContextMgr},
   \cref{OvningFilesLORead}, \cref{OvningFilesLOWrite}.
@@ -1179,8 +1195,12 @@ format har en läsare i varje program.
   och [[pop]], och det kontrollerar också en konsonant sist i texten,
   som en lösning med [[pop]] lätt släpper igenom.
 }%
-Rövarspråket är en barndomskod ur Astrid Lindgrens \emph{Mästerdetektiven
-Blomkvist}: varje konsonant dubbleras med ett [[o]] emellan, medan
+Rövarspråket är den kod som barnen i Astrid Lindgrens böcker om Kalle
+Blomkvist talar\footnote{%
+  Var koden kommer ifrån, och i vilken av böckerna den först
+  förekommer, är ännu inte kontrollerat mot böckerna själva; vad som är
+  känt står i \cref{app:rovarspraket}.%
+}: varje konsonant dubbleras med ett [[o]] emellan, medan
 vokaler och skiljetecken lämnas i fred.  \enquote{Ronja} blir
 \enquote{Rorononjoja}.  Regeln är enkel nog att gå att vända, och det är
 det som gör den till en bra övning: samma fil ska kunna översättas dit
