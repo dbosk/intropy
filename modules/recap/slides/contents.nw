@@ -5,7 +5,8 @@
 \begin{pycode}
 import re
 
-from mentipy.latex import mc, open_text, scale
+from mentipy.latex import file_snippet, mc, open_text, scale
+from mentipy.questions import ContextSnippet
 from mentipy.store import Store
 
 mentipy_common = {
@@ -418,14 +419,15 @@ utan frågor\autocite{Hunsu2016Clickers}.\footnote{Det vetenskapliga
   \begin{exercise}
     \label{ovn:recap-bankomat}
     Bankomatens algoritm:
-    \begin{enumerate}
-      \item Läs kortet.
-      \item Fråga efter PIN-koden.
-      \item Fråga efter beloppet.
-      \item Lämna ut beloppet.
-      \item Dra beloppet från saldot.
-    \end{enumerate}
     \begin{pycode}
+bankomatens_steg = r'''\begin{enumerate}
+  \item Läs kortet.
+  \item Fråga efter PIN-koden.
+  \item Fråga efter beloppet.
+  \item Lämna ut beloppet.
+  \item Dra beloppet från saldot.
+\end{enumerate}'''
+print(bankomatens_steg)
 print(fraga(
     mc,
     "Ronja har 300 kr på kontot och ber om 500 kr. Vad gör bankomaten "
@@ -436,6 +438,9 @@ print(fraga(
         "Den avbryter algoritmen vid det fjärde steget",
         "Den frågar efter ett nytt belopp",
     ],
+    context=ContextSnippet(
+        bankomatens_steg, language="latex", label="Bankomatens algoritm"
+    ),
 ))
     \end{pycode}
   \end{exercise}
@@ -504,15 +509,18 @@ Nu är det din tur, med en uppgift som ingen ännu har skrivit stegen för.
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Ett automatiskt lager]
     \label{ovn:recap-lager}
-    Ett lager packar beställningar från en webbutik helt automatiskt:
-    robotar hämtar varorna ur hyllorna och packar dem i lådor som
-    skickas till kunderna.  Skissa lagrets algoritm som pseudokod, först
-    på papper.
     \begin{pycode}
+lagret = (
+    "Ett lager packar beställningar från en webbutik helt automatiskt: "
+    "robotar hämtar varorna ur hyllorna och packar dem i lådor som "
+    "skickas till kunderna."
+)
+print(lagret, "Skissa lagrets algoritm som pseudokod, först på papper.")
 print(fraga(
     open_text,
     "Skriv din skiss av lagrets algoritm, ett steg per rad.",
     max_chars=500,
+    context=lagret,
 ))
     \end{pycode}
   \end{exercise}
@@ -594,6 +602,7 @@ print(fraga(
         "Den första och den sista raden, och ett felmeddelande",
         "Alla tre raderna",
     ],
+    context=file_snippet("examples/valkommen.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -699,6 +708,7 @@ print(fraga(
         "Förut 1000 kr, nu 1000 kr",
         "Förut {old} kr, nu {balance} kr",
     ],
+    context=file_snippet("examples/saldo.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -826,6 +836,7 @@ print(fraga(
         "Saldo: None kr",
         "Ett felmeddelande",
     ],
+    context=file_snippet("examples/insattning1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -978,6 +989,7 @@ print(fraga(
         "Ett felmeddelande",
         "500",
     ],
+    context=file_snippet("examples/inmatning1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1122,6 +1134,7 @@ print(fraga(
         "Båda raderna",
         "Ingenting",
     ],
+    context=file_snippet("examples/uttag1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1317,6 +1330,7 @@ print(fraga(
         "Saldo: 1000 kr",
         "Saldo: 1500 kr",
     ],
+    context=file_snippet("examples/summa.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1488,6 +1502,7 @@ print(fraga(
         "Listan med ett belopp: [-300]",
         "Ett felmeddelande",
     ],
+    context=file_snippet("examples/lista.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1590,6 +1605,7 @@ print(fraga(
         "(600, 500)",
         "Ett felmeddelande",
     ],
+    context=file_snippet("examples/tupel1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1766,6 +1782,10 @@ print(fraga(
         "Ett felmeddelande, eftersom båda filerna har en main",
         "Bara Saldo: 1500 kr",
     ],
+    context=[
+        file_snippet("examples/kassa1.py"),
+        file_snippet("examples/konto1.py"),
+    ],
 ))
     \end{pycode}
   \end{exercise}
@@ -1866,6 +1886,7 @@ print(fraga(
         "Ett felmeddelande om nyckeln 0 (KeyError)",
         "Ett felmeddelande om index 0 (IndexError)",
     ],
+    context=file_snippet("examples/konton1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -2100,6 +2121,10 @@ print(fraga(
         "None",
         "Ett felmeddelande",
     ],
+    context=[
+        file_snippet("examples/objekt.py"),
+        file_snippet("examples/bank.py", name="Account"),
+    ],
 ))
     \end{pycode}
   \end{exercise}
@@ -2315,6 +2340,7 @@ print(fraga(
         "Bara ett felmeddelande, eftersom + bara fungerar för tal",
         "Bara ett felmeddelande, eftersom Amount inte har __radd__",
     ],
+    context=file_snippet("examples/belopp1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -2479,6 +2505,11 @@ print(fraga(
         "1003: Madicken, 820 kr",
         "1003: Madicken, 1020 kr",
         "Ett felmeddelande: SavingsAccount har ingen withdraw",
+    ],
+    context=[
+        file_snippet("examples/sparkonto.py"),
+        file_snippet("examples/bank.py", name="SavingsAccount"),
+        file_snippet("examples/bank.py", name="Account"),
     ],
 ))
     \end{pycode}
@@ -2779,6 +2810,7 @@ print(fraga(
         "Bara 1001 och 1002",
         "Ett felmeddelande: filen finns redan",
     ],
+    context=file_snippet("examples/fil1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -2975,6 +3007,7 @@ print(fraga(
         "I händelseslingan, inte i vår kod",
         "Ingenstans: main måste anropa den",
     ],
+    context=file_snippet("examples/bankomat.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -3190,6 +3223,7 @@ print(fraga(
         "2001 501",
         "1500 501",
     ],
+    context=file_snippet("examples/pilar.py"),
 ))
     \end{pycode}
   \end{exercise}

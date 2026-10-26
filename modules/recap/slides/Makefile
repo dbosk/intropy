@@ -10,11 +10,23 @@ TEX_PYTHONTEX=	yes
 # PythonTeX runs in a deck-local virtualenv, which mentipy init creates
 # (and installs mentipy into) on the first build.  The two jobs share
 # ltxobj, so the second job would otherwise reuse the first job's cache.
-MENTIPY_VENV=	$(CURDIR)/.venv
+#
+# On this branch the questions also carry web-only context (the program
+# on the student's phone), which needs mentipy from PR #50 (dbosk/mentipy,
+# commit 09ce184), not the released 0.12 that `mentipy init` installs.  So
+# PythonTeX runs in a venv of its own, .venv-context, and master's .venv
+# stays as it is: switching back to master needs no reinstall.  The rule
+# does what `mentipy init --venv` does (a venv with pip, then pip install),
+# but from the wheel built from the PR; the wheel has the version number
+# 0.12 too, hence --force-reinstall.
+MENTIPY_WHEELS?=	${HOME}/devel/edu/intropy-mentipy-backup/wheels
+MENTIPY_WHEEL?=	${MENTIPY_WHEELS}/pr50-09ce184/mentipy-0.12-py3-none-any.whl
+MENTIPY_VENV=	$(CURDIR)/.venv-context
 PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
 
 ${MENTIPY_VENV}/bin/python3:
-	mentipy init --venv ${MENTIPY_VENV}
+	python3 -m venv ${MENTIPY_VENV}
+	${MENTIPY_VENV}/bin/python3 -m pip install --force-reinstall ${MENTIPY_WHEEL}
 
 # Order-only: the venv must exist before latexmk runs pythontex, but its
 # timestamp must not trigger a rebuild.
