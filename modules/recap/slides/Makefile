@@ -10,33 +10,28 @@ TEX_PYTHONTEX=	yes
 # PythonTeX runs in a deck-local virtualenv, which mentipy init creates
 # (and installs mentipy into) on the first build.  The two jobs share
 # ltxobj, so the second job would otherwise reuse the first job's cache.
-#
-# On this branch the questions also carry web-only context (the program
-# on the student's phone), which needs mentipy from its main branch
-# (dbosk/mentipy a167878, which merged PR #50), not the released 0.12
-# that `mentipy init` installs.  So PythonTeX runs in a venv of its own,
-# .venv-context, and master's .venv stays as it is: switching back to
-# master needs no reinstall.  The rule does what `mentipy init --venv`
-# does (a venv with pip, then pip install), but from a wheel built from
-# that commit; the wheel has the version number 0.12 too, hence
-# --force-reinstall.
-MENTIPY_WHEELS?=	${HOME}/devel/edu/intropy-mentipy-backup/wheels
-MENTIPY_WHEEL?=	${MENTIPY_WHEELS}/main-a167878/mentipy-0.12-py3-none-any.whl
-MENTIPY_VENV=	$(CURDIR)/.venv-context
+MENTIPY_VENV=	$(CURDIR)/.venv
 PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
 
-# Every wheel is called mentipy-0.12, so the venv records which one it
-# holds in a stamp named after the wheel's directory.  A venv made from
-# another wheel lacks this stamp and is reinstalled from this one; a
-# newer wheel at the same path is reinstalled too.  The deck depends on
-# the stamp, so a reinstall also rebuilds it: another mentipy may give
-# the questions other ids.
-MENTIPY_STAMP=	${MENTIPY_VENV}/wheel-$(notdir $(patsubst %/,%,$(dir ${MENTIPY_WHEEL})))
+${MENTIPY_VENV}/bin/python3:
+	mentipy init --venv ${MENTIPY_VENV}
 
-${MENTIPY_STAMP}: ${MENTIPY_WHEEL}
-	test -x ${MENTIPY_VENV}/bin/python3 || python3 -m venv ${MENTIPY_VENV}
-	${MENTIPY_VENV}/bin/python3 -m pip install --force-reinstall ${MENTIPY_WHEEL}
-	${RM} ${MENTIPY_VENV}/wheel-*
+# The program questions also carry web-only context (the program on the
+# student's phone, with ContextSnippet and file_snippet), which mentipy
+# has since 0.13.  The rule above makes the venv only once, so a venv made
+# before 0.13 keeps its older mentipy; a stamp named after the version
+# upgrades it once.  The deck depends on the stamp, so an upgrade also
+# rebuilds it, and the PythonTeX output goes with the upgrade: latexmk
+# reruns PythonTeX only when that output is missing or the code changed,
+# and another mentipy may give the questions other ids.
+MENTIPY_VERSION=	0.13
+MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
+
+# Order-only on the venv: the venv must exist before the upgrade, but its
+# timestamp must not trigger one.
+${MENTIPY_STAMP}: | ${MENTIPY_VENV}/bin/python3
+	${MENTIPY_VENV}/bin/python3 -m pip install 'mentipy>=${MENTIPY_VERSION}'
+	${RM} ${TEX_OUTDIR}/*.pytxmcr
 	touch $@
 
 notes.pdf slides.pdf: ${MENTIPY_STAMP}
