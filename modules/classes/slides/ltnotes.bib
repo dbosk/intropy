@@ -2533,22 +2533,32 @@
 }
 
 % === provenance: PythonDataModel ===
-% CLAIM: When a class is called, __new__ creates the instance and
-%   __init__ is then called with it as self and the call's other
-%   arguments; the call returns that instance; __init__ must return None,
-%   or a TypeError is raised.  (Used in the notes-only subsection on where
-%   self comes from in the constructor.)
+% CLAIM: (1) When a class is called, __new__ creates the instance and
+%   __init__ is then called with it as self, only if __new__ returned an
+%   instance of the class; the call returns that instance; __init__ must
+%   return None, or a TypeError is raised.  (2) __new__ is mainly for
+%   subclasses of immutable types such as int, str and tuple.  (3) A call
+%   x(...) is type(x).__call__(x, ...), and the arguments of a call of a
+%   class go to __new__ and __init__.  (4) A method object calls its
+%   __func__ with __self__ inserted first; x.f(1) is C.f(x, 1).  (Used in
+%   the notes-only Fördjupning subsections on where self comes from in the
+%   constructor and on classes, functions and methods as objects.)
 % FOUND-VIA (here): known item, curl
 %   https://docs.python.org/3/reference/datamodel.html (2026-10-27); key
 %   and metadata copied from classes/slides-more, so that the entry is the
 %   same in every deck the course book binds.
 % PICKED: the language reference, which defines the behaviour; the
-%   deck's own runs (ronja.py, init1.py, init2.py) show it as well.
+%   deck's own runs (ronja1.py, ronja2.py, init1.py, init2.py, namn1.py,
+%   namn2.py, klassobjekt.py, metodobjekt.py) show it as well.
 % QUOTE (3.3.1, object.__new__): "If __new__() is invoked during object
 %   construction and it returns an instance of cls, then the new
 %   instance's __init__() method will be invoked like __init__(self[,
 %   ...]), where self is the new instance and the remaining arguments are
-%   the same as were passed to the object constructor."
+%   the same as were passed to the object constructor.  If __new__() does
+%   not return an instance of cls, then the new instance's __init__()
+%   method will not be invoked.  __new__() is intended mainly to allow
+%   subclasses of immutable types (like int, str, or tuple) to customize
+%   instance creation."
 % QUOTE (3.3.1, object.__init__): "Called after the instance has been
 %   created (by __new__()), but before it is returned to the caller.
 %   [...] Because __new__() and __init__() work together in constructing
@@ -2560,9 +2570,22 @@
 %   variations are possible for class types that override __new__().  The
 %   arguments of the call are passed to __new__() and, in the typical
 %   case, to __init__() to initialize the new instance."
+% QUOTE (3.3.6, object.__call__): "Called when the instance is "called"
+%   as a function; if this method is defined, x(arg1, arg2, ...) roughly
+%   translates to type(x).__call__(x, arg1, ...)."
+% QUOTE (3.2.8.2, Instance methods): "When an instance method object is
+%   called, the underlying function (__func__) is called, inserting the
+%   class instance (__self__) in front of the argument list.  For
+%   instance, when C is a class which contains a definition for a
+%   function f(), and x is an instance of C, calling x.f(1) is equivalent
+%   to calling C.f(x, 1)."
 % VERIFIED (here): full text of the page read 2026-10-27 (the page served
-%   was the Python 3.15.2 documentation); the three passages appear
-%   verbatim.  The TypeError is also the real output of init2.py under
+%   was the Python 3.15.2 documentation); the passages appear verbatim.
+%   That Person(...) is type.__call__(Person, ...), which passes the
+%   arguments on to __new__ and __init__, combines 3.3.6 (type(Person) is
+%   type, shown by klassobjekt.py) with 3.2.8.8; "roughly" in 3.3.6 is
+%   why the deck says the call becomes type.__call__ and does not claim
+%   more.  The TypeError is also the real output of init2.py under
 %   Python 3.14.
 % COUNTER: not applicable -- the source defines the behaviour it is cited
 %   for.
@@ -2576,5 +2599,40 @@
   subtitle     = {The Python Language Reference},
   url          = {https://docs.python.org/3/reference/datamodel.html},
   urldate      = {2026-10-12},
+  year         = {2026},
+}
+
+% === provenance: PythonCompoundStmts ===
+% CLAIM: A class definition, like a function definition, is an executable
+%   statement: it creates a class object (a function object for def) and
+%   binds the name to it; a class without an inheritance list inherits
+%   from object.
+% FOUND-VIA: known item, curl
+%   https://docs.python.org/3/reference/compound_stmts.html (2026-10-27).
+% PICKED: the language reference, which defines the statements.
+% QUOTE (8.7, Function definitions): "A function definition is an
+%   executable statement.  Its execution binds the function name in the
+%   current local namespace to a function object (a wrapper around the
+%   executable code for the function)."
+% QUOTE (8.8, Class definitions): "A class definition is an executable
+%   statement. [...] Classes without an inheritance list inherit, by
+%   default, from the base class object [...] A class object is then
+%   created using the inheritance list for the base classes and the saved
+%   local namespace for the attribute dictionary.  The class name is
+%   bound to this class object in the original local namespace."
+% VERIFIED: full text of the page read 2026-10-27 (Python 3.15.2
+%   documentation); the passages appear verbatim (the section numbers
+%   are those of the page served).  klassobjekt.py shows the consequence:
+%   type(Person) is type, and a second name for the class creates
+%   persons too.
+% COUNTER: not applicable -- the source defines the behaviour it is cited
+%   for.
+% DATE: 2026-10-27
+@online{PythonCompoundStmts,
+  author       = {{Python Software Foundation}},
+  title        = {Compound statements},
+  subtitle     = {The Python Language Reference},
+  url          = {https://docs.python.org/3/reference/compound_stmts.html},
+  urldate      = {2026-10-27},
   year         = {2026},
 }
