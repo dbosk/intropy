@@ -18,7 +18,7 @@ PYTHONTEXFLAGS=	--interpreter python:python3 --rerun=always
 # through black, which reads ../pyproject.toml (79 columns).  See
 # modules/CLAUDE.md for the pattern.
 
-SRC+=		preamble.tex
+SRC+=		preamble.tex pythonfigs.sty
 SRC+=		abstract.tex contents.tex
 SRC+=		sokprotokoll.tex
 # The appendices \input the generated hit-list tables; a regenerated
@@ -39,6 +39,9 @@ EXAMPLES+=	examples/two.py
 EXAMPLES+=	examples/compare.py
 EXAMPLES+=	examples/greater.py
 EXAMPLES+=	examples/comparable.py
+EXAMPLES+=	examples/ronja.py
+EXAMPLES+=	examples/init1.py
+EXAMPLES+=	examples/init2.py
 
 # The class files' test programs grow one test case at a time, and the
 # deck shows each case's output beside it.  Each of these programs runs
