@@ -1,6 +1,6 @@
 ---
-title: 'Föreläsning: Fler behållare och mer om klasser'
-regex: '^Föreläsning: Fler behållare och mer om klasser$'
+title: 'Föreläsning: Repetition och mer om klasser'
+regex: '^Föreläsning: Repetition och mer om klasser$'
 published: true
 front_page: false
 editing_roles: teachers
@@ -21,16 +21,20 @@ exempel inför datorprovet. Bilderna visas under föreläsningen.
 
 ## Anteckningar
 
-Anteckningarna till repetitionen läggs upp här i modulen när de är
-klara.
+Anteckningarna till repetitionen finns även i modulen:
 
-<!-- TODO: FBF-dokumentet skapas av författaren -->
+26/10 kl 10 och 27/10 kl 10: [Repetition
+(föreläsningsanteckningar)]($CANVAS_COURSE_REFERENCE$/assignments/Repetition%20%28f%C3%B6rel%C3%A4sningsanteckningar%29 "Repetition (föreläsningsanteckningar)"){course-type="assignments"}
 
 ## Inspelning
 
 Föreläsningen spelas in. Inspelningen läggs upp här när den är klar.
 
-<!-- TODO: ersätt med länk till inspelningen (kaltura/Canvas Studio). -->
+<!-- TODO: inspelningen 27/10 bäddas in under en egen rubrik, om den kommer. -->
+
+#### 26/10 kl 10
+
+<iframe id="kmsembed-0_9hmvbh0k" class="kmsembed" title="prgi26: repetition" src="https://play.kth.se/embed/secure/iframe/entryId/0_9hmvbh0k/uiConfId/23453971" width="100%" height="100%" sandbox="allow-downloads allow-forms allow-same-origin allow-scripts allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation" allowfullscreen="allowfullscreen" webkitallowfullscreen="webkitallowfullscreen" mozallowfullscreen="mozallowfullscreen" allow="autoplay *; fullscreen *; encrypted-media *" frameborder="0" loading="lazy"></iframe>
 
 ## Veckans nya innehåll
 
