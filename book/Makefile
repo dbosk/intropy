@@ -20,18 +20,33 @@ LATEXFLAGS+=	-shell-escape
 # limit.
 PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=10'
 TEX_PYTHONTEX=	yes
-# Mentipy decks (Algoritmiskt tänkande, Hello, World!) import mentipy in
-# their PythonTeX code, and the system python3 cannot (pipx isolates it), so
-# PythonTeX runs in a virtualenv of the book's own, made on the first build.
-# --rerun=always: both editions share ltxobj.
+# Mentipy decks (Algoritmiskt tänkande, Hello, World!, Repetition: kursens
+# grunder) import mentipy in their PythonTeX code, and the system python3
+# cannot (pipx isolates it), so PythonTeX runs in a virtualenv of the
+# book's own, made on the first build.  --rerun=always: both editions
+# share ltxobj.
 MENTIPY_VENV=	$(CURDIR)/.venv
 PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
 
 ${MENTIPY_VENV}/bin/python3:
 	mentipy init --venv ${MENTIPY_VENV}
 
-# Order-only: the venv must exist, but its timestamp must not rebuild.
-bok.pdf bok-larare.pdf: | ${MENTIPY_VENV}/bin/python3
+# The recap deck imports ContextSnippet and file_snippet, which mentipy
+# has since 0.13.  The rule above makes the venv only once, so a venv made
+# before 0.13 keeps its older mentipy; a stamp named after the version
+# upgrades it once.  The upgrade rebuilds the book and removes the
+# PythonTeX output, which latexmk otherwise reruns only when the code
+# changed.  Order-only on the venv: its timestamp must not trigger an
+# upgrade.
+MENTIPY_VERSION=	0.13
+MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
+
+${MENTIPY_STAMP}: | ${MENTIPY_VENV}/bin/python3
+	${MENTIPY_VENV}/bin/python3 -m pip install 'mentipy>=${MENTIPY_VERSION}'
+	${RM} ${TEX_OUTDIR}/*.pytxmcr
+	touch $@
+
+bok.pdf bok-larare.pdf: ${MENTIPY_STAMP}
 
 # minted looks up its cache files with \IfFileExists, which under
 # \subimport also searches the deck's directory.  When the decks are

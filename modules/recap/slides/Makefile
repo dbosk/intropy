@@ -16,9 +16,25 @@ PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
 ${MENTIPY_VENV}/bin/python3:
 	mentipy init --venv ${MENTIPY_VENV}
 
-# Order-only: the venv must exist before latexmk runs pythontex, but its
-# timestamp must not trigger a rebuild.
-notes.pdf slides.pdf: | ${MENTIPY_VENV}/bin/python3
+# The program questions also carry web-only context (the program on the
+# student's phone, with ContextSnippet and file_snippet), which mentipy
+# has since 0.13.  The rule above makes the venv only once, so a venv made
+# before 0.13 keeps its older mentipy; a stamp named after the version
+# upgrades it once.  The deck depends on the stamp, so an upgrade also
+# rebuilds it, and the PythonTeX output goes with the upgrade: latexmk
+# reruns PythonTeX only when that output is missing or the code changed,
+# and another mentipy may give the questions other ids.
+MENTIPY_VERSION=	0.13
+MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
+
+# Order-only on the venv: the venv must exist before the upgrade, but its
+# timestamp must not trigger one.
+${MENTIPY_STAMP}: | ${MENTIPY_VENV}/bin/python3
+	${MENTIPY_VENV}/bin/python3 -m pip install 'mentipy>=${MENTIPY_VERSION}'
+	${RM} ${TEX_OUTDIR}/*.pytxmcr
+	touch $@
+
+notes.pdf slides.pdf: ${MENTIPY_STAMP}
 
 # mentipy serve rewrites the QR images and their .pdf_tex sidecars (the
 # address under each QR code) when the poll's address changes, so a
