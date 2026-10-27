@@ -2617,7 +2617,8 @@ håll\autocite{Daly1996,Harrison2000}.\footnote{Det vetenskapliga
 \label{sec:self-konstruktor}
 
 \leavevmode\ltnote{%
-  \Cref{sec:self-konstruktor,sec:klass-objekt} är fördjupning.  Inget
+  \Cref{sec:self-konstruktor,sec:klass-objekt,sec:objekt-dict} är
+  fördjupning.  Inget
   lärandemål är skrivet för dem, och inget senare i kursen bygger på
   dem; närmast ligger \cref{ClassLOSelf}.  De svarar på en students
   fråga: hur hänger \mintinline{python}{self} ihop med objektet i
@@ -2634,8 +2635,8 @@ håll\autocite{Daly1996,Harrison2000}.\footnote{Det vetenskapliga
   \mintinline{python}{Person} är oförändrad.  Bilderna ritas som
   \cref{fig:tva-objekt-lika}: namn med pilar till rutor.
 }%
-Det här avsnittet och nästa går längre än vad kursen kräver.  Du kan
-hoppa över dem: inget senare i kursen bygger på dem.  De svarar på en
+Det här avsnittet och de två nästa går längre än vad kursen kräver.  Du
+kan hoppa över dem: inget senare i kursen bygger på dem.  De svarar på en
 fråga som en student ställde: hur hänger \mintinline{python}{self} ihop
 med objektet i konstruktorn?
 
@@ -2922,7 +2923,8 @@ i tre steg.
     \texttt{self} på samma objekt, och konstruktorn har gett det
     attributen.  Sist är konstruktorn klar och \texttt{self} borta, och
     anropet har returnerat objektet, som har fått namnet
-    \texttt{ronja}.}
+    \texttt{ronja}.  Attributen står i objektets egen uppslagslista,
+    \texttt{\_\_dict\_\_} (\cref{sec:objekt-dict}).}
   \label{fig:konstruktion}
 \end{figure}
 
@@ -3238,5 +3240,241 @@ en pil till objektet, samma objekt som namnet före punkten pekar på.  I
 en vanlig metod är det metodobjektet som lägger dit pilen, och i
 konstruktorn är det Python, med det objekt som
 \mintinline{python}{__new__} just skapade.
+
+
+\subsection{Fördjupning: Objekt är nästan uppslagslistor}
+\label{sec:objekt-dict}
+
+\leavevmode\ltnote{%
+  Fördjupning som \cref{sec:self-konstruktor,sec:klass-objekt}: inget
+  lärandemål, och inget senare bygger på den.  Avsnittet knyter ihop
+  kapitlet med \cref{sec:tva-exempel}, där samma uppgifter var en
+  nästlad uppslagslista och ett objekt.  \textbf{Generalisering}: samma
+  struktur, en uppslagslista med attribut, i objektet, i klassen och i
+  basklassen (\cref{ex:dict1,ex:dict3}).  \textbf{Kontrast} i
+  \cref{ex:dict1}: punkt, hakparenteser och
+  \mintinline{python}{getattr}/\mintinline{python}{setattr} når samma
+  plats.  \Cref{ovn:dict2} visar inkapslingens gräns med en körning i
+  stället för ett påstående, och \cref{ex:dict4} hindrar att
+  \enquote{nästan} läses som \enquote{alltid}.  Ronjas föräldrar Lovis
+  och Mattis och borgen Mattisborgen kommer ur boken
+  \parencite{WikipediaRonjaDatum}.
+}%
+Också det här avsnittet går längre än vad kursen kräver, och du kan
+hoppa över det: inget senare i kursen bygger på det.  Kapitlet började i
+\cref{sec:tva-exempel} med samma uppgifter om en person på två sätt, i
+en nästlad uppslagslista och i ett objekt.  Skillnaden är mindre än den
+ser ut: ett objekt är nästan en uppslagslista, med en länk till sin
+klass.
+
+I \cref{ex:ronja1-run} gav \mintinline{python}{vars} ett objekts
+attribut som en uppslagslista, en \mintinline{python}{dict} som i
+föreläsningen \emph{Behållare: Uppslagslistor}.  Det är ingen kopia.
+Uppslagslistan är objektets eget attribut
+\mintinline{python}{__dict__}, och det är där attributen
+står\autocite{PythonDataModel}.
+
+\begin{frame}[fragile]
+  \begin{example}[Objektets uppslagslista]
+    \label{ex:dict1}
+    Uppslagslistan före och efter konstruktorn, och tre sätt att skriva
+    i den:
+<<[[dict1.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    ronja = Person.__new__(Person)
+    print(ronja.__dict__)
+    Person.__init__(
+        ronja, "Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567"
+    )
+    print(vars(ronja) is ronja.__dict__)
+    print(type(ronja.__dict__))
+    ronja.mother = "Lovis"
+    print(ronja.__dict__["mother"])
+    ronja.__dict__["father"] = "Mattis"
+    print(ronja.father)
+    setattr(ronja, "home", "Mattisborgen")
+    print(getattr(ronja, "home"))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict1.py}]
+    \label{ex:dict1-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/dict1.py}
+  \end{example}
+\end{frame}
+
+Efter \mintinline{python}{__new__} är uppslagslistan tom, och
+konstruktorn fyller i den.  \mintinline{python}{vars(ronja)} och
+\mintinline{python}{ronja.__dict__} är samma uppslagslista, av typen
+\mintinline{python}{dict}.  Att tilldela attributet
+\mintinline{python}{mother} med punkt är att lägga in nyckeln
+\mintinline{python}{mother} i uppslagslistan, och det som läggs in med
+hakparenteser går att läsa med punkt.  De inbyggda funktionerna
+\mintinline{python}{setattr} och \mintinline{python}{getattr} gör samma
+sak med attributets namn som en sträng, så som en uppslagslista tar sin
+nyckel.  Rutorna med attribut i \cref{fig:konstruktion,fig:metodobjekt}
+är alltså objektens uppslagslistor.
+
+Nycklarna är attributens namn, och för privata attribut är det de
+omskrivna namnen.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:dict2}
+    Programmet skriver ut nycklarna i en persons uppslagslista och
+    skriver sedan i den:
+<<[[dict2.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    ronja = Person("Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567")
+    print(list(ronja.__dict__))
+    ronja.__dict__["_Person__first_name"] = "Pippi"
+    print(ronja.get_name())
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict2.py}]
+    \label{ex:dict2-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines, deps={examples/person.py}]%
+      {examples/dict2.py}
+  \end{example}
+\end{frame}
+
+Nycklarna har klassens namn framför (\cref{fn:mangling}).  Med det
+namnet kan vem som helst skriva i uppslagslistan utifrån, och
+\mintinline{python}{get_name}, som läser
+\mintinline{python}{self.__first_name}, läser då Pippi.  Ett privat
+attribut i Python är alltså en överenskommelse om ett namn, inte ett
+lås: den som använder klassen håller sig till metoderna, men språket
+hindrar ingen.  Inkapsling är en etablerad princip, men den är löst
+formulerad, och i Python är det den formen den har.\footnote{Det
+  vetenskapliga underlaget för inkapsling --- att principen är etablerad
+  men löst formulerad och i sin klassiska form omdiskuterad --- finns i
+  \cref{app:inkapsling}.}
+
+Också klassen har en uppslagslista med sina attribut, och där står
+metoderna.  När Python letar efter ett attribut på ett objekt letar den
+först i objektets uppslagslista, sedan i klassens och sist i
+basklassernas\autocite{PythonDataModel}.  Det syns med
+\mintinline{python}{PersonNick} från \cref{sec:arv}, som har en egen
+\mintinline{python}{get_name} men ärver
+\mintinline{python}{get_birthday} från \mintinline{python}{Person}.
+
+\begin{frame}[fragile]
+  \begin{example}[Klassernas uppslagslistor]
+    \label{ex:dict3}
+    Var står metoderna?  Programmet importerar båda klasserna
+    (\cref{ex:person-hel,ex:person-nick}).
+<<[[dict3.py]]>>=
+from person import Person
+from person_nick import PersonNick
+
+def main():
+    """Huvudprogram"""
+    madicken = PersonNick(
+        "Margareta", "Engström", "1907-08-28", "Vimmerby", "okänt", "Madicken"
+    )
+    print("get_birthday" in madicken.__dict__)
+    print("get_birthday" in PersonNick.__dict__)
+    print("get_birthday" in Person.__dict__)
+    print("get_name" in PersonNick.__dict__)
+    print(Person.__dict__["get_name"] is Person.get_name)
+    print(type(Person.__dict__))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict3.py}]
+    \label{ex:dict3-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir,
+      deps={examples/person.py,examples/person_nick.py}]%
+      {examples/dict3.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{get_birthday} står varken i objektets
+uppslagslista eller i \mintinline{python}{PersonNick}:s, men i
+\mintinline{python}{Person}:s, och där hittar Python den: så fungerar
+arvet.  \mintinline{python}{get_name} står i
+\mintinline{python}{PersonNick}:s egen uppslagslista och hittas där
+först, och därför vinner den överlagrade metoden över förälderns.  Det
+som står i klassens uppslagslista är funktionen själv, den som
+\cref{sec:klass-objekt} kallade \mintinline{python}{Person.get_name}.
+När den hittas via ett objekt blir den ett metodobjekt, med en pil till
+funktionen och en till objektet (\cref{fig:metodobjekt}).  Klassens
+uppslagslista har typen \mintinline{python}{mappingproxy}: den läses
+som en uppslagslista, men den går inte att skriva i
+direkt.\footnote{\label{fn:vars-klass}%
+  \enquote{Objects such as modules and instances have an updateable
+  \mintinline{python}{__dict__} attribute; however, other objects may
+  have write restrictions on their \mintinline{python}{__dict__}
+  attributes (for example, classes use a
+  \mintinline{python}{types.MappingProxyType} to prevent direct
+  dictionary updates). [\dots] A \mintinline{python}{TypeError}
+  exception is raised if an object is specified but it doesn't have a
+  \mintinline{python}{__dict__} attribute.}  Pythons dokumentation av
+  \mintinline{python}{vars},
+  \url{https://docs.python.org/3/library/functions.html\#vars}
+  (hämtad 2026-10-27).}
+
+Nästan, inte helt: inte alla objekt har en uppslagslista.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett tal utan uppslagslista]
+    \label{ex:dict4}
+    Programmet frågar efter attributen hos talet 5:
+<<[[dict4.py]]>>=
+def main():
+    """Huvudprogram"""
+    print(vars(5))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict4.py}]
+    \label{ex:dict4-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines]{examples/dict4.py}
+  \end{example}
+\end{frame}
+
+Ett tal har ingen \mintinline{python}{__dict__}, och därför kan
+\mintinline{python}{vars} inte ge någon (\cref{fn:vars-klass}).  En
+klass kan också avstå från uppslagslistan för sina objekt och i stället
+räkna upp deras attribut i förväg, med \mintinline{python}{__slots__},
+vilket kan spara en hel del minne\autocite{PythonDataModel}.
+
+Ett \mintinline{python}{Person}-objekt är alltså nästan det som
+telefonboken i \cref{sec:tva-exempel} hade för varje person: en
+uppslagslista med uppgifterna.  Skillnaden är länken till klassen.
+Genom den hittar objektet sina metoder, och genom den vet Python vad
+för slags objekt det är.
 
 \mode*
