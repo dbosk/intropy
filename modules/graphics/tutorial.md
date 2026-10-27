@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Grafiskt gränssnitt$'
-    position: 5
+    position: 7
 ---
 Övningen är frivillig och ges för hela klassen, i D37 och på
 [Zoom][zoom-room]; tider och plats står i veckoöversikten överst i

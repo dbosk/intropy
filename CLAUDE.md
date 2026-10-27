@@ -24,36 +24,42 @@ all learning objectives: update it when a week's objectives change.
 
 ### The shape of a week module
 
-The author arranged *Inmatning, felhantering och styrstrukturer* by hand
-(2026-09-20) and asked for the other weeks to follow it:
+From week 44 on (the author arranged weeks 44–45 by hand, 2026-10-26: "New
+shape for all") a module opens with two pages, then three sections, each
+opened by a text header:
 
 1. Page `Veckoöversikt: <vecka>`
 2. Page `Föreläsning: <vecka>`
-3. `<Deck> (föreläsningsanteckningar)` per deck: a FeedbackFruits document
-   the author makes from the approved `notes.pdf`. Until it exists, one
-   text header `Föreläsningsanteckningar kommer`
-4. `<Deck> (videoföreläsning)` per deck that has a video, in the lecture
-   page's deck order. `<Deck>` is the canonical deck title from
-   `modules/CLAUDE.md`; a deck with two videos keeps its part names
-   (`Behållare: Listor, del 1 (videoföreläsning)`)
-5. Page `Övning: <vecka>`
-6. `Övning: <vecka> (övningsanteckningar)`, FeedbackFruits, author-made.
-   Until then the text header `Övningsanteckningar kommer`
-7. `Laboration (N) …`
-8. anything else the module holds (week 44: *Läsförståelse: Dokumentation
-   för olika behållare*)
+3. Header `Föreläsningsanteckningar` (`Föreläsningsanteckningar och
+   förinspelade videos` when the week has videos), then per deck, in the
+   lecture page's deck order, `<Deck> (föreläsningsanteckningar)` (a
+   FeedbackFruits document the author makes from the approved `notes.pdf`)
+   followed by `<Deck> (videoföreläsning)` if it has one. `<Deck>` is the
+   canonical deck title from `modules/CLAUDE.md`; a deck with two videos
+   keeps its part names (`Behållare: Listor, del 1 (videoföreläsning)`)
+4. Header `Övningsanteckningar`, then other material for the övning (week
+   44: *Läsförståelse: Dokumentation för olika behållare*), the page
+   `Övning: <vecka>` and `<Vecka> (övningsanteckningar)`, author-made
+5. Header `Laboration`, then `Laboration (N) …` and the week's quizzes
+   (week 44: the topic quiz)
 
-Week 44 departs from the shape (author, 2026-10-10): its lecture is a
-recap of the whole course, and the week's four decks are taught at the
-övningar, so the page `Övning: <vecka>` comes right after the lecture page,
-followed by the decks' notes and videos (items 3–4), then item 6.
+Until a section's first document exists its header reads `… kommer`
+(`Föreläsningsanteckningar kommer`) and is renamed when the document is
+added; within a deck, notes come before the video (author, 2026-10-26). An
+item may be listed again in a later week where it helps: week 46 lists
+*Repetition (föreläsningsanteckningar)* in its lecture section (author,
+2026-10-26: keep it). Week 44's lecture is a recap of the whole course, and
+the week's four decks are taught at the övningar (author, 2026-10-10).
+
+Weeks 37–41 were taught before this shape and keep their layout: weeks
+39–41 the shape of 2026-09-20 (overview, lecture, notes, videos, Övning,
+its notes, lab); weeks 37–38 predate even that.
 
 The imported items of the previous course design are detached and
 unpublished, never deleted: `Övning <vecka>`, `Fördjupande övning <vecka>`,
 the page `Fler kommande FeedbackFruits-videor`, and the old unsuffixed video
-assignments of week 39. Weeks 37–38 were taught before the shape existed and
-keep their layout. *Summativ bedömning (datorprov)* and *Projektet* are not
-week modules of this shape.
+assignments of week 39. *Summativ bedömning (datorprov)* and *Projektet* are
+not week modules of this shape.
 
 A page's `position:` is where it sits in Canvas now. When a placeholder
 header is added or replaced by several documents, change the positions of
