@@ -49,9 +49,9 @@ vi tillsammans, i den här ordningen:
 Resten av uppgifterna finns kvar att göra på egen tid; lösningsförslagen
 i dokumentet låter dig kontrollera dina egna svar.
 
-1. **Uppgift 4: En bok utan att anropa klassen.** Skriva om raden som
-   skapar en bok så att den anropar konstruktorn direkt, som en metod,
-   och inte klassen.
+1. **Fördjupning: Uppgift 4: En bok utan att anropa klassen.** Skriva
+   om raden som skapar en bok så att den anropar konstruktorn direkt,
+   som en metod, och inte klassen.
 2. **Uppgift 9: Klass eller uppslagslista.** Välja mellan att
    representera samma data som en klass eller som en uppslagslista,
    beroende på vad programmet behöver.
