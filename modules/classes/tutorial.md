@@ -1,7 +1,7 @@
 ---
 title: 'Övning: Klasser och objekt'
 regex: '^Övning: Klasser och objekt$'
-published: false
+published: true
 front_page: false
 editing_roles: teachers
 modules:
