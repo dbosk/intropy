@@ -18,13 +18,13 @@ ${MENTIPY_VENV}/bin/python3:
 
 # The program questions also carry web-only context (the program on the
 # student's phone, with ContextSnippet and file_snippet), which mentipy
-# has since 0.13.  The rule above makes the venv only once, so a venv made
-# before 0.13 keeps its older mentipy; a stamp named after the version
-# upgrades it once.  The deck depends on the stamp, so an upgrade also
+# has since 0.13; 0.14 shows the options before the context.  The rule
+# above makes the venv only once, so a venv keeps the mentipy of its
+# first build; a stamp named after the version upgrades it once.  The deck depends on the stamp, so an upgrade also
 # rebuilds it, and the PythonTeX output goes with the upgrade: latexmk
 # reruns PythonTeX only when that output is missing or the code changed,
 # and another mentipy may give the questions other ids.
-MENTIPY_VERSION=	0.13
+MENTIPY_VERSION=	0.14
 MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
 
 # Order-only on the venv: the venv must exist before the upgrade, but its
