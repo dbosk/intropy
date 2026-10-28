@@ -50,8 +50,9 @@ reda på varifrån \mintinline{python}{print} och \mintinline{python}{==}
 fick sina svar innan du skrev dina egna metoder, och skriver en
 underklass som bygger vidare på den klass du redan har.  Till sist väger
 vi en klass mot en uppslagslista och granskar ett program som fungerar
-men är illa skrivet.  Den sista uppgiften är fördjupning och handlar om
-komposition.
+men är illa skrivet.  Två uppgifter är fördjupning, och du kan hoppa
+över dem: den som skapar en bok utan att anropa klassen, och den sista,
+som handlar om komposition.
 
 Övningen är byggd för att du ska försöka först.  Varje uppgift står för
 sig, och lösningsförslaget kommer efter den.  Läs förslaget när du har
@@ -497,14 +498,14 @@ anroparen strunta i, ett särfall måste den ta om hand.
 \leavevmode\ltnote{%
   \textbf{Tidsbudget}: \cref{sec:boken} till \cref{sec:granskning} är
   huvudsekvensen och täcker alla lärandemål utom
-  \cref{OvningClassesLOComposition}.  Nio avsnitt ryms inte i ett
+  \cref{OvningClassesLOComposition}.  Tio avsnitt ryms inte i ett
   tvåtimmarspass.  Urvalet för passet står på övningens sida i
   lärplattformen och är sex avsnitt, i materialets ordning:
   \cref{sec:boken,sec:sista-sidan,sec:tva-bocker,sec:kortast,%
   sec:tva-exemplar,sec:arv-ovning-klasser}.  Sex är en uppskattning, inte
-  en tidtagning.  \Cref{sec:representation} och hela
-  \cref{sec:granskning} görs på egen hand.  Det står på övningens sida
-  och ingen annanstans: av de två uppgiftstexterna är det bara
+  en tidtagning.  \Cref{sec:bok-utan-anrop,sec:representation} och
+  hela \cref{sec:granskning} görs på egen hand.  Det står på övningens
+  sida och ingen annanstans: av de tre uppgiftstexterna är det bara
   \cref{sec:granskning} som själv säger något om saken, och den säger
   bara att omskrivningen tas med hem.  \Cref{sec:komposition} är
   fördjupning och ingenting senare bygger på den.
@@ -602,6 +603,123 @@ attribut.
     som första argument: anropet \mintinline{python}{ronja.read(30)} är
     detsamma som \mintinline{python}{Book.read(ronja, 30)}.  Varje
     objekt har sina egna attribut, och anropet rör bara det objektets.
+  \end{solution}
+\end{frame}
+
+% The headline of the slides has room for a short title only; the
+% notes' heading, table of contents and bookmark carry the marker.
+\mode<presentation>{\section[Ny bok]{En bok utan att anropa klassen}}
+\mode<article>{\section{Fördjupning: En bok utan att anropa klassen}}
+\label{sec:bok-utan-anrop}
+
+\leavevmode\ltnote{%
+  Fördjupning: inget lärandemål är skrivet för uppgiften, och inget
+  senare i övningen eller kursen bygger på den; närmast ligger
+  \cref{OvningClassesLOSelf}.
+
+  \Cref{ovn:bok-utan-anrop} för omskrivningen i lösningsförslaget till
+  \cref{ovn:tva-bocker} vidare till konstruktorn, där den verkar
+  omöjlig: det objekt som ska bli \mintinline{python}{self} finns inte
+  förrän anropet är klart.  Frågan kommer från en student.
+  Föreläsningen \emph{Klasser och objekt} gör samma omskrivning med
+  \mintinline{python}{Person}, i en fördjupning som bara står i
+  anteckningarna; här gör studenten den själv, på den klass övningen
+  har byggt.  Uppgiften säger inte vad som saknas.  Ledtråden säger var
+  \mintinline{python}{__new__} beskrivs, inte hur den hör ihop med
+  konstruktorn, och den står sist, så att studenten kan pröva utan den
+  först.
+}%
+Den här uppgiften är fördjupning.  Den går längre än vad kursen kräver,
+och du kan hoppa över den: inget senare i övningen eller kursen bygger
+på den.
+
+Lösningsförslaget till \cref{ovn:tva-bocker} skrev om ett metodanrop:
+\mintinline{python}{ronja.read(30)} är detsamma som
+\mintinline{python}{Book.read(ronja, 30)}.  Konstruktorn är också en
+metod, med \mintinline{python}{self} som första parameter.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Fördjupning: Utan att anropa klassen]
+    \label{ovn:bok-utan-anrop}
+    Raden skapar en bok genom att anropa klassen:
+    \begin{minted}{python}
+      ronja = Book("Ronja Rövardotter", "Astrid Lindgren", 235)
+    \end{minted}
+    Skriv om den på samma form som
+    \mintinline{python}{Book.read(ronja, 30)}, så att den anropar
+    konstruktorn direkt och inte klassen.  Läs sedan 50 sidor i boken
+    och skriv ut den, så att du ser att den fungerar som en vanlig bok.
+
+    Om du kör fast: varje klass har en metod
+    \mintinline{python}{__new__}, utan att du skriver den.  Läs om den
+    med \texttt{pydoc3 object.\_\_new\_\_} i terminalen, eller med
+    \mintinline{python}{help(object.__new__)} i Python.
+  \end{exercise}
+\end{frame}
+
+\mode<article>{\subsection{Lösningsförslag}}
+
+Konstruktorn tar boken som \mintinline{python}{self}, så omskrivningen
+borde börja med \mintinline{python}{Book.__init__} och ha
+\mintinline{python}{ronja} som första argument.  Men
+\mintinline{python}{ronja} har inget värde förrän raden är klar: det
+objekt som konstruktorn ska ge attribut är just det som raden skapar.
+Objektet måste alltså finnas först.  Det skapar
+\mintinline{python}{__new__}, som tar klassen som argument, eftersom
+det inte finns något objekt än, och returnerar ett nytt objekt av
+klassen, utan attribut.  Någon \mintinline{python}{__new__} har vi inte
+skrivit i \mintinline{python}{Book}: klassen har ärvt den från klassen
+\mintinline{python}{object}, som de metoder som
+\cref{sec:arv-ovning-klasser} letar fram.  Programmet gör de två stegen
+ett i taget.
+Modulen \texttt{book} är filen från \cref{ex:book-hel}.
+
+\begin{frame}[fragile]
+  \begin{example}[En bok i två steg]
+    \label{ex:two-steps}
+    Först objektet, sedan konstruktorn:
+<<[[two_steps.py]]>>=
+from book import Book
+
+def main():
+    """Test program"""
+    ronja = Book.__new__(Book)
+    Book.__init__(ronja, "Ronja Rövardotter", "Astrid Lindgren", 235)
+    ronja.read(50)
+    print(ronja)
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{two\_steps.py}]
+    \label{ex:two-steps-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/book.py}]%
+      {examples/two_steps.py}
+  \end{example}
+\end{frame}
+
+Boken fungerar som vilken bok som helst.  Det är samma två steg som
+Python tar när vi skriver \mintinline{python}{Book(...)}, och vid varje
+anrop av en klass: \mintinline{python}{__new__} skapar objektet,
+\mintinline{python}{__init__} ger det dess attribut med objektet som
+\mintinline{python}{self}, och anropet returnerar objektet.
+Föreläsningen \emph{Klasser och objekt} visar, i den frivilliga
+fördjupningen \emph{Var kommer \texttt{self} ifrån i konstruktorn?}, att
+\mintinline{python}{self} inuti konstruktorn är samma objekt som namnet
+får efter anropet, och vad som händer om konstruktorn försöker
+returnera något.
+
+\begin{frame}[fragile]
+  \begin{solution}[Konstruktorn får objektet]
+    \mintinline{python}{Book.__new__(Book)} skapar ett nytt objekt utan
+    attribut, och \mintinline{python}{Book.__init__(ronja, ...)} ger
+    det attributen, med objektet som \mintinline{python}{self}.
+    Konstruktorn skapar inte objektet, den får det färdigt.
   \end{solution}
 \end{frame}
 
@@ -1936,7 +2054,7 @@ och det ger svaret på uppgiftens sista fråga.
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{OvningClassesLOComposition}.
 
-  Övningens enda fördjupningsuppgift, och den sista med flit: den
+  Övningens andra fördjupningsuppgift, och den sista med flit: den
   kräver ingen kod utan ett val, och valet förutsätter att både arv
   (\cref{sec:arv-ovning-klasser}) och en klass med attribut (\cref{sec:boken})
   är bekanta.  Komposition är den aspekt kursen behandlar fullt ut först i

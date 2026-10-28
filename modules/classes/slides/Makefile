@@ -39,6 +39,18 @@ EXAMPLES+=	examples/two.py
 EXAMPLES+=	examples/compare.py
 EXAMPLES+=	examples/greater.py
 EXAMPLES+=	examples/comparable.py
+EXAMPLES+=	examples/ronja1.py
+EXAMPLES+=	examples/ronja2.py
+EXAMPLES+=	examples/init1.py
+EXAMPLES+=	examples/init2.py
+EXAMPLES+=	examples/namn1.py
+EXAMPLES+=	examples/namn2.py
+EXAMPLES+=	examples/klassobjekt.py
+EXAMPLES+=	examples/metodobjekt.py
+EXAMPLES+=	examples/dict1.py
+EXAMPLES+=	examples/dict2.py
+EXAMPLES+=	examples/dict3.py
+EXAMPLES+=	examples/dict4.py
 
 # The class files' test programs grow one test case at a time, and the
 # deck shows each case's output beside it.  Each of these programs runs

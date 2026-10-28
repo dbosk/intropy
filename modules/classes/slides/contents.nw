@@ -2603,3 +2603,878 @@ inte ett förbud: experimenten om arv och underhåll pekar åt olika
 håll\autocite{Daly1996,Harrison2000}.\footnote{Det vetenskapliga
   underlaget för rådet --- både varifrån det kommer och hur väl det
   håller, med sina förbehåll --- finns i \cref{app:komposition}.}
+
+% De två fördjupningarna nedan finns bara i anteckningarna: bilderna är
+% oförändrade (författaren, 2026-10-27).  Raden \mode<article> hoppar
+% över allt fram till raden \mode* när bilderna byggs, ramarna också, så
+% att inte ens bildnumren ändras (en ram med <article> räknas ändå).
+% Båda raderna måste stå ensamma, utan indrag.  Avsnitten står sist,
+% efter arvet, eftersom de behöver det: __new__ ärvs från object, och
+% exemplet med __new__ är en underklass till str.
+\mode<article>
+
+\subsection{Fördjupning: Var kommer \texttt{self} ifrån i konstruktorn?}
+\label{sec:self-konstruktor}
+
+\leavevmode\ltnote{%
+  \Cref{sec:self-konstruktor,sec:klass-objekt,sec:objekt-dict} är
+  fördjupning.  Inget
+  lärandemål är skrivet för dem, och inget senare i kursen bygger på
+  dem; närmast ligger \cref{ClassLOSelf}.  De svarar på en students
+  fråga: hur hänger \mintinline{python}{self} ihop med objektet i
+  konstruktorn, där omskrivningen från \cref{ovn:self} verkar omöjlig,
+  eftersom objektet inte finns än?
+
+  \Cref{ovn:self-konstruktor} låter studenten själv stöta på det som
+  saknas innan svaret ges, och uppgiften säger inte vad det är.
+  \textbf{Kontrast}: \cref{ovn:halvfardig} visar objektet efter det
+  första steget och \cref{ex:ronja2} efter båda, med klassen och
+  argumenten invarianta.  I \cref{ovn:init-self,ovn:init-retur}
+  varierar vad konstruktorn gör med \mintinline{python}{self} och med
+  sitt returvärde, i en egen liten klass, så att
+  \mintinline{python}{Person} är oförändrad.  Bilderna ritas som
+  \cref{fig:tva-objekt-lika}: namn med pilar till rutor.
+}%
+Det här avsnittet och de två nästa går längre än vad kursen kräver.  Du
+kan hoppa över dem: inget senare i kursen bygger på dem.  De svarar på en
+fråga som en student ställde: hur hänger \mintinline{python}{self} ihop
+med objektet i konstruktorn?
+
+I svaret på \cref{ovn:self} skrev vi om ett metodanrop,
+\mintinline{python}{person.get_name()}, till
+\mintinline{python}{Person.get_name(person)}.  Konstruktorn är också en
+metod, med \mintinline{python}{self} som första parameter, och den
+anropas när vi skapar ett objekt.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ovn:self-konstruktor}
+    Raden anropar konstruktorn i \mintinline{python}{Person}:
+    \begin{minted}{python}
+      ronja = Person(
+          "Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567"
+      )
+    \end{minted}
+    Skriv om den på formen \mintinline{python}{Klass.metod(objekt, ...)},
+    som vi gjorde med \mintinline{python}{get_name}.  Vad saknas?
+  \end{exercise}
+\end{frame}
+
+Konstruktorn heter \mintinline{python}{__init__} och tar
+\mintinline{python}{self} först, så omskrivningen borde börja
+\mintinline{python}{Person.__init__(ronja, ...)}.  Men det objekt som
+ska skickas med som \mintinline{python}{self} är just det objekt som
+raden ska skapa.  Före anropet finns det inte, och namnet
+\mintinline{python}{ronja} får sitt värde först när anropet är klart.
+Det som saknas är alltså objektet: innan konstruktorn kan ge ett objekt
+attribut måste något skapa objektet.  Det gör en annan dundermetod,
+\mintinline{python}{__new__}.  Den tar klassen som argument, eftersom
+det inte finns något objekt att ta, och returnerar ett nytt objekt av
+klassen.
+
+Någon \mintinline{python}{__new__} har vi inte skrivit i
+\mintinline{python}{Person}.  En klass utan basklass ärver från klassen
+\mintinline{python}{object}\autocite{PythonCompoundStmts}, på samma sätt
+som \mintinline{python}{PersonNick} ärver från
+\mintinline{python}{Person}, och därifrån kommer
+\mintinline{python}{__new__}.  Därifrån kom också den
+\mintinline{python}{__eq__} som jämförde identitet i
+\cref{ex:compare-run} (\cref{fn:default-eq}).  Konstruktorn
+\mintinline{python}{__init__} finns i \mintinline{python}{object} den
+med; den skriver vi över i varje klass, som
+\mintinline{python}{PersonNick} skriver över
+\mintinline{python}{get_name}.  Vad gör då
+\mintinline{python}{__new__} med objektet, och vad lämnar den åt
+konstruktorn?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:halvfardig}
+    Programmet anropar bara \mintinline{python}{__new__}, och sedan en
+    metod på objektet.  Modulen \texttt{person} är filen från
+    \cref{ex:person-hel}.
+<<[[ronja1.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    print(Person.__new__ is object.__new__)
+    ronja = Person.__new__(Person)
+    print(type(ronja))
+    print(vars(ronja))
+    print(ronja.get_name())
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{ronja1.py}]
+    \label{ex:ronja1-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines, deps={examples/person.py}]%
+      {examples/ronja1.py}
+  \end{example}
+\end{frame}
+
+Den första raden bekräftar att \mintinline{python}{Person.__new__} är
+samma metod som \mintinline{python}{object.__new__}.  Objektet som den
+skapar är redan ett \mintinline{python}{Person}-objekt: den inbyggda
+funktionen \mintinline{python}{type} ger ett objekts klass, här
+\mintinline{python}{Person} i modulen \texttt{person}.  Varje objekt har
+en sådan länk till sin klass, och det är den som gör att anropet
+\mintinline{python}{ronja.get_name()} hittar metoden: Python letar efter
+metoden i objektets klass.\footnote{\label{fn:method-objects}%
+  \enquote{When a non-data attribute of an instance is referenced, the
+  instance's class is searched.  If the name denotes a valid class
+  attribute that is a function object, references to both the instance
+  object and the function object are packed into a method object.}
+  Avsnittet \emph{Method Objects} i Pythons handledning,
+  \url{https://docs.python.org/3/tutorial/classes.html\#method-objects}
+  (hämtad 2026-10-27).}
+Men objektet har inga attribut än.  Den inbyggda funktionen
+\mintinline{python}{vars} ger ett objekts attribut som en
+uppslagslista, med attributens namn som nycklar,\footnote{\label{fn:vars}%
+  \enquote{Return the \mintinline{python}{__dict__} attribute for a
+  module, class, instance, or any other object with a
+  \mintinline{python}{__dict__} attribute.}  Pythons dokumentation av
+  de inbyggda funktionerna,
+  \url{https://docs.python.org/3/library/functions.html\#vars}
+  (hämtad 2026-10-27).}
+och här är uppslagslistan tom.  Metoden hittas alltså, men när den
+läser \mintinline{python}{self.__first_name} finns inget sådant
+attribut, och körningen avbryts med ett
+\mintinline{python}{AttributeError}.  Namnet i felmeddelandet är det
+omskrivna, med klassens namn framför, eftersom attributet är privat
+(\cref{fn:mangling}).  Här går gränsen mellan de två stegen:
+\mintinline{python}{__new__} skapar objektet och ger det dess klass,
+och konstruktorn ger det dess attribut.  Med båda stegen fungerar
+objektet.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett objekt i två steg]
+    \label{ex:ronja2}
+    Först skapas objektet, sedan anropas konstruktorn på det:
+<<[[ronja2.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    ronja = Person.__new__(Person)
+    Person.__init__(
+        ronja, "Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567"
+    )
+    print(vars(ronja))
+    print(ronja)
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{ronja2.py}]
+    \label{ex:ronja2-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines, deps={examples/person.py}]%
+      {examples/ronja2.py}
+  \end{example}
+\end{frame}
+
+Efter konstruktorn har objektet alla fem attribut, och
+\mintinline{python}{print} anropar dess \mintinline{python}{__str__}
+som för vilken person som helst.  Det är just de här två stegen Python
+tar när vi skriver \mintinline{python}{Person(...)}:
+\mintinline{python}{__new__} skapar objektet,
+\mintinline{python}{__init__} ger det dess attribut, och anropet
+returnerar objektet.  Så gör Python vid varje anrop av en
+klass\autocite{PythonDataModel}.  Konstruktorn skapar alltså inte
+objektet.  Den får det färdigt, som \mintinline{python}{self}.
+
+Vad är då \mintinline{python}{self} inuti konstruktorn?  För att se det
+behöver vi en konstruktor som skriver ut något, och det gör inte den i
+\mintinline{python}{Person}.  Vi provar därför med en liten klass för
+sig, en person med bara ett namn.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:init-self}
+    Den inbyggda funktionen \mintinline{python}{id} ger ett heltal för
+    ett objekt, och två objekt som finns samtidigt får aldrig samma
+    tal.\footnote{\label{fn:id}%
+      \enquote{Return the \enquote{identity} of an object.  This is an
+      integer which is guaranteed to be unique and constant for this
+      object during its lifetime.}  Pythons dokumentation av de
+      inbyggda funktionerna,
+      \url{https://docs.python.org/3/library/functions.html\#id}
+      (hämtad 2026-10-27).}
+    Vilka talen blir kan du inte veta i förväg.
+<<[[init1.py]]>>=
+class SimplePerson:
+    """En person med bara ett namn"""
+
+    def __init__(self, name):
+        print(id(self))
+        self.__name = name
+        self = None
+
+    def get_name(self):
+        """Returnerar namnet"""
+        return self.__name
+
+def main():
+    """Huvudprogram"""
+    ronja = SimplePerson("Ronja")
+    print(id(ronja))
+    print(ronja.get_name())
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{init1.py}]
+    \label{ex:init1-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/init1.py}
+  \end{example}
+\end{frame}
+
+De två talen är lika: \mintinline{python}{self} inuti konstruktorn och
+\mintinline{python}{ronja} efter anropet är samma objekt.  Det är
+objektet som \mintinline{python}{__new__} skapade.  Python skickar med
+det som \mintinline{python}{self}, och när konstruktorn är klar
+returnerar anropet samma objekt, som får namnet
+\mintinline{python}{ronja}.  Raden \mintinline{python}{self = None}
+ändrar ingenting för den som anropade.  Den låter bara konstruktorns
+eget namn \mintinline{python}{self} peka på något annat, och objektet
+finns kvar med sitt namn ifyllt, som den sista raden visar.
+\mintinline{python}{self} och \mintinline{python}{ronja} är två namn,
+två pilar till samma objekt, som namnen i \cref{fig:tva-objekt-lika}.
+\Cref{fig:konstruktion} ritar anropet \mintinline{python}{Person(...)}
+i tre steg.
+
+% Anropet Person(...) i tre steg, ritat som fig:tva-objekt-lika: ett namn
+% med en pil ner till en ruta, och rutans rubrik säger vad för slags
+% objekt det är.  Klassen ritas som ett objekt den också, ett
+% type-objekt med namnet Person som pil; objektets länk till klassen är
+% pilen märkt klass.  Rutorna får egna namn, så att boken, som binder
+% alla kortlekar, inte får två makron med samma namn.
+\newcommand{\classesKlassruta}{%
+  \fbox{\footnotesize
+    \begin{tabular}{@{}l@{}}
+      ett \texttt{type}-objekt \\
+      \hline
+      \texttt{\_\_init\_\_} \\
+      \texttt{get\_name} \\
+      \texttt{\_\_str\_\_} \\
+      \dots \\
+    \end{tabular}}}
+\newcommand{\classesTomruta}{%
+  \fbox{\footnotesize
+    \begin{tabular}{@{}l@{}}
+      ett \texttt{Person}-objekt \\
+      \hline
+      \emph{inga attribut} \\
+    \end{tabular}}}
+\newcommand{\classesRonjaruta}{%
+  \fbox{\footnotesize
+    \def\kq{\textquotedbl}%
+    \begin{tabular}{@{}l@{\ }l@{}}
+      \multicolumn{2}{@{}c@{}}{ett \texttt{Person}-objekt} \\
+      \hline
+      \texttt{\_\_first\_name} & \texttt{\kq Ronja\kq} \\
+      \texttt{\_\_last\_name} & \texttt{\kq Rövardotter\kq} \\
+      \texttt{\_\_birthday} & \texttt{\kq 1981-10-08\kq} \\
+      \texttt{\_\_address} & \texttt{\kq okänt\kq} \\
+      \texttt{\_\_phone} & \texttt{\kq 0701234567\kq} \\
+    \end{tabular}}}
+\newcommand{\classesKlasspil}{%
+  \(\xleftarrow{\text{\scriptsize klass}}\)}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tabular}{ccc}
+    \multicolumn{3}{@{}l}{\emph{Efter \texttt{\_\_new\_\_}}} \\
+    \texttt{Person} & & \\
+    \(\downarrow\) & & \\
+    \classesKlassruta & \classesKlasspil & \classesTomruta \\[3ex]
+    \multicolumn{3}{@{}l}{\emph{I \texttt{\_\_init\_\_}}} \\
+    \texttt{Person} & & \texttt{self} \\
+    \(\downarrow\) & & \(\downarrow\) \\
+    \classesKlassruta & \classesKlasspil & \classesRonjaruta \\[3ex]
+    \multicolumn{3}{@{}l}{\emph{Efter anropet}} \\
+    \texttt{Person} & & \texttt{ronja} \\
+    \(\downarrow\) & & \(\downarrow\) \\
+    \classesKlassruta & \classesKlasspil & \classesRonjaruta \\
+  \end{tabular}
+  \caption{Anropet \texttt{Person(...)} i tre steg, uppifrån och ner.
+    Varje pil nedåt går från ett namn till det objekt som namnet står
+    för, och varje ruta är ett objekt: överst vad för slags objekt det
+    är, under det dess innehåll.  Klassen är också ett objekt, och
+    pilen märkt \enquote{klass} är objektets länk till den.  Först har
+    \texttt{\_\_new\_\_} skapat ett objekt med länken men utan attribut,
+    och inget namn pekar på det.  Sedan pekar konstruktorns
+    \texttt{self} på samma objekt, och konstruktorn har gett det
+    attributen.  Sist är konstruktorn klar och \texttt{self} borta, och
+    anropet har returnerat objektet, som har fått namnet
+    \texttt{ronja}.  Attributen står i objektets egen uppslagslista,
+    \texttt{\_\_dict\_\_} (\cref{sec:objekt-dict}).}
+  \label{fig:konstruktion}
+\end{figure}
+
+Konstruktorn returnerar ingenting, och ändå ger anropet ett objekt.
+Hur går det om konstruktorn returnerar något?
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:init-retur}
+    Samma slags klass, men konstruktorn returnerar ett tal:
+<<[[init2.py]]>>=
+class SimplePerson:
+    """En person med bara ett namn"""
+
+    def __init__(self, name):
+        self.__name = name
+        return 5
+
+def main():
+    """Huvudprogram"""
+    ronja = SimplePerson("Ronja")
+    print(ronja)
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{init2.py}]
+    \label{ex:init2-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines]{examples/init2.py}
+  \end{example}
+\end{frame}
+
+Programmet kommer aldrig till utskriften.  Anropet avbryts med ett
+\mintinline{python}{TypeError}: en konstruktor får inte returnera något
+annat än \mintinline{python}{None}\autocite{PythonDataModel}.  Anropets
+värde kommer inte från konstruktorn.  Det är objektet som
+\mintinline{python}{__new__} skapade, och ett annat returvärde från
+konstruktorn skulle inte ha någonstans att ta vägen.  Konstruktorns
+uppgift är bara att ge objektet dess attribut, och det gör den genom
+\mintinline{python}{self}, pilen till objektet.
+
+
+\subsection{Fördjupning: Klasser, funktioner och metoder är också objekt}
+\label{sec:klass-objekt}
+
+\leavevmode\ltnote{%
+  Fördjupningen fortsätter \cref{sec:self-konstruktor} och är frivillig
+  på samma sätt.  Den visar ett enda exempel där en egen
+  \mintinline{python}{__new__} behövs, \cref{ovn:namn-init} mot
+  \cref{ex:namn-new}: \textbf{kontrast} med klassen och argumentet
+  invarianta, och det som varierar är var strängen görs om.  Exemplet
+  är det fall språkreferensen själv nämner, en underklass till en typ
+  som inte kan ändras.  Sedan tar avsnittet tråden från bilderna med
+  pilar till sitt slut: också klassen, funktionen och metoden är objekt
+  som namn pekar på, och metodobjektet i \cref{fig:metodobjekt} är
+  svaret på studentens fråga.
+}%
+Också det här avsnittet går längre än vad kursen kräver, och du kan
+hoppa över det: inget senare i kursen bygger på det.  Det fortsätter
+där förra avsnittet slutade, med vad \mintinline{python}{__new__} gör
+och med vad det är vi anropar när vi anropar en klass.
+
+\mintinline{python}{__new__} får klassen som första argument, i
+parametern som brukar heta \mintinline{python}{cls}, och inte
+\mintinline{python}{self}: det finns inget objekt förrän
+\mintinline{python}{__new__} har skapat det.  Den returnerar objektet,
+och det är där objektet får sin identitet och sin klass.  Python
+anropar sedan konstruktorn på det objekt som
+\mintinline{python}{__new__} returnerade, och bara om det är ett objekt
+av klassen\autocite{PythonDataModel}.  En egen
+\mintinline{python}{__new__} behövs sällan.  Språkreferensen säger att
+den främst finns för underklasser till typer som inte kan ändras, som
+\mintinline{python}{int}, \mintinline{python}{str} och
+\mintinline{python}{tuple}\autocite{PythonDataModel}.  Ett sådant objekt
+får sitt värde när det skapas.  Strängmetoden
+\mintinline{python}{title} ger en kopia av strängen med stor bokstav
+först i varje ord.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:namn-init}
+    Klassen \mintinline{python}{Name} är en underklass till
+    \mintinline{python}{str}, och konstruktorn försöker ge namnet stor
+    bokstav i varje ord:
+<<[[namn1.py]]>>=
+class Name(str):
+    """Ett namn med stor bokstav i varje ord"""
+
+    def __init__(self, text):
+        self = text.title()
+
+def main():
+    """Huvudprogram"""
+    print(Name("ronja rövardotter"))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{namn1.py}]
+    \label{ex:namn1-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/namn1.py}
+  \end{example}
+\end{frame}
+
+Namnet skrivs ut som det skrevs in.  Raden
+\mintinline{python}{self = text.title()} gör samma sak som
+\mintinline{python}{self = None} i \cref{ovn:init-self}: den låter
+konstruktorns namn \mintinline{python}{self} peka på en ny sträng, och
+objektet som \mintinline{python}{__new__} skapade är oförändrat.  Något
+annat kan konstruktorn inte göra med en sträng, eftersom en sträng inte
+kan ändras.  Värdet måste alltså bestämmas när objektet skapas, i
+\mintinline{python}{__new__}.
+
+\begin{frame}[fragile]
+  \begin{example}[En egen \texttt{\_\_new\_\_}]
+    \label{ex:namn-new}
+    Samma klass, men strängen görs om innan objektet skapas:
+<<[[namn2.py]]>>=
+class Name(str):
+    """Ett namn med stor bokstav i varje ord"""
+
+    def __new__(cls, text):
+        return super().__new__(cls, text.title())
+
+def main():
+    """Huvudprogram"""
+    print(Name("ronja rövardotter"))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{namn2.py}]
+    \label{ex:namn2-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/namn2.py}
+  \end{example}
+\end{frame}
+
+Den egna \mintinline{python}{__new__} får klassen,
+\mintinline{python}{cls}, och texten.  Den låter
+\mintinline{python}{str} skapa objektet, med
+\mintinline{python}{super()} som en underklass anropar förälderns
+konstruktor i \cref{ex:person-nick-super}, men med den omgjorda texten.
+Strängen får alltså sitt värde när den skapas, och sedan behöver ingen
+ändra den.
+
+Vi har skrivit \mintinline{python}{Person.__new__} och
+\mintinline{python}{Person.get_name} som om
+\mintinline{python}{Person} vore ett objekt med attribut.  Det är det.
+En \mintinline{python}{class}-sats är en sats som
+\mintinline{python}{def}: när den körs skapar den ett objekt, ett
+klassobjekt, på samma sätt som \mintinline{python}{def} skapar ett
+funktionsobjekt, och binder namnet till
+det\autocite{PythonCompoundStmts}.  Det är klassobjektet vi anropar för
+att skapa nya objekt av dess typ, och namnet
+\mintinline{python}{Person} är bara en pil till det.
+
+\begin{frame}[fragile]
+  \begin{example}[Klassen och funktionen är objekt]
+    \label{ex:klassobjekt}
+    Ett nytt namn för klassen, och tre frågor om typer:
+<<[[klassobjekt.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    Mall = Person
+    ronja = Mall("Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567")
+    print(type(ronja) is Person)
+    print(type(Person))
+    print(type(main))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{klassobjekt.py}]
+    \label{ex:klassobjekt-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/klassobjekt.py}
+  \end{example}
+\end{frame}
+
+Anropet via namnet \mintinline{python}{Mall} fungerar, eftersom
+\mintinline{python}{Mall} pekar på samma klassobjekt som
+\mintinline{python}{Person}.  Det nya objektets länk till sin klass,
+den som \mintinline{python}{__new__} satte, pekar på just det
+klassobjektet.  Klassobjektets egen typ är \mintinline{python}{type}:
+klasser är objekt av typen \mintinline{python}{type}, som personer är
+objekt av typen \mintinline{python}{Person}.  Funktionen
+\mintinline{python}{main} är också ett objekt, av typen
+\mintinline{python}{function}.  Alla namn är pilar till objekt, av
+olika typer.
+
+Att anropa en klass är därför att anropa ett objekt.  När ett objekt
+anropas, anropar Python metoden \mintinline{python}{__call__} i
+objektets typ, och klassobjektets typ är
+\mintinline{python}{type}.  Anropet \mintinline{python}{Person(...)}
+blir alltså \mintinline{python}{type.__call__(Person, ...)}, och det är
+den som skickar argumenten vidare till \mintinline{python}{__new__} och
+sedan till \mintinline{python}{__init__}\autocite{PythonDataModel}.
+
+Också metoderna är objekt.  \mintinline{python}{Person.get_name} är
+funktionen som står i klassen, ett funktionsobjekt som klassobjektet
+håller, och den kan anropas direkt med en person som argument: det är
+omskrivningen från \cref{ovn:self}.  Skriver vi i stället
+\mintinline{python}{ronja.get_name}, utan parenteser, får vi ett
+metodobjekt med två pilar: en till funktionen i klassen, i attributet
+\mintinline{python}{__func__}, och en till objektet, i attributet
+\mintinline{python}{__self__} (\cref{fn:method-objects}).  När
+metodobjektet anropas, anropar det funktionen med objektet först bland
+argumenten\autocite{PythonDataModel}.
+
+% Metodobjektet i metodobjekt.py, ritat som fig:konstruktion.  Pilen
+% märkt __func__ går till klassobjektet, som håller funktionen get_name;
+% pilen märkt klass är objektets länk till sin klass.
+\newcommand{\classesMetodruta}{%
+  \fbox{\footnotesize
+    \begin{tabular}{@{}l@{}}
+      ett \texttt{method}-objekt \\
+      \hline
+      \texttt{\_\_func\_\_} \\
+      \texttt{\_\_self\_\_} \\
+    \end{tabular}}}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tabular}{cccc}
+    & \texttt{metod} & & \texttt{Person} \\
+    & \(\downarrow\) & & \(\downarrow\) \\
+    & \classesMetodruta
+      & \(\xrightarrow{\text{\scriptsize\texttt{\_\_func\_\_}}}\)
+      & \classesKlassruta \\
+    & \(\downarrow\)\rlap{\ \scriptsize\texttt{\_\_self\_\_}}
+      & \(\nearrow\)\rlap{\ \scriptsize klass} & \\[1ex]
+    \texttt{ronja}\ \(\rightarrow\) & \classesRonjaruta & & \\
+  \end{tabular}
+  \caption{Metodobjektet \texttt{metod = ronja.get\_name} i
+    \texttt{metodobjekt.py}.  Varje pil går från ett namn eller ett
+    attribut till det objekt som det står för, och varje ruta är ett
+    objekt: överst vad för slags objekt det är, under det dess
+    innehåll.  Metodobjektet har två pilar: \texttt{\_\_func\_\_} till
+    klassobjektet \texttt{Person}, som håller funktionen
+    \texttt{get\_name}, och \texttt{\_\_self\_\_} till personen, samma
+    objekt som \texttt{ronja} pekar på.  Pilen märkt
+    \enquote{klass} är personens länk till sin klass.  Anropet
+    \texttt{metod()} anropar funktionen med personen som första
+    argument, \texttt{self}.}
+  \label{fig:metodobjekt}
+\end{figure}
+
+\begin{frame}[fragile]
+  \begin{example}[Funktionen och metodobjektet]
+    \label{ex:metodobjekt}
+    Samma namn, hämtat på tre sätt:
+<<[[metodobjekt.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    ronja = Person("Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567")
+    f = Person.get_name
+    print(f(ronja))
+    metod = ronja.get_name
+    print(type(metod))
+    print(metod.__func__ is Person.get_name)
+    print(metod.__self__ is ronja)
+    print(metod())
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{metodobjekt.py}]
+    \label{ex:metodobjekt-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/metodobjekt.py}
+  \end{example}
+\end{frame}
+
+Funktionen anropad med \mintinline{python}{ronja} och metodobjektet
+anropat utan argument ger samma namn.  Metodobjektets två pilar går
+till funktionen \mintinline{python}{Person.get_name} och till
+\mintinline{python}{ronja} (\cref{fig:metodobjekt}).  Det är så
+\mintinline{python}{ronja.get_name()} blir
+\mintinline{python}{Person.get_name(ronja)}: punkten ger ett
+metodobjekt, och parenteserna anropar det.
+
+Svaret på studentens fråga är alltså att \mintinline{python}{self} är
+en pil till objektet, samma objekt som namnet före punkten pekar på.  I
+en vanlig metod är det metodobjektet som lägger dit pilen, och i
+konstruktorn är det Python, med det objekt som
+\mintinline{python}{__new__} just skapade.
+
+
+\subsection{Fördjupning: Objekt är nästan uppslagslistor}
+\label{sec:objekt-dict}
+
+\leavevmode\ltnote{%
+  Fördjupning som \cref{sec:self-konstruktor,sec:klass-objekt}: inget
+  lärandemål, och inget senare bygger på den.  Avsnittet knyter ihop
+  kapitlet med \cref{sec:tva-exempel}, där samma uppgifter var en
+  nästlad uppslagslista och ett objekt.  \textbf{Generalisering}: samma
+  struktur, en uppslagslista med attribut, i objektet, i klassen och i
+  basklassen (\cref{ex:dict1,ex:dict3}).  \textbf{Kontrast} i
+  \cref{ex:dict1}: punkt, hakparenteser och
+  \mintinline{python}{getattr}/\mintinline{python}{setattr} når samma
+  plats.  \Cref{ovn:dict2} visar inkapslingens gräns med en körning i
+  stället för ett påstående, och \cref{ex:dict4} hindrar att
+  \enquote{nästan} läses som \enquote{alltid}.  Ronjas föräldrar Lovis
+  och Mattis och borgen Mattisborgen kommer ur boken
+  \parencite{WikipediaRonjaDatum}.
+}%
+Också det här avsnittet går längre än vad kursen kräver, och du kan
+hoppa över det: inget senare i kursen bygger på det.  Kapitlet började i
+\cref{sec:tva-exempel} med samma uppgifter om en person på två sätt, i
+en nästlad uppslagslista och i ett objekt.  Skillnaden är mindre än den
+ser ut: ett objekt är nästan en uppslagslista, med en länk till sin
+klass.
+
+I \cref{ex:ronja1-run} gav \mintinline{python}{vars} ett objekts
+attribut som en uppslagslista, en \mintinline{python}{dict} som i
+föreläsningen \emph{Behållare: Uppslagslistor}.  Det är ingen kopia.
+Uppslagslistan är objektets eget attribut
+\mintinline{python}{__dict__}, och det är där attributen
+står\autocite{PythonDataModel}.
+
+\begin{frame}[fragile]
+  \begin{example}[Objektets uppslagslista]
+    \label{ex:dict1}
+    Uppslagslistan före och efter konstruktorn, och tre sätt att skriva
+    i den:
+<<[[dict1.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    ronja = Person.__new__(Person)
+    print(ronja.__dict__)
+    Person.__init__(
+        ronja, "Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567"
+    )
+    print(vars(ronja) is ronja.__dict__)
+    print(type(ronja.__dict__))
+    ronja.mother = "Lovis"
+    print(ronja.__dict__["mother"])
+    ronja.__dict__["father"] = "Mattis"
+    print(ronja.father)
+    setattr(ronja, "home", "Mattisborgen")
+    print(getattr(ronja, "home"))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict1.py}]
+    \label{ex:dict1-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/dict1.py}
+  \end{example}
+\end{frame}
+
+Efter \mintinline{python}{__new__} är uppslagslistan tom, och
+konstruktorn fyller i den.  \mintinline{python}{vars(ronja)} och
+\mintinline{python}{ronja.__dict__} är samma uppslagslista, av typen
+\mintinline{python}{dict}.  Att tilldela attributet
+\mintinline{python}{mother} med punkt är att lägga in nyckeln
+\mintinline{python}{mother} i uppslagslistan, och det som läggs in med
+hakparenteser går att läsa med punkt.  De inbyggda funktionerna
+\mintinline{python}{setattr} och \mintinline{python}{getattr} gör samma
+sak med attributets namn som en sträng, så som en uppslagslista tar sin
+nyckel.  Rutorna med attribut i \cref{fig:konstruktion,fig:metodobjekt}
+är alltså objektens uppslagslistor.
+
+Nycklarna är attributens namn, och för privata attribut är det de
+omskrivna namnen.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Vad skriver programmet ut?]
+    \label{ovn:dict2}
+    Programmet skriver ut nycklarna i en persons uppslagslista och
+    skriver sedan i den:
+<<[[dict2.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    ronja = Person("Ronja", "Rövardotter", "1981-10-08", "okänt", "0701234567")
+    print(list(ronja.__dict__))
+    ronja.__dict__["_Person__first_name"] = "Pippi"
+    print(ronja.get_name())
+
+if __name__ == "__main__":
+    main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict2.py}]
+    \label{ex:dict2-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines, deps={examples/person.py}]%
+      {examples/dict2.py}
+  \end{example}
+\end{frame}
+
+Nycklarna har klassens namn framför (\cref{fn:mangling}).  Med det
+namnet kan vem som helst skriva i uppslagslistan utifrån, och
+\mintinline{python}{get_name}, som läser
+\mintinline{python}{self.__first_name}, läser då Pippi.  Ett privat
+attribut i Python är alltså en överenskommelse om ett namn, inte ett
+lås: den som använder klassen håller sig till metoderna, men språket
+hindrar ingen.  Inkapsling är en etablerad princip, men den är löst
+formulerad, och i Python är det den formen den har.\footnote{Det
+  vetenskapliga underlaget för inkapsling --- att principen är etablerad
+  men löst formulerad och i sin klassiska form omdiskuterad --- finns i
+  \cref{app:inkapsling}.}
+
+Också klassen har en uppslagslista med sina attribut, och där står
+metoderna.  När Python letar efter ett attribut på ett objekt letar den
+först i objektets uppslagslista, sedan i klassens och sist i
+basklassernas\autocite{PythonDataModel}.  Det syns med
+\mintinline{python}{PersonNick} från \cref{sec:arv}, som har en egen
+\mintinline{python}{get_name} men ärver
+\mintinline{python}{get_birthday} från \mintinline{python}{Person}.
+
+\begin{frame}[fragile]
+  \begin{example}[Klassernas uppslagslistor]
+    \label{ex:dict3}
+    Var står metoderna?  Programmet importerar båda klasserna
+    (\cref{ex:person-hel,ex:person-nick}).
+<<[[dict3.py]]>>=
+from person import Person
+from person_nick import PersonNick
+
+def main():
+    """Huvudprogram"""
+    madicken = PersonNick(
+        "Margareta", "Engström", "1907-08-28", "Vimmerby", "okänt", "Madicken"
+    )
+    print("get_birthday" in madicken.__dict__)
+    print("get_birthday" in PersonNick.__dict__)
+    print("get_birthday" in Person.__dict__)
+    print("get_name" in PersonNick.__dict__)
+    print(Person.__dict__["get_name"] is Person.get_name)
+    print(type(Person.__dict__))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict3.py}]
+    \label{ex:dict3-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir,
+      deps={examples/person.py,examples/person_nick.py}]%
+      {examples/dict3.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{get_birthday} står varken i objektets
+uppslagslista eller i \mintinline{python}{PersonNick}:s, men i
+\mintinline{python}{Person}:s, och där hittar Python den: så fungerar
+arvet.  \mintinline{python}{get_name} står i
+\mintinline{python}{PersonNick}:s egen uppslagslista och hittas där
+först, och därför vinner den överlagrade metoden över förälderns.  Det
+som står i klassens uppslagslista är funktionen själv, den som
+\cref{sec:klass-objekt} kallade \mintinline{python}{Person.get_name}.
+När den hittas via ett objekt blir den ett metodobjekt, med en pil till
+funktionen och en till objektet (\cref{fig:metodobjekt}).  Klassens
+uppslagslista har typen \mintinline{python}{mappingproxy}: den läses
+som en uppslagslista, men den går inte att skriva i
+direkt.\footnote{\label{fn:vars-klass}%
+  \enquote{Objects such as modules and instances have an updateable
+  \mintinline{python}{__dict__} attribute; however, other objects may
+  have write restrictions on their \mintinline{python}{__dict__}
+  attributes (for example, classes use a
+  \mintinline{python}{types.MappingProxyType} to prevent direct
+  dictionary updates). [\dots] A \mintinline{python}{TypeError}
+  exception is raised if an object is specified but it doesn't have a
+  \mintinline{python}{__dict__} attribute.}  Pythons dokumentation av
+  \mintinline{python}{vars},
+  \url{https://docs.python.org/3/library/functions.html\#vars}
+  (hämtad 2026-10-27).}
+
+Nästan, inte helt: inte alla objekt har en uppslagslista.
+
+\begin{frame}[fragile]
+  \begin{example}[Ett tal utan uppslagslista]
+    \label{ex:dict4}
+    Programmet frågar efter attributen hos talet 5:
+<<[[dict4.py]]>>=
+def main():
+    """Huvudprogram"""
+    print(vars(5))
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{dict4.py}]
+    \label{ex:dict4-run}
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines]{examples/dict4.py}
+  \end{example}
+\end{frame}
+
+Ett tal har ingen \mintinline{python}{__dict__}, och därför kan
+\mintinline{python}{vars} inte ge någon (\cref{fn:vars-klass}).  En
+klass kan också avstå från uppslagslistan för sina objekt och i stället
+räkna upp deras attribut i förväg, med \mintinline{python}{__slots__},
+vilket kan spara en hel del minne\autocite{PythonDataModel}.
+
+Ett \mintinline{python}{Person}-objekt är alltså nästan det som
+telefonboken i \cref{sec:tva-exempel} hade för varje person: en
+uppslagslista med uppgifterna.  Skillnaden är länken till klassen.
+Genom den hittar objektet sina metoder, och genom den vet Python vad
+för slags objekt det är.
+
+\mode*
