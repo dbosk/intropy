@@ -2544,9 +2544,19 @@
 %   instance's attributes live in a dictionary, searched first; then the
 %   class's dictionary, then the base classes'; assignments update the
 %   instance's dictionary.  (6) __slots__ denies the creation of __dict__
-%   and can save significant space.  (Used in the notes-only Fördjupning
-%   subsections on where self comes from in the constructor, on classes,
-%   functions and methods as objects, and on objects as dictionaries.)
+%   and can save significant space.  (7) object.__new__(cls) creates a
+%   new instance of the class cls; every object has an identity, a type
+%   and a value, and the type, like the identity, does not normally
+%   change; an instance's __class__ is its class.  (8) A class's
+%   __bases__ is the tuple of its bases, as written in the class
+%   statement; __mro__ is the tuple of classes considered during method
+%   resolution, and the search of the base classes uses the C3 method
+%   resolution order.  (9) An entry in a class that defines __get__ and
+%   __set__ (a data descriptor, such as object.__dict__['__class__'])
+%   wins over an entry of the same name in the instance's dictionary,
+%   an exception to the order in (5).  (Used in the notes-only
+%   section Fördjupning: Allt är objekt, in all four of its
+%   subsections.)
 % FOUND-VIA (here): known item, curl
 %   https://docs.python.org/3/reference/datamodel.html (2026-10-27); key
 %   and metadata copied from classes/slides-more, so that the entry is the
@@ -2595,6 +2605,38 @@
 %   lookups in this dictionary, e.g., C.x is translated to C.__dict__["x"]
 %   [...] When the attribute name is not found there, the attribute search
 %   continues in the base classes."
+% QUOTE (3.1, Objects, values and types): "Every object has an identity,
+%   a type and a value. [...] The type() function returns an object's
+%   type (which is an object itself). Like its identity, an object's type
+%   is also unchangeable. [1]"  Footnote [1]: "It is possible in some
+%   cases to change an object's type, under certain controlled
+%   conditions."  -- hence "normally" in the deck.
+% QUOTE (3.3.1, object.__new__): "Called to create a new instance of
+%   class cls. __new__() is a static method (special-cased so you need
+%   not declare it as such) that takes the class of which an instance
+%   was requested as its first argument."
+% QUOTE (3.2.11.1, object.__class__): "The class to which a class
+%   instance belongs."
+% QUOTE (3.2.10.1, type.__bases__): "A tuple containing the class's
+%   bases. In most cases, for a class defined as class X(A, B, C),
+%   X.__bases__ will be exactly equal to (A, B, C)."
+% QUOTE (3.2.10.1, type.__mro__): "The tuple of classes that are
+%   considered when looking for base classes during method resolution."
+% QUOTE (3.2.10, Custom classes): "When the attribute name is not found
+%   there, the attribute search continues in the base classes. This
+%   search of the base classes uses the C3 method resolution order which
+%   behaves correctly even in the presence of 'diamond' inheritance
+%   structures [...]"
+% QUOTE (3.3.2.3, Invoking Descriptors): "The default behavior for
+%   attribute access is to get, set, or delete the attribute from an
+%   object's dictionary. For instance, a.x has a lookup chain starting
+%   with a.__dict__['x'], then type(a).__dict__['x'], and continuing
+%   through the base classes of type(a) excluding metaclasses. However,
+%   if the looked-up value is an object defining one of the descriptor
+%   methods, then Python may override the default behavior and invoke
+%   the descriptor method instead." and "Data descriptors with __get__()
+%   and __set__() (and/or __delete__()) defined always override a
+%   redefinition in an instance dictionary."
 % QUOTE (3.3.2.4, __slots__): "__slots__ allow us to explicitly declare
 %   data members (like properties) and deny the creation of __dict__ and
 %   __weakref__ [...] The space saved over using __dict__ can be
@@ -2608,6 +2650,35 @@
 %   why the deck says the call becomes type.__call__ and does not claim
 %   more.  The TypeError is also the real output of init2.py under
 %   Python 3.14.
+% VERIFIED (here, 2026-10-29): the page read again in full (Python
+%   3.15.2 documentation) for the passages on object.__new__, 3.1,
+%   __class__, __bases__, __mro__ and the C3 search; they appear verbatim
+%   (the page's typographic apostrophes in "class's" and "diamond"
+%   rendered as ASCII here).  That the object's class is not a key of
+%   its __dict__, and that the number 5 has a __class__ without a
+%   __dict__, is shown by klasslank.py, not claimed from the page;
+%   basklasser.py and letaupp.py show (8) for PersonNick, Person and
+%   object under Python 3.14.
+% VERIFIED (here, 2026-10-29, for (9)): the page fetched again (Python
+%   3.15.2 documentation); the two 3.3.2.3 passages appear verbatim.
+%   The Descriptor Guide (https://docs.python.org/3/howto/descriptor.html,
+%   read 2026-10-29) says the same: "If an object defines __set__() or
+%   __delete__(), it is considered a data descriptor." and "If an
+%   instance's dictionary has an entry with the same name as a data
+%   descriptor, the data descriptor takes precedence."  That
+%   object.__dict__['__class__'] is such an object (getset_descriptor),
+%   that dir(madicken) is exactly the names of vars(madicken) and of
+%   vars(cls) for cls in PersonNick.__mro__, and that a "__class__" key
+%   in madicken.__dict__ leaves madicken.__class__ unchanged, is shown by
+%   dirnamn.py under Python 3.14, not claimed from the page.  The deck's
+%   footnotes quote two more pages directly, with URL and access date:
+%   the dir() entry of the library reference (functions.html#dir:
+%   "Otherwise, the list contains the object's attributes' names, the
+%   names of its class's attributes, and recursively of the attributes
+%   of its class's base classes.") and the C API's PyObject
+%   (c-api/structures.html#c.PyObject: "In a normal "release" build, it
+%   contains only the object's reference count and a pointer to the
+%   corresponding type object."), both read 2026-10-29.
 % COUNTER: not applicable -- the source defines the behaviour it is cited
 %   for.
 % DATE: 2026-10-27
