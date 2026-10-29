@@ -2583,15 +2583,99 @@ namnet i klassens uppslagslista.  På raden
 \mintinline{python}{@attribute.setter} läser Python bara namnet och får
 den befintliga egenskapen, och den andra \mintinline{python}{def} binder
 samma namn till den nya, vilket är det enda skälet till att skrivmetoden
-ska heta som egenskapen (\cref{sec:prop-skriva}).\footnote{En
-  deskriptor som behöver veta namnet kan få det.  När klassen har
-  skapats anropar Python metoden \mintinline{python}{__set_name__} hos
-  varje klassattribut som har en, med klassen och namnet: \enquote{the
-  name is the class variable the descriptor was assigned
-  to}\autocite{PythonDescriptorHowTo}.  \mintinline{python}{property}
-  har en sådan och sparar namnet i sitt attribut
-  \mintinline{python}{__name__}, men då ligger egenskapen redan under
-  det namnet.}
+ska heta som egenskapen (\cref{sec:prop-skriva}).
+
+\leavevmode\ltnote{%
+  Stycket och \cref{ex:prop-set-name} svarar på författarens följdfråga
+  (2026-10-29): hur får \mintinline{python}{property} namnet
+  \mintinline{python}{x} ur \mintinline{python}{x = property(g)}, och
+  är det \mintinline{python}{=} som anropar
+  \mintinline{python}{__set_name__}?  Ingen övning: frågan uppstår inne
+  i lösningsförslaget.  \textbf{Kontrast} i körningen: samma slags
+  bindning i klasskroppen och efter att klassen skapats (bara den
+  första ger anropet), och samma objekt under två nycklar (ett anrop per
+  nyckel).
+}%
+Men den riktiga \mintinline{python}{property} vet vad den heter: den
+har ett attribut, \mintinline{python}{__name__}, med namnet (sedan
+Python 3.13, \cref{fn:property}).  Hur får den reda på det?  Inte genom
+\mintinline{python}{=}, och inte genom något egenskapsobjektet gör,
+utan genom att klassen skapas.  Python
+exekverar klasskroppen som vanlig kod, men bindningarna hamnar i en
+tillfällig uppslagslista, den blivande klassens.  En rad som
+\mintinline{python}{attribute = property(getter)} är en vanlig bindning:
+ingenting mer anropas, och egenskapsobjektet vet inte under vilket namn
+det står.  När hela kroppen är exekverad skapar Python klassen av
+uppslagslistan och går igenom den.  Varje värde som har metoden
+\mintinline{python}{__set_name__} får ett anrop av den, med klassen och
+nyckeln, det namn värdet står under\autocite{PythonDataModel}.
+\mintinline{python}{property} har en sådan metod, och den sparar namnet
+i \mintinline{python}{__name__}\autocite{PythonDescriptorHowTo}.  Ett
+eget objekt med en \mintinline{python}{__set_name__} som skriver ut när
+den anropas visar när det sker.  Klassen skapas i en funktion, för en
+\mintinline{python}{class}-sats exekveras där den står, som andra satser.
+
+\begin{frame}[fragile]
+  \begin{example}[När egenskapen får sitt namn]
+    \label{ex:prop-set-name}
+    Programmet skriver ut egenskapens namn i klasskroppen, efter att
+    klassen skapats och för en egenskap som läggs till efteråt:
+<<[[set_name.py]]>>=
+"""When a class attribute learns its name"""
+
+class Spy:
+    """A class attribute that tells when it learns its name"""
+
+    def __set_name__(self, owner, name):
+        print(f"__set_name__ anropas: {owner.__name__} {name}")
+
+def getter(self):
+    """The getter of a property that has no name yet"""
+    return 1
+
+def create_class():
+    """Runs a class statement and returns the class"""
+
+    class Class:
+        print("klasskroppen börjar")
+        attribute = property(getter)
+        spy = Spy()
+        same_spy = spy
+        print(f"klasskroppen slut: {attribute.__name__}")
+
+    return Class
+
+def main():
+    """Huvudprogrammet"""
+    Class = create_class()
+    print(f"efter klassen: {Class.attribute.__name__}")
+    Class.later = property(getter)
+    print(f"tilldelad efteråt: {Class.later.__name__}")
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/set_name.py}
+  \end{example}
+\end{frame}
+
+När klasskroppen är slut heter egenskapen fortfarande
+\mintinline{python}{getter}, som läsfunktionen: bindningen till
+\mintinline{python}{attribute} har inte sagt den något.  Anropen av
+\mintinline{python}{__set_name__} kommer först när kroppen är klar, ett
+för varje nyckel, så samma objekt under två namn får två anrop.
+Egenskapen får sitt anrop samtidigt, utan att skriva ut något, och efter
+klassen heter den \mintinline{python}{attribute}.  Egenskapen som
+tilldelas klassen efteråt får inget anrop, för klassen skapas inte
+igen, och den heter kvar
+\mintinline{python}{getter}\autocite{PythonDataModel}.  Namnet
+kommer alltså alltid från var objektet står, aldrig från objektet
+självt: \mintinline{python}{def} och \mintinline{python}{=} bestämmer
+nyckeln, och \mintinline{python}{__set_name__} låter bara objektet få
+veta nyckeln efteråt.  \mintinline{python}{MyProperty} har ingen
+\mintinline{python}{__set_name__} och behöver ingen, eftersom den aldrig
+använder sitt namn.
 
 Den riktiga \mintinline{python}{property} gör några saker till: den har
 \mintinline{python}{__delete__}, för \mintinline{python}{del}, metoderna

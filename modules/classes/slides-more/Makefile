@@ -64,6 +64,7 @@ EXAMPLES+=	examples/egenskap6.py
 EXAMPLES+=	examples/egenskap7.py
 EXAMPLES+=	examples/egenskap8.py
 EXAMPLES+=	examples/my_property.py
+EXAMPLES+=	examples/set_name.py
 PROPERTYRUNS+=	examples/my_property_test_read.py
 PROPERTYRUNS+=	examples/my_property_test_no_setter.py
 PROPERTYRUNS+=	examples/my_property_test_write.py

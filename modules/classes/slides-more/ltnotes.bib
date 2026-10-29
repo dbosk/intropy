@@ -881,6 +881,35 @@
 % URLDATE: 2026-10-12, the latest full-text read of the page
 %   (containers/slides-sets-stacks-queues), so that the entry is the same
 %   in every deck the course book binds.
+% CLAIM (here, v20, after the MyProperty solution): neither = nor the
+%   property learns the name; the class body is executed into a
+%   namespace, and when the class is created from it, __set_name__ of
+%   every value that has one is called with the class and that value's
+%   key; a class attribute assigned after the class exists gets no call.
+% FOUND-VIA (here): known item, curl
+%   https://docs.python.org/3/reference/datamodel.html (2026-10-29,
+%   Python 3.15.2 documentation), tags stripped, sections "Creating the
+%   class object" and "object.__set_name__".
+% QUOTE (3.3.3.6, Creating the class object): "Once the class namespace
+%   has been populated by executing the class body, the class object is
+%   created by calling metaclass(name, bases, namespace, **kwds)"; "When
+%   using the default metaclass type, or any metaclass that ultimately
+%   calls type.__new__, the following additional customization steps are
+%   invoked after creating the class object: The type.__new__ method
+%   collects all of the attributes in the class namespace that define a
+%   __set_name__() method; Those __set_name__ methods are called with the
+%   class being defined and the assigned name of that particular
+%   attribute"
+% QUOTE (object.__set_name__): "Automatically called at the time the
+%   owning class owner is created.  The object has been assigned to name
+%   in that class"; "If the class variable is assigned after the class
+%   is created, __set_name__() will not be called automatically."
+% VERIFIED (here): page read 2026-10-29; the run set_name.py (Python
+%   3.14.4) shows the order: the property's __name__ is still the
+%   function's at the end of the class body, a spy's __set_name__ is
+%   called after the body, once per key for one object under two keys,
+%   the property's __name__ is the key after the class is created, and a
+%   property assigned to the class afterwards keeps the function's name.
 @online{PythonDataModel,
   author       = {{Python Software Foundation}},
   title        = {Data model},
@@ -1831,6 +1860,18 @@
 %   and a property in a class body, also bound to a second name b = a,
 %   reports __name__ == "b", the last name it was given: it is the class
 %   body, not the property, that decides where it is stored.
+% CLAIM (here, v20): the footnote became body text with the run
+%   set_name.py; property stores the name it is given in __name__, and
+%   descriptors added to the class afterwards are not notified.
+% QUOTE (Automatic name notification, 2026-10-29): "Since the update
+%   logic is in type.__new__(), notifications only take place at the time
+%   of class creation.  If descriptors are added to the class afterwards,
+%   __set_name__() will need to be called manually."
+% VERIFIED (here, v20): page read 2026-10-29, Python 3.15.2
+%   documentation; the built-in property's __name__ ("Attribute holding
+%   the name of the property.  The name of the property can be changed
+%   at runtime.  Added in version 3.13.", library/functions.html, read
+%   2026-10-29) and the run set_name.py under Python 3.14.4 agree.
 @online{PythonDescriptorHowTo,
   author       = {{Python Software Foundation}},
   title        = {Descriptor Guide},
