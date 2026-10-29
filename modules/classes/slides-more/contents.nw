@@ -1791,9 +1791,11 @@ precis som Pythons egen \mintinline{python}{fractions.Fraction}
   anropa en metod?  Svaret går i fyra steg: vad dekoratorn lägger i
   klassen, hur en läsning hittar egenskapsobjektet och anropar
   läsmetoden, hur en skrivning hittar det och anropar skrivmetoden, och
-  till sist en egen egenskapsklass där studenten skriver mekanismen
-  själv (\emph{fusion} av stegen).  I fem övningar undersöker eller
-  skriver studenten själv innan prosan svarar, och svaren är körningar.
+  en egen egenskapsklass där studenten skriver mekanismen själv
+  (\emph{fusion} av stegen).  Sist kommer en följd av egenskaperna som
+  författaren stötte på vid en övning: heltal har dem också, och det
+  leder till duck typing.  I sex övningar undersöker eller skriver
+  studenten själv innan prosan svarar, och svaren är körningar.
 }%
 Det här avsnittet går längre än vad kursen kräver.  Du kan hoppa över
 det: inget senare i kursen bygger på det.  Det svarar på en fråga som en
@@ -1803,7 +1805,9 @@ student ställde.  I \cref{ex:fraction-property} skrev vi
 som ett attribut, \mintinline{python}{frac.numerator}, utan parenteser.
 Vad gör egentligen \mintinline{python}{@property}, och hur kan en
 läsning av ett attribut anropa en metod?  Och vad händer när vi skriver
-till ett attribut, \mintinline{python}{frac.numerator = 3}?
+till ett attribut, \mintinline{python}{frac.numerator = 3}?  Till sist
+ser vi en följd av egenskaperna som ingen planerade: heltal har dem
+också.
 
 \subsection{Vad står i klassen?}
 \label{sec:prop-i-klassen}
@@ -2586,5 +2590,179 @@ skrivning anropar på samma sätt \mintinline{python}{__set__}, som
 anropar skrivfunktionen eller kastar ett
 \mintinline{python}{AttributeError}.  Vanliga metoder använder samma
 mekanism, ett steg senare.
+
+\subsection{Heltal har också täljare och nämnare}
+\label{sec:prop-anka}
+
+\leavevmode\ltnote{%
+  Delavsnittet kommer ur en övning där författaren skrev bråkklassen
+  med engelska namn och såg att koden råkade fungera för heltal också
+  (författaren, 2026-10-29).  Bråkklassen här har redan de engelska
+  namnen, så samma sak händer med den.  I \cref{ovn:prop-anka} skriver
+  studenten funktionen själv och upptäcker att den fungerar för heltal;
+  uppgiften säger vad hen ska pröva och med vilka verktyg hen kan
+  undersöka varför, men inte svaret.  \textbf{Kontrast} i
+  \cref{ex:prop-anka}: samma funktion, olika slags tal --- bråk,
+  heltal, \mintinline{python}{fractions.Fraction} och flyttal --- och
+  bara flyttalet faller bort.  \Cref{ex:prop-int} visar att
+  heltalens \mintinline{python}{numerator} är en deskriptor som
+  egenskapsobjektet, och ställer vår \mintinline{python}{__add__}, som
+  frågar efter klassen, bredvid funktionen, som inte gör det.  Om
+  duck typing är bra eller dålig praxis säger avsnittet inget utöver vad
+  Pythons ordlista säger, och det återges som ordlistans ord.
+}%
+Bråkklassens egenskaper heter \mintinline{python}{numerator} och
+\mintinline{python}{denominator}, de engelska orden för täljare och
+nämnare.  Det får en följd som ingen planerade.
+
+\begin{frame}
+  \begin{exercise}[En funktion för bråk]
+    \label{ovn:prop-anka}
+    Skriv en funktion \mintinline{python}{same_value(a, b)} som avgör om
+    två bråk är samma tal genom att korsmultiplicera, med bara
+    egenskaperna \mintinline{python}{numerator} och
+    \mintinline{python}{denominator}.  Pröva den med två bråk, och sedan
+    med ett bråk och ett heltal, ett bråk och ett flyttal och ett bråk
+    och ett bråk från Pythons modul \mintinline{python}{fractions}.  Vad
+    händer?  Undersök varför, med verktygen från det här avsnittet.
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma funktion, fyra slags tal]
+    \label{ex:prop-anka}
+    Funktionen och de fyra försöken:
+<<[[egenskap7.py]]>>=
+import fractions
+
+from fraction import Fraction
+
+def same_value(a, b):
+    """Avgör om a och b är samma tal"""
+    return a.numerator * b.denominator == b.numerator * a.denominator
+
+def main():
+    """Huvudprogrammet"""
+    half = Fraction(1, 2)
+    print(same_value(half, Fraction(2, 4)))
+    print(same_value(Fraction(4, 2), 2))
+    print(same_value(half, fractions.Fraction(1, 2)))
+    print(same_value(half, 0.5))
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines,
+      deps={examples/fraction.py}]%
+      {examples/egenskap7.py}
+  \end{example}
+\end{frame}
+
+Funktionen skrevs för bråk, men den fungerar också för heltal och för
+bråken i modulen \mintinline{python}{fractions}.  Bara flyttalet faller
+bort, med ett \mintinline{python}{AttributeError} inne i funktionen:
+\mintinline{python}{0.5} har ingen nämnare.  Att heltal har täljare och
+nämnare kan vi undersöka som vi undersökte bråkklassen.
+
+\begin{frame}[fragile]
+  \begin{example}[Heltalens täljare]
+    \label{ex:prop-int}
+    Programmet tittar i klassen \mintinline{python}{int}, frågar vilka
+    tal som är rationella och adderar sist med vår
+    \mintinline{python}{__add__}:
+<<[[egenskap8.py]]>>=
+import fractions
+import numbers
+
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    prop = vars(int)["numerator"]
+    print(type(prop))
+    print(hasattr(prop, "__get__"), hasattr(prop, "__set__"))
+    print((2).numerator, (2).denominator)
+    print(isinstance(2, numbers.Rational))
+    print(isinstance(fractions.Fraction(1, 2), numbers.Rational))
+    print(isinstance(Fraction(1, 2), numbers.Rational))
+    print(Fraction(1, 2) + fractions.Fraction(1, 2))
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines,
+      deps={examples/fraction.py}]%
+      {examples/egenskap8.py}
+  \end{example}
+\end{frame}
+
+Under \mintinline{python}{numerator} i klassen \mintinline{python}{int}
+står en deskriptor, inte skriven i Python utan inbyggd i språket, men
+med \mintinline{python}{__get__} och \mintinline{python}{__set__} som
+egenskapsobjektet: en datadeskriptor.  Läsningen
+\mintinline{python}{(2).numerator} går alltså samma väg som
+\mintinline{python}{frac.numerator}.  Ett heltal är ett rationellt tal
+med nämnaren \mintinline{text}|1|, och så ser Python det också.
+Modulen \mintinline{python}{numbers} beskriver vad olika slags tal ska
+kunna med abstrakta klasser, klasser som bara säger vilka metoder och
+attribut deras underklasser ska ha.  Klassen
+\mintinline{python}{numbers.Rational} lägger till egenskaperna
+\mintinline{python}{numerator} och \mintinline{python}{denominator}, och
+\mintinline{python}{int} hör till den, liksom
+\mintinline{python}{fractions.Fraction}\autocite{PythonNumbers,%
+PythonStdtypes}.\footnote{\label{fn:prop-rational}%
+  \enquote{Subtypes Real and adds numerator and denominator properties.}
+  Dokumentationen av \mintinline{python}{numbers.Rational}.  Om
+  \mintinline{python}{int}: \enquote{The int type implements the
+  numbers.Integral abstract base class.}}
+Vår bråkklass hör inte dit, eftersom vi aldrig sa att den gör det.
+
+\mintinline{python}{same_value} frågar aldrig vilken klass talen har.
+Den läser bara \mintinline{python}{numerator} och
+\mintinline{python}{denominator}, och allt som har de attributen
+duger.  Det skrivsättet kallas \foreignlanguage{english}{duck typing},
+efter talesättet att det som ser ut som en anka och kvackar som en anka
+måste vara en anka.  Pythons ordlista beskriver det som ett skrivsätt
+som inte tittar på ett objekts typ för att avgöra om det har rätt
+gränssnitt, utan bara använder metoden eller attributet, och som
+undviker att testa med \mintinline{python}{type} eller
+\mintinline{python}{isinstance}\autocite{PythonGlossary}.\footnote{%
+  \label{fn:prop-anka}%
+  \enquote{A programming style which does not look at an object's type
+  to determine if it has the right interface; instead, the method or
+  attribute is simply called or used [\dots] By emphasizing interfaces
+  rather than specific types, well-designed code improves its
+  flexibility by allowing polymorphic substitution.  Duck-typing avoids
+  tests using type() or isinstance(). [\dots] Instead, it typically
+  employs hasattr() tests or EAFP programming.}  Ordlistans uppslagsord
+  \emph{duck-typing}.}
+Det fungerade här utan att vi skrev något för heltal eller för
+\mintinline{python}{fractions.Fraction}, och det är vad ordlistan menar
+med att koden blir flexiblare: ett objekt av en annan klass kan ta det
+väntade objektets plats.  Vår \mintinline{python}{__add__} skrevs på
+det andra sättet.  Den frågar med \mintinline{python}{isinstance} efter
+klassen, och därför avvisar den \mintinline{python}{fractions.Fraction},
+fast det bråket har allt den läser.
+
+Men \mintinline{python}{same_value} vet bara namnen, inte vad de
+betyder.  Den tar emot vilket objekt som helst som har attribut med de
+två namnen, vad attributen än står för, och den avvisar flyttalet, ett
+tal med samma värde som \(\frac{1}{2}\), bara för att det saknar namnen.
+Att den fungerade för heltal berodde på att vi råkade välja samma namn
+som Pythons egna talklasser.  Och när något saknas märks det först inne i
+funktionen, som ett \mintinline{python}{AttributeError} om ett attribut
+och inte som ett fel om argumentet.  Ordlistan säger att den som skriver
+så i stället för att testa med \mintinline{python}{isinstance} brukar
+testa med \mintinline{python}{hasattr}, eller skriva enligt EAFP
+(\foreignlanguage{english}{easier to ask for forgiveness than
+permission}): försöka och fånga särfallet, här
+\mintinline{python}{AttributeError}, om
+det inte gick (\cref{fn:prop-anka}).  Ett mellanting är att fråga efter
+en abstrakt klass, \mintinline{python}{isinstance(b, numbers.Rational)}:
+då frågar programmet efter en förmåga och inte efter en viss klass, men
+bara efter klasser som har sagt att de har förmågan
+(\cref{ex:prop-int}).
 
 \mode*
