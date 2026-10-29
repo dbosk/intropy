@@ -22,7 +22,8 @@ ${MENTIPY_VENV}/bin/python3:
 # also rebuilds it, and the PythonTeX output goes with the upgrade:
 # latexmk reruns PythonTeX only when that output is missing or the code
 # changed, and another mentipy may typeset the questions differently.
-MENTIPY_VERSION=	0.14
+# 0.15 is the first to take locale=, which makes the labels Swedish.
+MENTIPY_VERSION=	0.15
 MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
 
 # Order-only on the venv: the venv must exist before the upgrade, but its

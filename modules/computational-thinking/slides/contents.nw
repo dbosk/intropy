@@ -1,11 +1,18 @@
 \mode<all>
 \begin{pycode}
 import os
-import re
 
 from mentipy.latex import mc, open_text, word_cloud
 from mentipy.store import Store
 
+# Frågorna ställs på svenska.  Med "locale": "sv" skriver Mentipy sina
+# egna etiketter på bilden på svenska och sparar språket med frågan, så
+# att servern visar frågans formulär och resultatsida på svenska också,
+# vilket språk föreläsarens dator än är inställd på.  Språket hör inte
+# till frågans identitet: prefixen och QR-koderna blir desamma.
+# Serverns adress står inte här: Mentipy läser mentipy.base_url ur
+# föreläsarens egen konfiguration, så att en ombyggnad inte ångrar vad
+# mentipy serve har skrivit där.
 mentipy_common = {
     "store": Store("mentipy.json"),
     "qr_dir": "mentipy-obj",
@@ -13,29 +20,8 @@ mentipy_common = {
     "environment": "",
     "show_url": False,
     "layout": "auto",
-    "base_url": "http://faculty-shell.sys.kth.se:8080",
+    "locale": "sv",
 }
-
-# Mentipy sätter sina egna etiketter på engelska; föreläsningen är på
-# svenska, så den renderade LaTeX-koden översätts innan den skrivs ut.
-# Bara etiketterna rörs --- frågetexten och alternativen går oförändrade
-# till Mentipy, så frågornas identitet i frågelagret påverkas inte.
-ETIKETTER = [
-    ("Choose exactly one:", "Välj exakt ett alternativ:"),
-    ("Choose one or more:", "Välj ett eller flera alternativ:"),
-    ("\\item[Type] Free-text answer", "\\item[Svarstyp] fritext"),
-    ("\\item[Type] Word-cloud (free-text)",
-     "\\item[Svarstyp] ordmoln av fritext"),
-    ("\\item[Mode] Whole answer counts as one entry",
-     "\\item[Räknesätt] hela svaret räknas som ett bidrag"),
-]
-
-def sv(latex):
-    for engelska, svenska in ETIKETTER:
-        latex = latex.replace(engelska, svenska)
-    latex = re.sub(r"\\item\[Limit\] (\d+) characters",
-                   r"\\item[Längd] högst \1 tecken", latex)
-    return latex
 
 
 def fraga(namn, latex):
@@ -48,7 +34,7 @@ def fraga(namn, latex):
     """
     os.makedirs("mentipy-obj", exist_ok=True)
     with open("mentipy-obj/%s.tex" % namn, "w", encoding="utf-8") as fil:
-        fil.write(sv(latex))
+        fil.write(latex)
 \end{pycode}
 
 % Frågefilerna skrivs av PythonTeX under körningen, så de saknas i den
