@@ -73,9 +73,9 @@ folder>/`, named after the Canvas module with the week first (`v39
 Inmatning, felhantering och styrstrukturer`); upload a new version there
 (`parent_folder`) and move the version it replaces into that folder's
 `Äldre versioner` (author, 2026-09-22: "It's getting a bit crowded in the
-root") — but only after checking that it has no untranscribed ink
-(author, 2026-09-23: "Before moving old drafts to the old folder, check if
-they contain any ink"; the `remarkable` skill says how). Learning
+root") — a version with ink only once its comments are fully addressed
+in a newer version (the `remarkable` skill, versioned review workflow,
+step 2). Learning
 objectives carry the week page's Lo-codes in a comment
 (`learning-outcomes.md`, `vecka.md`).
 
