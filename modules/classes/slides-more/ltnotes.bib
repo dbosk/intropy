@@ -1804,6 +1804,33 @@
 %   runs.
 % COUNTER: not applicable -- the documentation defines the behaviour.
 % DATE: 2026-10-29
+% CLAIM (here, after the MyProperty solution, v19): neither @ nor the
+%   descriptor learns the name, def binds it; a descriptor that needs the
+%   name gets it from __set_name__, called when the class is created with
+%   the class and the name; property has one and stores the name in
+%   __name__.
+% FOUND-VIA (here): same page, curl 2026-10-29 (Python 3.15.2
+%   documentation), tags stripped, sections "Automatic name
+%   notification", "Closing thoughts", "Properties".
+% QUOTE (Automatic name notification): "When a new class is created, the
+%   type metaclass scans the dictionary of the new class.  If any of the
+%   entries are descriptors and if they define __set_name__(), that method
+%   is called with two arguments.  The owner is the class where the
+%   descriptor is used, and the name is the class variable the descriptor
+%   was assigned to."
+% QUOTE (Closing thoughts): "(This method, if present, is called even if
+%   the class is not a descriptor.)"
+% QUOTE (Properties, pure-Python equivalent): "def __set_name__(self,
+%   owner, name): self.__name__ = name"
+% VERIFIED (here): page read 2026-10-29; the data model reference says the
+%   same ("Automatically called at the time the owning class owner is
+%   created.  The object has been assigned to name in that class",
+%   object.__set_name__), and the built-in property documentation lists
+%   __name__ ("Attribute holding the name of the property", added in
+%   3.13).  Run under Python 3.14.4: vars(property) holds __set_name__,
+%   and a property in a class body, also bound to a second name b = a,
+%   reports __name__ == "b", the last name it was given: it is the class
+%   body, not the property, that decides where it is stored.
 @online{PythonDescriptorHowTo,
   author       = {{Python Software Foundation}},
   title        = {Descriptor Guide},

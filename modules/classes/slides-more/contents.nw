@@ -2108,7 +2108,7 @@ bråkklassen, som inte har någon egen, ärver den från
     \mintinline{python}{__delete__}, är det en icke-datadeskriptor
     (\foreignlanguage{english}{non-data descriptor}), och den anropar
     dess \mintinline{python}{__get__} på samma sätt.
-  \item Annars, om den hittade något i klassen alls, ett vanligt
+  \item Annars, om den hittade något i klassen, ett vanligt
     klassattribut, returnerar den det.
   \item Annars kastar den ett \mintinline{python}{AttributeError}.  Har
     klassen en metod \mintinline{python}{__getattr__} anropar Python den
@@ -2573,6 +2573,25 @@ dess körning:
     \runpython[showcommand, chdir]{examples/my_property.py}
   \end{example}
 \end{frame}
+
+Ingenting i lösningen tar reda på namnet
+\mintinline{python}{attribute}, varken \mintinline{python}{@} eller
+\mintinline{python}{MyProperty}: det är \mintinline{python}{def} som
+binder namnet till det dekoratorn returnerar
+(\cref{sec:prop-dekorator}), och därför hamnar egenskapen under det
+namnet i klassens uppslagslista.  På raden
+\mintinline{python}{@attribute.setter} läser Python bara namnet och får
+den befintliga egenskapen, och den andra \mintinline{python}{def} binder
+samma namn till den nya, vilket är det enda skälet till att skrivmetoden
+ska heta som egenskapen (\cref{sec:prop-skriva}).\footnote{En
+  deskriptor som behöver veta namnet kan få det.  När klassen har
+  skapats anropar Python metoden \mintinline{python}{__set_name__} hos
+  varje klassattribut som har en, med klassen och namnet: \enquote{the
+  name is the class variable the descriptor was assigned
+  to}\autocite{PythonDescriptorHowTo}.  \mintinline{python}{property}
+  har en sådan och sparar namnet i sitt attribut
+  \mintinline{python}{__name__}, men då ligger egenskapen redan under
+  det namnet.}
 
 Den riktiga \mintinline{python}{property} gör några saker till: den har
 \mintinline{python}{__delete__}, för \mintinline{python}{del}, metoderna
