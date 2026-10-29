@@ -54,6 +54,7 @@ EXAMPLES+=	examples/dict4.py
 EXAMPLES+=	examples/klasslank.py
 EXAMPLES+=	examples/basklasser.py
 EXAMPLES+=	examples/letaupp.py
+EXAMPLES+=	examples/dirnamn.py
 
 # The class files' test programs grow one test case at a time, and the
 # deck shows each case's output beside it.  Each of these programs runs
