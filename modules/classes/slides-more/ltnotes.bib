@@ -790,6 +790,17 @@
 % VERIFIED: page read 2026-10-02.
 % COUNTER: not applicable.
 % DATE: 2026-10-02
+% CLAIM (here, Fördjupning: Hur fungerar @property?): int implements
+%   numbers.Integral, and an integer as a ratio has itself as numerator
+%   and 1 as denominator.
+% QUOTE (Additional Methods on Integer Types): "The int type implements
+%   the numbers.Integral abstract base class."
+% QUOTE (int.as_integer_ratio): "The integer ratio of integers (whole
+%   numbers) is always the integer as the numerator and 1 as the
+%   denominator."
+% VERIFIED (here): page read 2026-10-29 (Python 3.15.2 documentation);
+%   egenskap8.py shows (2).numerator, (2).denominator == 2, 1 and
+%   isinstance(2, numbers.Rational).  The entry's fields are unchanged.
 @online{PythonStdtypes,
   author   = {{Python Software Foundation}},
   title    = {Built-in Types},
@@ -818,9 +829,87 @@
 %   equal fractions have equal components, i.e. a canonical form.
 % COUNTER: not applicable.
 % DATE: 2026-10-02
+% CLAIM (here, Fördjupning: Hur fungerar @property?): an object's and a
+%   class's attributes are in its __dict__; an attribute read through an
+%   instance calls __get__ of what the class holds, with the instance and
+%   the class; a property is a data descriptor and wins over the instance
+%   dictionary, methods are non-data descriptors and can be overridden by
+%   it; writing a data descriptor calls its __set__; special methods
+%   invoked implicitly are looked up on the type, not in the instance
+%   dictionary.
+% FOUND-VIA (here): known item, curl
+%   https://docs.python.org/3/reference/datamodel.html (2026-10-29,
+%   Python 3.15.2 documentation), tags stripped, sections "Implementing
+%   Descriptors", "Invoking Descriptors", "Special method lookup".
+% QUOTE (3.2.11, Class instances): "A class instance has a namespace
+%   implemented as a dictionary which is the first place in which
+%   attribute references are searched.  When an attribute is not found
+%   there, and the instance's class has an attribute by that name, the
+%   search continues with the class attributes. [...] See section
+%   Implementing Descriptors for another way in which attributes of a
+%   class retrieved via its instances may differ from the objects
+%   actually stored in the class's __dict__."  (The reference's own
+%   simplified order, with the pointer to descriptors as the exception:
+%   the order exercise ovn:prop-skugga tests.)  On classes (3.2.10): "A
+%   class has a namespace implemented by a dictionary object."
+% QUOTE (Invoking Descriptors): "The default behavior for attribute
+%   access is to get, set, or delete the attribute from an object's
+%   dictionary. [...] However, if the looked-up value is an object
+%   defining one of the descriptor methods, then Python may override the
+%   default behavior and invoke the descriptor method instead."
+% QUOTE (Invoking Descriptors, Instance Binding): "If binding to an
+%   object instance, a.x is transformed into the call:
+%   type(a).__dict__['x'].__get__(a, type(a))."
+% QUOTE (Invoking Descriptors): "Data descriptors with __get__() and
+%   __set__() (and/or __delete__()) defined always override a
+%   redefinition in an instance dictionary.  In contrast, non-data
+%   descriptors can be overridden by instances.  Python methods
+%   (including those decorated with @staticmethod and @classmethod) are
+%   implemented as non-data descriptors. [...] The @property decorator is
+%   implemented as a data descriptor. Accordingly, instances cannot
+%   override the behavior of a property."
+% QUOTE (object.__set__): "Called to set the attribute on an instance
+%   instance of the owner class to a new value, value."
+% QUOTE (Special method lookup): "For custom classes, implicit
+%   invocations of special methods are only guaranteed to work correctly
+%   if defined on an object's type, not in the object's instance
+%   dictionary."
+% VERIFIED (here): page read 2026-10-29; every behaviour the section
+%   states is also shown by a run in the section (egenskap1.py to
+%   egenskap6.py, Python 3.14.4).  The entry's fields are left as in the
+%   other decks, for the course book.
 % URLDATE: 2026-10-12, the latest full-text read of the page
 %   (containers/slides-sets-stacks-queues), so that the entry is the same
 %   in every deck the course book binds.
+% CLAIM (here, v20, after the MyProperty solution): neither = nor the
+%   property learns the name; the class body is executed into a
+%   namespace, and when the class is created from it, __set_name__ of
+%   every value that has one is called with the class and that value's
+%   key; a class attribute assigned after the class exists gets no call.
+% FOUND-VIA (here): known item, curl
+%   https://docs.python.org/3/reference/datamodel.html (2026-10-29,
+%   Python 3.15.2 documentation), tags stripped, sections "Creating the
+%   class object" and "object.__set_name__".
+% QUOTE (3.3.3.6, Creating the class object): "Once the class namespace
+%   has been populated by executing the class body, the class object is
+%   created by calling metaclass(name, bases, namespace, **kwds)"; "When
+%   using the default metaclass type, or any metaclass that ultimately
+%   calls type.__new__, the following additional customization steps are
+%   invoked after creating the class object: The type.__new__ method
+%   collects all of the attributes in the class namespace that define a
+%   __set_name__() method; Those __set_name__ methods are called with the
+%   class being defined and the assigned name of that particular
+%   attribute"
+% QUOTE (object.__set_name__): "Automatically called at the time the
+%   owning class owner is created.  The object has been assigned to name
+%   in that class"; "If the class variable is assigned after the class
+%   is created, __set_name__() will not be called automatically."
+% VERIFIED (here): page read 2026-10-29; the run set_name.py (Python
+%   3.14.4) shows the order: the property's __name__ is still the
+%   function's at the end of the class body, a spy's __set_name__ is
+%   called after the body, once per key for one object under two keys,
+%   the property's __name__ is the key after the class is created, and a
+%   property assigned to the class afterwards keeps the function's name.
 @online{PythonDataModel,
   author       = {{Python Software Foundation}},
   title        = {Data model},
@@ -1692,4 +1781,248 @@
   pages   = {49--56},
   year    = {1998},
   doi     = {10.1145/276609.276619},
+}
+
+% === provenance: PythonDescriptorHowTo ===
+% CLAIM: Python's Descriptor Guide describes how a dotted read goes:
+%   object.__getattribute__ searches the type's MRO, gives data
+%   descriptors the highest priority, then the instance dictionary, then
+%   non-data descriptors, then class variables, and the dot operator
+%   calls __getattr__ when __getattribute__ raises AttributeError; an
+%   object with __get__, __set__ or __delete__ is a descriptor; property
+%   is a data descriptor whose __get__ calls fget, whose __set__ calls
+%   fset or raises AttributeError, whose setter returns a new property
+%   with the same fget, and whose __get__ returns the property itself
+%   when read through the class.
+% FOUND-VIA: known item, curl
+%   https://docs.python.org/3/howto/descriptor.html (2026-10-29, title
+%   "Descriptor Guide", Python 3.15.2 documentation), tags stripped.
+% PICKED: the language's own guide to descriptors, with a pure-Python
+%   equivalent of object.__getattribute__ and of property; the data
+%   model reference (PythonDataModel) states the same rules more briefly.
+% QUOTE (Descriptor protocol): "Define any of these methods and an object
+%   is considered a descriptor and can override default behavior upon
+%   being looked up as an attribute.  If an object defines __set__() or
+%   __delete__(), it is considered a data descriptor.  Descriptors that
+%   only define __get__() are called non-data descriptors"
+% QUOTE (Invocation from an instance): "Instance lookup scans through a
+%   chain of namespaces giving data descriptors the highest priority,
+%   followed by instance variables, then non-data descriptors, then class
+%   variables, and lastly __getattr__() if it is provided."
+% QUOTE (Invocation from an instance): "The logic for a dotted lookup is
+%   in object.__getattribute__()."; the pure-Python equivalent searches
+%   "for base in cls.__mro__: if name in vars(base)"; "it is the dot
+%   operator and the getattr() function that are responsible for invoking
+%   __getattr__() whenever __getattribute__() raises an AttributeError."
+% QUOTE (Properties, pure-Python equivalent): "def __get__(self, obj,
+%   objtype=None): if obj is None: return self [...] return
+%   self.fget(obj)"; "def __set__(self, obj, value): if self.fset is
+%   None: raise AttributeError / self.fset(obj, value)"; "def
+%   setter(self, fset): return type(self)(self.fget, fset, self.fdel,
+%   self.__doc__)"
+% QUOTE (Functions and methods): "functions are non-data descriptors
+%   that return bound methods during dotted lookup from an instance."
+% VERIFIED: page read 2026-10-29; the pure-Python equivalent is "most of
+%   the core functionality" of property, as the guide says, and the runs
+%   in the section (Python 3.14.4) agree with it: property objects have
+%   __set__, functions do not, a value in the instance dictionary loses
+%   to a property and wins over a method, setter returns a new object
+%   with the same fget, a write without fset raises AttributeError.  No
+%   documented pure-Python equivalent of object.__setattr__; the write
+%   path in the section rests on the data model reference and on the
+%   runs.
+% COUNTER: not applicable -- the documentation defines the behaviour.
+% DATE: 2026-10-29
+% CLAIM (here, after the MyProperty solution, v19): neither @ nor the
+%   descriptor learns the name, def binds it; a descriptor that needs the
+%   name gets it from __set_name__, called when the class is created with
+%   the class and the name; property has one and stores the name in
+%   __name__.
+% FOUND-VIA (here): same page, curl 2026-10-29 (Python 3.15.2
+%   documentation), tags stripped, sections "Automatic name
+%   notification", "Closing thoughts", "Properties".
+% QUOTE (Automatic name notification): "When a new class is created, the
+%   type metaclass scans the dictionary of the new class.  If any of the
+%   entries are descriptors and if they define __set_name__(), that method
+%   is called with two arguments.  The owner is the class where the
+%   descriptor is used, and the name is the class variable the descriptor
+%   was assigned to."
+% QUOTE (Closing thoughts): "(This method, if present, is called even if
+%   the class is not a descriptor.)"
+% QUOTE (Properties, pure-Python equivalent): "def __set_name__(self,
+%   owner, name): self.__name__ = name"
+% VERIFIED (here): page read 2026-10-29; the data model reference says the
+%   same ("Automatically called at the time the owning class owner is
+%   created.  The object has been assigned to name in that class",
+%   object.__set_name__), and the built-in property documentation lists
+%   __name__ ("Attribute holding the name of the property", added in
+%   3.13).  Run under Python 3.14.4: vars(property) holds __set_name__,
+%   and a property in a class body, also bound to a second name b = a,
+%   reports __name__ == "b", the last name it was given: it is the class
+%   body, not the property, that decides where it is stored.
+% CLAIM (here, v20): the footnote became body text with the run
+%   set_name.py; property stores the name it is given in __name__, and
+%   descriptors added to the class afterwards are not notified.
+% QUOTE (Automatic name notification, 2026-10-29): "Since the update
+%   logic is in type.__new__(), notifications only take place at the time
+%   of class creation.  If descriptors are added to the class afterwards,
+%   __set_name__() will need to be called manually."
+% VERIFIED (here, v20): page read 2026-10-29, Python 3.15.2
+%   documentation; the built-in property's __name__ ("Attribute holding
+%   the name of the property.  The name of the property can be changed
+%   at runtime.  Added in version 3.13.", library/functions.html, read
+%   2026-10-29) and the run set_name.py under Python 3.14.4 agree.
+@online{PythonDescriptorHowTo,
+  author       = {{Python Software Foundation}},
+  title        = {Descriptor Guide},
+  subtitle     = {Python HOWTOs},
+  url          = {https://docs.python.org/3/howto/descriptor.html},
+  urldate      = {2026-10-29},
+  year         = {2026},
+}
+
+% === provenance: PythonCompoundStmts ===
+% CLAIM: A class definition, like a function definition, is an executable
+%   statement: it creates a class object (a function object for def) and
+%   binds the name to it; a class without an inheritance list inherits
+%   from object.
+% FOUND-VIA: known item, curl
+%   https://docs.python.org/3/reference/compound_stmts.html (2026-10-27).
+% PICKED: the language reference, which defines the statements.
+% QUOTE (8.7, Function definitions): "A function definition is an
+%   executable statement.  Its execution binds the function name in the
+%   current local namespace to a function object (a wrapper around the
+%   executable code for the function)."
+% QUOTE (8.8, Class definitions): "A class definition is an executable
+%   statement. [...] Classes without an inheritance list inherit, by
+%   default, from the base class object [...] A class object is then
+%   created using the inheritance list for the base classes and the saved
+%   local namespace for the attribute dictionary.  The class name is
+%   bound to this class object in the original local namespace."
+% VERIFIED: full text of the page read 2026-10-27 (Python 3.15.2
+%   documentation); the passages appear verbatim (the section numbers
+%   are those of the page served).  klassobjekt.py shows the consequence:
+%   type(Person) is type, and a second name for the class creates
+%   persons too.
+% COUNTER: not applicable -- the source defines the behaviour it is cited
+%   for.
+% DATE: 2026-10-27
+% FOUND-VIA (here): provenance block and entry copied from
+%   modules/classes/slides/ltnotes.bib (Klasser och objekt), so that the
+%   entry is the same in both decks for the course book; the page was
+%   read again on 2026-10-29 for the claim below.
+% CLAIM (here, Fördjupning: Hur fungerar @property?): a decorator is
+%   called with the function object as its only argument, and the name is
+%   bound to what it returns; the code is roughly equivalent to calling
+%   the decorator on the function, except that the name is never bound to
+%   the undecorated function.
+% QUOTE (8.7, Function definitions): "A function definition may be
+%   wrapped by one or more decorator expressions.  Decorator expressions
+%   are evaluated when the function is defined, in the scope that
+%   contains the function definition.  The result must be a callable,
+%   which is invoked with the function object as the only argument. The
+%   returned value is bound to the function name instead of the function
+%   object."; "is roughly equivalent to [...] except that the original
+%   function is not temporarily bound to the name func."
+% VERIFIED (here): page read 2026-10-29 (Python 3.15.2 documentation);
+%   quotes verbatim.
+@online{PythonCompoundStmts,
+  author       = {{Python Software Foundation}},
+  title        = {Compound statements},
+  subtitle     = {The Python Language Reference},
+  url          = {https://docs.python.org/3/reference/compound_stmts.html},
+  urldate      = {2026-10-27},
+  year         = {2026},
+}
+
+% === provenance: PythonGlossary ===
+% CLAIM: Python's own glossary describes EAFP (try, and catch the
+%   exception) as a common Python coding style, contrasted with LBYL.
+% FOUND-VIA: known document -- curl https://docs.python.org/3/glossary.html
+%   on 2026-10-22, tags stripped, entries "EAFP" and "LBYL".
+% PICKED: the language's own definition of the term the tutorial uses.
+% QUOTE (EAFP): "Easier to ask for forgiveness than permission. This
+%   common Python coding style assumes the existence of valid keys or
+%   attributes and catches exceptions if the assumption proves false.
+%   This clean and fast style is characterized by the presence of many
+%   try and except statements. The technique contrasts with the LBYL
+%   style common to many other languages such as C."
+% VERIFIED: page read; quote verbatim.  Backs the attribution ("the
+%   glossary calls it common"), not the frequency.
+% COUNTER: scholar session w45-eafp, 2026-10-22 (S1, S2, M1 on openalex
+%   ieee wos scopus arxiv; see bilaga C): no study measuring how common
+%   EAFP or LBYL is; 6 LLM keeps (exception-handling bugs and
+%   anti-patterns, textbooks) discarded as adjacent.  The glossary's
+%   LBYL entry also names a race-condition risk of LBYL in threaded code
+%   -- not used by the tutorial.
+% DATE: 2026-10-22
+% RE-VERIFIED: 2026-10-23, quote unchanged on the page; entry made identical
+%   in helloworld/slides and files/tutorial for the book (check_bib.py).
+% FOUND-VIA (here): provenance block and entry copied from
+%   modules/files/tutorial/ltnotes.bib (Övning: Filhantering), so that the
+%   entry is the same in every deck for the course book; the page was
+%   read again on 2026-10-29 (Python 3.15.2 documentation) for the claim
+%   below.  No pointer to that deck's appendix C: it comes later in the
+%   reading order.
+% CLAIM (here, Fördjupning: Hur fungerar @property?, subsection Heltal
+%   har också täljare och nämnare): the glossary defines duck typing as a
+%   style that does not look at an object's type but simply uses the
+%   attribute, says it improves flexibility in well-designed code by
+%   allowing polymorphic substitution, avoids type()/isinstance() tests
+%   and typically uses hasattr() tests or EAFP instead; it can be
+%   complemented with abstract base classes.  Stated in the deck as the
+%   glossary's words (attribution), not as advice.
+% QUOTE (duck-typing): "A programming style which does not look at an
+%   object's type to determine if it has the right interface; instead,
+%   the method or attribute is simply called or used ("If it looks like a
+%   duck and quacks like a duck, it must be a duck.")  By emphasizing
+%   interfaces rather than specific types, well-designed code improves
+%   its flexibility by allowing polymorphic substitution.  Duck-typing
+%   avoids tests using type() or isinstance().  (Note, however, that
+%   duck-typing can be complemented with abstract base classes.)
+%   Instead, it typically employs hasattr() tests or EAFP programming."
+% QUOTE (EAFP): "Easier to ask for forgiveness than permission."
+% VERIFIED (here): page read 2026-10-29; quotes verbatim.  The
+%   flexibility sentence is the glossary's own judgement; the deck shows
+%   its concrete instance (the function works for int and
+%   fractions.Fraction) and its cost (names without meaning, a float with
+%   the same value rejected), and makes no claim of its own about duck
+%   typing as practice.
+% COUNTER (here): not run; the deck attributes the judgement to the
+%   glossary and does not assert it.
+@online{PythonGlossary,
+  author       = {{Python Software Foundation}},
+  title        = {Glossary --- {P}ython 3 documentation},
+  organization = {Python Software Foundation},
+  year         = {2026},
+  url          = {https://docs.python.org/3/glossary.html},
+  urldate      = {2026-10-23}
+}
+
+% === provenance: PythonNumbers ===
+% CLAIM: The numbers module defines abstract base classes for numbers;
+%   Rational adds the numerator and denominator properties, and Integral
+%   (which int implements) subtypes Rational and provides defaults for
+%   numerator and denominator.
+% FOUND-VIA: known item, curl https://docs.python.org/3/library/numbers.html
+%   (2026-10-29, Python 3.15.2 documentation), tags stripped.
+% PICKED: the standard library's own definition of the numeric ABCs.
+% QUOTE (numbers.Rational): "Subtypes Real and adds numerator and
+%   denominator properties. [...] The numerator and denominator values
+%   should be instances of Integral and should be in lowest terms with
+%   denominator positive."
+% QUOTE (numbers.Integral): "Subtypes Rational and adds a conversion to
+%   int.  Provides defaults for float(), numerator, and denominator."
+% VERIFIED: page read 2026-10-29; egenskap8.py shows isinstance(2,
+%   numbers.Rational) and isinstance(fractions.Fraction(1, 2),
+%   numbers.Rational) true, and our Fraction false (Python 3.14.4).
+% COUNTER: not applicable -- the documentation defines the classes.
+% DATE: 2026-10-29
+@online{PythonNumbers,
+  author       = {{Python Software Foundation}},
+  title        = {numbers --- Numeric abstract base classes},
+  subtitle     = {The Python Standard Library},
+  url          = {https://docs.python.org/3/library/numbers.html},
+  urldate      = {2026-10-29},
+  year         = {2026},
 }
