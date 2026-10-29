@@ -1,10 +1,15 @@
 % Varje övning nedan är en fråga i Mentipy: på bilderna en enkät med en
 % QR-kod, i anteckningarna en vanlig övningsuppgift.  Det som alla frågor
-% har gemensamt ställs in en gång, här, i båda jobben.
+% har gemensamt ställs in en gång, här, i båda jobben.  Dit hör språket:
+% med "locale": "sv" skriver Mentipy sina egna etiketter på bilden
+% (Välj ett alternativ:, Högst 400 tecken) på svenska, och språket
+% sparas med frågan, så att servern visar frågans formulär och
+% resultatsida på svenska också, vilket språk föreläsarens dator än är
+% inställd på.  Adressen i QR-koderna står inte här utan i Mentipys
+% inställning mentipy.base_url: en fast adress här skulle skriva över
+% den som mentipy serve sätter, vid varje bygge.
 \mode<all>
 \begin{pycode}
-import re
-
 from mentipy.latex import file_snippet, mc, open_text, scale
 from mentipy.questions import ContextSnippet
 from mentipy.store import Store
@@ -16,32 +21,13 @@ mentipy_common = {
     "environment": "",
     "show_url": False,
     "layout": "auto",
-    "base_url": "http://faculty-shell.sys.kth.se:8080",
+    "locale": "sv",
 }
 
 
-def _pa_svenska(latex):
-    """Byt Mentipys fasta engelska fraser mot svenska."""
-    latex = latex.replace("Choose exactly one:", "Välj ett alternativ:")
-    latex = latex.replace(
-        "Choose one or more:", "Välj ett eller flera alternativ:"
-    )
-    latex = latex.replace(
-        "\\item[Type] Free-text answer", "\\item[Svar] Fritext"
-    )
-    latex = re.sub(
-        r"\\item\[Limit\] (\d+) characters", r"\\item[Högst] \1 tecken", latex
-    )
-    latex = latex.replace("\\item[Range]", "\\item[Skala]")
-    latex = latex.replace("\\item[Low]", "\\item[Lägst]")
-    latex = latex.replace("\\item[High]", "\\item[Högst]")
-    return latex
-
-
 def fraga(helper, *args, **kwargs):
-    """Registrera en fråga och lämna tillbaka dess LaTeX, på svenska."""
-    latex = helper(*args, **{**mentipy_common, **kwargs})
-    return _pa_svenska(latex)
+    """Registrera en fråga med de gemensamma inställningarna."""
+    return helper(*args, **{**mentipy_common, **kwargs})
 \end{pycode}
 
 % Adressen under QR-koden står i Mentipys omslag mentipy-obj/Q-*.pdf_tex,

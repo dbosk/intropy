@@ -33,13 +33,14 @@ ${MENTIPY_VENV}/bin/python3:
 
 # The recap deck imports ContextSnippet and file_snippet, which mentipy
 # has since 0.13, and 0.14 shows the options before that context on the
-# student's phone.  The rule above makes the venv only once, so a venv
-# keeps the mentipy of its first build; a stamp named after the version
-# upgrades it once.  The upgrade rebuilds the book and removes the
-# PythonTeX output, which latexmk otherwise reruns only when the code
-# changed.  Order-only on the venv: its timestamp must not trigger an
-# upgrade.
-MENTIPY_VERSION=	0.14
+# student's phone.  All three decks pass locale=, which 0.15 is the first
+# to take (0.14 stops on it with a TypeError).  The rule above makes the
+# venv only once, so a venv keeps the mentipy of its first build; a
+# stamp named after the version upgrades it once.  The upgrade rebuilds
+# the book and removes the PythonTeX output, which latexmk otherwise
+# reruns only when the code changed.  Order-only on the venv: its
+# timestamp must not trigger an upgrade.
+MENTIPY_VERSION=	0.15
 MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
 
 ${MENTIPY_STAMP}: | ${MENTIPY_VENV}/bin/python3

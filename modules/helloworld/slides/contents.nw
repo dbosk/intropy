@@ -1,10 +1,13 @@
 % Every exercise below is a live question: Mentipy renders it as a poll
 % with a QR code on the slide and as a plain exercise in the notes.  The
 % call arguments they all share are set up once, here, in both jobs.
+% Among them is the language: with "locale": "sv" Mentipy writes its
+% own labels on the slide (Välj ett alternativ:, Högst 400 tecken) in
+% Swedish, and it records the language with the question, so the
+% server shows that question's form and results page in Swedish too,
+% whatever language the lecturer's machine is set to.
 \mode<all>
 \begin{pycode}
-import re
-
 from mentipy.latex import mc, open_text
 from mentipy.store import Store
 
@@ -16,28 +19,13 @@ mentipy_common = {
     "show_url": False,
     "layout": "auto",
     "base_url": "http://faculty-shell.sys.kth.se:8080",
+    "locale": "sv",
 }
 
 
-def _pa_svenska(latex):
-    """Byt Mentipys fasta engelska fraser mot svenska."""
-    latex = latex.replace("Choose exactly one:", "Välj ett alternativ:")
-    latex = latex.replace(
-        "Choose one or more:", "Välj ett eller flera alternativ:"
-    )
-    latex = latex.replace(
-        "\\item[Type] Free-text answer", "\\item[Svar] Fritext"
-    )
-    latex = re.sub(
-        r"\\item\[Limit\] (\d+) characters", r"\\item[Högst] \1 tecken", latex
-    )
-    return latex
-
-
 def fraga(helper, *args, **kwargs):
-    """Registrera en fråga och lämna tillbaka dess LaTeX, på svenska."""
-    latex = helper(*args, **{**mentipy_common, **kwargs})
-    return _pa_svenska(latex)
+    """Registrera en fråga med de gemensamma inställningarna."""
+    return helper(*args, **{**mentipy_common, **kwargs})
 \end{pycode}
 
 % Adressen under QR-koden står i Mentipys omslag mentipy-obj/Q-*.pdf_tex,
