@@ -25,6 +25,9 @@ SRC+=		sokprotokoll.tex
 # table must trigger a rebuild even when no .tex source changed.
 SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
+# The picture in the notes-only section on @property: the shared package
+# (pythonfigs.sty is a link to modules/pythonfigs.sty).
+SRC+=		pythonfigs.sty
 
 EXAMPLES+=	examples/fraction.py
 # Each of fraction.py's test functions is shown beside its output: a
@@ -49,6 +52,20 @@ TESTRUNS+=	examples/fraction_test_rmul.py
 EXAMPLES+=	${TESTRUNS}
 EXAMPLES+=	examples/negative.py
 EXAMPLES+=	examples/object_dunder.py
+# The notes-only section on @property: programs that look into the
+# finished fraction.py, and a property class of our own, whose test
+# functions get test runs from testkorningar.nw like fraction.py's.
+EXAMPLES+=	examples/egenskap1.py
+EXAMPLES+=	examples/egenskap2.py
+EXAMPLES+=	examples/egenskap3.py
+EXAMPLES+=	examples/egenskap4.py
+EXAMPLES+=	examples/egenskap5.py
+EXAMPLES+=	examples/egenskap6.py
+EXAMPLES+=	examples/my_property.py
+PROPERTYRUNS+=	examples/my_property_test_read.py
+PROPERTYRUNS+=	examples/my_property_test_no_setter.py
+PROPERTYRUNS+=	examples/my_property_test_write.py
+EXAMPLES+=	${PROPERTYRUNS}
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
 # and every deck's source is called contents.nw, so in the course book
@@ -58,7 +75,7 @@ EXAMPLES+=	examples/object_dunder.py
 NOWEB_NAME=	../../$(notdir $(abspath ..))/$(notdir ${CURDIR})/contents.nw
 contents.tex: contents.nw
 	noweave ${NOWEAVEFLAGS.tex} ${NOWEB_NAME} > $@
-${TESTRUNS}: testkorningar.nw
+${TESTRUNS} ${PROPERTYRUNS}: testkorningar.nw
 
 examples/%.py: contents.nw
 	@mkdir -p ${@D}

@@ -818,6 +818,55 @@
 %   equal fractions have equal components, i.e. a canonical form.
 % COUNTER: not applicable.
 % DATE: 2026-10-02
+% CLAIM (here, Fördjupning: Hur fungerar @property?): an object's and a
+%   class's attributes are in its __dict__; an attribute read through an
+%   instance calls __get__ of what the class holds, with the instance and
+%   the class; a property is a data descriptor and wins over the instance
+%   dictionary, methods are non-data descriptors and can be overridden by
+%   it; writing a data descriptor calls its __set__; special methods
+%   invoked implicitly are looked up on the type, not in the instance
+%   dictionary.
+% FOUND-VIA (here): known item, curl
+%   https://docs.python.org/3/reference/datamodel.html (2026-10-29,
+%   Python 3.15.2 documentation), tags stripped, sections "Implementing
+%   Descriptors", "Invoking Descriptors", "Special method lookup".
+% QUOTE (3.2.11, Class instances): "A class instance has a namespace
+%   implemented as a dictionary which is the first place in which
+%   attribute references are searched.  When an attribute is not found
+%   there, and the instance's class has an attribute by that name, the
+%   search continues with the class attributes. [...] See section
+%   Implementing Descriptors for another way in which attributes of a
+%   class retrieved via its instances may differ from the objects
+%   actually stored in the class's __dict__."  (The reference's own
+%   simplified order, with the pointer to descriptors as the exception:
+%   the order exercise ovn:prop-skugga tests.)  On classes (3.2.10): "A
+%   class has a namespace implemented by a dictionary object."
+% QUOTE (Invoking Descriptors): "The default behavior for attribute
+%   access is to get, set, or delete the attribute from an object's
+%   dictionary. [...] However, if the looked-up value is an object
+%   defining one of the descriptor methods, then Python may override the
+%   default behavior and invoke the descriptor method instead."
+% QUOTE (Invoking Descriptors, Instance Binding): "If binding to an
+%   object instance, a.x is transformed into the call:
+%   type(a).__dict__['x'].__get__(a, type(a))."
+% QUOTE (Invoking Descriptors): "Data descriptors with __get__() and
+%   __set__() (and/or __delete__()) defined always override a
+%   redefinition in an instance dictionary.  In contrast, non-data
+%   descriptors can be overridden by instances.  Python methods
+%   (including those decorated with @staticmethod and @classmethod) are
+%   implemented as non-data descriptors. [...] The @property decorator is
+%   implemented as a data descriptor. Accordingly, instances cannot
+%   override the behavior of a property."
+% QUOTE (object.__set__): "Called to set the attribute on an instance
+%   instance of the owner class to a new value, value."
+% QUOTE (Special method lookup): "For custom classes, implicit
+%   invocations of special methods are only guaranteed to work correctly
+%   if defined on an object's type, not in the object's instance
+%   dictionary."
+% VERIFIED (here): page read 2026-10-29; every behaviour the section
+%   states is also shown by a run in the section (egenskap1.py to
+%   egenskap6.py, Python 3.14.4).  The entry's fields are left as in the
+%   other decks, for the course book.
 % URLDATE: 2026-10-12, the latest full-text read of the page
 %   (containers/slides-sets-stacks-queues), so that the entry is the same
 %   in every deck the course book binds.
@@ -1692,4 +1741,117 @@
   pages   = {49--56},
   year    = {1998},
   doi     = {10.1145/276609.276619},
+}
+
+% === provenance: PythonDescriptorHowTo ===
+% CLAIM: Python's Descriptor Guide describes how a dotted read goes:
+%   object.__getattribute__ searches the type's MRO, gives data
+%   descriptors the highest priority, then the instance dictionary, then
+%   non-data descriptors, then class variables, and the dot operator
+%   calls __getattr__ when __getattribute__ raises AttributeError; an
+%   object with __get__, __set__ or __delete__ is a descriptor; property
+%   is a data descriptor whose __get__ calls fget, whose __set__ calls
+%   fset or raises AttributeError, whose setter returns a new property
+%   with the same fget, and whose __get__ returns the property itself
+%   when read through the class.
+% FOUND-VIA: known item, curl
+%   https://docs.python.org/3/howto/descriptor.html (2026-10-29, title
+%   "Descriptor Guide", Python 3.15.2 documentation), tags stripped.
+% PICKED: the language's own guide to descriptors, with a pure-Python
+%   equivalent of object.__getattribute__ and of property; the data
+%   model reference (PythonDataModel) states the same rules more briefly.
+% QUOTE (Descriptor protocol): "Define any of these methods and an object
+%   is considered a descriptor and can override default behavior upon
+%   being looked up as an attribute.  If an object defines __set__() or
+%   __delete__(), it is considered a data descriptor.  Descriptors that
+%   only define __get__() are called non-data descriptors"
+% QUOTE (Invocation from an instance): "Instance lookup scans through a
+%   chain of namespaces giving data descriptors the highest priority,
+%   followed by instance variables, then non-data descriptors, then class
+%   variables, and lastly __getattr__() if it is provided."
+% QUOTE (Invocation from an instance): "The logic for a dotted lookup is
+%   in object.__getattribute__()."; the pure-Python equivalent searches
+%   "for base in cls.__mro__: if name in vars(base)"; "it is the dot
+%   operator and the getattr() function that are responsible for invoking
+%   __getattr__() whenever __getattribute__() raises an AttributeError."
+% QUOTE (Properties, pure-Python equivalent): "def __get__(self, obj,
+%   objtype=None): if obj is None: return self [...] return
+%   self.fget(obj)"; "def __set__(self, obj, value): if self.fset is
+%   None: raise AttributeError / self.fset(obj, value)"; "def
+%   setter(self, fset): return type(self)(self.fget, fset, self.fdel,
+%   self.__doc__)"
+% QUOTE (Functions and methods): "functions are non-data descriptors
+%   that return bound methods during dotted lookup from an instance."
+% VERIFIED: page read 2026-10-29; the pure-Python equivalent is "most of
+%   the core functionality" of property, as the guide says, and the runs
+%   in the section (Python 3.14.4) agree with it: property objects have
+%   __set__, functions do not, a value in the instance dictionary loses
+%   to a property and wins over a method, setter returns a new object
+%   with the same fget, a write without fset raises AttributeError.  No
+%   documented pure-Python equivalent of object.__setattr__; the write
+%   path in the section rests on the data model reference and on the
+%   runs.
+% COUNTER: not applicable -- the documentation defines the behaviour.
+% DATE: 2026-10-29
+@online{PythonDescriptorHowTo,
+  author       = {{Python Software Foundation}},
+  title        = {Descriptor Guide},
+  subtitle     = {Python HOWTOs},
+  url          = {https://docs.python.org/3/howto/descriptor.html},
+  urldate      = {2026-10-29},
+  year         = {2026},
+}
+
+% === provenance: PythonCompoundStmts ===
+% CLAIM: A class definition, like a function definition, is an executable
+%   statement: it creates a class object (a function object for def) and
+%   binds the name to it; a class without an inheritance list inherits
+%   from object.
+% FOUND-VIA: known item, curl
+%   https://docs.python.org/3/reference/compound_stmts.html (2026-10-27).
+% PICKED: the language reference, which defines the statements.
+% QUOTE (8.7, Function definitions): "A function definition is an
+%   executable statement.  Its execution binds the function name in the
+%   current local namespace to a function object (a wrapper around the
+%   executable code for the function)."
+% QUOTE (8.8, Class definitions): "A class definition is an executable
+%   statement. [...] Classes without an inheritance list inherit, by
+%   default, from the base class object [...] A class object is then
+%   created using the inheritance list for the base classes and the saved
+%   local namespace for the attribute dictionary.  The class name is
+%   bound to this class object in the original local namespace."
+% VERIFIED: full text of the page read 2026-10-27 (Python 3.15.2
+%   documentation); the passages appear verbatim (the section numbers
+%   are those of the page served).  klassobjekt.py shows the consequence:
+%   type(Person) is type, and a second name for the class creates
+%   persons too.
+% COUNTER: not applicable -- the source defines the behaviour it is cited
+%   for.
+% DATE: 2026-10-27
+% FOUND-VIA (here): provenance block and entry copied from
+%   modules/classes/slides/ltnotes.bib (Klasser och objekt), so that the
+%   entry is the same in both decks for the course book; the page was
+%   read again on 2026-10-29 for the claim below.
+% CLAIM (here, Fördjupning: Hur fungerar @property?): a decorator is
+%   called with the function object as its only argument, and the name is
+%   bound to what it returns; the code is roughly equivalent to calling
+%   the decorator on the function, except that the name is never bound to
+%   the undecorated function.
+% QUOTE (8.7, Function definitions): "A function definition may be
+%   wrapped by one or more decorator expressions.  Decorator expressions
+%   are evaluated when the function is defined, in the scope that
+%   contains the function definition.  The result must be a callable,
+%   which is invoked with the function object as the only argument. The
+%   returned value is bound to the function name instead of the function
+%   object."; "is roughly equivalent to [...] except that the original
+%   function is not temporarily bound to the name func."
+% VERIFIED (here): page read 2026-10-29 (Python 3.15.2 documentation);
+%   quotes verbatim.
+@online{PythonCompoundStmts,
+  author       = {{Python Software Foundation}},
+  title        = {Compound statements},
+  subtitle     = {The Python Language Reference},
+  url          = {https://docs.python.org/3/reference/compound_stmts.html},
+  urldate      = {2026-10-27},
+  year         = {2026},
 }

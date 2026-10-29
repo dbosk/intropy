@@ -1768,3 +1768,823 @@ precis som Pythons egen \mintinline{python}{fractions.Fraction}
     \end{minted}
   \end{example}
 \end{frame}
+
+% Fördjupningen nedan, ett eget avsnitt, finns bara i anteckningarna:
+% bilderna är oförändrade (författaren, 2026-10-29).  Raden \mode<article>
+% hoppar över allt fram till raden \mode* när bilderna byggs, ramarna
+% också, så att inte ens bildnumren ändras.  Båda raderna måste stå
+% ensamma, utan indrag.  Avsnittet står sist i kapitlet, efter
+% sammanfattningen, som fördjupningen i föreläsningen Klasser och objekt
+% står sist i sitt kapitel, efter dess sista avsnitt: det är ingen del av
+% det kapitlet sammanfattar, och det använder bara den färdiga
+% fraction.py.
+\mode<article>
+
+\section{Fördjupning: Hur fungerar \texttt{@property}?}
+\label{sec:property-fordjupning}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: inga, \cref{sec:property-fordjupning} är
+  fördjupning och inget senare i kursen bygger på det; närmast ligger
+  \cref{FracLOProperty}.  Avsnittet svarar på en students fråga: vad gör
+  \mintinline{python}{@property}, och hur kan en läsning utan parenteser
+  anropa en metod?  Svaret går i fyra steg: vad dekoratorn lägger i
+  klassen, hur en läsning hittar egenskapsobjektet och anropar
+  läsmetoden, hur en skrivning hittar det och anropar skrivmetoden, och
+  till sist en egen egenskapsklass där studenten skriver mekanismen
+  själv (\emph{fusion} av stegen).  I fem övningar undersöker eller
+  skriver studenten själv innan prosan svarar, och svaren är körningar.
+}%
+Det här avsnittet går längre än vad kursen kräver.  Du kan hoppa över
+det: inget senare i kursen bygger på det.  Det svarar på en fråga som en
+student ställde.  I \cref{ex:fraction-property} skrev vi
+\mintinline{python}{numerator} som en metod, med
+\mintinline{python}{def} och \mintinline{python}{self}, men vi läser den
+som ett attribut, \mintinline{python}{frac.numerator}, utan parenteser.
+Vad gör egentligen \mintinline{python}{@property}, och hur kan en
+läsning av ett attribut anropa en metod?  Och vad händer när vi skriver
+till ett attribut, \mintinline{python}{frac.numerator = 3}?
+
+\subsection{Vad står i klassen?}
+\label{sec:prop-i-klassen}
+
+\leavevmode\ltnote{%
+  \textbf{Kontrast} i \cref{ovn:prop-i-klassen}: vad som hålls
+  invariant är klassen och att båda metoderna skrevs med
+  \mintinline{python}{def}; vad som varierar är dekoratorn.  Uppgiften
+  säger vilka verktyg studenten har, \mintinline{python}{vars} och
+  \mintinline{python}{type}, men inte vad hen ska hitta: att det som
+  står under namnet \mintinline{python}{numerator} inte är funktionen
+  \parencite[s.~13]{Marton2015}.  Studenten skriver programmet själv,
+  och vårt program, \cref{ex:prop-i-klassen}, är svaret efteråt.
+}%
+Ett objekts attribut står i en uppslagslista, objektets attribut
+\mintinline{python}{__dict__}, och den inbyggda funktionen
+\mintinline{python}{vars} ger oss den: \mintinline{python}{vars(frac)}
+är bråkets egna attribut.  Också klassen har en sådan uppslagslista,
+\mintinline{python}{vars(Fraction)}, och där står det vi definierade i
+klassen, också metoderna\autocite{PythonDataModel}.\footnote{Föreläsningen
+  \emph{Klasser och objekt}, avsnittet \emph{Fördjupning: Allt är
+  objekt}, visar vad objektens och klassernas uppslagslistor innehåller,
+  hur ett objekt hittar sin klass och i vilken ordning Python letar i
+  klassen och dess basklasser.  Det här avsnittet bygger inte på det,
+  men går ett steg längre.}
+
+\begin{frame}
+  \begin{exercise}[Två metoder i klassen]
+    \label{ovn:prop-i-klassen}
+    Både \mintinline{python}{numerator} och
+    \mintinline{python}{__str__} skrev vi med \mintinline{python}{def}
+    i bråkklassen.  Undersök vad som står under de två namnen i
+    klassens uppslagslista, och vad du får när du läser dem via ett
+    bråk, \mintinline{python}{frac.numerator} och
+    \mintinline{python}{frac.__str__}, utan parenteser.  Skriv ett
+    program som tar reda på det, med \mintinline{python}{vars} och den
+    inbyggda funktionen \mintinline{python}{type}, som ger ett värdes
+    typ.
+  \end{exercise}
+\end{frame}
+
+Så här kan ett sådant program se ut.
+
+\begin{frame}[fragile]
+  \begin{example}[Under de två namnen]
+    \label{ex:prop-i-klassen}
+    Programmet frågar efter typen på det som står i klassen och på det
+    vi får via bråket:
+<<[[egenskap1.py]]>>=
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    frac = Fraction(1, 2)
+    print(type(vars(Fraction)["numerator"]))
+    print(type(vars(Fraction)["__str__"]))
+    print(type(frac.numerator))
+    print(type(frac.__str__))
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/fraction.py}]%
+      {examples/egenskap1.py}
+  \end{example}
+\end{frame}
+
+Under \mintinline{python}{__str__} står en funktion, den vi skrev.
+Läser vi den via bråket får vi ett metodobjekt,
+\mintinline{python}{method}: funktionen tillsammans med bråket, så att
+ett anrop av metodobjektet anropar funktionen med bråket som
+\mintinline{python}{self}.  Under \mintinline{python}{numerator} står
+inte vår funktion, utan ett objekt av typen
+\mintinline{python}{property}, ett egenskapsobjekt.  Läser vi det via
+bråket får vi ett heltal, täljaren, fast vi inte anropade något.  Två
+saker behöver alltså förklaras: hur egenskapsobjektet kom in i klassen i
+stället för funktionen, och hur en läsning via bråket blir ett anrop av
+vår funktion.
+
+\subsection{Dekoratorn är ett anrop}
+\label{sec:prop-dekorator}
+
+Raden \mintinline{python}{@property} framför \mintinline{python}{def}
+kallas en dekorator (\foreignlanguage{english}{decorator}).  När Python
+utför en \mintinline{python}{def} skapar den ett funktionsobjekt och
+binder funktionens namn till det.  Står en dekorator framför, anropar
+Python dekoratorn med funktionsobjektet som enda argument, och namnet
+binds till det som anropet returnerar i stället för till
+funktionen.\footnote{\label{fn:prop-dekorator}%
+  \enquote{The result must be a callable, which is invoked with the
+  function object as the only argument.  The returned value is bound to
+  the function name instead of the function object.}  Koden med en
+  dekorator är \enquote{roughly equivalent} till koden med ett anrop,
+  \enquote{except that the original function is not temporarily bound
+  to the name func}.  Avsnittet \emph{Function definitions} i Pythons
+  språkreferens\autocite{PythonCompoundStmts}.}
+Med \mintinline{python}{@property} framför blir det nästan samma sak som
+att anropa \mintinline{python}{property} själv.
+
+\begin{frame}[fragile]
+  \begin{example}[Utan dekorator]
+    \label{ex:prop-utan-dekorator}
+    Egenskapen \mintinline{python}{numerator} från
+    \cref{ex:fraction-property}, skriven utan
+    \mintinline{python}{@}:
+    \begin{minted}{python}
+      def numerator(self):
+          """numerator getter"""
+          return self.__numerator
+
+      numerator = property(numerator)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Skillnaden är att namnet med dekoratorn aldrig hinner bindas till
+funktionen: det binds bara en gång, till egenskapsobjektet
+(\cref{fn:prop-dekorator}).  \mintinline{python}{property} är en klass,
+inte en funktion.  Anropet skapar ett nytt egenskapsobjekt, och det
+minns funktionen i sitt attribut \mintinline{python}{fget}, läsfunktionen.
+Det är egenskapsobjektet som klassens uppslagslista har under namnet
+\mintinline{python}{numerator}; vår funktion finns kvar, men bara genom
+egenskapsobjektet.\footnote{\label{fn:prop-property}%
+  \enquote{fget is a function for getting an attribute value.  fset is a
+  function for setting an attribute value.}  Dokumentationen av
+  \mintinline{python}{property} (\cref{fn:property}).}  En dekorator kan
+vara vilket anropbart objekt som helst, och den kan användas för mycket
+annat än egenskaper, men mer än så tar kursen inte upp.
+
+\subsection{Att läsa ett attribut}
+\label{sec:prop-lasa}
+
+\leavevmode\ltnote{%
+  \Cref{ovn:prop-for-hand} låter studenten göra det Python gör innan
+  prosan säger vad det är, med \texttt{pydoc3} som verktyg; uppgiften
+  nämner varken \mintinline{python}{fget} eller
+  \mintinline{python}{__get__}.  Att det finns två sätt är avsiktligt:
+  det ena är vår funktion, det andra är det Python anropar, och
+  skillnaden leder till begreppet deskriptor.
+}%
+Egenskapsobjektet står i klassen, och via bråket ger det täljaren.
+Innan vi ser hur Python gör det kan vi göra det själva.
+
+\begin{frame}
+  \begin{exercise}[Täljaren för hand]
+    \label{ovn:prop-for-hand}
+    Läs täljaren i ett bråk utan att skriva
+    \mintinline{python}{.numerator} efter bråket: hämta egenskapsobjektet
+    ur klassens uppslagslista och få det att ge dig bråkets täljare.
+    Vilka attribut och metoder ett egenskapsobjekt har kan du läsa med
+    \texttt{pydoc3 property} i terminalen, eller med
+    \mintinline{python}{help(property)} i Python.  Hittar du mer än ett
+    sätt?
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Täljaren för hand]
+    \label{ex:prop-for-hand}
+    Två sätt, och sist det vanliga:
+<<[[egenskap2.py]]>>=
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    frac = Fraction(1, 2)
+    prop = vars(Fraction)["numerator"]
+    print(prop.fget(frac))
+    print(prop.__get__(frac, Fraction))
+    print(frac.numerator)
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/fraction.py}]%
+      {examples/egenskap2.py}
+  \end{example}
+\end{frame}
+
+Det första sättet anropar vår funktion, \mintinline{python}{fget}, med
+bråket som argument, alltså med bråket som
+\mintinline{python}{self}.  Det andra anropar egenskapsobjektets metod
+\mintinline{python}{__get__}, som \texttt{pydoc3} beskriver med
+\enquote{Return an attribute of instance, which is of type owner}: den
+tar objektet och dess klass och returnerar attributets värde.  Det är
+den Python anropar när vi skriver \mintinline{python}{frac.numerator}:
+en läsning via ett objekt blir ett anrop av
+\mintinline{python}{__get__} hos det som står i klassen, med objektet
+och klassen som argument\autocite{PythonDataModel}.  Ett objekt som har
+någon av metoderna \mintinline{python}{__get__},
+\mintinline{python}{__set__} och \mintinline{python}{__delete__} kallas
+en deskriptor (\foreignlanguage{english}{descriptor}), och
+egenskapsobjekt är deskriptorer\autocite{PythonDescriptorHowTo}.
+
+Men Python anropar inte \mintinline{python}{__get__} för allt som står i
+klassen.  Ett objekts egna attribut står i dess uppslagslista och
+metoderna i klassens, och det ligger nära till hands att tänka sig att
+Python letar i objektets uppslagslista först och i klassens sedan.
+
+\begin{frame}
+  \begin{exercise}[Samma namn i bråket]
+    \label{ovn:prop-skugga}
+    \leavevmode\ltnote{%
+      \Cref{ovn:prop-skugga} prövar en bestämd föreställning: att
+      Python alltid letar i objektets uppslagslista före klassens.  Den
+      stämmer för metoder och vanliga klassattribut, och både
+      språkreferensens avsnitt om objekt och fördjupningen i
+      föreläsningen \emph{Klasser och objekt} beskriver ordningen så,
+      men den stämmer inte för egenskaper \parencite{PythonDataModel}.
+      \textbf{Kontrast}: samma ingrepp, ett värde under metodens namn i
+      bråkets uppslagslista, görs med en egenskap och med en vanlig
+      metod, och utfallen skiljer sig.  Studenten skriver programmet
+      själv; uppgiften säger vad som ska tas reda på, inte vad som avgör
+      utfallet.  Frågan om \mintinline{python}{print(frac)} finns med
+      för att studenten inte ska dra slutsatsen att
+      \mintinline{python}{print} läser
+      \mintinline{python}{frac.__str__} som ett attribut.
+    }%
+    Vad ger \mintinline{python}{frac.numerator} om bråkets egen
+    uppslagslista också har nyckeln \mintinline{python}{"numerator"},
+    med ett annat värde?  Gör samma sak med
+    \mintinline{python}{"__str__"}: vad ger då
+    \mintinline{python}{frac.__str__}, och vad skriver
+    \mintinline{python}{print(frac)} ut?  Skriv ett program som tar reda
+    på det.  Uppslagslistan som \mintinline{python}{vars} ger går att
+    skriva i, som vilken uppslagslista som helst.
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Samma namn i bråket]
+    \label{ex:prop-skugga}
+    Programmet lägger in två värden i bråkets uppslagslista och läser
+    sedan via bråket:
+<<[[egenskap3.py]]>>=
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    frac = Fraction(1, 2)
+    vars(frac)["numerator"] = 99
+    vars(frac)["__str__"] = "ett värde i bråket"
+    print(frac.numerator)
+    print(frac.__str__)
+    print(frac)
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/fraction.py}]%
+      {examples/egenskap3.py}
+  \end{example}
+\end{frame}
+
+Bråkets eget värde under \mintinline{python}{__str__} går före klassens
+metod, som föreställningen säger.  Men under
+\mintinline{python}{numerator} går egenskapen före bråkets eget värde:
+läsningen ger \mintinline{text}|1|, inte \mintinline{text}|99|.  Och
+\mintinline{python}{print(frac)} skriver fortfarande
+\mintinline{text}|1/2|, eftersom \mintinline{python}{print} och
+\mintinline{python}{str} letar efter dundermetoden direkt i klassen och
+inte läser \mintinline{python}{frac.__str__}.\footnote{%
+  \enquote{For custom classes, implicit invocations of special methods
+  are only guaranteed to work correctly if defined on an object's type,
+  not in the object's instance dictionary.}  Avsnittet \emph{Special
+  method lookup} i Pythons språkreferens\autocite{PythonDataModel}.}
+Ordningen är alltså inte bara objektet först och klassen sedan.
+
+Att läsa ett attribut med punkt sköts av metoden
+\mintinline{python}{__getattribute__} hos objektets klass, och
+bråkklassen, som inte har någon egen, ärver den från
+\mintinline{python}{object}.  Så här gör
+\mintinline{python}{object.__getattribute__} när vi skriver
+\mintinline{python}{frac.numerator}\autocite{PythonDescriptorHowTo}:
+\begin{enumerate}
+  \item Den letar efter namnet i uppslagslistorna hos objektets klass
+    och dess basklasser, i den ordning som klassens attribut
+    \mintinline{python}{__mro__} räknar upp dem: för bråket först
+    \mintinline{python}{Fraction} och sedan
+    \mintinline{python}{object}.  Under
+    \mintinline{python}{numerator} hittar den egenskapsobjektet i
+    \mintinline{python}{Fraction}.
+  \item Har det den hittade en metod \mintinline{python}{__set__} eller
+    \mintinline{python}{__delete__} är det en datadeskriptor
+    (\foreignlanguage{english}{data descriptor}).  Då anropar den dess
+    \mintinline{python}{__get__} med objektet och klassen,
+    \mintinline{python}{prop.__get__(frac, Fraction)}, och returnerar
+    det \mintinline{python}{__get__} returnerar.  I objektets
+    uppslagslista tittar den aldrig.
+  \item Annars, om namnet står i objektets egen uppslagslista,
+    returnerar den det som står där.
+  \item Annars, om det den hittade i klassen har en
+    \mintinline{python}{__get__}, men ingen
+    \mintinline{python}{__set__} eller
+    \mintinline{python}{__delete__}, är det en icke-datadeskriptor
+    (\foreignlanguage{english}{non-data descriptor}), och den anropar
+    dess \mintinline{python}{__get__} på samma sätt.
+  \item Annars, om den hittade något i klassen alls, ett vanligt
+    klassattribut, returnerar den det.
+  \item Annars kastar den ett \mintinline{python}{AttributeError}.  Har
+    klassen en metod \mintinline{python}{__getattr__} anropar Python den
+    då, som en sista utväg; bråkklassen har ingen.
+\end{enumerate}
+
+I steg två anropar Python alltså egenskapsobjektets
+\mintinline{python}{__get__}, och den anropar
+\mintinline{python}{fget} med objektet, \mintinline{python}{fget(frac)},
+och returnerar det funktionen returnerar\autocite{PythonDescriptorHowTo}:
+det är det första sättet i \cref{ex:prop-for-hand}.  Funktionen läser
+\mintinline{python}{self.__numerator}, och det är också en läsning med
+punkt, som tar samma väg.  Namnet är omskrivet till
+\mintinline{python}{_Fraction__numerator}, och inget i klassen heter
+så, så den läsningen kommer till steg tre och hittar täljaren i bråkets
+uppslagslista.  \Cref{fig:prop-lasa} ritar hela vägen.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{pyfig}
+    \pyvar{frac}{\pyptr}
+    \pyobject[right=10mm of frac, anchor=west]{b}{Fraction}%
+      {_Fraction__numerator: 1, _Fraction__denominator: 2}
+    \pyvar[below=22mm of frac]{Fraction}{\pyptr}
+    \pyobject[right=10mm of Fraction, anchor=west]{k}{type}%
+      {numerator: \pyptr}
+    \pyobject[right=12mm of k, anchor=west]{p}{property}%
+      {fget: \pyptr, fset: None}
+    \pyobject[right=12mm of p-fget, anchor=west]{f}{function}%
+      {__name__: "numerator"}
+    \pyarrow{frac}{b}
+    \pyarrow{Fraction}{k}
+    \draw[pyfig ref] (b.south west -| k.north) ++(4mm,0) coordinate (c)
+      -- (c |- k.north)
+      node[pos=0.5, right, font=\pyfigsmallfont] {\_\_class\_\_};
+    \pyarrow{k-numerator}{p}
+    \pyarrow{p-fget}{f}
+    \draw[pyfig ref, densely dashed, rounded corners=2mm]
+      (f.north) |- (b-_Fraction__numerator.east);
+  \end{pyfig}
+  \caption{Vägen från \texttt{frac.numerator} till täljaren.  Varje
+    ruta är ett objekt, med dess typ ovanför; pilarna går från ett namn
+    eller ett attribut till objektet det står för.  Python följer
+    bråkets länk till sin klass, \texttt{\_\_class\_\_}, och hittar
+    \texttt{numerator} i klassens uppslagslista: ett egenskapsobjekt,
+    som har \texttt{\_\_set\_\_} och därför går före bråkets
+    uppslagslista.  Egenskapsobjektets \texttt{\_\_get\_\_} anropar
+    funktionen i \texttt{fget} med bråket som \texttt{self}, och
+    funktionen läser \texttt{self.\_\_numerator}, den streckade pilen,
+    som står i bråkets uppslagslista under det omskrivna namnet.
+    Klassens övriga attribut är inte ritade.}
+  \label{fig:prop-lasa}
+\end{figure}
+
+Vilket slags deskriptor något är syns på vilka metoder det har.
+
+\begin{frame}[fragile]
+  \begin{example}[Två slags deskriptorer]
+    \label{ex:prop-deskriptorer}
+    Programmet frågar egenskapsobjektet och funktionen
+    \mintinline{python}{__str__} efter metoderna, och anropar sedan
+    funktionens \mintinline{python}{__get__} själv:
+<<[[egenskap4.py]]>>=
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    frac = Fraction(1, 2)
+    prop = vars(Fraction)["numerator"]
+    func = vars(Fraction)["__str__"]
+    print(hasattr(prop, "__get__"), hasattr(prop, "__set__"))
+    print(hasattr(func, "__get__"), hasattr(func, "__set__"))
+    method = func.__get__(frac, Fraction)
+    print(type(method), method())
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/fraction.py}]%
+      {examples/egenskap4.py}
+  \end{example}
+\end{frame}
+
+Egenskapsobjektet har både \mintinline{python}{__get__} och
+\mintinline{python}{__set__}: det är en datadeskriptor, och därför går
+det före bråkets uppslagslista i \cref{ex:prop-skugga}, i steg två.
+Funktionen har \mintinline{python}{__get__} men ingen
+\mintinline{python}{__set__}: den är en icke-datadeskriptor, och därför
+går bråkets eget värde före den, i steg tre.  Funktionens
+\mintinline{python}{__get__} returnerar metodobjektet, funktionen
+tillsammans med bråket.  Så fungerar alla vanliga metoder: varje
+\mintinline{python}{frac.__str__} och varje
+\mintinline{python}{frac.__add__} är steg fyra, och metodobjektet i
+\cref{ex:prop-i-klassen} kom därifrån\autocite{PythonDataModel}.  En
+egenskap använder alltså samma mekanism som en metod, men den kommer ett
+steg tidigare, och dess \mintinline{python}{__get__} anropar funktionen
+direkt i stället för att returnera ett metodobjekt.
+
+\subsection{Att skriva ett attribut}
+\label{sec:prop-skriva}
+
+Bråkklassens egenskaper har bara läsmetoder.  Så här går det när vi
+ändå skriver till en.
+
+\begin{frame}[fragile]
+  \begin{example}[Att skriva till täljaren]
+    \label{ex:prop-skriva}
+    Programmet försöker ge bråket en ny täljare:
+<<[[egenskap5.py]]>>=
+from fraction import Fraction
+
+def main():
+    """Huvudprogrammet"""
+    frac = Fraction(1, 2)
+    frac.numerator = 3
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines,
+      deps={examples/fraction.py}]%
+      {examples/egenskap5.py}
+  \end{example}
+\end{frame}
+
+Att skriva ett attribut med punkt sköts på samma sätt av metoden
+\mintinline{python}{__setattr__} hos objektets klass, för bråket
+\mintinline{python}{object.__setattr__}.  Den letar efter namnet i
+klassernas uppslagslistor, i ordningen i \mintinline{python}{__mro__},
+precis som vid läsning.  Hittar den en datadeskriptor anropar den dess
+\mintinline{python}{__set__} med objektet och värdet,
+\mintinline{python}{prop.__set__(frac, 3)}.  Annars lägger den värdet i
+objektets uppslagslista\autocite{PythonDataModel}.  Egenskapsobjektets
+\mintinline{python}{__set__} anropar egenskapens skrivfunktion,
+\mintinline{python}{fset(frac, 3)}, om egenskapen har en; annars kastar
+den ett \mintinline{python}{AttributeError}, och det är felet
+ovan\autocite{PythonDescriptorHowTo}.  En egenskap utan skrivmetod är
+alltså skrivskyddad just för att den är en datadeskriptor: det är dess
+\mintinline{python}{__set__} som kastar felet.  Utan
+\mintinline{python}{__set__} hade \mintinline{text}|3| hamnat i bråkets
+uppslagslista och, i steg tre, gått före egenskapen vid nästa läsning.
+Konstruktorns \mintinline{python}{self.__numerator = numerator} tar den
+andra vägen: inget i klassen heter
+\mintinline{python}{_Fraction__numerator}, så värdet läggs i bråkets
+uppslagslista.
+
+Att bråkklassen saknar skrivmetoder passar den: ett bråk ändras aldrig
+efter att konstruktorn har skapat och förkortat det, för operatorerna
+skapar nya bråk, och därför kan inget bråk bli oförkortat.
+
+\leavevmode\ltnote{%
+  \Cref{ovn:prop-setter} är \textbf{generalisering}: regeln för
+  dekoratorer från \cref{sec:prop-dekorator}, prövad på
+  \mintinline{python}{@property}, ska nu gälla en dekorator som är ett
+  metodanrop.  Uppgiften säger var studenten ska titta, men inte att
+  \mintinline{python}{setter} skapar ett nytt objekt: det är det hen
+  ska urskilja.  Svaret förklarar också de två detaljer som
+  \cref{ex:property-vs-getter} bara visar: att skrivmetoden ska heta
+  som egenskapen och att dekoratorn är
+  \mintinline{python}{@attribute.setter}, inte
+  \mintinline{python}{@property.setter}.
+}%
+Egenskapen i \cref{ex:property-vs-getter} fick ändå en skrivmetod.
+Dekoratorn framför den är \mintinline{python}{@attribute.setter}, och
+med regeln för dekoratorer kan vi se vad den gör.
+
+\begin{frame}
+  \begin{exercise}[Skrivmetoden]
+    \label{ovn:prop-setter}
+    Skriv om skrivmetoden i \cref{ex:property-vs-getter}, med
+    \mintinline{python}{@attribute.setter} framför, utan
+    \mintinline{python}{@}, med regeln för dekoratorer.  Vad är
+    \mintinline{python}{attribute} på raden med dekoratorn?  Undersök
+    sedan vad \mintinline{python}{setter} gör, med bråkklassens
+    egenskapsobjekt och en skrivfunktion som du skriver själv.
+  \end{exercise}
+\end{frame}
+
+På raden med dekoratorn är \mintinline{python}{attribute} egenskapen
+från raden \mintinline{python}{@property}, eftersom dekoratorn räknas
+ut innan namnet binds till den nya funktionen.  Utan
+\mintinline{python}{@} måste funktionen därför ha ett annat namn, så att
+\mintinline{python}{def} inte binder \mintinline{python}{attribute} till
+funktionen före anropet.
+
+\begin{frame}[fragile]
+  \begin{example}[Skrivmetoden utan dekorator]
+    \label{ex:prop-setter-utan}
+    Skrivmetoden från \cref{ex:property-vs-getter}, skriven utan
+    \mintinline{python}{@}:
+    \begin{minted}{python}
+      def set_attribute(self, value):
+          self.__attribute = value
+
+      attribute = attribute.setter(set_attribute)
+    \end{minted}
+  \end{example}
+\end{frame}
+
+Vad \mintinline{python}{setter} gör kan vi undersöka med bråkklassens
+egenskapsobjekt, utan att ändra klassen.
+
+\begin{frame}[fragile]
+  \begin{example}[Vad \texttt{setter} gör]
+    \label{ex:prop-setter}
+    Programmet ger egenskapsobjektet en skrivfunktion som bara berättar
+    att den anropas, och sist provar det
+    \mintinline{python}{property.setter}:
+<<[[egenskap6.py]]>>=
+from fraction import Fraction
+
+def report(frac, value):
+    """En skrivfunktion som bara berättar att den anropas"""
+    print(f"skrivfunktionen anropas med {value}")
+
+def main():
+    """Huvudprogrammet"""
+    frac = Fraction(1, 2)
+    prop = vars(Fraction)["numerator"]
+    new_prop = prop.setter(report)
+    print(new_prop is prop)
+    print(new_prop.fget is prop.fget, new_prop.fset is report)
+    print(prop.fset)
+    new_prop.__set__(frac, 3)
+    print(frac.numerator)
+    property.setter(report)
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, breaklines,
+      deps={examples/fraction.py}]%
+      {examples/egenskap6.py}
+  \end{example}
+\end{frame}
+
+\mintinline{python}{setter} ändrar inte egenskapsobjektet.  Den
+returnerar ett nytt, med samma läsfunktion och den nya skrivfunktionen,
+medan det gamla fortfarande saknar skrivfunktion,
+\mintinline{python}{None}\autocite{PythonDescriptorHowTo}.  Det nya
+objektets \mintinline{python}{__set__} anropar skrivfunktionen, och
+bråket är oförändrat, eftersom vår skrivfunktion inte gör något med det.
+Dekoratorn \mintinline{python}{@attribute.setter} binder alltså namnet
+\mintinline{python}{attribute} till ett nytt egenskapsobjekt med både
+läs- och skrivfunktion, och det som bara hade läsfunktionen används inte
+längre.  Därför ska skrivmetoden heta som egenskapen: det är
+funktionens namn som binds till det nya objektet.  Hette den något
+annat skulle det namnet få egenskapen med skrivfunktion, medan
+\mintinline{python}{attribute} förblev skrivskyddad.\footnote{\enquote{Be
+  sure to give the additional functions the same name as the original
+  property (x in this case.)}  Dokumentationen av
+  \mintinline{python}{property} (\cref{fn:property}).}
+Och \mintinline{python}{property.setter} är metoden i klassen
+\mintinline{python}{property}, inte i vår egenskap.  Anropad via
+klassen tar den sitt första argument, vår funktion, som det
+egenskapsobjekt den ska kopiera, och felet sist i körningen säger att en
+funktion inte är något egenskapsobjekt.  Det är felet
+\mintinline{python}{@property.setter} ger.
+
+\subsection{En egen egenskap}
+\label{sec:prop-egen}
+
+\leavevmode\ltnote{%
+  \textbf{Fusion}: \cref{ovn:prop-egen} låter studenten sätta ihop det
+  avsnittet har tagit isär --- dekoratorn som anrop, läsningen genom
+  \mintinline{python}{__get__}, skrivningen genom
+  \mintinline{python}{__set__} och \mintinline{python}{setter} som
+  skapar ett nytt objekt --- i en klass som hen skriver själv.  Klassen
+  att pröva den i är jämförelsens klass från
+  \cref{ex:property-vs-getter}, så att målet är känt.  Lösningsförslaget
+  står bara i anteckningarna och följer upplägget uppifrån och ner, med
+  testfunktionerna efter varje del och deras utskrift bredvid.
+}%
+Nu har vi sett allt som \mintinline{python}{property} gör när vi läser
+och skriver.  Då kan vi skriva en sådan klass själva.
+
+\begin{frame}
+  \begin{exercise}[En egen egenskap]
+    \label{ovn:prop-egen}
+    Skriv en klass, \mintinline{python}{MyProperty}, som gör det
+    \mintinline{python}{property} gör när vi läser och skriver: med
+    \mintinline{python}{@MyProperty} framför en metod ska metoden kunna
+    läsas som ett attribut, med en skrivmetod som i
+    \cref{ex:property-vs-getter} ska attributet också kunna skrivas, och
+    utan skrivmetod ska en skrivning ge ett
+    \mintinline{python}{AttributeError}.  Pröva den i klassen i
+    \cref{ex:property-vs-getter}, med \mintinline{python}{MyProperty} i
+    stället för \mintinline{python}{property}.
+  \end{exercise}
+\end{frame}
+
+Vårt lösningsförslag är en fil, \texttt{my\_property.py}, med klassen
+och, att pröva den i, klassen från \cref{ex:property-vs-getter}.
+
+\begin{frame}[fragile]
+  \begin{example}[En egen egenskaps upplägg]
+    \label{ex:prop-egen-fil}
+    Egenskapsklassen, klassen att pröva den i och testerna:
+<<[[my_property.py]]>>=
+"""A property class of our own"""
+
+class MyProperty:
+    """Does what property does when we read and write"""
+
+    <<metoder i [[MyProperty]]>>
+
+class Class:
+    """The class from the comparison, with MyProperty"""
+
+    def __init__(self, attribute):
+        self.__attribute = attribute
+
+    @MyProperty
+    def attribute(self):
+        """attribute getter"""
+        return self.__attribute
+
+    @attribute.setter
+    def attribute(self, value):
+        """attribute setter"""
+        self.__attribute = value
+
+<<testfunktioner för [[MyProperty]]>>
+
+def tests():
+    """Test program"""
+    <<kör tester för [[MyProperty]]>>
+
+if __name__ == "__main__":
+    tests()
+@
+  \end{example}
+\end{frame}
+
+Raden \mintinline{python}{@MyProperty} anropar klassen med funktionen,
+så konstruktorn får läsfunktionen.  Skrivfunktionen kommer senare, och
+bara ibland, så den är frivillig.
+
+\begin{frame}[fragile]
+  \begin{example}[Konstruktorn]
+    \label{ex:prop-egen-init}
+    Egenskapen minns sina två funktioner:
+<<metoder i [[MyProperty]]>>=
+def __init__(self, fget, fset=None):
+    self.fget = fget
+    self.fset = fset
+@
+  \end{example}
+\end{frame}
+
+Vid läsning via ett objekt anropar \mintinline{python}{object.__getattribute__}
+metoden \mintinline{python}{__get__} med objektet och klassen.  Läser vi
+via klassen, \mintinline{python}{Class.attribute}, finns inget objekt,
+och då får \mintinline{python}{__get__} \mintinline{python}{None} i
+stället.  Då ger den tillbaka egenskapsobjektet självt, som
+\mintinline{python}{property} gör\autocite{PythonDescriptorHowTo}.
+
+\begin{frame}[fragile]
+  \begin{example}[Att läsa]
+    \label{ex:prop-egen-get}
+    Läsning via ett objekt anropar läsfunktionen med objektet:
+<<metoder i [[MyProperty]]>>=
+def __get__(self, obj, objtype=None):
+    if obj is None:
+        return self
+    return self.fget(obj)
+@
+    Testfunktionen läser via ett objekt och via klassen:
+<<testfunktioner för [[MyProperty]]>>=
+def test_read():
+    """Read through an object and through the class"""
+    obj = Class(1)
+    print(obj.attribute)
+    print(isinstance(Class.attribute, MyProperty))
+<<kör tester för [[MyProperty]]>>=
+test_read()
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/my_property.py}]%
+      {examples/my_property_test_read.py}
+  \end{example}
+\end{frame}
+
+För att egenskapen ska gå före objektets uppslagslista måste den vara en
+datadeskriptor, och då behöver den \mintinline{python}{__set__}, också
+när den saknar skrivfunktion.
+
+\begin{frame}[fragile]
+  \begin{example}[Att skriva]
+    \label{ex:prop-egen-set}
+    Skrivning anropar skrivfunktionen, om det finns en:
+<<metoder i [[MyProperty]]>>=
+def __set__(self, obj, value):
+    if self.fset is None:
+        raise AttributeError("the attribute has no setter")
+    self.fset(obj, value)
+@
+    Testfunktionen skapar en egenskap med bara läsfunktionen, som
+    \mintinline{python}{@MyProperty} ensam gör, och skriver via den:
+<<testfunktioner för [[MyProperty]]>>=
+def test_no_setter():
+    """Write through a property without a setter"""
+    read_only = MyProperty(Class.attribute.fget)
+    try:
+        read_only.__set__(Class(1), 2)
+    except AttributeError as error:
+        print(f"AttributeError: {error}")
+<<kör tester för [[MyProperty]]>>=
+test_no_setter()
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/my_property.py}]%
+      {examples/my_property_test_no_setter.py}
+  \end{example}
+\end{frame}
+
+Till sist \mintinline{python}{setter}, som i
+\cref{ex:prop-setter} skapade ett nytt egenskapsobjekt med samma
+läsfunktion.
+
+\begin{frame}[fragile]
+  \begin{example}[Skrivmetoden]
+    \label{ex:prop-egen-setter}
+    \mintinline{python}{setter} returnerar en ny egenskap med båda
+    funktionerna:
+<<metoder i [[MyProperty]]>>=
+def setter(self, fset):
+    return MyProperty(self.fget, fset)
+@
+    Testfunktionen skriver via objektet och läser sedan igen:
+<<testfunktioner för [[MyProperty]]>>=
+def test_write():
+    """Write through an object, then read again"""
+    obj = Class(1)
+    obj.attribute = 2
+    print(obj.attribute)
+    print(vars(obj))
+<<kör tester för [[MyProperty]]>>=
+test_write()
+@
+    Testfallet skriver ut
+    \runpython[chdir, deps={examples/my_property.py}]%
+      {examples/my_property_test_write.py}
+  \end{example}
+\end{frame}
+
+Värdet \mintinline{text}|2| står i objektets uppslagslista under det
+omskrivna namnet, dit skrivmetoden lade det, och inte under
+\mintinline{python}{attribute}: skrivningen gick genom egenskapen.
+Sätter vi in varje del där dess namn står får vi hela programmet, och
+dess körning:
+
+\begin{frame}[fragile]
+  \begin{example}[\texttt{my\_property.py}]
+    \label{ex:prop-egen-hel}
+    Hela filen:
+    \inputminted{python}{examples/my_property.py}
+    Programmet skriver ut
+    \runpython[showcommand, chdir]{examples/my_property.py}
+  \end{example}
+\end{frame}
+
+Den riktiga \mintinline{python}{property} gör några saker till: den har
+\mintinline{python}{__delete__}, för \mintinline{python}{del}, metoderna
+\mintinline{python}{getter} och \mintinline{python}{deleter}, och den
+tar läsfunktionens dokumentationssträng som sin egen.  Pythons
+\emph{Descriptor Guide} har en klass, skriven i Python, som gör allt
+det\autocite{PythonDescriptorHowTo}.
+
+Svaret på frågan är alltså: \mintinline{python}{@property} byter ut vår
+funktion i klassen mot ett egenskapsobjekt som minns den.  En läsning
+med punkt hittar egenskapsobjektet i klassen före objektets
+uppslagslista och anropar dess \mintinline{python}{__get__}, som
+anropar vår funktion med objektet som \mintinline{python}{self}.  En
+skrivning anropar på samma sätt \mintinline{python}{__set__}, som
+anropar skrivfunktionen eller kastar ett
+\mintinline{python}{AttributeError}.  Vanliga metoder använder samma
+mekanism, ett steg senare.
+
+\mode*
