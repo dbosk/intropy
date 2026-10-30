@@ -23,7 +23,10 @@ ${MENTIPY_VENV}/bin/python3:
 # latexmk reruns PythonTeX only when that output is missing or the code
 # changed, and another mentipy may typeset the questions differently.
 # 0.15 is the first to take locale=, which makes the labels Swedish.
-MENTIPY_VERSION=	0.15
+# 0.16 records the QR codes' paths relative to the store, so a build
+# in another checkout (a worktree) no longer writes that checkout's
+# absolute paths into the store.
+MENTIPY_VERSION=	0.16
 MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
 
 # Order-only on the venv: the venv must exist before the upgrade, but its
