@@ -22,14 +22,17 @@ ${MENTIPY_VENV}/bin/python3:
 # takes the locale= that makes the labels Swedish.  0.16 records the QR
 # codes' paths relative to the store, so a build in another checkout (a
 # worktree) no longer writes that checkout's absolute paths into the
-# committed mentipy.json.  The rule above makes the venv only once, so
+# committed mentipy.json.
+# 0.17 links each PythonTeX run's questions instead of counting them,
+# so rebuilding an unchanged deck leaves the store byte-identical.
+# The rule above makes the venv only once, so
 # a venv keeps the mentipy of its first build; a stamp named after the
 # version upgrades it once.  The deck depends on the stamp, so an
 # upgrade also rebuilds it, and the PythonTeX output goes with the
 # upgrade: latexmk reruns PythonTeX only when that output is missing or
 # the code changed, and another mentipy may give the questions other
 # ids.
-MENTIPY_VERSION=	0.16
+MENTIPY_VERSION=	0.17
 MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
 
 # Order-only on the venv: the venv must exist before the upgrade, but its

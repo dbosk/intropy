@@ -26,7 +26,9 @@ ${MENTIPY_VENV}/bin/python3:
 # 0.16 records the QR codes' paths relative to the store, so a build
 # in another checkout (a worktree) no longer writes that checkout's
 # absolute paths into the store.
-MENTIPY_VERSION=	0.16
+# 0.17 links each PythonTeX run's questions instead of counting them,
+# so rebuilding an unchanged deck leaves the store byte-identical.
+MENTIPY_VERSION=	0.17
 MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
 
 # Order-only on the venv: the venv must exist before the upgrade, but its
