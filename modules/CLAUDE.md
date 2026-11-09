@@ -303,8 +303,8 @@ The **makefiles submodule must be on the `tominted-default-weave`
 lineage** (currently fe00f3b; it makes the highlighted weave the
 default, and its `latexmkrc`, linked into every deck that sets
 `TEX_PYTHONTEX`, lets latexmk run ten times: since marginfix#14 the
-notes of `recap/slides` take six). In a fresh worktree run `git submodule update --init --checkout
-makefiles` (`--checkout` because the repo config has
+notes of `recap/slides` take six). In a fresh worktree run `git
+submodule update --init --checkout makefiles` (`--checkout` because the repo config has
 `submodule.makefiles.update=none`). The main checkout's `makefiles` is not
 on that lineage: after the campaign branch is merged to master, run
 `git submodule update` there. Tracked hand-written activity inputs such as
