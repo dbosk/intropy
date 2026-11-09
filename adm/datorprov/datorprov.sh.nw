@@ -338,16 +338,36 @@ sort -u \
 | keep_latest
 @
 
-Funktionen~[[keep_latest]] tar en tabbseparerad lista med resultat och behåller,
-för varje student--uppgiftpar, endast den rad med det senaste datumet; till slut
-skrivs just dessa senaste resultat ut.
+Funktionen~[[keep_latest]] tar en tabbseparerad lista med resultat och behåller
+en rad för varje student--uppgiftpar; till slut skrivs just dessa rader ut.
+I regel är det raden med det senaste datumet, men det räcker inte i två fall.
+
+Det första är rader utan datum.
+Canvas skriver då [[N/A]], och eftersom bokstäver sorteras efter siffror skulle
+en sådan rad annars vinna över ett riktigt resultat (samma fälla som i
+[[get_assignment_date]]).
+Därför räknas [[N/A]] som äldre än alla datum.
+
+Det andra är flera rum med samma uppgiftsnamn.
+Vi har klippt bort kolumnen med kursen, så [[prgi25]]s \enquote{Betyg
+datorprovet} och examinationsrummets uppgift med samma namn hamnar på samma
+nyckel.
+Ett P i det ena rummet kan då försvinna till förmån för en senare rad i det
+andra, och utan P:et ser inte [[rapportera]] att studenten redan är godkänd och
+skriver över det.
+Därför vinner en rad med P i en betygsuppgift alltid: ett P ska aldrig skrivas
+över, oavsett vilket rum det står i eller hur gammalt det är.
 <<hjälpfunktioner>>=
 keep_latest() {
-  awk -F'\t' '
+  awk -F'\t' -v betyg="$BETYG" '
+  function when(d) { return (d ~ /^N\/A/) ? "" : d }
   {
     key = $1 "\t" $2
-    if (!(key in date) || $4 > date[key]) {
-      date[key] = $4
+    is_p = ($1 ~ betyg && $3 == "P")
+    if (!(key in line) || is_p > p[key] \
+        || (is_p == p[key] && when($4) > date[key])) {
+      date[key] = when($4)
+      p[key] = is_p
       line[key] = $0
     }
   }
@@ -366,12 +386,12 @@ från alla matchade kurser.
 Funktionen~[[studenter_i_kursen]] returnerar bara de studenter som har
 [[BETYG]]-uppgiften, dvs.\ de som tillhör kursen vi vill rapportera till.
 
-Uppgiften heter inte exakt likadant i alla rum: i examinationsrummet heter den
-\enquote{Betyg datorprovet}, i kursrummet \enquote{Betyg datorprovet
-(obligatorisk)}.
+Uppgiften heter inte exakt likadant i alla rum: i examinationsrummet och
+[[prgi25]] heter den \enquote{Betyg datorprovet}, i [[prgi26]] \enquote{Betyg
+datorprovet (obligatorisk)}.
 [[canvaslms]] söker efter uttrycket i [[-a]] var som helst i uppgiftens namn, så
-[[results]] innehåller raderna från båda, och [[canvaslms grade -a]] skriver till
-båda.
+[[results]] innehåller raderna från alla rum som kursregexet matchar, och
+[[canvaslms grade -a]] skriver till alla.
 Därför jämför vi med [[~]] och inte [[==]]: [[~]] gör samma sorts sökning som
 [[-a]], så att vi räknar med precis de uppgifter som vi hämtar och skriver till.
 Med [[==]] skulle en student som bara har kursrummets uppgift inte räknas till
@@ -416,7 +436,8 @@ Vi jämför därför alltid hela fältet.
 Vilket fält det är beror på vad vi läser: i [[results]] är studenten fält~2
 (efter uppgiften), men i utmatningen från [[all]] är studenten fält~1.
 Därför tar funktionen fältnumret som argument.
-Med [[==]] jämför [[awk]] hela strängen bokstavligt, så [[.]] i en adress är bara
+Med [[==]] jämför [[awk]] hela strängen bokstavligt, så [[.]] i en adress är
+bara
 en punkt och inte \enquote{vilket tecken som helst}.
 (Hade värdena sett ut som tal hade [[awk]] jämfört dem som tal, men en adress
 gör aldrig det.)
@@ -433,7 +454,8 @@ Vi känner igen listan med [[FILENAME == ARGV[1] ]] och inte med det vanliga
 [[NR == FNR]].
 Listan är nämligen ofta tom, exempelvis när ingen ännu är godkänd.
 Då är [[NR]] och [[FNR]] lika även på raderna från standard in, så [[NR == FNR]]
-skulle tolka alla rader som delar av listan och tyst svälja dem, och ingen skulle
+skulle tolka alla rader som delar av listan och tyst svälja dem, och ingen
+skulle
 få något betyg.
 <<hjälpfunktioner>>=
 utan_studenter() {
@@ -454,6 +476,10 @@ Ger vi den [[eva@kth.se]] så sätts [[eva]]s betyg även på [[neva]], också o
 [[neva]] redan har ett P som vi aktar oss för att skriva över.
 Adressen i [[results]] är just inloggnings-id:t, så vi förankrar uttrycket och
 skyddar metatecknen, så att det bara kan träffa exakt den adressen.
+Hittar [[canvaslms]] ändå ingen student avslutas kommandot med ett fel utan att
+nämna vem det gäller, och [[rapportera]] fortsätter med nästa student.
+Därför skriver vi ut adressen när betyget inte gick att sätta, så att det inte
+försvinner i mängden.
 <<hjälpfunktioner>>=
 exakt_regex() {
   echo "^$(echo "$1" | sed 's/[][\.*^$+?(){}|]/\\&/g')\$"
@@ -466,13 +492,15 @@ exakt_regex() {
 Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter
 genom att hämta dem från filen.
 Men vi vill bara ha studenter som tillhör kursen vi vill rapportera till---inte
-studenter som bara råkar finnas i ett annat rum som matchar samma kursregex, utan
+studenter som bara råkar finnas i ett annat rum som matchar samma kursregex,
+utan
 att ha någon betygsuppgift där.
 Därför filtrerar vi genom~[[studenter_i_kursen]], som bara returnerar studenter
-som har uppgiften~[[BETYG]], i examinationsrummet eller i kursrummet.
-Det betyder att [[all]] och [[nothing]] även tar med studenter i kursrummet som
-inte är med i examinationsrummet; [[rapportera]] påverkas inte av dem om de inte
-har något resultat på datorprovet, eftersom [[nothing]] sorterar bort dem.
+som har uppgiften~[[BETYG]], i något av rummen.
+Det betyder att [[all]] och [[nothing]] även tar med studenter i kursrum med det
+längre namnet som inte är med i examinationsrummet; [[rapportera]] påverkas inte
+av dem om de inte har något resultat på datorprovet, eftersom [[nothing]]
+sorterar bort dem.
 Raderna innehåller bara adressen, så [[grep -Fx]] räcker
 (se avsnitt \ref{MatchaStudent}).
 <<låt [[students]] vara en lista med alla studenter>>=
@@ -907,7 +935,8 @@ rapportera() {
                     -a "${to_assignment}" \
                     -u "$(exakt_regex "${student}")" \
                     -g "${grade}" \
-                    -m "${feedback}"
+                    -m "${feedback}" \
+    || echo "Kunde inte sätta betyg för ${student}" >&2
   done
 }
 @
@@ -961,7 +990,8 @@ run_or_echo canvaslms grade -c "${course}" \
                 -a "${ACKUMULERAD}" \
                 -u "$(exakt_regex "${student}")" \
                 -g "${total_points}" \
-                -m "$(ack_feedback ${total_points} ${bonus})"
+                -m "$(ack_feedback ${total_points} ${bonus})" \
+|| echo "Kunde inte sätta ackumulerad poäng för ${student}" >&2
 @
 
 Vi vill även ha en funktion som skriver ut återkopplingen för ackumulerade 
@@ -1054,7 +1084,8 @@ rapportera till.
 Ett P kan stå i vilken som helst av betygsuppgifterna, så vi söker med [[~]] på
 samma sätt som i [[studenter_i_kursen]].
 Det är här en exakt jämförelse skulle göra mest skada.
-En student som har P i kursrummets \enquote{Betyg datorprovet (obligatorisk)} och
+En student som har P i kursrummets \enquote{Betyg datorprovet (obligatorisk)}
+och
 sedan skriver om provet utan att klara det skulle inte filtreras bort, och
 eftersom [[canvaslms grade -a]] träffar båda uppgifterna skulle [[rapportera]]
 skriva F över P:et.
