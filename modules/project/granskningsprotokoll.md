@@ -262,14 +262,14 @@ svenska språket).
 
 Programmet ska ha en genomgående typografi och följa PEP 8. Namn på
 variabler, funktioner och metoder skrivs med små bokstäver, med
-understreck mellan orden (t ex summera\_vikter). Namn på klasser inleds
-med stor bokstav, och varje nytt ord skrivs ihop med stor bokstav (t ex
-EnBraKlass). Namn på konstanter skrivs med stora bokstäver (t ex
+understreck mellan orden (t ex summera\_vikter). Namn på klasser skrivs
+ihop, och varje ord inleds med stor bokstav (t ex EnBraKlass). Namn på
+konstanter skrivs med stora bokstäver, med understreck mellan orden (t ex
 MAX\_ANTAL).
 
 class EnBraKlass
 
-def en\_metod\_som\_tar\_tre\_parametrar(x, y, z)
+def en\_funktion\_som\_tar\_tre\_parametrar(x, y, z)
 
 7. Lämplig uppdelning i funktioner/metoder
 ------------------------------------------
