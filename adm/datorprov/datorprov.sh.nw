@@ -1320,4 +1320,635 @@ Det ger oss följande.
 points_feedback ${lo_points} ${bonus_points}
 @
 
+
+\section{Förbereda examinationsrummet}\label{Setup}
+
+Allt ovan händer efter provet.
+Före provet behöver examinationsrummet två saker som är lätta att glömma och
+som drabbar studenterna direkt om de blir fel.
+\begin{description}
+\item[IP-filtret] Provet ska bara gå att skriva från datorerna i de salar som
+  är bokade för provtillfället.
+  När vi kopierar ett examinationsrum följer det gamla rummets IP-intervall
+  med.
+  Var det gamla provtillfället i två salar och det nya i åtta, då stänger
+  filtret ute de flesta studenterna.
+\item[Förlängd skrivtid] Studenter med funkakoden R0 har rätt till 50~procent
+  längre skrivtid och R1 till 25~procent.
+  Koderna står i deltagarlistan, inte i Canvas, så vi måste föra över dem för
+  hand till varje prov.
+\end{description}
+Kommandot [[setup]] gör båda:
+\begin{verbatim}
+DRY_RUN=1 ./datorprov.sh "DD1317 LAB2 .2026-11-26." setup
+\end{verbatim}
+Med [[DRY_RUN=1]] skrivs ändringarna ut i stället för att skickas till Canvas
+(se [[run_or_echo]] i avsnitt~\ref{Konfigurationsvariabler}), så vi kan
+granska dem först.
+Punkterna i kursregexet står för hakparenteserna i rummets namn: inom ett
+reguljärt uttryck är \verb|[2026-11-26]| en teckenklass, inte texten
+\enquote{[2026-11-26]}.
+
+Kommandot hämtar uppgifter från fyra ställen och gör två ändringar i Canvas.
+\begin{description}
+\item[Canvas] ger examinationsrummet, datumet (ur rummets namn), provet och de
+  anmälda studenterna, och tar emot IP-filtret och den förlängda skrivtiden.
+\item[Schemat] ([[nytid schedule show]]) ger salarna som är bokade för
+  provtillfället.
+\item[ [[kthutils iprange]] ] på [[faculty-shell.sys.kth.se]] ger varje sals
+  IP-intervall.
+\item[ [[kthutils participants]] ] ger studenternas funkakoder.
+\end{description}
+Stegen följer i den ordningen, och vart och ett avbryter med ett felmeddelande
+om något saknas.
+Det är avsiktligt: ett prov som står kvar med de gamla intervallen märks
+direkt när vi tittar på det, men ett filter som tyst saknar en sal märks först
+när studenterna i den salen inte kommer in.
+<<andra kommandon>>=
+setup() {
+  local arbetskatalog
+  arbetskatalog=$(mktemp -d) || return 1
+  forbered_examinationsrum "${arbetskatalog}"
+  local status=$?
+  rm -r "${arbetskatalog}"
+  <<ta bort resultatcachen om [[setup]] skapade den>>
+  return ${status}
+}
+@
+
+Själva arbetet gör [[forbered_examinationsrum]].
+Den får en tillfällig katalog för sina mellanresultat, och [[setup]] tar bort
+katalogen hur det än går.
+Exporten av provet hamnar där, och den innehåller provfrågorna.
+Vi använder inte en [[EXIT]]-fälla för städningen: skriptet kan ha en egen
+sådan fälla, och en ny skulle ersätta den.
+<<hjälpfunktioner>>=
+forbered_examinationsrum() {
+  local dir="$1"
+  <<hitta examinationsrummet och provets datum>>
+  <<sätt provets IP-filter till salarnas IP-intervall>>
+  <<ge de anmälda studenterna med R0 och R1 förlängd skrivtid>>
+  <<skriv ut en sammanfattning utan studenternas namn>>
+}
+@
+
+Skriptet hämtar alla resultat från Canvas innan något kommando körs
+(se [[<<beräknade konstanter>>]]), och sparar dem i [[results_cache]].
+Före provet finns det inga resultat att hämta, men filen blir kvar, och efter
+provet skulle [[P]] och [[rapportera]] läsa den gamla filen i stället för de
+riktiga resultaten.
+Därför tar [[setup]] bort filen igen om den inte fanns när skriptet startade.
+Fanns den redan låter vi den vara: den kommer från en körning som användaren
+själv har gjort.
+<<konstanter>>=
+if [ -e "${results_cache}" ]; then
+  results_cache_fanns=1
+else
+  results_cache_fanns=0
+fi
+<<ta bort resultatcachen om [[setup]] skapade den>>=
+if [ "${results_cache_fanns}" = 0 ]; then
+  rm -f "${results_cache}"
+fi
+@
+
+
+\subsection{Examinationsrummet och provets datum}
+
+Skriptets kursregex får matcha flera kursrum, så att resultaten från
+examinationsrummet och kursrummet kan blandas (se Inledningen).
+För [[setup]] vore det farligt: [[quizzes edit -c]] skriver till alla kurser
+som regexet matchar, och då kunde kursrummets prov också få IP-filtret.
+Därför letar vi upp precis ett examinationsrum och använder sedan dess
+Canvas-id, [[^69869$]], som kursregex för allt vi skriver.
+
+Examinationsrummen känns igen på datumet inom hakparenteser i namnet, till
+exempel \enquote{DD1317 LAB2 [2026-11-26] Examination i datorsal}.
+Matchar regexet ett kursrum och ett examinationsrum väljer vi alltså
+examinationsrummet.
+Matchar det flera examinationsrum avbryter vi och listar dem, så att
+användaren kan göra regexet snävare.
+Vi frågar efter alla kurser ([[-a]]), inte bara aktuella, eftersom
+[[canvaslms]] gör så när den tolkar [[-c]]; annars kunde vi hitta färre rum än
+de som [[-c]] sedan skulle skriva till.
+
+Det finns ett undantag.
+Matchar regexet en enda kurs, och den saknar datum, då använder vi den ändå.
+Det är så vi repeterar kommandot i en sandlådekurs, som inte har något datum
+i namnet; datumet ger vi då med [[PROVDATUM]] (se nedan).
+<<hjälpfunktioner>>=
+examinationsrum() {
+  local kurser
+  kurser=$(canvaslms courses -a -i "$1" | <<rensa bort CR>>) || return 1
+  local daterade=$(echo "${kurser}" \
+                   | grep -E '\[[0-9]{4}-[0-9]{2}-[0-9]{2}\]')
+  if [ -z "${daterade}" ] && [ $(echo "${kurser}" | grep -c .) -eq 1 ]; then
+    daterade="${kurser}"
+  fi
+  if [ $(echo "${daterade}" | grep -c .) -ne 1 ]; then
+    echo "setup: kursregexet måste matcha precis ett examinationsrum," \
+         "nu matchar det:" >&2
+    echo "${daterade}" | cut -f 3 >&2
+    return 1
+  fi
+  echo "${daterade}" | cut -f 1,3
+}
+@
+
+Datumet tar vi ur rummets namn.
+Med miljövariabeln [[PROVDATUM]] kan vi ange det själva, vilket behövs för en
+kurs utan datum i namnet.
+<<hjälpfunktioner>>=
+provdatum() {
+  if [ -n "${PROVDATUM}" ]; then
+    echo "${PROVDATUM}"
+    return
+  fi
+  local datum=$(echo "$1" | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}' | head -n 1)
+  if [ -z "${datum}" ]; then
+    echo "setup: hittar inget datum i \"$1\", ange det med PROVDATUM" >&2
+    return 1
+  fi
+  echo "${datum}"
+}
+@
+
+Med de två funktionerna har vi rummet, dess id och datumet.
+Vi skriver [[local]] på en egen rad före tilldelningen, eftersom
+[[local x=$(...)]] ger statusen från [[local]] och inte från kommandot, och då
+skulle [[|| return 1]] aldrig slå till.
+<<hitta examinationsrummet och provets datum>>=
+local rum
+rum=$(examinationsrum "${course}") || return 1
+local rum_id=$(echo "${rum}" | cut -f 1)
+local rum_namn=$(echo "${rum}" | cut -f 2)
+local rum_regex="^${rum_id}\$"
+local datum
+datum=$(provdatum "${rum_namn}") || return 1
+@
+
+
+\subsection{Salarna för provtillfället}
+
+Salarna står i schemat, som [[nytid schedule show]] visar.
+Provtillfället heter \enquote{Kontrollskrivning} där, och raden ser ut så här:
+\begin{verbatim}
+$ nytid schedule show prgi26 --start 2026-11-26 --end 2026-11-26 -f csv
+26/11 13:00  Kontrollskrivning  Butter, Frodo, Glader  Needed TAs: 1; ...
+\end{verbatim}
+Vi ber om ett fullständigt datum i första kolumnen, så att vi kan jämföra med
+[[datum]] och inte får med händelser från andra dagar.
+Kursomgången och händelsens namn är konstanter som går att ändra med
+miljövariabler, eftersom kursomgången byter namn varje år.
+Kursomgången behövs: läraren kan ha en kontrollskrivning i en annan kurs samma
+dag, och den kursens salar ska inte in i filtret.
+<<konstanter>>=
+SCHEMA_KURS="${SCHEMA_KURS:-prgi26}"
+PROVTILLFALLE="${PROVTILLFALLE:-Kontrollskrivning}"
+@
+
+Funkasalen bokas ofta senare än de andra salarna och syns då inte i schemat.
+Sådana salar lägger vi till med [[EXTRA_ROOMS]], kommaseparerade som i
+schemat:
+[[EXTRA_ROOMS="Toker" ./datorprov.sh ... setup]].
+En sal som både står i schemat och i [[EXTRA_ROOMS]] tas bara med en gång.
+
+Hittar vi inget provtillfälle alls avbryter vi, även om [[EXTRA_ROOMS]] är
+satt: troligen är datumet eller kursomgången fel, och ett filter med bara
+funkasalen skulle stänga ute alla andra.
+Hittar vi flera tar vi med salarna från alla och varnar: en sal för mycket i
+filtret är ofarligt, en för lite är det inte.
+<<hjälpfunktioner>>=
+salar_for_provet() {
+  local datum="$1"
+  local platser=$(nytid schedule show "${SCHEMA_KURS}" \
+                    --start "${datum}" --end "${datum}" \
+                    --format csv --delimiter $'\t' \
+                    --time-format '%Y-%m-%d %H:%M' \
+                  | <<rensa bort CR>> \
+                  | awk -F'\t' -v datum="${datum}" \
+                        -v namn="${PROVTILLFALLE}" \
+                        'index($1, datum) == 1 && $2 ~ namn {print $3}')
+  local antal=$(echo "${platser}" | grep -c .)
+  if [ "${antal}" -eq 0 ]; then
+    echo "setup: hittar inget \"${PROVTILLFALLE}\" i ${SCHEMA_KURS}" \
+         "den ${datum}" >&2
+    return 1
+  elif [ "${antal}" -gt 1 ]; then
+    echo "setup: varning: ${antal} provtillfällen den ${datum}," \
+         "tar med salarna från alla" >&2
+  fi
+  printf '%s\n%s\n' "${platser}" "${EXTRA_ROOMS}" \
+  | tr ',' '\n' | sed 's/^ *//; s/ *$//' | grep . \
+  | awk '!sett[$0]++'
+}
+@
+
+
+\subsection{Från sal till IP-intervall}
+
+IP-intervallen får vi från [[kthutils iprange]], som vi kör på
+[[faculty-shell.sys.kth.se]].
+Det tar några sekunder per sal: [[kthutils]] slår upp vart och ett av
+datornamnen [[butt-01]] till [[butt-99]] och tar den första och den sista
+adressen som finns.
+Vi tar [[kthutils]] från [[~/.local/bin]] på servern, där [[pipx]] lägger
+den, eftersom [[ssh]] med ett kommando inte läser in skalets inställningar,
+så att [[PATH]] saknar den katalogen.
+<<konstanter>>=
+IPRANGE_HOST="${IPRANGE_HOST:-faculty-shell.sys.kth.se}"
+@
+
+Kommandot vill ha början på datornamnen, inte salarnas namn:
+[[BUTT]] för Butter och [[TROT]] för Trötter.
+Listan över prefix står i [[kthutils iprange --help]].
+Vi översätter med en tabell.
+Salar vars namn redan är prefixet, som Pippin och Frodo, behöver inte stå i
+tabellen, eftersom en sal som saknas används som sitt eget prefix.
+Det gör också att vi kan ge ett prefix direkt i [[EXTRA_ROOMS]].
+<<konstanter>>=
+declare -A SALSPREFIX=(
+  [Butter]=BUTT [Trötter]=TROT [Kloker]=KLOK [Toker]=TOKE
+  [Glader]=GLAD [Prosit]=PROS [Pippin]=PIPPIN [Frodo]=FRODO
+)
+<<hjälpfunktioner>>=
+salsprefix() {
+  echo "${SALSPREFIX[$1]:-$1}"
+}
+@
+
+För varje prefix skriver [[kthutils iprange]] en rad med första och sista
+adressen, i samma ordning som prefixen:
+\begin{verbatim}
+$ kthutils iprange BUTT FRODO OKAND
+192.0.2.10 192.0.2.60
+198.51.100.5 198.51.100.40
+
+\end{verbatim}
+Ett okänt prefix ger en tom rad och ändå status~0.
+Det är den farliga sortens fel: läser vi bara de rader som har innehåll får
+filtret en sal för lite, och studenterna i den salen kommer inte in på provet.
+Därför går vi igenom salarna en och en, jämför med raden på samma plats och
+avbryter, med salens namn, om raden inte är två IPv4-adresser.
+En tom rad sist försvinner i [[$(...)]], som tar bort avslutande radbrytningar;
+den salen får då ingen rad alls, och det fångar samma kontroll.
+Prefixen skickar vi genom [[printf %q]], så att fjärrskalet ser varje prefix
+som ett ord även om ett salsnamn från schemat skulle innehålla mellanslag
+eller andra specialtecken.
+<<hjälpfunktioner>>=
+ip_intervall() {
+  local salar=("$@") prefix=() sal
+  for sal in "${salar[@]}"; do
+    prefix+=("$(salsprefix "${sal}")")
+  done
+  local svar
+  svar=$(ssh "${IPRANGE_HOST}" \
+           "PATH=\$HOME/.local/bin:\$PATH kthutils iprange" \
+           "$(printf '%q ' "${prefix[@]}")") || return 1
+  local rader
+  mapfile -t rader < <(echo "${svar}")
+  local i fel=0 ip='[0-9]+(\.[0-9]+){3}'
+  for i in "${!salar[@]}"; do
+    if [[ "${rader[$i]}" =~ ^${ip}\ ${ip}$ ]]; then
+      echo "${rader[$i]}"
+    else
+      echo "setup: inget IP-intervall för ${salar[$i]}" \
+           "(prefix ${prefix[$i]}), se kthutils iprange --help" >&2
+      fel=1
+    fi
+  done
+  return ${fel}
+}
+@
+
+
+\subsection{Provets IP-filter}
+
+Provet är New Quiz-provet [[DATORPROV]] i examinationsrummet.
+Vi letar efter det med ett förankrat regex, eftersom [[canvaslms]] annars
+söker var som helst i titeln och ett rum kan ha fler prov med samma början,
+till exempel \enquote{Datorprov för Lucas} med förlängd tid.
+Blanksteg på slutet tillåter vi, eftersom provet heter \enquote{Datorprov }
+med ett avslutande blanksteg i rummet från 2026-11-26.
+Regexet går att ändra med [[PROVREGEX]], vilket vi behöver när vi repeterar i
+sandlådan på ett prov med ett annat namn.
+<<konstanter>>=
+PROVREGEX="${PROVREGEX:-^${DATORPROV} *\$}"
+@
+
+Vi ändrar provet med [[canvaslms quizzes edit -f]] och en JSON-fil.
+Tre saker i [[canvaslms]] avgör hur filen ska se ut.
+\begin{description}
+\item[Instruktionerna skickas alltid.] En fil utan instruktioner tömmer
+  provets instruktioner.
+  Därför exporterar vi provet först och tar med instruktionerna precis som de
+  är.
+  Med [[--no-link-translation]] vid både export och ändring står länkarna kvar
+  som de är, och med [[--html]] skickas instruktionerna som HTML i stället för
+  att tolkas som Markdown.
+\item[ [[filters.ips]] ersätter hela listan.] Vi skickar därför alla
+  salarnas intervall varje gång, och ett gammalt rums intervall försvinner.
+\item[Övriga inställningar står kvar.] [[canvaslms]] skickar bara de
+  inställningar som står i filen, så tidsgräns, slumpordning och liknande
+  ändras inte.
+\end{description}
+Exporten avbryter dessutom om flera prov matchar regexet, så när den har lyckats
+vet vi att ändringen träffar precis ett prov.
+Vi behåller exportens [[regex]], som är det regex vi exporterade med.
+Filen blir så här (med påhittade adresser och förkortade instruktioner):
+\begin{verbatim}
+{
+  "quiz_type": "new",
+  "settings": {
+    "regex": "^Datorprov *$",
+    "title": "Datorprov ",
+    "instructions": "<p>...</p>",
+    "quiz_settings": {
+      "filter_ip_address": true,
+      "filters": {"ips": [["192.0.2.10", "192.0.2.60"],
+                          ["198.51.100.5", "198.51.100.40"]]}
+    }
+  }
+}
+\end{verbatim}
+<<hjälpfunktioner>>=
+ip_filter_json() {
+  local export="$1" intervall="$2"
+  jq --argjson ips "$(jq -R -s 'split("\n")
+                                | map(select(length > 0) | split(" "))' \
+                         "${intervall}")" \
+     '{quiz_type: .quiz_type,
+       settings: {regex: .settings.regex,
+                  title: .settings.title,
+                  instructions: .settings.instructions,
+                  quiz_settings: {filter_ip_address: true,
+                                  filters: {ips: $ips}}}}' \
+     "${export}"
+}
+@
+
+Nu kan vi sätta ihop stegen.
+Ett Classic Quiz-prov har inte samma inställningar, så det vägrar vi ändra.
+Vid [[DRY_RUN=1]] visar [[run_or_echo]] bara kommandot, och filen det läser tas
+bort när [[setup]] är klar; därför skriver vi även ut de inställningar som
+filen skulle ha skickat.
+<<sätt provets IP-filter till salarnas IP-intervall>>=
+salar_for_provet "${datum}" > "${dir}/salar" || return 1
+local -a salar
+mapfile -t salar < "${dir}/salar"
+ip_intervall "${salar[@]}" > "${dir}/intervall" || return 1
+canvaslms --no-cache quizzes export -c "${rum_regex}" -a "${PROVREGEX}" \
+          --no-banks --no-link-translation > "${dir}/export.json" \
+|| return 1
+if [ "$(jq -r .quiz_type "${dir}/export.json")" != new ]; then
+  echo "setup: ${DATORPROV} är inte ett New Quiz-prov" >&2
+  return 1
+fi
+ip_filter_json "${dir}/export.json" "${dir}/intervall" \
+  > "${dir}/ipfilter.json" || return 1
+run_or_echo canvaslms --no-cache quizzes edit -c "${rum_regex}" \
+                      -a "${PROVREGEX}" --html --no-link-translation \
+                      -f "${dir}/ipfilter.json" \
+|| return 1
+if [ "${DRY_RUN:-0}" = "1" ]; then
+  jq .settings.quiz_settings "${dir}/ipfilter.json"
+else
+  <<kontrollera att Canvas sparade IP-intervallen>>
+fi
+@
+
+[[canvaslms quizzes edit]] avslutar med status~0 även när Canvas inte tog emot
+ändringen; den skriver bara en varning.
+Därför exporterar vi provet en gång till och jämför med det vi skickade.
+<<kontrollera att Canvas sparade IP-intervallen>>=
+canvaslms --no-cache quizzes export -c "${rum_regex}" -a "${PROVREGEX}" \
+          --no-banks > "${dir}/efter.json" || return 1
+if ! jq -e --slurpfile skickat "${dir}/ipfilter.json" \
+        '.settings.quiz_settings
+         | .filter_ip_address == true
+           and .filters.ips
+               == $skickat[0].settings.quiz_settings.filters.ips' \
+        "${dir}/efter.json" > /dev/null; then
+  echo "setup: Canvas har inte de IP-intervall vi skickade," \
+       "kontrollera provet i Canvas" >&2
+  return 1
+fi
+@
+
+
+\subsection{Anmälda studenter och förlängd skrivtid}
+
+Vilka som är anmälda till provet står i Ladok, men [[kthutils]] kan inte läsa
+anmälningarna; [[kthutils participants ls]] listar kursens förväntade
+deltagare, inte de som anmält sig till ett visst provtillfälle.
+Examinationsrummet i Canvas har däremot just de anmälda som studenter.
+Därför tar vi studenterna i examinationsrummet som de anmälda, och använder
+deltagarlistan bara för funkakoderna.
+Vi jämför studenterna med inloggningen, det vill säga delen före [[@]] i
+adressen, med små bokstäver, så att stavningen av domänen och versaler inte
+spelar någon roll.
+Vi hämtar listan utan [[canvaslms]] cache, så att den som anmält sig sent
+kommer med.
+<<hjälpfunktioner>>=
+anmalda_studenter() {
+  canvaslms --no-cache users -c "^$1\$" -s \
+  | <<rensa bort CR>> \
+  | cut -f 2 \
+  | awk -F@ '{print tolower($1)}' \
+  | sort -u
+}
+@
+
+Deltagarlistan har fem kolumner som standard, och vilken som är vilken beror
+på flaggorna.
+Vi stänger av alla valfria kolumner utom funkakoderna, så att raderna alltid
+är namn, adress och koder:
+\begin{verbatim}
+$ kthutils participants ls DD1317 HT2026 --no-course-round \
+    --no-ladok-round --no-personnummer --no-programme
+Användare Ett	user1@kth.se	R1, P8
+Användare Två	user2@kth.se
+\end{verbatim}
+Raderna slutar med CR, som vi tar bort.
+Namnen behöver vi inte, så vi tar bara adressen och koderna.
+
+En student som skriver om provet kan stå i en tidigare kursomgångs lista.
+Därför läser vi både provdatumets termin och terminen före, till exempel
+HT2026 och VT2026 för ett prov i november, och med [[TERMINER]] kan vi ange
+andra.
+Kursen är en konstant, eftersom examinationsrummets namn kan börja med en
+annan kurs (rummen 2026 hette \enquote{DD1310 LAB2 \& DD1317 LAB2}).
+<<konstanter>>=
+FUNKA_KURS="${FUNKA_KURS:-DD1317}"
+<<hjälpfunktioner>>=
+terminer() {
+  local ar=${1:0:4} manad=$((10#${1:5:2}))
+  if [ "${manad}" -ge 7 ]; then
+    echo "HT${ar} VT${ar}"
+  else
+    echo "VT${ar} HT$((ar - 1))"
+  fi
+}
+@
+
+Funkakoder som beslutas efter att listan tagits fram kan vi lägga till med
+en egen fil, [[EXTRA_FUNKA]], med samma två kolumner, adress och koder,
+separerade med tabb (till exempel \verb|user1@kth.se	R0|).
+Koderna från filen läggs till de andra; de ersätter dem inte.
+Vi kontrollerar statusen från [[kthutils]] för varje termin.
+I en rörledning hade statusen försvunnit, och en lista som tyst blev tom
+skulle betyda att ingen fick förlängd skrivtid.
+<<hjälpfunktioner>>=
+funkakoder() {
+  local termin lista alla=""
+  for termin in ${TERMINER:-$(terminer "$1")}; do
+    lista=$(kthutils participants ls "${FUNKA_KURS}" "${termin}" \
+              --no-course-round --no-ladok-round \
+              --no-personnummer --no-programme) || return 1
+    alla+="${lista}"$'\n'
+  done
+  ( echo -n "${alla}" | <<rensa bort CR>> | cut -f 2,3
+    if [ -n "${EXTRA_FUNKA}" ]; then
+      <<rensa bort CR>> < "${EXTRA_FUNKA}"
+    fi ) \
+  | awk -F'\t' '$1 != "" {split($1, adress, "@");
+                           print tolower(adress[1]) "\t" $2}'
+}
+@
+
+R0 ger 50~procent och R1 25~procent längre skrivtid.
+Provet är 60~minuter, så det blir 30 respektive 15~minuter.
+Ändras provets längd måste konstanterna ändras med den.
+<<konstanter>>=
+R0_MINUTER=30
+R1_MINUTER=15
+@
+
+Koderna står kommaseparerade i en kolumn, och vi måste jämföra hela koder:
+en sökning efter \enquote{R1} skulle annars också träffa R10 och R100, och
+\enquote{R0} skulle träffa R0 i R100.
+Har en student både R0 och R1, eller står studenten i flera listor, ska den
+längre tiden gälla.
+Det gör vi genom att ta den största tiden, i stället för att låta den sista
+raden vinna.
+Precis som i [[utan_studenter]] känner vi igen den första filen med
+[[FILENAME == ARGV[1] ]] och inte med [[NR == FNR]], eftersom listan med
+anmälda kan vara tom.
+<<hjälpfunktioner>>=
+forlangd_skrivtid() {
+  awk -F'\t' -v r0="${R0_MINUTER}" -v r1="${R1_MINUTER}" '
+    FILENAME == ARGV[1] { anmald[$0]; next }
+    $1 in anmald {
+      n = split($2, koder, / *, */)
+      for (i = 1; i <= n; i++) {
+        m = (koder[i] == "R0") ? r0 : (koder[i] == "R1") ? r1 : 0
+        if (m > minuter[$1] + 0) minuter[$1] = m
+      }
+    }
+    END { for (s in minuter) print s "\t" minuter[s] }' "$1" "$2"
+}
+@
+
+Till [[canvaslms quizzes accommodations]] ger vi studenterna som ett regex för
+[[-u]], som söker i bland annat inloggningen.
+Vi förankrar varje inloggning med [[^]] i början och [[@]] efter, så att
+[[son]] inte också träffar [[person]], och skyddar metatecknen på samma sätt som
+[[exakt_regex]] (se avsnitt~\ref{MatchaStudent}):
+[[^(user1|user2)@]].
+<<hjälpfunktioner>>=
+inloggningsregex() {
+  local inloggning delar=() r
+  while read -r inloggning; do
+    r=$(exakt_regex "${inloggning}")
+    r=${r#^}
+    r=${r%\$}
+    delar+=("${r}")
+  done
+  local IFS='|'
+  echo "^(${delar[*]})@"
+}
+@
+
+Vi gör ett anrop per skrivtid, alltså två: ett för R0 och ett för R1.
+[[canvaslms]] skriver en rad per student med \enquote{ok} eller Canvas
+förklaring.
+Raderna med \enquote{ok} visar vi inte, eftersom de bara upprepar listan med
+inloggningar; de andra visar vi, eftersom de studenterna måste få tiden på
+annat sätt.
+Vid [[DRY_RUN=1]] passerar kommandoraden från [[run_or_echo]] samma filter, så
+den syns.
+Misslyckas något sätter vi [[status]], men fortsätter med nästa grupp, så att
+ett fel för en student inte hindrar de andra från att få sin tid.
+
+Canvas kan inte visa vilka anpassningar ett prov redan har.
+En student som tidigare fått förlängd tid men inte längre har koden behåller
+därför tiden; det måste vi ta bort för hand med [[--extra-time 0]].
+<<ge de anmälda studenterna med R0 och R1 förlängd skrivtid>>=
+anmalda_studenter "${rum_id}" > "${dir}/anmalda" || return 1
+funkakoder "${datum}" > "${dir}/funka" || return 1
+if ! [ -s "${dir}/funka" ]; then
+  echo "setup: deltagarlistan för ${FUNKA_KURS} är tom" >&2
+  return 1
+fi
+forlangd_skrivtid "${dir}/anmalda" "${dir}/funka" > "${dir}/skrivtid"
+local status=0 minuter
+for minuter in $(cut -f 2 "${dir}/skrivtid" | sort -un); do
+  awk -F'\t' -v m="${minuter}" '$2 == m {print $1}' "${dir}/skrivtid" \
+    > "${dir}/grupp"
+  run_or_echo canvaslms --no-cache quizzes accommodations \
+                        -c "${rum_regex}" -a "${PROVREGEX}" \
+                        -u "$(inloggningsregex < "${dir}/grupp")" \
+                        --extra-time "${minuter}" \
+  | <<rensa bort CR>> | awk -F'\t' '$NF != "ok"'
+  if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+    echo "setup: alla fick inte ${minuter} minuter extra" >&2
+    status=1
+  fi
+done
+@
+
+En anmäld student som inte finns i någon deltagarlista har okända funkakoder.
+Det avbryter vi inte för, eftersom de flesta inte har någon kod, men vi
+varnar, så att vi kan kontrollera dem.
+<<ge de anmälda studenterna med R0 och R1 förlängd skrivtid>>=
+local saknas=$(awk -F'\t' 'FILENAME == ARGV[1] { sett[$1]; next }
+                           !($0 in sett)' "${dir}/funka" "${dir}/anmalda" \
+               | grep -c .)
+if [ "${saknas}" -gt 0 ]; then
+  echo "setup: varning: ${saknas} anmälda saknas i deltagarlistorna," \
+       "deras funkakoder är okända" >&2
+fi
+@
+
+
+\subsection{Sammanfattningen}
+
+Till sist skriver vi en sammanfattning som går att jämföra med schemat och
+funkahandläggarens lista.
+Den innehåller bara antal, inga namn eller inloggningar, så att den kan
+klistras in i ett meddelande eller ett ärende.
+\begin{verbatim}
+Examinationsrum: DD1317 LAB2 [2026-11-26] Examination i datorsal
+Salar 2026-11-26: Butter, Frodo, Glader (3 salar, 3 IP-intervall)
+Anmälda studenter: 120
+Studenter med 15 minuter extra: 10
+Studenter med 30 minuter extra: 2
+Anmälda som saknas i deltagarlistorna: 0
+\end{verbatim}
+Statusen är [[status]] från föregående steg, så att ett misslyckat anrop syns
+i statusen även efter sammanfattningen.
+<<skriv ut en sammanfattning utan studenternas namn>>=
+echo "Examinationsrum: ${rum_namn}"
+echo "Salar ${datum}: $(paste -sd , "${dir}/salar" | sed 's/,/, /g')" \
+     "(${#salar[@]} salar, $(grep -c . "${dir}/intervall") IP-intervall)"
+echo "Anmälda studenter: $(grep -c . "${dir}/anmalda")"
+for minuter in $(cut -f 2 "${dir}/skrivtid" | sort -un); do
+  echo "Studenter med ${minuter} minuter extra:" \
+       "$(awk -F'\t' -v m="${minuter}" '$2 == m' "${dir}/skrivtid" \
+          | grep -c .)"
+done
+echo "Anmälda som saknas i deltagarlistorna: ${saknas}"
+return ${status}
+@
+
 \end{document}
