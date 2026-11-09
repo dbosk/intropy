@@ -534,11 +534,15 @@ Vi har redan skrivit ut de första två raderna.
 Vi har även värdena [[bonus]] och [[points]] (för datorprovet).
 Om de inte skrivit datorprovet kommer [[points]] vara en tom sträng, då hoppar 
 vi vidare.
+Vi räknar med [[bc]] eftersom bonussträngen ofta börjar med nollor.
+Lägger vi den i programtexten till GNU [[awk]] läses ett sådant tal oktalt, så
+att [[0001000]] blir 512 och studenten kan få fel betyg åt båda hållen.
+[[bc]] läser talet decimalt även med ledande nollor.
 <<skriv även ut summan av [[student]]ens bonus och datorprov>>=
 if [ -z "${points}" ]; then
   sum=${bonus}
 else
-  sum=$(awk 'BEGIN {print int('$points' + '$bonus')}')
+  sum=$(echo "${points} + ${bonus}" | bc)
 fi
 echo -e "${student}\t${SUM_POINTS}\t${sum}"
 @
@@ -757,10 +761,13 @@ Dock så har de klarat 80 procent av flera frågor då.
 
 Det vi vill göra nu är att addera poängen från senaste provet och bonuspoängen 
 till den ackumulerade poängen.
+En kurs kan ackumulera utan att ha några bonusuppgifter.
+Då är [[bonus]] tom, och utan ett förvalt värde skulle [[bc]] få det ogiltiga
+uttrycket [[3 + + 0]] och inte ge något resultat alls.
 <<addera poängen från senaste provet till [[points_ack]]>>=
 <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>
 <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
-points_ack=$(echo ${points} + ${bonus} + ${points_ack} | bc)
+points_ack=$(echo ${points} + ${bonus:-0} + ${points_ack} | bc)
 @ Men, om de inte kommer upp i två poäng (godkänt) på ett lärandemål,
 då ska vi sätta poängen till noll.
 På så vis betyder det att de inte får poäng för bonuspoängen fler än en gång.
