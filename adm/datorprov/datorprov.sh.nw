@@ -94,7 +94,8 @@ från kursrummet, precis som om de var i samma rum.
 (Se [[<<klipp ut kolumnerna som är relevanta för [[results]]>>]] nedan.)
 
 Notera att uppgiften \enquote{Betyg datorprovet} ([[BETYG]]) fungerar som ett
-medlemskapsfilter: endast studenter som har denna uppgift anses tillhöra kursen.
+medlemskapsfilter: endast studenter som har denna uppgift, eller kursrummets
+\enquote{Betyg datorprovet (obligatorisk)}, anses tillhöra kursen.
 När vi kör med ett regex som matchar flera kurser filtreras studentlistan
 automatiskt så att bara studenter från kursen med [[BETYG]]-uppgiften inkluderas
 i kommandon som~[[P]], [[ickeP]], [[Fx]] och~[[rapportera]].
@@ -364,9 +365,23 @@ När vi kör med ett regex som matchar flera kurser (exempelvis
 från alla matchade kurser.
 Funktionen~[[studenter_i_kursen]] returnerar bara de studenter som har
 [[BETYG]]-uppgiften, dvs.\ de som tillhör kursen vi vill rapportera till.
+
+Uppgiften heter inte exakt likadant i alla rum: i examinationsrummet heter den
+\enquote{Betyg datorprovet}, i kursrummet \enquote{Betyg datorprovet
+(obligatorisk)}.
+[[canvaslms]] söker efter uttrycket i [[-a]] var som helst i uppgiftens namn, så
+[[results]] innehåller raderna från båda, och [[canvaslms grade -a]] skriver till
+båda.
+Därför jämför vi med [[~]] och inte [[==]]: [[~]] gör samma sorts sökning som
+[[-a]], så att vi räknar med precis de uppgifter som vi hämtar och skriver till.
+Med [[==]] skulle en student som bara har kursrummets uppgift inte räknas till
+kursen, och kör vi på enbart ett kursrum där uppgiften har det längre namnet
+blir hela listan tom, utan något felmeddelande.
+Att [[BETYG]] tolkas som ett reguljärt uttryck ändrar ingenting här, eftersom
+namnet inte innehåller några metatecken.
 <<hjälpfunktioner>>=
 studenter_i_kursen() {
-  results | awk -F'\t' -v betyg="$BETYG" '$1==betyg {print $2}'
+  results | awk -F'\t' -v betyg="$BETYG" '$1 ~ betyg {print $2}'
 }
 @
 
@@ -389,10 +404,13 @@ efterföljande körningar.
 Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter
 genom att hämta dem från filen.
 Men vi vill bara ha studenter som tillhör kursen vi vill rapportera till---inte
-studenter från andra kurser som råkar matcha samma kursregex (exempelvis
-studenter i examinationsrummet).
+studenter som bara råkar finnas i ett annat rum som matchar samma kursregex, utan
+att ha någon betygsuppgift där.
 Därför filtrerar vi genom~[[studenter_i_kursen]], som bara returnerar studenter
-som har uppgiften~[[BETYG]].
+som har uppgiften~[[BETYG]], i examinationsrummet eller i kursrummet.
+Det betyder att [[all]] och [[nothing]] även tar med studenter i kursrummet som
+inte är med i examinationsrummet; [[rapportera]] påverkas inte av dem om de inte
+har något resultat på datorprovet, eftersom [[nothing]] sorterar bort dem.
 <<låt [[students]] vara en lista med alla studenter>>=
 students=$(results | cut -f 2 | sort | uniq \
                    | grep -Ff <(studenter_i_kursen))
@@ -968,10 +986,17 @@ rapportera till.
 | <<filtrera bort alla som inte har uppdaterade resultat>>
 @
 
+Ett P kan stå i vilken som helst av betygsuppgifterna, så vi söker med [[~]] på
+samma sätt som i [[studenter_i_kursen]].
+Det är här en exakt jämförelse skulle göra mest skada.
+En student som har P i kursrummets \enquote{Betyg datorprovet (obligatorisk)} och
+sedan skriver om provet utan att klara det skulle inte filtreras bort, och
+eftersom [[canvaslms grade -a]] träffar båda uppgifterna skulle [[rapportera]]
+skriva F över P:et.
 <<filtrera bort alla som redan har P som betyg>>=
 grep -v -f <(results \
              | awk -F'\t' -v betyg="$BETYG" \
-                '$1==betyg && $3=="P" {print $2}')
+                '$1 ~ betyg && $3=="P" {print $2}')
 @ Vi såg
 [[<<filtrera bort alla som inte har uppdaterade resultat>>]]
 i avsnitt \ref{FiltreraBortAllaSomInteHarUppdateradeResultat}.
