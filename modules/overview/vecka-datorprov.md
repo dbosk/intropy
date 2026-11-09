@@ -44,7 +44,7 @@ sig mot sin labbpartner.
    skriva.
 2. **Läs** *Om datorprovet* och *Hjälpmedel under provet*, så att du vet
    hur provet går till och vilken dokumentation du har tillgång till
-   (se även *Pythondokumentation* och *Trinket*).
+   (se även *Pythondokumentation* och *Python*).
 3. **Gör** *Exempelprov* under provliknande former: ensam, på tid och med
    bara de tillåtna hjälpmedlen. Då märker du vad du behöver repetera.
 4. **Gå på introföreläsningen om datorprovet** måndagen vecka 47. Där går
