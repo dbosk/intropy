@@ -1359,11 +1359,20 @@ Kommandot hämtar uppgifter från fyra ställen och gör två ändringar i Canva
   IP-intervall.
 \item[ [[kthutils participants]] ] ger studenternas funkakoder.
 \end{description}
-Stegen följer i den ordningen, och vart och ett avbryter med ett felmeddelande
-om något saknas.
+Stegen följer i den ordningen.
+Allt som skulle ge ett ofullständigt IP-filter eller tysta listor avbryter med
+ett felmeddelande innan vi skriver något mer: ett rum som inte går att
+identifiera, ett provtillfälle som saknas, en sal utan IP-intervall, ett
+filter som Canvas inte sparade, ett rum utan studenter, en tom deltagarlista
+och en trasig [[EXTRA_FUNKA]]-fil.
 Det är avsiktligt: ett prov som står kvar med de gamla intervallen märks
 direkt när vi tittar på det, men ett filter som tyst saknar en sal märks först
 när studenterna i den salen inte kommer in.
+Tre saker varnar bara, eftersom resten av arbetet ändå är rätt:
+flera provtillfällen samma dag (då tar vi med alla salarna),
+anmälda som saknas i deltagarlistorna (då skriver vi ut deras inloggningar)
+och en grupp som inte fick sin förlängda skrivtid (då fortsätter vi med nästa
+grupp och avslutar med status~1).
 <<andra kommandon>>=
 setup() {
   local arbetskatalog
@@ -1432,23 +1441,35 @@ Vi frågar efter alla kurser ([[-a]]), inte bara aktuella, eftersom
 [[canvaslms]] gör så när den tolkar [[-c]]; annars kunde vi hitta färre rum än
 de som [[-c]] sedan skulle skriva till.
 
-Det finns ett undantag.
-Matchar regexet en enda kurs, och den saknar datum, då använder vi den ändå.
-Det är så vi repeterar kommandot i en sandlådekurs, som inte har något datum
-i namnet; datumet ger vi då med [[PROVDATUM]] (se nedan).
+Det finns ett undantag, för att kunna repetera kommandot i en sandlådekurs,
+som inte har något datum i namnet.
+Matchar regexet en enda kurs utan datum använder vi den, men bara om namnet
+börjar med \enquote{Sandbox} och datumet är angivet med [[PROVDATUM]]
+(se nedan).
+Båda villkoren behövs.
+Utan kravet på namnet skulle [[./datorprov.sh prgi26 setup]] med ett
+kvarglömt [[PROVDATUM]] i miljön skriva IP-filtret i kursrummet, och utan
+kravet på [[PROVDATUM]] skulle ett regex som av misstag bara matchar
+sandlådan tyst hämta salar för fel dag.
+Vi sparar utmatningen från [[canvaslms]] innan vi tar bort CR, så att vi ser
+dess status och inte bara statusen från [[tr]].
 <<hjälpfunktioner>>=
 examinationsrum() {
   local kurser
-  kurser=$(canvaslms courses -a -i "$1" | <<rensa bort CR>>) || return 1
+  kurser=$(canvaslms courses -a -i "$1") || return 1
+  kurser=$(echo "${kurser}" | <<rensa bort CR>>)
   local daterade=$(echo "${kurser}" \
                    | grep -E '\[[0-9]{4}-[0-9]{2}-[0-9]{2}\]')
-  if [ -z "${daterade}" ] && [ $(echo "${kurser}" | grep -c .) -eq 1 ]; then
+  if [ -z "${daterade}" ] && [ $(echo "${kurser}" | grep -c .) -eq 1 ] \
+     && [ -n "${PROVDATUM}" ] \
+     && echo "${kurser}" | cut -f 3 | grep -q '^Sandbox'; then
     daterade="${kurser}"
   fi
   if [ $(echo "${daterade}" | grep -c .) -ne 1 ]; then
-    echo "setup: kursregexet måste matcha precis ett examinationsrum," \
+    echo "setup: kursregexet måste matcha precis ett examinationsrum" \
+         "(namn med [ÅÅÅÅ-MM-DD], eller en Sandbox-kurs med PROVDATUM)," \
          "nu matchar det:" >&2
-    echo "${daterade}" | cut -f 3 >&2
+    echo "${daterade:-${kurser}}" | cut -f 3 >&2
     return 1
   fi
   echo "${daterade}" | cut -f 1,3
@@ -1590,23 +1611,49 @@ Det är den farliga sortens fel: läser vi bara de rader som har innehåll får
 filtret en sal för lite, och studenterna i den salen kommer inte in på provet.
 Därför går vi igenom salarna en och en, jämför med raden på samma plats och
 avbryter, med salens namn, om raden inte är två IPv4-adresser.
-En tom rad sist försvinner i [[$(...)]], som tar bort avslutande radbrytningar;
-den salen får då ingen rad alls, och det fångar samma kontroll.
-Prefixen skickar vi genom [[printf %q]], så att fjärrskalet ser varje prefix
-som ett ord även om ett salsnamn från schemat skulle innehålla mellanslag
-eller andra specialtecken.
+
+Att jämföra rad för rad förutsätter att det kommer precis en rad per sal.
+Det kan gå sönder på två sätt.
+Det första är att [[kthutils]] delar upp sina argument på nytt: skriptet
+bakom kommandot läser dem som [[rooms=$*]] och delar vid blanksteg.
+Ett prefix med blanksteg, till exempel [[EXTRA_ROOMS="TOKE KLOK"]] (som blir
+en enda sal, eftersom vi delar vid komma), blir då två prefix och två rader,
+och alla rader efter det hamnar på fel sal.
+Att citera prefixen hjälper inte, eftersom delningen sker i skriptet på
+servern och inte i skalet.
+Därför godtar vi bara prefix med bokstäver, siffror och bindestreck, som alla
+prefix i [[kthutils iprange --help]], och avbryter med salens namn annars.
+Det fångar också en sal med å, ä eller ö som saknas i tabellen.
+Vi jämför med [[grep]] i C-lokalen och inte med [[=~]] i [[bash]]: i en
+svensk eller UTF-8-lokal kan intervallet [[a-z]] innehålla [[ä]], och då
+skulle \enquote{Glädje} godtas.
+Det andra är att [[$(...)]] tar bort avslutande radbrytningar, så en tom rad
+för den sista salen skulle försvinna.
+Därför skriver vi ut en punkt efter svaret, som vi sedan tar bort, och kräver
+att antalet rader är lika med antalet salar.
 <<hjälpfunktioner>>=
 ip_intervall() {
-  local salar=("$@") prefix=() sal
+  local salar=("$@") prefix=() sal p
   for sal in "${salar[@]}"; do
-    prefix+=("$(salsprefix "${sal}")")
+    p=$(salsprefix "${sal}")
+    if ! printf '%s\n' "${p}" | LC_ALL=C grep -qxE '[A-Za-z0-9-]+'; then
+      echo "setup: ogiltigt prefix \"${p}\" för salen \"${sal}\"," \
+           "lägg till salen i SALSPREFIX" >&2
+      return 1
+    fi
+    prefix+=("${p}")
   done
   local svar
   svar=$(ssh "${IPRANGE_HOST}" \
-           "PATH=\$HOME/.local/bin:\$PATH kthutils iprange" \
-           "$(printf '%q ' "${prefix[@]}")") || return 1
+           "PATH=\$HOME/.local/bin:\$PATH kthutils iprange ${prefix[*]}"
+         ssh_status=$?; echo .; exit ${ssh_status}) || return 1
   local rader
-  mapfile -t rader < <(echo "${svar}")
+  mapfile -t rader < <(printf '%s' "${svar%.}")
+  if [ "${#rader[@]}" -ne "${#salar[@]}" ]; then
+    echo "setup: kthutils iprange gav ${#rader[@]} rader" \
+         "för ${#salar[@]} salar" >&2
+    return 1
+  fi
   local i fel=0 ip='[0-9]+(\.[0-9]+){3}'
   for i in "${!salar[@]}"; do
     if [[ "${rader[$i]}" =~ ^${ip}\ ${ip}$ ]]; then
@@ -1722,7 +1769,8 @@ fi
 Därför exporterar vi provet en gång till och jämför med det vi skickade.
 <<kontrollera att Canvas sparade IP-intervallen>>=
 canvaslms --no-cache quizzes export -c "${rum_regex}" -a "${PROVREGEX}" \
-          --no-banks > "${dir}/efter.json" || return 1
+          --no-banks --no-link-translation > "${dir}/efter.json" \
+|| return 1
 if ! jq -e --slurpfile skickat "${dir}/ipfilter.json" \
         '.settings.quiz_settings
          | .filter_ip_address == true
@@ -1730,6 +1778,26 @@ if ! jq -e --slurpfile skickat "${dir}/ipfilter.json" \
                == $skickat[0].settings.quiz_settings.filters.ips' \
         "${dir}/efter.json" > /dev/null; then
   echo "setup: Canvas har inte de IP-intervall vi skickade," \
+       "kontrollera provet i Canvas" >&2
+  return 1
+fi
+@
+
+Vi litar inte heller blint på att de andra inställningarna står kvar.
+En tidsgräns eller ett antal försök som ändrats av misstag märks inte förrän
+under provet, så vi jämför resten av [[quiz_settings]] före och efter.
+Saknar exporten [[quiz_settings]], vilket den gör när [[canvaslms]] inte
+kunde hämta dem, kan vi inte jämföra, och då avbryter vi också; annars hade
+två saknade värden jämförts som lika.
+<<kontrollera att Canvas sparade IP-intervallen>>=
+if ! jq -n -e --slurpfile fore "${dir}/export.json" \
+              --slurpfile efter "${dir}/efter.json" \
+        '[$fore[0], $efter[0]]
+         | map(.settings.quiz_settings)
+         | all(type == "object")
+           and (map(del(.filters, .filter_ip_address)) | .[0] == .[1])' \
+        > /dev/null; then
+  echo "setup: provets övriga inställningar ändrades eller saknas," \
        "kontrollera provet i Canvas" >&2
   return 1
 fi
@@ -1749,12 +1817,17 @@ adressen, med små bokstäver, så att stavningen av domänen och versaler inte
 spelar någon roll.
 Vi hämtar listan utan [[canvaslms]] cache, så att den som anmält sig sent
 kommer med.
+Utmatningen sparar vi innan vi bearbetar den, så att vi ser statusen från
+[[canvaslms]]: i en rörledning hade bara statusen från [[sort]] syntes, och
+ett fel hade sett ut som ett rum utan studenter.
 <<hjälpfunktioner>>=
 anmalda_studenter() {
-  canvaslms --no-cache users -c "^$1\$" -s \
+  local studenter
+  studenter=$(canvaslms --no-cache users -c "^$1\$" -s) || return 1
+  echo "${studenter}" \
   | <<rensa bort CR>> \
   | cut -f 2 \
-  | awk -F@ '{print tolower($1)}' \
+  | awk -F@ '$1 != "" {print tolower($1)}' \
   | sort -u
 }
 @
@@ -1773,39 +1846,70 @@ Raderna slutar med CR, som vi tar bort.
 Namnen behöver vi inte, så vi tar bara adressen och koderna.
 
 En student som skriver om provet kan stå i en tidigare kursomgångs lista.
-Därför läser vi både provdatumets termin och terminen före, till exempel
-HT2026 och VT2026 för ett prov i november, och med [[TERMINER]] kan vi ange
-andra.
-Kursen är en konstant, eftersom examinationsrummets namn kan börja med en
-annan kurs (rummen 2026 hette \enquote{DD1310 LAB2 \& DD1317 LAB2}).
-<<konstanter>>=
-FUNKA_KURS="${FUNKA_KURS:-DD1317}"
+Därför läser vi alltid tre terminer: provdatumets termin och de två före.
+Januari till juni räknas som VT och juli till december som HT, så ett prov
+2026-11-26 ger HT2026, VT2026 och HT2025.
+Med [[TERMINER]] kan vi ange andra.
 <<hjälpfunktioner>>=
 terminer() {
   local ar=${1:0:4} manad=$((10#${1:5:2}))
   if [ "${manad}" -ge 7 ]; then
-    echo "HT${ar} VT${ar}"
+    echo "HT${ar} VT${ar} HT$((ar - 1))"
   else
-    echo "VT${ar} HT$((ar - 1))"
+    echo "VT${ar} HT$((ar - 1)) VT$((ar - 1))"
   fi
 }
+@
+
+Kurserna är en konstant, eftersom vi inte kan läsa dem ur rummets namn.
+Ett gemensamt examinationsrum kan ha studenter från flera kurser (rummen 2026
+hette \enquote{DD1310 LAB2 \& DD1317 LAB2}), och då behöver vi alla kursernas
+deltagarlistor:
+[[FUNKA_KURS="DD1317 DD1310" ./datorprov.sh ... setup]].
+<<konstanter>>=
+FUNKA_KURS="${FUNKA_KURS:-DD1317}"
 @
 
 Funkakoder som beslutas efter att listan tagits fram kan vi lägga till med
 en egen fil, [[EXTRA_FUNKA]], med samma två kolumner, adress och koder,
 separerade med tabb (till exempel \verb|user1@kth.se	R0|).
 Koderna från filen läggs till de andra; de ersätter dem inte.
-Vi kontrollerar statusen från [[kthutils]] för varje termin.
+Filen kontrollerar vi innan vi läser den.
+Har vi angett en fil som inte finns, eller skrivit blanksteg i stället för tabb,
+skulle studenterna i den annars tyst bli utan sin tid, och det är just dem
+vi lade till för hand.
+<<hjälpfunktioner>>=
+kontrollera_extra_funka() {
+  if ! [ -f "$1" ] || ! [ -r "$1" ]; then
+    echo "setup: EXTRA_FUNKA=\"$1\" är ingen läsbar fil" >&2
+    return 1
+  fi
+  local rad
+  rad=$(<<rensa bort CR>> < "$1" \
+        | awk -F'\t' 'NF > 0 && $0 !~ /\t/ {print NR; exit}')
+  if [ -n "${rad}" ]; then
+    echo "setup: rad ${rad} i ${1} saknar tabb mellan adress och koder" >&2
+    return 1
+  fi
+}
+@
+
+Vi kontrollerar statusen från [[kthutils]] för varje kurs och termin.
 I en rörledning hade statusen försvunnit, och en lista som tyst blev tom
 skulle betyda att ingen fick förlängd skrivtid.
 <<hjälpfunktioner>>=
 funkakoder() {
-  local termin lista alla=""
-  for termin in ${TERMINER:-$(terminer "$1")}; do
-    lista=$(kthutils participants ls "${FUNKA_KURS}" "${termin}" \
-              --no-course-round --no-ladok-round \
-              --no-personnummer --no-programme) || return 1
-    alla+="${lista}"$'\n'
+  if [ -n "${EXTRA_FUNKA}" ]; then
+    kontrollera_extra_funka "${EXTRA_FUNKA}" || return 1
+  fi
+  local kurs termin lista alla=""
+  for kurs in ${FUNKA_KURS}; do
+    for termin in ${TERMINER:-$(terminer "$1")}; do
+      lista=$(kthutils participants ls "${kurs}" "${termin}" \
+                --no-course-round --no-ladok-round \
+                --no-personnummer --no-programme) || return 1
+      alla+="${lista}"$'\n'
+    done
   done
   ( echo -n "${alla}" | <<rensa bort CR>> | cut -f 2,3
     if [ -n "${EXTRA_FUNKA}" ]; then
@@ -1831,6 +1935,9 @@ Har en student både R0 och R1, eller står studenten i flera listor, ska den
 längre tiden gälla.
 Det gör vi genom att ta den största tiden, i stället för att låta den sista
 raden vinna.
+Vi tittar på [[minuter]] för studenten bara när koden ger någon tid, eftersom
+[[awk]] skapar ett element redan när vi läser det; annars skulle studenter
+med bara andra koder skrivas ut med en tom tid.
 Precis som i [[utan_studenter]] känner vi igen den första filen med
 [[FILENAME == ARGV[1] ]] och inte med [[NR == FNR]], eftersom listan med
 anmälda kan vara tom.
@@ -1842,7 +1949,7 @@ forlangd_skrivtid() {
       n = split($2, koder, / *, */)
       for (i = 1; i <= n; i++) {
         m = (koder[i] == "R0") ? r0 : (koder[i] == "R1") ? r1 : 0
-        if (m > minuter[$1] + 0) minuter[$1] = m
+        if (m > 0 && m > minuter[$1] + 0) minuter[$1] = m
       }
     }
     END { for (s in minuter) print s "\t" minuter[s] }' "$1" "$2"
@@ -1885,6 +1992,10 @@ En student som tidigare fått förlängd tid men inte längre har koden behålle
 därför tiden; det måste vi ta bort för hand med [[--extra-time 0]].
 <<ge de anmälda studenterna med R0 och R1 förlängd skrivtid>>=
 anmalda_studenter "${rum_id}" > "${dir}/anmalda" || return 1
+if ! [ -s "${dir}/anmalda" ]; then
+  echo "setup: examinationsrummet har inga studenter" >&2
+  return 1
+fi
 funkakoder "${datum}" > "${dir}/funka" || return 1
 if ! [ -s "${dir}/funka" ]; then
   echo "setup: deltagarlistan för ${FUNKA_KURS} är tom" >&2
@@ -1909,14 +2020,19 @@ done
 
 En anmäld student som inte finns i någon deltagarlista har okända funkakoder.
 Det avbryter vi inte för, eftersom de flesta inte har någon kod, men vi
-varnar, så att vi kan kontrollera dem.
+varnar och skriver ut deras inloggningar, så att vi kan slå upp dem och vid
+behov lägga till dem i [[EXTRA_FUNKA]].
+Inloggningarna går till standard fel, inte till sammanfattningen på
+standard ut, som ska gå att klistra in utan studentuppgifter.
 <<ge de anmälda studenterna med R0 och R1 förlängd skrivtid>>=
-local saknas=$(awk -F'\t' 'FILENAME == ARGV[1] { sett[$1]; next }
-                           !($0 in sett)' "${dir}/funka" "${dir}/anmalda" \
-               | grep -c .)
+awk -F'\t' 'FILENAME == ARGV[1] { sett[$1]; next }
+            !($0 in sett)' "${dir}/funka" "${dir}/anmalda" \
+  > "${dir}/saknas"
+local saknas=$(grep -c . "${dir}/saknas")
 if [ "${saknas}" -gt 0 ]; then
   echo "setup: varning: ${saknas} anmälda saknas i deltagarlistorna," \
-       "deras funkakoder är okända" >&2
+       "deras funkakoder är okända:" >&2
+  cat "${dir}/saknas" >&2
 fi
 @
 
