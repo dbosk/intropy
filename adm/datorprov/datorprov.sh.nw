@@ -534,11 +534,15 @@ Vi har redan skrivit ut de första två raderna.
 Vi har även värdena [[bonus]] och [[points]] (för datorprovet).
 Om de inte skrivit datorprovet kommer [[points]] vara en tom sträng, då hoppar 
 vi vidare.
+Vi räknar med [[bc]] eftersom bonussträngen ofta börjar med nollor.
+Lägger vi den i programtexten till GNU [[awk]] läses ett sådant tal oktalt, så
+att [[0001000]] blir 512 och studenten kan få fel betyg åt båda hållen.
+[[bc]] läser talet decimalt även med ledande nollor.
 <<skriv även ut summan av [[student]]ens bonus och datorprov>>=
 if [ -z "${points}" ]; then
   sum=${bonus}
 else
-  sum=$(awk 'BEGIN {print int('$points' + '$bonus')}')
+  sum=$(echo "${points} + ${bonus}" | bc)
 fi
 echo -e "${student}\t${SUM_POINTS}\t${sum}"
 @
@@ -707,9 +711,11 @@ För att läsa ut studentens tidigare ackumulerade poäng från Canvas, kan vi
 hämta den från [[results]].
 Om den är tom, då har de inget sedan tidigare.
 Och då ska poängen vara noll.
+Vi avrundar den av samma skäl som datorprovspoängen: med en decimal i summan
+skulle [[ack_feedback]] inte kunna räkna fram siffrorna med [[$((...))]].
 <<låt [[points_ack]] vara [[student]]ens ackumulerade poäng>>=
 local points_ack=$(results | grep -F "${student}" \
-                           | grep "${ACKUMULERAD}" | cut -f 3)
+                           | grep "${ACKUMULERAD}" | cut -f 3 | round)
 if [ -z "${points_ack}" ]; then
   points_ack=0
 fi
@@ -757,10 +763,13 @@ Dock så har de klarat 80 procent av flera frågor då.
 
 Det vi vill göra nu är att addera poängen från senaste provet och bonuspoängen 
 till den ackumulerade poängen.
+En kurs kan ackumulera utan att ha några bonusuppgifter.
+Då är [[bonus]] tom, och utan ett förvalt värde skulle [[bc]] få det ogiltiga
+uttrycket [[3 + + 0]] och inte ge något resultat alls.
 <<addera poängen från senaste provet till [[points_ack]]>>=
 <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>
 <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
-points_ack=$(echo ${points} + ${bonus} + ${points_ack} | bc)
+points_ack=$(echo ${points} + ${bonus:-0} + ${points_ack} | bc)
 @ Men, om de inte kommer upp i två poäng (godkänt) på ett lärandemål,
 då ska vi sätta poängen till noll.
 På så vis betyder det att de inte får poäng för bonuspoängen fler än en gång.
@@ -882,7 +891,9 @@ ack_feedback() {
   echo points = $points
   <<rensa bort ledande nollor från [[points]]>>
   local bonus=$2
-  echo bonus = $bonus
+  if [ "${USE_BONUS_POINTS}" -gt 0 ]; then
+    echo bonus = $bonus
+  fi
   <<rensa bort ledande nollor från [[bonus]]>>
   echo
   for lo_num in $(seq 1 7); do
@@ -917,6 +928,8 @@ behöver göra för att uppnå godkänt.
 Vi skulle kunna lägga till poäng och bonus för varje enskilt lärandemål, det 
 gör det enklare för studenten att förstå hur de ska läsa sina poäng.
 Dock inte här, det skulle funka bättre på återkopplingen på datorprovet.
+En kurs utan bonusuppgifter ska inte nämna bonus alls: för studenten skulle
+\enquote{ingen bonuspoäng} låta som något hen kunde ha fått men gick miste om.
 <<skriv ut återkopplingen för lärandemålet>>=
 if [ ${lo_points} -ge 2 ]; then
   echo "godkänt resultat."
@@ -925,8 +938,10 @@ else
           "Du måste klara minst två av tre av dessa frågor på nästa prov. "
   if [ ${lo_bonus} -gt 0 ]; then
     echo "Du har en bonuspoäng till hjälp."
-  else
+  elif [ "${USE_BONUS_POINTS}" -gt 0 ]; then
     echo "Du har tyvärr ingen bonuspoäng till hjälp på detta lärandemål."
+  else
+    echo # för att bryta raden
   fi
 fi
 echo
