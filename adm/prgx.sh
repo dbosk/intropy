@@ -12,6 +12,9 @@ NEW_DATORPROV_EXAMROOMS="DD1317.*LAB2.*${current}"
 # with exactly the regex we report with. Otherwise a second run reports from
 # the first run's results.
 datorprov="$(dirname "$0")/datorprov/datorprov.sh"
+# datorprov.sh is tangled from datorprov.sh.nw and not tracked; rebuild it so
+# that we never run a copy older than the source.
+make -s -C "$(dirname "${datorprov}")" datorprov.sh >/dev/null || exit 1
 datorprov_regex="(${NEW_DATORPROV_COURSES}|${NEW_DATORPROV_EXAMROOMS})"
 bash "${datorprov}" "${datorprov_regex}" clean
 bash "${datorprov}" "${datorprov_regex}" rapportera

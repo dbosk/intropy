@@ -255,6 +255,9 @@ fil efter sig i [[/tmp]].
 Fällan körs bara när själva skalet avslutas, inte när [[all]] körs i ett
 delskal, till exempel i en rörledning, eftersom delskal inte ärver
 [[EXIT]]-fällan.
+Om vi i stället läser in skriptet med [[source]] ersätter fällan den
+[[EXIT]]-fälla som skalet redan hade, och filen tas bort först när det skalet
+avslutas.
 <<konstanter>>=
 all_cache=$(mktemp)
 trap 'rm -f "${all_cache}"' EXIT
@@ -319,6 +322,22 @@ results_dir="${XDG_CACHE_HOME:-$HOME/.cache}/datorprov"
 mkdir -p "${results_dir}"
 chmod 700 "${results_dir}"
 results_cache="${results_dir}/results-${course}.csv"
+@ Katalogen finns kvar efter en omstart, så utan en gräns skulle cachen kunna
+vara hur gammal som helst.
+Då skulle en körning utan [[clean]] kunna rapportera betyg från resultat som
+är flera dagar gamla, eller från testdata som en provkörning lämnat efter sig.
+Cachen ska bara spara tid när vi kör flera kommandon efter varandra, så vi
+tar bort den om den är äldre än en timme.
+Det avgör vi en gång, när skriptet startar.
+Om vi i stället kontrollerade åldern varje gång [[results]] anropas, skulle
+en lång körning kunna byta resultat mitt i, efter att den själv har satt
+betyg i Canvas.
+<<konstanter>>=
+results_max_age=60 # minuter
+if [ -n "$(find "${results_cache}" -mmin +${results_max_age} 2>/dev/null)" ]
+then
+  rm -f "${results_cache}"
+fi
 <<spara resultatet i cachen för [[results]]>>=
 cat > "${results_cache}"
 <<skriv ut de cachade resultaten för [[results]]>>=
