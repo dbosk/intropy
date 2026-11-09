@@ -711,9 +711,11 @@ För att läsa ut studentens tidigare ackumulerade poäng från Canvas, kan vi
 hämta den från [[results]].
 Om den är tom, då har de inget sedan tidigare.
 Och då ska poängen vara noll.
+Vi avrundar den av samma skäl som datorprovspoängen: med en decimal i summan
+skulle [[ack_feedback]] inte kunna räkna fram siffrorna med [[$((...))]].
 <<låt [[points_ack]] vara [[student]]ens ackumulerade poäng>>=
 local points_ack=$(results | grep -F "${student}" \
-                           | grep "${ACKUMULERAD}" | cut -f 3)
+                           | grep "${ACKUMULERAD}" | cut -f 3 | round)
 if [ -z "${points_ack}" ]; then
   points_ack=0
 fi
@@ -889,7 +891,9 @@ ack_feedback() {
   echo points = $points
   <<rensa bort ledande nollor från [[points]]>>
   local bonus=$2
-  echo bonus = $bonus
+  if [ "${USE_BONUS_POINTS}" -gt 0 ]; then
+    echo bonus = $bonus
+  fi
   <<rensa bort ledande nollor från [[bonus]]>>
   echo
   for lo_num in $(seq 1 7); do
@@ -924,6 +928,8 @@ behöver göra för att uppnå godkänt.
 Vi skulle kunna lägga till poäng och bonus för varje enskilt lärandemål, det 
 gör det enklare för studenten att förstå hur de ska läsa sina poäng.
 Dock inte här, det skulle funka bättre på återkopplingen på datorprovet.
+En kurs utan bonusuppgifter ska inte nämna bonus alls: för studenten skulle
+\enquote{ingen bonuspoäng} låta som något hen kunde ha fått men gick miste om.
 <<skriv ut återkopplingen för lärandemålet>>=
 if [ ${lo_points} -ge 2 ]; then
   echo "godkänt resultat."
@@ -932,8 +938,10 @@ else
           "Du måste klara minst två av tre av dessa frågor på nästa prov. "
   if [ ${lo_bonus} -gt 0 ]; then
     echo "Du har en bonuspoäng till hjälp."
-  else
+  elif [ "${USE_BONUS_POINTS}" -gt 0 ]; then
     echo "Du har tyvärr ingen bonuspoäng till hjälp på detta lärandemål."
+  else
+    echo # för att bryta raden
   fi
 fi
 echo
