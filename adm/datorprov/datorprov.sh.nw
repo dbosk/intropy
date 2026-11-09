@@ -161,7 +161,10 @@ Men bättre är om vi kan avgöra det från uppgifterna i Canvas.
 <<beräknade konstanter>>=
 USE_BONUS_POINTS=$(results | cut -f 1 | sort | uniq \
                            | grep -c -E "${BONUS}")
-@
+@ Båda värdena kräver [[results]], som hämtar alla resultat från Canvas när
+det inte finns någon cache.
+Därför räknar vi inte ut dem när kommandot är [[clean]]: då skulle vi hämta
+alla resultat bara för att [[clean]] genast skulle ta bort dem.
 
 
 \section{Översikt över programmet}
@@ -173,7 +176,7 @@ Det vi vill göra är följande.
 <<konfigurationsvariabler>>
 <<konstanter>>
 <<hjälpfunktioner>>
-if [ "$course" != "" ]; then
+if [ "$course" != "" ] && [ "$1" != "clean" ]; then
   <<beräknade konstanter>>
 fi
 
@@ -245,8 +248,16 @@ user5@kth.se Ackumulerad datorprovspoäng 4224224
 Vi vill nu skapa en cache för vissa resultat som återanvänds.
 Utmatningen från [[all]] återanvänds på en del ställen,
 därför vill vi bara köra den en gång och spara resultatet i en temporär fil.
+Filen gäller bara en körning: [[mktemp]] ger ett nytt namn varje gång, så
+nästa körning hittar den aldrig.
+Därför tar vi bort den när skriptet avslutas, annars lämnar varje körning en
+fil efter sig i [[/tmp]].
+Fällan körs bara när själva skalet avslutas, inte när [[all]] körs i ett
+delskal, till exempel i en rörledning, eftersom delskal inte ärver
+[[EXIT]]-fällan.
 <<konstanter>>=
 all_cache=$(mktemp)
+trap 'rm -f "${all_cache}"' EXIT
 @
 
 En fördel med att kolla om filen finns och har innehåll, och på så vis avgöra 
@@ -311,8 +322,13 @@ fi
 @
 
 För att komma åt resultaten i Canvas kan vi använda [[canvaslms]].
+Även [[canvaslms]] har en cache: inlämningar utan godkänt betyg återanvänds i
+upp till 20 minuter.
+Vi hämtar bara från Canvas när vår egen cache saknas, alltså första gången
+eller efter [[clean]], och då vill vi ha färska resultat.
+Därför ber vi [[canvaslms]] att hämta allt på nytt med [[--refresh-cache]].
 <<hämta resultat från Canvas>>=
-canvaslms submissions -c "${course}" -l \
+canvaslms --refresh-cache submissions -c "${course}" -l \
                       -a "(${DATORPROV}|${BONUS}|${ACKUMULERAD}|${BETYG})" \
 | <<klipp ut kolumnerna som är relevanta för [[results]]>> \
 | <<rensa bort dubletter>>
@@ -375,10 +391,15 @@ studenter_i_kursen() {
 
 För att underlätta för användaren kan vi lägga till ett kommando för att rensa 
 filen med resultat.
+Vi använder [[rm -f]] så att [[clean]] inte felar när det inte finns någon
+cache.
+Cachen för [[all]] behöver vi inte ta bort här, den tas bort när skriptet
+avslutas.
+Cachen heter efter kursens reguljära uttryck, så [[clean]] måste få exakt
+samma uttryck som körningen vars cache den ska rensa.
 <<andra kommandon>>=
 clean() {
-  rm "${results_cache}"
-  rm "${all_cache}"
+  rm -f "${results_cache}"
 }
 @ Då kan vi köra [[./datorprov.sh prgm24 clean]] för att få färska resultat på 
 efterföljande körningar.
