@@ -260,16 +260,16 @@ svenska språket).
 6. Konsekvent typografi
 -----------------------
 
-Programmet ska ha en genomgående typografi. Namn som är sammansatta av
-flera ord kan t ex skrivas ihop genom att inleda varje nytt ord med stor
-bokstav (t ex summeraVikter), eller genom att skilja orden åt med
-understreck (t ex summera\_vikter), men använd samma variant genom hela
-ditt program. Variabel- och metodnamn brukar inledas med med liten
-bokstav och klasser med stor bokstav.
+Programmet ska ha en genomgående typografi och följa PEP 8. Namn på
+variabler, funktioner och metoder skrivs med små bokstäver, med
+understreck mellan orden (t ex summera\_vikter). Namn på klasser inleds
+med stor bokstav, och varje nytt ord skrivs ihop med stor bokstav (t ex
+EnBraKlass). Namn på konstanter skrivs med stora bokstäver (t ex
+MAX\_ANTAL).
 
 class EnBraKlass
 
-def enMetodSomTarTreParametrar(x, y, z)
+def en\_metod\_som\_tar\_tre\_parametrar(x, y, z)
 
 7. Lämplig uppdelning i funktioner/metoder
 ------------------------------------------
