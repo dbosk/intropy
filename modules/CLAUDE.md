@@ -300,8 +300,9 @@ Backed so far (question → answer):
 ## Build environment
 
 The **makefiles submodule must be on the `tominted-default-weave`
-lineage** (currently 1571556; it makes the highlighted weave the
-default). In a fresh worktree run `git submodule update --init --checkout
+lineage** (currently fe00f3b; it makes the highlighted weave the
+default, and lets latexmk run ten times, which dense decks need under
+marginfix's retired yield records). In a fresh worktree run `git submodule update --init --checkout
 makefiles` (`--checkout` because the repo config has
 `submodule.makefiles.update=none`). The main checkout's `makefiles` is not
 on that lineage: after the campaign branch is merged to master, run
