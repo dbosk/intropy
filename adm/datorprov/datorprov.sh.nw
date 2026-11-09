@@ -201,6 +201,12 @@ Anledningen till att vi inte will köra [[all]] direkt om inget annat anges
 [[source datorprov.sh prgm24]]
 utan att köra något av kommandona.
 Om vi inte anger några argument vill vi skriva ut alla funktioner i filen.
+Filen hittar vi i [[BASH_SOURCE[0]]], inte i [[$0]]: när skriptet läses in med
+[[source]] är [[$0]] skalet ([[bash]]), och då letar [[grep]] efter en fil som
+inte finns.
+När skriptet läses in med [[source]] vill vi bara ha funktionerna, så då
+skriver vi inte ut något.
+Vi känner igen det på att [[BASH_SOURCE[0]]] och [[$0]] skiljer sig åt.
 <<hjälpfunktioner>>=
 list_commands() {
   grep -E '^\w+\(\)\s*\{' "$1" \
@@ -209,10 +215,10 @@ list_commands() {
 @
 
 <<kör angivet kommando>>=
-if ! [ $# -eq 0 ]; then
+if [ $# -gt 0 ]; then
   "$@"
-else
-  list_commands "$0"
+elif [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  list_commands "${BASH_SOURCE[0]}"
 fi
 @ Så nu kan vi köra programmet med
 [[./datorprov.sh prgm24 all]]
@@ -322,22 +328,13 @@ results_dir="${XDG_CACHE_HOME:-$HOME/.cache}/datorprov"
 mkdir -p "${results_dir}"
 chmod 700 "${results_dir}"
 results_cache="${results_dir}/results-${course}.csv"
-@ Katalogen finns kvar efter en omstart, så utan en gräns skulle cachen kunna
-vara hur gammal som helst.
-Då skulle en körning utan [[clean]] kunna rapportera betyg från resultat som
-är flera dagar gamla, eller från testdata som en provkörning lämnat efter sig.
-Cachen ska bara spara tid när vi kör flera kommandon efter varandra, så vi
-tar bort den om den är äldre än en timme.
-Det avgör vi en gång, när skriptet startar.
-Om vi i stället kontrollerade åldern varje gång [[results]] anropas, skulle
-en lång körning kunna byta resultat mitt i, efter att den själv har satt
-betyg i Canvas.
-<<konstanter>>=
-results_max_age=60 # minuter
-if [ -n "$(find "${results_cache}" -mmin +${results_max_age} 2>/dev/null)" ]
-then
-  rm -f "${results_cache}"
-fi
+@ Cachen har ingen åldersgräns, och det är avsiktligt.
+Arbetsgången är att köra de olika kommandona, granska resultaten och sedan
+rapportera just de resultat som vi har granskat.
+Skulle cachen förnyas av sig själv kunde [[rapportera]] använda andra
+resultat än dem vi granskade.
+Därför finns cachen kvar, även efter en omstart, tills vi själva tar bort den
+med [[clean]] (se nedan).
 <<spara resultatet i cachen för [[results]]>>=
 cat > "${results_cache}"
 <<skriv ut de cachade resultaten för [[results]]>>=
