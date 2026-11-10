@@ -1528,10 +1528,19 @@ SCHEMA_KURS="${SCHEMA_KURS:-prgi26}"
 PROVTILLFALLE="${PROVTILLFALLE:-Kontrollskrivning}"
 @
 
-Funkasalen bokas ofta senare än de andra salarna och syns då inte i schemat.
-Sådana salar lägger vi till med [[EXTRA_ROOMS]], kommaseparerade som i
-schemat:
-[[EXTRA_ROOMS="Toker" ./datorprov.sh ... setup]].
+Funkasalen bokas ofta senare än de andra salarna och syns då inte i schemat,
+och funka kan behöva flera salar.
+Sådana salar lägger vi till med [[EXTRA_ROOMS]], åtskilda med komma, blanksteg
+eller båda:
+[[EXTRA_ROOMS="Toker Kloker" ./datorprov.sh ... setup]] eller
+[[EXTRA_ROOMS="Toker, XW343"]].
+Ett prefix från [[kthutils iprange --help]] går lika bra som ett salsnamn
+(se nästa avsnitt).
+Att även blanksteg skiljer salar åt är avsiktligt: inget prefix innehåller
+blanksteg, och med bara komma skulle [[EXTRA_ROOMS="TOKE KLOK"]] bli en enda
+sal med namnet \enquote{TOKE KLOK}.
+Salarna i schemat delar vi däremot bara vid komma, eftersom schemat skriver
+dem så och en sal där kan ha blanksteg i namnet, som Ka-Sal~C.
 En sal som både står i schemat och i [[EXTRA_ROOMS]] tas bara med en gång.
 
 Hittar vi inget provtillfälle alls avbryter vi, även om [[EXTRA_ROOMS]] är
@@ -1559,8 +1568,9 @@ salar_for_provet() {
     echo "setup: varning: ${antal} provtillfällen den ${datum}," \
          "tar med salarna från alla" >&2
   fi
-  printf '%s\n%s\n' "${platser}" "${EXTRA_ROOMS}" \
-  | tr ',' '\n' | sed 's/^ *//; s/ *$//' | grep . \
+  { printf '%s\n' "${platser}" | tr ',' '\n'
+    printf '%s\n' "${EXTRA_ROOMS}" | tr -s ', \t' '\n\n\n'; } \
+  | sed 's/^ *//; s/ *$//' | grep . \
   | awk '!sett[$0]++'
 }
 @
@@ -1616,9 +1626,10 @@ Att jämföra rad för rad förutsätter att det kommer precis en rad per sal.
 Det kan gå sönder på två sätt.
 Det första är att [[kthutils]] delar upp sina argument på nytt: skriptet
 bakom kommandot läser dem som [[rooms=$*]] och delar vid blanksteg.
-Ett prefix med blanksteg, till exempel [[EXTRA_ROOMS="TOKE KLOK"]] (som blir
-en enda sal, eftersom vi delar vid komma), blir då två prefix och två rader,
-och alla rader efter det hamnar på fel sal.
+Ett prefix med blanksteg, till exempel för salen Ka-Sal~C i schemat, blir då
+två prefix och två rader, och alla rader efter det hamnar på fel sal.
+I [[EXTRA_ROOMS]] kan det inte hända, eftersom vi delar den även vid
+blanksteg.
 Att citera prefixen hjälper inte, eftersom delningen sker i skriptet på
 servern och inte i skalet.
 Därför godtar vi bara prefix med bokstäver, siffror och bindestreck, som alla
@@ -1921,11 +1932,36 @@ funkakoder() {
 @
 
 R0 ger 50~procent och R1 25~procent längre skrivtid.
-Provet är 60~minuter, så det blir 30 respektive 15~minuter.
-Ändras provets längd måste konstanterna ändras med den.
+Andra koder, som R2 (mindre grupp) och R5 (anpassad placering), handlar om
+var studenten skriver och ger ingen extra tid.
 <<konstanter>>=
-R0_MINUTER=30
-R1_MINUTER=15
+R0_PROCENT=50
+R1_PROCENT=25
+@
+
+Canvas vill ha den extra tiden i minuter, och den beror på provets längd.
+Vi räknar ut minuterna från provets tidsgräns i stället för att skriva in dem,
+så att de stämmer även om provet blir längre eller kortare: med 60~minuter
+blir det 30 och 15, med 90~minuter 45 och 23.
+Tidsgränsen står i sekunder i exporten, och vi avrundar uppåt, eftersom en
+minut för lite vore att inte ge studenten hela sin rätt.
+Har provet ingen tidsgräns finns det inget att förlänga, och det betyder
+troligen att inställningarna är fel, så då avbryter vi.
+<<hjälpfunktioner>>=
+extra_minuter() {
+  local export="$1" procent="$2"
+  if ! jq -e -r --argjson p "${procent}" \
+          '.settings.quiz_settings
+           | select(.has_time_limit == true)
+           | .session_time_limit_in_seconds
+           | select(type == "number" and . > 0)
+           | (. * $p / 6000) | ceil' \
+          "${export}"; then
+    echo "setup: provet har ingen tidsgräns," \
+         "kan inte räkna ut den förlängda skrivtiden" >&2
+    return 1
+  fi
+}
 @
 
 Koderna står kommaseparerade i en kolumn, och vi måste jämföra hela koder:
@@ -1943,7 +1979,7 @@ Precis som i [[utan_studenter]] känner vi igen den första filen med
 anmälda kan vara tom.
 <<hjälpfunktioner>>=
 forlangd_skrivtid() {
-  awk -F'\t' -v r0="${R0_MINUTER}" -v r1="${R1_MINUTER}" '
+  awk -F'\t' -v r0="$3" -v r1="$4" '
     FILENAME == ARGV[1] { anmald[$0]; next }
     $1 in anmald {
       n = split($2, koder, / *, */)
@@ -2001,7 +2037,11 @@ if ! [ -s "${dir}/funka" ]; then
   echo "setup: deltagarlistan för ${FUNKA_KURS} är tom" >&2
   return 1
 fi
-forlangd_skrivtid "${dir}/anmalda" "${dir}/funka" > "${dir}/skrivtid"
+local r0 r1
+r0=$(extra_minuter "${dir}/export.json" "${R0_PROCENT}") || return 1
+r1=$(extra_minuter "${dir}/export.json" "${R1_PROCENT}") || return 1
+forlangd_skrivtid "${dir}/anmalda" "${dir}/funka" "${r0}" "${r1}" \
+  > "${dir}/skrivtid"
 local status=0 minuter
 for minuter in $(cut -f 2 "${dir}/skrivtid" | sort -un); do
   awk -F'\t' -v m="${minuter}" '$2 == m {print $1}' "${dir}/skrivtid" \
