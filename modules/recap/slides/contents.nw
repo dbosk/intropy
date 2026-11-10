@@ -1,11 +1,17 @@
 % Varje övning nedan är en fråga i Mentipy: på bilderna en enkät med en
 % QR-kod, i anteckningarna en vanlig övningsuppgift.  Det som alla frågor
-% har gemensamt ställs in en gång, här, i båda jobben.
+% har gemensamt ställs in en gång, här, i båda jobben.  Dit hör språket:
+% med "locale": "sv" skriver Mentipy sina egna etiketter på bilden
+% (Välj ett alternativ:, Högst 400 tecken) på svenska, och språket
+% sparas med frågan, så att servern visar frågans formulär och
+% resultatsida på svenska också, vilket språk föreläsarens dator än är
+% inställd på.  Adressen i QR-koderna står inte här utan i Mentipys
+% inställning mentipy.base_url: en fast adress här skulle skriva över
+% den som mentipy serve sätter, vid varje bygge.
 \mode<all>
 \begin{pycode}
-import re
-
-from mentipy.latex import mc, open_text, scale
+from mentipy.latex import file_snippet, mc, open_text, scale
+from mentipy.questions import ContextSnippet
 from mentipy.store import Store
 
 mentipy_common = {
@@ -15,32 +21,13 @@ mentipy_common = {
     "environment": "",
     "show_url": False,
     "layout": "auto",
-    "base_url": "http://faculty-shell.sys.kth.se:8080",
+    "locale": "sv",
 }
 
 
-def _pa_svenska(latex):
-    """Byt Mentipys fasta engelska fraser mot svenska."""
-    latex = latex.replace("Choose exactly one:", "Välj ett alternativ:")
-    latex = latex.replace(
-        "Choose one or more:", "Välj ett eller flera alternativ:"
-    )
-    latex = latex.replace(
-        "\\item[Type] Free-text answer", "\\item[Svar] Fritext"
-    )
-    latex = re.sub(
-        r"\\item\[Limit\] (\d+) characters", r"\\item[Högst] \1 tecken", latex
-    )
-    latex = latex.replace("\\item[Range]", "\\item[Skala]")
-    latex = latex.replace("\\item[Low]", "\\item[Lägst]")
-    latex = latex.replace("\\item[High]", "\\item[Högst]")
-    return latex
-
-
 def fraga(helper, *args, **kwargs):
-    """Registrera en fråga och lämna tillbaka dess LaTeX, på svenska."""
-    latex = helper(*args, **{**mentipy_common, **kwargs})
-    return _pa_svenska(latex)
+    """Registrera en fråga med de gemensamma inställningarna."""
+    return helper(*args, **{**mentipy_common, **kwargs})
 \end{pycode}
 
 % Adressen under QR-koden står i Mentipys omslag mentipy-obj/Q-*.pdf_tex,
@@ -418,14 +405,15 @@ utan frågor\autocite{Hunsu2016Clickers}.\footnote{Det vetenskapliga
   \begin{exercise}
     \label{ovn:recap-bankomat}
     Bankomatens algoritm:
-    \begin{enumerate}
-      \item Läs kortet.
-      \item Fråga efter PIN-koden.
-      \item Fråga efter beloppet.
-      \item Lämna ut beloppet.
-      \item Dra beloppet från saldot.
-    \end{enumerate}
     \begin{pycode}
+bankomatens_steg = r'''\begin{enumerate}
+  \item Läs kortet.
+  \item Fråga efter PIN-koden.
+  \item Fråga efter beloppet.
+  \item Lämna ut beloppet.
+  \item Dra beloppet från saldot.
+\end{enumerate}'''
+print(bankomatens_steg)
 print(fraga(
     mc,
     "Ronja har 300 kr på kontot och ber om 500 kr. Vad gör bankomaten "
@@ -436,6 +424,9 @@ print(fraga(
         "Den avbryter algoritmen vid det fjärde steget",
         "Den frågar efter ett nytt belopp",
     ],
+    context=ContextSnippet(
+        bankomatens_steg, language="latex", label="Bankomatens algoritm"
+    ),
 ))
     \end{pycode}
   \end{exercise}
@@ -504,15 +495,18 @@ Nu är det din tur, med en uppgift som ingen ännu har skrivit stegen för.
 \begin{frame}[fragile,shrink]
   \begin{exercise}[Ett automatiskt lager]
     \label{ovn:recap-lager}
-    Ett lager packar beställningar från en webbutik helt automatiskt:
-    robotar hämtar varorna ur hyllorna och packar dem i lådor som
-    skickas till kunderna.  Skissa lagrets algoritm som pseudokod, först
-    på papper.
     \begin{pycode}
+lagret = (
+    "Ett lager packar beställningar från en webbutik helt automatiskt: "
+    "robotar hämtar varorna ur hyllorna och packar dem i lådor som "
+    "skickas till kunderna."
+)
+print(lagret, "Skissa lagrets algoritm som pseudokod, först på papper.")
 print(fraga(
     open_text,
     "Skriv din skiss av lagrets algoritm, ett steg per rad.",
     max_chars=500,
+    context=lagret,
 ))
     \end{pycode}
   \end{exercise}
@@ -594,6 +588,7 @@ print(fraga(
         "Den första och den sista raden, och ett felmeddelande",
         "Alla tre raderna",
     ],
+    context=file_snippet("examples/valkommen.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -699,6 +694,7 @@ print(fraga(
         "Förut 1000 kr, nu 1000 kr",
         "Förut {old} kr, nu {balance} kr",
     ],
+    context=file_snippet("examples/saldo.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -826,6 +822,7 @@ print(fraga(
         "Saldo: None kr",
         "Ett felmeddelande",
     ],
+    context=file_snippet("examples/insattning1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -880,8 +877,7 @@ varandra, med var sin körning.
 \begin{frame}[fragile,shrink]
   \begin{example}[Utan och med returvärde]
     \label{ex:recap-insattning-par}
-    \texttt{insattning1.py} till vänster och \texttt{insattning2.py} till
-    höger:
+    De två programmen sida vid sida:
     \codebycode
       [label={\texttt{insattning1.py}}, lines=1-9]%
         {python}{examples/insattning1.py}
@@ -979,6 +975,7 @@ print(fraga(
         "Ett felmeddelande",
         "500",
     ],
+    context=file_snippet("examples/inmatning1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1008,7 +1005,7 @@ Men [[int]] kan inte omvandla vad som helst: skriver användaren
 särfallet vet programmet hur det ska svara på, så det fångar det.
 
 \begin{frame}[fragile,shrink]
-  \begin{example}[Ett belopp som användaren skriver in]
+  \begin{example}[Ett belopp från användaren]
     \label{ex:recap-inmatning2}
     \only<presentation>{\setminted{fontsize=\scriptsize}}%
     Programmet \texttt{inmatning2.py}:
@@ -1123,6 +1120,7 @@ print(fraga(
         "Båda raderna",
         "Ingenting",
     ],
+    context=file_snippet("examples/uttag1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1318,6 +1316,7 @@ print(fraga(
         "Saldo: 1000 kr",
         "Saldo: 1500 kr",
     ],
+    context=file_snippet("examples/summa.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1489,6 +1488,7 @@ print(fraga(
         "Listan med ett belopp: [-300]",
         "Ett felmeddelande",
     ],
+    context=file_snippet("examples/lista.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1591,6 +1591,7 @@ print(fraga(
         "(600, 500)",
         "Ett felmeddelande",
     ],
+    context=file_snippet("examples/tupel1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -1721,8 +1722,8 @@ huvudprogram.  Vad händer med det när filen importeras?
   \begin{exercise}
     \label{ovn:recap-modul}
     \only<presentation>{\setminted{fontsize=\scriptsize}}%
-    Filen [[konto1.py]] är [[insattning2.py]] utan vakt, och
-    [[kassa1.py]] importerar från den:
+    Filen [[konto1.py]] är [[insattning2.py]] utan vakt, och den
+    importeras av [[kassa1.py]]:
     \begin{columns}[T]
       \begin{column}{0.5\textwidth}
 <<[[konto1.py]]>>=
@@ -1766,6 +1767,10 @@ print(fraga(
         "Saldo: 1500 kr, och sedan Kassan: 500 kr",
         "Ett felmeddelande, eftersom båda filerna har en main",
         "Bara Saldo: 1500 kr",
+    ],
+    context=[
+        file_snippet("examples/kassa1.py"),
+        file_snippet("examples/konto1.py"),
     ],
 ))
     \end{pycode}
@@ -1867,6 +1872,7 @@ print(fraga(
         "Ett felmeddelande om nyckeln 0 (KeyError)",
         "Ett felmeddelande om index 0 (IndexError)",
     ],
+    context=file_snippet("examples/konton1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -2101,6 +2107,10 @@ print(fraga(
         "None",
         "Ett felmeddelande",
     ],
+    context=[
+        file_snippet("examples/objekt.py"),
+        file_snippet("examples/bank.py", name="Account"),
+    ],
 ))
     \end{pycode}
   \end{exercise}
@@ -2316,6 +2326,7 @@ print(fraga(
         "Bara ett felmeddelande, eftersom + bara fungerar för tal",
         "Bara ett felmeddelande, eftersom Amount inte har __radd__",
     ],
+    context=file_snippet("examples/belopp1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -2344,7 +2355,7 @@ det gör [[belopp2.py]] (\cref{ex:recap-belopp2}).
 \begin{frame}[fragile,shrink]
   \begin{example}[Den omvända additionen]
     \label{ex:recap-belopp2}
-    Programmet [[belopp2.py]] är [[belopp1.py]] med en metod till:
+    Programmet [[belopp2.py]] har en metod mer än [[belopp1.py]]:
 <<[[belopp2.py]]>>=
 class Amount:
     """Ett belopp i kronor och ören"""
@@ -2481,6 +2492,11 @@ print(fraga(
         "1003: Madicken, 1020 kr",
         "Ett felmeddelande: SavingsAccount har ingen withdraw",
     ],
+    context=[
+        file_snippet("examples/sparkonto.py"),
+        file_snippet("examples/bank.py", name="SavingsAccount"),
+        file_snippet("examples/bank.py", name="Account"),
+    ],
 ))
     \end{pycode}
   \end{exercise}
@@ -2494,7 +2510,7 @@ print(fraga(
   \end{example}
 \end{frame}
 
-I stället för att skriva kontoklassen en gång till ärver sparkontot den:
+Sparkontot ärver kontoklassen i stället för att upprepa den:
 [[SavingsAccount]] har allt som [[Account]] har, och dessutom
 [[add_interest]].
 
@@ -2780,6 +2796,7 @@ print(fraga(
         "Bara 1001 och 1002",
         "Ett felmeddelande: filen finns redan",
     ],
+    context=file_snippet("examples/fil1.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -2976,6 +2993,7 @@ print(fraga(
         "I händelseslingan, inte i vår kod",
         "Ingenstans: main måste anropa den",
     ],
+    context=file_snippet("examples/bankomat.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -3191,6 +3209,7 @@ print(fraga(
         "2001 501",
         "1500 501",
     ],
+    context=file_snippet("examples/pilar.py"),
 ))
     \end{pycode}
   \end{exercise}
@@ -3230,7 +3249,16 @@ pil flyttades.
 
 I [[pilar.py]] gör anropet [[deposit(account, amount)]] samma sak med
 båda argumenten: parametrarna blir nya namn med pilar till samma objekt
-som argumenten.  Den första raden i [[deposit]] flyttar den lokala pilen
+som argumenten.\footnote{%
+  Också \mintinline{python}{self} i en metod, även i konstruktorn, är en
+  sådan parameter: ännu en pil till objektet.  Hur pilen kommer dit, och
+  var objektet kommer ifrån innan konstruktorn får det, visar
+  föreläsningen \emph{Klasser och objekt} i fördjupningen \emph{Allt är
+  objekt}, i delarna \emph{Var kommer \texttt{self} ifrån i
+  konstruktorn?} och \emph{Klasser, funktioner och metoder är också
+  objekt}.  Fördjupningen är frivillig, och inget i kursen bygger på
+  den.}
+Den första raden i [[deposit]] flyttar den lokala pilen
 [[amount]] till ett nytt tal, 501, och [[main]] märker ingenting
 (\cref{fig:recap-flytta}).
 

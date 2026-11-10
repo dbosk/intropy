@@ -20,28 +20,59 @@ LATEXFLAGS+=	-shell-escape
 # limit.
 PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=10'
 TEX_PYTHONTEX=	yes
-# Mentipy decks (Algoritmiskt tänkande, Hello, World!) import mentipy in
-# their PythonTeX code, and the system python3 cannot (pipx isolates it), so
-# PythonTeX runs in a virtualenv of the book's own, made on the first build.
-# --rerun=always: both editions share ltxobj.
+# Mentipy decks (Algoritmiskt tänkande, Hello, World!, Repetition: kursens
+# grunder) import mentipy in their PythonTeX code, and the system python3
+# cannot (pipx isolates it), so PythonTeX runs in a virtualenv of the
+# book's own, made on the first build.  --rerun=always: both editions
+# share ltxobj.
 MENTIPY_VENV=	$(CURDIR)/.venv
 PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
 
 ${MENTIPY_VENV}/bin/python3:
 	mentipy init --venv ${MENTIPY_VENV}
 
-# Order-only: the venv must exist, but its timestamp must not rebuild.
-bok.pdf bok-larare.pdf: | ${MENTIPY_VENV}/bin/python3
+# The recap deck imports ContextSnippet and file_snippet, which mentipy
+# has since 0.13, and 0.14 shows the options before that context on the
+# student's phone.  All three decks pass locale=, which 0.15 is the first
+# to take (0.14 stops on it with a TypeError).  0.16 records the QR
+# codes' paths relative to each deck's store, so a book built in a
+# worktree no longer writes the worktree's absolute paths into the
+# recap deck's committed mentipy.json.
+# 0.17 links each PythonTeX run's questions instead of counting them,
+# so rebuilding an unchanged deck leaves the store byte-identical.
+# The rule above makes the
+# venv only once, so a venv keeps the mentipy of its first build; a
+# stamp named after the version upgrades it once.  The upgrade rebuilds
+# the book and removes the PythonTeX output, which latexmk otherwise
+# reruns only when the code changed.  Order-only on the venv: its
+# timestamp must not trigger an upgrade.
+MENTIPY_VERSION=	0.17
+MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
+
+${MENTIPY_STAMP}: | ${MENTIPY_VENV}/bin/python3
+	${MENTIPY_VENV}/bin/python3 -m pip install 'mentipy>=${MENTIPY_VERSION}'
+	${RM} ${TEX_OUTDIR}/*.pytxmcr
+	touch $@
+
+bok.pdf bok-larare.pdf: ${MENTIPY_STAMP}
 
 # minted looks up its cache files with \IfFileExists, which under
-# \subimport also searches the deck's directory.  When the decks are
-# already built, it finds its style definition in a deck's ltxobj/_minted,
-# never writes one here, and so never creates the book's cache directory;
-# latexminted then fails to write the highlighted \inputminted files, and
-# the book shows <MINTED> placeholders.  Create the directory first.
-bok.pdf bok-larare.pdf: | ltxobj/_minted
-ltxobj/_minted:
-	mkdir -p $@
+# \subimport tries the deck's directory first.  With the decks' cache
+# name, ltxobj/_minted, the book read a built deck's style and highlights:
+# <MINTED> placeholders, or "grouping levels=255" on a clean build (#368).
+# The book's cache is ltxobj/_minted-bok (preamble.tex).  The check: after
+# a book build, the recorder's .fls lists no file read from a _minted/
+# directory.  It means something only when some deck was built first:
+#   make -C ../modules/recap/slides notes.pdf
+#   rm -rf ltxobj && make bok-larare.pdf && make check-minted-cache
+.PHONY: check-minted-cache
+check-minted-cache:
+	@fls="$(wildcard ltxobj/bok.fls ltxobj/bok-larare.fls)"; \
+	  test -n "$$fls" || { echo "no ltxobj/bok*.fls: build the book first"; \
+	    exit 1; }; \
+	  if grep -H '^INPUT .*/_minted/' $$fls; then \
+	    echo "the book read another document's minted cache"; exit 1; \
+	  else echo "minted cache: only ltxobj/_minted-bok ($$fls)"; fi
 
 # Each deck weaves its contents.tex and tangles its examples/ with its own
 # Makefile, so the book reads exactly what the deck's notes read.

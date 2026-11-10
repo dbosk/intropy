@@ -6,7 +6,7 @@ front_page: false
 editing_roles: teachers
 modules:
   - module: '^Fler behållare och mer om klasser$'
-    position: 3
+    position: 13
 ---
 Den här veckan går vi igenom det nya innehållet på övningarna, eftersom
 föreläsningen är en repetition av hela kursen. Övningarna är frivilliga

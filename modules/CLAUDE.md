@@ -58,7 +58,8 @@ Listor*, *Behållare: Tupler*, *Moduler och paket*, its Övning. Week 41:
 from week 44 on 2026-09-23: *Klasser och objekt* and its Övning build on
 dictionaries). Week 44: *Repetition: kursens grunder* (the whole
 lecture, before the week's other decks; in the book it is the last
-chapter, after week 46), *Behållare: Mängder, stackar och köer*,
+chapter, after week 46, in a part of its own, author, 2026-10-22),
+*Behållare: Mängder, stackar och köer*,
 *Behållare: Ett gissningsspel*, *Operatoröverlagring*, *Praktiska
 tillämpningar av klasser*, its Övning.
 Week 45: *Arbeta med filer*, its Övning. Week 46: *Grafiska
@@ -72,9 +73,9 @@ folder>/`, named after the Canvas module with the week first (`v39
 Inmatning, felhantering och styrstrukturer`); upload a new version there
 (`parent_folder`) and move the version it replaces into that folder's
 `Äldre versioner` (author, 2026-09-22: "It's getting a bit crowded in the
-root") — but only after checking that it has no untranscribed ink
-(author, 2026-09-23: "Before moving old drafts to the old folder, check if
-they contain any ink"; the `remarkable` skill says how). Learning
+root") — a version with ink only once its comments are fully addressed
+in a newer version (the `remarkable` skill, versioned review workflow,
+step 2). Learning
 objectives carry the week page's Lo-codes in a comment
 (`learning-outcomes.md`, `vecka.md`).
 
@@ -279,6 +280,19 @@ Backed so far (question → answer):
   constants in one place → DRY, *Algoritmiskt tänkande* E, as in
   *Upprepningar*; SRP → *Funktioner* B), the rest is Python's docs or
   shown by running the program.
+- *Grafiska användargränssnitt* B: event-driven programs and callbacks →
+  partly: novices' uncertainty about who calls a handler and when, and
+  taking attaching a handler for running it, are documented (JavaScript,
+  adult novices); "event-driven programming is hard" per se is not (the
+  mapping review finds no consensus and blames the tools; events-first
+  CS1 reports success); the `mainloop` and `command=f()` forms are
+  unstudied. C: keeping UI and logic apart → established (MVC,
+  Reenskaug 1979, Krasner and Pope 1988; separation of concerns is
+  Dijkstra's broader idea), but that it makes a program easier to test
+  and debug is backed only indirectly (GUI testing is costly and
+  fragile); no controlled study measures it. The tutorial's open
+  questions on the `mainloop`/callback misconceptions and on debugging
+  without the GUI can point here.
 - No backed-claim chapters yet: *Behållare: Listor*, *Behållare: Tupler*
   and *Behållare: Uppslagslistor* (method chapter only) — run the claim
   audit there.
@@ -286,12 +300,15 @@ Backed so far (question → answer):
 ## Build environment
 
 The **makefiles submodule must be on the `tominted-default-weave`
-lineage** (currently 1571556; it makes the highlighted weave the
-default). In a fresh worktree run `git submodule update --init --checkout
-makefiles` (`--checkout` because the repo config has
-`submodule.makefiles.update=none`). The main checkout's `makefiles` is not
-on that lineage: after the campaign branch is merged to master, run
-`git submodule update` there. Tracked hand-written activity inputs such as
+lineage** (currently fe00f3b; it makes the highlighted weave the
+default, and its `latexmkrc`, linked into every deck that sets
+`TEX_PYTHONTEX`, lets latexmk run ten times: since marginfix#14 the
+notes of `recap/slides` take six). In a fresh worktree run `git
+submodule update --init --checkout makefiles` (`--checkout` because
+the repo config has `submodule.makefiles.update=none`). The main
+checkout's `makefiles` is not on that lineage: after the campaign
+branch is merged to master, run `git submodule update` there. Tracked
+hand-written activity inputs such as
 `files/slides/examples/scb/*.py` are exempt from `black --check`, and so
 is `conditionals/slides-conditionals/examples/villkor.py`, a deliberately
 unparsable program (its tangle rule in that deck's Makefile skips black;

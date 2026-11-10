@@ -34,7 +34,20 @@ Mappningen är enligt följande.
 \hline
 \end{tabular}
 \end{center}
-Då är poängen för varje fråga på lärandemål \(n\), \(10^{7-n}\).
+Då är poängen för varje fråga på lärandemål \(n\), \(10^{n-1}\).
+Lärandemål 1 blir alltså entalssiffran och lärandemål 7 miljontalssiffran.
+Det är samma ordning som i Exempelprovet i kursrummet, så att studenterna läser
+resultatet på det riktiga provet på samma sätt som på det de övat med.
+
+Rummen från 2026-01-12 till och med 2026-08-18 använde den omvända ordningen,
+\(10^{7-n}\).
+För de rummen stämmer inte detta skripts återkoppling per lärandemål, och
+bonussiffrorna adderas till fel lärandemål.
+Utan bonus och ackumulering blir betyget ändå rätt, eftersom [[compute_grade]]
+bara kräver sju siffror som alla är minst 2, oavsett vilken som är vilken.
+Ackumulerade poäng från de rummen går däremot inte att addera till poäng i den
+nya ordningen.
+
 Studenternas resultat ser ut enligt följande.
 \begin{verbatim}
 $ canvaslms submissions -c prgm24 -a Datorprov -l \
@@ -81,7 +94,8 @@ från kursrummet, precis som om de var i samma rum.
 (Se [[<<klipp ut kolumnerna som är relevanta för [[results]]>>]] nedan.)
 
 Notera att uppgiften \enquote{Betyg datorprovet} ([[BETYG]]) fungerar som ett
-medlemskapsfilter: endast studenter som har denna uppgift anses tillhöra kursen.
+medlemskapsfilter: endast studenter som har denna uppgift, eller kursrummets
+\enquote{Betyg datorprovet (obligatorisk)}, anses tillhöra kursen.
 När vi kör med ett regex som matchar flera kurser filtreras studentlistan
 automatiskt så att bara studenter från kursen med [[BETYG]]-uppgiften inkluderas
 i kommandon som~[[P]], [[ickeP]], [[Fx]] och~[[rapportera]].
@@ -324,16 +338,36 @@ sort -u \
 | keep_latest
 @
 
-Funktionen~[[keep_latest]] tar en tabbseparerad lista med resultat och behåller,
-för varje student--uppgiftpar, endast den rad med det senaste datumet; till slut
-skrivs just dessa senaste resultat ut.
+Funktionen~[[keep_latest]] tar en tabbseparerad lista med resultat och behåller
+en rad för varje student--uppgiftpar; till slut skrivs just dessa rader ut.
+I regel är det raden med det senaste datumet, men det räcker inte i två fall.
+
+Det första är rader utan datum.
+Canvas skriver då [[N/A]], och eftersom bokstäver sorteras efter siffror skulle
+en sådan rad annars vinna över ett riktigt resultat (samma fälla som i
+[[get_assignment_date]]).
+Därför räknas [[N/A]] som äldre än alla datum.
+
+Det andra är flera rum med samma uppgiftsnamn.
+Vi har klippt bort kolumnen med kursen, så [[prgi25]]s \enquote{Betyg
+datorprovet} och examinationsrummets uppgift med samma namn hamnar på samma
+nyckel.
+Ett P i det ena rummet kan då försvinna till förmån för en senare rad i det
+andra, och utan P:et ser inte [[rapportera]] att studenten redan är godkänd och
+skriver över det.
+Därför vinner en rad med P i en betygsuppgift alltid: ett P ska aldrig skrivas
+över, oavsett vilket rum det står i eller hur gammalt det är.
 <<hjälpfunktioner>>=
 keep_latest() {
-  awk -F'\t' '
+  awk -F'\t' -v betyg="$BETYG" '
+  function when(d) { return (d ~ /^N\/A/) ? "" : d }
   {
     key = $1 "\t" $2
-    if (!(key in date) || $4 > date[key]) {
-      date[key] = $4
+    is_p = ($1 ~ betyg && $3 == "P")
+    if (!(key in line) || is_p > p[key] \
+        || (is_p == p[key] && when($4) > date[key])) {
+      date[key] = when($4)
+      p[key] = is_p
       line[key] = $0
     }
   }
@@ -351,9 +385,23 @@ När vi kör med ett regex som matchar flera kurser (exempelvis
 från alla matchade kurser.
 Funktionen~[[studenter_i_kursen]] returnerar bara de studenter som har
 [[BETYG]]-uppgiften, dvs.\ de som tillhör kursen vi vill rapportera till.
+
+Uppgiften heter inte exakt likadant i alla rum: i examinationsrummet och
+[[prgi25]] heter den \enquote{Betyg datorprovet}, i [[prgi26]] \enquote{Betyg
+datorprovet (obligatorisk)}.
+[[canvaslms]] söker efter uttrycket i [[-a]] var som helst i uppgiftens namn, så
+[[results]] innehåller raderna från alla rum som kursregexet matchar, och
+[[canvaslms grade -a]] skriver till alla.
+Därför jämför vi med [[~]] och inte [[==]]: [[~]] gör samma sorts sökning som
+[[-a]], så att vi räknar med precis de uppgifter som vi hämtar och skriver till.
+Med [[==]] skulle en student som bara har kursrummets uppgift inte räknas till
+kursen, och kör vi på enbart ett kursrum där uppgiften har det längre namnet
+blir hela listan tom, utan något felmeddelande.
+Att [[BETYG]] tolkas som ett reguljärt uttryck ändrar ingenting här, eftersom
+namnet inte innehåller några metatecken.
 <<hjälpfunktioner>>=
 studenter_i_kursen() {
-  results | awk -F'\t' -v betyg="$BETYG" '$1==betyg {print $2}'
+  results | awk -F'\t' -v betyg="$BETYG" '$1 ~ betyg {print $2}'
 }
 @
 
@@ -371,18 +419,93 @@ clean() {
 efterföljande körningar.
 
 
+\section{Jämföra hela studentens adress}\label{MatchaStudent}
+
+I resten av programmet plockar vi hela tiden ut raderna för en viss student.
+Det ligger nära till hands att göra det med [[grep -F "${student}"]], men det
+söker efter delsträngar, och [[eva@kth.se]] finns inuti [[neva@kth.se]].
+Har [[eva]] 1111111 och [[neva]] 2222222 får [[eva]] båda raderna, och kan då få
+[[neva]]s poäng och ett P.
+Har [[anna]] 2222222 och [[hanna]] 1111111 tas [[hanna]] bort tillsammans med
+[[anna]] när vi filtrerar bort de godkända, så [[hanna]]s F skickas aldrig.
+Felet är lätt att missa, eftersom det bara drabbar några få adresspar och
+eftersom utfallet beror på i vilken ordning [[keep_latest]] skriver raderna,
+vilket är [[awk]]s interna ordning.
+
+Vi jämför därför alltid hela fältet.
+Vilket fält det är beror på vad vi läser: i [[results]] är studenten fält~2
+(efter uppgiften), men i utmatningen från [[all]] är studenten fält~1.
+Därför tar funktionen fältnumret som argument.
+Med [[==]] jämför [[awk]] hela strängen bokstavligt, så [[.]] i en adress är
+bara
+en punkt och inte \enquote{vilket tecken som helst}.
+(Hade värdena sett ut som tal hade [[awk]] jämfört dem som tal, men en adress
+gör aldrig det.)
+<<hjälpfunktioner>>=
+rader_med_student() {
+  awk -F'\t' -v field="$1" -v student="$2" '$field == student'
+}
+@
+
+När vi i stället ska ta bort en hel lista med studenter från utmatningen från
+[[all]] behöver vi samma sak för flera adresser.
+Funktionen tar listan som en fil, så att vi kan ge den med [[<(...)]].
+Vi känner igen listan med [[FILENAME == ARGV[1] ]] och inte med det vanliga
+[[NR == FNR]].
+Listan är nämligen ofta tom, exempelvis när ingen ännu är godkänd.
+Då är [[NR]] och [[FNR]] lika även på raderna från standard in, så [[NR == FNR]]
+skulle tolka alla rader som delar av listan och tyst svälja dem, och ingen
+skulle
+få något betyg.
+<<hjälpfunktioner>>=
+utan_studenter() {
+  awk -F'\t' 'FILENAME == ARGV[1] { students[$0]; next }
+              !($1 in students)' "$1" -
+}
+@
+
+På de ställen där raderna bara innehåller adressen behövs ingen av funktionerna.
+Då är hela raden samma sak som hela fältet, och vi kan använda [[grep -Fx]]:
+[[-F]] tar adressen bokstavligt och [[-x]] kräver att hela raden stämmer.
+
+Det sista stället är där vi skriver till Canvas.
+Flaggan [[-u]] till [[canvaslms grade]] är också ett reguljärt uttryck som
+söker, utan hänsyn till versaler, var som helst i studentens namn och
+inloggnings-id.
+Ger vi den [[eva@kth.se]] så sätts [[eva]]s betyg även på [[neva]], också om
+[[neva]] redan har ett P som vi aktar oss för att skriva över.
+Adressen i [[results]] är just inloggnings-id:t, så vi förankrar uttrycket och
+skyddar metatecknen, så att det bara kan träffa exakt den adressen.
+Hittar [[canvaslms]] ändå ingen student avslutas kommandot med ett fel utan att
+nämna vem det gäller, och [[rapportera]] fortsätter med nästa student.
+Därför skriver vi ut adressen när betyget inte gick att sätta, så att det inte
+försvinner i mängden.
+<<hjälpfunktioner>>=
+exakt_regex() {
+  echo "^$(echo "$1" | sed 's/[][\.*^$+?(){}|]/\\&/g')\$"
+}
+@
+
+
 \section{Skapa en lista med alla studenter}
 
 Nu när vi har alla resultat i en fil, kan vi skapa en lista med alla studenter
 genom att hämta dem från filen.
 Men vi vill bara ha studenter som tillhör kursen vi vill rapportera till---inte
-studenter från andra kurser som råkar matcha samma kursregex (exempelvis
-studenter i examinationsrummet).
+studenter som bara råkar finnas i ett annat rum som matchar samma kursregex,
+utan
+att ha någon betygsuppgift där.
 Därför filtrerar vi genom~[[studenter_i_kursen]], som bara returnerar studenter
-som har uppgiften~[[BETYG]].
+som har uppgiften~[[BETYG]], i något av rummen.
+Det betyder att [[all]] och [[nothing]] även tar med studenter i kursrum med det
+längre namnet som inte är med i examinationsrummet; [[rapportera]] påverkas inte
+av dem om de inte har något resultat på datorprovet, eftersom [[nothing]]
+sorterar bort dem.
+Raderna innehåller bara adressen, så [[grep -Fx]] räcker
+(se avsnitt \ref{MatchaStudent}).
 <<låt [[students]] vara en lista med alla studenter>>=
 students=$(results | cut -f 2 | sort | uniq \
-                   | grep -Ff <(studenter_i_kursen))
+                   | grep -Fxf <(studenter_i_kursen))
 @
 
 
@@ -442,7 +565,7 @@ bonus() {
   local file=$1
   local student=$2
   local area=$3
-  local points=$(grep -F "${student}" "${file}" \
+  local points=$(rader_med_student 2 "${student}" < "${file}" \
                  | grep -F "${area}" \
                  | cut -f 3)
   if [ -z "${points}" ]; then
@@ -453,21 +576,21 @@ bonus() {
 }
 @
 
-Med rätt ordning menar vi att den första (Programmeringsvänliga program och
-tilldelningar) ska vara den första siffran.
+Med rätt ordning menar vi att den första (Programmerarvänliga program och 
+tilldelningar) ska vara den sista siffran.
 Därefter kan vi slå ihop raderna till en rad på rätt format med [[tr]].
 <<sätt ihop bonussträngen för [[student]]>>=
-(bonus "${results_cache}" $student \
-  "${BONUS} Programmerarvänliga program och tilldelningar"; \
- bonus "${results_cache}" $student "${BONUS} Tillämpa styrstrukturer"; \
- bonus "${results_cache}" $student \
-  "${BONUS} Utforma och presentera användarvänlig utdata"; \
- bonus "${results_cache}" $student \
-  "${BONUS} Överföra data mellan fil och program"; \
- bonus "${results_cache}" $student "${BONUS} Konstruera interaktiva program"; \
+(bonus "${results_cache}" $student "${BONUS} Dela upp ett program"; \
  bonus "${results_cache}" $student \
   "${BONUS} Använda och konstruera sammansatta datatyper"; \
- bonus "${results_cache}" $student "${BONUS} Dela upp ett program") \
+ bonus "${results_cache}" $student "${BONUS} Konstruera interaktiva program"; \
+ bonus "${results_cache}" $student \
+  "${BONUS} Överföra data mellan fil och program"; \
+ bonus "${results_cache}" $student \
+  "${BONUS} Utforma och presentera användarvänlig utdata"; \
+ bonus "${results_cache}" $student "${BONUS} Tillämpa styrstrukturer"; \
+ bonus "${results_cache}" $student \
+  "${BONUS} Programmerarvänliga program och tilldelningar") \
 | tr -d '\n'
 @
 
@@ -481,7 +604,7 @@ user1@kth.se Datorprov 1001122
 Detta är enkelt då detta redan finns i [[results]].
 Vi vill dock byta ordning på kolumn 1 och 2 (student och Datorprov).
 <<skriv ut [[student]]ens datorprovspoäng>>=
-points=$(results | grep -F "${student}" \
+points=$(results | rader_med_student 2 "${student}" \
                  | grep "${DATORPROV}" \
                  | cut -f 3 \
                  | round)
@@ -521,11 +644,15 @@ Vi har redan skrivit ut de första två raderna.
 Vi har även värdena [[bonus]] och [[points]] (för datorprovet).
 Om de inte skrivit datorprovet kommer [[points]] vara en tom sträng, då hoppar 
 vi vidare.
+Vi räknar med [[bc]] eftersom bonussträngen ofta börjar med nollor.
+Lägger vi den i programtexten till GNU [[awk]] läses ett sådant tal oktalt, så
+att [[0001000]] blir 512 och studenten kan få fel betyg åt båda hållen.
+[[bc]] läser talet decimalt även med ledande nollor.
 <<skriv även ut summan av [[student]]ens bonus och datorprov>>=
 if [ -z "${points}" ]; then
   sum=${bonus}
 else
-  sum=$(awk 'BEGIN {print int('$points' + '$bonus')}')
+  sum=$(echo "${points} + ${bonus}" | bc)
 fi
 echo -e "${student}\t${SUM_POINTS}\t${sum}"
 @
@@ -616,13 +743,14 @@ ickeP() {
 }
 @
 
-För att filtrera bort studenter kan vi använda funktionerna ovan, plocka ut 
-studenternas identifierare och använda [[grep -v -f]] med 
-[[bash]]-funktionaliteten [[<(...)]], som skapar en temporär fil.
+För att filtrera bort studenter kan vi använda funktionerna ovan, plocka ut
+studenternas identifierare och använda [[utan_studenter]]
+(se avsnitt \ref{MatchaStudent}) med [[bash]]-funktionaliteten [[<(...)]], som
+skapar en temporär fil.
 <<filtrera bort övriga>>=
-grep -v -Ff <((P; Fx) | cut -f 1; nothing)
+utan_studenter <((P; Fx) | cut -f 1; nothing)
 <<filtrera bort alla med P och som inte skrev>>=
-grep -v -Ff <(P | cut -f 1; nothing)
+utan_studenter <(P | cut -f 1; nothing)
 @
 
 Den slutgiltiga poängen är antingen datorprovspoängen, eller  summan av 
@@ -694,9 +822,11 @@ För att läsa ut studentens tidigare ackumulerade poäng från Canvas, kan vi
 hämta den från [[results]].
 Om den är tom, då har de inget sedan tidigare.
 Och då ska poängen vara noll.
+Vi avrundar den av samma skäl som datorprovspoängen: med en decimal i summan
+skulle [[ack_feedback]] inte kunna räkna fram siffrorna med [[$((...))]].
 <<låt [[points_ack]] vara [[student]]ens ackumulerade poäng>>=
-local points_ack=$(results | grep -F "${student}" \
-                           | grep "${ACKUMULERAD}" | cut -f 3)
+local points_ack=$(results | rader_med_student 2 "${student}" \
+                           | grep "${ACKUMULERAD}" | cut -f 3 | round)
 if [ -z "${points_ack}" ]; then
   points_ack=0
 fi
@@ -744,10 +874,13 @@ Dock så har de klarat 80 procent av flera frågor då.
 
 Det vi vill göra nu är att addera poängen från senaste provet och bonuspoängen 
 till den ackumulerade poängen.
+En kurs kan ackumulera utan att ha några bonusuppgifter.
+Då är [[bonus]] tom, och utan ett förvalt värde skulle [[bc]] få det ogiltiga
+uttrycket [[3 + + 0]] och inte ge något resultat alls.
 <<addera poängen från senaste provet till [[points_ack]]>>=
 <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>
 <<låt [[bonus]] vara [[student]]ens bonuspoäng>>
-points_ack=$(echo ${points} + ${bonus} + ${points_ack} | bc)
+points_ack=$(echo ${points} + ${bonus:-0} + ${points_ack} | bc)
 @ Men, om de inte kommer upp i två poäng (godkänt) på ett lärandemål,
 då ska vi sätta poängen till noll.
 På så vis betyder det att de inte får poäng för bonuspoängen fler än en gång.
@@ -800,9 +933,10 @@ rapportera() {
     feedback=$(lo_feedback ${points} ${bonus})
     run_or_echo canvaslms grade -c "${course}" \
                     -a "${to_assignment}" \
-                    -u "${student}" \
+                    -u "$(exakt_regex "${student}")" \
                     -g "${grade}" \
-                    -m "${feedback}"
+                    -m "${feedback}" \
+    || echo "Kunde inte sätta betyg för ${student}" >&2
   done
 }
 @
@@ -816,11 +950,11 @@ plockar ut studenterna.
 Och de studenter vi är intresserade av är de som fick P eller icke-P (inte de 
 som inte skrev).
 <<låt [[bonus]] vara [[student]]ens bonuspoäng>>=
-local bonus=$(all | grep -F "${student}" \
+local bonus=$(all | rader_med_student 1 "${student}" \
                   | grep "${BONUS_POINTS}" \
                   | cut -f 3)
 <<låt [[points]] vara [[student]]ens senaste skrivningspoäng>>=
-local points=$(all | grep -F "${student}" \
+local points=$(all | rader_med_student 1 "${student}" \
                    | grep "${DP_POINTS}" \
                    | grep -v "${SUM_POINTS}" \
                    | cut -f 3)
@@ -829,7 +963,7 @@ local points=$(all | grep -F "${student}" \
 Det är [[total_points]] som avgör betyget som rapporteras.
 Så vi hämtar därför den poängen från [[from_points]].
 <<låt [[total_points]] vara [[student]]ens totala poäng>>=
-local total_points=$(all | grep -F "${student}" \
+local total_points=$(all | rader_med_student 1 "${student}" \
                          | grep "${from_points}" \
                          | cut -f 3)
 @
@@ -849,14 +983,15 @@ alltid att ha nya resultat.
 Kom ihåg att om vi kommer hit så innehåller [[total_points]] den ackumulerade 
 poängen.
 <<uppdatera [[student]]ens poäng och återkoppling i [[ACKUMULERAD]]>>=
-points_ack_stored=$(results | grep -F "${student}" \
+points_ack_stored=$(results | rader_med_student 2 "${student}" \
                             | grep "${ACKUMULERAD}" \
                             | cut -f 3)
 run_or_echo canvaslms grade -c "${course}" \
                 -a "${ACKUMULERAD}" \
-                -u "${student}" \
+                -u "$(exakt_regex "${student}")" \
                 -g "${total_points}" \
-                -m "$(ack_feedback ${total_points} ${bonus})"
+                -m "$(ack_feedback ${total_points} ${bonus})" \
+|| echo "Kunde inte sätta ackumulerad poäng för ${student}" >&2
 @
 
 Vi vill även ha en funktion som skriver ut återkopplingen för ackumulerade 
@@ -869,10 +1004,12 @@ ack_feedback() {
   echo points = $points
   <<rensa bort ledande nollor från [[points]]>>
   local bonus=$2
-  echo bonus = $bonus
+  if [ "${USE_BONUS_POINTS}" -gt 0 ]; then
+    echo bonus = $bonus
+  fi
   <<rensa bort ledande nollor från [[bonus]]>>
   echo
-  for lo_num in $(seq 7 -1 1); do
+  for lo_num in $(seq 1 7); do
     echo -n "Lärandemål ${lo_num}," \
             "frågorna $(( (lo_num - 1) * 3 + 1))-$((lo_num * 3)): "
     local lo_points=$((points % 10))
@@ -904,6 +1041,8 @@ behöver göra för att uppnå godkänt.
 Vi skulle kunna lägga till poäng och bonus för varje enskilt lärandemål, det 
 gör det enklare för studenten att förstå hur de ska läsa sina poäng.
 Dock inte här, det skulle funka bättre på återkopplingen på datorprovet.
+En kurs utan bonusuppgifter ska inte nämna bonus alls: för studenten skulle
+\enquote{ingen bonuspoäng} låta som något hen kunde ha fått men gick miste om.
 <<skriv ut återkopplingen för lärandemålet>>=
 if [ ${lo_points} -ge 2 ]; then
   echo "godkänt resultat."
@@ -912,8 +1051,10 @@ else
           "Du måste klara minst två av tre av dessa frågor på nästa prov. "
   if [ ${lo_bonus} -gt 0 ]; then
     echo "Du har en bonuspoäng till hjälp."
-  else
+  elif [ "${USE_BONUS_POINTS}" -gt 0 ]; then
     echo "Du har tyvärr ingen bonuspoäng till hjälp på detta lärandemål."
+  else
+    echo # för att bryta raden
   fi
 fi
 echo
@@ -940,10 +1081,18 @@ rapportera till.
 | <<filtrera bort alla som inte har uppdaterade resultat>>
 @
 
+Ett P kan stå i vilken som helst av betygsuppgifterna, så vi söker med [[~]] på
+samma sätt som i [[studenter_i_kursen]].
+Det är här en exakt jämförelse skulle göra mest skada.
+En student som har P i kursrummets \enquote{Betyg datorprovet (obligatorisk)}
+och
+sedan skriver om provet utan att klara det skulle inte filtreras bort, och
+eftersom [[canvaslms grade -a]] träffar båda uppgifterna skulle [[rapportera]]
+skriva F över P:et.
 <<filtrera bort alla som redan har P som betyg>>=
-grep -v -f <(results \
-             | awk -F'\t' -v betyg="$BETYG" \
-                '$1==betyg && $3=="P" {print $2}')
+grep -v -Fxf <(results \
+               | awk -F'\t' -v betyg="$BETYG" \
+                  '$1 ~ betyg && $3=="P" {print $2}')
 @ Vi såg
 [[<<filtrera bort alla som inte har uppdaterade resultat>>]]
 i avsnitt \ref{FiltreraBortAllaSomInteHarUppdateradeResultat}.
@@ -974,7 +1123,7 @@ studenter_med_nya_resultat() {
 Nu kan vi även passa på att lösa samma problem i fallet med att rapportera.
 \label{FiltreraBortAllaSomInteHarUppdateradeResultat}
 <<filtrera bort alla som inte har uppdaterade resultat>>=
-grep -Ff <(studenter_med_nya_resultat)
+grep -Fxf <(studenter_med_nya_resultat)
 @
 
 För att kolla om studenten har nya resultat,
@@ -1008,7 +1157,7 @@ siffror i ASCII-ordningen (\(78 > 50\)) skulle [[N/A]] annars väljas som
 get_assignment_date() {
   local assignment=$1
   local student=$2
-  local date=$(results | grep "${student}" \
+  local date=$(results | rader_med_student 2 "${student}" \
                        | grep "${assignment}" \
                        | <<rensa bort CR>> \
                        | cut -f 4 | grep -v "N/A" | sort -u | tail -n 1)
@@ -1080,7 +1229,7 @@ lo_feedback() {
   local bonus=$2
   <<rensa bort ledande nollor från [[bonus]]>>
   local count_full_score=0
-  for lo_num in $(seq 7 -1 1); do
+  for lo_num in $(seq 1 7); do
     local lo_points=$((points % 10))
     local bonus_points=$((bonus % 10))
     if [ ${lo_points} -ge 3 ]; then

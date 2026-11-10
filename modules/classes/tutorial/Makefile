@@ -28,6 +28,7 @@ SRC+=		ltnotes.bib
 EXAMPLES+=	examples/book.py
 EXAMPLES+=	examples/read500.py
 EXAMPLES+=	examples/trace.py
+EXAMPLES+=	examples/two_steps.py
 EXAMPLES+=	examples/shelf.py
 EXAMPLES+=	examples/copies.py
 EXAMPLES+=	examples/same.py

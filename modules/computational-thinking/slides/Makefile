@@ -16,9 +16,29 @@ PYTHONTEXFLAGS=	--interpreter python:${MENTIPY_VENV}/bin/python3 --rerun=always
 ${MENTIPY_VENV}/bin/python3:
 	mentipy init --venv ${MENTIPY_VENV}
 
-# Order-only: the venv must exist before latexmk runs pythontex, but its
-# timestamp must not trigger a rebuild.
-notes.pdf slides.pdf: | ${MENTIPY_VENV}/bin/python3
+# The rule above makes the venv only once, so a venv keeps the mentipy
+# of its first build; a stamp named after the version the deck is built
+# with upgrades it once.  The deck depends on the stamp, so an upgrade
+# also rebuilds it, and the PythonTeX output goes with the upgrade:
+# latexmk reruns PythonTeX only when that output is missing or the code
+# changed, and another mentipy may typeset the questions differently.
+# 0.15 is the first to take locale=, which makes the labels Swedish.
+# 0.16 records the QR codes' paths relative to the store, so a build
+# in another checkout (a worktree) no longer writes that checkout's
+# absolute paths into the store.
+# 0.17 links each PythonTeX run's questions instead of counting them,
+# so rebuilding an unchanged deck leaves the store byte-identical.
+MENTIPY_VERSION=	0.17
+MENTIPY_STAMP=	${MENTIPY_VENV}/mentipy-${MENTIPY_VERSION}
+
+# Order-only on the venv: the venv must exist before the upgrade, but its
+# timestamp must not trigger one.
+${MENTIPY_STAMP}: | ${MENTIPY_VENV}/bin/python3
+	${MENTIPY_VENV}/bin/python3 -m pip install 'mentipy>=${MENTIPY_VERSION}'
+	${RM} ${TEX_OUTDIR}/*.pytxmcr
+	touch $@
+
+notes.pdf slides.pdf: ${MENTIPY_STAMP}
 
 # mentipy serve rewrites the QR images and their .pdf_tex sidecars (the
 # address under each QR code) when the poll's address changes, so a
