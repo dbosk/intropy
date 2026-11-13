@@ -116,7 +116,9 @@ Programmet har följande delar, i den ordning dokumentet går igenom dem.
     (\cref{sec:undvik}).
   \item Skriva provfilen (\cref{sec:provfil}), dragningsprotokollet
     (\cref{sec:protokoll}) och, vid behov, frågefilen (\cref{sec:fragefil}).
-  \item Knyta ihop allt på kommandoraden (\cref{sec:kommandorad}).
+  \item Knyta ihop allt på kommandoraden (\cref{sec:kommandorad}) och skriva
+    filerna så att inget skrivs över och inget kan checkas in
+    (\cref{sec:skriva}).
 \end{enumerate}
 
 Vi använder bara Pythons standardbibliotek, så att programmet går att köra
@@ -136,9 +138,11 @@ import argparse
 import datetime
 import hashlib
 import json
+import os
 import pathlib
 import random
 import secrets
+import subprocess
 import sys
 
 <<constants>>
@@ -160,6 +164,7 @@ import json
 import random
 import shutil
 import subprocess
+import sys
 
 import pytest
 
@@ -262,6 +267,10 @@ def read_json(path, what):
         raise DrawError(f"{what} finns inte: {path}") from None
     except json.JSONDecodeError as err:
         raise DrawError(f"{what} är inte giltig JSON: {path}: {err}") from None
+    except OSError as err:
+        raise DrawError(
+            f"{what} går inte att läsa: {path}: {err.strerror}"
+        ) from None
 @
 
 Mallen kontrolleras i tre steg.
@@ -316,17 +325,26 @@ säger vad provet är.
 Men det riktiga provet har en kontrollsumma inbyggd.
 Totalpoängen \(3\,333\,333\) bär en siffra per lärandemål, så en position som
 fattas eller finns en gång för mycket ändrar en siffra.
-Anger mallen provets totalpoäng ([[points_possible]] i [[settings]]) måste
-positionernas poäng därför summera till den.
+Mallen måste därför ange provets totalpoäng ([[points_possible]] i
+[[settings]]), och positionernas poäng måste summera till den.
 Det fångar också en position med fel poäng.
+Vi kräver totalpoängen i stället för att kontrollera den bara när den finns:
+en kontroll som tyst hoppas över när fältet fattas skyddar inte mot just det
+misstag som är lättast att göra, att glömma fältet.
 (Två positioner som bytt plats med varandra fångas inte, men det syns i
 protokollet, där varje position står med sin bank.)
 <<kontrollera att positionerna ger provets totalpoäng>>=
 settings = template.get("settings")
 if not isinstance(settings, dict):
     raise DrawError(f"Provmallen {path} saknar inställningar (settings)")
+if "points_possible" not in settings:
+    raise DrawError(
+        f"Provmallen {path} anger inte provets totalpoäng "
+        "(settings.points_possible), så antalet positioner kan inte "
+        "kontrolleras"
+    )
 total = sum(slot["points"] for slot in positions)
-if "points_possible" in settings and settings["points_possible"] != total:
+if settings["points_possible"] != total:
     raise DrawError(
         f"Provmallen {path} anger points_possible "
         f"{settings['points_possible']}, men de {len(positions)} "
@@ -353,7 +371,10 @@ def made_up_item(bank, number):
             "title": f"{bank} #{number}",
             "item_body": f"<p>Påhittad fråga {number} i bank {bank}.</p>",
             "interaction_type_slug": "true-false",
-            "interaction_data": {"true_choice": "Sant", "false_choice": "Falskt"},
+            "interaction_data": {
+                "true_choice": "Sant",
+                "false_choice": "Falskt",
+            },
             "scoring_data": {"value": True},
             "scoring_algorithm": "Equivalence",
         },
@@ -438,6 +459,15 @@ def test_position_without_bank_is_an_error(tmp_path):
     write_json_file(template, data)
     with pytest.raises(DrawError, match="Position 3"):
         load_template(template)
+
+
+def test_template_without_total_is_an_error(tmp_path):
+    template, _ = make_exam(tmp_path)
+    data = json.loads(template.read_text(encoding="utf-8"))
+    del data["settings"]["points_possible"]
+    write_json_file(template, data)
+    with pytest.raises(DrawError, match="anger inte provets totalpoäng"):
+        load_template(template)
 @
 
 
@@ -458,7 +488,8 @@ def load_banks(directory, names):
     banks = {}
     for name in names:
         if name not in banks:
-            banks[name] = load_bank(pathlib.Path(directory) / f"{name}.json", name)
+            path = pathlib.Path(directory) / f"{name}.json"
+            banks[name] = load_bank(path, name)
     return banks
 @
 
@@ -488,7 +519,9 @@ def load_bank(path, name):
         if title is None:
             raise DrawError(f"Banken {name} har en fråga utan titel")
         if title in seen:
-            raise DrawError(f"Banken {name} har två frågor med titeln {title!r}")
+            raise DrawError(
+                f"Banken {name} har två frågor med titeln {title!r}"
+            )
         seen.add(title)
     return bank
 @
@@ -549,6 +582,32 @@ ger en annan dragning.
 Därför sparar protokollet en kontrollsumma för varje fil
 (\cref{sec:protokoll}).
 
+Reproducerbarheten måste också hålla mellan Python-versioner, eftersom en
+dragning kan behöva göras om på en annan dator eller efter en uppgradering.
+Python lovar bara två saker om [[random]] mellan versioner: att fröet
+fortfarande sås på samma sätt och att [[random()]] då ger samma följd av
+tal.\footnote{%
+  Se avsnittet \enquote{Notes on Reproducibility} i dokumentationen för
+  modulen [[random]]:
+  \url{https://docs.python.org/3/library/random.html}.
+}
+[[choice]] lovas inte: den bygger på en intern metod som har ändrats förut.
+Därför räknar vi fram platsen i listan själva ur [[random()]], ett flyttal i
+\([0, 1)\), som multipliceras med antalet kandidater och avrundas nedåt.
+Det ger varje kandidat samma sannolikhet (utom för en skillnad av storleken
+\(2^{-53}\), som saknar betydelse här).
+Protokollet sparar ändå Python-versionen, så att den som drar om kan se om
+något annat skiljer.
+<<functions>>=
+def pick(rng, candidates):
+    """Return one of `candidates`, chosen with `rng.random()` only.
+
+    Unlike `rng.choice`, this gives the same result for the same seed in
+    every Python version.
+    """
+    return candidates[int(rng.random() * len(candidates))]
+@
+
 Varje dragen fråga sparas tillsammans med positionen, banken och poängen från
 mallen, eftersom provfilen och protokollet behöver allt det.
 <<functions>>=
@@ -567,7 +626,7 @@ def draw(template, banks, rng, avoided=frozenset(), allow_repeats=False):
         name = slot["bank"]
         items = banks[name]["items"]
         <<låt [[candidates]] vara bankens frågor som inte dragits förut>>
-        item = rng.choice(candidates)
+        item = pick(rng, candidates)
         taken.add(item_title(item))
         drawn.append(
             {
@@ -635,42 +694,89 @@ def test_one_item_per_position_from_the_right_bank(tmp_path):
     banks = load_banks(banker, [slot["bank"] for slot in data["positions"]])
     drawn = draw(data, banks, random.Random(1))
     assert [d["position"] for d in drawn] == [1, 2, 3, 4, 5, 6]
-    assert [d["bank"] for d in drawn] == ["1.1", "1.2", "1.3", "2.1", "2.2", "2.3"]
+    assert [d["bank"] for d in drawn] == [
+        "1.1", "1.2", "1.3", "2.1", "2.2", "2.3"
+    ]
     for d in drawn:
         assert item_title(d["item"]).startswith(d["bank"] + " #")
     assert [d["points"] for d in drawn] == [1, 1, 1, 10, 10, 10]
 @
 
 Sedan reproducerbarheten.
+Hjälpfunktionen drar ur den påhittade mallen och ger titlarna.
+<<test helpers>>=
+def drawn_titles(template, banker, seed, **options):
+    data = load_template(template)
+    banks = load_banks(banker, [slot["bank"] for slot in data["positions"]])
+    drawn = draw(data, banks, random.Random(seed), **options)
+    return [item_title(d["item"]) for d in drawn]
+
+
+PINNED_DRAW_2026 = ["1.1 #2", "1.2 #6", "1.3 #6", "2.1 #9", "2.2 #2", "2.3 #3"]
+@
+
 Samma frö ska ge samma frågor.
 Olika frön ska ge olika frågor; med tio frågor per bank och sex positioner är
 sannolikheten att två frön ger samma prov \(10^{-6}\), och eftersom fröna är
 fasta blir testet ändå deterministiskt.
+Det tredje testet låser fast dragningen för ett visst frö.
+Värdena är avlästa från en körning, inte uträknade för hand; testets uppgift
+är att larma om dragningen någon gång ändras, exempelvis om någon byter
+tillbaka till [[choice]] eller om en ny Python-version skulle bryta löftet om
+[[random()]].
 <<test functions>>=
-def drawn_titles(template, banker, seed, **options):
-    data = load_template(template)
-    banks = load_banks(banker, [slot["bank"] for slot in data["positions"]])
-    return [
-        item_title(d["item"]) for d in draw(data, banks, random.Random(seed), **options)
-    ]
-
-
 def test_same_seed_same_draw(tmp_path):
     template, banker = make_exam(tmp_path)
-    assert drawn_titles(template, banker, 7) == drawn_titles(template, banker, 7)
+    first = drawn_titles(template, banker, 7)
+    assert first == drawn_titles(template, banker, 7)
 
 
 def test_different_seeds_different_draws(tmp_path):
     template, banker = make_exam(tmp_path)
-    assert drawn_titles(template, banker, 1) != drawn_titles(template, banker, 2)
+    first = drawn_titles(template, banker, 1)
+    assert first != drawn_titles(template, banker, 2)
+
+
+def test_draw_for_a_seed_is_pinned(tmp_path):
+    template, banker = make_exam(tmp_path)
+    assert drawn_titles(template, banker, 2026) == PINNED_DRAW_2026
 @
 
 Slutligen det som händer när en bank tar slut.
 Bank~2.3 får en enda fråga, och den har dragits tidigare.
 Felet ska nämna just bank~2.3, inte bara säga att något tog slut, och med
 [[allow_repeats]] ska dragningen gå igenom men märka positionen.
-Om samma bank används på två positioner ska de få olika frågor.
+Om samma bank används på två positioner ska de få olika frågor, också när
+upprepning är tillåten och bankens alla frågor har dragits förut; och har
+banken färre frågor än positioner som drar ur den är det ett fel, även med
+upprepning, eftersom samma fråga aldrig får stå två gånger i ett prov.
 <<test functions>>=
+def test_same_bank_twice_with_repeats_gives_different_items(tmp_path):
+    template, banker = make_exam(tmp_path, size=2)
+    data = load_template(template)
+    data["positions"] = [{"bank": "1.1", "points": 1}] * 2
+    banks = load_banks(banker, ["1.1"])
+    for seed in range(20):
+        drawn = draw(
+            data,
+            banks,
+            random.Random(seed),
+            avoided={"1.1 #1", "1.1 #2"},
+            allow_repeats=True,
+        )
+        assert {item_title(d["item"]) for d in drawn} == {"1.1 #1", "1.1 #2"}
+        assert all(d["repeated"] for d in drawn)
+
+
+def test_too_few_items_for_the_positions_is_an_error(tmp_path):
+    template, banker = make_exam(tmp_path, size=1)
+    data = load_template(template)
+    data["positions"] = [{"bank": "1.1", "points": 1}] * 2
+    banks = load_banks(banker, ["1.1"])
+    with pytest.raises(DrawError, match="Banken 1.1 har för få frågor"):
+        draw(data, banks, random.Random(1), allow_repeats=True)
+
+
 def test_exhausted_bank_is_an_error_naming_it(tmp_path):
     template, banker = make_exam(tmp_path, sizes={"2.3": 1})
     with pytest.raises(DrawError, match="Banken 2.3 .position 6. har inga"):
@@ -763,7 +869,8 @@ def canvaslms_example():
         check=True,
     ).stdout
     lines = output.splitlines()
-    example, _ = json.JSONDecoder().raw_decode("\n".join(lines[lines.index("{") :]))
+    start = "\n".join(lines[lines.index("{") :])
+    example, _ = json.JSONDecoder().raw_decode(start)
     return example
 @
 
@@ -777,7 +884,8 @@ def test_quiz_file_has_exactly_the_canvaslms_keys(tmp_path):
     assert quiz["settings"] == data["settings"]
     for item in quiz["items"]:
         assert set(item) == ITEM_KEYS
-    assert [i["points_possible"] for i in quiz["items"]] == [1, 1, 1, 10, 10, 10]
+    points = [i["points_possible"] for i in quiz["items"]]
+    assert points == [1, 1, 1, 10, 10, 10]
 
 
 @pytest.mark.skipif(shutil.which("canvaslms") is None, reason="needs canvaslms")
@@ -806,6 +914,8 @@ Därför sparar vi också en kontrollsumma (SHA-256) för mallen, för varje ban
 och för varje protokoll som dragningen undvek.
 Med fröet och kontrollsummorna kan vem som helst avgöra om en ny dragning med
 samma frö skulle bli densamma: är filerna oförändrade blir den det.
+Två saker till påverkar dragningen och sparas därför också: om upprepning var
+tillåten, och Python-versionen (se \cref{sec:dra}).
 <<functions>>=
 def file_checksum(path):
     """Return the SHA-256 hex digest of the file at `path`."""
@@ -819,7 +929,9 @@ def file_entry(path):
 
 Datumet skickas in, så att funktionen inte läser klockan själv.
 <<functions>>=
-def draw_record(seed, template_path, bank_paths, avoided_paths, drawn, now):
+def draw_record(
+    seed, template_path, bank_paths, avoided_paths, allow_repeats, drawn, now
+):
     """Return the draw record of `drawn`.
 
     `bank_paths` maps bank names to their files; `now` is the time of the
@@ -828,6 +940,8 @@ def draw_record(seed, template_path, bank_paths, avoided_paths, drawn, now):
     return {
         "date": now.isoformat(timespec="seconds"),
         "seed": seed,
+        "python": sys.version,
+        "allow_repeats": allow_repeats,
         "template": file_entry(template_path),
         "banks": {name: file_entry(path) for name, path in bank_paths.items()},
         "avoided": [file_entry(path) for path in avoided_paths],
@@ -859,7 +973,9 @@ def read_avoided(paths):
     avoided = set()
     for path in paths:
         record = read_json(path, "Protokollet")
-        positions = record.get("positions") if isinstance(record, dict) else None
+        positions = None
+        if isinstance(record, dict):
+            positions = record.get("positions")
         if not isinstance(positions, list):
             raise DrawError(f"{path} är inte ett dragningsprotokoll")
         for slot in positions:
@@ -887,10 +1003,21 @@ def items_file(drawn):
 @
 
 Programmet byter inte frågorna själv (se inledningen).
-Så här gör vi för hand, med provet [[Datorprov]] i kursen [[prgi26]] som
-exempel.
+Så här gör vi för hand.
 Gör det bara innan någon har börjat skriva: att ta bort frågor ur ett prov med
 inlämningar påverkar dem.
+
+Vi pekar ut kursrummet och provet med deras Canvas-id, förankrade som
+[[^63874$]], och inte med namn.
+Både [[-c]] och [[-a]] är reguljära uttryck som söker var som helst i namnet,
+och [[items list]] och [[items delete]] tar den första träff de hittar.
+Flera examinationsrum har ett prov som heter \enquote{Datorprov}, och med
+[[--force]] frågar [[items delete]] inte först, så ett namn kunde tömma fel
+prov utan att vi märkte det.
+Id:na får vi med [[canvaslms courses -i]] och [[canvaslms quizzes list -i -c
+...]].
+Allt som har frågornas text i sig, exporterna och frågefilen, ligger under
+[[banker/]], som inte versionshanteras (\cref{sec:skriva}).
 \begin{enumerate}
   \item Exportera de nuvarande frågorna, så att vi kan ångra.
   \item Ta bort frågorna.
@@ -904,39 +1031,45 @@ inlämningar påverkar dem.
     [[diff]] ska inte skriva ut något.
 \end{enumerate}
 \begin{verbatim}
-c=prgi26; q=Datorprov
-canvaslms quizzes items export -c $c -a $q -I > före.json
-canvaslms quizzes items list -c $c -a $q | tail -n +2 | cut -f 2 \
+cd banker/dragningar
+c='^12345$'   # examinationsrummets Canvas-id
+q='^67890$'   # provets Canvas-id
+canvaslms quizzes items export -c "$c" -a "$q" -I > före.json
+canvaslms quizzes items list -c "$c" -a "$q" | tail -n +2 | cut -f 2 \
   | while read id; do
-      canvaslms quizzes items delete -c $c -a $q \
+      canvaslms quizzes items delete -c "$c" -a "$q" \
         --id "$id" --force
     done
-canvaslms quizzes items add -c $c -a $q -f frågor.json
-canvaslms quizzes items export -c $c -a $q -I > efter.json
+canvaslms quizzes items add -c "$c" -a "$q" -f frågor-2026-11-20.json
+canvaslms quizzes items export -c "$c" -a "$q" -I > efter.json
 fält='.items[] | [.position, .points_possible, .entry.title]'
-diff <(jq -c "$fält" frågor.json) <(jq -c "$fält" efter.json)
+diff <(jq -c "$fält" frågor-2026-11-20.json) <(jq -c "$fält" efter.json)
 \end{verbatim}
-Ett alternativ är [[canvaslms quizzes edit -f prov.json --replace-items]],
-som byter alla frågor i ett steg och frågar först om det finns inlämningar.
+Ett alternativ är [[canvaslms quizzes edit --replace-items]] med provfilen
+([[-c "$c" -a "$q" -f prov-2026-11-20.json]]), som byter alla frågor i ett
+steg och frågar först om det finns inlämningar.
 Det skriver dock även över provets inställningar med mallens, så det passar
 när mallen är den som gäller.
 
 
 \section{Kommandoraden}\label{sec:kommandorad}
 
-Ett körexempel, med bankerna i [[json/]] och den första omgången i november:
+Ett körexempel, från [[adm/datorprov]], med mallen och bankerna under
+[[banker/]] och den första omgången i november:
 \begin{verbatim}
-./dra.py Datorprov.json --banker json/ \
-    --prov prov-2026-11-20.json \
-    --protokoll dragning-2026-11-20.json
+./dra.py banker/Datorprov.json --banker banker/json \
+    --prov banker/dragningar/prov-2026-11-20.json \
+    --protokoll banker/dragningar/dragning-2026-11-20.json
 \end{verbatim}
 och vid omprovet:
 \begin{verbatim}
-./dra.py Datorprov.json --banker json/ \
-    --undvik dragning-2026-11-20.json \
-    --prov prov-2026-12-18.json \
-    --protokoll dragning-2026-12-18.json
+./dra.py banker/Datorprov.json --banker banker/json \
+    --undvik banker/dragningar/dragning-2026-11-20.json \
+    --prov banker/dragningar/prov-2026-12-18.json \
+    --protokoll banker/dragningar/dragning-2026-12-18.json
 \end{verbatim}
+Allt hamnar under [[banker/]], eftersom provfilen innehåller frågornas hela
+text (\cref{sec:skriva}).
 
 Programmet skriver ut ett fel och avslutar med status~1 när indata inte
 duger, och returnerar statusen i stället för att avsluta, så att testerna kan
@@ -963,12 +1096,16 @@ def parse_args(argv):
         description="Dra en fråga per position till ett Datorprov ur "
         "lokala frågebanker. Skriver aldrig till Canvas."
     )
-    parser.add_argument("mall", help="provmallen, JSON med settings och positions")
+    parser.add_argument(
+        "mall", help="provmallen, JSON med settings och positions"
+    )
     parser.add_argument(
         "--banker", required=True, help="katalogen med bankerna, <bank>.json"
     )
     parser.add_argument(
-        "--prov", required=True, help="provfilen för canvaslms quizzes create -f"
+        "--prov",
+        required=True,
+        help="provfilen för canvaslms quizzes create -f",
     )
     parser.add_argument(
         "--protokoll",
@@ -994,6 +1131,12 @@ def parse_args(argv):
         action="store_true",
         help="dra tidigare frågor igen när en bank har tagit slut",
     )
+    parser.add_argument(
+        "--skriv-over",
+        action="store_true",
+        help="skriv över en befintlig provfil eller frågefil "
+        "(aldrig protokollet)",
+    )
     return parser.parse_args(argv)
 @
 
@@ -1007,25 +1150,35 @@ SEED_BITS = 64
 @
 
 Sedan följer stegen ovan i ordning.
-Protokollet skrivs först, och aldrig över en befintlig fil.
-Ett protokoll är historik: skrevs det över skulle [[--undvik]] vid nästa
-tillfälle missa det provets frågor.
-Genom att skriva det först stoppas allt redan där, innan någon provfil har
-skrivits, om filnamnet råkar vara upptaget.
+Utfilerna kontrolleras innan något dras, så att ett fel i ett filnamn inte
+kostar en dragning, och skrivs sist, tillsammans (\cref{sec:skriva}).
 <<dra provet och skriv filerna>>=
 template = load_template(args.mall)
-banks = load_banks(args.banker, [slot["bank"] for slot in template["positions"]])
+names = [slot["bank"] for slot in template["positions"]]
+banks = load_banks(args.banker, names)
+bank_paths = {
+    name: pathlib.Path(args.banker) / f"{name}.json" for name in banks
+}
+outputs = {"--prov": args.prov, "--protokoll": args.protokoll}
+if args.fragor:
+    outputs["--fragor"] = args.fragor
+check_outputs(
+    outputs, [args.mall, *bank_paths.values(), *args.undvik], args.skriv_over
+)
 avoided = read_avoided(args.undvik)
 seed = args.seed if args.seed is not None else secrets.randbits(SEED_BITS)
-drawn = draw(template, banks, random.Random(seed), avoided, args.tillat_upprepning)
+drawn = draw(
+    template, banks, random.Random(seed), avoided, args.tillat_upprepning
+)
 <<varna för upprepade frågor>>
-bank_paths = {name: pathlib.Path(args.banker) / f"{name}.json" for name in banks}
 now = datetime.datetime.now().astimezone()
-record = draw_record(seed, args.mall, bank_paths, args.undvik, drawn, now)
-write_json(args.protokoll, record, overwrite=False)
-write_json(args.prov, quiz_file(template, drawn))
+record = draw_record(
+    seed, args.mall, bank_paths, args.undvik, args.tillat_upprepning, drawn, now
+)
+files = [(args.prov, quiz_file(template, drawn))]
 if args.fragor:
-    write_json(args.fragor, items_file(drawn))
+    files.append((args.fragor, items_file(drawn)))
+write_outputs(files, args.protokoll, record, args.skriv_over)
 @
 
 En upprepad fråga är tillåten bara för att användaren bad om det, men den ska
@@ -1040,23 +1193,186 @@ for d in drawn:
         )
 @
 
+
+\subsection{Att skriva filerna säkert}\label{sec:skriva}
+
+Programmet skriver tre sorters filer, och två av dem är känsliga på olika
+sätt.
+Protokollet är historik: skrivs det över missar [[--undvik]] vid nästa
+tillfälle det provets frågor.
+Provfilen och frågefilen innehåller frågornas hela text, och arkivet är
+öppet: hamnar de i en incheckning är frågorna publicerade.
+Vi skyddar mot båda innan något skrivs, med tre kontroller.
+
+\paragraph{Ingen utfil får vara en annan fil.}
+Ett felskrivet filnamn kan peka på en fil vi behöver: [[--prov]] samma som
+ett tidigare protokoll, eller [[--prov]] och [[--protokoll]] samma fil.
+Vi jämför de upplösta sökvägarna, så att [[./a.json]] och [[a.json]] räknas
+som samma fil, och utfilerna får varken vara samma som varandra eller som
+någon av indatafilerna.
+\paragraph{Ingen utfil skrivs över utan att vi bett om det.}
+Protokollet skrivs aldrig över.
+Provfilen och frågefilen får skrivas över med [[--skriv-over]], till exempel
+när vi drar om med samma frö; de går alltid att skapa igen ur protokollet,
+vilket protokollet inte gör.
+\paragraph{Ingen utfil får kunna checkas in.}
+Ligger en utfil i en git-arbetskatalog måste git ignorera den
+([[git check-ignore]]), annars vägrar programmet.
+Kontrollen gäller oavsett var arkivet ligger, så den skyddar även när någon
+skriver till fel katalog i ett annat arkiv.
+<<functions>>=
+def check_outputs(outputs, inputs, overwrite=False):
+    """Check the output files before anything is drawn or written.
+
+    `outputs` maps option names (e.g. "--prov") to paths, `inputs` lists
+    the files read.  Raises `DrawError` if two outputs are the same file,
+    an output is an input, an output exists (the record always, the others
+    unless `overwrite`), or git would track an output.
+    """
+    seen = {}
+    read = {pathlib.Path(path).resolve() for path in inputs}
+    for option, path in outputs.items():
+        resolved = pathlib.Path(path).resolve()
+        if resolved in seen:
+            raise DrawError(f"{seen[resolved]} och {option} är samma fil")
+        if resolved in read:
+            raise DrawError(f"{option} {path} är en fil som programmet läser")
+        seen[resolved] = option
+        if resolved.exists() and option == "--protokoll":
+            raise DrawError(
+                f"{path} finns redan; ett protokoll skrivs aldrig över"
+            )
+        if resolved.exists() and not overwrite:
+            raise DrawError(
+                f"{option} {path} finns redan; använd --skriv-over för att "
+                "ersätta den"
+            )
+        if tracked_by_git(resolved):
+            raise DrawError(
+                f"{option} {path} skulle kunna checkas in i git. Utfilerna "
+                "innehåller provfrågor eller pekar ut dem, och arkivet är "
+                "öppet; skriv dem till en katalog som git ignorerar, som "
+                "banker/."
+            )
+@
+
+Om en fil ligger i en git-arbetskatalog avgör [[git]] själv; att leta efter
+en [[.git]]-katalog uppåt skulle missa arbetskataloger ([[git worktree]]) och
+undermoduler, där [[.git]] är en fil.
+[[git check-ignore -q]] svarar 0 om filen ignoreras och 1 om den inte gör
+det, och fungerar också för en fil som inte finns än.
+Allt annat än 0 räknar vi som \enquote{spåras}, så att ett fel i [[git]] gör
+att vi vägrar hellre än skriver.
+En fil som redan är incheckad ignoreras aldrig, så den räknas också som
+spårad.
+Finns inte [[git]] alls kan ingen heller råka checka in filen härifrån, och
+då hoppar vi över kontrollen.
+<<functions>>=
+def tracked_by_git(path):
+    """Return True if `path` is in a git work tree that does not ignore it."""
+    directory = path.parent
+    if not directory.is_dir():
+        return False
+    try:
+        inside = subprocess.run(
+            ["git", "-C", str(directory), "rev-parse", "--is-inside-work-tree"],
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        return False
+    if inside.returncode != 0 or inside.stdout.strip() != "true":
+        return False
+    ignored = subprocess.run(
+        ["git", "-C", str(directory), "check-ignore", "-q", path.name],
+        capture_output=True,
+    )
+    return ignored.returncode != 0
+@
+
+En katalog som inte finns räknas inte som spårad här; skrivningen nedan
+misslyckas då ändå, med ett tydligt fel.
+
+\paragraph{Allt eller inget.}
+Filerna skrivs så att en körning antingen lämnar alla utfiler eller ingen.
+Ett protokoll utan provfil vore ett föräldralöst protokoll: det skulle få
+[[--undvik]] att undvika frågor som ingen student mötte.
+En provfil utan protokoll vore värre, ett prov som inte kan undvikas.
+Därför skriver vi först provfilen och frågefilen till tillfälliga filer i
+samma kataloger som de slutliga, sedan protokollet med [[open(..., "x")]],
+som misslyckas om filen finns, och sist flyttar vi de tillfälliga filerna på
+plats.
+En flytt inom en katalog är atomär, så en provfil är antingen den gamla eller
+den nya, aldrig halvskriven.
+Utan [[--skriv-over]] flyttar vi med en hårdlänk ([[os.link]]), som precis
+som [[open(..., "x")]] misslyckas om filen hunnit dyka upp sedan
+kontrollen; med [[--skriv-over]] med [[os.replace]].
+Går något fel på vägen tar vi bort det som just den här körningen har skapat
+och avslutar med ett meddelande i stället för en spårutskrift.
+En fil som [[--skriv-over]] redan hunnit ersätta kan vi inte återställa,
+men den går att skapa igen ur protokollet med samma frö.
+<<functions>>=
+def write_outputs(files, record_path, record, overwrite=False):
+    """Write `files`, a list of (path, data), and the record, all or none.
+
+    Raises `DrawError` after removing what this call created if anything
+    fails.
+    """
+    temporary, created = [], []
+    try:
+        for path, data in files:
+            temp = temporary_path(path)
+            temporary.append((temp, path))
+            write_json(temp, data, mode="x")
+        write_json(record_path, record, mode="x")
+        created.append(record_path)
+        for temp, path in temporary:
+            if overwrite:
+                existed = os.path.exists(path)
+                os.replace(temp, path)
+                if not existed:
+                    created.append(path)
+            else:
+                os.link(temp, path)
+                created.append(path)
+                os.unlink(temp)
+    except OSError as err:
+        for path in created:
+            pathlib.Path(path).unlink(missing_ok=True)
+        reason = err.strerror
+        if isinstance(err, FileExistsError):
+            reason = "finns redan"
+        raise DrawError(
+            f"kunde inte skriva {err.filename or 'utfilerna'}: {reason}; "
+            "inga nya utfiler från denna körning ligger kvar"
+        ) from None
+    finally:
+        for temp, _ in temporary:
+            pathlib.Path(temp).unlink(missing_ok=True)
+@
+
 Filerna skrivs med [[ensure_ascii=False]], så att svenska tecken i frågorna
 går att läsa i filen, och med indrag, så att ett protokoll går att läsa och
 jämföra med [[diff]].
+Den tillfälliga filen får ett namn som börjar med en punkt och slutar på
+[[.tmp]], så att den inte förväxlas med en riktig provfil om programmet
+skulle avbrytas hårt.
+Namnet har en slumpad del, som [[tempfile]] gör, men vi skapar filen själva
+med [[open(..., "x")]] i [[write_outputs]].
+Då står den i listan över tillfälliga filer innan något har skrivits till
+den, och tas bort även om skrivningen misslyckas halvvägs.
 <<functions>>=
-def write_json(path, data, overwrite=True):
-    """Write `data` as JSON to `path`.
+def write_json(path, data, mode="w"):
+    """Write `data` as JSON to `path`, opened with `mode`."""
+    with open(path, mode, encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+        file.write("\n")
 
-    With `overwrite` false, raises `DrawError` if `path` already exists.
-    """
-    try:
-        with open(path, "w" if overwrite else "x", encoding="utf-8") as file:
-            json.dump(data, file, ensure_ascii=False, indent=2)
-            file.write("\n")
-    except FileExistsError:
-        raise DrawError(
-            f"{path} finns redan; ett protokoll skrivs aldrig över"
-        ) from None
+
+def temporary_path(path):
+    """Return a fresh hidden temporary name in the directory of `path`."""
+    directory, name = os.path.split(os.path.abspath(path))
+    return os.path.join(directory, f".{name}.{secrets.token_hex(8)}.tmp")
 @
 
 \subsection{Tester av hela programmet}
@@ -1107,6 +1423,16 @@ def test_fresh_seed_is_recorded_and_reproduces(tmp_path):
     seed = read(protokoll)["seed"]
     run_dra(tmp_path, template, banker, "b", "--seed", str(seed))
     assert prov.read_bytes() == (tmp_path / "b-prov.json").read_bytes()
+
+
+def test_fresh_seeds_differ_between_runs(tmp_path):
+    template, banker = make_exam(tmp_path)
+    run_dra(tmp_path, template, banker, "a")
+    run_dra(tmp_path, template, banker, "b")
+    assert (
+        read(tmp_path / "a-protokoll.json")["seed"]
+        != read(tmp_path / "b-protokoll.json")["seed"]
+    )
 @
 
 Protokollet ska stämma med provfilen och med filerna det bygger på.
@@ -1115,7 +1441,9 @@ programmets funktion.
 <<test functions>>=
 def test_record_matches_quiz_and_files(tmp_path):
     template, banker = make_exam(tmp_path)
-    status, prov, protokoll = run_dra(tmp_path, template, banker, "a", "--seed", "5")
+    status, prov, protokoll = run_dra(
+        tmp_path, template, banker, "a", "--seed", "5"
+    )
     quiz, record = read(prov), read(protokoll)
     assert record["seed"] == 5
     assert record["template"]["sha256"] == hashlib.sha256(
@@ -1132,6 +1460,29 @@ def test_record_matches_quiz_and_files(tmp_path):
         (i["position"], i["entry"]["title"], i["points_possible"])
         for i in quiz["items"]
     ]
+    assert record["python"] == sys.version
+    assert record["allow_repeats"] is False
+@
+
+En upprepning ska synas i protokollet, både att den var tillåten och vilken
+position som upprepar.
+<<test functions>>=
+def test_record_shows_repeats(tmp_path):
+    template, banker = make_exam(tmp_path, sizes={"2.3": 1})
+    run_dra(tmp_path, template, banker, "a")
+    status, _, protokoll = run_dra(
+        tmp_path,
+        template,
+        banker,
+        "b",
+        "--tillat-upprepning",
+        "--undvik",
+        str(tmp_path / "a-protokoll.json"),
+    )
+    assert status == 0
+    record = read(protokoll)
+    assert record["allow_repeats"] is True
+    assert [p["repeated"] for p in record["positions"]] == [False] * 5 + [True]
 @
 
 Med [[--undvik]] ska omprovet inte innehålla någon fråga från första
@@ -1151,8 +1502,10 @@ def test_undvik_excludes_earlier_draws(tmp_path):
         "--undvik",
         str(tmp_path / "a-protokoll.json"),
     )
-    first = {p["title"] for p in read(tmp_path / "a-protokoll.json")["positions"]}
-    second = {p["title"] for p in read(tmp_path / "b-protokoll.json")["positions"]}
+    first = {p["title"] for p in read(tmp_path / "a-protokoll.json")
+             ["positions"]}
+    second = {p["title"] for p in read(tmp_path / "b-protokoll.json")
+              ["positions"]}
     assert len(second) == 6
     assert first.isdisjoint(second)
 
@@ -1161,33 +1514,166 @@ def test_exhausted_bank_stops_the_program(tmp_path, capsys):
     template, banker = make_exam(tmp_path, sizes={"1.3": 1})
     run_dra(tmp_path, template, banker, "a")
     status, prov, protokoll = run_dra(
-        tmp_path, template, banker, "b", "--undvik", str(tmp_path / "a-protokoll.json")
+        tmp_path,
+        template,
+        banker,
+        "b",
+        "--undvik",
+        str(tmp_path / "a-protokoll.json"),
     )
     assert status == 1
     assert "Banken 1.3" in capsys.readouterr().err
     assert not prov.exists() and not protokoll.exists()
 @
 
-Ett befintligt protokoll ska inte skrivas över, och då ska inte heller
-provfilen skrivas.
+Ett befintligt protokoll ska inte skrivas över, inte ens med
+[[--skriv-over]], och då ska inte heller provfilen skrivas.
 Frågefilen ska innehålla samma frågor som provfilen.
 <<test functions>>=
 def test_existing_record_is_never_overwritten(tmp_path, capsys):
     template, banker = make_exam(tmp_path)
     protokoll = tmp_path / "b-protokoll.json"
     protokoll.write_text("tidigare\n", encoding="utf-8")
-    status, prov, _ = run_dra(tmp_path, template, banker, "b")
-    assert status == 1
-    assert protokoll.read_text(encoding="utf-8") == "tidigare\n"
-    assert not prov.exists()
-    assert "finns redan" in capsys.readouterr().err
+    for options in [(), ("--skriv-over",)]:
+        status, prov, _ = run_dra(tmp_path, template, banker, "b", *options)
+        assert status == 1
+        assert protokoll.read_text(encoding="utf-8") == "tidigare\n"
+        assert not prov.exists()
+        assert "skrivs aldrig över" in capsys.readouterr().err
 
 
 def test_items_file_has_the_quiz_items(tmp_path):
     template, banker = make_exam(tmp_path)
     fragor = tmp_path / "fragor.json"
-    status, prov, _ = run_dra(tmp_path, template, banker, "a", "--fragor", str(fragor))
+    status, prov, _ = run_dra(
+        tmp_path, template, banker, "a", "--fragor", str(fragor)
+    )
     assert read(fragor) == {"items": read(prov)["items"]}
+@
+
+En befintlig provfil skrivs bara över med [[--skriv-over]].
+<<test functions>>=
+def test_existing_quiz_file_needs_skriv_over(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    prov = tmp_path / "b-prov.json"
+    prov.write_text("tidigare\n", encoding="utf-8")
+    status, _, protokoll = run_dra(tmp_path, template, banker, "b")
+    assert status == 1
+    assert "--skriv-over" in capsys.readouterr().err
+    assert prov.read_text(encoding="utf-8") == "tidigare\n"
+    assert not protokoll.exists()
+    status, _, _ = run_dra(tmp_path, template, banker, "b", "--skriv-over")
+    assert status == 0
+    assert set(read(prov)) == QUIZ_KEYS
+@
+
+Ingen utfil får vara en annan fil: varken ett tidigare protokoll som vi
+undviker, eller en annan utfil.
+Vi skriver sökvägen till protokollet på ett annat sätt än i [[--undvik]], så
+att testet visar att jämförelsen görs på de upplösta sökvägarna.
+<<test functions>>=
+def test_quiz_file_may_not_be_an_earlier_record(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    run_dra(tmp_path, template, banker, "a")
+    earlier = tmp_path / "a-protokoll.json"
+    before = earlier.read_bytes()
+    status = main(
+        [
+            str(template),
+            "--banker",
+            str(banker),
+            "--undvik",
+            str(earlier),
+            "--prov",
+            str(tmp_path / "." / "a-protokoll.json"),
+            "--protokoll",
+            str(tmp_path / "c-protokoll.json"),
+            "--skriv-over",
+        ]
+    )
+    assert status == 1
+    assert "läser" in capsys.readouterr().err
+    assert earlier.read_bytes() == before
+    assert not (tmp_path / "c-protokoll.json").exists()
+
+
+def test_quiz_file_and_record_may_not_be_the_same(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    same = tmp_path / "samma.json"
+    status = main(
+        [
+            str(template),
+            "--banker",
+            str(banker),
+            "--prov",
+            str(same),
+            "--protokoll",
+            str(same),
+        ]
+    )
+    assert status == 1
+    assert "samma fil" in capsys.readouterr().err
+    assert not same.exists()
+@
+
+Kontrollen mot git testar vi i ett riktigt, tillfälligt arkiv.
+Först vägrar programmet att skriva dit; när arkivet ignorerar JSON-filer går
+det bra.
+<<test functions>>=
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
+def test_outputs_git_would_track_are_refused(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    status, prov, protokoll = run_dra(repo, template, banker, "a")
+    assert status == 1
+    assert "checkas in" in capsys.readouterr().err
+    assert list(repo.iterdir()) == [repo / ".git"]
+    (repo / ".gitignore").write_text("*.json\n", encoding="utf-8")
+    status, prov, protokoll = run_dra(repo, template, banker, "a")
+    assert status == 0
+    assert prov.exists() and protokoll.exists()
+@
+
+Slutligen allt-eller-inget.
+Vi får skrivningen av provfilen att misslyckas på två sätt: katalogen finns
+inte, så redan den tillfälliga filen går inte att skapa; och provfilen är en
+katalog, så att flytten på plats misslyckas först efter att protokollet har
+skrivits.
+I båda fallen ska programmet avsluta med ett meddelande och inte lämna något
+protokoll eller några tillfälliga filer efter sig.
+<<test functions>>=
+def test_failed_quiz_file_leaves_no_record(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    protokoll = tmp_path / "a-protokoll.json"
+    status = main(
+        [
+            str(template),
+            "--banker",
+            str(banker),
+            "--prov",
+            str(tmp_path / "saknas" / "prov.json"),
+            "--protokoll",
+            str(protokoll),
+        ]
+    )
+    assert status == 1
+    assert "kunde inte skriva" in capsys.readouterr().err
+    assert not protokoll.exists()
+
+
+def test_failed_move_removes_the_record(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    (tmp_path / "a-prov.json").mkdir()
+    status, prov, protokoll = run_dra(
+        tmp_path, template, banker, "a", "--skriv-over"
+    )
+    assert status == 1
+    assert "kunde inte skriva" in capsys.readouterr().err
+    assert not protokoll.exists()
+    assert prov.is_dir()
+    assert not [p for p in tmp_path.iterdir() if p.name.endswith(".tmp")]
 @
 
 \end{document}
