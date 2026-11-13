@@ -1151,7 +1151,8 @@ SEED_BITS = 64
 
 Sedan följer stegen ovan i ordning.
 Utfilerna kontrolleras innan något dras, så att ett fel i ett filnamn inte
-kostar en dragning, och skrivs sist, tillsammans (\cref{sec:skriva}).
+kostar en dragning, och skrivs sist, protokollet först
+(\cref{sec:skriva}).
 <<dra provet och skriv filerna>>=
 template = load_template(args.mall)
 names = [slot["bank"] for slot in template["positions"]]
@@ -1215,6 +1216,12 @@ Protokollet skrivs aldrig över.
 Provfilen och frågefilen får skrivas över med [[--skriv-over]], till exempel
 när vi drar om med samma frö; de går alltid att skapa igen ur protokollet,
 vilket protokollet inte gör.
+Men inte heller med [[--skriv-over]] får en provfil ersätta ett protokoll.
+Ett tidigare protokoll är bara en indatafil om vi ger det till [[--undvik]],
+så den första kontrollen fångar inte ett [[--prov]] som av misstag pekar på
+ett protokoll vi glömde att undvika.
+Därför tittar vi i varje befintlig fil som skulle skrivas över, och ser den
+ut som ett protokoll vägrar vi.
 \paragraph{Ingen utfil får kunna checkas in.}
 Ligger en utfil i en git-arbetskatalog måste git ignorera den
 ([[git check-ignore]]), annars vägrar programmet.
@@ -1226,8 +1233,9 @@ def check_outputs(outputs, inputs, overwrite=False):
 
     `outputs` maps option names (e.g. "--prov") to paths, `inputs` lists
     the files read.  Raises `DrawError` if two outputs are the same file,
-    an output is an input, an output exists (the record always, the others
-    unless `overwrite`), or git would track an output.
+    an output is an input, an output exists (the record always, a draw
+    record always, the others unless `overwrite`), or git would track an
+    output.
     """
     seen = {}
     read = {pathlib.Path(path).resolve() for path in inputs}
@@ -1238,15 +1246,8 @@ def check_outputs(outputs, inputs, overwrite=False):
         if resolved in read:
             raise DrawError(f"{option} {path} är en fil som programmet läser")
         seen[resolved] = option
-        if resolved.exists() and option == "--protokoll":
-            raise DrawError(
-                f"{path} finns redan; ett protokoll skrivs aldrig över"
-            )
-        if resolved.exists() and not overwrite:
-            raise DrawError(
-                f"{option} {path} finns redan; använd --skriv-over för att "
-                "ersätta den"
-            )
+        if resolved.exists():
+            <<vägra skriva över [[resolved]] om den inte får ersättas>>
         if tracked_by_git(resolved):
             raise DrawError(
                 f"{option} {path} skulle kunna checkas in i git. Utfilerna "
@@ -1256,117 +1257,210 @@ def check_outputs(outputs, inputs, overwrite=False):
             )
 @
 
+<<vägra skriva över [[resolved]] om den inte får ersättas>>=
+if option == "--protokoll":
+    raise DrawError(f"{path} finns redan; ett protokoll skrivs aldrig över")
+if is_draw_record(resolved):
+    raise DrawError(
+        f"{option} {path} är ett dragningsprotokoll; ett protokoll skrivs "
+        "aldrig över, inte heller med --skriv-over"
+    )
+if not overwrite:
+    raise DrawError(
+        f"{option} {path} finns redan; använd --skriv-over för att "
+        "ersätta den"
+    )
+@
+
+Ett protokoll känner vi igen på att det är ett JSON-objekt med både
+[[seed]] och [[positions]]; en provfil har [[settings]] och [[items]], och en
+frågefil bara [[items]].
+En fil som inte går att läsa som JSON är inget protokoll, och för den gäller
+de vanliga reglerna.
+<<functions>>=
+def is_draw_record(path):
+    """Return True if the file at `path` is a draw record of this program."""
+    try:
+        with open(path, encoding="utf-8") as file:
+            data = json.load(file)
+    except (OSError, ValueError):
+        return False
+    return isinstance(data, dict) and "seed" in data and "positions" in data
+@
+
 Om en fil ligger i en git-arbetskatalog avgör [[git]] själv; att leta efter
 en [[.git]]-katalog uppåt skulle missa arbetskataloger ([[git worktree]]) och
 undermoduler, där [[.git]] är en fil.
-[[git check-ignore -q]] svarar 0 om filen ignoreras och 1 om den inte gör
-det, och fungerar också för en fil som inte finns än.
-Allt annat än 0 räknar vi som \enquote{spåras}, så att ett fel i [[git]] gör
-att vi vägrar hellre än skriver.
+Vi frågar först [[git rev-parse --is-inside-work-tree]].
+Bara ett svar betyder att filen inte kan checkas in: att katalogen inte ligger
+i något arkiv alls (\enquote{not a git repository}).
+Alla andra fel, exempelvis att git inte litar på arkivets ägare
+(\enquote{dubious ownership}) eller att konfigurationen inte går att läsa,
+betyder att det finns ett arkiv som vi inte kan fråga, och då vägrar vi
+hellre än skriver.
+Vi kör git med [[LC_ALL=C]], så att felmeddelandet är det engelska som vi
+jämför med, oavsett användarens språk.
+Svarar git [[false]] står vi inne i själva [[.git]]-katalogen, där inget
+checkas in.
+
+Inne i en arbetskatalog svarar [[git check-ignore -q]] 0 om filen ignoreras
+och 1 om den inte gör det, och fungerar också för en fil som inte finns än.
+Allt annat än 0 räknar vi som \enquote{spåras}, av samma skäl.
 En fil som redan är incheckad ignoreras aldrig, så den räknas också som
 spårad.
 Finns inte [[git]] alls kan ingen heller råka checka in filen härifrån, och
 då hoppar vi över kontrollen.
 <<functions>>=
 def tracked_by_git(path):
-    """Return True if `path` is in a git work tree that does not ignore it."""
+    """Return True unless git surely will not track `path`.
+
+    False if git is missing, the directory is in no git repository, or git
+    ignores `path`; True otherwise, also when git fails for other reasons.
+    """
     directory = path.parent
     if not directory.is_dir():
         return False
     try:
-        inside = subprocess.run(
-            ["git", "-C", str(directory), "rev-parse", "--is-inside-work-tree"],
-            capture_output=True,
-            text=True,
-        )
+        inside = run_git(directory, "rev-parse", "--is-inside-work-tree")
     except FileNotFoundError:
         return False
-    if inside.returncode != 0 or inside.stdout.strip() != "true":
+    if inside.returncode != 0:
+        return NOT_A_REPOSITORY not in inside.stderr
+    if inside.stdout.strip() != "true":
         return False
-    ignored = subprocess.run(
-        ["git", "-C", str(directory), "check-ignore", "-q", path.name],
-        capture_output=True,
-    )
+    ignored = run_git(directory, "check-ignore", "-q", path.name)
     return ignored.returncode != 0
+
+
+def run_git(directory, *arguments):
+    """Run git in `directory` with untranslated messages; return the result."""
+    return subprocess.run(
+        ["git", "-C", str(directory), *arguments],
+        capture_output=True,
+        text=True,
+        env=dict(os.environ, LC_ALL="C", LANGUAGE="C"),
+    )
+<<constants>>=
+NOT_A_REPOSITORY = "not a git repository"
 @
 
 En katalog som inte finns räknas inte som spårad här; skrivningen nedan
 misslyckas då ändå, med ett tydligt fel.
 
-\paragraph{Allt eller inget.}
-Filerna skrivs så att en körning antingen lämnar alla utfiler eller ingen.
-Ett protokoll utan provfil vore ett föräldralöst protokoll: det skulle få
-[[--undvik]] att undvika frågor som ingen student mötte.
-En provfil utan protokoll vore värre, ett prov som inte kan undvikas.
-Därför skriver vi först provfilen och frågefilen till tillfälliga filer i
-samma kataloger som de slutliga, sedan protokollet med [[open(..., "x")]],
-som misslyckas om filen finns, och sist flyttar vi de tillfälliga filerna på
-plats.
-En flytt inom en katalog är atomär, så en provfil är antingen den gamla eller
-den nya, aldrig halvskriven.
-Utan [[--skriv-over]] flyttar vi med en hårdlänk ([[os.link]]), som precis
-som [[open(..., "x")]] misslyckas om filen hunnit dyka upp sedan
-kontrollen; med [[--skriv-over]] med [[os.replace]].
-Går något fel på vägen tar vi bort det som just den här körningen har skapat
-och avslutar med ett meddelande i stället för en spårutskrift.
-En fil som [[--skriv-over]] redan hunnit ersätta kan vi inte återställa,
-men den går att skapa igen ur protokollet med samma frö.
+\paragraph{Protokollet först.}
+Det farliga utfallet är en provfil utan protokoll: ett prov som studenter kan
+skriva men som [[--undvik]] inte känner till, så att nästa tillfälle kan få
+samma frågor.
+Det motsatta, ett protokoll utan provfil, är ofarligt: [[--undvik]] undviker
+då frågor som ingen mötte, vilket är det säkra hållet, och provfilen kan
+skapas igen ur protokollet.
+Därför är protokollet den punkt där dragningen blir av, och provfilen och
+frågefilen läggs på plats först efter den.
+
+Vi gör det i tre steg.
+\begin{enumerate}
+\item Alla utfiler, protokollet också, skrivs till tillfälliga filer i samma
+  kataloger som de slutliga, och skrivs ända ut till disken ([[os.fsync]]).
+  Misslyckas en skrivning halvvägs, exempelvis för att disken är full, är det
+  en tillfällig fil som är halvskriven, aldrig protokollet.
+\item Protokollet länkas på plats med en hårdlänk ([[os.link]]), som
+  misslyckas om filen finns, så att ett protokoll som hunnit dyka upp sedan
+  kontrollen inte skrivs över.
+  Misslyckas det finns bara tillfälliga filer, och de tas bort: ingenting har
+  skrivits.
+  Lyckas det tas protokollet aldrig bort igen.
+\item Provfilen och frågefilen läggs på plats, med en hårdlänk eller, med
+  [[--skriv-over]], med [[os.replace]], som byter ut filen i ett enda steg så
+  att den aldrig är halvskriven.
+  Misslyckas det ligger protokollet kvar, och meddelandet säger precis vilka
+  filer som är på plats och hur provfilen skapas igen med samma frö.
+\end{enumerate}
+Tillfälliga filer tas alltid bort, vad som än händer.
+En hårdlänk kräver att filsystemet klarar hårda länkar inom en katalog, vilket
+lokala diskar och AFS gör.
+Gör det inte det misslyckas [[os.link]] med ett fel, och vi hamnar i steg~2
+eller~3 ovan: ingenting skrivs, eller protokollet ligger kvar ensamt.
+Det misslyckas alltså åt det säkra hållet.
 <<functions>>=
 def write_outputs(files, record_path, record, overwrite=False):
-    """Write `files`, a list of (path, data), and the record, all or none.
+    """Write the record, then `files`, a list of (path, data).
 
-    Raises `DrawError` after removing what this call created if anything
-    fails.
+    The record is placed first and is never removed once placed; if a file
+    cannot be placed after it, raises `DrawError` saying what is in place.
+    If the record cannot be placed, nothing is written.  Temporary files
+    are always removed.
     """
-    temporary, created = [], []
+    temporary = {}
     try:
-        for path, data in files:
-            temp = temporary_path(path)
-            temporary.append((temp, path))
-            write_json(temp, data, mode="x")
-        write_json(record_path, record, mode="x")
-        created.append(record_path)
-        for temp, path in temporary:
-            if overwrite:
-                existed = os.path.exists(path)
-                os.replace(temp, path)
-                if not existed:
-                    created.append(path)
-            else:
-                os.link(temp, path)
-                created.append(path)
-                os.unlink(temp)
-    except OSError as err:
-        for path in created:
-            pathlib.Path(path).unlink(missing_ok=True)
-        reason = err.strerror
-        if isinstance(err, FileExistsError):
-            reason = "finns redan"
-        raise DrawError(
-            f"kunde inte skriva {err.filename or 'utfilerna'}: {reason}; "
-            "inga nya utfiler från denna körning ligger kvar"
-        ) from None
+        <<skriv alla utfiler till tillfälliga filer>>
+        <<lägg protokollet på plats, eller skriv ingenting>>
+        <<lägg provfilen och frågefilen på plats>>
     finally:
-        for temp, _ in temporary:
+        for temp in temporary.values():
             pathlib.Path(temp).unlink(missing_ok=True)
+@
+
+Den tillfälliga filen hamnar i [[temporary]] innan något har skrivits till
+den, så att den tas bort även om skrivningen misslyckas halvvägs.
+<<skriv alla utfiler till tillfälliga filer>>=
+try:
+    for path, data in [(record_path, record), *files]:
+        temporary[path] = temporary_path(path)
+        write_json(temporary[path], data, mode="x")
+except OSError as err:
+    raise DrawError(f"{failed_write(err)}; ingenting har skrivits") from None
+<<lägg protokollet på plats, eller skriv ingenting>>=
+try:
+    os.link(temporary[record_path], record_path)
+except OSError as err:
+    raise DrawError(f"{failed_write(err)}; ingenting har skrivits") from None
+@
+
+Efter protokollet håller vi reda på vilka filer som kommit på plats, så att
+meddelandet kan räkna upp dem.
+<<lägg provfilen och frågefilen på plats>>=
+placed = [record_path]
+try:
+    for path, _ in files:
+        if overwrite:
+            os.replace(temporary[path], path)
+        else:
+            os.link(temporary[path], path)
+        placed.append(path)
+except OSError as err:
+    raise DrawError(
+        f"{failed_write(err)}. På plats: {', '.join(map(str, placed))}. "
+        f"Protokollet dokumenterar dragningen; provfilen kan skapas igen "
+        f"med --seed {record['seed']}, samma filer och ett nytt --protokoll."
+    ) from None
+@
+
+Felmeddelandet säger vilken fil det gällde, när systemet vet det; vid en full
+disk vet det inte alltid det.
+<<functions>>=
+def failed_write(err):
+    """Describe the `OSError` `err` from writing an output file."""
+    reason = "finns redan" if isinstance(err, FileExistsError) else err.strerror
+    return f"kunde inte skriva {err.filename or 'utfilerna'}: {reason}"
 @
 
 Filerna skrivs med [[ensure_ascii=False]], så att svenska tecken i frågorna
 går att läsa i filen, och med indrag, så att ett protokoll går att läsa och
 jämföra med [[diff]].
+[[os.fsync]] ser till att innehållet ligger på disken innan filen länkas på
+plats; annars kunde ett strömavbrott lämna ett protokoll med rätt namn men
+utan innehåll.
 Den tillfälliga filen får ett namn som börjar med en punkt och slutar på
 [[.tmp]], så att den inte förväxlas med en riktig provfil om programmet
 skulle avbrytas hårt.
-Namnet har en slumpad del, som [[tempfile]] gör, men vi skapar filen själva
-med [[open(..., "x")]] i [[write_outputs]].
-Då står den i listan över tillfälliga filer innan något har skrivits till
-den, och tas bort även om skrivningen misslyckas halvvägs.
 <<functions>>=
 def write_json(path, data, mode="w"):
-    """Write `data` as JSON to `path`, opened with `mode`."""
+    """Write `data` as JSON to `path`, opened with `mode`, and sync it."""
     with open(path, mode, encoding="utf-8") as file:
         json.dump(data, file, ensure_ascii=False, indent=2)
         file.write("\n")
+        file.flush()
+        os.fsync(file.fileno())
 
 
 def temporary_path(path):
@@ -1636,15 +1730,74 @@ def test_outputs_git_would_track_are_refused(tmp_path, capsys):
     assert prov.exists() and protokoll.exists()
 @
 
-Slutligen allt-eller-inget.
-Vi får skrivningen av provfilen att misslyckas på två sätt: katalogen finns
-inte, så redan den tillfälliga filen går inte att skapa; och provfilen är en
-katalog, så att flytten på plats misslyckas först efter att protokollet har
-skrivits.
-I båda fallen ska programmet avsluta med ett meddelande och inte lämna något
-protokoll eller några tillfälliga filer efter sig.
+Om git inte går att fråga ska programmet vägra, inte skriva.
+Vi provar två sätt som git själv misslyckas på i ett arkiv som ignorerar
+JSON-filer: en trasig konfiguration, och ett arkiv som git inte litar på
+eftersom ägaren är en annan.
+Det senare kan vi inte ordna på riktigt utan att byta ägare på filerna, så vi
+ber git låtsas med [[GIT_TEST_ASSUME_DIFFERENT_OWNER]], en variabel som git
+har för sina egna tester; felet git ger är detsamma.
 <<test functions>>=
-def test_failed_quiz_file_leaves_no_record(tmp_path, capsys):
+def ignoring_repo(tmp_path):
+    repo = tmp_path / "repo"
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    (repo / ".gitignore").write_text("*.json\n", encoding="utf-8")
+    return repo
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
+def test_broken_git_config_is_refused(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    repo = ignoring_repo(tmp_path)
+    (repo / ".git" / "config").write_text("trasig[[\n", encoding="utf-8")
+    status, prov, protokoll = run_dra(repo, template, banker, "a")
+    assert status == 1
+    assert "checkas in" in capsys.readouterr().err
+    assert not prov.exists() and not protokoll.exists()
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="needs git")
+def test_dubious_ownership_is_refused(tmp_path, capsys, monkeypatch):
+    template, banker = make_exam(tmp_path)
+    repo = ignoring_repo(tmp_path)
+    monkeypatch.setenv("GIT_TEST_ASSUME_DIFFERENT_OWNER", "1")
+    status, prov, protokoll = run_dra(repo, template, banker, "a")
+    assert status == 1
+    assert "checkas in" in capsys.readouterr().err
+    assert not prov.exists()
+@
+
+Med [[--skriv-over]] får en provfil skrivas över, men inte ett protokoll,
+inte ens ett som vi glömt att ge till [[--undvik]].
+<<test functions>>=
+def test_skriv_over_never_replaces_a_record(tmp_path, capsys):
+    template, banker = make_exam(tmp_path)
+    run_dra(tmp_path, template, banker, "a")
+    earlier = tmp_path / "a-protokoll.json"
+    before = earlier.read_bytes()
+    status = main(
+        [
+            str(template),
+            "--banker",
+            str(banker),
+            "--prov",
+            str(earlier),
+            "--protokoll",
+            str(tmp_path / "b-protokoll.json"),
+            "--skriv-over",
+        ]
+    )
+    assert status == 1
+    assert "är ett dragningsprotokoll" in capsys.readouterr().err
+    assert earlier.read_bytes() == before
+    assert not (tmp_path / "b-protokoll.json").exists()
+@
+
+Slutligen ordningen när något går fel under skrivningen.
+Finns inte katalogen för provfilen misslyckas redan steg~1, och då ska
+ingenting ha skrivits, inte heller protokollet.
+<<test functions>>=
+def test_failure_before_the_record_writes_nothing(tmp_path, capsys):
     template, banker = make_exam(tmp_path)
     protokoll = tmp_path / "a-protokoll.json"
     status = main(
@@ -1659,21 +1812,52 @@ def test_failed_quiz_file_leaves_no_record(tmp_path, capsys):
         ]
     )
     assert status == 1
-    assert "kunde inte skriva" in capsys.readouterr().err
+    assert "ingenting har skrivits" in capsys.readouterr().err
     assert not protokoll.exists()
+    assert not [p for p in tmp_path.iterdir() if p.name.endswith(".tmp")]
+@
 
-
-def test_failed_move_removes_the_record(tmp_path, capsys):
+Misslyckas något efter protokollet ska protokollet ligga kvar och
+meddelandet säga vad som är på plats.
+Här skriver vi över en befintlig provfil med [[--skriv-over]], medan
+frågefilen pekar på en katalog, så att den sista flytten misslyckas.
+Då ligger både protokollet och den nya provfilen på plats, och de ska höra
+ihop.
+<<test functions>>=
+def test_failure_after_the_record_keeps_it_and_says_so(tmp_path, capsys):
     template, banker = make_exam(tmp_path)
-    (tmp_path / "a-prov.json").mkdir()
+    prov = tmp_path / "a-prov.json"
+    prov.write_text("gammal\n", encoding="utf-8")
+    fragor = tmp_path / "fragor"
+    fragor.mkdir()
     status, prov, protokoll = run_dra(
-        tmp_path, template, banker, "a", "--skriv-over"
+        tmp_path, template, banker, "a", "--skriv-over", "--fragor", str(fragor)
     )
     assert status == 1
-    assert "kunde inte skriva" in capsys.readouterr().err
-    assert not protokoll.exists()
-    assert prov.is_dir()
+    err = capsys.readouterr().err
+    assert f"På plats: {protokoll}, {prov}." in err
+    assert f"--seed {read(protokoll)['seed']}" in err
+    assert [p["title"] for p in read(protokoll)["positions"]] == [
+        i["entry"]["title"] for i in read(prov)["items"]
+    ]
+    assert fragor.is_dir()
     assert not [p for p in tmp_path.iterdir() if p.name.endswith(".tmp")]
+@
+
+Ett fel mitt i skrivningen av protokollet, som en full disk, får inte lämna
+ett halvskrivet protokoll efter sig: det skulle stoppa nästa körning och
+inte gå att läsa med [[--undvik]].
+En full disk kan vi inte ordna i ett test, men vi kan få [[json.dump]] att
+avbryta halvvägs med ett värde som inte går att skriva som JSON.
+Felet når anroparen, men varken protokollet eller någon tillfällig fil får
+finnas kvar.
+<<test functions>>=
+def test_half_written_record_never_lands(tmp_path):
+    protokoll = tmp_path / "protokoll.json"
+    record = {"seed": 1, "positions": [], "trasig": object()}
+    with pytest.raises(TypeError):
+        write_outputs([], protokoll, record)
+    assert list(tmp_path.iterdir()) == []
 @
 
 \end{document}
