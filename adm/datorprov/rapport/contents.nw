@@ -1,0 +1,1167 @@
+\mode*
+
+\section[The exam]{The exam and why its question banks mattered}
+\label{sec:exam}
+
+\leavevmode\ltnote{%
+  Relevant learning objectives: \cref{RapportLOStakes}.
+
+  The report opens with the exam as a whole --- its scoring, its banks,
+  its deadline --- before any single item, because a defect can only be
+  weighed against what one item counts for in this exam.  The scoring is
+  met as an exercise (\cref{ex:digits}): the digit encoding is what a
+  colleague is least likely to know, and reading a total oneself shows
+  why partial credit is impossible faster than a stated rule would.
+}%
+The Python part of DD1317 is examined by a computer exam, the
+\foreignlanguage{swedish}{\emph{Datorprov}}: a Canvas New Quiz of 60
+minutes, written in a computer room under Safe Exam Browser.  The browser
+lets the student reach the quiz and nothing else, so the tools the student
+needs are embedded in the quiz: a Python terminal that runs in the browser
+(Pyodide) and the Python documentation.
+
+\begin{frame}
+  \begin{block}{The \foreignlanguage{swedish}{Datorprov}}
+    The exam is a Canvas New Quiz:
+    \begin{itemize}
+      \item 60 minutes in a computer room, under Safe Exam Browser;
+      \item a Python terminal and the Python documentation embedded in
+        the quiz;
+      \item 21 positions, three for each of the learning objectives 1--7;
+      \item each position draws one question at random from a bank of its
+        own.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+Each of the course's seven learning objectives has three positions in the
+exam, and each position draws one question at random from a bank of its
+own.  A student passes an objective with two of its three questions right,
+and the exam with every objective passed.  Canvas gives a quiz a single
+total, so the points have to carry the objectives.  Before you read how,
+try it.
+
+\begin{frame}
+  \begin{exercise}\label{ex:digits}
+    A question at learning objective $L$ is worth $10^{L-1}$ points, so
+    full marks are 3\,333\,333.  To pass, a student needs two of the
+    three questions right for every objective.
+    \begin{enumerate}
+      \item A student scores 3\,213\,332.  Did the student pass?
+      \item Why may no question give partial credit?
+    \end{enumerate}
+  \end{exercise}
+\end{frame}
+
+The total holds one digit per objective, objective~1 in the units and
+objective~7 in the millions, and the pass rule becomes \enquote{every
+digit at least 2}.
+
+\begin{frame}
+  \begin{solution}[Reading the digits]
+    From objective~7 down to objective~1 the digits of 3\,213\,332 are 3,
+    2, 1, 3, 3, 3, 2.  Objective~5 has one question right of three, so
+    the student failed, high as the total looks.
+
+    Half a point at objective~2 would be 5 points, and they land in the
+    digit of objective~1.  Any fraction corrupts the digit below it, so
+    every question is scored all or nothing.
+  \end{solution}
+\end{frame}
+
+A grading script, \texttt{datorprov.sh}, a literate Bash program in the
+course repository, reads the digits from the Canvas results.  The scheme
+also fixes how much a single item weighs.  A student may get one question
+of three wrong per objective, and a defective item at a position uses up
+that one question for every student who draws it.  And since every student
+draws a single item from each bank, a defective item hits some students
+and not others.  Flawed items have been shown to change who passes: in
+four medical-school exams, items that broke the standard rules for
+writing them were harder, and perhaps 10--15 per cent of the students
+were failed by them rather than by what they
+knew.\autocite[133, 141]{Downing2005}\footnote{Across studies the
+effects of flawed items are usually smaller\autocite[209]{Rodriguez2011}.
+The scientific basis is in \cref{app:item-flaws}, which asks whether cues
+and options that refer to other options are flaws and whether flaws
+matter.}
+
+\begin{frame}
+  \begin{block}{Why the banks mattered}
+    One defective item decides a digit:
+    \begin{itemize}
+      \item it uses up the one question a student may miss per objective;
+      \item only the students who draw it are hit.
+    \end{itemize}
+    And the banks were hard to reach:
+    \begin{itemize}
+      \item 21 banks, 218 items, written by others and shared with another
+        course (DD1310);
+      \item Canvas's programming interface answered \texttt{Not Found}:
+        the only way in was an export from the web interface, as QTI;
+      \item the next sitting was two weeks away.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+The banks were shared with another course, DD1310, and written by others.
+Canvas's programming interface, which our tools use, answered
+\texttt{Not Found} for them; the only way to read them was to export the
+live quiz from the web interface as a QTI archive.  The next sitting was
+on 26 November 2026.  The work this report describes took place from 9 to
+13 November, in one long Claude Code session, with the author steering
+from the terminal and from the Canvas web interface.
+
+
+\section[Find the flaw]{Find the flaw: four invented items}
+\label{sec:items}
+
+\leavevmode\ltnote{%
+  Relevant learning objectives: \cref{RapportLOFlaws}.
+
+  The colleagues judge the items before they hear about any defect
+  (try first, tell later), so that the four checks of
+  \cref{sec:workflow} answer something they have just tried to do.  The
+  question stays the same for all four, \enquote{Would you keep the
+  item?}, and does not say where to look.
+
+  \textbf{Variation pattern}: contrast, four values of one dimension at
+  once.
+  \textbf{What varies} across \cref{ex:item-crash,ex:item-order,%
+  ex:item-cue,ex:item-nota}: the check that exposes the flaw ---
+  running the program, trying every order, measuring the bank, seeing the
+  item as one student sees it.
+  \textbf{What stays invariant}: a plausible item on a beginner's topic,
+  shown with its key, that reads as correct.
+
+  The items are invented because the repository is public; each copies
+  the flaw of a real item, not its content.
+}%
+Before the workflow, four items for you to judge.  They are invented ---
+no real exam question appears in this report --- but each has a flaw we
+found in the real banks.  Answer each item, then decide whether you would
+keep it on the exam.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Item 1]\label{ex:item-crash}
+    \mode<presentation>{\setminted{fontsize=\scriptsize}}%
+    The item shows a program:
+<<[[vowels.py]]>>=
+def count_vowels(word):
+    """Return the number of vowels in word"""
+    count = 0
+    for letter in word:
+        if letter in vowels:
+            count += 1
+    return count
+
+def main():
+    """Print the number of vowels in a word"""
+    vowels = "aeiouy"
+    print(count_vowels("banana"))
+
+main()
+@
+    It asks: \enquote{What does it print?}  Options: (A)~\texttt{3},
+    (B)~\texttt{0}, (C)~\texttt{6}, (D)~an error message; key: A.  Would
+    you keep the item?
+  \end{exercise}
+\end{frame}
+
+The item looks like an ordinary reading exercise: a loop, a condition, a
+counter.  The quickest way to answer it is also the way to check it.
+
+\begin{frame}[fragile]
+  \begin{solution}[Item 1: the key crashes]
+    Running the program settles it:
+    \runpython[showcommand]{examples/vowels.py}
+    The key is wrong: the right answer is D.
+  \end{solution}
+\end{frame}
+
+The variable [[vowels]] is local to [[main]], and [[count_vowels]] cannot
+see it.  The item's author read the program as if it could --- the very
+misconception about scope that an item at this objective might test.  In
+the real banks one keyed program used the caller's variables and stopped
+with a [[NameError]]; another never printed its \enquote{not found}
+message, because a flag was set outside the [[if]] that should have set
+it.  A reader who reads such a program the way its author meant it sees
+nothing wrong; anyone who runs it sees the defect at once.
+
+\begin{frame}[fragile]
+  \begin{exercise}[Item 2]\label{ex:item-order}
+    The item asks you to put these lines in order, so that the program
+    prints \texttt{27}:
+\begin{minted}{python}
+print(total)
+for number in numbers:
+total = 0
+    total += number
+numbers = [4, 8, 15]
+\end{minted}
+    The key is the order in which the lines must be.  Would you keep the
+    item?
+  \end{exercise}
+\end{frame}
+
+An ordering item, also called a Parsons problem, is graded against the one
+order its author keyed.  That is safe only if no other order works.
+
+\begin{frame}[fragile]
+  \begin{solution}[Item 2: two orders work]
+    A program that tries every order of the lines finds two that print
+    \texttt{27}:
+    \runpython[showcommand]{examples/parsons.py}
+  \end{solution}
+\end{frame}
+
+Canvas accepts one of them; a student who chooses the other gets no
+points for a working program.
+
+Ordering items, also called Parsons problems, are used on programming
+exams, and in the first study of them their scores correlated notably
+with the scores for writing code,\autocite{denny2008} though later work
+shows that the two are not interchangeable.\autocite{wu2024,newar2025}
+That an ordering item can have more than one valid order is known: its
+first describers called such ambiguous solutions perhaps the biggest
+problem of assessing Parsons problems automatically, when the assessment
+is based on the order of the lines.\autocite[IIP-127]{ihantola2011}%
+\footnote{The scientific basis is in \cref{app:parsons}, which asks how
+ordering items are used in exams and whether one order is enough.}
+Two assignments whose order does not matter are one way for an ordering
+item to get a second solution.  The real banks also had the
+opposite: items where no order worked, because one line carried a stray
+apostrophe or a double space that the key did not.  The program that found
+the two orders is developed in \cref{sec:checker}.
+
+\begin{frame}
+  \begin{exercise}[Item 3]\label{ex:item-cue}
+    The item asks: \enquote{What happens when a function reaches its end
+    without a \texttt{return} statement?}  The options are
+    \begin{itemize}
+      \item[A] It returns \texttt{0}.
+      \item[B] It raises an error.
+      \item[C] It returns the last value it computed.
+      \item[D] It returns \texttt{None}, which the caller gets as the
+        value of the call.
+    \end{itemize}
+    and the key is D.  Would you keep the item?
+  \end{exercise}
+\end{frame}
+
+Item~3 is correct: its key is right, and every distractor is wrong.  Its
+flaw is in the form of the options.
+
+\begin{frame}
+  \begin{solution}[Item 3: the key is the longest option]
+    A student who knows nothing about return values can still pick D: it
+    is the longest option and the only qualified one.  In one item that
+    is a small cue.  In a bank it is a pattern:
+    \begin{itemize}
+      \item in two real banks the key was the longest option in nine of 11
+        and in eight of 10 items;
+      \item in a third, the same pattern of correct answers held in six of
+        its seven items.
+    \end{itemize}
+  \end{solution}
+\end{frame}
+
+Item-writing guidelines advise keeping the options about equal in
+length and free of clues to the key.\autocite{HaladynaDowningRodriguez2002}
+The advice rests mostly on consensus rather than
+tests,\autocite[204]{Rodriguez2011} but where it has been tested, a
+longer key made items easier,\autocite[209]{Rodriguez2011} and in a
+series of experiments examinees answered cued items right far more often
+when they could compare the options than when they saw them one at a
+time.\autocite[247]{Willing2015}\footnote{Other studies of the length
+cue found weak or no effects.\autocite{Martinez2009,Casu2019} The
+scientific basis, and its reservations, are in \cref{app:item-flaws}.}
+A cue like this one is found by looking at the bank as a test-wise student
+would, not at a single item: count how often the key is the longest
+option, the only one written in the course's style, or the odd one out in
+a near-identical pair.  The fix is a matter of design: make the
+distractors as specific as the key, or the key as plain as the
+distractors.
+
+\begin{frame}
+  \begin{exercise}[Item 4]\label{ex:item-nota}
+    The item asks: \enquote{Which of these can you use as a variable name
+    in Python?}  Its author wrote the options in this order:
+    \begin{itemize}
+      \item[A] \texttt{2nd\_place}
+      \item[B] \texttt{my-score}
+      \item[C] \texttt{class}
+      \item[D] None of the above
+    \end{itemize}
+    The key is D.  Canvas shuffles the options for each student.  Would
+    you keep the item?
+  \end{exercise}
+\end{frame}
+
+The item is correct as its author wrote it: [[2nd_place]] starts with a
+digit, [[my-score]] holds a minus sign and [[class]] is a keyword.  But
+the author's order is not the order the students see.
+
+\begin{frame}
+  \begin{solution}[Item 4: \enquote{above} after shuffling]
+    One student sees the options in this order:
+    \begin{itemize}
+      \item[A] None of the above
+      \item[B] \texttt{class}
+      \item[C] \texttt{2nd\_place}
+      \item[D] \texttt{my-score}
+    \end{itemize}
+    For this student \enquote{the above} is nothing at all.  An option
+    that refers to the other options depends on their order, and the
+    platform does not keep the order.
+  \end{solution}
+\end{frame}
+
+The guidelines advise avoiding \enquote{all of the above} and using
+\enquote{none of the above} with care,\autocite[205--206]{Rodriguez2011}
+and the studies disagree about the harm: in one experiment \enquote{none
+of the above} made items harder only when it was the
+key.\autocite{Pachai2015}\footnote{A formal analysis finds no harm in it
+at all.\autocite[271]{Persson2025} The scientific basis is in
+\cref{app:item-flaws}.}  Shuffling gives a reason that holds whatever one
+thinks of those.  The rewritten banks have
+no option that refers to other options.
+
+\begin{frame}
+  \begin{summary}
+    Four flaws, and four checks that expose them:
+    \begin{enumerate}
+      \item run the program;
+      \item try every order;
+      \item measure the bank;
+      \item look at the item as one student sees it.
+    \end{enumerate}
+    Reading an item the way its author meant it shows none of them.
+  \end{summary}
+\end{frame}
+
+
+\section{The workflow}
+\label{sec:workflow}
+
+\leavevmode\ltnote{%
+  Relevant learning objectives: \cref{RapportLOWorkflow}.
+
+  The workflow is shown whole, as one figure, before its steps
+  (\cref{fig:workflow}), and every step is then paired with what it guards
+  against (\cref{tab:workflow}), so that the four checks of
+  \cref{sec:items} reappear as parts of the steps rather than as a list
+  to remember.
+}%
+The four checks are cheap for one item.  A bank of 218 items needs all of
+them on every item, and more: the rewritten items must be written in the
+course's own style, verified on the real platform, given feedback, and
+drawn into an exam.  \Cref{fig:workflow} shows the ten steps, and
+\cref{tab:workflow} what each of them guards against.
+
+\begin{figure}[htbp]
+  \centering
+  \workflowfigure
+  \caption{The workflow of the rewrite, read as a snake: steps 1--5 in
+    the top row from the left, steps 6--10 in the bottom row from the
+    right.  Steps 5--8 were done by agents, one per learning objective or
+    one per reviewed group of objectives; steps 2 and 4 are the author's
+    decisions.}
+  \label{fig:workflow}
+\end{figure}
+
+\mode<presentation>{%
+  \begin{frame}
+    \begin{block}{Ten steps}
+      \centering
+      \workflowfigure
+    \end{block}
+  \end{frame}
+}
+
+\begin{table}[htbp]
+  \caption{What each step of the workflow in \cref{fig:workflow} guards
+    against.  The numbers are those of the figure.}
+  \label{tab:workflow}
+  \footnotesize
+  \begin{tabularx}{\linewidth}{@{}WR@{}}
+    \workflowtablehead
+    \workflowrowsA
+    \workflowrowsB
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\mode<presentation>{%
+  \begin{frame}
+    \begin{block}{What steps 1--5 guard against}
+      \footnotesize
+      \begin{tabularx}{\linewidth}{@{}WR@{}}
+        \workflowtablehead
+        \workflowrowsA
+        \bottomrule
+      \end{tabularx}
+    \end{block}
+  \end{frame}
+  \begin{frame}
+    \begin{block}{What steps 6--10 guard against}
+      \footnotesize
+      \begin{tabularx}{\linewidth}{@{}WR@{}}
+        \workflowtablehead
+        \workflowrowsB
+        \bottomrule
+      \end{tabularx}
+    \end{block}
+  \end{frame}
+}
+
+\mode<article>{\subsection{Export, convert and verify}}
+
+The author exported the live quiz from the web interface: a QTI archive
+with 21 banks and 218 questions of five types --- single choice, multiple
+answers, ordering, matching and fill in the blank.  An agent wrote a
+converter to the JSON format of \texttt{canvaslms}, the command-line tool
+we use for Canvas.  It then uploaded every bank to a sandbox course,
+exported it again, and compared what came back with what went in, field by
+field, with a checker written separately from the converter.  The checker
+was itself tested by planting errors in converted banks (a mutation test):
+it caught each of them.  All 218 questions came back as they went in.
+
+A converter that drops a field, or turns a code block's indentation into
+something else, would otherwise have changed questions without anyone
+noticing: the round trip through the real platform is what makes the
+converted banks trustworthy enough to rewrite.
+
+\mode<article>{\subsection{Decide how to draw}}
+
+Canvas has no programming interface for creating New Quiz item banks, so
+rewritten banks could not be put back as banks.  A Classic quiz with
+question groups draws a question per student, but has no ordering
+questions.  The author chose to draw per sitting: one question for each
+position, the same for every student in that sitting, with the answer
+options still shuffled per student.  Each draw leaves a record, so that a
+student who retakes the exam never meets the same question again.
+
+\mode<article>{\subsection{A style guide from the course itself}}
+
+An item in a style the students never met tests the style, not the
+objective.  One agent, with five reader agents, compiled how the course
+material writes Python --- docstrings, naming, f-strings, [[with open]],
+what is and is not taught --- with a file and line number as evidence for
+every rule.  The author pointed to a second source: every run of code in
+every lecture and tutorial (\foreignlanguage{swedish}{\emph{övning}}) is
+recorded in a learnlog repository.  A second
+agent added that evidence: 18 sessions, about 900 runs, 33 sessions in the
+interactive interpreter.
+
+\begin{frame}
+  \begin{block}{A style guide from the course itself}
+    \begin{itemize}
+      \item Course material: one agent with five readers, every rule with
+        a file and line number.
+      \item Live coding: 18 recorded sessions, about 900 runs.
+      \item Where the course was inconsistent, the author decided:
+        English identifiers; one-line Swedish docstrings; getters,
+        \texttt{@property} and public attributes all allowed; only taught
+        constructs.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+Where the course was inconsistent, the author decided.  Identifiers are in
+English; docstrings are one line of Swedish naming the parameters and the
+return value; all three ways to expose an attribute --- getters,
+[[@property]] and public attributes --- are allowed, since the students
+saw all three; only constructs the course teaches appear, so negative
+indices are allowed, because they were explained live, and so is
+[[f"{x=}"]], explained in class though the recordings could not show it.
+
+The style guide has a second use, which is about cues.  A distractor may
+break the course's style only in the aspect the item tests.  Otherwise the
+one option written as the course writes it is the key, and a student who
+has merely seen the course's code can find it.
+
+\mode<article>{\subsection{Seven rewriters}}
+
+Seven agents rewrote the banks in parallel, one per learning objective and
+three banks each, all from one written brief.  Its rules turn the checks
+of \cref{sec:items} into requirements.
+
+\begin{frame}
+  \begin{block}{The rewriters' rules}
+    \begin{itemize}
+      \item Code as the course teaches it; every program and every option
+        run.
+      \item Ordering items tried in every order: exactly one works.
+      \item No option that refers to other options.
+      \item Distractors break the style only in the aspect tested.
+      \item All or nothing; at least eight items per bank.
+      \item Every change logged with its evidence; every bank uploaded to
+        the sandbox and verified by export.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+Every program and every option was run.  Every ordering item was tried in
+every order of its lines and every indentation, so that exactly one
+works.  No option refers to other options, since the answers are shuffled.
+Scoring is all or nothing, as the digits require, and each bank keeps at
+least eight items.  Every change is logged with its evidence, and every
+bank was uploaded to the sandbox and verified by exporting it again.
+
+\mode<article>{\subsection{Trying every order}\label{sec:checker}}
+
+\leavevmode\ltnote{%
+  The checker is developed here, after its run was shown with
+  \cref{ex:item-order}, so that the program answers a question the reader
+  already has: how was the second order found?  It is the one place where
+  the report makes a check executable, and it is kept small enough to
+  read in full.
+}%
+The second order of Item~2 was found by a program.  Testing every
+order is what Ihantola and Karavirta proposed for Parsons problems: an
+environment \textcquote[IIP-127]{ihantola2011}{that tests all the possible
+combinations, alerts the author about alternative solutions, and leaves it
+for the author to decide which of the solutions should be accepted}.  The
+idea is brute force: an ordering item has few lines, five lines have
+$5! = 120$ orders, and running 120 small programs takes a fraction of a
+second.  We give the program's layout first and refine its parts as the
+reasoning needs them.
+
+\begin{frame}[fragile]
+  \begin{block}{\texttt{parsons.py}}
+    The layout of the checker:
+<<[[parsons.py]]>>=
+"""Find the orders of a Parsons problem's lines that work"""
+
+<<checker's imports>>
+
+<<the item's lines and key>>
+
+<<checker's helper functions>>
+
+def main():
+    """Print every order that prints what the key prints"""
+    <<run the key to see what a working order prints>>
+    <<try every order, keep those that print the same>>
+    <<print the working orders>>
+
+main()
+@
+  \end{block}
+\end{frame}
+
+The item is its lines, in the order the student sees them, and its key,
+the order the item's author accepted, given as positions in that list.
+
+\begin{frame}[fragile]
+  \begin{block}{The item}
+    The lines of Item~2 and its key:
+<<the item's lines and key>>=
+LINES = [
+    "print(total)",
+    "for number in numbers:",
+    "total = 0",
+    "    total += number",
+    "numbers = [4, 8, 15]",
+]
+KEY = (2, 4, 1, 3, 0)
+@
+  \end{block}
+\end{frame}
+
+An order is a tuple of positions, and the program it gives is those lines
+joined.  The indentation is part of each line here, as the student sees
+it; the rewriters' checkers also tried every indentation, for items whose
+lines are shown flush left.
+
+\begin{frame}[fragile]
+  \begin{block}{From an order to a program}
+    An order picks the lines:
+<<checker's helper functions>>=
+def program(order):
+    """Return the program with LINES in the given order"""
+    return "\n".join(LINES[index] for index in order)
+@
+  \end{block}
+\end{frame}
+
+To compare an order with the key we need what each program prints.  We
+run the program inside the checker with [[exec]] and catch what it prints
+with [[redirect_stdout]].  Most orders fail: a [[for]] without a body is
+an [[IndentationError]], a variable used before its assignment a
+[[NameError]].  A failing order is simply not a solution, so any exception
+gives [[None]]; [[SyntaxError]] and [[IndentationError]] are exceptions
+like the others.  Every run gets a fresh, empty namespace ([[{}]]), so an
+order cannot borrow a variable that an earlier order defined.
+
+\begin{frame}[fragile]
+  \begin{block}{What a program prints}
+    Running a program inside the checker:
+<<checker's helper functions>>=
+def output(source):
+    """Return what source prints, or None if it fails"""
+    printed = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(printed):
+            exec(source, {})
+    except Exception:
+        return None
+    return printed.getvalue()
+<<checker's imports>>=
+import contextlib
+import io
+@
+  \end{block}
+\end{frame}
+
+This checker needs no time limit, because its only loop runs over a fixed
+list; an item with a [[while]] loop needs one, since some order may loop
+forever.  Nor does it need more than one run per order, because the
+program reads no input.  For a program that reads input, every order must
+be tried on several inputs: an order can agree with the key on one input
+and not on another.
+
+The key's output is the standard.  The key is not trusted to be the only
+working order --- that is the point of the checker --- but it must work,
+or every failing order would match its failure.  That is Item~1's flaw
+again, and the checker reports it rather than comparing against it.
+
+\begin{frame}[fragile]
+  \begin{block}{The standard to compare with}
+    The key must work:
+<<run the key to see what a working order prints>>=
+expected = output(program(KEY))
+if expected is None:
+    print("The key itself fails.")
+    return
+@
+  \end{block}
+\end{frame}
+
+Then every order is run and compared with the key.  [[permutations]]
+gives all $5! = 120$ orders of the five positions.
+
+\begin{frame}[fragile]
+  \begin{block}{Every order}
+    Try each order and keep those that print what the key prints:
+<<try every order, keep those that print the same>>=
+orders = list(itertools.permutations(range(len(LINES))))
+working = []
+for order in orders:
+    if output(program(order)) == expected:
+        working.append(order)
+<<checker's imports>>=
+import itertools
+@
+  \end{block}
+\end{frame}
+
+Last, the program prints how many orders work, and each of them.  A sound
+item gives one; Item~2 gives two.
+
+\begin{frame}[fragile]
+  \begin{block}{The report}
+    Print the working orders:
+<<print the working orders>>=
+print(f"{len(working)} of {len(orders)} orders print {expected}")
+for order in working:
+    print(program(order))
+    print()
+@
+  \end{block}
+\end{frame}
+
+\begin{frame}<article>[fragile]
+  \begin{example}[The whole checker (\texttt{parsons.py})]
+    \label{ex:checker-whole}
+    Putting each part in place of its name gives the whole program:
+    \inputminted{python}{examples/parsons.py}
+  \end{example}
+\end{frame}
+
+Its run is the one shown with Item~2.
+
+\mode<article>{\subsection{Three independent reviewers}}
+
+Three further agents reviewed the rewritten banks, two or three objectives
+each.  They ran everything with harnesses of their own, read the
+rewriters' change logs only after forming their own view, and looked for
+cues (length, grammar, patterns), wrong keys and personal data.  They
+found no blockers, six major defects and about 40 minor ones; the original
+rewriters fixed all of them in one round, and verified each fix as they had
+verified the first version.
+
+\begin{frame}
+  \begin{block}{Three independent reviewers}
+    \begin{itemize}
+      \item Their own harnesses; the change logs read only after forming
+        their own view.
+      \item Looked for cues, wrong keys and personal data.
+      \item Found no blockers, six majors, about 40 minors.
+      \item Fixed in one round by the original rewriters.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\mode<article>{\subsection{Feedback on every option}}
+
+Every item got feedback, modelled on the practice exam written the same
+week (\cref{sec:rest}): a neutral text, a text for a right answer, one
+for a wrong answer, and one text per option, 588 option texts in all.
+The neutral text has three parts, in Swedish:
+\foreignlanguage{swedish}{\enquote{Tänk på}} (what to think about),
+\foreignlanguage{swedish}{\enquote{Prova}} (how to check it in the Python
+terminal) and \foreignlanguage{swedish}{\enquote{I kursen}}
+(where in the course to study).  Every pointer into the course was checked
+against a real heading or a recorded live-coding session, and every claim
+about code was run.  A wrong-answer text never names the key.
+
+\begin{frame}
+  \begin{example}[Feedback for Item~1, invented and translated]
+    \label{ex:feedback}
+    The four kinds of text:
+    \begin{description}
+      \item[Neutral] Think about which variables a function can use.  Try
+        running the program in the terminal and read the last line of the
+        error.  In the course: the lecture on functions, on local
+        variables.
+      \item[Right] Yes: the variable \texttt{vowels} exists only inside
+        \texttt{main}, so the call stops with a \texttt{NameError}.
+      \item[Wrong] Look at where \texttt{vowels} gets its value, and which
+        function uses it.
+      \item[Option A] \texttt{3} is what the program would print if
+        \texttt{count\_vowels} could see \texttt{vowels}.  Can it?
+    \end{description}
+  \end{example}
+\end{frame}
+
+Feedback of this kind, which explains and points to what to study, is
+what meta-analyses of feedback on computer-based items find most
+effective on average: clearly more than feedback that only says right or
+wrong, and somewhat more than showing the correct
+answer.\autocite{vanderkleij2015,mertens2022} The margin over the correct
+answer is small, though, and one analysis found none for multiple-choice
+items;\autocite[1764]{mertens2022} and feedback does not always help: in
+about a third of the studies in two large meta-analyses it lowered
+performance.\autocite[156]{shute2008}\footnote{Students also skip
+explanations, more so when the feedback comes late or when they have
+already been shown the correct
+answer.\autocite{vanderkleij2012,manez2020} The scientific basis is in
+\cref{app:feedback}, which asks whether feedback that explains helps more
+than right or wrong, and when it does not.}  That students who had been
+shown the correct answer seldom opened the explanation\autocite[65]{%
+manez2020} is one reason to keep the key out of the wrong-answer texts,
+though not a measured gain in learning.  Feedback that a student reads
+only after an exam is delayed feedback, where the evidence is mixed; a
+practice exam, with its feedback right after each attempt, is where such
+texts are best supported.
+
+\mode<article>{\subsection{A literate drawing program}}
+
+The draw is done by a program, \texttt{dra.nw}, a literate program in
+Python with Swedish prose, which entered the repository through a pull
+request.  The draw is seeded and reproducible, and every sitting leaves a
+record: the seed, checksums of every input, the version of Python.  An
+option ([[--undvik]], \enquote{avoid}) takes earlier records, so a student
+who retakes the exam never meets the same question twice.  The program
+refuses to write a file that git would track, since the repository is
+public and the drawn exam is exam content, and it never writes to Canvas.
+An independent agent reviewed it twice; it has 38 tests, and every bug we
+planted in it (every mutant) made a test fail.
+
+\mode<article>{\subsection{An example exam}}
+
+Finally an example exam was drawn and created, unpublished, in the
+sandbox course for the author to read: 21 items, full marks 3\,333\,333,
+every item checked against the draw after an export.
+
+\begin{frame}
+  \begin{block}{Drawing and the example exam}
+    \begin{itemize}
+      \item \texttt{dra.nw}: a literate program; seeded, reproducible
+        draws with a record per sitting.
+      \item Retakes never meet a question again.
+      \item Refuses to write where git would track; never writes to
+        Canvas.
+      \item Reviewed twice; 38 tests; every planted bug caught.
+      \item An example exam in the sandbox: 21 items, 3\,333\,333 points,
+        verified against the draw.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\mode<article>{\subsection{Who did what}}
+
+About 20 agents took part: one converter, one style agent with five
+readers, one for the live coding, seven rewriters, three reviewers, one
+author and one reviewer of the drawing program.  Most ran on the most
+capable model available.  The orchestrator --- the agent session the
+author talked to --- held the decisions and checked every agent's result
+itself: leak scans, counts, consistency across banks.  We did not measure
+the cost.
+
+\begin{frame}
+  \begin{block}{About 20 agents}
+    \begin{itemize}
+      \item One converter; one style agent with five readers; one for the
+        live coding.
+      \item Seven rewriters; three reviewers.
+      \item One author and one reviewer of the drawing program.
+      \item The orchestrator held the decisions and checked every result
+        itself.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\section{Results}
+\label{sec:results}
+
+\leavevmode\ltnote{%
+  The defects are grouped by the check that found them, not by bank or
+  by type, so that the four checks of \cref{sec:items} return as the
+  structure of the results: the same dimension, now with the real
+  values.
+}%
+The 218 questions in the 21 banks became 198, with between eight and 12
+in each bank, as \cref{tab:banks} shows.  The rewriters removed
+duplicates and items that belonged to another objective, and every bank
+kept at least eight items.
+
+\begin{table}[htbp]
+  \caption{The number of items per bank before and after the rewrite.
+    Bank $n$ of objective $L$ is the bank that draws the $n$th question
+    at learning objective $L$; \enquote{$18\to12$} means 18 items before
+    and 12 after.}
+  \label{tab:banks}
+  \centering
+  \footnotesize
+  \banktable
+\end{table}
+
+\mode<presentation>{%
+  \begin{frame}
+    \begin{block}{218 items became 198}
+      \centering
+      \footnotesize
+      \banktable
+    \end{block}
+  \end{frame}
+}
+
+Of the 198, 94 are single choice, 47 multiple answers, 20 fill in the
+blank, 19 ordering and 18 matching.  All 198 have a neutral, a right and a
+wrong feedback text, and the options have 588 texts of their own.
+
+The defects in the live banks, each confirmed by running code, fall into
+the classes of \cref{sec:items} and a few more.
+
+\begin{frame}
+  \begin{block}{Found by running}
+    \begin{itemize}
+      \item Keys that crash: the caller's variables used
+        (\texttt{NameError}).
+      \item A \enquote{not found} message never printed: a flag set
+        outside its \texttt{if}.
+      \item Wrong keys: a loop the key said gives 28 gives 21.
+      \item Options that can never work: an \texttt{IndentationError},
+        arguments \texttt{print} does not have.
+      \item \texttt{except} for errors never raised at run time
+        (\texttt{SyntaxError}).
+      \item A harmful fix as key: catching \texttt{TypeError} to hide a
+        missing \texttt{int()}.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+The last of these is worth a moment.  The key did make the program
+survive bad input --- by catching the exception that the missing
+conversion caused, so the program rejected every input, good or bad.  An
+item that rewards that fix teaches it.
+
+\begin{frame}
+  \begin{block}{Found by trying orders, measuring, reading the bank}
+    \begin{itemize}
+      \item Ordering items with two valid orders, or none (a stray
+        apostrophe, a double space).
+      \item The key the longest option in nine of 11 and eight of 10 items
+        of two banks; the same answer pattern in six of seven items of another.
+      \item Items with no correct option (two in the class banks).
+      \item Exact duplicates, six in one bank alone; items in the wrong
+        bank.
+      \item A note to a colleague, visible to students; real staff names
+        and e-mail addresses in one item.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+The reviews of the rewritten banks found no blocker.  The six majors were
+cues (option length, and a near-identical pair of options that always
+contained the key), an ambiguity that a student running the code would
+hit, a made-up personal identity number (\foreignlanguage{swedish}{%
+personnummer}) in an example, and a fill-in item that tested the wrong
+objective.  None was a wrong key.
+
+
+\section{Lessons}
+\label{sec:lessons}
+
+The lessons are what happened in this one case.  The first is the one the
+results already show.
+
+\begin{frame}
+  \begin{block}{Run it, don't read it}
+    Every key, every distractor and every claim in the feedback was
+    executed.  Most of the defects were found that way; reading an item
+    as its author meant it shows none of them.
+  \end{block}
+\end{frame}
+
+Every defect found by running sat in an item that someone had written
+and read, meaning the program to work.  Running it costs a second.
+
+The next lesson concerns the orchestrator itself.
+
+\begin{frame}
+  \begin{exercise}\label{ex:orchestrator}
+    Two bugs had been reported in the banks.  The orchestrator ran the
+    code of both questions, found it correct, and told the author that the
+    reports were false.  They were true.  How could that happen?
+  \end{exercise}
+\end{frame}
+
+\leavevmode\ltnote{%
+  The orchestrator's mistake is told as a try-first question
+  (\cref{ex:orchestrator}) because a check that ran code reads as final;
+  guessing the cause lets the colleagues find for themselves that the
+  evidence came from the wrong version of the bank.
+}%
+The orchestrator had run the code --- of the wrong version.
+
+\begin{frame}
+  \begin{solution}[A claim is a hypothesis, including your own]
+    The orchestrator had run an older export, from May 2025, in which the
+    code was still correct; the bank had been edited since.  A rewriter,
+    who matched the questions by their identifiers and ran the live
+    export, showed that both bugs were real.
+  \end{solution}
+\end{frame}
+
+What caught the mistake was not more care by the orchestrator but a second
+agent that checked the same claim independently, from the live data.  A
+related mistake came from the numbering: a comparison report numbered the
+questions after an export from January, and the November export ordered
+them differently, so several claims that looked wrong were right claims
+about another question.
+
+\begin{frame}
+  \begin{block}{Numbering lies; identifiers don't}
+    A report numbered the questions after a January export; the November
+    export ordered them differently.  Several \enquote{wrong} claims were
+    right claims about another question.  Match by identifier.
+  \end{block}
+\end{frame}
+
+The rewriters checked their own work thoroughly.  The reviewers still
+found six majors, all of them cues or wording and none a wrong key: the
+kind of defect that an item's author cannot see, because the author knows
+the answer.
+
+\begin{frame}
+  \begin{block}{Independent review finds what the author cannot}
+    The rewriters ran everything; the reviewers still found six majors.
+    All were cues or wording, none a wrong key.
+  \end{block}
+\end{frame}
+
+% CITE: item-flaws (cues; measured guessing)
+Cues are a design problem, not a typo, and they can be measured.  One
+rewriter tested a dozen guessing rules, of the kind a test-wise student
+uses, against a bank; the best of them solved two items of nine.
+
+\begin{frame}
+  \begin{block}{Cues are a design problem, not a typo}
+    The longest option; the only option in course style; a near-identical
+    pair; grammar; \enquote{none of the above} under shuffling.  Measure
+    them: a dozen guessing rules against one bank; the best solved two
+    items of nine.
+  \end{block}
+\end{frame}
+
+The tools failed silently more than once.  [[canvaslms quizzes create]]
+exits with status 0 even when Canvas rejected an item, saying
+\enquote{N failed} only on its last line.  Canvas rejects a
+multiple-answer item with one particular property.  And KTH's web firewall
+answers 403 to a fill-in item whose regular expression alternates between
+two kinds of quotes.
+
+\begin{frame}
+  \begin{block}{Silent failures in the tools}
+    \begin{itemize}
+      \item \texttt{quizzes create} exits 0 when Canvas rejected an item.
+      \item Canvas rejects a multiple-answer item with one particular
+        property.
+      \item The web firewall answers 403 to a fill-in pattern that
+        alternates between two kinds of quotes.
+    \end{itemize}
+    Read the output, and verify by export.
+  \end{block}
+\end{frame}
+
+The course repository is public, so exam content never entered it: the
+banks live in a folder git ignores, every diff was scanned for any text
+from the banks before it was committed, and the drawing program refuses to
+write where git would track.  One review still found a made-up personal
+identity number and real-looking user names in the banks themselves.
+
+\begin{frame}
+  \begin{block}{Privacy and a public repository}
+    \begin{itemize}
+      \item Exam content in a folder git ignores.
+      \item Every diff scanned against all the text in the banks.
+      \item The drawing program refuses to write where git would track.
+      \item A review still found a made-up personal identity number and
+        real-looking user names in the banks.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+Ten points of style were genuinely open in the course material.  Each went
+to the author with its evidence and a recommendation; the remaining
+questions followed the recommendation and were logged.
+
+\begin{frame}
+  \begin{block}{The author decides; the agents prepare the decision}
+    Ten open points of style went to the author with evidence and a
+    recommendation.  The rest followed the recommendation and were
+    logged.
+  \end{block}
+\end{frame}
+
+Last, a small tool earns a literate program and a review.  The reviews of
+the drawing program found real bugs: a record could be overwritten,
+outputs could land where git tracks them, and a quiz file could be written
+without its record.
+
+\begin{frame}
+  \begin{block}{Literate and reviewed, even for a small tool}
+    The reviews of the drawing program found real bugs:
+    \begin{itemize}
+      \item a record could be overwritten;
+      \item outputs could land where git tracks them;
+      \item a quiz file could be written without its record.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+
+\section[The rest]{The rest of the week}
+\label{sec:rest}
+
+The banks were one part of the session.  The others prepared the sitting
+itself.  The order of the points had been reversed in January 2026, so
+that objective~1 no longer sat in the units; we found the commit, restored
+the order $10^{L-1}$ and fixed the grading script, through pull requests
+with independent reviews.  The exam's IP ranges were set from the booked
+rooms (with \texttt{kthutils iprange}), and students with extra time from
+Funka got it (codes R0, +50\,\%, and R1, +25\,\%) through
+\texttt{canvaslms}.  Both were then automated in a \texttt{setup} command
+of the grading script, which reads the schedule, the rooms, the registered
+students and the Funka lists, and verifies what Canvas saved.
+
+\begin{frame}
+  \begin{block}{The rest of the week}
+    \begin{itemize}
+      \item Points order: restored $10^{L-1}$ (reversed in January) and
+        fixed the grading script.
+      \item IP ranges from the booked rooms; extra time for Funka (R0
+        +50\,\%, R1 +25\,\%).
+      \item Both automated in a \texttt{setup} command that verifies what
+        Canvas saved.
+      \item An independent practice exam, written without the banks.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+One agent wrote an independent exam from the course material alone,
+without ever seeing the banks, and a second compared it with them.  It
+became a practice exam, \foreignlanguage{swedish}{\emph{Exempelprov 2}},
+with feedback on every option, placed unpublished in the course for the
+author's review.  Its feedback was the model for the feedback in the
+banks.
+
+
+\section[Your course]{Doing this in your own course}
+\label{sec:own-course}
+
+\leavevmode\ltnote{%
+  Relevant learning objectives: \cref{RapportLOAdapt}.
+
+  The report ends on what the colleague would do, sorted into prepare,
+  decide and never delegate, so that the lessons become a plan.  The
+  last list is the one that matters most and is kept shortest.
+}%
+If you want to do this in a course of your own, three lists cover it: what
+to prepare before any agent starts, what to decide yourself as the work
+goes, and what never to delegate.
+
+\begin{frame}
+  \begin{block}{Prepare}
+    \begin{itemize}
+      \item The course material where an agent can read it, with the live
+        coding if it is recorded.
+      \item An export of the banks, and a converter verified by a round
+        trip through the platform.
+      \item A sandbox course to upload to and export from.
+      \item A place outside the repository for exam content, and a leak
+        scan for every commit.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+The preparation is what lets an agent check rather than guess: the course
+material as evidence of style, the platform as the test of a converted or
+rewritten bank, and a place for exam content that the repository never
+sees.
+
+\begin{frame}
+  \begin{block}{Decide}
+    \begin{itemize}
+      \item The points of style the course material leaves open.
+      \item How to draw, and how a retake avoids repeated questions.
+      \item How items are scored.
+      \item What the feedback says, and whether it may name the key.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+The decisions are the teacher's, and an agent can prepare each of them
+with evidence and a recommendation.
+
+\begin{frame}
+  \begin{block}{Never delegate}
+    \begin{itemize}
+      \item The decisions.
+      \item The privacy rules: what may be committed, which names may
+        appear.
+      \item The final read of the exam that will be given.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+What the agents did, they did quickly and checked thoroughly; that did
+not make them responsible for the exam.  The author made the decisions,
+set the privacy rules, and read the example exam.
+
+\begin{frame}
+  \begin{summary}
+    In short:
+    \begin{itemize}
+      \item A defective item decides a digit for the students who draw it.
+      \item Run it, try every order, measure the bank, see it as a
+        student does.
+      \item Agents prepare and verify; independent agents check them; the
+        teacher decides and reads the exam.
+    \end{itemize}
+  \end{summary}
+\end{frame}

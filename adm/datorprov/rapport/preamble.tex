@@ -1,0 +1,215 @@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% The report is in English (British, Oxford -ize spelling); babel takes the
+% main language from the last option.  Swedish stays loaded for the few
+% Swedish words the report quotes (course terms, feedback headings).
+\usepackage[swedish,english,british]{babel}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+
+\usepackage[
+  natbib,
+  style=verbose,
+  citestyle=verbose,
+  singletitle=false,
+  maxbibnames=99,
+]{biblatex}
+\addbibresource{ltnotes.bib}
+
+\usepackage[all]{foreign}
+\renewcommand{\foreignfullfont}{}
+\renewcommand{\foreignabbrfont}{}
+
+\usepackage{import}
+% beamer loads graphicx itself; memoir does not, and a deck with figures
+% needs it in both jobs.
+\usepackage{graphicx}
+
+% The bibliography has long URLs and DOIs; let biblatex break them.
+\setcounter{biburlnumpenalty}{7000}
+\setcounter{biburlucpenalty}{7000}
+\setcounter{biburllcpenalty}{7000}
+
+\usepackage[strict]{csquotes}
+\usepackage[single]{acro}
+
+\usepackage{subcaption}
+
+% The workflow figure is drawn with TikZ, so its text is set with the
+% document at the size around it.
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+
+\usepackage{xparse}
+
+\let\email\texttt
+
+% minted v3+ (TeX Live 2024+) auto-detects the output directory; the old
+% [outputdir=...] package option is an error there.
+\usepackage{minted}
+\setminted{autogobble,fontsize=\footnotesize}
+
+% PythonTeX runs the example programs and embeds their real terminal
+% sessions (didactic's \runpython[transcript]), so the deck never
+% hand-copies its own output: pythontex runs from ltxobj (the outputdir),
+% and workingdir=.. moves it up to the deck directory so examples/...
+% resolves.
+\usepackage[makestderr]{pythontex}
+\setpythontexoutputdir{.}
+\setpythontexworkingdir{..}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{thmtools,thm-restate}
+\usepackage[unq]{unique}
+
+\usepackage[binary-units,parse-numbers=false]{siunitx}
+
+\makeatletter
+\@ifclassloaded{beamer}
+  {\relax}
+  {\usepackage[colorlinks]{hyperref}}
+\makeatother
+% cleveref reads its language from its own package options, not babel's.
+% English decks capitalise mid-sentence references (Figure 3, Appendix B).
+\usepackage[english,capitalise]{cleveref}
+\AtBeginDocument{%
+  % Figures are "Figure 3" in the running text, not "Fig. 3".
+  \crefname{figure}{Figure}{Figures}%
+  \Crefname{figure}{Figure}{Figures}%
+  % The prose refers back to numbered lines of a program listing.
+  \crefname{enumi}{line}{lines}%
+  \Crefname{enumi}{Line}{Lines}%
+}
+
+\usepackage[marginparmargin=outer]{didactic}
+% didactic sets footnotes --- and, under the verbose citation style, every
+% \autocite --- as margin notes, and LaTeX allocates \marginpar boxes from
+% the same pool of eighteen boxes as floats.  A chapter with this many
+% margin references empties the pool and dies with "Too many unprocessed
+% floats" pages later, in a place that has nothing to do with the cause.
+\extrafloats{200}
+% memoir places a side caption with \rlap, so it takes part in no
+% collision avoidance at all and silently overprints an \ltnote that
+% happens to sit at the same height.  Aligning the caption with the BOTTOM
+% of the figure moves it below the notes, which anchor where they stand in
+% the body text.  (\setsidecappos is memoir's; beamer does not define it.)
+\ifdefined\setsidecappos\setsidecappos{b}\fi
+\ProvideSemanticEnv{lo}{Learning Objective}
+  [style=definition,numbered=yes]
+  {LO}{LO}
+  {Learning objective}{Learning objectives}
+\ProvideTranslation{british}{Learning Objective}{Learning Objective}
+\ProvideTranslation{british}{LO}{LO}
+\ProvideTranslation{british}{Learning objective}{Learning objective}
+\ProvideTranslation{british}{Learning objectives}{Learning objectives}
+\ProvideTranslation{swedish}{Learning Objective}{Lärandemål}
+\ProvideTranslation{swedish}{LO}{lm}
+\ProvideTranslation{swedish}{Learning objective}{Lärandemål}
+\ProvideTranslation{swedish}{Learning objectives}{Lärandemål}
+
+% Paper titles in the generated hit-list tables can carry Greek letters;
+% scholar's table export sets them in math mode itself, and this mapping
+% stays as a guard for the same characters typed anywhere else.
+\DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}
+\DeclareUnicodeCharacter{03BB}{\ensuremath{\lambda}}
+\DeclareUnicodeCharacter{03B1}{\ensuremath{\alpha}}
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03BC}{\ensuremath{\mu}}
+% A Vietnamese title in a hit list has u with a horn, which T1 lacks; it
+% is set as a plain u.
+\DeclareUnicodeCharacter{01B0}{u}
+
+% ------------------------------------------------------------------ figures
+% Pictures and tables that appear both on a slide and in a float of the
+% notes are defined once here, so the two cannot drift apart.  (A
+% \newcommand in contents.nw would sit outside any frame, where beamer's
+% \mode* skips it in the slides job.)
+
+% The workflow of the rewrite, ten steps in two rows read as a snake.
+\tikzset{
+  wfstep/.style={
+    draw, rounded corners, align=center, text width=1.7cm,
+    minimum height=0.95cm, inner sep=2pt, font=\footnotesize,
+  },
+  wfarrow/.style={-{Stealth[length=4pt]}, thick},
+}
+\newcommand{\workflowfigure}{%
+  \begin{tikzpicture}[node distance=3mm and 3mm]
+    \node[wfstep] (s1) {1.\ Export and verify};
+    \node[wfstep, right=of s1] (s2) {2.\ Decide the draw};
+    \node[wfstep, right=of s2] (s3) {3.\ Style guide};
+    \node[wfstep, right=of s3] (s4) {4.\ Author decides};
+    \node[wfstep, right=of s4] (s5) {5.\ Seven rewriters};
+    \node[wfstep, below=of s5] (s6) {6.\ Three reviewers};
+    \node[wfstep, left=of s6] (s7) {7.\ Fixes};
+    \node[wfstep, left=of s7] (s8) {8.\ Feedback};
+    \node[wfstep, left=of s8] (s9) {9.\ Draw program};
+    \node[wfstep, left=of s9] (s10) {10.\ Example exam};
+    \foreach \a/\b in {s1/s2, s2/s3, s3/s4, s4/s5, s5/s6,
+                       s6/s7, s7/s8, s8/s9, s9/s10}
+      \draw[wfarrow] (\a) -- (\b);
+  \end{tikzpicture}%
+}
+
+% What each step guards against, as table rows, in two halves so that a
+% slide can show one half and the notes' table both.
+\newcommand{\workflowtablehead}{%
+  \toprule
+  Step & What it guards against \\
+  \midrule
+}
+\newcommand{\workflowrowsA}{%
+  1.\ Export, convert, round trip through a sandbox
+    & a conversion that silently changes a question \\
+  2.\ Decide how to draw
+    & a draw the platform cannot do; a retake meeting the same question \\
+  3.\ Style guide from the course and its live coding
+    & items in a style the students never met, or whose style gives the
+      key away \\
+  4.\ The author decides the open points
+    & agents settling what is the teacher's to settle \\
+  5.\ Seven rewriters, every program run
+    & wrong keys, crashes, several valid orders, cues \\
+}
+\newcommand{\workflowrowsB}{%
+  6.\ Three independent reviewers
+    & what the rewriters cannot see in their own work \\
+  7.\ Fixes by the rewriters, verified as before
+    & a fix that breaks something else in the bank \\
+  8.\ Feedback on every question and option
+    & feedback that is wrong, names the key, or points at material that
+      does not exist \\
+  9.\ A literate, reviewed drawing program
+    & a draw nobody can reproduce; exam content in the public repository;
+      a retake meeting a question again \\
+  10.\ An example exam in the sandbox
+    & a difference between the draw and what Canvas shows \\
+}
+% Column types for that table: a ragged step column and a ragged X column.
+\newcolumntype{W}{>{\raggedright\arraybackslash}p{0.36\linewidth}}
+\newcolumntype{R}{>{\raggedright\arraybackslash}X}
+
+% The number of questions per bank, before and after the rewrite.  Bank
+% L.n is the n-th bank of learning objective L.
+\newcommand{\banktable}{%
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    Objective & Bank 1 & Bank 2 & Bank 3 & All three \\
+    \midrule
+    1 & $18\to12$ & $9\to9$   & $8\to8$   & $35\to29$ \\
+    2 & $14\to12$ & $11\to10$ & $12\to9$  & $37\to31$ \\
+    3 & $11\to10$ & $10\to9$  & $8\to8$   & $29\to27$ \\
+    4 & $13\to10$ & $10\to10$ & $10\to10$ & $33\to30$ \\
+    5 & $7\to9$   & $10\to9$  & $11\to9$  & $28\to27$ \\
+    6 & $8\to10$  & $12\to10$ & $12\to9$  & $32\to29$ \\
+    7 & $9\to9$   & $7\to8$   & $8\to8$   & $24\to25$ \\
+    \midrule
+    All & & & & $218\to198$ \\
+    \bottomrule
+  \end{tabular}%
+}
