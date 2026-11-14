@@ -45,6 +45,7 @@ EXAMPLES+=	examples/before.py
 EXAMPLES+=	examples/after.py
 EXAMPLES+=	examples/show_draw.py
 EXAMPLES+=	examples/guess.py
+EXAMPLES+=	examples/versions.py
 
 # The draw example runs the real drawing program, tangled from ../dra.nw,
 # on the invented exam in draw/ (tracked inputs, invented for the report).
