@@ -41,6 +41,19 @@ SRC+=		ltnotes.bib
 # with \inputminted, so they must be built before the PDFs.
 EXAMPLES+=	examples/vowels.py
 EXAMPLES+=	examples/parsons.py
+EXAMPLES+=	examples/before.py
+EXAMPLES+=	examples/after.py
+EXAMPLES+=	examples/show_draw.py
+EXAMPLES+=	examples/guess.py
+
+# The draw example runs the real drawing program, tangled from ../dra.nw,
+# on the invented exam in draw/ (tracked inputs, invented for the report).
+DRAW+=		../dra.py
+DRAW+=		draw/template.json
+DRAW+=		$(wildcard draw/banks/*.json)
+
+../dra.py: ../dra.nw
+	${MAKE} -C .. dra.py
 
 contents.tex: contents.nw
 
@@ -56,7 +69,7 @@ examples: ${EXAMPLES}
 notes.pdf: notes.tex
 slides.pdf: slides.tex
 
-notes.pdf slides.pdf: ${SRC} ${EXAMPLES}
+notes.pdf slides.pdf: ${SRC} ${EXAMPLES} ${DRAW}
 
 
 .PHONY: clean
