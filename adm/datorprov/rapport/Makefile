@@ -36,6 +36,8 @@ SRC+=		sokprotokoll.tex
 # must trigger a rebuild even when no .tex source changed.
 SRC+=		$(wildcard litteratursokning/*-full.tex)
 SRC+=		ltnotes.bib
+# The three example exams, typeset from their Canvas exports.
+SRC+=		$(wildcard exempelprov/*.tex)
 
 # One line per tangled example program.  Recaps re-display these files
 # with \inputminted, so they must be built before the PDFs.
