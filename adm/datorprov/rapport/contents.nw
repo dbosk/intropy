@@ -1268,14 +1268,18 @@ was a wrong key.
   \textbf{Variation pattern}: contrast in one dimension, what a Python
   terminal can answer: an item it answers (\cref{ex:paste}), an item it
   does not answer by running the example (\cref{ex:format-h}), an item
-  whose answer it shows but not the reason (\cref{ex:format-n}).
+  whose answer it shows but not the reason (\cref{ex:format-n}); and
+  once on real, public items (\cref{ex:pair}), a sibling of an item
+  before the rework against the item after it, so that the invented
+  contrast is seen to hold for the banks.
   \textbf{What stays invariant}: short programs on taught topics.
 }%
 The banks had passed four kinds of check when a second look, a day
 later, found something none of them looks for.  This section is
 that second round: what an exam written without the banks did
 differently, the property that comparison exposed, the rework that
-followed and the ways around it, and how long the exam now takes to read.
+followed, the ways around it and a recount after it, and how long the
+exam now takes to read.
 Like the lessons, it is this case's experience.
 
 \mode<article>{\subsection{An exam written without the banks}%
@@ -1283,8 +1287,8 @@ Like the lessons, it is this case's experience.
 
 One agent had written an exam from the course material alone, without
 seeing the banks (\cref{sec:rest}); it is printed in full in
-\cref{sec:ep2}, next to the course's earlier practice exam, which was
-built from the old shared banks with one item per position
+\cref{sec:ep2}, next to the course's earlier practice exam, Exempelprov~1,
+which was built from the old shared banks with one item per position
 (\cref{sec:ep1}).  A comparison agent then coded all 219
 items, 198 from the banks and 21 from the independent exam, on a scheme
 written before any coding: cognitive level, the role of the exam's Python
@@ -1486,7 +1490,110 @@ In format N, a run confirms the output but cannot tell the explanations
 apart; the student has to know what [[get]] does.  Exempelprov 3, a draw
 from the rewritten banks, has real items in both formats: question 4 is of
 format H (\cref{ep3:q4}) and question 15 of format N
-(\cref{ep3:q15}).  Formats of this kind
+(\cref{ep3:q15}).  Question 4 was reworked from an item that asked how
+many times a loop prints a word.  That item is not public, but
+Exempelprov~1, the earlier practice exam, has a sibling of it: the same
+template with other numbers, not the very item that was reworked
+(\cref{ep1:q6}).  \Cref{ex:pair} shows the two side by side.
+
+\begin{frame}
+  \begin{example}[A real pair: before and after the rework]\label{ex:pair}
+    \mode<presentation>{\setminted{fontsize=\tiny}\scriptsize}%
+    On the left a sibling of the item before the rework, on the right the
+    item after it.
+    \def\pairbefore{%
+      \textbf{Exempelprov 1, question 6}\only<article>{
+      (\cref{ep1:q6})}: how many times is \texttt{hej} printed, with
+      \texttt{antal = 25} before the loop?
+      \inputminted{python}{examples/ep1-q6.txt}
+      Options \texttt{25}, \texttt{24}, \texttt{15}, \texttt{14}; key
+      \enquote{\foreignlanguage{swedish}{Inga gånger}} (none).}%
+    \def\pairafter{%
+      \textbf{Exempelprov 3, question 4}\only<article>{
+      (\cref{ep3:q4})}: which condition makes \texttt{halvings} right for
+      every whole number of 1 or more?  \texttt{halvings(15)} should give
+      \texttt{3}.
+      \inputminted[breaklines]{python}{examples/ep3-q4.txt}
+      Options \texttt{while} with (A)~\texttt{number \% 2 == 0 and number
+      > 2}; (B, key)~\texttt{number > 1}; (C)~\texttt{number > 2};
+      (D)~\texttt{number // 2 > 1}.}%
+    \mode<presentation>{\textbytext{\pairbefore}{\pairafter}}%
+    \mode<article>{\textbytext*{\pairbefore}{\pairafter}}%
+  \end{example}
+\end{frame}
+
+Pasting question 6 after [[antal = 25]] prints nothing: the run itself
+shows the key, no lines.  Question 4 does not give way to pasting.  On
+the stem's own example, 15, two of the four conditions give 3, and they
+part only on a number that passes 2 on its way to 1, such as 16 or 2,
+which the stem does not name.  The question is shown as the author's
+review of this report left it, after the draw: the example became an odd
+number, so that no student takes the halvings to work for even numbers
+only, and option C was changed so that two options still pass the
+example.  With the old option A beside it, the key would have been the
+option closest to all the others, the centre cue of
+\cref{sec:hypotheses}; the bank's own check rejected that, and A got a
+second bug.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[The pair run]
+    A small program cuts the code of both questions from
+    \cref{app:exempelprov}, runs question 6 and fills the gap of
+    question 4 with each condition:
+<<[[pair.py]]>>=
+"""Run Exempelprov 1 question 6 and Exempelprov 3 question 4"""
+
+import contextlib
+import io
+from pathlib import Path
+
+HERE = Path(__file__).parent
+CONDITIONS = {
+    "A": "number % 2 == 0 and number > 2",
+    "B": "number > 1",
+    "C": "number > 2",
+    "D": "number // 2 > 1",
+}
+
+
+def lines_printed():
+    """Return how many lines question 6 prints after antal = 25"""
+    code = "antal = 25\n" + (HERE / "ep1-q6.txt").read_text()
+    output = io.StringIO()
+    with contextlib.redirect_stdout(output):
+        exec(code, {})
+    return len(output.getvalue().splitlines())
+
+
+def halvings(condition):
+    """Return question 4's function with the gap filled by condition"""
+    code = (HERE / "ep3-q4.txt").read_text()
+    namespace = {}
+    exec(code.replace("____", f"while {condition}:"), namespace)
+    return namespace["halvings"]
+
+
+def main():
+    """Print the run of question 6 and the four versions of question 4"""
+    print(f"Question 6 prints {lines_printed()} lines.")
+    print("Question 4, halvings(n):")
+    print(f"{'n':>4}" + "".join(f"{name:>4}" for name in CONDITIONS))
+    for n in [15, 16, 2]:
+        row = f"{n:>4}"
+        for condition in CONDITIONS.values():
+            row += f"{halvings(condition)(n):>4}"
+        print(row)
+
+
+if __name__ == "__main__":
+    main()
+@
+    Its run:
+    \runpython[showcommand]{examples/pair.py}
+  \end{example}
+\end{frame}
+
+Formats of this kind
 have some support: items that give the output and ask for the input held
 up better against an interpreter,\autocite{HassanZilles2021} and items
 asking for the output of inputs that tracing alone cannot reach agreed
@@ -1558,6 +1665,53 @@ sitting.
     \end{itemize}
     The orchestrator's own brief stated the rule per item, and offered
     write-and-run items the author had postponed.
+  \end{block}
+\end{frame}
+
+\mode<article>{\subsection{A recount after the rework}\label{sec:recount}}
+
+Two days after the comparison, agents coded all 198 items again on the
+terminal's role alone, with the comparison's definition: an item gives
+the key by pasting when running the shown code, or each option, on what
+the item itself states and comparing the result with the stem leaves only
+the key.  Every item with code was run.  Four items still give the key
+that way, against 88 before.  One is a reworked item of format H whose
+stem states the result for every input the function takes, 12 in all, so
+trying them all leaves only the key.  The other three were not reworked,
+and the comparison had coded them as items where the terminal only helps:
+they ask which calls of a function are fine, and every wrong call ends
+in an error, so keeping the calls that run gives the key.%
+\footnote{Near misses, coded as help: in the same bank, five more items
+where the run removes the calls that crash and the stem's own definition
+of a fine call removes the rest; and three items of format H where the
+inputs that separate the options are the limits the stem states (a
+weight, an age, a temperature).  The comparison coded the independent
+exam's item with boundary ages the same way.}
+Of the 88 reworked items, 86 now leave the terminal a helping role:
+running rules out some options, but which inputs to try, or which
+experiment to run, is the student's choice.  That holds for 51 of the 52
+items of format N: running the shown code cannot tell the explanations
+apart, but an experiment the student designs can.  No objective can now
+be passed two of three by pasting, in any draw: in each objective at
+most one of the three banks has such an item.  A second agent, which did
+not see the first codes, coded a random 42 items: the two agreed on 39
+(Cohen's $\kappa$ 0.84), all three disagreements between help and no
+help.  On 12 borderline items chosen afterwards they agreed on 11; the
+one they split on is the reworked item, which the second agent coded as
+help.
+
+\begin{frame}
+  \begin{block}{After the rework: the same count again}
+    All 198 items coded again on the terminal's role, every item with code
+    run; a second coder on 42 ($\kappa$ 0.84).
+    \begin{itemize}
+      \item Pasting gives the key: four of 198 (2\,\%), against 88.
+      \item One reworked item: its stem states the result for all 12
+        inputs.
+      \item Three items not reworked: every wrong call crashes.
+      \item No objective can be passed two of three by pasting, in any
+        draw.
+    \end{itemize}
   \end{block}
 \end{frame}
 

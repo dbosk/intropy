@@ -65,8 +65,24 @@ def lexer(code):
     return "text"
 
 
+# A fill-in gap is marked [[BLANKn]] in the stem and typeset as a numbered
+# box.  Inside a code block the box needs minted's escapeinside, or the
+# verbatim block prints the \fbox command as text.
+BLANK = r"\[\[BLANK(\d+)\]\]"
+BOX = r"\\fbox{\\strut\\enspace(\1)\\enspace}"
+
+
 def minted(code):
-    return ("\\begin{minted}{" + lexer(code) + "}\n" + code
+    """A code block; a gap in it becomes a box, the rest stays verbatim."""
+    lang = lexer(code)
+    options = ""
+    if re.search(BLANK, code):
+        if "|" in code:
+            sys.exit("mkexempel.py: a gap in code containing |, "
+                     "the escape character")
+        code = re.sub(BLANK, "|" + BOX + "|", code)
+        options = "[escapeinside=||]"
+    return ("\\begin{minted}" + options + "{" + lang + "}\n" + code
             + "\n\\end{minted}\n")
 
 
@@ -204,8 +220,7 @@ def render_item(item, prefix):
             body = re.sub(r'<span id="blank_' + re.escape(blank["id"])
                           + r'"></span>', f"[[BLANK{n}]]", body)
     stem = blocks(body)
-    stem = re.sub(r"\[\[BLANK(\d+)\]\]",
-                  r"\\fbox{\\strut\\enspace(\1)\\enspace}", stem)
+    stem = re.sub(BLANK, BOX, stem)
     out.append(stem)
     scoring = entry["scoring_data"]
     feedback = entry.get("answer_feedback") or {}

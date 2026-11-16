@@ -48,6 +48,12 @@ EXAMPLES+=	examples/after.py
 EXAMPLES+=	examples/show_draw.py
 EXAMPLES+=	examples/guess.py
 EXAMPLES+=	examples/versions.py
+EXAMPLES+=	examples/pair.py
+# The real before-and-after pair shows two items of the public practice
+# exams; their code is cut from the typeset exams of Appendix G, so the
+# frame and the run show exactly the text printed there.
+EXAMPLES+=	examples/ep1-q6.txt
+EXAMPLES+=	examples/ep3-q4.txt
 
 # The draw example runs the real drawing program, tangled from ../dra.nw,
 # on the invented exam in draw/ (tracked inputs, invented for the report).
@@ -65,6 +71,20 @@ contents.tex: contents.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+# The code block of the question labelled LABEL, from the line after its
+# \begin{minted} to the line before its \end{minted}.
+CODE_OF=	awk -v label='$(1)' 'index($$0, "\\label{" label "}") {f = 1} \
+		f && index($$0, "\\end{minted}") {exit} f && p {print} \
+		f && index($$0, "\\begin{minted}") {p = 1}'
+
+examples/ep1-q6.txt: exempelprov/exempelprov1.tex
+	@mkdir -p ${@D}
+	$(call CODE_OF,ep1:q6) $< > $@
+
+examples/ep3-q4.txt: exempelprov/exempelprov3.tex
+	@mkdir -p ${@D}
+	$(call CODE_OF,ep3:q4) $< > $@
 
 .PHONY: examples
 examples: ${EXAMPLES}
