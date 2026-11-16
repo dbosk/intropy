@@ -27,8 +27,7 @@ PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=30'
 # size=5000000]" (#408).  kpathsea reads these two from the environment
 # at run time, so they add memory to the book's runs only, without
 # rebuilding the format or changing anyone's texmf.cnf.  Exported, they
-# reach every pdflatex latexmk starts, including those it runs through
-# make (-use-make).
+# are in the environment of latexmk and so of every pdflatex it starts.
 export extra_mem_top=	3000000
 export extra_mem_bot=	3000000
 TEX_PYTHONTEX=	yes
