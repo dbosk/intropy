@@ -24,12 +24,14 @@ EXAMPLES+=	examples/age.py
 EXAMPLES+=	examples/state-keep.py examples/state-change.py
 EXAMPLES+=	examples/state-greeting.py examples/state-recompute.py
 EXAMPLES+=	examples/assign-eq-a.py examples/assign-eq-b.py
-EXAMPLES+=	examples/division.py examples/string-number.py
+EXAMPLES+=	examples/division.py examples/division-types.py
+EXAMPLES+=	examples/string-number.py
 EXAMPLES+=	examples/relation.py
 EXAMPLES+=	examples/concat-error.py examples/concat.py
 EXAMPLES+=	examples/naming-clear.py examples/naming-opaque.py
 EXAMPLES+=	examples/naming-lying.py
 EXAMPLES+=	examples/comment-what.py examples/comment-why.py
+EXAMPLES+=	examples/long-line.py examples/long-line-space.py
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),
 # and every deck's source is called contents.nw, so in the course book
@@ -43,6 +45,27 @@ contents.tex: contents.nw
 examples/%.py: contents.nw
 	@mkdir -p ${@D}
 	${NOTANGLE.py}
+
+# The two line-break programs are tangled raw, without black: black
+# rewrites a backslash continuation in an assignment into parentheses,
+# which would erase the form long-line.py shows, and long-line-space.py
+# does not parse at all (a space after the backslash is its point).  Both
+# must also be excluded from the style check:
+#
+#     build_deck.sh --deck ... --exempt 'examples/long-line*.py'
+#
+# The space is invisible and an editor may strip it, so the build fails
+# if it is gone instead of silently showing a program that runs.
+examples/long-line.py: contents.nw
+	@mkdir -p ${@D}
+	notangle -R"[[$(@F)]]" $< | ${CPIF} $@
+
+examples/long-line-space.py: contents.nw
+	@mkdir -p ${@D}
+	notangle -R"[[$(@F)]]" $< | ${CPIF} $@
+	@grep -q '\\ $$' $@ || { \
+	  echo "$@: the space after the backslash is gone" >&2; \
+	  ${RM} $@; exit 1; }
 
 .PHONY: examples
 examples: ${EXAMPLES}
