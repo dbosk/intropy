@@ -315,7 +315,12 @@ unparsable program (its tangle rule in that deck's Makefile skips black;
 build with `--exempt 'examples/villkor.py'`), and so is
 `containers/slides-tuples/examples/fullname-alt.py`, whose optional
 parentheses black would strip (tangled raw; build with
-`--exempt 'examples/fullname-alt.py'`); the
+`--exempt 'examples/fullname-alt.py'`), and so are
+`variables/slides/examples/long-line.py` and `long-line-space.py`, the
+backslash continuation black would rewrite into parentheses and the
+deliberately unparsable space after the backslash (tangled raw, the
+Makefile checks that the trailing space survives; build with
+`--exempt examples/long-line.py --exempt examples/long-line-space.py`); the
 tangled `hello.lean` needs the elan toolchain `+leanprover/lean4:v4.25.1`.
 
 ## Where the general rules went (2026-09-07)
