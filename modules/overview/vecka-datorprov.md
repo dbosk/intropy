@@ -33,10 +33,6 @@ kunna
 - använda och konstruera sammansatta datatyper och klasser,
 - dela upp ett program i funktioner utan kodupprepning.
 
-Provet bygger på samma slags uppgifter som laborationerna. Ett bra sätt
-att förbereda sig är därför att lösa dem igen på egen hand, utan att luta
-sig mot sin labbpartner.
-
 ## Gör så här, i ordning
 
 1. **Anmäl dig i Ladok i tid.** Anmälningsperioden stänger i god tid före
@@ -45,10 +41,11 @@ sig mot sin labbpartner.
 2. **Läs** *Om datorprovet* och *Hjälpmedel under provet*, så att du vet
    hur provet går till och vilken dokumentation du har tillgång till
    (se även *Pythondokumentation* och *Python*).
-3. **Studera först**, och pröva sedan med exempelproven. Börja med
-   materialet, ett ämne i taget, gärna i föreläsningsanteckningarna
-   *Repetition: kursens grunder*: varje avsnitt där slutar med var i
-   kursen du läser mer. Gör sedan *Exempelprov 1* som ett prov: ensam, på
+3. **Studera först**, och pröva sedan med exempelproven. Studera
+   materialet ett ämne i taget, gärna med föreläsningsanteckningarna
+   *Repetition: kursens grunder* som början (varje avsnitt där slutar med
+   var i kursen du läser mer) och genom att lösa laborationerna igen på
+   egen hand, utan att luta dig mot din labbpartner. Gör sedan *Exempelprov 1* som ett prov: ensam, på
    tid och med bara de tillåtna hjälpmedlen. Återkopplingen visar vad du
    behöver studera mer och var i kursen det står. Gör om provet tills allt
    är rätt, men studera sedan vidare i materialet innan du gör
