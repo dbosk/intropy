@@ -75,7 +75,7 @@ Efter föreläsningen ska du kunna
 - använda de vanligaste operationerna och metoderna på tal och strängar,
   och förutsäga vilken typ och vilket värde resultatet får,
 - utforma frågor, utskrifter och felmeddelanden så att den som kör
-  programmet förstår vad som förväntas, vad svaret betydde och vad hon
+  programmet förstår vad som förväntas, vad svaret betydde och vad hen
   kan göra när något gick fel,
 - förklara vad ett särfall (exception) är, och redogöra för vad som
   händer när ett särfall inträffar,
