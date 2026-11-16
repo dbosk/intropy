@@ -723,18 +723,82 @@ if __name__ == "__main__":
     \label{ex:hamta}
     Vi kör programmet och svarar \enquote{madicken}:
     \runpython[transcript, stdin={madicken}]{examples/hamta.py}
+    Utan reservvärde lämnar \mintinline{python}{get} tillbaka
+    \mintinline{python}{None}, och det prövar vi med
+    \mintinline{python}{is None}.
   \end{example}
 \end{frame}
 
 Alla tre klarar ett namn som saknas.  \mintinline{python}{in} frågar
 först och läser sedan; \mintinline{python}{try} läser först och tar hand
 om felet om det kommer; \mintinline{python}{get} lämnar tillbaka ett
-reservvärde i stället för att det blir något fel alls.  Utan reservvärde
-lämnar \mintinline{python}{get} tillbaka \mintinline{python}{None}; det
-och resten av metodens beskrivning hittar du med
-\mintinline{bash}|pydoc3 dict.get| i terminalen.  Välj det som säger
+reservvärde i stället för att det blir något fel alls.  Hela metodens
+beskrivning, också vad den lämnar tillbaka utan reservvärde, hittar du
+med \mintinline{bash}|pydoc3 dict.get| i terminalen.  Välj det som säger
 sanningen om programmet: är en saknad nyckel ett väntat fall, eller är
 det något som inte borde hända?
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOMissing}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: om [[get]] får ett reservvärde, i
+  [[hamta.py]] (\cref{ex:hamta}) mot [[hamta-none.py]]
+  (\cref{ex:hamta-none}).
+  \textbf{Vad som hålls invariant}: uppslagslistan, frågan, svaret
+  \enquote{madicken} och de två meningarna som skrivs ut.
+
+  [[is None]] användes i livekodningen vid föreläsningen 6/10 2026, och
+  senare material (\emph{Grafiska användargränssnitt},
+  anteckningarna \emph{Operatoröverlagring}) använder [[is None]] och
+  [[is not None]] utan att förklara dem; här förklaras formen där
+  [[None]] först dyker upp som svar.
+  Förklaringen bygger på [[is]] från föreläsningen \emph{Behållare:
+  Listor} i stället för att införa en ny regel.  Prosan påstår inte att
+  [[is]] är säkrare än [[==]]; den säger vad [[is]] frågar och vad PEP~8
+  föreskriver, och båda delarna går att slå upp.
+}%
+Ett program som inte har något lämpligt reservvärde kan i stället låta
+\mintinline{python}{get} lämna tillbaka \mintinline{python}{None} och
+fråga efter det.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Utan reservvärde]
+    \label{ex:hamta-none}
+    Programmet frågar om \mintinline{python}{get} lämnade tillbaka
+    \mintinline{python}{None}:
+<<[[hamta-none.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    phone = {"ronja": "0701234567", "pippi": "0721234567"}
+
+    name = input("Vems telefonnummer? ")
+    number = phone.get(name)
+
+    if number is None:
+        print(f"Tyvärr, {name} finns inte i telefonboken.")
+    else:
+        print(f"{name} har telefonnummer {number}.")
+
+
+if __name__ == "__main__":
+    main()
+@
+    Vi kör programmet och svarar \enquote{madicken}:
+    \runpython[transcript, stdin={madicken}]{examples/hamta-none.py}
+  \end{example}
+\end{frame}
+
+Operatorn \mintinline{python}{is} mötte vi i föreläsningen
+\emph{Behållare: Listor}, där den skilde två namn på samma lista från
+två lika listor: den frågar om två värden är \emph{samma} värde, inte
+om de är lika.  Det finns bara ett
+\mintinline{python}{None}, vilket \mintinline{bash}|pydoc3 NONE|
+beskriver, så \mintinline{python}{number is None} frågar precis om
+\mintinline{python}{get} lämnade tillbaka det.  Jämförelser med
+\mintinline{python}{None} skrivs alltid med \mintinline{python}{is} eller
+\mintinline{python}{is not}, aldrig med \mintinline{python}{==}, enligt
+Pythons stilguide PEP~8\autocite{pep8}.
 
 \section{Att gå igenom en uppslagslista}
 \label{sec:genomgang}
@@ -761,7 +825,9 @@ det något som inte borde hända?
   slingvariabeln får --- och det är just den urskiljningen studenten ska
   göra själv
   \parencite[91]{Marton2015}.  De tre fallen syns ändå: det första i
-  körningen av övningens eget program, de två andra i [[genomgang.py]].
+  körningen av övningens eget program, de två andra i [[genomgang.py]],
+  som först upprepar det första med [[keys()]] så att slingan över
+  uppslagslistan och slingan över [[keys()]] ger samma utskrift.
 }%
 En uppslagslista går att gå igenom med \mintinline{python}{for}, precis
 som en lista.  Frågan är vad slingvariabeln får.
@@ -792,15 +858,18 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Slingvariabeln får namnen, men inte numren.  Vi provar två andra sätt
+Slingvariabeln får namnen, men inte numren.  Vi provar tre andra sätt
 att gå igenom samma uppslagslista.
 
 \begin{frame}[fragile]
-  Samma uppslagslista, med värdena och sedan paren:
+  Samma uppslagslista, med nycklarna, värdena och paren:
 <<[[genomgang.py]]>>=
 def main():
     """Huvudprogrammet"""
     phone = {"ronja": "0701234567", "pippi": "0721234567"}
+
+    for person in phone.keys():
+        print(person)
 
     for number in phone.values():
         print(number)
@@ -822,11 +891,61 @@ if __name__ == "__main__":
 \end{frame}
 
 En \mintinline{python}{for} över en uppslagslista ger alltså
-\emph{nycklarna}, inget annat.  Vill vi ha värdena ber vi om
+\emph{nycklarna}, inget annat.  Den första slingan i
+\texttt{genomgang.py} skriver ut samma namn som slingan i
+\cref{ovn:for}: \mintinline{python}{keys()} ber uttryckligen om
+nycklarna, och det är dem en \mintinline{python}{for} över
+uppslagslistan går igenom också utan den.  Vill vi ha värdena ber vi om
 \mintinline{python}{values()}, och vill vi ha båda ber vi om
 \mintinline{python}{items()} --- som ger oss ett par i taget, alltså en
 tupel, som vi packar upp i två namn på samma sätt som med
 \mintinline{python}{enumerate}.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{DictLOIterate}.
+
+  \textbf{Variationsmönster}: kontrast.
+  \textbf{Vad som varierar}: vad [[in]] frågar efter, de tre raderna i
+  [[i_varden.py]] (\cref{ex:i-varden}): en nyckel, ett värde i
+  uppslagslistan, ett värde i [[values()]].
+  \textbf{Vad som hålls invariant}: uppslagslistan och operatorn.
+
+  [[keys()]], [[in]] på [[values()]] och [[sorted]] på en uppslagslista
+  visades i livekodningen vid föreläsningen 6/10 2026.  Den mittersta
+  raden, som ger [[False]] trots att numret finns, är kontrastens poäng:
+  den visar att [[in]] på uppslagslistan bara ser nycklarna.  Prosan
+  säger inget om hur snabba de två frågorna är.
+}%
+Samma skillnad gäller \mintinline{python}{in}.  I \cref{ex:isin}
+frågade \mintinline{python}{name in phone} om ett namn fanns, alltså om
+en nyckel fanns.  Ett telefonnummer letar vi efter bland värdena.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Nyckel eller värde]
+    \label{ex:i-varden}
+    Vi frågar efter ett namn, sedan två gånger efter ett nummer:
+<<[[i_varden.py]]>>=
+def main():
+    """Huvudprogrammet"""
+    phone = {"ronja": "0701234567", "pippi": "0721234567"}
+
+    print("ronja" in phone)
+    print("0701234567" in phone)
+    print("0701234567" in phone.values())
+
+
+if __name__ == "__main__":
+    main()
+@
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/i_varden.py}
+  \end{example}
+\end{frame}
+
+Numret finns i uppslagslistan, men \mintinline{python}{in phone} svarar
+ändå \mintinline{python}{False}: den frågar bara efter nycklarna.  Vill
+vi veta om ett värde finns frågar vi
+\mintinline{python}{values()}.
 
 \leavevmode\ltnote{%
   \textbf{Variationsmönster}: kontrast mellan [[genomgang.py]] och
