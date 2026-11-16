@@ -2014,6 +2014,38 @@ occur}\autocite[83]{EbertCastor2015}.  Regeln är därför inte
 \enquote{aldrig}, utan: fånga det du vet hur du ska svara på, och låt
 resten synas.
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ExcLOCatch}.
+
+  Ett \texttt{except} utan namn står direkt efter \cref{ex:catchall},
+  som felaktig form; i livekodningen på föreläsningen (21/9 2026)
+  skrevs det först och byttes ut.  Ingen körning: ett Ctrl-C går inte
+  att mata in i anteckningarnas körningar.  Mekaniken står i PEP~8 och
+  i dokumentationen \parencite{PythonExceptions}.
+}%
+Det finns ett ännu allmännare skyddsnät: ett \texttt{except:} utan
+något namn alls.  Det fångar allt som
+\mintinline{python}{except Exception} fångar, och dessutom bland annat
+två särfall som inte är fel i programmet:
+\mintinline{python}{KeyboardInterrupt}, som uppstår när användaren
+trycker Ctrl-C för att avbryta programmet, och
+\mintinline{python}{SystemExit}, som uppstår när programmet självt
+avslutar sig med \mintinline{python}{sys.exit}, som vi återkommer till
+i \cref{sec:kasta}.  Har ett åldersprogram ett sådant \texttt{except}
+kring frågan, och användaren trycker Ctrl-C när frågan väntar på
+svar, hamnar avbrottet i grenen för felskrivna årtal: programmet
+anklagar användaren för att ha skrivit fel i stället för att avbrytas.
+Pythons stilguide PEP~8 avråder av samma skäl: \enquote{A bare except:
+clause will catch SystemExit and KeyboardInterrupt exceptions, making
+it harder to interrupt a program with Control-C, and can disguise other
+problems.}\autocite{pep8}%
+\footnote{%
+  PEP~8 gör två undantag: när grenen skriver ut hela spårutskriften,
+  och när den städar upp och sedan kastar särfallet vidare.  Inget av
+  dem tar vi upp.}
+Efter \texttt{except} skriver vi därför alltid vilken sorts fel grenen
+fångar.
+
 \begin{frame}
   \only<presentation>{%
     \begin{summary}[Fånga det du kan svara på]
@@ -2023,6 +2055,8 @@ resten synas.
         \item De specifika först, det allmänna sist eller inte alls.
         \item Ett fel du inte väntade dig är information --- göm det
           inte.
+        \item Ange alltid sorten: ett \texttt{except:} utan namn
+          fångar också Ctrl-C.
       \end{itemize}
     \end{summary}%
   }%
@@ -2031,7 +2065,9 @@ resten synas.
       Skriv ett \texttt{except} för varje sorts fel du vet
       hur du ska bemöta, med de specifika först och det allmänna sist
       eller inte alls.  Ett fel du inte väntade dig är information om
-      programmet --- göm det inte.
+      programmet --- göm det inte.  Skriv alltid vilken sort grenen
+      fångar: ett \texttt{except:} utan namn fångar också Ctrl-C och
+      programmets eget avslut.
     \end{summary}%
   }
 \end{frame}
@@ -2288,6 +2324,42 @@ finns det ingenting att räkna med.  Två körningar, en för varje fel:
 
 Särfallet från \mintinline{python}{age} uppstod inuti funktionen men
 fångades utanför den, hos anroparen, och där slutade kedjan.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ExcLORaise}.
+
+  \mintinline{python}{sys.exit} nämns här som den form vi inte använder,
+  bredvid \mintinline{python}{return} och \mintinline{python}{raise},
+  eftersom den visades i livekodningen på föreläsningen (21/9 2026),
+  där den skrevs och byttes mot \mintinline{python}{return}.  Den
+  beskrivs bara genom sin mekanik, utan någon körning och utan
+  påståenden om testbarhet eller återanvändning.  Mekaniken är prövad:
+  ett anrop i en hjälpfunktion avslutar programmet utan att grenen
+  \mintinline{python}{except ValueError} hos anroparen eller raden
+  efter anropet körs, och ett \texttt{except:} utan namn fångar det.
+  Föreläsningen \emph{Villkor och styrstrukturer} håller den borta av
+  ett annat skäl, som dess egen not förklarar.
+}%
+Det finns ett sätt till att avsluta, som vi inte använder: funktionen
+\mintinline{python}{sys.exit} (den kräver
+\mintinline{python}{import sys} överst i programmet, något
+föreläsningen \emph{Moduler och paket} går igenom).  Den avslutar inte
+funktionen utan hela programmet, genom att kasta särfallet
+\mintinline{python}{SystemExit}\autocite{PythonExceptions}.  I
+\mintinline{python}{main} i \cref{ex:age-raise} hade den sett ut att
+göra samma sak som \mintinline{python}{return}, eftersom programmet
+ändå tar slut när \mintinline{python}{main} gör det.  Men hade
+\mintinline{python}{age} anropat \mintinline{python}{sys.exit()} i
+stället för att kasta ett \mintinline{python}{ValueError} hade den
+tagit beslutet ifrån anroparen: programmet hade slutat mitt i anropet,
+och grenen \mintinline{python}{except ValueError} i
+\mintinline{python}{main} hade aldrig kommit i fråga.  Det är just det
+beslutet \mintinline{python}{raise} lämnar åt den som anropar.
+Ett \texttt{except:} utan namn hade däremot fångat
+\mintinline{python}{SystemExit}, och då hade programmet inte avslutats
+där.  Vill vi avsluta en funktion använder vi alltså
+\mintinline{python}{return}, och kan den inte svara vettigt kastar den
+ett särfall med \mintinline{python}{raise}.
 
 \section[Sammanfattning]{Sammanfattning}
 \label{sec:sammanfattning}

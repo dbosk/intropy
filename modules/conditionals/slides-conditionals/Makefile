@@ -35,6 +35,7 @@ EXAMPLES+=	examples/nedrakning.py
 EXAMPLES+=	examples/rabatt.py
 EXAMPLES+=	examples/gissa.py
 EXAMPLES+=	examples/fraga-utan-slinga.py
+EXAMPLES+=	examples/fraga-valross.py
 EXAMPLES+=	examples/varv.py
 EXAMPLES+=	examples/bed2.py
 
