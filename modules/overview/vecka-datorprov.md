@@ -45,7 +45,7 @@ sig mot sin labbpartner.
 2. **Läs** *Om datorprovet* och *Hjälpmedel under provet*, så att du vet
    hur provet går till och vilken dokumentation du har tillgång till
    (se även *Pythondokumentation* och *Python*).
-3. **Studera först, och pröva sedan med exempelproven.** Börja med
+3. **Studera först**, och pröva sedan med exempelproven. Börja med
    materialet, ett ämne i taget, gärna i föreläsningsanteckningarna
    *Repetition: kursens grunder*: varje avsnitt där slutar med var i
    kursen du läser mer. Gör sedan *Exempelprov 1* som ett prov: ensam, på
