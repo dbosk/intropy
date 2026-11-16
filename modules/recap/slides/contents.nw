@@ -723,9 +723,14 @@ och 1000 ligger kvar i [[old]].
 Värdena har typer: [[1000]] är ett heltal, [[int]], och utskriftens text
 är en sträng, [[str]].  Ett decimaltal, som räntan [[0.02]], är ett
 flyttal, [[float]].  Typen avgör vad som går att göra med värdet, som
-termometern i \cref{ex:recap-temperatur} visade.  F-strängen sätter in
+termometern i \cref{ex:recap-temperatur} visade.  Är vi osäkra kan vi
+fråga Python: \mintinline{python}{type(1000)} lämnar tillbaka typen, som
+skrivs ut som \mintinline{text}{<class 'int'>}.  F-strängen sätter in
 värdena i texten; utan \texttt{f} framför citattecknet hade
-klammerparenteserna skrivits ut som de står.
+klammerparenteserna skrivits ut som de står.  Med ett likhetstecken sist
+i fältet skriver den också uttrycket:
+\mintinline{python}|print(f"{balance=}")| skriver ut
+\mintinline{text}|balance=1000|.
 
 \ltnote{%
   Kompletta program följer kursens regel: funktioner, \texttt{main} och
@@ -744,9 +749,11 @@ namn = uttryck
     \end{minted}
     Typer: \mintinline{python}{1000} (\texttt{int}),
     \mintinline{python}{0.02} (\texttt{float}),
-    \mintinline{python}|"Ronja"| (\texttt{str}).  Omvandling:
+    \mintinline{python}|"Ronja"| (\texttt{str}); typen ger
+    \mintinline{python}{type(värde)}.  Omvandling:
     \mintinline{python}|int("500")|, \mintinline{python}{str(1000)}.
-    Utskrift: \mintinline{python}|print(f"text {uttryck} text")|.
+    Utskrift: \mintinline{python}|print(f"text {uttryck} text")|, med
+    uttrycket utskrivet: \mintinline{python}|print(f"{uttryck=}")|.
   \end{syntax}
 
   \begin{example}[En frågesport]
@@ -761,7 +768,11 @@ print(f"{correct} rätt, {share} % av frågorna")
 \end{frame}
 
 Variabler, typer och utskrifter gick föreläsningen \emph{Variabler och
-utskrifter} igenom.
+utskrifter} igenom.  Där finns också hur en sats som inte ryms på en rad
+bryts inom parenteser, och vad som händer när ett bakstreck sist på
+raden följs av ett blanksteg.  Likhetstecknet i f-strängen går
+föreläsningen \emph{Behållare: Listor} igenom, där det följer en slinga
+varv för varv.
 
 
 \section{Funktioner}
@@ -906,10 +917,12 @@ def namn(parameter, parameter):
     return uttryck
 
 
-resultat = namn(argument, argument)
+resultat = namn(argument, parameter=argument)
     \end{minted}
     Kroppen är indragen; utan \mintinline{python}{return} lämnar
-    funktionen tillbaka \mintinline{python}{None}.
+    funktionen tillbaka \mintinline{python}{None}.  Ett namngivet
+    argument, \mintinline{python}{parameter=argument}, paras ihop med sin
+    parameter genom namnet, inte genom platsen.
   \end{syntax}
 
   \begin{example}[Grader]
@@ -925,7 +938,9 @@ def fahrenheit(celsius):
 
 Funktioner, parametrar, returvärden och [[main]] gick föreläsningen
 \emph{Funktioner} igenom.  Där finns också varför vi delar upp program i
-funktioner, och principerna för hur.
+funktioner, och principerna för hur, liksom standardvärden och namngivna
+argument.  Med namn kan en funktion med två standardvärden få bara det
+andra argumentet, och ordningen mellan argumenten spelar ingen roll.
 
 
 \mode<presentation>{\section[Inmatning]{Inmatning, felhantering och
@@ -1071,7 +1086,10 @@ except ValueError:
 
 Inmatning, typomvandling och särfall gick föreläsningen \emph{Inmatning
 och felhantering} igenom, liksom hur en spårutskrift läses och hur en
-egen funktion kastar ett särfall med [[raise]].
+egen funktion kastar ett särfall med [[raise]].  Där finns också varför
+vi alltid skriver sorten efter [[except]]: ett \texttt{except:} utan
+namn fångar också Ctrl-C och programmets eget avslut med
+\mintinline{python}{sys.exit}, ett sätt att avsluta som vi inte använder.
 
 
 \subsection{Villkor}
@@ -1403,6 +1421,23 @@ if __name__ == "__main__":
 Inne i slingan måste något kunna göra villkoret falskt, här den nya
 inmatningen; annars tar slingan aldrig slut.
 
+\leavevmode\ltnote{%
+  Valrossen repeteras i prosan, utan egen ram, som ett annat sätt att
+  skriva [[pin.py]] i \cref{ex:recap-pin}: föreläsningen \emph{Villkor
+  och styrstrukturer} visar samma omfrågning med och utan den.  Raden är
+  körd i ett program med [[print("Fel kod.")]] i kroppen, med svaren 1111
+  och 1234, och black lämnar den orörd; formen utan parenteser är körd
+  och ger [[pin]] värdet [[True]].
+}%
+[[pin.py]] frågar två gånger, före slingan och i den.  Med
+tilldelningsuttrycket \mintinline{python}{:=}, valrossen, räcker det med
+en gång, i villkoret: [[while (pin := input("PIN: ")) != "1234":]].
+Uttrycket ger [[pin]] svaret och har självt svaret som värde, och det är
+det värdet som jämförs med koden.  Kvar i kroppen blir bara att säga
+ifrån, med \mintinline{python}|print("Fel kod.")|.  Parenteserna
+behövs: utan dem hade [[pin]] fått jämförelsens värde, [[True]] eller
+[[False]].
+
 \begin{frame}[fragile,shrink]
   \begin{syntax}[upprepningar]
     \label{syn:recap-upprepningar}
@@ -1417,7 +1452,10 @@ while villkor:
     kropp
     \end{minted}
     Kroppen är det som är indraget; det som står efter, utan indrag,
-    utförs en gång, efteråt.
+    utförs en gång, efteråt.  Ett namn som inte används kan heta
+    \mintinline{python}{_}.  I villkoret ger
+    \mintinline{python}{namn := uttryck} namnet ett värde och prövar
+    det.
   \end{syntax}
 
   \begin{example}[Frostnätter]
@@ -1435,7 +1473,10 @@ print(f"{frost} nätter med minusgrader")
 
 Upprepningar med [[for]] och [[while]], och när vi väljer vilken, gick
 föreläsningen \emph{Upprepningar} igenom.  Där finns också rekursion: en
-funktion som anropar sig själv.
+funktion som anropar sig själv, namnet \mintinline{python}{_} för en
+slingvariabel som inte används, och valrossen i en räknare.  Valrossen
+infördes i föreläsningen \emph{Villkor och styrstrukturer}, i en fråga
+som ställs om tills svaret går att använda.
 
 
 \mode<presentation>{\section[Listor]{Listor, tupler och moduler}}
@@ -1547,7 +1588,10 @@ print(items[0], len(items))
 
 Listor, index, skivning, metoderna som ändrar en lista och kopior gick
 föreläsningen \emph{Behållare: Listor} igenom, liksom sökning och
-sortering.
+sortering.  Där finns också att ett negativt index räknas från slutet,
+så att \mintinline{python}{lista[-k]} är samma element som
+\mintinline{python}{lista[len(lista) - k]}, och att
+\mintinline{python}{list(range(len(lista)))} visar indexen som en lista.
 
 
 \subsection{Tupler}
@@ -1675,6 +1719,8 @@ första, andra = par
 return värde, värde
 for första, andra in lista_av_par:
     kropp
+for i, (första, andra) in enumerate(lista_av_par):
+    kropp
     \end{minted}
     En tupel går inte att ändra.
   \end{syntax}
@@ -1690,8 +1736,18 @@ for number, name in enumerate(names, start=1):
   \end{example}
 \end{frame}
 
+Elementen som [[enumerate]] numrerar kan själva vara par, som
+transaktionerna i [[tupel2.py]].  Då får namnen efter [[for]] samma form
+som det de packar upp, numret och ett par:
+\mintinline{python}{number, (date, amount)}.  Tre namn utan parenteser,
+\mintinline{python}{number, date, amount}, försöker packa upp två delar,
+numret och paret, i tre namn, och det ger ett [[ValueError]].
+
 Tupler, uppackning och [[enumerate]] gick föreläsningen \emph{Behållare:
-Tupler} igenom.
+Tupler} igenom.  Där finns också den nästlade uppackningen med båda
+körningarna, och stjärnan, som packar upp en tupel i ett anrop:
+\mintinline{python}{namn(*par)} ger parets element som var sitt
+argument.
 
 
 \subsection{Moduler}
@@ -1946,7 +2002,9 @@ d = {nyckel: värde, nyckel: värde}
 d[nyckel]             # KeyError om nyckeln saknas
 d[nyckel] = värde     # lägger till eller ändrar
 nyckel in d
+värde in d.values()
 d.get(nyckel, standardvärde)
+if d.get(nyckel) is None:
 for nyckel, värde in d.items():
     \end{minted}
   \end{syntax}
@@ -1965,7 +2023,10 @@ for item, price in prices.items():
 
 Uppslagslistor, nycklar som saknas och hur vi väljer mellan lista, tupel
 och uppslagslista gick föreläsningen \emph{Behållare: Uppslagslistor}
-igenom.
+igenom.  Där finns också [[keys()]], som ber uttryckligen om nycklarna,
+att [[in]] på en uppslagslista bara frågar efter nycklarna, så att ett
+värde letas upp med [[in]] på [[values()]], och att [[get]] utan
+reservvärde lämnar tillbaka [[None]], som prövas med [[is]].
 
 
 \subsection{Klasser och objekt}
@@ -2000,7 +2061,12 @@ understreck och är inte tänkta att nås utifrån.  [[__init__]] ger ett nytt
 objekt dess värden, och [[self]] är objektet självt, det som metoden
 anropades på.  Saldot ska gå att läsa men inte att ändra direkt, så det
 läses genom metoden [[get_balance]], som lämnar tillbaka det privata
-attributet.  [[__str__]] bestämmer hur kontot skrivs ut.
+attributet.  Föreläsningen \emph{Klasser och objekt} ställer den formen
+bredvid två andra: ett publikt attribut, för ett attribut som klassen
+inte har någon regel om, och en egenskap
+(\foreignlanguage{english}{property}), som läses som ett attribut men
+går via en metod och som anteckningarna \emph{Operatoröverlagring} går
+igenom.  [[__str__]] bestämmer hur kontot skrivs ut.
 
 \begin{frame}<article>[fragile]
   \begin{example}[Bankens modul]
@@ -2867,7 +2933,9 @@ with open(filnamn) as fil:
     for rad in fil:
         delar = rad.strip().split(",")
     \end{minted}
-    Filen stängs när blocket är slut.
+    Filen stängs när blocket är slut.  En rad per anrop läser
+    \mintinline{python}{rad = fil.readline()}, som ger
+    \mintinline{python}|""| när filen är slut.
   \end{syntax}
 
   \begin{example}[En temperaturlogg]
@@ -2882,7 +2950,10 @@ with open("temperaturer.txt", "a") as file:
 
 Filer, lägena, [[with]] och filer som saknas går föreläsningen
 \emph{Arbeta med filer} igenom.  Där finns också de vanliga formaten CSV
-och JSON, och modulerna i standardbiblioteket som läser och skriver dem.
+och JSON, med modulerna i standardbiblioteket som läser och skriver dem,
+och ett eget format där varje kontakt står på två rader och läses
+tillbaka med [[readline()]], två anrop per varv i slingan
+\mintinline{python}{while name := file.readline():}.
 
 
 \mode<presentation>{\section[Fönster]{Grafiska gränssnitt}}
@@ -3334,6 +3405,24 @@ till ett annat.  Det är därför lådorna har fungerat hela kursen, och det
 saldot i [[main]].  Listor, uppslagslistor och objekt kan ändras, och då
 syns ändringen via varje namn som pekar på dem, som i
 \cref{ex:recap-lista}.
+
+\leavevmode\ltnote{%
+  [[is]] repeteras här och inte i \cref{sec:recap-listor}, eftersom det
+  är pilarna som gör frågan begriplig.  Föreläsningen \emph{Behållare:
+  Listor} införde [[is]] för två namn på samma lista, och
+  \emph{Behållare: Uppslagslistor} [[is None]] för [[get]] utan
+  reservvärde.  Värdena för [[lista.py]] är körda, före och efter
+  [[append]].
+}%
+Med pilar går det också att säga vad operatorn [[is]] frågar efter: om
+två pilar pekar på samma objekt.  I [[lista.py]] är
+[[history is transactions]] sant, men [[backup is transactions]]
+falskt, också innan [[append]], när de två listorna fortfarande är lika
+och [[backup == transactions]] är sant.  Det finns bara ett
+[[None]], vilket \mintinline{bash}|pydoc3 NONE| beskriver, så
+\mintinline{python}{värde is None} frågar om pilen pekar på just det,
+som på raden med [[get]] och [[is None]] i
+\cref{syn:recap-uppslagslista}.
 
 \begin{frame}[fragile]
   \begin{summary}
