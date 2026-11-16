@@ -22,6 +22,8 @@ handlar om vad forskningen säger, och dem kan ingen körning avgöra:
     programmering (\cref{sec:tva-exempel});
   \item att man bör föredra komposition framför arv, ett etablerat råd
     från Gamma, Helm, Johnson och Vlissides (\cref{sec:arv});
+  \item att det inte är visat att inkapsling förhindrar programfel
+    (\cref{sec:med-klasser});
   \item att en klass med ett enda ansvar följer principen \emph{SRP},
     som är Robert C. Martins (\cref{sec:tva-exempel});
   \item att det är bra att inte upprepa sig i ett program --- principen
@@ -52,6 +54,8 @@ föreläsningar.
       objektorienterad programmering? & Ja, med förbehåll \\
     \Cref{app:komposition} & Bör man föredra komposition framför arv,
       och kommer rådet från Gamma med flera? & Ja, med förbehåll \\
+    \Cref{app:inkapsling-fel} & Förhindrar inkapsling programfel? & Nej,
+      det är inte visat \\
     --- & Är SRP Robert C. Martins princip, och är den etablerad? &
       Redan belagt i \emph{Funktioner}, bilaga~B \\
     --- & Är det bra att inte upprepa sig, och kommer DRY från Hunt och
@@ -82,14 +86,16 @@ varje citerad källa är läst och vald av en människa, och modellens
 klassning står med sin konfidens i tabellerna så att den kan
 ifrågasättas.  Fulltexten gick inte att nå för en av källorna i
 \cref{app:missuppfattningar-klasser} och för de flesta i
-\cref{app:fenomenografi-klasser} och \cref{app:komposition}; där nöjer
+\cref{app:fenomenografi-klasser} och \cref{app:komposition}, och för
+flera av de bärande källorna i \cref{app:inkapsling-fel}; där nöjer
 sig bilagan
-med det sammanfattningen säger, och säger det.  Bilagorna om
+med det sammanfattningen säger, och säger det.  De flesta bilagorna om
 påståenden svarar \enquote{ja, med förbehåll}, medan
 \cref{app:fenomenografi-klasser}, som frågar vilka uppfattningar
 nybörjare har, svarar med tre nivåer av uppfattningar och sina
-förbehåll (\cref{tab:paastaenden-klasser}).  Var och en slutar med ett
-avsnitt
+förbehåll, och \cref{app:inkapsling-fel} svarar nej: att inkapsling
+förhindrar programfel är inte visat (\cref{tab:paastaenden-klasser}).
+Var och en slutar med ett avsnitt
 \emph{Fortsatt arbete}: vad just den sökningen lämnade ogjort, och vad
 som skulle behöva undersökas för ett säkrare svar.
 
@@ -1142,7 +1148,9 @@ sin enklaste form --- privata attribut och läsmetoder --- och säger
 \cref{sec:metoder-attribut} är därför också ett publikt attribut ett
 rimligt val när klassen inte har någon regel om attributet att hålla,
 vilket även Pythons stilguide rekommenderar för enkla
-dataattribut\autocite{pep8}.
+dataattribut\autocite{pep8}.  Att principen är etablerad säger inte att
+den förhindrar programfel; den frågan besvarar \cref{app:inkapsling-fel},
+och svaret är att det inte är visat.
 
 \section{Fortsatt arbete}
 \label{sec:ink-fortsatt}
@@ -1166,9 +1174,11 @@ För ett säkrare svar saknas mätningar på nybörjare och på Python.  De
 källor som visar att principen är etablerad är designlitteratur, och de
 två empiriska gäller professionellt skriven Javakod; ingen av dem prövar
 vad inkapslingen ger den som just har lärt sig skriva klasser.
-Delpåståendet som ingen har prövat är alltså det materialet självt
-använder: att ett program med privata attribut och läsmetoder är
-lättare att ändra än ett med öppna attribut.  Ett kontrollerat försök
+Delpåståendet som ingen har prövat på nybörjare är alltså det materialet
+självt använder: att ett program med privata attribut och läsmetoder är
+lättare att ändra än ett med öppna attribut.  I andra språk har
+döljandets vinster i ändringar och förståelse mätts, men färre fel har
+inte visats (\cref{app:inkapsling-fel}).  Ett kontrollerat försök
 där nybörjare ändrar samma Pythonprogram i två versioner, en med och en
 utan privata attribut, skulle avgöra saken.  Visar försöket en vinst kan
 materialet säga att principen är prövad och inte bara etablerad; visar
@@ -1523,3 +1533,605 @@ tabelltexten, och antalet träffar per fråga står i
 %                     (Elsevier), StevensonWood2018 (ACM) -- for the user
 %                     to verify
 \input{litteratursokning/classes-komposition-full}
+
+\chapter{Förhindrar inkapsling programfel?}
+\label{app:inkapsling-fel}
+\chapterprecis{Författaren har ännu inte granskat resultaten i den här
+  bilagan i sin helhet.}
+
+I \cref{sec:med-klasser} frågar materialet vad som skulle kunna gå fel
+om attributen gick att nå direkt (\cref{ovn:varfor-privat}), och svarar
+med en mekanism: när attributen ändras bara genom klassens metoder kan
+klassen själv hålla dem i ett tillstånd som stämmer med dess regler, och
+i Python når en tilldelning utifrån inte det attribut som metoderna
+använder (\cref{ex:privat-utifran}).  Det ligger nära till hands att gå
+ett steg längre och säga att inkapsling därför förhindrar många
+programfel.  Principen är etablerad, som \cref{app:inkapsling} visar, och
+\textcite{Tempero2009Fields} skriver att den allmänt anses leda till
+programvara av högre kvalitet.  Men att en princip är omfattad säger inte
+att den har visats ge färre fel, och redan \textcite{Snyder1986} anger
+inkapslingens fördelar som begriplighet och lättare ändringar, inte som
+färre fel.  Frågan som ska besvaras är därför: \emph{förhindrar
+inkapsling --- att attributen göms och bara nås genom metoder --- många
+programfel?}  Påståendet är kausalt och brett, och det är den styrkan som
+prövas.  \Cref{sec:inkf-metod} beskriver sökningen,
+\cref{sec:inkf-resultat} vad den fann, \cref{sec:inkf-diskussion} vad som
+begränsar svaret, \cref{sec:inkf-slutsats} ger det och
+\cref{sec:inkf-fortsatt} säger vad som återstår att göra;
+\cref{tab:sok-inkapsling-fel} sist i bilagan listar de träffar som rör
+påståendet.
+
+\section{Metod}
+\label{sec:inkf-metod}
+
+Frågan söktes ämnesdrivet och tvåsidigt den 16 november 2026 med
+verktyget \texttt{scholar}, mot OpenAlex, IEEE Xplore, Web of Science och
+Scopus.  DBLP svarade på varje fråga med en sida som stoppar
+automatiserade klienter, i stället för med data, och kunde inte
+genomsökas.  Semantic Scholar avvisade sin nyckel; dess öppna sökning
+svarade på en provfråga med noll träffar där de andra databaserna gav
+mellan 21 och 43, men den tolkar inte booleska frågor, så den fick inga
+fler frågor och räknas inte som genomsökt.  OpenAlex söktes i titel och
+sammanfattning: i fulltext gav de frågor som prövades där mellan
+450\,000 och drygt åtta miljoner träffar var, fler än som går att
+hämta.  Övriga databaser söktes utan övre gräns, så talen i
+\cref{tab:sok-queries-inkf} är alla
+träffar.
+
+Påståendet vilar på några begrepp, och vart och ett söktes med flera
+ordalag (\cref{tab:sok-begrepp-inkf}): döljandet som
+\foreignlanguage{english}{encapsulation}, \foreignlanguage{english}{information
+hiding}, \foreignlanguage{english}{data hiding} och åtkomstmodifierare,
+och under sitt andra namn \foreignlanguage{english}{data abstraction}
+eller \foreignlanguage{english}{abstract data type}; felen som
+\foreignlanguage{english}{fault}, \foreignlanguage{english}{defect},
+\foreignlanguage{english}{bug} och \foreignlanguage{english}{error} i
+olika former; läs- och skrivmetoderna och de publika attributen med de
+fraser och ord som används för dem; och de kodlukter som innebär att en
+klass exponerar sina data eller når in i andra objekt, med fältets egna
+namn för dem.  Två frågor söker de forskningsfält där sådana mått brukar
+prövas: objektorienterade designmått mot felbenägenhet (S2) och kodlukter
+mot felbenägenhet (S8).  Varje motfråga är stödfrågan med samma ord och
+därtill ord för kritik, nollresultat, störfaktorer och kostnader, så att
+motsökningen använder varje begrepp som stödsökningen använder.
+
+% Author's note (verification and reproduction): see the block above the
+% hit-list \input at the end of this chapter.  The word lists are verbatim
+% from the query strings (the lit-inkapsling agent's scripts/queries.py);
+% the hit counts are transcribed from scholar sessions show
+% kl-inkapsling-programfel.
+\begingroup\footnotesize
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.13\textwidth}%
+  >{\raggedright\arraybackslash}p{0.82\textwidth}@{}}
+  \caption{Begreppsblocken i sökfrågorna i
+    \cref{tab:sok-queries-inkf}.  Orden inom ett block förenas med
+    \textsc{or}; blocken förenas med \textsc{and}.  En fras inom
+    citattecken söks som fras.  Alla frågor ställdes på engelska.}
+  \label{tab:sok-begrepp-inkf}\\
+  \toprule
+  Block & Begrepp: ord \\
+  \midrule
+  \endfirsthead
+  \toprule
+  Block & Begrepp: ord \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endfoot
+  DÖLJ & döljande: encapsulation, encapsulated, \enquote{information
+    hiding}, \enquote{data hiding}, \enquote{attribute hiding},
+    \enquote{hiding factor}, \enquote{access modifier}, \enquote{access
+    modifiers} \\
+  ABSTR & döljande under namnet dataabstraktion: \enquote{data
+    abstraction}, \enquote{abstract data type}, \enquote{abstract data
+    types}, \enquote{abstract datatype}, \enquote{abstract datatypes} \\
+  FEL & fel: fault, faults, \enquote{fault-prone},
+    \enquote{fault-proneness}, \enquote{fault proneness}, defect, defects,
+    bug, bugs, error, errors, \enquote{error-prone}, \enquote{error
+    proneness} \\
+  FELB & felbenägenhet: som FEL men utan error och errors \\
+  PROG & program: \enquote{object-oriented}, \enquote{object oriented},
+    software, programming, programs \\
+  OO & objektorienterad: \enquote{object-oriented}, \enquote{object
+    oriented} \\
+  MÅTT & mått: metric, metrics, measure, measures, measurement,
+    \enquote{design properties} \\
+  EXP & experiment: experiment, experiments, experimental,
+    \enquote{controlled experiment}, \enquote{empirical study},
+    \enquote{empirical evaluation} \\
+  ÄNDR & ändring och förståelse: maintenance, maintainability,
+    modification, modifications, modifiability, changeability, change,
+    changes, comprehension, understandability \\
+  ÅTK & läs- och skrivmetoder och publika attribut, fraser: setter,
+    setters, \enquote{getter and setter}, \enquote{getters and setters},
+    \enquote{getter method}, \enquote{getter methods}, \enquote{setter
+    method}, \enquote{setter methods}, \enquote{accessor method},
+    \enquote{accessor methods}, \enquote{get and set methods},
+    \enquote{public field}, \enquote{public fields}, \enquote{public
+    attribute}, \enquote{public attributes}, \enquote{non-private field},
+    \enquote{non-private fields}, \enquote{field access} \\
+  ÅTKO & läs- och skrivmetoder, enstaka ord: getter, getters, accessor,
+    accessors \\
+  SPRÅK & språk och klasser: \enquote{object-oriented}, \enquote{object
+    oriented}, Java, Python, Smalltalk, class, classes \\
+  LUKT & kodlukter som exponerar data eller når in i andra objekt:
+    \enquote{data class}, \enquote{data classes}, \enquote{inappropriate
+    intimacy}, \enquote{law of Demeter}, \enquote{encapsulation
+    violation}, \enquote{encapsulation violations}, \enquote{class data
+    should be private}, ClassData\-Should\-Be\-Private, \enquote{deficient
+    encapsulation}, \enquote{leaky encapsulation}, \enquote{broken
+    encapsulation}, \enquote{encapsulation smell}, \enquote{encapsulation
+    smells}, \enquote{message chain}, \enquote{message chains} \\
+  LKTX & sammanhang för kodlukter: smell, smells, antipattern,
+    antipatterns, \enquote{anti-pattern}, \enquote{anti-patterns},
+    \enquote{design flaw}, \enquote{design flaws},
+    \enquote{object-oriented}, \enquote{object oriented} \\
+  LUKTER & kodlukter i allmänhet: antipattern, antipatterns,
+    \enquote{anti-pattern}, \enquote{anti-patterns}, \enquote{code smell},
+    \enquote{code smells}, \enquote{design smell}, \enquote{design
+    smells}, \enquote{bad smell}, \enquote{bad smells} \\
+  KLASS & klasser: \enquote{object-oriented}, \enquote{object oriented},
+    class, classes \\
+  NDÖLJ & döljande, för nybörjare: encapsulation, \enquote{information
+    hiding}, \enquote{data hiding}, setter, setters, \enquote{getters and
+    setters}, \enquote{getter and setter}, \enquote{getter methods},
+    \enquote{accessor methods}, \enquote{private attribute},
+    \enquote{private attributes}, \enquote{private field},
+    \enquote{private fields} \\
+  NYB & nybörjare: novice, novices, student, students, beginner,
+    beginners, \enquote{introductory programming}, CS1, learner, learners
+    \\
+  MISS & misstag: error, errors, mistake, mistakes, misconception,
+    misconceptions, bug, bugs, difficulty, difficulties \\
+  NSPRÅK & språk, för nybörjare: \enquote{object-oriented},
+    \enquote{object oriented}, \enquote{object orientation}, OOP, Python,
+    Java \\
+  MOT & motord: critique, criticism, criticisms, limitation,
+    limitations, harmful, evil, myth, myths, dogma, \enquote{no evidence},
+    \enquote{lack of evidence}, \enquote{little evidence}, \enquote{no
+    effect}, \enquote{no significant}, \enquote{not significant},
+    \enquote{no relationship}, \enquote{no correlation}, \enquote{not
+    correlated}, inconclusive, contradictory, confounding, confounded,
+    cost, costs, overhead, drawback, drawbacks, violate, violates,
+    violation, erode, erodes, undermine, undermines \\
+\end{longtable}
+\endgroup
+
+\begin{table}[!htb]
+  \centering
+  \caption{Sökfrågor och antal träffar per databas, förhindrar inkapsling
+    programfel?, 16 november 2026, verktyget \texttt{scholar}.  S =
+    stödfråga, M = motfråga; varje motfråga är stödfrågan med samma
+    nummer \textsc{and} MOT.  Blocken står i
+    \cref{tab:sok-begrepp-inkf}.  Databaser: OpenAlex (OA; inte
+    \foreignlanguage{english}{open access}), IEEE Xplore (IEEE), Web of
+    Science (WoS), Scopus.  OpenAlex söktes i titel och sammanfattning,
+    Web of Science fick frågan som \texttt{TS=(\dots)}, Scopus som
+    \texttt{TITLE-ABS-KEY(\dots)}, IEEE och OpenAlex som boolesk fritext.
+    Sökningarna har ingen övre gräns: talen är alla träffar.
+    \enquote{--} betyder att frågan inte ställdes till OpenAlex, vars
+    ordstamning gör \foreignlanguage{english}{getter} till
+    \foreignlanguage{english}{get} och \foreignlanguage{english}{accessor}
+    till \foreignlanguage{english}{access}.  DBLP kunde inte genomsökas
+    och visas inte.}
+  \label{tab:sok-queries-inkf}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}l>{\raggedright\arraybackslash}p{0.27\linewidth}%
+    rrrrrrrr@{}}
+    \toprule
+    & & \multicolumn{4}{c}{S} & \multicolumn{4}{c}{M} \\
+    \cmidrule(lr){3-6}\cmidrule(l){7-10}
+    & Block & OA & IEEE & WoS & Scopus & OA & IEEE & WoS & Scopus \\
+    \midrule
+    1  & DÖLJ \textsc{and} FEL \textsc{and} PROG
+       & 1744 & 1268 & 657 & 995 & 494 & 309 & 162 & 197 \\
+    1a & ABSTR \textsc{and} FEL \textsc{and} PROG
+       & 273 & 163 & 82 & 235 & 68 & 46 & 18 & 36 \\
+    2  & OO \textsc{and} MÅTT \textsc{and} FELB
+       & 966 & 714 & 599 & 867 & 268 & 199 & 159 & 219 \\
+    3  & DÖLJ \textsc{and} EXP \textsc{and} ÄNDR \textsc{and} PROG
+       & 1329 & 337 & 328 & 584 & 408 & 98 & 63 & 98 \\
+    3a & ABSTR \textsc{and} EXP \textsc{and} ÄNDR \textsc{and} PROG
+       & 102 & 28 & 16 & 38 & 24 & 10 & 4 & 12 \\
+    4  & ÅTK \textsc{and} FEL \textsc{and} SPRÅK
+       & 49 & 6 & 16 & 29 & 17 & 3 & 3 & 8 \\
+    4w & ÅTKO \textsc{and} FEL \textsc{and} SPRÅK
+       & -- & 7 & 3 & 10 & -- & 1 & 1 & 1 \\
+    5  & LUKT \textsc{and} FEL \textsc{and} LKTX
+       & 46 & 26 & 23 & 39 & 20 & 11 & 10 & 19 \\
+    6  & NDÖLJ \textsc{and} NYB \textsc{and} MISS \textsc{and} NSPRÅK
+       & 51 & 3 & 9 & 19 & 9 & 0 & 1 & 2 \\
+    8  & LUKTER \textsc{and} FELB \textsc{and} KLASS
+       & 200 & 156 & 111 & 167 & 62 & 57 & 35 & 47 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Två studier som sökningen måste hitta skrevs upp i förväg: valideringen
+av Chidamber och Kemerers designmått mot felbenägna
+klasser\autocite{Basili1996Validation} och den första empiriska studien
+av MOOD-måtten, som innehåller en faktor för dolda
+attribut\autocite{BritoeAbreu1996Impact}.  Båda kom tillbaka genom
+begreppsfrågorna, utan att sökas med namn.  Därefter ställdes en sökning
+efter betydelse i OpenAlex, en fråga i klartext per begrepp, och det den
+gav jämfördes med det som sökningen redan hade hittat.  Den visade två
+luckor, och de lagades som en avvikelse från den ursprungliga planen,
+samma dag.  Den första var ett experiment som kallar döljandet
+\foreignlanguage{english}{data
+abstraction}\autocite{Meeson1979DataAbstraction}: blocket ABSTR och
+frågorna 1a och 3a lades till.  Den andra var studier
+som bara nämner de enskilda kodlukterna i fulltexten: blocket LUKT
+utvidgades med fältets namn för lukterna, och fråga 8 lades till.  Alla
+nya frågor ställdes till alla databaser.  Tre av de arbeten som
+bilagan citerar fann bara sökningen efter betydelse, eftersom deras
+titel och sammanfattning saknar ett ord för fel eller ett för döljande
+och därför inte kan nås av frågorna här: \textcite{Snyder1986},
+\textcite{Lumpe2010Properties} och \textcite{Thomasson2006Novice}.
+
+Sammanlagt gav databaserna 8\,465 olika poster, och det är poster som
+räknas i resten av metoden.  Exporten till \cref{tab:sok-inkapsling-fel}
+slår dessutom ihop poster vars titlar är desamma bortsett från versaler
+och skiljetecken, och tillsammans med en sammanslagning för hand (se
+nedan) blir de 7\,771 unika arbeten; det är dem tabellen räknar.
+Eftersom
+\foreignlanguage{english}{information hiding} också är steganografins
+namn, och \foreignlanguage{english}{encapsulation} förekommer i kemi,
+medicin och nätverksteknik, sorterades först de poster bort vars titel
+eller sammanfattning innehöll ett ord från ett sådant fält men inget ord
+för programvara eller programmering.  Regeln tog bort 1\,620 poster, och
+i två slumpvisa stickprov på 110 och 100 av dem rörde ingen påståendet.
+Övriga poster klassades på samma sätt som i
+\cref{app:missuppfattningar-klasser}: först med en språkmodell mot en
+beskrivning av frågan och fyra kategorier, sedan för hand för varje post
+som modellen satt i en stödjande eller kvalificerande kategori och varje
+post med konfidens under 0,7.  En post utesluts om den hör till något av
+följande.
+\begin{description}
+  \item[Annat fält] Ordet betyder något annat --- steganografi,
+    nätverkspaket, material, läkemedel, kapslade komponenter --- eller
+    posten hör till en annan disciplin.
+  \item[Inget döljandemått] En studie av programkvalitet eller fel som
+    inte mäter inkapsling, döljande eller åtkomst.
+  \item[Inget felutfall] En studie av inkapsling eller åtkomst utan fel,
+    defekter eller underhåll som utfall.
+  \item[Inga belägg] Lärobok, handledning eller åsikt utan data eller
+    argumenterad analys.
+  \item[Verktyg eller teknik] Föreslår ett verktyg, en
+    språkkonstruktion eller en teknik och utvärderar bara den.
+\end{description}
+Av de 8\,465 posterna uteslöts 4\,444 som annat fält (varav 1\,620
+genom regeln), 1\,823 som verktyg eller teknik, 1\,569 för att de saknar
+döljandemått, 376 för att de saknar belägg, 204 för att de saknar
+felutfall och nio som dubbletter av citerade källor; 40 behölls.  De
+källor som bilagan citerar lästes i fulltext där den gick att nå; för de
+övriga står det i källfilen att bara sammanfattningen lästs.  Hur varje
+källa hittades och verifierades är antecknat i källfilen, med de fasta
+fält som föreläsningen \emph{Algoritmiskt tänkande}, bilaga~A, beskriver.
+\Cref{tab:sok-inkapsling-fel} rättades för hand på tre punkter: två rader
+för samma studie av kopplingsmått i C++ står nu på en rad, en titel i
+versaler står i vanlig stil, och Basili med fleras artikel har sitt
+tryckår 1996 i stället för OpenAlex 1997.
+% Author's note: the rule's two term lists (OTHER, SOFTWARE) are verbatim
+% in the lit-inkapsling agent's scripts/rule_other_field.py and in its
+% report, sec. 2.5.  OTHER: steganograph*, steganalysis, stego*,
+% watermark*, cover image*, host image*, image*, video*, audio, pixel*,
+% DCT, wavelet*, reversible data hiding, reversible information hiding,
+% embedding capacity, coverless, QR code*, barcode*, speech, packet*,
+% tunnel*, tunneling, tunnelling, IPv4, IPv6, VPN, GRE, MPLS, VLAN,
+% Ethernet, TCP, UDP, header*, protocol stack, key encapsulation, KEM,
+% lattice-based, post-quantum, nanoparticle*, nano*, polymer*, drug*,
+% cell, cells, liposom*, microcapsule*, capsule*, solar, perovskite*,
+% photovoltaic*, LED, OLED, epoxy, molding, moulding, chemical*,
+% catalys*, protein*, food*, emulsion*, bacteri*, probiotic*, yeast,
+% hydrogel*, tissue*, patient*, clinical, tumor*, tumour*, cancer,
+% enzyme*, molecul*, zeolite*, membrane*, crystal*, semiconductor*,
+% wafer*, chip*, MEMS, sensor*, encapsulant*, thermal, corrosion,
+% concrete, soil, plant, plants, seed*, oil, vitamin*, secret*, embed*,
+% encrypt*, cipher*, wireless, network*, 5G, channel*, signal*,
+% frequency, antenna*, radar.  SOFTWARE: software, program, programs,
+% programming, programmer*, source code, class, classes,
+% object-oriented, object oriented, object orientation, Java, Python,
+% C++, C#, Smalltalk, Ada, Eiffel, compiler*, API, APIs, refactor*,
+% abstract data type*, data abstraction, maintainab*, design pattern*,
+% smell*, antipattern*, anti-pattern*, fault-prone*, getter*, setter*,
+% accessor*, modularity, modularization, modularisation, design
+% decision*, information-hiding module*, information hiding module*,
+% defect prediction, testing, test case*, test suite*, debug*, bug, bugs,
+% embedded system*.  Discard = OTHER and not SOFTWARE in title or
+% abstract; tags off-topic-false-hit, other-field, rule-other-field.
+% Samples: rule-sample-1.txt (110, seed 20261116; 3 SE records, none
+% bearing -> SOFTWARE widened by the last line of terms), rule-sample-2.txt
+% (100, seed 7, final rule; none bearing).  LLM run: 6805 records, 136
+% batches of 50, 1 h 56 min, cost not measured.  The S2 pilot: S5v1 on
+% the anonymous S2 fallback answered 0 (S2's paper search does not parse
+% boolean OR).  Superseded: S5v1/M5v1 (LUKT without the names from "class
+% data should be private" on; 43/25/21/35 and 19/11/9/17), replaced by
+% S5/M5, a superset.  M1 on OpenAlex first failed with HTTP 504; the
+% rerun answered 494.  OpenAlex full-text counts: S1 449 912, S3 629 682,
+% S4 8 336 357.
+
+\section{Resultat}
+\label{sec:inkf-resultat}
+
+\paragraph{Studier som stöder påståendet.}  Det närmaste stöd sökningen
+gav är indirekt.  \Textcite{Guo2011Demeter} prövade Demeters lag, en
+regel som \enquote{is said to foster information hiding}, på fem
+delprojekt i Eclipse och fann att brott mot den
+\textcquote[239]{Guo2011Demeter}{indeed highly correlate with the number
+of bugs}.  Deras egna tabeller visar dock att sambandet inte är starkare
+än klassens storlek: i det största delprojektet är rangkorrelationen med
+antalet buggar 0,67 för brotten mot lagen men 0,76 för antalet kodrader,
+och när brotten läggs till storleken förbättras förutsägelsen bara
+lite\autocite[242--243]{Guo2011Demeter}.
+\Textcite{Mekahlia2026Encapsulation} mätte en inkapslingsgrad utifrån
+attributens åtkomstmodifierare i 17 projekt och fann att den skilde
+felaktiga klasser från felfria ($p = 0{,}000\,88$), men antalet publika
+element skilde inte signifikant, studien redovisar inte åt vilket håll
+inkapslingsgraden skilde, och måttet hänger samman med klassens
+storlek\autocite[27, 31]{Mekahlia2026Encapsulation}.
+I en sammanfattning nämner \textcite{BritoeAbreu1996Impact} att
+informationsdöljande bland andra mekanismer
+\textcquote{BritoeAbreu1996Impact}{can influence quality characteristics
+like reliability or maintainability}, utan att säga hur, och
+\textcite{Singh2011Encapsulation} att en modell med två mått på
+inkapsling och döljande bland andra förutsade felbenägna klasser väl,
+utan att säga hur mycket de två måtten bidrog.  I Apache Tomcat var
+klasser vars metoder bara läser och skriver attributen nästan
+frånvarande bland de klasser som hade
+säkerhetshål\autocite[35]{Sultana2019MicroPatterns}, men det gäller en
+sorts fel och ett system.
+
+\paragraph{Ett till stor del oprövat påstående.}  Den klassiska
+valideringen av objektorienterade designmått mot
+felbenägenhet\autocite{Basili1996Validation} innehåller inget mått på
+döljande alls.  MOOD-måtten, som har en faktor för dolda attribut och en
+för dolda metoder, behövde enligt en senare prövning ändras för att vara
+giltiga mått, och författarna efterlyser fler empiriska
+studier\autocite{Harrison1998MOOD}.  En systematisk översikt av 99
+studier av sådana mått fann att mått på inkapsling
+\textcquote[664]{Jabangwe2015SLR}{were very few or they appeared in only
+one or two studies}.
+
+\paragraph{Vinster som inte gäller fel.}  Där döljandets vinster har
+mätts gäller de annat än fel.  Ett program där modulerna döljer det som
+väntas ändras gick snabbare att ändra\autocite{Korson1986Modularity},
+programmerare förstod en version byggd med abstrakta datatyper bättre än
+andra versioner av samma program\autocite{Woodfield1981Modularization},
+och i ett projekt byggt med informationsdöljande moduler stannade
+ändringarna i få komponenter\autocite{Hager1994TRALAB}.  Moduler med gott
+döljande förföll inte när de ändrades\autocite{RisingCalliss1993}.
+
+\paragraph{Studier som talar emot eller begränsar påståendet.}  Det enda
+kontrollerade experiment i sökningen som jämförde felfrekvenser i program
+med och utan dolda datarepresentationer fann ingen skillnad:
+\textcquote{Meeson1979DataAbstraction}{No significant differences in
+programming error rates were found between programs with or without
+abstract datatypes}; programmen med abstrakta datatyper blev dessutom
+större och svårare att ändra.  I tre experiment där nya komponenter
+byggdes antingen genom befintliga komponenters gränssnitt eller med
+direkt åtkomst till deras representation gav den inkapslade vägen
+mindre arbete, medan antalet fel var
+\textcquote{Zweben1995Layering}{at least as good} --- ingen visad
+minskning.
+
+I kodbaser är publika attribut en känd kodlukt,
+\enquote{ClassDataShouldBePrivate (CDSBP): A class that exposes its
+fields, thus violating the principle of encapsulation}, men i 54
+versioner av fyra Javasystem gick det inte att visa att den var förenad
+med fler fel\autocite[250, 257, 263]{Khomh2012Antipatterns}.  I 395
+versioner av 30 projekt hade det en begränsad verkan på felbenägenheten
+att ta bort den, medan verkan var måttlig för en klass som använder en
+annan klass inre delar (\foreignlanguage{english}{Inappropriate
+Intimacy}), och sammantaget fann samma studie att kodlukter snarare
+följer med felbenägen kod än orsakar
+den\autocite[1214--1215]{Palomba2018Smells}.  En kohortstudie på samma
+data som den första fann att felbenägenheten,
+\textcquote{Nocera2026Cohort}{with few exceptions}, inte påverkades.
+För meddelandekedjor, där en klass når in i en kedja av andra objekt,
+var verkan på fel blandad och alltid liten\autocite{Hall2014Smells}.
+\Textcite{ElEmam2001Confounding} visade att samband mellan designmått och
+fel kan försvinna när man tar hänsyn till klassens storlek, vilket gäller
+just de korrelationer som stöder påståendet ovan.
+
+Döljandet kan också kosta när fel ska hittas: det kan försvåra
+integrationstest\autocite{Voas1997Assertions}, och låg synlighet gav
+lägre täckning för automatiskt genererade test, men inte för de test som
+utvecklarna själva skrivit\autocite[951]{Ma2017Visibility}.
+Invändningen att läs- och skrivmetoder urholkar inkapslingen finns, men
+den enda empiriska studie av metoderna som hittades fann att de används
+med omsorg\autocite{Lumpe2010Properties}, och den mäter inga fel.
+
+\paragraph{Förbehåll.}  I Python är det dubbla understrecket ingen
+spärr.  Namnomskrivningen finns enligt Pythons handledning för att
+undvika att namn i en klass krockar med namn som underklasser definierar,
+och \textcquote{PythonTutorialPrivate}{it still is possible to access or
+modify a variable that is considered private}.  En tilldelning till
+\mintinline{python}{person.__first_name} utanför klassen skapar ett
+andra attribut och lämnar klassens eget attribut orört, som körningen i
+\cref{ex:privat-utifran} visar.  Arv försvagar
+inkapslingen\autocite{Snyder1986}.
+
+\paragraph{Nybörjare.}  Ingen studie i sökningen prövar om inkapsling
+minskar nybörjares fel.  Litteraturen behandlar inkapsling som något
+svårt att lära: en undervisning som utgick från fel förbättrade
+studenternas förståelse av bland annat inkapsling\autocite{ShmalloGinat2025},
+och problem med attribut hörde till de vanligaste felen i nybörjares
+klassdesign\autocite{Thomasson2006Novice}.
+
+\section{Diskussion och begränsningar}
+\label{sec:inkf-diskussion}
+
+Underlaget för färre fel är tunt och indirekt.  Inget av de experiment
+som hittades jämför privata och publika attribut med fel som utfall; de
+två som räknar fel jämför abstrakta datatyper respektive inkapslade
+komponenter\autocite{Meeson1979DataAbstraction,Zweben1995Layering}, och
+båda är lästa bara i sammanfattning, eftersom IEEE stoppade åtkomsten.
+Hur många deltagare de hade, vilket språk de använde och hur felen
+räknades vet vi därför inte.  Detsamma gäller MOOD-studien,
+kohortstudien och studien om klassens storlek.  Studierna av kodbaser är
+korrelationsstudier, och de två som försöker säga något om orsak finner
+ingen felverkan av kodlukter som grupp.  Att den kodlukt som står för
+publika attribut inte visade fler fel hos \textcite{Khomh2012Antipatterns}
+förklarar författarna själva med att för få klasser hade den, så det
+resultatet är ett uteblivet belägg snarare än ett belägg för att det
+inte finns något samband.
+
+Täckningen har tre luckor.  OpenAlex söktes i titel och sammanfattning,
+inte i fulltext, och dess sammanfattningar är ofullständiga, så den
+sökningen är inte densamma som i Web of Science; DBLP och Semantic Scholar
+saknas.  En studie som mäter döljande men inte nämner det med något av
+de sökta orden i titel eller sammanfattning kan inte hittas, och
+sökningen efter betydelse visade två sådana luckor, som lagades.
+Klassningen är modellstödd och byggd på titlar och sammanfattningar; en
+relevant post utan sammanfattning som modellen säkert kallade angränsande
+har ingen människa läst, och fem behållna poster vilar på modellens
+omdöme ensamt eftersom varken sammanfattning eller fulltext gick att nå.
+Regeln som först sorterade bort andra fält prövades med stickprov, inte
+post för post.
+
+\section{Slutsats}
+\label{sec:inkf-slutsats}
+
+Nej, det är inte visat: ingen av de studier som sökningen fann visar
+att inkapsling förhindrar många programfel.  De samband som har mätts
+mellan inkapsling
+och fel är svaga, blandade eller delvis förklarade av klassernas storlek,
+publika attribut har inte visats vara mer felbenägna, och inget av de två
+experiment som räknade fel visade färre fel med dolda data.  Påståendet
+är dessutom till stor del oprövat, och de vinster som har mätts gäller
+ändringar och förståelse, inte fel; i ett av experimenten blev
+programmen med dolda datarepresentationer i stället svårare att ändra.
+Det som står kvar är mekanismen: när attributen ändras bara genom
+klassens metoder kan klassen själv hålla dem i ett tillstånd som stämmer
+med dess regler, och i Python skapar en tilldelning utifrån till ett
+namn med dubbla understreck ett andra attribut och lämnar klassens eget
+attribut orört.  Därför säger \cref{sec:med-klasser}
+just det, och inte att inkapsling förhindrar fel.
+
+\section{Fortsatt arbete}
+\label{sec:inkf-fortsatt}
+
+Sökningen lämnade fem bärande källor lästa bara i sammanfattning,
+eftersom IEEE och ACM stoppade åtkomsten: experimentet med abstrakta
+datatyper\autocite{Meeson1979DataAbstraction}, experimenten med
+inkapslade komponenter\autocite{Zweben1995Layering},
+MOOD-studien\autocite{BritoeAbreu1996Impact},
+kohortstudien\autocite{Nocera2026Cohort} och studien om klassens
+storlek\autocite{ElEmam2001Confounding}.  Fulltexterna skulle visa hur
+många deltagare experimenten hade och hur felen räknades, åt vilket håll
+och hur starkt faktorerna för dolda attribut och metoder verkade, och om
+publika attribut hör till kohortstudiens undantag.  Därtill står fem
+poster i \cref{tab:sok-inkapsling-fel} med modellens kategori men utan
+att någon har läst dem, eftersom varken sammanfattning eller fulltext
+gick att nå; tre av dem kan bära direkt på frågan: en felanalys från ett
+projekt byggt med informationsdöljande
+moduler,\footnote{\enquote{Evaluating software development by error
+analysis: The data from the Architecture Research Facility}, 1979,
+\url{https://doi.org/10.1016/0164-1212(79)90005-0}.} en prövning av tre
+uppsättningar designmått, MOOD-måtten bland dem, mot
+felbenägenhet\footnote{\enquote{Empirical validation of three software
+metrics suites to predict fault-proneness of object-oriented classes
+developed using highly iterative or agile software development
+processes}, 2007, \url{https://doi.org/10.1109/TSE.2007.1015}.} och en
+studie av kodlukter och fel i klasser.\footnote{\enquote{An empirical
+study of the bad smells and class error probability in the post-release
+object-oriented system evolution}, 2007,
+\url{https://doi.org/10.1016/j.jss.2006.10.018}.}  DBLP och Semantic
+Scholar kunde inte sökas, och frågorna bör ställas där när tjänsterna
+svarar.
+
+För ett säkrare svar saknas ett kontrollerat experiment där samma
+objektorienterade program finns i två versioner, en med privata attribut
+och metoder och en med publika attribut, och där deltagarna ändrar det och
+de fel som uppstår räknas --- helst med nybörjare och i Python.  Visar
+det färre fel med privata attribut kan materialet säga att inkapsling
+förhindrar vissa fel; visar det ingen skillnad bör materialet fortsätta
+att motivera inkapsling med att klassen får ett ställe att hålla sina
+attribut samstämmiga och kan byta sin inre representation, inte med
+färre fel.
+
+\section{Träffar som rör påståendet}
+\label{sec:inkf-traffar}
+
+\Cref{tab:sok-inkapsling-fel} listar de poster som rör påståendet ---
+citerade, stödjande och kvalificerande --- med skälet till varje beslut;
+de angränsande och de felträffar som uteslöts anges som antal i
+tabelltexten, och antalet träffar per fråga står i
+\cref{tab:sok-queries-inkf}.
+% Author's note (verification and reproduction):
+%   scholar session : kl-inkapsling-programfel (scholar's session store;
+%                     the full CSV export, 20 MB, is not committed: it
+%                     is regenerated by scholar sessions export
+%                     kl-inkapsling-programfel)
+%   exports         : litteratursokning/kl-inkapsling-programfel-full.tex
+%   searched        : 2026-11-16; providers openalex (title_and_abstract
+%                     filter via backing-claims openalex_title_abstract.py;
+%                     full-text counts 450k--8M per query, not retrieved),
+%                     ieee, wos (TS=), scopus (TITLE-ABS-KEY); dblp failed
+%                     every query (anti-bot page, HTTP 202); s2 key
+%                     rejected (403), anonymous fallback answered 0 for
+%                     the boolean S5v1 pilot -- not a real negative, not
+%                     counted as searched; -l 0
+%   queries         : the block names of tab:sok-begrepp-inkf map to the
+%                     agent's scripts/queries.py as DÖLJ=H ABSTR=A FEL=E
+%                     FELB=FP PROG=D OO MÅTT=METRIC EXP ÄNDR=MAINT ÅTK=ACC
+%                     ÅTKO=ACCW SPRÅK=LANG LUKT=SMELL LKTX=SMELLCTX
+%                     LUKTER=SMELLS KLASS=CLS NDÖLJ=EDU_H NYB=NOV MISS=MIST
+%                     NSPRÅK=EDULANG MOT=C; S5v1/M5v1 superseded by S5/M5
+%                     (superset)
+%   search by meaning: semantic_check.py, six questions (agent report
+%                     sec. 2.4); repairs S1a, S3a, M1a, M3a, S5 (extended),
+%                     S8, M8
+%   rule            : scripts/rule_other_field.py (term lists in the
+%                     method's author note); 1620 discards
+%   classification  : scholar llm classify --no-examples --no-enrich -n 50
+%                     x 136 batches, model anthropic/claude-sonnet-5-5,
+%                     2026-11-16, 1 h 56 min; tags supports-claim
+%                     qualifies-claim adjacent-subtopic off-topic-false-hit
+%                     other-field no-hiding-measure no-error-outcome
+%                     no-evidence tool-or-technique; human review of all
+%                     81 supports/qualifies rows and 311 rows < 0.7
+%                     (scripts/human_decisions.py)
+%   hit-list table  : scholar sessions export kl-inkapsling-programfel
+%                     -f table --bearing-only --lang sv
+%                     --label sok-inkapsling-fel --track "inkapsling och fel"
+%                     --theme metrics="mått" --theme demeter="Demeters lag"
+%                     --theme accessors="läs- och skrivmetoder"
+%                     --theme confounding="störfaktor"
+%                     --theme costs="kostnader"
+%                     --theme experiment="experiment"
+%                     --theme change="ändringar"
+%                     --theme smells="kodlukter" --theme scope="avgränsning"
+%                     --theme novices="nybörjare" --theme context="praktik"
+%                     -o litteratursokning/kl-inkapsling-programfel-full
+%                     ; corrected by hand (2026-11-16): Basili et al. 1997
+%                     -> 1996 (OpenAlex year; TSE 22(10), Oct 1996); the two
+%                     Briand-Devanbu-Melo C++ coupling rows (WoS, Scopus)
+%                     merged, so qualifies 13 -> 12 and unique 7772 -> 7771
+%                     in the caption; the all-caps Zweben title in sentence
+%                     case; "Semantic Scholar (S2)" dropped from the
+%                     caption's database sentence (its one answer was the
+%                     artefactual 0 above)
+%   provenance      : ltnotes.bib, block "Bilaga F", keys
+%                     Basili1996Validation BritoeAbreu1996Impact
+%                     Harrison1998MOOD Meeson1979DataAbstraction
+%                     Zweben1995Layering RisingCalliss1993
+%                     Khomh2012Antipatterns Palomba2018Smells
+%                     Nocera2026Cohort Guo2011Demeter Hall2014Smells
+%                     Mekahlia2026Encapsulation Singh2011Encapsulation
+%                     ElEmam2001Confounding Lumpe2010Properties
+%                     Thomasson2006Novice PythonTutorialPrivate
+%                     Korson1986Modularity Woodfield1981Modularization
+%                     Hager1994TRALAB Voas1997Assertions Ma2017Visibility
+%                     Jabangwe2015SLR Sultana2019MicroPatterns; reused with
+%                     a FOUND-VIA (here) line: Snyder1986 Tempero2009Fields
+%                     Ostermann2011Revisiting ShmalloGinat2025
+%   full text       : Basili1996Validation (UMD TR), Khomh2012Antipatterns,
+%                     Palomba2018Smells, Mekahlia2026Encapsulation,
+%                     Jabangwe2015SLR, Ma2017Visibility,
+%                     Sultana2019MicroPatterns (Springer via KTH tunnel),
+%                     Guo2011Demeter (author-side copy), Hall2014Smells
+%                     (cache); abstract only: the rest (IEEE 418, ACM 403,
+%                     DTIC 403) -- for the user to verify
+\input{litteratursokning/kl-inkapsling-programfel-full}

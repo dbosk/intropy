@@ -669,9 +669,7 @@ inte kan nås direkt från utsidan av klassen; det prövar vi i
   \texttt{private.py} i \cref{ex:private-run} visar, medan den lyckas
   med ett; så syns inkapslingen när programmet körs.
   Namnomskrivningen beskrivs i avsnittet \emph{Private Variables} i
-  Pythons handledning,
-  \url{https://docs.python.org/3/tutorial/classes.html\#private-variables}
-  (hämtad 2026-09-03).}
+  Pythons handledning\autocite{PythonTutorialPrivate}.}
 Detta kallas inkapsling (\foreignlanguage{english}{encapsulation}) och
 är en viktig princip i objektorienterad
 programmering.\footnote{%
@@ -907,11 +905,62 @@ det återkommer vi till i \cref{ovn:str}.
 Genom att använda metoder för att läsa och skriva attribut kan vi
 kontrollera hur data hanteras.  Vi kan lägga till validering, loggning
 eller andra funktioner utan att ändra hur användare av klassen
-interagerar med den.  Vi kan också förhindra att en programmerare
-oavsiktligt ändrar ett attribut på ett sätt som bryter klassens interna
-logik.  Det förhindrar många möjliga programfel.
+interagerar med den.  Vi kan också låta attributen ändras bara genom
+klassens egna metoder, så att klassen själv kan hålla dem i ett
+tillstånd som stämmer med dess regler.\footnote{%
+  Det vetenskapliga underlaget för om det också förhindrar programfel
+  finns i \cref{app:inkapsling-fel}: ingen av de studier som sökningen
+  fann visar det.  De samband mellan inkapsling och fel som har mätts är
+  svaga, blandade eller delvis förklarade av klassernas storlek, inget
+  av de experiment som räknade fel visade färre fel med inkapsling, och
+  de vinster som har mätts gäller ändringar och förståelse, inte fel;
+  i ett av experimenten blev programmen med dolda datarepresentationer
+  i stället svårare att ändra.}
+I Python är det dubbla understrecket ingen spärr (\cref{fn:mangling}):
+en tilldelning som \mintinline{python}{person.__first_name = "Margareta"}
+utanför klassen skapar ett andra attribut med det namnet och lämnar
+klassens eget attribut orört, som \cref{ex:privat-utifran} visar.
 
-En metod som byter namn är ett exempel: den tar emot ett helt namn och
+\begin{frame}<article>[fragile]
+  \begin{example}[En tilldelning utifrån]
+    \label{ex:privat-utifran}
+    Programmet tilldelar \mintinline{python}{__first_name} utanför
+    klassen och läser sedan namnet på två sätt:
+<<[[privat_utifran.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
+
+    person.__first_name = "Margareta"
+    print(person.get_name())
+    print(person.__first_name)
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/privat_utifran.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOEncapsulation}.
+
+  Svaret på \cref{ovn:varfor-privat} är en mekanism som körningen visar,
+  inte en vinst: att inkapsling förhindrar programfel är inte belagt
+  (\cref{app:inkapsling-fel}).  Exemplet står bara i anteckningarna och
+  tar ingen bild i bildspelet.
+}%
+Tilldelningen lyckas, men den når inte förnamnet som
+\mintinline{python}{get_name()} läser: inuti klassen heter attributet
+\mintinline{python}{_Person__first_name}, och utanför klassen skrivs
+namnet inte om.
+
+Ett exempel på en metod som håller en sådan regel är en metod som byter
+namn: den tar emot ett helt namn och
 delar själv upp det i för- och efternamn, så att de två attributen
 alltid hänger ihop.  Det sista ordet hämtar den med index
 \mintinline{python}{-1}, som räknar från slutet av listan, precis som i
@@ -1650,7 +1699,8 @@ if __name__ == "__main__":
   \mintinline{python}{example.__value = 30} utanför klassen skulle tyst
   skapa ett \emph{andra} attribut vid sidan av
   \mintinline{python}{_Example__value}, och utskriften efteråt skulle
-  lyckas --- kontrasten hade visat ingenting.
+  lyckas --- kontrasten hade visat ingenting.  Vad en sådan tilldelning
+  gör visar i stället \cref{ex:privat-utifran}.
 
   Begränsningen visas i stället för att påstås: det program som inte
   fungerar står med, och spårutskriften
