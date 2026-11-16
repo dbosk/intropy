@@ -26,8 +26,11 @@ EXAMPLES+=	examples/tupel1.py
 EXAMPLES+=	examples/uppackning.py
 EXAMPLES+=	examples/fullname.py
 EXAMPLES+=	examples/fullname-alt.py
+EXAMPLES+=	examples/stjarna.py
 EXAMPLES+=	examples/my_enumerate.py
 EXAMPLES+=	examples/tuples.py
+EXAMPLES+=	examples/kontakter1.py
+EXAMPLES+=	examples/kontakter2.py
 EXAMPLES+=	examples/numrering.py
 
 # noweb names every chunk label after the woven file (NW<hash of name>-...),

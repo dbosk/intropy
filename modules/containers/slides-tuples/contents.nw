@@ -352,6 +352,57 @@ tupeln.  Det är också därför ett ensamt värde med ett kommatecken efter,
 \mintinline{python}{(5,)}, är en tupel med ett element, medan
 \mintinline{python}{(5)} bara är talet fem inom parentes.
 
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{TupleLOUnpack}.
+
+  \textbf{Variationsmönster}: kontrast, konstruktionen utan och med.
+  \textbf{Vad som varierar}: hur tupelns element lämnas till
+  funktionen, de två anropen i [[stjarna.py]] (\cref{ex:stjarna}).
+  \textbf{Vad som hålls invariant}: funktionen, tupeln och utskriften.
+
+  Stjärnan visades i livekodningen först vid repetitionsövningen 11/11
+  2026, utanför de veckor datorprovet gäller.  Den står här därför att
+  den är omvändningen av [[return firstname, lastname]] i
+  [[fullname.py]]: där blev två värden en tupel, här blir en tupel två
+  argument.  Båda anropen står i samma program och ger samma rad, så att
+  det enda som skiljer dem är hur argumenten skrivs.  Prosan påstår inget
+  om att formen är bättre, bara vad den gör.
+}%
+Funktionen \mintinline{python}{input_full_name} gjorde två värden till
+en tupel när den lämnade tillbaka dem.  Det går också åt andra hållet:
+har vi en tupel och en funktion som vill ha elementen som var sitt
+argument, kan tupeln packas upp i själva anropet.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[En tupel som argument]
+    \label{ex:stjarna}
+    Samma funktion anropas två gånger med samma tupel:
+<<[[stjarna.py]]>>=
+def greet(first, last):
+    """Hälsar på den som har förnamnet first och efternamnet last."""
+    print(f"Hej, {first.capitalize()} {last.capitalize()}!")
+
+def main():
+    """Hälsar två gånger på personen i en tupel."""
+    name = ("ada", "lovelace")
+    greet(name[0], name[1])
+    greet(*name)
+
+main()
+@
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/stjarna.py}
+  \end{example}
+\end{frame}
+
+Stjärnan framför \mintinline{python}{name} packar upp tupeln, så att
+\mintinline{python}{greet(*name)} blir samma anrop som
+\mintinline{python}{greet(name[0], name[1])}: det första elementet blir
+det första argumentet och det andra elementet det andra.  Tupeln måste
+då ha lika många element som \mintinline{python}{greet} har parametrar,
+på samma sätt som uppackningen i en tilldelning kräver att antalet namn
+stämmer.
+
 \section{Nummer och element på en gång}
 \label{sec:enumerate}
 
@@ -447,6 +498,80 @@ main()
   \end{example}
 \end{frame}
 
+Ofta är det vi vill numrera själva par, till exempel namn och
+telefonnummer.
+
+\begin{frame}[fragile]
+  \begin{exercise}
+    \label{ex:numrerade-par}
+    \leavevmode\ltnote{%
+      Relevanta lärandemål: \cref{TupleLOEnumerate,TupleLOUnpack}.
+
+      \foreignlanguage{english}{Try-first}, diagnostiskt.  Programmet i
+      \cref{ex:numrerade-par} prövar föreställningen att namnen efter
+      [[for]] fördelas över alla värden i elementet, hur de än är
+      nästlade: tre namn för numret, namnet och telefonnumret.  Den som
+      förutsäger tre värden per varv har inte urskilt att
+      [[enumerate]] ger par, och att elementet i paret här självt är ett
+      par.  Det är just den aspekten frågan inte pekar ut
+      \parencite[13]{Marton2015}.  Den platta formen prövades först också
+      i livekodningen vid övningen 30/9 2026, där den nästlade formen
+      sedan förklarades.
+
+      \textbf{Variationsmönster}: fusion av de två aspekterna i
+      materialet, uppackningen (\cref{sec:uppackning}) och
+      [[enumerate]], och därefter kontrast mellan den platta och den
+      nästlade formen ([[kontakter1.py]] mot [[kontakter2.py]], i
+      \hyperref[sol:numrerade-par]{lösningen}).
+      \textbf{Vad som hålls invariant}: listan och utskriften.
+    }%
+    Listan innehåller par av namn och telefonnummer, och programmet ska
+    skriva ut dem numrerade.  Vad skriver det ut?
+<<[[kontakter1.py]]>>=
+def main():
+    """Skriver ut varje namn och nummer med sin numrering."""
+    contacts = [("ronja", "0701234567"), ("pippi", "0721234567")]
+
+    for counter, name, number in enumerate(contacts):
+        print(f"{counter}: {name} {number}")
+
+main()
+@
+  \end{exercise}
+\end{frame}
+
+\begin{frame}[fragile,shrink]
+  \begin{solution}[Körningarna]
+    \label{sol:numrerade-par}
+    Kör vi programmet får vi:
+    \runpython[showcommand, chdir]{examples/kontakter1.py}
+    Paret ur listan packas i stället upp i ett eget par av namn:
+<<[[kontakter2.py]]>>=
+def main():
+    """Skriver ut varje namn och nummer med sin numrering."""
+    contacts = [("ronja", "0701234567"), ("pippi", "0721234567")]
+
+    for counter, (name, number) in enumerate(contacts):
+        print(f"{counter}: {name} {number}")
+
+main()
+@
+    Kör vi det programmet får vi:
+    \runpython[showcommand, chdir]{examples/kontakter2.py}
+  \end{solution}
+\end{frame}
+
+\mintinline{python}{enumerate} ger ett par i taget, numret och
+elementet, precis som \mintinline{python}{my_enumerate}.  Här är
+elementet självt ett par, så varje varv får ett par vars andra del är
+ett par.  Tre namn efter \mintinline{python}{for} försöker packa upp det
+yttre paret i tre delar, och det har bara två: det är vad
+\mintinline{text}|expected 3, got 2| i felmeddelandet säger.  Namnen
+efter \mintinline{python}{for} måste ha samma form som det de packar
+upp, \mintinline{python}{counter, (name, number)}: numret till
+\mintinline{python}{counter}, och paret packas upp i sin tur i
+\mintinline{python}{name} och \mintinline{python}{number}.
+
 \begin{frame}[fragile]
   \begin{exercise}
     \label{ex:enumerate-dok}
@@ -513,4 +638,6 @@ main()
 utan något som producerar paren ett i taget medan slingan går.  Det
 räcker gott för en \mintinline{python}{for}-slinga, och behöver vi
 verkligen en lista kan vi be om en med \mintinline{python}{list} --- och
-då får vi paren.
+då får vi paren.  Det är samma grepp som i föreläsningen
+\emph{Behållare: Listor}, där \mintinline{python}{list} visade talen
+som \mintinline{python}{range(len(names))} går igenom.
