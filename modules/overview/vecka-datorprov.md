@@ -45,10 +45,11 @@ kunna
    materialet ett ämne i taget, gärna med föreläsningsanteckningarna
    *Repetition: kursens grunder* som början (varje avsnitt där slutar med
    var i kursen du läser mer) och genom att lösa laborationerna igen på
-   egen hand, utan att luta dig mot din labbpartner. Gör sedan *Exempelprov 1* som ett prov: ensam, på
-   tid och med bara de tillåtna hjälpmedlen. Återkopplingen visar vad du
-   behöver studera mer och var i kursen det står. Gör om provet tills allt
-   är rätt, men studera sedan vidare i materialet innan du gör
+   egen hand, utan att luta dig mot din labbpartner. Gör sedan
+   *Exempelprov 1* som ett prov: ensam, på tid och med bara de tillåtna
+   hjälpmedlen. Återkopplingen visar vad du behöver studera mer och var i
+   kursen det står. Gör om provet tills allt är rätt, men studera sedan
+   vidare i materialet innan du gör
    *Exempelprov 2* på samma sätt, och därefter *Exempelprov 3*.
    Exempelproven prövar dina studier; de ersätter dem inte.
 4. **Gå på introföreläsningen om datorprovet** måndagen vecka 47. Där går
