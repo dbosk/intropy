@@ -322,6 +322,12 @@ main()
     Vi kör programmet och svarar \mintinline{text}|ada| och
     \mintinline{text}|lovelace|:
     \runpython[transcript, stdin={ada}, stdin={lovelace}]{examples/fullname.py}
+    \only<presentation>{%
+      Åt andra hållet packar en stjärna upp en tupel i ett anrop:
+      med \mintinline{python}{name = ("ada", "lovelace")} ger
+      \mintinline{python}{greet(*name)} funktionen de två elementen som
+      var sitt argument.%
+    }
   \end{example}
 \end{frame}
 
@@ -355,18 +361,22 @@ tupeln.  Det är också därför ett ensamt värde med ett kommatecken efter,
 \leavevmode\ltnote{%
   Relevanta lärandemål: \cref{TupleLOUnpack}.
 
-  \textbf{Variationsmönster}: kontrast, konstruktionen utan och med.
-  \textbf{Vad som varierar}: hur tupelns element lämnas till
-  funktionen, de två anropen i [[stjarna.py]] (\cref{ex:stjarna}).
-  \textbf{Vad som hålls invariant}: funktionen, tupeln och utskriften.
+  \textbf{Variationsmönster}: kontrast, konstruktionen utan och med,
+  och en generalisering till listan.
+  \textbf{Vad som varierar}: hur namnet lämnas till funktionen, de fyra
+  anropen i [[stjarna.py]] (\cref{ex:stjarna}): elementen var för sig,
+  tupeln med stjärna, en lista med stjärna, tupeln utan stjärna.
+  \textbf{Vad som hålls invariant}: funktionen och namnet.
 
   Stjärnan visades i livekodningen först vid repetitionsövningen 11/11
   2026, utanför de veckor datorprovet gäller.  Den står här därför att
   den är omvändningen av [[return firstname, lastname]] i
   [[fullname.py]]: där blev två värden en tupel, här blir en tupel två
-  argument.  Båda anropen står i samma program och ger samma rad, så att
-  det enda som skiljer dem är hur argumenten skrivs.  Prosan påstår inget
-  om att formen är bättre, bara vad den gör.
+  argument.  Anropen står i samma program, och det felande anropet utan
+  stjärna står sist så att de andra hinner köras; att det enda som
+  skiljer det från [[greet(*name)]] är stjärnan visar vad stjärnan själv
+  gör.  Det här är första stället i materialet där stjärnan förekommer.
+  Prosan påstår inget om att formen är bättre, bara vad den gör.
 }%
 Funktionen \mintinline{python}{input_full_name} gjorde två värden till
 en tupel när den lämnade tillbaka dem.  Det går också åt andra hållet:
@@ -376,17 +386,20 @@ argument, kan tupeln packas upp i själva anropet.
 \begin{frame}<article>[fragile]
   \begin{example}[En tupel som argument]
     \label{ex:stjarna}
-    Samma funktion anropas två gånger med samma tupel:
+    Samma funktion anropas med samma namn på fyra sätt, det sista utan
+    stjärna:
 <<[[stjarna.py]]>>=
 def greet(first, last):
     """Hälsar på den som har förnamnet first och efternamnet last."""
     print(f"Hej, {first.capitalize()} {last.capitalize()}!")
 
 def main():
-    """Hälsar två gånger på personen i en tupel."""
+    """Hälsar på personen i en tupel, med och utan stjärna."""
     name = ("ada", "lovelace")
     greet(name[0], name[1])
     greet(*name)
+    greet(*["ada", "lovelace"])
+    greet(name)
 
 main()
 @
@@ -398,10 +411,14 @@ main()
 Stjärnan framför \mintinline{python}{name} packar upp tupeln, så att
 \mintinline{python}{greet(*name)} blir samma anrop som
 \mintinline{python}{greet(name[0], name[1])}: det första elementet blir
-det första argumentet och det andra elementet det andra.  Tupeln måste
-då ha lika många element som \mintinline{python}{greet} har parametrar,
-på samma sätt som uppackningen i en tilldelning kräver att antalet namn
-stämmer.
+det första argumentet och det andra elementet det andra.  En lista packas
+upp på samma sätt, vilket det tredje anropet visar.  Det är stjärnan som
+gör skillnaden: utan den är tupeln \emph{ett} argument, som hamnar i
+\mintinline{python}{first}, och \mintinline{python}{last} får inget
+--- det är vad felmeddelandet säger: argumentet till
+\mintinline{python}{last} saknas.  Tupeln måste alltså ha lika många
+element som \mintinline{python}{greet} har parametrar, på samma sätt som
+uppackningen i en tilldelning kräver att antalet namn stämmer.
 
 \section{Nummer och element på en gång}
 \label{sec:enumerate}
@@ -498,7 +515,7 @@ main()
   \end{example}
 \end{frame}
 
-Ofta är det vi vill numrera själva par, till exempel namn och
+Det vi numrerar kan självt vara ett par, till exempel ett namn och ett
 telefonnummer.
 
 \begin{frame}[fragile]
@@ -521,8 +538,9 @@ telefonnummer.
       \textbf{Variationsmönster}: fusion av de två aspekterna i
       materialet, uppackningen (\cref{sec:uppackning}) och
       [[enumerate]], och därefter kontrast mellan den platta och den
-      nästlade formen ([[kontakter1.py]] mot [[kontakter2.py]], i
-      \hyperref[sol:numrerade-par]{lösningen}).
+      nästlade formen ([[kontakter1.py]], körd i
+      \hyperref[sol:numrerade-par]{lösningen}, mot [[kontakter2.py]] i
+      \cref{ex:numrerade-par-nastlad}).
       \textbf{Vad som hålls invariant}: listan och utskriften.
     }%
     Listan innehåller par av namn och telefonnummer, och programmet ska
@@ -530,9 +548,9 @@ telefonnummer.
 <<[[kontakter1.py]]>>=
 def main():
     """Skriver ut varje namn och nummer med sin numrering."""
-    contacts = [("ronja", "0701234567"), ("pippi", "0721234567")]
+    pairs = [("ronja", "0701234567"), ("pippi", "0721234567")]
 
-    for counter, name, number in enumerate(contacts):
+    for counter, name, number in enumerate(pairs):
         print(f"{counter}: {name} {number}")
 
 main()
@@ -540,25 +558,31 @@ main()
   \end{exercise}
 \end{frame}
 
-\begin{frame}[fragile,shrink]
-  \begin{solution}[Körningarna]
+\begin{frame}[fragile]
+  \begin{solution}[Körningen]
     \label{sol:numrerade-par}
     Kör vi programmet får vi:
     \runpython[showcommand, chdir]{examples/kontakter1.py}
+  \end{solution}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{example}[Ett par i paret]
+    \label{ex:numrerade-par-nastlad}
     Paret ur listan packas i stället upp i ett eget par av namn:
 <<[[kontakter2.py]]>>=
 def main():
     """Skriver ut varje namn och nummer med sin numrering."""
-    contacts = [("ronja", "0701234567"), ("pippi", "0721234567")]
+    pairs = [("ronja", "0701234567"), ("pippi", "0721234567")]
 
-    for counter, (name, number) in enumerate(contacts):
+    for counter, (name, number) in enumerate(pairs):
         print(f"{counter}: {name} {number}")
 
 main()
 @
     Kör vi det programmet får vi:
     \runpython[showcommand, chdir]{examples/kontakter2.py}
-  \end{solution}
+  \end{example}
 \end{frame}
 
 \mintinline{python}{enumerate} ger ett par i taget, numret och
