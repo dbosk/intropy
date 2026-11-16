@@ -764,3 +764,85 @@ series = {L@S '20}
   isbn      = {978-91-38-32750-0},
   note      = {Reviderad 2019}
 }
+
+% === provenance: pep8 ===
+% CLAIM: PEP 8 advises against a bare except: clause because it catches
+%   SystemExit and KeyboardInterrupt, which makes a program harder to
+%   interrupt with Control-C; it allows two exceptions (the handler
+%   prints or logs the traceback; the handler cleans up and re-raises).
+% FOUND-VIA: known-item retrieval, not discovery: a PEP is not indexed by
+%   the bibliographic databases, so it is fetched from the Python Software
+%   Foundation's own PEP site, curl https://peps.python.org/pep-0008/
+%   (2026-11-16), read as text.  The entry itself (key and fields) is the
+%   one in variables/slides/ltnotes.bib, kept identical so the decks can
+%   be bound into one book; the claim cited here is a different passage.
+% PICKED: the primary source.  The deck attributes a recommendation to
+%   PEP 8, and only the document itself can settle what it says.
+% QUOTE (section "Programming Recommendations"): "When catching
+%   exceptions, mention specific exceptions whenever possible instead of
+%   using a bare except: clause"; "A bare except: clause will catch
+%   SystemExit and KeyboardInterrupt exceptions, making it harder to
+%   interrupt a program with Control-C, and can disguise other problems.
+%   If you want to catch all exceptions that signal program errors, use
+%   except Exception: (bare except is equivalent to except
+%   BaseException:)."; "A good rule of thumb is to limit use of bare
+%   'except' clauses to two cases: If the exception handler will be
+%   printing out or logging the traceback [...] If the code needs to do
+%   some cleanup work, but then lets the exception propagate upwards
+%   with raise."
+% VERIFIED: page read as text 2026-11-16; the quotes are verbatim.  The
+%   deck quotes the second passage and paraphrases the two exceptions in
+%   a footnote.  The urldate stays at the shared entry's 2026-09-03; the
+%   passage is the same in the version read on 2026-11-16.  The mechanism
+%   itself was also run (Python 3.14.4): a program with a bare except
+%   around input() that receives SIGINT prints its except branch and
+%   exits 0; the same program with except Exception ends with a
+%   KeyboardInterrupt traceback.
+% COUNTER: none applicable -- the claim is about what a specific
+%   document says (and about Python's behaviour, which was run); the
+%   deck asserts no measured benefit of following the advice.
+% DATE: 2026-11-16
+@online{pep8,
+  author = {Guido van Rossum and Barry Warsaw and Alyssa Coghlan},
+  title  = {{PEP} 8 --- Style Guide for {Python} Code},
+  year   = {2001},
+  url    = {https://peps.python.org/pep-0008/},
+  urldate = {2026-09-03},
+}
+
+% === provenance: PythonExceptions ===
+% CLAIM: KeyboardInterrupt is raised when the user presses Control-C,
+%   SystemExit is raised by sys.exit(), and both inherit from
+%   BaseException rather than Exception, so except Exception does not
+%   catch them (a bare except: does).
+% FOUND-VIA: known document -- Python's own documentation, fetched with
+%   curl https://docs.python.org/3/library/exceptions.html on 2026-11-16
+%   and read as text.  The entry itself (key and fields) is the one in
+%   files/slides/ltnotes.bib, kept identical so the decks can be bound
+%   into one book; the claim cited here is a different passage.
+% PICKED: the reference documentation of the built-in exceptions.
+% QUOTE: "exception KeyboardInterrupt  Raised when the user hits the
+%   interrupt key (normally Control-C or Delete). [...] The exception
+%   inherits from BaseException so as to not be accidentally caught by
+%   code that catches Exception and thus prevent the interpreter from
+%   exiting."  "exception SystemExit  This exception is raised by the
+%   sys.exit() function.  It inherits from BaseException instead of
+%   Exception so that it is not accidentally caught by code that catches
+%   Exception."  "exception Exception  All built-in, non-system-exiting
+%   exceptions are derived from this class."  The language reference
+%   (pydoc3 try, Python 3.14.4): "An expression-less "except" clause, if
+%   present, must be last; it matches any exception."
+% VERIFIED: page read as text 2026-11-16; quotes verbatim.  Also run
+%   (Python 3.14.4): sys.exit() inside try with a bare except is caught
+%   and the program goes on; sys.exit() in a helper ends the program
+%   without running the caller's except ValueError branch or the line
+%   after the call.
+% COUNTER: none needed for documented behaviour that was also run.
+% DATE: 2026-11-16
+@online{PythonExceptions,
+  author  = {{Python Software Foundation}},
+  title   = {Built-in Exceptions},
+  year    = {2026},
+  url     = {https://docs.python.org/3/library/exceptions.html},
+  urldate = {2026-09-03}
+}
