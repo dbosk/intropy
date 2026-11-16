@@ -36,6 +36,7 @@ EXAMPLES+=	examples/public.py
 EXAMPLES+=	examples/person_nick.py
 EXAMPLES+=	examples/private.py
 EXAMPLES+=	examples/two.py
+EXAMPLES+=	examples/privat_utifran.py
 EXAMPLES+=	examples/compare.py
 EXAMPLES+=	examples/greater.py
 EXAMPLES+=	examples/comparable.py
