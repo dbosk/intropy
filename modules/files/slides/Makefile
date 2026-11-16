@@ -43,6 +43,7 @@ EXAMPLES+=	examples/bytes_as_text.py
 EXAMPLES+=	examples/value.py
 EXAMPLES+=	examples/xy.py
 EXAMPLES+=	examples/xy_csv.py
+EXAMPLES+=	examples/contacts_lines.py
 EXAMPLES+=	examples/name_search.py
 EXAMPLES+=	examples/contacts_csv.py
 EXAMPLES+=	examples/contacts_json.py
