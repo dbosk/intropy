@@ -22,7 +22,7 @@
   medan konstruktionerna varieras.
 }%
 Vi ska bygga ett program åt en sängbutik.  Den som kommer in svarar på
-två frågor --- hur lång hon är och hur mycket hon väger --- och får veta
+två frågor --- hur lång hen är och hur mycket hen väger --- och får veta
 vilken säng och vilken madrass som passar.  Innan vi skriver en rad kod
 tittar vi på vad det färdiga programmet ska göra.
 
@@ -351,7 +351,7 @@ Operatorerna beter sig som orden gör i vardagsspråket.
 
   De två funktionerna står i en och samma övning, så att det är studenten
   och inte materialet som gör jämförelsen; delade på var sin uppgift
-  hade materialet gjort urskiljningen åt henne
+  hade materialet gjort urskiljningen åt hen
   \parencite[45--47]{Marton2015}.
 
   Att den \emph{felaktiga} funktionen skriver ut något och den korrekta
@@ -856,9 +856,9 @@ att använda förgreningar i sängprogrammet.
   i huvudprogrammet: det är rekommendationerna som använder
   förgreningen, och frågornas funktion behöver slingan.  Säng- och
   madrassfunktionerna står under egna namn, som hjälpfunktionerna tar
-  med, därför att de två andra versionerna av programmet i
-  \cref{sec:fraga-om-igen} tar med dem och huvudprogrammet men har var
-  sin egen \mintinline{python}{ask_number}.
+  med, därför att de andra versionerna av programmet i
+  \cref{sec:fraga-om-igen,sec:kontrollen} tar med dem och
+  huvudprogrammet men har var sin egen \mintinline{python}{ask_number}.
 
   Att \mintinline{python}{ask_number} lämnas odefinierad här är
   avsiktligt --- det gör att slingan i \cref{sec:slingor} har ett
@@ -1346,7 +1346,7 @@ Funktionen blir den sista av sängväljarens hjälpfunktioner.
 \begin{frame}[fragile]
   \begin{example}[Med slinga]
     \label{ex:med-slinga}
-    Kontrollen och omfrågningen står på ett enda ställe:
+    Kontrollen står på ett enda ställe, hur många chanser det än blir:
 <<sängväljarens hjälpfunktioner>>=
 def ask_number(question):
     """Frågar tills svaret bara innehåller siffror, och ger talet."""
@@ -1357,6 +1357,12 @@ def ask_number(question):
 
     return int(answer)
 @
+    \only<presentation>{%
+      Med tilldelningsuttrycket \mintinline{python}{:=} räcker ett
+      anrop:
+      \mintinline{python}{while not (answer := input(question)).isdigit():}
+      --- mer om det i föreläsningen \emph{Upprepningar}.%
+    }%
   \end{example}
 \end{frame}
 
@@ -1368,7 +1374,84 @@ Och är det första svaret ett tal är villkoret falskt redan då: slingan
 körs inte ett enda varv, eftersom villkoret prövas före varje varv, också
 det första.
 
-Med \mintinline{python}{ask_number} på plats är sängprogrammet komplett.
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{CondLOLoop}.
+
+  \textbf{Kontrast} mellan \cref{ex:med-slinga,ex:med-valross}: vad som
+  varierar är hur svaret kommer in i villkoret, genom en tilldelning
+  före slingan och en i den eller genom ett tilldelningsuttryck i
+  villkoret; vad som hålls invariant är resten av sängprogrammet,
+  frågan, kontrollen och svaren i körningen.  En ny konstruktion visas
+  med och utan sig, på samma uppgift, så att det den ändrar --- den
+  dubblerade raden --- kan urskiljas.  Det är samma urskiljning som
+  \foreignlanguage{english}{DRY} i \cref{ex:tre-chanser}, ett steg
+  mindre.
+
+  Valrossen visades i livekodningen på föreläsningen (21/9 2026), där
+  omfrågningen skrevs om från två anrop till ett.  Här står den på
+  bilderna bara som en mening i \cref{ex:med-slinga}, medan
+  anteckningarna förklarar den här; föreläsningen \emph{Upprepningar}
+  pekar hit och tillämpar den på en räknare, och övningen till
+  den här föreläsningen använder den i en slinga vars kropp har något
+  att göra.  I \mintinline{python}{ask_number} blir kroppen tom, och
+  \mintinline{python}{pass} förklaras därför med en mening i stället
+  för att versionen får något nytt att göra i kroppen, vilket hade
+  brutit kontrasten.
+}%
+Raden \mintinline{python}{answer = input(question)} står ändå två
+gånger, före slingan och i den.  Det är samma sorts upprepning som i
+\cref{ex:tre-chanser}, bara mindre: ändras frågan på det ena stället
+måste den ändras på det andra.  Python har en operator som låter
+anropet stå en gång: tilldelningsuttrycket \mintinline{python}{:=}, som
+ibland kallas valrossen (\foreignlanguage{english}{walrus}) efter hur
+det ser ut.  \mintinline{python}{answer := input(question)} ger
+\mintinline{python}{answer} svaret, precis som
+\mintinline{python}{answer = input(question)}, men det är självt ett
+uttryck med samma värde och kan därför stå i villkoret, där
+\mintinline{python}{isdigit} anropas på det.  Parenteserna runt det
+behövs: de avgör att det är svaret som sparas i
+\mintinline{python}{answer} och sedan prövas, och utan dem godtar
+Python inte raden alls utan ger ett \mintinline{python}{SyntaxError}.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Frågan i villkoret]
+    \label{ex:med-valross}
+    Samma sängprogram, men \mintinline{python}{ask_number} frågar i
+    villkoret:
+<<[[fraga-valross.py]]>>=
+"""Rekommenderar en säng och en madrass, med frågan i villkoret."""
+
+<<funktionen som väljer säng>>
+<<funktionen som väljer madrass>>
+
+def ask_number(question):
+    """Frågar tills svaret bara innehåller siffror, och ger talet."""
+    while not (answer := input(question)).isdigit():
+        pass
+
+    return int(answer)
+
+<<sängväljarens huvudprogram>>
+@
+    Vi svarar som förut \mintinline{text}{hundraåttio},
+    \mintinline{text}{180 cm} och \mintinline{text}{cirka 180}, och
+    sedan \mintinline{text}|180| och \mintinline{text}|70|:
+    \runpython[transcript, stdin={hundraåttio}, stdin={180 cm},
+      stdin={cirka 180}, stdin={180}, stdin={70}]%
+      {examples/fraga-valross.py}
+  \end{example}
+\end{frame}
+
+Frågan ställs nu i villkoret, före varje varv, och svaret prövas där.
+I kroppen finns ingenting kvar att göra, men en kropp får inte vara tom.
+Därför står där \mintinline{python}{pass}, en sats som inte gör
+någonting och bara fyller platsen där Python kräver en sats.  Programmet
+frågar som förut tills svaret går att använda; i den nya versionen står
+anropet en gång, men raden gör tre saker på en gång: frågar, sparar
+svaret och prövar det.
+
+Med \mintinline{python}{ask_number} från \cref{ex:med-slinga} på plats
+är sängprogrammet komplett.
 
 \begin{frame}<article>[fragile]
   Sätter vi in varje del där dess namn står får vi hela programmet:
@@ -1450,7 +1533,7 @@ hållen: den vänder bort \mintinline{text}|+180|, som
 (\mintinline{python}|"²".isdigit()| är sant, men
 \mintinline{python}|int("²")| ger ett \mintinline{python}{ValueError}).
 I en slinga räcker det inte heller att svaret underkänns en gång:
-användaren frågas om tills hon gissar vilken form vi tänkte oss.
+användaren frågas om tills hen gissar vilken form vi tänkte oss.
 
 Botemedlet känner du: låt \mintinline{python}{int} själv avgöra, och ta
 hand om felet när omvandlingen misslyckas.  Det nya är att vi nu kan

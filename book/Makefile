@@ -15,10 +15,21 @@ LATEXFLAGS+=	-shell-escape
 # a margin note of its own, and a decision can move the pages after it.
 # Since didactic 2.11 (footnotereuse=compact by default) and marginfix
 # anchoring notes by their place in the source, a clean build of the
-# student edition (603 pages) takes 7 pdflatex passes and a small edit 4;
-# latexmk stops at five by default.  tex.mk's own command, with a higher
-# limit.
-PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=10'
+# student edition took 7 pdflatex passes at 603 pages and a small edit 4;
+# at 1110 pages (2026-11-16, #408) a clean build still had "Label(s) may
+# have changed" after 10.  latexmk stops at five by default.  tex.mk's own
+# command, with a higher limit.
+PDFLATEX=	latexmk -pdf -use-make -8bit -e '$$max_repeat=30'
+
+# The book outgrew pdfTeX's main memory (TeX Live's main_memory=5000000
+# words): at 1110 pages the student edition used 4699211 words and the
+# teacher edition stopped with "TeX capacity exceeded, sorry [main memory
+# size=5000000]" (#408).  kpathsea reads these two from the environment
+# at run time, so they add memory to the book's runs only, without
+# rebuilding the format or changing anyone's texmf.cnf.  Exported, they
+# are in the environment of latexmk and so of every pdflatex it starts.
+export extra_mem_top=	3000000
+export extra_mem_bot=	3000000
 TEX_PYTHONTEX=	yes
 # Mentipy decks (Algoritmiskt tänkande, Hello, World!, Repetition: kursens
 # grunder) import mentipy in their PythonTeX code, and the system python3

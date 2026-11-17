@@ -879,7 +879,9 @@ och en gren till i [[except]] tar hand om det.
   \cref{FilesLORead}: [[file.read()]] (hela filen), [[for line in file]]
   (rad för rad).  Olika granularitet, samma underliggande operation.
   Studenten väljer metod baserat på datastruktur och
-  minnesbegränsningar.
+  minnesbegränsningar.  Den tredje, [[readline()]] (en rad per anrop),
+  nämns i anmärkningen efter \cref{ovn:lasmetod} men prövas först i
+  \cref{ex:tva-rader}, där en post på två rader behöver den.
 
   \textbf{Pedagogisk sekvens}: Skrivning först (skapar data), sedan
   läsning (konsumerar data).  Detta ger konkret innehåll att arbeta med
@@ -1157,7 +1159,8 @@ när vi läser den.
     Använd [[file.read()]] för små filer där hela innehållet behövs
     samtidigt.  Använd iteration ([[for line in file]]) för stora filer
     --- detta är mer minneseffektivt eftersom endast en rad i taget
-    laddas i primärminnet.
+    laddas i primärminnet.  [[file.readline()]] läser en rad per anrop;
+    den passar när det som hör ihop står på flera rader.
   \end{remark}
 \end{frame}
 
@@ -1165,7 +1168,9 @@ Dokumentationen säger samma sak om slingan över filobjektet:
 \enquote{\foreignlanguage{english}{This is memory efficient, fast, and
 leads to simple code}}\autocite{PythonTutorialFiles}.  Om [[read()]]
 utan argument säger den torrt att hela innehållet läses in, och att det
-är vårt problem om filen är dubbelt så stor som datorns minne.
+är vårt problem om filen är dubbelt så stor som datorns minne.  Den
+tredje metoden, [[readline()]], prövar vi i \cref{ex:tva-rader}, där
+varje kontakt i filen står på två rader.
 
 \leavevmode\ltnote{%
   \Cref{ex:write-again} ställs mot \cref{ex:append}:
@@ -1542,7 +1547,8 @@ varandra?
   Kontrasten gör standardformatens värde urskiljbart
   \parencite[45--47]{Marton2015}.  Sekvens: SCB-aktivitet (uppleva
   problemet) \(\to\) metafor (artikulera problemet) \(\to\) eget format
-  ([[xy.py]]) \(\to\) CSV-dokumentation \(\to\) CSV-implementation
+  ([[xy.py]], [[contacts_lines.py]]) \(\to\) CSV-dokumentation \(\to\)
+  CSV-implementation
   ([[xy_csv.py]]) \(\to\) JSON ([[contacts_json.py]]).
 }%
 Vi kan börja med att skapa våra egna enkla filformat.  Låt säga att vi
@@ -1854,6 +1860,117 @@ det kan lika gärna stå \emph{inuti} ett fält: raden för namnet
 två, och en adress eller en fritext kan innehålla både kommatecken och
 citattecken.  Vårt eget format fungerar alltså för enkla fall, men blir
 otillräckligt så snart data ser ut som verkliga data.
+
+\leavevmode\ltnote{%
+  \Cref{ex:tva-rader} är där läsmetoden [[readline()]] prövas; den
+  nämns bara kort i anmärkningen efter \cref{ovn:lasmetod}.  Relevanta
+  lärandemål: \cref{FilesLORead}, \cref{FilesLOFormats}.
+
+  \textbf{Variationsmönster}: Kontrast.  \textbf{Vad som varierar}:
+  läsmetoden, en rad per varv med [[for]] (bara i texten) mot en rad
+  per anrop med [[readline()]].  \textbf{Vad som hålls invariant}:
+  filen, en kontakt på två rader, och provet att skriva och läsa
+  tillbaka från [[xy.py]].
+
+  Datan är vald efter \cref{ovn:egna-namn}: namnet
+  \enquote{Långstrump, Pippi} visar att kommatecknet inte längre stör,
+  och Pippis tomma adress visar skillnaden mellan en tom rad och filens
+  slut.  Utskriften med likhetstecknet i [[read_contacts]] är med för
+  att radbrytningarna ska synas i körningen, inte bara sägas.  Slingan
+  prövar bara namnet och läser adressen i kroppen, i stället för två
+  valrossar med [[and]] i villkoret: en valross är vad föreläsningen
+  \emph{Upprepningar} visar.  Formen med två valrossar användes i
+  livekodningen på övningen den 3 november 2026.
+
+  Att det andra egna formatet klarar kommatecknet undergräver inte
+  argumentet för CSV: det flyttar bara problemet till radbrytningar
+  inuti ett fält, och det kräver en egen läsare till, vilket leder
+  över till \cref{sec:csv}.
+}%
+Ett annat eget format klarar kommatecknet: vi skriver varje fält på en
+egen rad, så att en kontakt blir två rader, först namnet och sedan
+adressen.  Då är det radbrytningen och inte kommatecknet som skiljer
+fälten åt, och ett kommatecken inuti namnet gör ingenting.  Men hur
+läser vi tillbaka filen?  En [[for]]-slinga över filen ger en rad per
+varv, så namnet och adressen hamnar i olika varv.
+
+Här passar den tredje läsmetoden, [[readline()]].  Den läser en enda
+rad varje gång vi anropar den, med radbrytningen kvar i slutet (utom
+på en sista rad som saknar radbrytning), och när filen är slut ger den
+den tomma strängen:
+\enquote{\foreignlanguage{english}{This makes the return value
+unambiguous; if f.readline() returns an empty string, the end of the
+file has been reached, while a blank line is represented by
+'\textbackslash{}n', a string containing only a single
+newline}}\autocite{PythonTutorialFiles}.  Två anrop i samma varv ger
+alltså en hel kontakt.  Vi prövar formatet som förut: vi skriver
+kontakterna och läser tillbaka dem.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Kontakter på två rader]
+    \label{ex:tva-rader}
+    Programmet [[contacts_lines.py]] skriver tre kontakter, två rader
+    var, och läser tillbaka dem med [[readline()]]:
+<<[[contacts_lines.py]]>>=
+"""Saving contacts over two lines each, in a format of our own"""
+
+FILENAME = "contacts.txt"
+
+def write_contacts(contacts, filename):
+    """Writes each contact as two lines: the name, then the address"""
+    with open(filename, "w") as file:
+        for name, mail in contacts:
+            file.write(f"{name}\n{mail}\n")
+
+def read_contacts(filename):
+    """Reads the contacts back, two lines per contact"""
+    contacts = []
+    with open(filename, "r") as file:
+        while name := file.readline():
+            mail = file.readline()
+            print(f"{name=} {mail=}")
+            contacts.append((name.strip(), mail.strip()))
+    return contacts
+
+def main():
+    """Writes the contacts, reads them back and compares"""
+    contacts = [
+        ("Ronja", "ronja@example.com"),
+        ("Långstrump, Pippi", ""),
+        ("Madicken", "madicken@example.com"),
+    ]
+    write_contacts(contacts, FILENAME)
+    print(read_contacts(FILENAME) == contacts)
+
+if __name__ == "__main__":
+    main()
+@
+    Det skriver ut
+    \runpython[transcript]{examples/contacts_lines.py}
+  \end{example}
+\end{frame}
+
+Villkoret \mintinline{python}{name := file.readline()} är valrossen från
+föreläsningen \emph{Upprepningar}: det läser nästa rad, ger den namnet
+[[name]] och prövar den.  Så länge det finns en rad kvar är det lästa
+inte tomt, och slingan fortsätter; när filen är slut är det den tomma
+strängen, och slingan slutar.  Det andra anropet, i kroppen, läser
+adressen.
+
+Raden \mintinline{python}|print(f"{name=} {mail=}")| är bara med för att
+visa vad [[readline()]] ger.  Det är kortformen av f-strängen från
+föreläsningen \emph{Behållare: Listor}, och en sträng skriver den ut
+med citattecken runt, så att också radbrytningen syns, som
+\mintinline{text}|\n|.  Varje rad har sin radbrytning kvar, och
+därför behövs [[strip()]].  Pippis tomma adress kommer som
+\mintinline{python}{"\n"}, inte som den tomma strängen: en tom rad i
+filen är inte filens slut.  Och till sist skriver programmet
+\mintinline{python}{True}: det som kom tillbaka är det vi skrev,
+kommatecknet i Pippis namn inräknat.
+
+Också det här formatet har en gräns: ett fält som självt innehåller en
+radbrytning, som en adress över flera rader, delar kontakten fel igen.
+Och för varje nytt eget format behöver vi skriva en ny läsare.
 
 \subsection{Formatet CSV}
 \label{sec:csv}

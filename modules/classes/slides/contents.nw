@@ -659,10 +659,17 @@ inte kan nås direkt från utsidan av klassen; det prövar vi i
   Strängt taget finns inga privata attribut i Python.  Ett namn som
   \mintinline{python}{__phone} skrivs om till
   \mintinline{python}{_Person__phone} (\foreignlanguage{english}{name
-  mangling}), så den som vet det kan komma åt attributet ändå.  Se
-  avsnittet \emph{Private Variables} i Pythons handledning,
-  \url{https://docs.python.org/3/tutorial/classes.html\#private-variables}
-  (hämtad 2026-09-03).}
+  mangling}), så den som vet det kan komma åt attributet ändå.  Pythons
+  stilguide PEP~8 använder därför inte ordet \enquote{privat}.  För
+  attribut som inte är publika rekommenderar den \emph{ett} inledande
+  understreck, och två understreck, alltså namnomskrivningen, i regel
+  bara för att undvika namnkrockar i klasser som är gjorda för att
+  ärvas\autocite{pep8}.  Vi skriver ändå två understreck.  Med två
+  misslyckas en läsning av attributet utifrån klassen, som körningen av
+  \texttt{private.py} i \cref{ex:private-run} visar, medan den lyckas
+  med ett; så syns inkapslingen när programmet körs.
+  Namnomskrivningen beskrivs i avsnittet \emph{Private Variables} i
+  Pythons handledning\autocite{PythonTutorialPrivate}.}
 Detta kallas inkapsling (\foreignlanguage{english}{encapsulation}) och
 är en viktig princip i objektorienterad
 programmering.\footnote{%
@@ -898,13 +905,67 @@ det återkommer vi till i \cref{ovn:str}.
 Genom att använda metoder för att läsa och skriva attribut kan vi
 kontrollera hur data hanteras.  Vi kan lägga till validering, loggning
 eller andra funktioner utan att ändra hur användare av klassen
-interagerar med den.  Vi kan också förhindra att en programmerare
-oavsiktligt ändrar ett attribut på ett sätt som bryter klassens interna
-logik.  Det förhindrar många möjliga programfel.
+interagerar med den.  Vi kan också låta attributen ändras bara genom
+klassens egna metoder, så att klassen själv kan hålla dem i ett
+tillstånd som stämmer med dess regler.\footnote{%
+  Det vetenskapliga underlaget för om det också förhindrar programfel
+  finns i \cref{app:inkapsling-fel}: ingen av de studier som sökningen
+  fann visar det.  De samband mellan inkapsling och fel som har mätts är
+  svaga, blandade eller delvis förklarade av klassernas storlek, inget
+  av de experiment som räknade fel visade färre fel med inkapsling, och
+  de vinster som har mätts gäller ändringar och förståelse, inte fel;
+  i ett av experimenten blev programmen med dolda datarepresentationer
+  i stället svårare att ändra.}
+I Python är det dubbla understrecket ingen spärr (\cref{fn:mangling}):
+en tilldelning som \mintinline{python}{person.__first_name = "Margareta"}
+utanför klassen skapar ett andra attribut med det namnet och lämnar
+klassens eget attribut orört, som \cref{ex:privat-utifran} visar.
 
-En metod som byter namn är ett exempel: den tar emot ett helt namn och
+\begin{frame}<article>[fragile]
+  \begin{example}[En tilldelning utifrån]
+    \label{ex:privat-utifran}
+    Programmet tilldelar \mintinline{python}{__first_name} utanför
+    klassen och läser sedan namnet på två sätt:
+<<[[privat_utifran.py]]>>=
+from person import Person
+
+def main():
+    """Huvudprogram"""
+    person = Person("Anne-Marie", "Ingeström", "1907-08-28", "Vimmerby", "-")
+
+    person.__first_name = "Margareta"
+    print(person.get_name())
+    print(person.__first_name)
+
+if __name__ == "__main__":
+    main()
+@
+    Programmet skriver ut
+    \runpython[showcommand, chdir, deps={examples/person.py}]%
+      {examples/privat_utifran.py}
+  \end{example}
+\end{frame}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOEncapsulation}.
+
+  Svaret på \cref{ovn:varfor-privat} är en mekanism som körningen visar,
+  inte en vinst: att inkapsling förhindrar programfel är inte belagt
+  (\cref{app:inkapsling-fel}).  Exemplet står bara i anteckningarna och
+  tar ingen bild i bildspelet.
+}%
+Tilldelningen lyckas, men den når inte förnamnet som
+\mintinline{python}{get_name()} läser: inuti klassen heter attributet
+\mintinline{python}{_Person__first_name}, och utanför klassen skrivs
+namnet inte om.
+
+Ett exempel på en metod som håller en sådan regel är en metod som byter
+namn: den tar emot ett helt namn och
 delar själv upp det i för- och efternamn, så att de två attributen
-alltid hänger ihop.  För att testprogrammet ska kunna visa hur namnet
+alltid hänger ihop.  Det sista ordet hämtar den med index
+\mintinline{python}{-1}, som räknar från slutet av listan, precis som i
+exemplet \emph{Från slutet av listan} i föreläsningen \emph{Behållare:
+Listor}.  För att testprogrammet ska kunna visa hur namnet
 delades upp lägger vi samtidigt till läsmetoder för för- och
 efternamnet.
 
@@ -1638,7 +1699,8 @@ if __name__ == "__main__":
   \mintinline{python}{example.__value = 30} utanför klassen skulle tyst
   skapa ett \emph{andra} attribut vid sidan av
   \mintinline{python}{_Example__value}, och utskriften efteråt skulle
-  lyckas --- kontrasten hade visat ingenting.
+  lyckas --- kontrasten hade visat ingenting.  Vad en sådan tilldelning
+  gör visar i stället \cref{ex:privat-utifran}.
 
   Begränsningen visas i stället för att påstås: det program som inte
   fungerar står med, och spårutskriften
@@ -1727,13 +1789,51 @@ tillgång till objektets attribut genom \mintinline{python}{self}.
 
 Vi skapar metoder (ofta kallade
 \enquote{\foreignlanguage{english}{getters}}) för att läsa attributen.
-Det ger oss kontroll över hur data läses och förhindrar ändringar.  Titta
+Det ger oss kontroll över hur data läses, men läsmetoderna hindrar
+ingen från att ändra attributen.  Att en läsning utifrån misslyckas
+beror på understrecken, inte på läsmetoderna, och understrecken är
+ingen spärr (\cref{fn:mangling}).  Titta
 igen på metoderna \mintinline{python}{get_name()} och
 \mintinline{python}{__str__()} i
 \mintinline{python}{Person}-klassen\only<article>{
 (\cref{ex:person-namn})}: metoden \mintinline{python}{get_name()}
 kombinerar för- och efternamn till ett fullständigt namn, och läsmetoderna
 i \cref{ex:person-getters} returnerar var sitt attribut.
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{ClassLOEncapsulation}.
+
+  Stycket står efter svaret på \cref{ovn:lasa-privat}, som frågar
+  varför vi vill ha privata attribut, så att det inte svarar på frågan
+  innan studenten har prövat den.  Det ger de tre formerna som
+  repetitionsföreläsningen bygger på: publikt attribut, privat attribut
+  med läsmetod, egenskap.  Påståendet bärs av \cref{app:inkapsling} och
+  av vad PEP~8 säger, kontrollerat mot texten; om vilket val som är
+  lättare att läsa eller ändra påstås inget.  Alla tre formerna visades
+  i livekodningen (föreläsningen 6/10, övningen 27/10).
+}%
+Privata attribut med läsmetoder är ändå inte det enda rimliga
+valet.\footnote{%
+  Det vetenskapliga underlaget finns i \cref{app:inkapsling}:
+  inkapsling är en etablerad princip, men den är löst formulerad och
+  omdiskuterad, och i praktiken följs den ofullständigt.}
+Har klassen en regel om ett attribut som den ska hålla, som att för- och
+efternamnet i \mintinline{python}{Person} hör ihop
+(\cref{ex:person-change-name}), måste ändringarna gå via en metod som
+håller regeln, och då ska attributet vara privat: en tilldelning utifrån
+går förbi metoden utan att klassen får veta det.  Har attributet ingen
+sådan regel är ett publikt attribut, som \mintinline{python}{value} i
+\cref{ex:public}, också ett rimligt val.  Pythons stilguide PEP~8
+rekommenderar just det för enkla dataattribut, utan läs- och
+skrivmetoder\autocite{pep8}.  Behöver ett sådant attribut senare ett
+beteende, till exempel en regel att hålla, kan det göras om till en
+egenskap (\foreignlanguage{english}{property}), som läses som ett
+attribut men går via en metod; egenskaper tar anteckningarna
+\emph{Operatoröverlagring} upp.  Samma stilguide råder den som är osäker
+att välja ett attribut som inte är publikt, eftersom det är lättare att
+göra det publikt senare än tvärtom.  Vad den menar med ett sådant
+attribut, och varför vi ändå skriver två understreck, står i
+\cref{fn:mangling}.
 
 
 \section{Dundermetoder}
