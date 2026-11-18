@@ -937,10 +937,269 @@ def fahrenheit(celsius):
 
 Funktioner, parametrar, returvärden och [[main]] gick föreläsningen
 \emph{Funktioner} igenom.  Där finns också varför vi delar upp program i
-funktioner, och principerna för hur, liksom standardvärden och namngivna
+funktioner, och principerna för hur, som vi repeterar i
+\cref{sec:recap-principer}, liksom standardvärden och namngivna
 argument.  Med namn kan en funktion med två standardvärden få bara det
 andra argumentet, och ordningen mellan de namngivna argumenten spelar
 ingen roll.
+
+
+\mode<presentation>{\section[Principer]{Principer för läsbar kod}}
+\mode<article>{\section{Principer för läsbar kod}}
+\label{sec:recap-principer}
+
+\leavevmode\ltnote{%
+  Relevanta lärandemål: \cref{RecapLOPrinciples}; ur \emph{Funktioner}
+  målet om att dela upp ett program i funktioner och namnge principerna
+  DRY, SRP och KISS (Lo01, Lo02), och ur \emph{Variabler och utskrifter}
+  målen om namn och kod enligt PEP~8 (Lo07).
+
+  \Cref{ovn:recap-principer} har flera rätta svar: [[principer1.py]]
+  bryter mot var och en av de fyra principerna på ett ställe, så det
+  rätta svaret är fyra kryss, och det är kryssen som saknas som visar
+  något.  Den som inte kryssar i DRY ser inte Pippis insättning i
+  [[main]] som en kopia av den i [[DEPOSIT]].  Den som inte kryssar i
+  SRP ser inte att en funktion som både räknar och skriver ut har två
+  ansvar, och den som inte kryssar i KISS ser inte att [[add]] är en
+  funktion för mycket: fler funktioner är inte i sig bättre.  Den som
+  inte kryssar i PEP~8 kopplar inte namnets form till vad namnet står
+  för, som provets frågor om namn kräver.  Alternativet
+  \enquote{Ingen: programmet fungerar ju} fångar den som tror att bara
+  beteendet räknas.
+
+  \textbf{Kontrast}: \cref{ex:recap-principer-par} visar de två
+  programmen sida vid sida med var sin körning, som
+  \emph{Funktioner} gjorde: källkoden varierar, utskriften hålls
+  invariant.  \textbf{Generalisering}: \cref{ovn:recap-principer-grader}
+  ställer samma fyra frågor om ett kodstycke om temperaturer.  Där gäller
+  PEP~8 ett variabelnamn i stället för ett funktionsnamn, och KISS är
+  redan uppfyllt, så att studenten måste pröva varje princip för sig i
+  stället för att kryssa i alla.
+}%
+Ett program kan göra det det ska och ändå vara skrivet på ett sätt som vi
+har undvikit i kursen.  Programmet [[principer1.py]] sätter in pengar hos
+Ronja och hos Pippi och skriver ut deras saldon.
+
+\begin{frame}[fragile,shrink]
+  \begin{exercise}
+    \label{ovn:recap-principer}
+    Programmet [[principer1.py]]:
+<<[[principer1.py]]>>=
+def add(a, b):
+    """Lämnar summan av a och b"""
+    return a + b
+
+
+def DEPOSIT(owner, balance, amount):
+    """Sätter in amount kronor"""
+    balance = add(balance, amount)
+    print(f"{owner}: {balance} kr")
+
+
+def main():
+    DEPOSIT("Ronja", 1000, 500)
+    balance = 300
+    balance = balance + 200
+    print(f"Pippi: {balance} kr")
+
+
+if __name__ == "__main__":
+    main()
+@
+    \begin{pycode}
+print(fraga(
+    mc,
+    "Vilka principer bryter principer1.py mot?",
+    [
+        "DRY",
+        "SRP",
+        "KISS",
+        "PEP 8",
+        "Ingen: programmet fungerar ju",
+    ],
+    multi=True,
+    context=file_snippet("examples/principer1.py"),
+))
+    \end{pycode}
+  \end{exercise}
+\end{frame}
+
+Programmet bryter mot alla fyra, och ändå gör det det ska: principerna
+gäller inte vad ett program gör, utan hur dess källkod är skriven.  I
+[[principer2.py]] står samma insättningar, skrivna så att de följer
+principerna.  Funktionen [[deposit]] skriver programmet inte en gång
+till: det hämtar den med [[import]] ur [[insattning2.py]], filen från
+\cref{ex:recap-insattning2}.  Hur det går till repeterar vi i
+\cref{sec:recap-moduler}.
+
+\begin{frame}<article>[fragile]
+  \begin{example}[Insättningarna, omskrivna]
+    \label{ex:recap-principer2}
+    Programmet [[principer2.py]]:
+<<[[principer2.py]]>>=
+from insattning2 import deposit
+
+
+def main():
+    ronja = deposit(1000, 500)
+    print(f"Ronja: {ronja} kr")
+    pippi = deposit(300, 200)
+    print(f"Pippi: {pippi} kr")
+
+
+if __name__ == "__main__":
+    main()
+@
+  \end{example}
+\end{frame}
+% A notes-only frame still advances beamer's frame counter.
+\mode<presentation>{\addtocounter{framenumber}{-1}}
+
+\Cref{ex:recap-principer-par} ställer de två programmen bredvid
+varandra, med var sin körning.
+
+\begin{frame}[fragile,shrink]
+  \begin{example}[Två sätt att skriva samma insättningar]
+    \label{ex:recap-principer-par}
+    De två programmen sida vid sida:
+    \codebycode
+      [label={\texttt{principer1.py}}, lines=1-16]%
+        {python}{examples/principer1.py}
+      [label={\texttt{principer2.py}}, lines=1-9]%
+        {python}{examples/principer2.py}
+    \runbyrun[showcommand, chdir]{examples/principer1.py}%
+      [showcommand, chdir]{examples/principer2.py}
+  \end{example}
+\end{frame}
+
+Utskrifterna är desamma; det som skiljer är källkoden, och varje
+skillnad svarar mot en princip.
+
+\emph{DRY} (\foreignlanguage{english}{Don't Repeat Yourself}) säger att
+varje kunskap i ett program ska stå på ett enda
+ställe\autocite{HuntThomas1999}.\footnote{%
+  Det vetenskapliga underlaget för DRY --- både var principen kommer
+  ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
+  \emph{Algoritmiskt tänkande}, bilaga~E.}
+I [[principer1.py]] står insättningen två gånger: i [[DEPOSIT]] för
+Ronja, och utskriven en gång till i [[main]] för Pippi.  Ska sättet att
+sätta in ändras, måste det ändras på båda ställena.  I [[principer2.py]]
+står den på ett enda ställe, i [[insattning2.py]], och båda kontona får
+sin insättning genom ett anrop av [[deposit]].
+
+\emph{SRP}, principen om ett enda ansvar
+(\foreignlanguage{english}{Single Responsibility Principle}), säger att
+en modul aldrig ska ha mer än ett skäl att
+ändras\autocite[ch.~8]{Martin2003Agile}.  [[DEPOSIT]] har två: den
+räknar ut det nya saldot och skriver ut det, så att en ändring av
+utskriften rör samma funktion som en ändring av insättningen.
+[[deposit]] räknar bara och lämnar tillbaka saldot; utskriften står i
+[[main]], som bestämmer vad saldot ska användas till.  Vad som räknas
+som \emph{ett} ansvar är däremot en bedömningsfråga, som erfarna
+utvecklare är mätbart oense
+om\autocite{Alkharabsheh2021Analysing,Hall2014Some}.  Använd principen
+som en fråga om en funktion, \enquote{vad skulle få den här att behöva
+ändras?}, och inte som ett facit.\footnote{%
+  Det vetenskapliga underlaget --- både för att principen är Robert
+  C.~Martins och för hur etablerad den är, och för kritiken mot den ---
+  finns i föreläsningen \emph{Funktioner}, bilaga~B.}
+
+\emph{KISS} (\foreignlanguage{english}{Keep It Simple, Stupid}) säger
+att man ska välja den enklaste lösning som gör jobbet.  [[add]] gör
+ingenting som [[+]] inte redan gör, och den som läser [[DEPOSIT]] måste
+leta upp den för att se det: fler funktioner gör inte i sig ett program
+bättre.  I [[principer2.py]] är [[add]] borta, och additionen står där
+den görs, i [[deposit]].  Att enkelhet är ett designvärde är väl
+underbyggt, på två skilda grunder: våra huvuden är
+små\autocite{Dijkstra1972Humble}, och en enkel lösning är en vars fel
+man kan se\autocite[s.~81]{Hoare1981Emperor}.\footnote{%
+  Det vetenskapliga underlaget för att enkelhet är ett etablerat
+  designvärde finns i föreläsningen \emph{Funktioner}, bilaga~C, med två
+  förbehåll: en del av komplexiteten sitter i problemet självt och går
+  inte att förenkla bort, och ingen har ännu ett pålitligt sätt att mäta
+  hur enkel en bit kod är.}
+
+\emph{PEP~8}, Pythongemenskapens stilguide, säger bland annat hur namn
+skrivs: små bokstäver och understreck för funktioner och variabler,
+versaler för konstanter och stor bokstav först i varje ord för
+klasser\autocite{pep8}.  [[DEPOSIT]] är skrivet som en konstant, fast
+det är en funktion; [[deposit]] är skrivet som det den är.  Skälet att
+följa guiden är inte att varje regel är prövad: stödet för de enskilda
+reglerna är tunt, och den enda studie som har prövat PEP~8 på
+pythonnybörjare fann att tre av fyra prövade regler hjälpte och att den
+fjärde stjälpte\autocite[avsnitt~8]{Oliveira2024PythonStyleGuides}.
+Skälet är att guiden är \emph{gemensam}: den som läser din kod ser av
+namnets form vad namnet står för.  Det skälet är ett argument, inte ett
+belägg.\footnote{%
+  Det vetenskapliga underlaget --- både för vad som är belagt och för
+  vad som inte är det, med alla förbehåll --- finns i föreläsningen
+  \emph{Variabler och utskrifter}, bilaga~B.}
+
+\begin{frame}[fragile]
+  \only<presentation>{%
+    \begin{summary}[Fyra principer]
+      \begin{description}
+        \item[DRY] varje kunskap på ett enda ställe
+        \item[SRP] en funktion, ett ansvar --- ett skäl att ändras
+        \item[KISS] den enklaste lösning som gör jobbet
+        \item[PEP 8] namnets form visar vad namnet står för
+      \end{description}
+    \end{summary}%
+  }%
+  \only<article>{%
+    \begin{summary}[Fyra principer]
+      DRY säger att varje kunskap i programmet ska stå på ett enda
+      ställe; SRP att en funktion ska ha ett ansvar, det vill säga ett
+      skäl att ändras; KISS att man ska välja den enklaste lösning som
+      gör jobbet; och PEP~8 att namnen skrivs som Pythongemenskapens
+      stilguide säger, så att deras form visar vad som är funktion,
+      variabel, konstant och klass.
+    \end{summary}%
+  }
+
+  \begin{exercise}[Morgon och kväll]
+    \label{ovn:recap-principer-grader}
+    Vilka av principerna bryter de här raderna mot?
+    \begin{minted}{python}
+morningTemp = 12.5
+eveningTemp = 18.0
+print(f"Morgon: {morningTemp * 9 / 5 + 32} grader F")
+print(f"Kväll: {eveningTemp * 9 / 5 + 32} grader F")
+    \end{minted}
+  \end{exercise}
+\end{frame}
+
+Raderna bryter mot tre av dem.  Omräkningen till Fahrenheit står två
+gånger, mot DRY.  Den har ingen egen funktion, så omräkningen och
+utskriften står på samma rader, och de har var sitt skäl att ändras, mot
+SRP.  Namnen [[morningTemp]] och [[eveningTemp]] har stor bokstav inne i
+namnet, mot PEP~8, som skriver variabler som funktioner, med små
+bokstäver och understreck.  KISS bryter det inte mot: ingenting i det är
+krångligare än det behöver vara.  Med funktionen [[fahrenheit]] från
+\cref{ex:recap-fahrenheit} står formeln på ett enda ställe, och
+utskriften blir densamma.
+
+\begin{frame}[fragile]
+  \begin{example}[Morgon och kväll, omskrivet]
+    \label{ex:recap-principer-grader}
+    Med en funktion för omräkningen och namn enligt PEP~8:
+    \begin{minted}{python}
+morning_temp = 12.5
+evening_temp = 18.0
+print(f"Morgon: {fahrenheit(morning_temp)} grader F")
+print(f"Kväll: {fahrenheit(evening_temp)} grader F")
+    \end{minted}
+  \end{example}
+\end{frame}
+
+DRY gick föreläsningen \emph{Algoritmiskt tänkande} igenom, när en
+diskalgoritm skrevs om så att diskningen stod på ett enda ställe.  SRP
+och KISS gick föreläsningen \emph{Funktioner} igenom, när ett program
+delades upp i funktioner, och PEP~8 föreläsningen \emph{Variabler och
+utskrifter}.  I \emph{Variabler och utskrifter} finns också hur en
+kommentar skrivs, så att den svarar på varför och inte på vad, och i
+\emph{Funktioner} hur en funktion dokumenteras med en
+dokumentationssträng enligt PEP~257.
 
 
 \mode<presentation>{\section[Inmatning]{Inmatning, felhantering och
@@ -1048,10 +1307,8 @@ if __name__ == "__main__":
   \end{example}
 \end{frame}
 
-Funktionen [[deposit]] skriver programmet inte en gång till: det hämtar
-den med [[import]] ur [[insattning2.py]], filen från
-\cref{ex:recap-insattning2}.  Hur det går till repeterar vi i
-\cref{sec:recap-moduler}.  Om omvandlingen misslyckas hoppar programmet
+Funktionen [[deposit]] hämtar programmet, som [[principer2.py]], med
+[[import]] ur [[insattning2.py]].  Om omvandlingen misslyckas hoppar programmet
 direkt till [[except]], och raden som skriver ut det nya saldot utförs
 aldrig.
 
