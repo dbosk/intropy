@@ -28,6 +28,31 @@ mentipy_common = {
 def fraga(helper, *args, **kwargs):
     """Registrera en fråga med de gemensamma inställningarna."""
     return helper(*args, **{**mentipy_common, **kwargs})
+
+
+MENTIPY_SPALTER = (
+    "\\begin{columns}[T,onlytextwidth]\n\\column{0.62\\textwidth}\n"
+)
+MENTIPY_QR_SPALT = "\\column{0.33\\textwidth}\n"
+
+
+def fraga_bredvid(program, helper, *args, **kwargs):
+    """Som fraga, men med programmet bredvid frågan på bilden.
+
+    Bilden får tre spalter: programmet, frågan och QR-koden.  Känns
+    Mentipys spalter inte igen står programmet ovanför frågan i stället.
+    """
+    latex = fraga(helper, *args, **kwargs)
+    kod = f"\\inputminted[fontsize=\\footnotesize]{{python}}{{{program}}}\n"
+    if MENTIPY_SPALTER in latex and MENTIPY_QR_SPALT in latex:
+        return latex.replace(
+            MENTIPY_SPALTER,
+            "\\begin{columns}[T,onlytextwidth]\n"
+            "\\column{0.59\\textwidth}\n" + kod
+            + "\\column{0.24\\textwidth}\n\\footnotesize\n",
+            1,
+        ).replace(MENTIPY_QR_SPALT, "\\column{0.16\\textwidth}\n", 1)
+    return "\\mode<presentation>{%\n" + kod + "}\n" + latex
 \end{pycode}
 
 % Adressen under QR-koden står i Mentipys omslag mentipy-obj/Q-*.pdf_tex,
@@ -954,45 +979,47 @@ ingen roll.
   DRY, SRP och KISS (Lo01, Lo02), och ur \emph{Variabler och utskrifter}
   målen om namn och kod enligt PEP~8 (Lo07).
 
-  \Cref{ovn:recap-principer} har flera rätta svar: [[principer1.py]]
-  bryter mot var och en av de fyra principerna på ett ställe, så det
-  rätta svaret är fyra kryss, och det är kryssen som saknas som visar
-  något.  Den som inte kryssar i DRY ser inte Pippis insättning i
-  [[main]] som en kopia av den i [[DEPOSIT]].  Den som inte kryssar i
-  SRP ser inte att en funktion som både räknar och skriver ut har två
-  ansvar, och den som inte kryssar i KISS ser inte att [[add]] är en
-  funktion för mycket: fler funktioner är inte i sig bättre.  Den som
-  inte kryssar i PEP~8 kopplar inte namnets form till vad namnet står
-  för, som provets frågor om namn kräver.  Alternativet
-  \enquote{Ingen: programmet fungerar ju} fångar den som tror att bara
-  beteendet räknas.
+  \Cref{ovn:recap-principer} har flera rätta svar, men inte alla:
+  [[principer1.py]] bryter mot DRY, SRP och PEP~8, men inte mot KISS, så
+  den som kryssar i allt svarar fel, precis som på provets frågor med
+  flera svar.  Den som inte kryssar i DRY ser inte raden
+  [[balance = balance + 200]] i [[main]] som en kopia av raden i
+  [[DEPOSIT]].  Den som inte kryssar i SRP ser inte att en funktion som
+  både räknar och skriver ut har två ansvar, och den som inte kryssar i
+  PEP~8 kopplar inte namnets form till vad namnet står för, som provets
+  frågor om namn kräver.  Den som kryssar i KISS tar varje brist för ett
+  brott mot KISS, eller tror att fler funktioner i sig gör ett program
+  krångligt.  Alternativet \enquote{Ingen: programmet fungerar ju}
+  fångar den som tror att bara beteendet räknas.
 
   \textbf{Kontrast}: \cref{ex:recap-principer-par} visar de två
   programmen sida vid sida med var sin körning, som
   \emph{Funktioner} gjorde: källkoden varierar, utskriften hålls
   invariant.  \textbf{Generalisering}: \cref{ovn:recap-principer-grader}
-  ställer samma fyra frågor om ett kodstycke om temperaturer.  Där gäller
-  PEP~8 ett variabelnamn i stället för ett funktionsnamn, och KISS är
-  redan uppfyllt, så att studenten måste pröva varje princip för sig i
-  stället för att kryssa i alla.
+  ställer samma fråga om en temperaturomräkning, men med en annan
+  rätt mängd: KISS och PEP~8, inte DRY och SRP.  KISS bryts där av en
+  funktion som inte tillför något, och PEP~8 av ett funktionsnamn med
+  stor bokstav inne i namnet i stället för versaler.  Den som kryssar i
+  samma alternativ som i den första frågan har lärt sig svaret, inte
+  principerna.
 }%
-Ett program kan göra det det ska och ändå vara skrivet på ett sätt som vi
-har undvikit i kursen.  Programmet [[principer1.py]] sätter in pengar hos
-Ronja och hos Pippi och skriver ut deras saldon.
+Fyra principer för hur källkod skrivs har du mött vid namn: DRY, SRP,
+KISS och PEP~8.  Ett program kan göra det det ska och ändå bryta mot
+dem.  Programmet [[principer1.py]] sätter in pengar hos Ronja och hos
+Pippi och skriver ut deras saldon.
 
+% På bilden står programmet bredvid frågan och QR-koden (fraga_bredvid),
+% så att det ryms i kodens storlek: under varandra krympte bilden till
+% hälften.  Kodstycket står därför bara i anteckningarna (onlyenv).
 \begin{frame}[fragile,shrink]
   \begin{exercise}
     \label{ovn:recap-principer}
     Programmet [[principer1.py]]:
+    \begin{onlyenv}<article>
 <<[[principer1.py]]>>=
-def add(a, b):
-    """Lämnar summan av a och b"""
-    return a + b
-
-
 def DEPOSIT(owner, balance, amount):
-    """Sätter in amount kronor"""
-    balance = add(balance, amount)
+    """Skriver ut det nya saldot"""
+    balance = balance + amount
     print(f"{owner}: {balance} kr")
 
 
@@ -1006,8 +1033,10 @@ def main():
 if __name__ == "__main__":
     main()
 @
+    \end{onlyenv}
     \begin{pycode}
-print(fraga(
+print(fraga_bredvid(
+    "examples/principer1.py",
     mc,
     "Vilka principer bryter principer1.py mot?",
     [
@@ -1024,11 +1053,12 @@ print(fraga(
   \end{exercise}
 \end{frame}
 
-Programmet bryter mot alla fyra, och ändå gör det det ska: principerna
-gäller inte vad ett program gör, utan hur dess källkod är skriven.  I
-[[principer2.py]] står samma insättningar, skrivna så att de följer
-principerna.  Funktionen [[deposit]] skriver programmet inte en gång
-till: det hämtar den med [[import]] ur [[insattning2.py]], filen från
+Programmet bryter mot tre av principerna, DRY, SRP och PEP~8, men inte
+mot KISS, och ändå gör det det ska: principerna gäller inte vad ett
+program gör, utan hur dess källkod är skriven.  I [[principer2.py]] står
+samma insättningar, skrivna så att de följer alla fyra.  Funktionen
+[[deposit]] skriver programmet inte en gång till: det hämtar den med
+[[import]] ur [[insattning2.py]], filen från
 \cref{ex:recap-insattning2}.  Hur det går till repeterar vi i
 \cref{sec:recap-moduler}.
 
@@ -1056,24 +1086,31 @@ if __name__ == "__main__":
 \mode<presentation>{\addtocounter{framenumber}{-1}}
 
 \Cref{ex:recap-principer-par} ställer de två programmen bredvid
-varandra, med var sin körning.
+varandra, med var sin körning och med [[deposit]] ur [[insattning2.py]],
+som det andra programmet hämtar.
 
 \begin{frame}[fragile,shrink]
   \begin{example}[Två sätt att skriva samma insättningar]
     \label{ex:recap-principer-par}
-    De två programmen sida vid sida:
-    \codebycode
-      [label={\texttt{principer1.py}}, lines=1-16]%
-        {python}{examples/principer1.py}
-      [label={\texttt{principer2.py}}, lines=1-9]%
-        {python}{examples/principer2.py}
+    De två programmen, och funktionen som det andra hämtar:
+    \begin{didacticpair}{2}
+      \didacticpairlabel{\texttt{principer1.py}} &
+      \didacticpairlabel{\texttt{principer2.py}}\\
+      \didacticinputminted[lastline=11]{python}{examples/principer1.py}
+      &
+      \didacticinputminted[lastline=9]{python}{examples/principer2.py}
+      \par\medskip
+      \didacticpairlabel{\texttt{insattning2.py}}
+      \didacticinputminted[lastline=3]{python}{examples/insattning2.py}
+    \end{didacticpair}
     \runbyrun[showcommand, chdir]{examples/principer1.py}%
       [showcommand, chdir]{examples/principer2.py}
   \end{example}
 \end{frame}
 
 Utskrifterna är desamma; det som skiljer är källkoden, och varje
-skillnad svarar mot en princip.
+skillnad svarar mot en av de tre principer som [[principer1.py]] bröt
+mot.
 
 \emph{DRY} (\foreignlanguage{english}{Don't Repeat Yourself}) säger att
 varje kunskap i ett program ska stå på ett enda
@@ -1081,11 +1118,12 @@ ställe\autocite{HuntThomas1999}.\footnote{%
   Det vetenskapliga underlaget för DRY --- både var principen kommer
   ifrån och om den håller, med sina förbehåll --- finns i föreläsningen
   \emph{Algoritmiskt tänkande}, bilaga~E.}
-I [[principer1.py]] står insättningen två gånger: i [[DEPOSIT]] för
-Ronja, och utskriven en gång till i [[main]] för Pippi.  Ska sättet att
-sätta in ändras, måste det ändras på båda ställena.  I [[principer2.py]]
-står den på ett enda ställe, i [[insattning2.py]], och båda kontona får
-sin insättning genom ett anrop av [[deposit]].
+I [[principer1.py]] står insättningen två gånger: som
+[[balance = balance + amount]] i [[DEPOSIT]] för Ronja, och som
+[[balance = balance + 200]] i [[main]] för Pippi, med utskriften efter.
+Ska sättet att sätta in ändras, måste det ändras på båda ställena.  I
+[[principer2.py]] står den på ett enda ställe, i [[insattning2.py]], och
+båda kontona får sin insättning genom ett anrop av [[deposit]].
 
 \emph{SRP}, principen om ett enda ansvar
 (\foreignlanguage{english}{Single Responsibility Principle}), säger att
@@ -1105,13 +1143,15 @@ som en fråga om en funktion, \enquote{vad skulle få den här att behöva
   finns i föreläsningen \emph{Funktioner}, bilaga~B.}
 
 \emph{KISS} (\foreignlanguage{english}{Keep It Simple, Stupid}) säger
-att man ska välja den enklaste lösning som gör jobbet.  [[add]] gör
-ingenting som [[+]] inte redan gör, och den som läser [[DEPOSIT]] måste
-leta upp den för att se det: fler funktioner gör inte i sig ett program
-bättre.  I [[principer2.py]] är [[add]] borta, och additionen står där
-den görs, i [[deposit]].  Att enkelhet är ett designvärde är väl
-underbyggt, på två skilda grunder: våra huvuden är
-små\autocite{Dijkstra1972Humble}, och en enkel lösning är en vars fel
+att man ska välja den enklaste lösning som gör jobbet.  Det är KISS som
+säger varför omskrivningen stannade där den gjorde.  [[principer2.py]]
+har ingen funktion utöver [[main]] och den [[deposit]] som redan fanns,
+och
+ingenting i det är krångligare än det behöver vara.  Vi kunde ha brutit
+ut utskriften i en egen funktion, men ingenting i programmet krävde
+det, och varje extra funktion är en sak till att läsa.  Att enkelhet är
+ett designvärde är väl underbyggt, på två skilda grunder: våra huvuden
+är små\autocite{Dijkstra1972Humble}, och en enkel lösning är en vars fel
 man kan se\autocite[s.~81]{Hoare1981Emperor}.\footnote{%
   Det vetenskapliga underlaget för att enkelhet är ett etablerat
   designvärde finns i föreläsningen \emph{Funktioner}, bilaga~C, med två
@@ -1119,15 +1159,15 @@ man kan se\autocite[s.~81]{Hoare1981Emperor}.\footnote{%
   inte att förenkla bort, och ingen har ännu ett pålitligt sätt att mäta
   hur enkel en bit kod är.}
 
-\emph{PEP~8}, Pythongemenskapens stilguide, säger bland annat hur namn
-skrivs: små bokstäver och understreck för funktioner och variabler,
-versaler för konstanter och stor bokstav först i varje ord för
-klasser\autocite{pep8}.  [[DEPOSIT]] är skrivet som en konstant, fast
-det är en funktion; [[deposit]] är skrivet som det den är.  Skälet att
-följa guiden är inte att varje regel är prövad: stödet för de enskilda
-reglerna är tunt, och den enda studie som har prövat PEP~8 på
-pythonnybörjare fann att tre av fyra prövade regler hjälpte och att den
-fjärde stjälpte\autocite[avsnitt~8]{Oliveira2024PythonStyleGuides}.
+\emph{PEP~8}, Pythongemenskapens stilguide, säger hur pythonkod skrivs,
+och bland annat hur namn skrivs: små bokstäver och understreck för
+funktioner och variabler, versaler för konstanter och stor bokstav först
+i varje ord för klasser\autocite{pep8}.  [[DEPOSIT]] är skrivet som en
+konstant, fast det är en funktion; [[deposit]] är skrivet som det den
+är.  Skälet att följa guiden är inte att varje regel är prövad: stödet
+för de enskilda reglerna är tunt, och den enda studie som har prövat
+PEP~8 på pythonnybörjare fann att tre av fyra prövade regler hjälpte och
+att den fjärde stjälpte\autocite[avsnitt~8]{Oliveira2024PythonStyleGuides}.
 Skälet är att guiden är \emph{gemensam}: den som läser din kod ser av
 namnets form vad namnet står för.  Det skälet är ett argument, inte ett
 belägg.\footnote{%
@@ -1135,14 +1175,15 @@ belägg.\footnote{%
   vad som inte är det, med alla förbehåll --- finns i föreläsningen
   \emph{Variabler och utskrifter}, bilaga~B.}
 
-\begin{frame}[fragile]
+\begin{frame}
   \only<presentation>{%
     \begin{summary}[Fyra principer]
       \begin{description}
         \item[DRY] varje kunskap på ett enda ställe
         \item[SRP] en funktion, ett ansvar --- ett skäl att ändras
         \item[KISS] den enklaste lösning som gör jobbet
-        \item[PEP 8] namnets form visar vad namnet står för
+        \item[PEP 8] kod och namn skrivs som den gemensamma stilguiden
+          säger; namnens form visar vad de står för
       \end{description}
     \end{summary}%
   }%
@@ -1151,44 +1192,71 @@ belägg.\footnote{%
       DRY säger att varje kunskap i programmet ska stå på ett enda
       ställe; SRP att en funktion ska ha ett ansvar, det vill säga ett
       skäl att ändras; KISS att man ska välja den enklaste lösning som
-      gör jobbet; och PEP~8 att namnen skrivs som Pythongemenskapens
-      stilguide säger, så att deras form visar vad som är funktion,
+      gör jobbet; och PEP~8 att kod och namn skrivs som den gemensamma
+      stilguiden säger, så att namnens form visar vad som är funktion,
       variabel, konstant och klass.
     \end{summary}%
   }
+\end{frame}
 
-  \begin{exercise}[Morgon och kväll]
+Samma fråga går att ställa om vilken kod som helst, också om kod som
+inte har med banken att göra.
+
+\begin{frame}[fragile,shrink]
+  \begin{exercise}
     \label{ovn:recap-principer-grader}
-    Vilka av principerna bryter de här raderna mot?
-    \begin{minted}{python}
-morningTemp = 12.5
-eveningTemp = 18.0
-print(f"Morgon: {morningTemp * 9 / 5 + 32} grader F")
-print(f"Kväll: {eveningTemp * 9 / 5 + 32} grader F")
-    \end{minted}
+    Funktionerna i [[grader1.py]]:
+    \begin{onlyenv}<article>
+<<[[grader1.py]]>>=
+def multiply(a, b):
+    """Lämnar produkten av a och b"""
+    return a * b
+
+
+def toFahrenheit(celsius):
+    """Lämnar celsius i Fahrenheit"""
+    return multiply(celsius, 9) / 5 + 32
+@
+    \end{onlyenv}
+    \begin{pycode}
+print(fraga_bredvid(
+    "examples/grader1.py",
+    mc,
+    "Vilka principer bryter grader1.py mot?",
+    [
+        "DRY",
+        "SRP",
+        "KISS",
+        "PEP 8",
+        "Ingen: funktionerna fungerar ju",
+    ],
+    multi=True,
+    context=file_snippet("examples/grader1.py"),
+))
+    \end{pycode}
   \end{exercise}
 \end{frame}
 
-Raderna bryter mot tre av dem.  Omräkningen till Fahrenheit står två
-gånger, mot DRY.  Den har ingen egen funktion, så omräkningen och
-utskriften står på samma rader, och de har var sitt skäl att ändras, mot
-SRP.  Namnen [[morningTemp]] och [[eveningTemp]] har stor bokstav inne i
-namnet, mot PEP~8, som skriver variabler som funktioner, med små
-bokstäver och understreck.  KISS bryter det inte mot: ingenting i det är
-krångligare än det behöver vara.  Med funktionen [[fahrenheit]] från
-\cref{ex:recap-fahrenheit} står formeln på ett enda ställe, och
-utskriften blir densamma.
+Den här gången är det KISS och PEP~8.  [[multiply]] gör ingenting som
+[[*]] inte redan gör, och den som läser [[toFahrenheit]] måste leta upp
+den för att se det: en funktion för mycket, mot KISS.  [[toFahrenheit]]
+har stor bokstav inne i namnet, mot PEP~8, som skriver funktioner med
+små bokstäver och understreck.  DRY och SRP bryter funktionerna inte
+mot: ingenting står två gånger, och var och en gör en sak och lämnar
+tillbaka sitt svar utan att skriva ut något.  Omskriven blir omräkningen
+en enda funktion, samma omräkning som i \cref{ex:recap-fahrenheit}, och
+den räknar ut samma sak, eftersom den gör samma räknesteg i samma
+ordning.
 
 \begin{frame}[fragile]
-  \begin{example}[Morgon och kväll, omskrivet]
+  \begin{example}[Omräkningen, omskriven]
     \label{ex:recap-principer-grader}
-    Med en funktion för omräkningen och namn enligt PEP~8:
-    \begin{minted}{python}
-morning_temp = 12.5
-evening_temp = 18.0
-print(f"Morgon: {fahrenheit(morning_temp)} grader F")
-print(f"Kväll: {fahrenheit(evening_temp)} grader F")
-    \end{minted}
+    Funktionen i [[grader2.py]] följer alla fyra principerna:
+<<[[grader2.py]]>>=
+def fahrenheit(celsius):
+    """Lämnar celsius i Fahrenheit"""
+    return celsius * 9 / 5 + 32
+@
   \end{example}
 \end{frame}
 
