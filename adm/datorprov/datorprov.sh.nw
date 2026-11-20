@@ -162,7 +162,10 @@ Men bättre är om vi kan avgöra det från uppgifterna i Canvas.
 <<beräknade konstanter>>=
 USE_BONUS_POINTS=$(results | cut -f 1 | sort | uniq \
                            | grep -c -E "${BONUS}")
-@
+@ Båda värdena kräver [[results]], som hämtar alla resultat från Canvas när
+det inte finns någon cache.
+Därför räknar vi inte ut dem när kommandot är [[clean]]: då skulle vi hämta
+alla resultat bara för att [[clean]] genast skulle ta bort dem.
 
 
 \section{Översikt över programmet}
@@ -174,7 +177,7 @@ Det vi vill göra är följande.
 <<konfigurationsvariabler>>
 <<konstanter>>
 <<hjälpfunktioner>>
-if [ "$course" != "" ]; then
+if [ "$course" != "" ] && [ "$1" != "clean" ]; then
   <<beräknade konstanter>>
 fi
 
@@ -199,6 +202,12 @@ Anledningen till att vi inte will köra [[all]] direkt om inget annat anges
 [[source datorprov.sh prgm24]]
 utan att köra något av kommandona.
 Om vi inte anger några argument vill vi skriva ut alla funktioner i filen.
+Filen hittar vi i [[BASH_SOURCE[0]]], inte i [[$0]]: när skriptet läses in med
+[[source]] är [[$0]] skalet ([[bash]]), och då letar [[grep]] efter en fil som
+inte finns.
+När skriptet läses in med [[source]] vill vi bara ha funktionerna, så då
+skriver vi inte ut något.
+Vi känner igen det på att [[BASH_SOURCE[0]]] och [[$0]] skiljer sig åt.
 <<hjälpfunktioner>>=
 list_commands() {
   grep -E '^\w+\(\)\s*\{' "$1" \
@@ -207,10 +216,10 @@ list_commands() {
 @
 
 <<kör angivet kommando>>=
-if ! [ $# -eq 0 ]; then
+if [ $# -gt 0 ]; then
   "$@"
-else
-  list_commands "$0"
+elif [ "${BASH_SOURCE[0]}" = "$0" ]; then
+  list_commands "${BASH_SOURCE[0]}"
 fi
 @ Så nu kan vi köra programmet med
 [[./datorprov.sh prgm24 all]]
@@ -246,8 +255,19 @@ user5@kth.se Ackumulerad datorprovspoäng 4224224
 Vi vill nu skapa en cache för vissa resultat som återanvänds.
 Utmatningen från [[all]] återanvänds på en del ställen,
 därför vill vi bara köra den en gång och spara resultatet i en temporär fil.
+Filen gäller bara en körning: [[mktemp]] ger ett nytt namn varje gång, så
+nästa körning hittar den aldrig.
+Därför tar vi bort den när skriptet avslutas, annars lämnar varje körning en
+fil efter sig i [[/tmp]].
+Fällan körs bara när själva skalet avslutas, inte när [[all]] körs i ett
+delskal, till exempel i en rörledning, eftersom delskal inte ärver
+[[EXIT]]-fällan.
+Om vi i stället läser in skriptet med [[source]] ersätter fällan den
+[[EXIT]]-fälla som skalet redan hade, och filen tas bort först när det skalet
+avslutas.
 <<konstanter>>=
 all_cache=$(mktemp)
+trap 'rm -f "${all_cache}"' EXIT
 @
 
 En fördel med att kolla om filen finns och har innehåll, och på så vis avgöra 
@@ -298,8 +318,24 @@ results() {
 
 Vi vill ha en deterministiskt namngiven fil för resultatet.
 På så vis kan vi återanvända den mellan körningar.
+Filen innehåller studenternas resultat och avgör vilka betyg vi rapporterar.
+Därför lägger vi den i en katalog som bara användaren själv kommer åt, inte i
+[[/tmp]].
+Där kan andra användare läsa den, och ett känt filnamn i [[/tmp]] kan de skapa
+i förväg, med påhittade resultat eller som en symbolisk länk som vi sedan
+skriver över.
 <<konstanter>>=
-results_cache="/tmp/results-${course}.csv"
+results_dir="${XDG_CACHE_HOME:-$HOME/.cache}/datorprov"
+mkdir -p "${results_dir}"
+chmod 700 "${results_dir}"
+results_cache="${results_dir}/results-${course}.csv"
+@ Cachen har ingen åldersgräns, och det är avsiktligt.
+Arbetsgången är att köra de olika kommandona, granska resultaten och sedan
+rapportera just de resultat som vi har granskat.
+Skulle cachen förnyas av sig själv kunde [[rapportera]] använda andra
+resultat än dem vi granskade.
+Därför finns cachen kvar, även efter en omstart, tills vi själva tar bort den
+med [[clean]] (se nedan).
 <<spara resultatet i cachen för [[results]]>>=
 cat > "${results_cache}"
 <<skriv ut de cachade resultaten för [[results]]>>=
@@ -312,8 +348,13 @@ fi
 @
 
 För att komma åt resultaten i Canvas kan vi använda [[canvaslms]].
+Även [[canvaslms]] har en cache: inlämningar utan godkänt betyg återanvänds i
+upp till 20 minuter.
+Vi hämtar bara från Canvas när vår egen cache saknas, alltså första gången
+eller efter [[clean]], och då vill vi ha färska resultat.
+Därför ber vi [[canvaslms]] att hämta allt på nytt med [[--refresh-cache]].
 <<hämta resultat från Canvas>>=
-canvaslms submissions -c "${course}" -l \
+canvaslms --refresh-cache submissions -c "${course}" -l \
                       -a "(${DATORPROV}|${BONUS}|${ACKUMULERAD}|${BETYG})" \
 | <<klipp ut kolumnerna som är relevanta för [[results]]>> \
 | <<rensa bort dubletter>>
@@ -410,10 +451,15 @@ studenter_i_kursen() {
 
 För att underlätta för användaren kan vi lägga till ett kommando för att rensa 
 filen med resultat.
+Vi använder [[rm -f]] så att [[clean]] inte felar när det inte finns någon
+cache.
+Cachen för [[all]] behöver vi inte ta bort här, den tas bort när skriptet
+avslutas.
+Cachen heter efter kursens reguljära uttryck, så [[clean]] måste få exakt
+samma uttryck som körningen vars cache den ska rensa.
 <<andra kommandon>>=
 clean() {
-  rm "${results_cache}"
-  rm "${all_cache}"
+  rm -f "${results_cache}"
 }
 @ Då kan vi köra [[./datorprov.sh prgm24 clean]] för att få färska resultat på 
 efterföljande körningar.
