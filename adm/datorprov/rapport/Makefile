@@ -49,6 +49,7 @@ EXAMPLES+=	examples/show_draw.py
 EXAMPLES+=	examples/guess.py
 EXAMPLES+=	examples/versions.py
 EXAMPLES+=	examples/pair.py
+EXAMPLES+=	examples/recount.py
 # The real before-and-after pair shows two items of the public practice
 # exams; their code is cut from the typeset exams of Appendix G, so the
 # frame and the run show exactly the text printed there.
